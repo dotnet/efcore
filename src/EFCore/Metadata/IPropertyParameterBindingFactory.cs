@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="entityType"> The entity type on which the <see cref="IPropertyBase" /> is defined. </param>
         /// <param name="parameterType"> The parameter name. </param>
         /// <param name="parameterName"> The parameter type. </param>
-        /// <returns> The parameter binding, or <c>null</c> if none was found. </returns>
+        /// <returns> The parameter binding, or <see langword="null" /> if none was found. </returns>
         ParameterBinding FindParameter(
             [NotNull] IEntityType entityType,
             [NotNull] Type parameterType,

@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="source"> The first model. </param>
         /// <param name="target"> The second model. </param>
         /// <returns>
-        ///     <c>true</c> if there are any differences and <c>false</c> otherwise.
+        ///     <see langword="true" /> if there are any differences and <see langword="false" /> otherwise.
         /// </returns>
         bool HasDifferences([CanBeNull] IRelationalModel source, [CanBeNull] IRelationalModel target);
 

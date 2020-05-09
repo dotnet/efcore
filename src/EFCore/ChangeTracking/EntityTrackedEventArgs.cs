@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <c>True</c> if the entity is being tracked as part of a database query; <c>false</c> otherwise.
+        ///     <see langword="true" /> if the entity is being tracked as part of a database query; <see langword="false" /> otherwise.
         /// </summary>
         public virtual bool FromQuery { get; }
     }

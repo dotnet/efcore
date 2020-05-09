@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
         /// </summary>
-        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         bool CanConnect();
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         Task<bool> CanConnectAsync(CancellationToken cancellationToken = default);
     }
 }

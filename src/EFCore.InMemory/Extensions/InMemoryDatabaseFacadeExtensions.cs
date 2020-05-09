@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     <para>
-        ///         Returns <c>true</c> if the database provider currently in use is the in-memory provider.
+        ///         Returns <see langword="true" /> if the database provider currently in use is the in-memory provider.
         ///     </para>
         ///     <para>
         ///         This method can only be used after the <see cref="DbContext" /> has been configured because
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
-        /// <returns> <c>true</c> if the in-memory database is being used. </returns>
+        /// <returns> <see langword="true" /> if the in-memory database is being used. </returns>
         public static bool IsInMemory([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
                 typeof(InMemoryOptionsExtension).Assembly.GetName().Name,

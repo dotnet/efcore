@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="modelBuilder"> The model builder used to build the model. </param>
         /// <param name="memberInfo"> The member info. </param>
-        /// <returns> <c>true</c> if the member type is a non-nullable reference type. </returns>
+        /// <returns> <see langword="true" /> if the member type is a non-nullable reference type. </returns>
         protected virtual bool IsNonNullableReferenceType(
             [JetbrainsNotNull] IConventionModelBuilder modelBuilder,
             [JetbrainsNotNull] MemberInfo memberInfo)

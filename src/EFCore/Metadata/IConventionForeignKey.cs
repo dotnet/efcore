@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Sets a value indicating whether this relationship is required.
-        ///     If <c>true</c>, the dependent entity must always be assigned to a valid principal entity.
+        ///     If <see langword="true" />, the dependent entity must always be assigned to a valid principal entity.
         /// </summary>
         /// <param name="required"> A value indicating whether this relationship is required. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Sets a value indicating whether this relationship defines an ownership.
-        ///     If <c>true</c>, the dependent entity must always be accessed via the navigation from the principal entity.
+        ///     If <see langword="true" />, the dependent entity must always be accessed via the navigation from the principal entity.
         /// </summary>
         /// <param name="ownership"> A value indicating whether this relationship defines an ownership. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="name">
-        ///     The name of the navigation property on the dependent type. Passing <c>null</c> will result in there being
+        ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="property">
-        ///     The navigation property on the dependent type. Passing <c>null</c> will result in there being
+        ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="name">
-        ///     The name of the navigation property on the dependent type. Passing <c>null</c> will result in there being
+        ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
         /// </summary>
         /// <param name="property">
-        ///     The navigation property on the dependent type. Passing <c>null</c> will result in there being
+        ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="name">
-        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
+        ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="property">
-        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
+        ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="name">
-        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
+        ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         /// <param name="property">
-        ///     The name of the navigation property on the principal type. Passing <c>null</c> will result in there being
+        ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

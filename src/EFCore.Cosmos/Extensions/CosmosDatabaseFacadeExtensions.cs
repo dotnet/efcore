@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Returns <c>true</c> if the database provider currently in use is the Cosmos provider.
+        ///         Returns <see langword="true" /> if the database provider currently in use is the Cosmos provider.
         ///     </para>
         ///     <para>
         ///         This method can only be used after the <see cref="DbContext" /> has been configured because
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
-        /// <returns> <c>true</c> if the Cosmos provider is being used. </returns>
+        /// <returns> <see langword="true" /> if the Cosmos provider is being used. </returns>
         public static bool IsCosmos([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
                 typeof(CosmosOptionsExtension).Assembly.GetName().Name,

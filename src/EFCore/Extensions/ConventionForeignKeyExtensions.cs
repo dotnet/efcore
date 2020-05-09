@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
         /// </param>
         /// <returns>
-        ///     A navigation associated with this foreign key or <c>null</c>.
+        ///     A navigation associated with this foreign key or <see langword="null" />.
         /// </returns>
         public static IConventionNavigation GetNavigation([NotNull] this IConventionForeignKey foreignKey, bool pointsToPrincipal)
             => pointsToPrincipal ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;

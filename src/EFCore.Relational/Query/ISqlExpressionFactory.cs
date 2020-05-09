@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Finds the type mapping for a given <see cref="Type" />.
         /// </summary>
         /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         [Obsolete("Use IRelationalTypeMappingSource directly.")]
         RelationalTypeMapping FindMapping([NotNull] Type type);
         /// <summary>

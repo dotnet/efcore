@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="migrationName"> The migration's name. </param>
         /// <param name="rootNamespace">
-        ///     The project's root namespace, <c>null</c> to indicate no automatic
+        ///     The project's root namespace, <see langword="null" /> to indicate no automatic
         ///     namespace generation, just use sub-namespace as is.
         /// </param>
         /// <param name="subNamespace">

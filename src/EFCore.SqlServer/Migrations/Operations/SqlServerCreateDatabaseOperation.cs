@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The filename to use for the database, or <c>null</c> to let SQL Server choose.
+        ///     The filename to use for the database, or <see langword="null" /> to let SQL Server choose.
         /// </summary>
         public virtual string FileName { get; [param: CanBeNull] set; }
     }

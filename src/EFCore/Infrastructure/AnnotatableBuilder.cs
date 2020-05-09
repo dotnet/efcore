@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Sets the annotation with given key and value on this object using given configuration source.
         ///     Overwrites the existing annotation if an annotation with the specified name already exists.
-        ///     Removes the annotation if <c>null</c> value is specified.
+        ///     Removes the annotation if <see langword="null" /> value is specified.
         /// </summary>
         /// <param name="name"> The key of the annotation to be set. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The name of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="configurationSource"> The configuration source of the annotation to be set. </param>
-        /// <returns> <c>true</c> if the annotation can be set, <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the annotation can be set, <see langword="false" /> otherwise. </returns>
         public virtual bool CanSetAnnotation([NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
         {
             var existingAnnotation = Metadata.FindAnnotation(name);
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <param name="configurationSource"> The configuration source of the annotation to be set. </param>
-        /// <returns> <c>true</c> if the annotation can be removed, <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the annotation can be removed, <see langword="false" /> otherwise. </returns>
         public virtual bool CanRemoveAnnotation([NotNull] string name, ConfigurationSource configurationSource)
         {
             var existingAnnotation = Metadata.FindAnnotation(name);

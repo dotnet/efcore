@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IColumnBase> Columns { get; }
 
         /// <summary>
-        ///     Gets the column with the given name. Returns <c>null</c> if no column with the given name is defined.
+        ///     Gets the column with the given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
         IColumnBase FindColumn([NotNull] string name);
 

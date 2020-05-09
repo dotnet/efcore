@@ -14,15 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     {
         /// <summary>
         ///     <para>
-        ///         Creates a new instance of this converter that will convert a <c>false</c> false
-        ///         to one value and a <c>true</c> to another.
+        ///         Creates a new instance of this converter that will convert a <see langword="false" /> false
+        ///         to one value and a <see langword="true" /> to another.
         ///     </para>
         ///     <para>
         ///         Use <see cref="BoolToZeroOneConverter{TProvider}" /> for converting a <see cref="bool" /> to zero/one.
         ///     </para>
         /// </summary>
-        /// <param name="falseValue"> The value to convert to for <c>false</c>. </param>
-        /// <param name="trueValue"> The value to convert to for <c>true</c>. </param>
+        /// <param name="falseValue"> The value to convert to for <see langword="false" />. </param>
+        /// <param name="trueValue"> The value to convert to for <see langword="true" />. </param>
         /// <param name="fromProvider"> Optional custom translator from store. </param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate

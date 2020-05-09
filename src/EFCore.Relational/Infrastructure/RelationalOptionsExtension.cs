@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected abstract RelationalOptionsExtension Clone();
 
         /// <summary>
-        ///     The connection string, or <c>null</c> if a <see cref="DbConnection" /> was used instead of
+        ///     The connection string, or <see langword="null" /> if a <see cref="DbConnection" /> was used instead of
         ///     a connection string.
         /// </summary>
         public virtual string ConnectionString => _connectionString;
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The <see cref="DbConnection" />, or <c>null</c> if a connection string was used instead of
+        ///     The <see cref="DbConnection" />, or <see langword="null" /> if a connection string was used instead of
         ///     the full connection object.
         /// </summary>
         public virtual DbConnection Connection => _connection;
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The command timeout, or <c>null</c> if none has been set.
+        ///     The command timeout, or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual int? CommandTimeout => _commandTimeout;
 
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     The maximum number of statements that will be included in commands sent to the database
-        ///     during <see cref="DbContext.SaveChanges()" /> or <c>null</c> if none has been set.
+        ///     during <see cref="DbContext.SaveChanges()" /> or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual int? MaxBatchSize => _maxBatchSize;
 
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     The minimum number of statements that are needed for a multi-statement command sent to the database
-        ///     during <see cref="DbContext.SaveChanges()" /> or <c>null</c> if none has been set.
+        ///     during <see cref="DbContext.SaveChanges()" /> or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual int? MinBatchSize => _minBatchSize;
 
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The name of the assembly that contains migrations, or <c>null</c> if none has been set.
+        ///     The name of the assembly that contains migrations, or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual string MigrationsAssembly => _migrationsAssembly;
 
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The table name to use for the migrations history table, or <c>null</c> if none has been set.
+        ///     The table name to use for the migrations history table, or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual string MigrationsHistoryTableName => _migrationsHistoryTableName;
 
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The schema to use for the migrations history table, or <c>null</c> if none has been set.
+        ///     The schema to use for the migrations history table, or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual string MigrationsHistoryTableSchema => _migrationsHistoryTableSchema;
 
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <c>null</c> if none has been
+        ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <see langword="null" /> if none has been
         ///     configured.
         /// </summary>
         public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy> ExecutionStrategyFactory => _executionStrategyFactory;

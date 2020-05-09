@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder HasDefaultSchema(
             [NotNull] this IConventionModelBuilder modelBuilder,
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="schema"> The default schema. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the given schema can be set as default. </returns>
+        /// <returns> <see langword="true" /> if the given schema can be set as default. </returns>
         public static bool CanSetDefaultSchema(
             [NotNull] this IConventionModelBuilder modelBuilder,
             [CanBeNull] string schema,
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder HasMaxIdentifierLength(
             [NotNull] this IConventionModelBuilder modelBuilder,
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="length"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the maximum length allowed for store identifiers can be set. </returns>
+        /// <returns> <see langword="true" /> if the maximum length allowed for store identifiers can be set. </returns>
         public static bool CanSetMaxIdentifierLength(
             [NotNull] this IConventionModelBuilder modelBuilder,
             int? length,
@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder UseCollation(
             [NotNull] this IConventionModelBuilder modelBuilder,
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="collation"> The collation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the given collation can be set as default. </returns>
+        /// <returns> <see langword="true" /> if the given collation can be set as default. </returns>
         public static bool CanSetCollation(
             [NotNull] this IConventionModelBuilder modelBuilder,
             [CanBeNull] string collation,

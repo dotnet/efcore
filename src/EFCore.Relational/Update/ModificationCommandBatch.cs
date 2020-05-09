@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="modificationCommand"> The command to add. </param>
         /// <returns>
-        ///     <c>True</c> if the command was successfully added; <c>false</c> if there was no
+        ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
         ///     room in the current batch to add the command and it must instead be added to a new batch.
         /// </returns>
         public abstract bool AddCommand([NotNull] ModificationCommand modificationCommand);

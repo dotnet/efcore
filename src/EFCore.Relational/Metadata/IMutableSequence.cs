@@ -28,12 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new int IncrementBy { get; set; }
 
         /// <summary>
-        ///     Gets or sets the minimum value supported by the sequence, or <c>null</c> if none has been set.
+        ///     Gets or sets the minimum value supported by the sequence, or <see langword="null" /> if none has been set.
         /// </summary>
         new long? MinValue { get; set; }
 
         /// <summary>
-        ///     Gets or sets the maximum value supported by the sequence, or <c>null</c> if none has been set.
+        ///     Gets or sets the maximum value supported by the sequence, or <see langword="null" /> if none has been set.
         /// </summary>
         new long? MaxValue { get; set; }
 

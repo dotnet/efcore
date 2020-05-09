@@ -54,13 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Gets a value indicating whether this relationship is required.
-        ///     If <c>true</c>, the dependent entity must always be assigned to a valid principal entity.
+        ///     If <see langword="true" />, the dependent entity must always be assigned to a valid principal entity.
         /// </summary>
         bool IsRequired { get; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this relationship defines an ownership.
-        ///     If <c>true</c>, the dependent entity must always be accessed via the navigation from the principal entity.
+        ///     If <see langword="true" />, the dependent entity must always be accessed via the navigation from the principal entity.
         /// </summary>
         bool IsOwnership { get; }
 

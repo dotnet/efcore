@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Indicates whether the given member name is ignored.
         /// </summary>
         /// <param name="memberName"> The name of the member that might be ignored. </param>
-        /// <returns> <c>true</c> if the given member name is ignored. </returns>
+        /// <returns> <see langword="true" /> if the given member name is ignored. </returns>
         bool IsIgnored([NotNull] string memberName);
 
         /// <summary>
