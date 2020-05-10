@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return method.Name == nameof(ToString)
                 && arguments.Count == 0
                 && instance != null
-                && _typeMapping.TryGetValue(instance.Type.UnwrapNullableType(), out var storeType)
+                && (_typeMapping.TryGetValue(instance.Type.UnwrapNullableType(), out var storeType)
+                || instance.Type.UnwrapNullableType() == typeof(string))
                 ? _sqlExpressionFactory.Function(
                     "CONVERT",
                     new[] { _sqlExpressionFactory.Fragment(storeType), instance },
