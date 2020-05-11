@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("SuppressOnConfiguringDescription");
 
         /// <summary>
-        ///     The DbContext.OnConfiguring() method will be generated. Potentially this contains sensitive information such as your connection string. You can suppress generation of this method using the --no-on-configuring option. See also http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+        ///     The DbContext.OnConfiguring() method will be generated. Potentially this contains sensitive information such as your connection string. You can suppress generation of this method using the --no-onconfiguring option. See also http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
         /// </summary>
         public static string OnConfiguringWarning
             => GetString("OnConfiguringWarning");

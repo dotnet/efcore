@@ -359,7 +359,7 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER Force
     Overwrite existing files.
 
-.PARAMETER SuppressOnConfiguring
+.PARAMETER NoOnConfiguring
     Suppress generation of the DbContext.OnConfiguring() method.
 
 .PARAMETER Project
@@ -396,7 +396,7 @@ function Scaffold-DbContext
         [switch] $DataAnnotations,
         [switch] $UseDatabaseNames,
         [switch] $Force,
-        [switch] $SuppressOnConfiguring,
+        [switch] $NoOnConfiguring,
         [string] $Project,
         [string] $StartupProject,
         [string] $Namespace,
@@ -452,9 +452,9 @@ function Scaffold-DbContext
         $params += '--force'
     }
 
-    if ($SuppressOnConfiguring)
+    if ($NoOnConfiguring)
     {
-        $params += '--no-on-configuring'
+        $params += '--no-onconfiguring'
     }
 
     if ($RemainingArguments -ne $null)
