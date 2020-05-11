@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="x"> The left expression. </param>
         /// <param name="y"> The right expression. </param>
-        /// <returns> <c>true</c> if the expressions are equal, <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the expressions are equal, <see langword="false" /> otherwise. </returns>
         public bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
 
         private struct ExpressionComparer

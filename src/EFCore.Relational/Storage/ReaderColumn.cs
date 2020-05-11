@@ -52,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates an instance of <see cref="ReaderColumn{T}"/>.
         /// </summary>
         /// <param name="type"> The type of the column. </param>
-        /// <param name="nullable"> Whether the column can contain <c>null</c> values. </param>
-        /// <param name="columnName"> The column name if it is used to access the column values, <c>null</c> otherwise.</param>
+        /// <param name="nullable"> Whether the column can contain <see langword="null" /> values. </param>
+        /// <param name="columnName"> The column name if it is used to access the column values, <see langword="null" /> otherwise.</param>
         /// <param name="readFunc">
         ///     A <see cref="T:System.Func{DbDataReader, Int32[], T}"/> used to get the field value for this column.
         /// </param>

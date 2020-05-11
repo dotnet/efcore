@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionIndexBuilder HasName(
             [NotNull] this IConventionIndexBuilder indexBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="name"> The name of the index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the given name can be set for the index. </returns>
+        /// <returns> <see langword="true" /> if the given name can be set for the index. </returns>
         public static bool CanSetName(
             [NotNull] this IConventionIndexBuilder indexBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
             => indexBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionIndexBuilder HasFilter(
             [NotNull] this IConventionIndexBuilder indexBuilder, [CanBeNull] string sql, bool fromDataAnnotation = false)
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="sql"> The filter expression for the index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the given name can be set for the index. </returns>
+        /// <returns> <see langword="true" /> if the given name can be set for the index. </returns>
         public static bool CanSetFilter(
             [NotNull] this IConventionIndexBuilder indexBuilder, [CanBeNull] string sql, bool fromDataAnnotation = false)
             => indexBuilder.CanSetAnnotation(RelationalAnnotationNames.Filter, sql, fromDataAnnotation);

@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     just its identifier.
         /// </summary>
         /// <param name="nameOrId"> The name or identifier to lookup. </param>
-        /// <returns> The identifier of the migration, or <c>null</c> if none was found. </returns>
+        /// <returns> The identifier of the migration, or <see langword="null" /> if none was found. </returns>
         string FindMigrationId([NotNull] string nameOrId);
 
         /// <summary>

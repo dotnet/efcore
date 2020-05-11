@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     <para>
         ///         Sets the underlying CLR field that this property should use.
-        ///         This may be <c>null</c> for shadow properties or if the backing field for the property is not known.
+        ///         This may be <see langword="null" /> for shadow properties or if the backing field for the property is not known.
         ///     </para>
         ///     <para>
         ///         Backing fields are normally found by convention as described

@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         so that EF will manage the service providers and can create new instances as required.
         ///     </para>
         /// </summary>
-        /// <param name="sensitiveDataLoggingEnabled"> If <c>true</c>, then sensitive data is logged. </param>
+        /// <param name="sensitiveDataLoggingEnabled"> If <see langword="true" />, then sensitive data is logged. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder EnableSensitiveDataLogging(bool sensitiveDataLoggingEnabled = true)
             => WithOption(e => e.WithSensitiveDataLoggingEnabled(sensitiveDataLoggingEnabled));
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
         ///     </para>
         /// </summary>
-        /// <param name="cacheServiceProvider"> If <c>true</c>, then the internal service provider is cached. </param>
+        /// <param name="cacheServiceProvider"> If <see langword="true" />, then the internal service provider is cached. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder EnableServiceProviderCaching(bool cacheServiceProvider = true)
             => WithOption(e => e.WithServiceProviderCachingEnabled(cacheServiceProvider));

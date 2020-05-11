@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
         /// </summary>
-        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         public virtual bool CanConnect()
             => Dependencies.DatabaseCreator.CanConnect();
 
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.CanConnectAsync(cancellationToken);
 
@@ -238,14 +238,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Gets a value that indicates whether this <see cref="DatabaseFacade"/> instance supports
-        ///     database savepoints. If <c>false</c>, the methods <see cref="CreateSavepointAsync"/>,
+        ///     database savepoints. If <see langword="false" />, the methods <see cref="CreateSavepointAsync"/>,
         ///     <see cref="RollbackSavepointAsync"/>
         ///     and <see cref="ReleaseSavepointAsync"/> as well as their synchronous counterparts are expected to throw
         ///     <see cref="NotSupportedException"/>.
         /// </summary>
         /// <returns>
-        ///     <c>true</c> if this <see cref="DatabaseFacade"/> instance supports database savepoints;
-        ///     otherwise, <c>false</c>.
+        ///     <see langword="true" /> if this <see cref="DatabaseFacade"/> instance supports database savepoints;
+        ///     otherwise, <see langword="false" />.
         /// </returns>
         public virtual bool AreSavepointsSupported => Dependencies.TransactionManager.AreSavepointsSupported;
 

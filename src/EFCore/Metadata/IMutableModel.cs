@@ -74,21 +74,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IMutableEntityType definingEntityType);
 
         /// <summary>
-        ///     Gets the entity with the given name. Returns <c>null</c> if no entity type with the given name is found
+        ///     Gets the entity with the given name. Returns <see langword="null" /> if no entity type with the given name is found
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
         new IMutableEntityType FindEntityType([NotNull] string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns <c>null</c> if no matching entity type is found.
+        ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
         IMutableEntityType FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
         /// <param name="typeName"> The name of the entity type that might be ignored. </param>
-        /// <returns> <c>true</c> if the given entity type name is ignored. </returns>
+        /// <returns> <see langword="true" /> if the given entity type name is ignored. </returns>
         bool IsIgnored([NotNull] string typeName);
     }
 }

@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder IsMemoryOptimized(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the mapped table can be configured as memory-optimized. </returns>
+        /// <returns> <see langword="true" /> if the mapped table can be configured as memory-optimized. </returns>
         public static bool CanSetIsMemoryOptimized(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             bool? memoryOptimized,

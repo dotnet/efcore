@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds the <see cref="ISequence" /> in the model to use for the hi-lo pattern.
         /// </summary>
-        /// <returns> The sequence to use, or <c>null</c> if no sequence exists in the model. </returns>
+        /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
         public static ISequence FindHiLoSequence([NotNull] this IProperty property)
         {
             var model = property.DeclaringEntityType.Model;
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the property is compatible with any <see cref="SqlServerValueGenerationStrategy" />.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> <c>true</c> if compatible. </returns>
+        /// <returns> <see langword="true" /> if compatible. </returns>
         public static bool IsCompatibleWithValueGeneration([NotNull] IProperty property)
         {
             var type = property.ClrType;

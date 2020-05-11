@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     Returns the name of the table to which the entity type is mapped
-        ///     or <c>null</c> if not mapped to a table.
+        ///     or <see langword="null" /> if not mapped to a table.
         /// </summary>
         /// <param name="entityType"> The entity type to get the table name for. </param>
         /// <returns> The name of the table to which the entity type is mapped. </returns>
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Returns the name of the table to which the entity type is mapped prepended by the schema
-        ///     or <c>null</c> if not mapped to a table.
+        ///     or <see langword="null" /> if not mapped to a table.
         /// </summary>
         /// <param name="entityType"> The entity type to get the table name for. </param>
         /// <returns> The name of the table to which the entity type is mapped prepended by the schema. </returns>
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
                 ?? Enumerable.Empty<IViewMapping>();
 
         /// <summary>
-        ///     Returns the name of the view to which the entity type is mapped or <c>null</c> if not mapped to a view.
+        ///     Returns the name of the view to which the entity type is mapped or <see langword="null" /> if not mapped to a view.
         /// </summary>
         /// <param name="entityType"> The entity type to get the view name for. </param>
         /// <returns> The name of the view to which the entity type is mapped. </returns>
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the check constraint for. </param>
         /// <param name="name"> The check constraint name. </param>
         /// <returns>
-        ///     The <see cref="ICheckConstraint" /> or <c>null</c> if no check constraint with the
+        ///     The <see cref="ICheckConstraint" /> or <see langword="null" /> if no check constraint with the
         ///     given name in the given entity type was found.
         /// </returns>
         public static ICheckConstraint FindCheckConstraint(
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the check constraint for. </param>
         /// <param name="name"> The check constraint name. </param>
         /// <returns>
-        ///     The <see cref="IMutableCheckConstraint" /> or <c>null</c> if no check constraint with the
+        ///     The <see cref="IMutableCheckConstraint" /> or <see langword="null" /> if no check constraint with the
         ///     given name in the given entity type was found.
         /// </returns>
         public static IMutableCheckConstraint FindCheckConstraint(
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to find the check constraint for. </param>
         /// <param name="name"> The check constraint name. </param>
         /// <returns>
-        ///     The <see cref="IConventionCheckConstraint" /> or <c>null</c> if no check constraint with the
+        ///     The <see cref="IConventionCheckConstraint" /> or <see langword="null" /> if no check constraint with the
         ///     given name in the given entity type was found.
         /// </returns>
         public static IConventionCheckConstraint FindCheckConstraint(

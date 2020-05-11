@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).RemoveProperty(name);
 
         /// <summary>
-        ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
+        ///     Gets the primary or alternate key that is defined on the given property. Returns <see langword="null" /> if no key is defined
         ///     for the given property.
         /// </summary>
         /// <param name="entityType"> The entity type to find the key on. </param>
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).FindForeignKeys(properties);
 
         /// <summary>
-        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <c>null</c>
+        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <see langword="null" />
         ///     if no foreign key is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the foreign keys on. </param>
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns> The foreign key, or <c>null</c> if none is defined. </returns>
+        /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
         public static IMutableForeignKey FindForeignKey(
             [NotNull] this IMutableEntityType entityType,
             [NotNull] IProperty property,
@@ -312,10 +312,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns the relationship to the owner if this is an owned type or <c>null</c> otherwise.
+        ///     Returns the relationship to the owner if this is an owned type or <see langword="null" /> otherwise.
         /// </summary>
         /// <param name="entityType"> The entity type to find the foreign keys on. </param>
-        /// <returns> The relationship to the owner if this is an owned type or <c>null</c> otherwise. </returns>
+        /// <returns> The relationship to the owner if this is an owned type or <see langword="null" /> otherwise. </returns>
         public static IMutableForeignKey FindOwnership([NotNull] this IMutableEntityType entityType)
             => ((EntityType)entityType).FindOwnership();
 
@@ -339,40 +339,40 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).RemoveForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
-        ///     Gets a navigation property on the given entity type. Returns <c>null</c> if no navigation property is found.
+        ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the navigation property on. </param>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         public static IMutableNavigation FindNavigation(
             [NotNull] this IMutableEntityType entityType, [NotNull] MemberInfo memberInfo)
             => Check.NotNull(entityType, nameof(entityType))
                 .FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
         /// <summary>
-        ///     Gets a navigation property on the given entity type. Returns <c>null</c> if no navigation property is found.
+        ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the navigation property on. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         public static IMutableNavigation FindNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindNavigation(name);
 
         /// <summary>
         ///     Gets a navigation property on the given entity type. Does not return navigation properties defined on a base type.
-        ///     Returns <c>null</c> if no navigation property is found.
+        ///     Returns <see langword="null" /> if no navigation property is found.
         /// </summary>
         /// <param name="entityType"> The entity type to find the navigation property on. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         public static IMutableNavigation FindDeclaredNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
 
         /// <summary>
-        ///     Returns the defining navigation if one exists or <c>null</c> otherwise.
+        ///     Returns the defining navigation if one exists or <see langword="null" /> otherwise.
         /// </summary>
         /// <param name="entityType"> The entity type to find the defining navigation for. </param>
-        /// <returns> The defining navigation if one exists or <c>null</c> otherwise. </returns>
+        /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
         public static IMutableNavigation FindDefiningNavigation([NotNull] this IMutableEntityType entityType)
             => (IMutableNavigation)((IEntityType)entityType).FindDefiningNavigation();
 
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Gets a property on the given entity type. Returns <c>null</c> if no property is found.
+        ///         Gets a property on the given entity type. Returns <see langword="null" /> if no property is found.
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties. Use
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find the property on. </param>
         /// <param name="propertyInfo"> The property on the entity class. </param>
-        /// <returns> The property, or <c>null</c> if none is found. </returns>
+        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
         public static IMutableProperty FindProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Finds matching properties on the given entity type. Returns <c>null</c> if any property is not found.
+        ///         Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties.
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find the properties on. </param>
         /// <param name="propertyNames"> The property names. </param>
-        /// <returns> The properties, or <c>null</c> if any property is not found. </returns>
+        /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
         public static IReadOnlyList<IMutableProperty> FindProperties(
             [NotNull] this IMutableEntityType entityType,
             [NotNull] IReadOnlyList<string> propertyNames)
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find the property on. </param>
         /// <param name="name"> The property name. </param>
-        /// <returns> The property, or <c>null</c> if none is found. </returns>
+        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
         public static IMutableProperty FindDeclaredProperty([NotNull] this IMutableEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindDeclaredProperty(name);
 

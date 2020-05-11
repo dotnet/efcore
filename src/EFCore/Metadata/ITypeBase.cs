@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     <para>
         ///         Gets the CLR class that is used to represent instances of this type.
-        ///         Returns <c>null</c> if the type does not have a corresponding CLR class (known as a shadow type).
+        ///         Returns <see langword="null" /> if the type does not have a corresponding CLR class (known as a shadow type).
         ///     </para>
         ///     <para>
         ///         Shadow types are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.

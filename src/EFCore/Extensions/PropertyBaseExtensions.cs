@@ -74,11 +74,11 @@ namespace Microsoft.EntityFrameworkCore
             => propertyBase.AsPropertyBase().Getter;
 
         /// <summary>
-        ///     Gets the name of the backing field for this property, or <c>null</c> if the backing field
+        ///     Gets the name of the backing field for this property, or <see langword="null" /> if the backing field
         ///     is not known.
         /// </summary>
         /// <param name="propertyBase"> The property for which the backing field will be returned. </param>
-        /// <returns> The name of the backing field, or <c>null</c>. </returns>
+        /// <returns> The name of the backing field, or <see langword="null" />. </returns>
         public static string GetFieldName([NotNull] this IPropertyBase propertyBase)
             => propertyBase.FieldInfo?.GetSimpleMemberName();
 
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns>
-        ///     <c>True</c> if the property is a shadow property, otherwise <c>false</c>.
+        ///     <see langword="true" /> if the property is a shadow property, otherwise <see langword="false" />.
         /// </returns>
         public static bool IsShadowProperty([NotNull] this IPropertyBase property)
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() == null;
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to check. </param>
         /// <returns>
-        ///     <c>True</c> if the property is an indexer property, otherwise <c>false</c>.
+        ///     <see langword="true" /> if the property is an indexer property, otherwise <see langword="false" />.
         /// </returns>
         public static bool IsIndexerProperty([NotNull] this IPropertyBase property)
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() is PropertyInfo propertyInfo

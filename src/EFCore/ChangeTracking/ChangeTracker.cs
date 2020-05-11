@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="callback">
         ///     An delegate to configure the change tracking information for each entity. The second parameter to the
         ///     callback is the arbitrary state object passed above. Iteration of the graph will not continue down the graph
-        ///     if the callback returns <c>false</c>.
+        ///     if the callback returns <see langword="false" />.
         /// </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>
         public virtual void TrackGraph<TState>(

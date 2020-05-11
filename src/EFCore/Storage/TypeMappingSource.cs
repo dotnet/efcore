@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping FindMapping(IProperty property)
         {
             var mapping = property.FindTypeMapping();
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping FindMapping(Type type)
             => FindMappingWithConversion(new TypeMappingInfo(type), null);
 
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping FindMapping(MemberInfo member)
             => FindMappingWithConversion(new TypeMappingInfo(member), null);
     }

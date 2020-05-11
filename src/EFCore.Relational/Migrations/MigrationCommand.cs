@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Executes the command and returns the number of rows affected.
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters, or <c>null</c> if the command has no parameters. </param>
+        /// <param name="parameterValues"> The values for the parameters, or <see langword="null" /> if the command has no parameters. </param>
         /// <returns> The number of rows affected. </returns>
         public virtual int ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Executes the command and returns the number of rows affected.
         /// </summary>
         /// <param name="connection"> The connection to execute against. </param>
-        /// <param name="parameterValues"> The values for the parameters, or <c>null</c> if the command has no parameters. </param>
+        /// <param name="parameterValues"> The values for the parameters, or <see langword="null" /> if the command has no parameters. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the number of rows affected.  </returns>
         public virtual Task<int> ExecuteNonQueryAsync(

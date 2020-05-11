@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The <see cref="IProperty" />. </param>
-        /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IProperty property)
             => !property.IsPrimaryKey()
                 && (property.DeclaringEntityType.BaseType != null
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The <see cref="IProperty" />. </param>
-        /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise. </returns>
         public static bool IsViewColumnNullable([NotNull] this IProperty property)
             => !property.IsPrimaryKey()
                 && (property.DeclaringEntityType.BaseType != null

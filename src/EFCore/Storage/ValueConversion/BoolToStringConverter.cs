@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter. A case-insensitive first character test is used
         ///     when converting from the store.
         /// </summary>
-        /// <param name="falseValue"> The string to use for <c>false</c>. </param>
-        /// <param name="trueValue"> The string to use for <c>true</c>. </param>
+        /// <param name="falseValue"> The string to use for <see langword="false" />. </param>
+        /// <param name="trueValue"> The string to use for <see langword="true" />. </param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.

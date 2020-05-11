@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     public class RenameTableOperation : MigrationOperation
     {
         /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 
@@ -23,12 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The new table name or <c>null</c> if only the schema has changed.
+        ///     The new table name or <see langword="null" /> if only the schema has changed.
         /// </summary>
         public virtual string NewSchema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The new table name or <c>null</c> if only the schema has changed.
+        ///     The new table name or <see langword="null" /> if only the schema has changed.
         /// </summary>
         public virtual string NewName { get; [param: CanBeNull] set; }
     }
