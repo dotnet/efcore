@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 
         /// <summary>
         ///     The action performed by the database when a row constrained by this foreign key
-        ///     is deleted, or <c>null</c> if there is no action defined.
+        ///     is deleted, or <see langword="null" /> if there is no action defined.
         /// </summary>
         public virtual ReferentialAction? OnDelete { get; set; }
 

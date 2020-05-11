@@ -1565,6 +1565,16 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
                 @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 0);");
         }
 
+        public override async Task Alter_check_constraint()
+        {
+            await base.Alter_check_constraint();
+
+            AssertSql(
+                @"ALTER TABLE [People] DROP CONSTRAINT [CK_Foo];",
+                //
+                @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 1);");
+        }
+
         public override async Task Drop_check_constraint()
         {
             await base.Drop_check_constraint();

@@ -42,12 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             => GetString("SequencesNotSupported");
 
         /// <summary>
-        ///     SQLite doesn't support computed columns. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
-        /// </summary>
-        public static string ComputedColumnsNotSupported
-            => GetString("ComputedColumnsNotSupported");
-
-        /// <summary>
         ///     SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.
         /// </summary>
         public static string OrderByNotSupported([CanBeNull] object type)

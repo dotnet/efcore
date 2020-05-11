@@ -34,14 +34,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override string GenerateOperator(SqlBinaryExpression binaryExpression)
+        protected override string GetOperator(SqlBinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
             return binaryExpression.OperatorType == ExpressionType.Add
                 && binaryExpression.Type == typeof(string)
                     ? " || "
-                    : base.GenerateOperator(binaryExpression);
+                    : base.GetOperator(binaryExpression);
         }
 
         /// <summary>

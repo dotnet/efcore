@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The <see cref="IProperty" />. </param>
-        /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IProperty property)
             => !property.IsPrimaryKey()
                 && (property.DeclaringEntityType.BaseType != null
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The <see cref="IProperty" />. </param>
-        /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise. </returns>
         public static bool IsViewColumnNullable([NotNull] this IProperty property)
             => !property.IsPrimaryKey()
                 && (property.DeclaringEntityType.BaseType != null
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IProperty property)
             => FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table);
 
@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IMutableProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IMutableProperty property)
             => (IMutableProperty)FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table);
 
@@ -726,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IConventionProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IConventionProperty property)
             => (IConventionProperty)FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table);
 
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IProperty FindSharedRootPrimaryKeyProperty([NotNull] this IProperty property)
             => FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table)
             ?? FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IMutableProperty FindSharedRootPrimaryKeyProperty([NotNull] this IMutableProperty property)
             => (IMutableProperty) (FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table)
             ?? FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View));
@@ -773,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IConventionProperty FindSharedRootPrimaryKeyProperty([NotNull] this IConventionProperty property)
             => (IConventionProperty)(FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.Table)
             ?? FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View));
@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IProperty FindSharedViewRootPrimaryKeyProperty([NotNull] this IProperty property)
             => FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
 
@@ -804,7 +804,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IMutableProperty FindSharedViewRootPrimaryKeyProperty([NotNull] this IMutableProperty property)
             => (IMutableProperty)FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
 
@@ -819,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property found, or <code>null</code> if none was found.</returns>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
         public static IConventionProperty FindSharedViewRootPrimaryKeyProperty([NotNull] this IConventionProperty property)
             => (IConventionProperty)FindSharedObjectRootPrimaryKeyProperty(property, StoreObjectType.View);
 

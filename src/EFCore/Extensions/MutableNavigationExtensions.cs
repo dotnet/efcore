@@ -14,12 +14,12 @@ namespace Microsoft.EntityFrameworkCore
     public static class MutableNavigationExtensions
     {
         /// <summary>
-        ///     Gets the navigation property on the other end of the relationship. Returns <c>null</c> if
+        ///     Gets the navigation property on the other end of the relationship. Returns <see langword="null" /> if
         ///     there is no navigation property defined on the other end of the relationship.
         /// </summary>
         /// <param name="navigation"> The navigation property to find the inverse of. </param>
         /// <returns>
-        ///     The inverse navigation, or <c>null</c> if none is defined.
+        ///     The inverse navigation, or <see langword="null" /> if none is defined.
         /// </returns>
         [Obsolete("Use IMutableNavigation.Inverse")]
         public static IMutableNavigation FindInverse([NotNull] this IMutableNavigation navigation)

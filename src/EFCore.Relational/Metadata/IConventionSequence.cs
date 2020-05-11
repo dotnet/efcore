@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets whether the sequence will start again from the beginning when the max value is reached.
         /// </summary>
         /// <param name="cyclic">
-        ///     If <c>true</c>, then the sequence will start again from the beginning when the max value
+        ///     If <see langword="true" />, then the sequence will start again from the beginning when the max value
         ///     is reached.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Finds the type mapping for a given <see cref="Type" />.
         /// </summary>
         /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         [Obsolete("Use IRelationalTypeMappingSource directly.")]
         RelationalTypeMapping FindMapping([NotNull] Type type);
         /// <summary>
@@ -565,6 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="sql"> A custom SQL for the table source. </param>
         /// <param name="sqlArguments"> An expression representing parameters passed to the custom SQL. </param>
         /// <returns> An expression representing a SELECT in a SQL tree. </returns>
+        [Obsolete("Use overload which takes TableExpressionBase by passing FromSqlExpression directly.")]
         SelectExpression Select([NotNull] IEntityType entityType, [NotNull] string sql, [NotNull] Expression sqlArguments);
     }
 }

@@ -123,14 +123,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     Gets a value that indicates whether this <see cref="IDbContextTransactionManager"/> instance supports
-        ///     database savepoints. If <c>false</c>, the methods <see cref="CreateSavepointAsync"/>,
+        ///     database savepoints. If <see langword="false" />, the methods <see cref="CreateSavepointAsync"/>,
         ///     <see cref="RollbackSavepointAsync"/>
         ///     and <see cref="ReleaseSavepointAsync"/> as well as their synchronous counterparts are expected to throw
         ///     <see cref="NotSupportedException"/>.
         /// </summary>
         /// <returns>
-        ///     <c>true</c> if this <see cref="IDbContextTransactionManager"/> instance supports database savepoints;
-        ///     otherwise, <c>false</c>.
+        ///     <see langword="true" /> if this <see cref="IDbContextTransactionManager"/> instance supports database savepoints;
+        ///     otherwise, <see langword="false" />.
         /// </returns>
         bool AreSavepointsSupported => false;
 

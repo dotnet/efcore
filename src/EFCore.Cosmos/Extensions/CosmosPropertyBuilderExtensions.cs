@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionPropertyBuilder ToJsonProperty(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the property name can be set. </returns>
+        /// <returns> <see langword="true" /> if the property name can be set. </returns>
         public static bool CanSetJsonProperty(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,

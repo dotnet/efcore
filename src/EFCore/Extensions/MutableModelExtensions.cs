@@ -18,23 +18,23 @@ namespace Microsoft.EntityFrameworkCore
     public static class MutableModelExtensions
     {
         /// <summary>
-        ///     Gets the entity that maps the given entity class. Returns <c>null</c> if no entity type with the given name is found.
+        ///     Gets the entity that maps the given entity class. Returns <see langword="null" /> if no entity type with the given name is found.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
-        /// <returns> The entity type, or <c>null</c> if none if found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
         public static IMutableEntityType FindEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
             => (IMutableEntityType)((IModel)model).FindEntityType(type);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns <c>null</c> if no matching entity type is found.
+        ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
         public static IMutableEntityType FindEntityType(
             [NotNull] this IMutableModel model,
             [NotNull] Type type,
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to check for ignored type. </param>
         /// <param name="type"> The entity type that might be ignored. </param>
-        /// <returns> <c>true</c> if the given entity type name is ignored. </returns>
+        /// <returns> <see langword="true" /> if the given entity type name is ignored. </returns>
         public static bool IsIgnored([NotNull] this IMutableModel model, [NotNull] Type type)
             => Check.NotNull((Model)model, nameof(model)).IsIgnored(
                 Check.NotNull(type, nameof(type)));
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="model"> The model to set the access mode for. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <c>null</c> to clear the mode set.</param>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
         public static void SetPropertyAccessMode(
             [NotNull] this IMutableModel model, PropertyAccessMode? propertyAccessMode)
             => Check.NotNull((Model)model, nameof(model))
@@ -212,8 +212,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get the value from. </param>
         /// <param name="clrType"> The type of the entity type that might be owned. </param>
         /// <returns>
-        ///     <c>true</c> if a matching entity type should be configured as owned when discovered,
-        ///     <c>false</c> otherwise.
+        ///     <see langword="true" /> if a matching entity type should be configured as owned when discovered,
+        ///     <see langword="false" /> otherwise.
         /// </returns>
         public static bool IsOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
             => Check.NotNull((Model)model, nameof(model)).IsOwned(

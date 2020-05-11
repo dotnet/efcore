@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
+    public class SqliteMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
         [ConditionalFact]
         public virtual void It_lifts_foreign_key_additions()
@@ -177,23 +177,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             AssertSql(
                 @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
 ");
-        }
-
-        [ConditionalFact]
-        public void AddColumnOperation_with_computed_column_SQL()
-        {
-            var ex = Assert.Throws<NotSupportedException>(
-                () => Generate(
-                    new AddColumnOperation
-                    {
-                        Table = "People",
-                        Name = "Birthday",
-                        ClrType = typeof(DateTime),
-                        ColumnType = "TEXT",
-                        IsNullable = true,
-                        ComputedColumnSql = "CURRENT_TIMESTAMP"
-                    }));
-            Assert.Equal(SqliteStrings.ComputedColumnsNotSupported, ex.Message);
         }
 
         public override void AddColumnOperation_with_unicode_no_model()
@@ -631,7 +614,7 @@ SELECT changes();
 ");
         }
 
-        public SqliteMigrationSqlGeneratorTest()
+        public SqliteMigrationsSqlGeneratorTest()
             : base(SqliteTestHelpers.Instance,
                   new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
                   SqliteTestHelpers.Instance.AddProviderOptions(

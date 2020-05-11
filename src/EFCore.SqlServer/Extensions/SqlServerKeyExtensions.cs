@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the key is clustered.
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <returns> <c>true</c> if the key is clustered. </returns>
+        /// <returns> <see langword="true" /> if the key is clustered. </returns>
         public static bool? IsClustered([NotNull] this IKey key)
             => (bool?)key[SqlServerAnnotationNames.Clustered] ?? GetDefaultIsClustered(key);
 

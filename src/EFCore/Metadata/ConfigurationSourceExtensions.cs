@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="newConfigurationSource"> The new configuration source. </param>
         /// <param name="oldConfigurationSource"> The old configuration source. </param>
-        /// <returns> <c>true</c> if the new configuration source can override configuration set with the old configuration source. </returns>
+        /// <returns> <see langword="true" /> if the new configuration source can override configuration set with the old configuration source. </returns>
         [ContractAnnotation("oldConfigurationSource:null => true")]
         public static bool Overrides(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource)
         {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="newConfigurationSource"> The new configuration source. </param>
         /// <param name="oldConfigurationSource"> The old configuration source. </param>
-        /// <returns> <c>true</c> if the new configuration source can override configuration set with the old configuration source. </returns>
+        /// <returns> <see langword="true" /> if the new configuration source can override configuration set with the old configuration source. </returns>
         public static bool Overrides(this ConfigurationSource? newConfigurationSource, ConfigurationSource? oldConfigurationSource)
             => newConfigurationSource?.Overrides(oldConfigurationSource) ?? oldConfigurationSource == null;
 
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="newConfigurationSource"> The new configuration source. </param>
         /// <param name="oldConfigurationSource"> The old configuration source. </param>
-        /// <returns> <c>true</c> if the configuration source always takes precedence over the other configuration source. </returns>
+        /// <returns> <see langword="true" /> if the configuration source always takes precedence over the other configuration source. </returns>
         public static bool OverridesStrictly(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource)
             => newConfigurationSource.Overrides(oldConfigurationSource) && newConfigurationSource != oldConfigurationSource;
 
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="newConfigurationSource"> The new configuration source. </param>
         /// <param name="oldConfigurationSource"> The old configuration source. </param>
-        /// <returns> <c>true</c> if the configuration source always takes precedence over the other configuration source. </returns>
+        /// <returns> <see langword="true" /> if the configuration source always takes precedence over the other configuration source. </returns>
         public static bool OverridesStrictly(this ConfigurationSource? newConfigurationSource, ConfigurationSource? oldConfigurationSource)
             => newConfigurationSource.HasValue && newConfigurationSource.Value.OverridesStrictly(oldConfigurationSource);
 

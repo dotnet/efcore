@@ -610,6 +610,30 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ExecuteReader_works_on_EXPLAIN()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = " EXPLAIN SELECT 1 WHERE 1 = @a;";
+                connection.Open();
+
+                if (new Version(connection.ServerVersion) < new Version(3, 28, 0))
+                {
+                    command.Parameters.AddWithValue("@a", 1);
+                }
+
+                using (var reader = command.ExecuteReader())
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+                    Assert.Equal(8, reader.FieldCount);
+                    Assert.Equal("Init", reader.GetString(1));
+                }
+            }
+        }
+
+        [Fact]
         public void ExecuteReader_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

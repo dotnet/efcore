@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class RelationalParameterBasedQueryTranslationPostprocessorFactory : IRelationalParameterBasedQueryTranslationPostprocessorFactory
+    public class RelationalParameterBasedSqlProcessorFactory : IRelationalParameterBasedSqlProcessorFactory
     {
-        private readonly RelationalParameterBasedQueryTranslationPostprocessorDependencies _dependencies;
+        private readonly RelationalParameterBasedSqlProcessorDependencies _dependencies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RelationalParameterBasedQueryTranslationPostprocessorFactory(
-            [NotNull] RelationalParameterBasedQueryTranslationPostprocessorDependencies dependencies)
+        public RelationalParameterBasedSqlProcessorFactory(
+            [NotNull] RelationalParameterBasedSqlProcessorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -44,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual RelationalParameterBasedQueryTranslationPostprocessor Create(bool useRelationalNulls)
-            => new RelationalParameterBasedQueryTranslationPostprocessor(_dependencies, useRelationalNulls);
+        public virtual RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls)
+            => new RelationalParameterBasedSqlProcessor(_dependencies, useRelationalNulls);
     }
 }

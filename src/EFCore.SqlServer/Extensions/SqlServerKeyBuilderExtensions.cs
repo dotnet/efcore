@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionKeyBuilder IsClustered(
             [NotNull] this IConventionKeyBuilder keyBuilder,
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the key can be configured as clustered. </returns>
+        /// <returns> <see langword="true" /> if the key can be configured as clustered. </returns>
         public static bool CanSetIsClustered(
             [NotNull] this IConventionKeyBuilder keyBuilder,
             bool? clustered,

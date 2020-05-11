@@ -20,15 +20,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class FromSqlParameterApplyingExpressionVisitor : ExpressionVisitor
+    public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
     {
         private readonly IDictionary<FromSqlExpression, Expression> _visitedFromSqlExpressions
             = new Dictionary<FromSqlExpression, Expression>(LegacyReferenceEqualityComparer.Instance);
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IRelationalTypeMappingSource _typeMappingSource;
-        private readonly ParameterNameGenerator _parameterNameGenerator;
-        private readonly IReadOnlyDictionary<string, object> _parametersValues;
+        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+
+        private IReadOnlyDictionary<string, object> _parametersValues;
+        private ParameterNameGenerator _parameterNameGenerator;
+        private bool _canCache;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,21 +39,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public FromSqlParameterApplyingExpressionVisitor(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ParameterNameGenerator parameterNameGenerator,
-            [NotNull] IReadOnlyDictionary<string, object> parametersValues)
+        public FromSqlParameterExpandingExpressionVisitor(
+            [NotNull] RelationalParameterBasedSqlProcessorDependencies dependencies)
         {
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
-            Check.NotNull(parametersValues, nameof(parametersValues));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            _sqlExpressionFactory = sqlExpressionFactory;
-            _typeMappingSource = typeMappingSource;
-            _parameterNameGenerator = parameterNameGenerator;
-            _parametersValues = parametersValues;
+            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
+            _typeMappingSource = dependencies.TypeMappingSource;
+            _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SelectExpression Expand(
+            [NotNull] SelectExpression selectExpression, [NotNull] IReadOnlyDictionary<string, object> parameterValues, out bool canCache)
+        {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+            Check.NotNull(parameterValues, nameof(parameterValues));
+
+            _visitedFromSqlExpressions.Clear();
+            _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
+            _parametersValues = parameterValues;
+            _canCache = true;
+
+            var result = (SelectExpression)Visit(selectExpression);
+            canCache = _canCache;
+
+            return result;
         }
 
         /// <summary>
@@ -69,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         case ParameterExpression parameterExpression:
                             var parameterValues = (object[])_parametersValues[parameterExpression.Name];
+                            _canCache = false;
 
                             var subParameters = new List<IRelationalParameter>(parameterValues.Length);
                             // ReSharper disable once ForCanBeConvertedToForeach

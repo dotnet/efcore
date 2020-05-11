@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="lastException"> The exception thrown during the last execution attempt. </param>
         /// <returns>
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
-        ///     <c>null</c> otherwise
+        ///     <see langword="null" /> otherwise
         /// </returns>
         protected virtual TimeSpan? GetNextDelay([NotNull] Exception lastException)
         {
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="exception"> The exception object to be verified. </param>
         /// <returns>
-        ///     <c>true</c> if the specified exception could be thrown after a successful execution, otherwise <c>false</c>.
+        ///     <see langword="true" /> if the specified exception could be thrown after a successful execution, otherwise <see langword="false" />.
         /// </returns>
         protected internal virtual bool ShouldVerifySuccessOn([NotNull] Exception exception)
             => ShouldRetryOn(exception);
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="exception"> The exception object to be verified. </param>
         /// <returns>
-        ///     <c>true</c> if the specified exception is considered as transient, otherwise <c>false</c>.
+        ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
         protected internal abstract bool ShouldRetryOn([NotNull] Exception exception);
 

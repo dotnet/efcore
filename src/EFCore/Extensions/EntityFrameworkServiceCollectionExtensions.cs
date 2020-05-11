@@ -28,13 +28,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///           public void ConfigureServices(IServiceCollection services)
-        ///           {
-        ///               var connectionString = "connection string to database";
+        /// public void ConfigureServices(IServiceCollection services)
+        /// {
+        ///     var connectionString = "connection string to database";
         ///
-        ///               services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
-        ///           }
-        ///       </code>
+        ///     services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
+        /// }
+        ///     </code>
         /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
@@ -74,13 +74,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///           public void ConfigureServices(IServiceCollection services)
-        ///           {
-        ///               var connectionString = "connection string to database";
+        /// public void ConfigureServices(IServiceCollection services)
+        /// {
+        ///     var connectionString = "connection string to database";
         ///
-        ///               services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
-        ///           }
-        ///       </code>
+        ///     services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
+        /// }
+        ///     </code>
         /// </example>
         /// <typeparam name="TContextService"> The class or interface that will be used to resolve the context from the container. </typeparam>
         /// <typeparam name="TContextImplementation"> The concrete implementation type to create. </typeparam>
@@ -303,13 +303,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///           public void ConfigureServices(IServiceCollection services)
-        ///           {
-        ///               var connectionString = "connection string to database";
+        /// public void ConfigureServices(IServiceCollection services)
+        /// {
+        ///     var connectionString = "connection string to database";
         ///
-        ///               services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
-        ///           }
-        ///       </code>
+        ///     services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
+        /// }
+        ///     </code>
         /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
@@ -332,13 +332,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///           public void ConfigureServices(IServiceCollection services)
-        ///           {
-        ///               var connectionString = "connection string to database";
+        /// public void ConfigureServices(IServiceCollection services)
+        /// {
+        ///     var connectionString = "connection string to database";
         ///
-        ///               services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
-        ///           }
-        ///       </code>
+        ///     services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
+        /// }
+        ///     </code>
         /// </example>
         /// <typeparam name="TContextService"> The class or interface that will be used to resolve the context from the container. </typeparam>
         /// <typeparam name="TContextImplementation"> The concrete implementation type to create. </typeparam>
@@ -377,17 +377,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///           public void ConfigureServices(IServiceCollection services)
-        ///           {
-        ///               var connectionString = "connection string to database";
+        /// public void ConfigureServices(IServiceCollection services)
+        /// {
+        ///     var connectionString = "connection string to database";
         ///
-        ///               services
-        ///                   .AddEntityFrameworkSqlServer()
-        ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                       options.UseSqlServer(connectionString)
-        ///                              .UseInternalServiceProvider(serviceProvider));
-        ///           }
-        ///       </code>
+        ///     services
+        ///         .AddEntityFrameworkSqlServer()
+        ///         .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///             options.UseSqlServer(connectionString)
+        ///                 .UseInternalServiceProvider(serviceProvider));
+        /// }
+        ///     </code>
         /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
@@ -437,17 +437,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///           public void ConfigureServices(IServiceCollection services)
-        ///           {
-        ///               var connectionString = "connection string to database";
+        /// public void ConfigureServices(IServiceCollection services)
+        /// {
+        ///     var connectionString = "connection string to database";
         ///
-        ///               services
-        ///                   .AddEntityFrameworkSqlServer()
-        ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                       options.UseSqlServer(connectionString)
-        ///                              .UseInternalServiceProvider(serviceProvider));
-        ///           }
-        ///       </code>
+        ///     services
+        ///         .AddEntityFrameworkSqlServer()
+        ///         .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///             options.UseSqlServer(connectionString)
+        ///                 .UseInternalServiceProvider(serviceProvider));
+        /// }
+        ///     </code>
         /// </example>
         /// <typeparam name="TContextService"> The class or interface that will be used to resolve the context from the container. </typeparam>
         /// <typeparam name="TContextImplementation"> The concrete implementation type to create. </typeparam>

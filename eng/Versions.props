@@ -15,22 +15,22 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from nuget.org">
-    <CastleCoreVersion>4.4.0</CastleCoreVersion>
-    <MicrosoftAzureCosmosVersion>3.8.0-preview</MicrosoftAzureCosmosVersion>
+    <CastleCoreVersion>4.4.1</CastleCoreVersion>
+    <MicrosoftAzureCosmosVersion>3.9.0-preview2</MicrosoftAzureCosmosVersion>
     <MicrosoftCodeAnalysisCSharpVersion>3.3.1</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesVersion>3.3.1</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
     <mod_spatialiteVersion>4.3.0.1</mod_spatialiteVersion>
     <NetTopologySuiteVersion>2.0.0</NetTopologySuiteVersion>
     <NetTopologySuiteIOSpatiaLiteVersion>2.0.0</NetTopologySuiteIOSpatiaLiteVersion>
     <NetTopologySuiteIOSqlServerBytesVersion>2.0.0</NetTopologySuiteIOSqlServerBytesVersion>
-    <SQLitePCLRawBundleESqlite3Version>2.0.2</SQLitePCLRawBundleESqlite3Version>
-    <SQLitePCLRawBundleESqlcipherVersion>2.0.2</SQLitePCLRawBundleESqlcipherVersion>
-    <SQLitePCLRawBundleWinsqlite3Version>2.0.2</SQLitePCLRawBundleWinsqlite3Version>
-    <SQLitePCLRawCoreVersion>2.0.2</SQLitePCLRawCoreVersion>
+    <SQLitePCLRawBundleESqlite3Version>2.0.3</SQLitePCLRawBundleESqlite3Version>
+    <SQLitePCLRawBundleESqlcipherVersion>2.0.3</SQLitePCLRawBundleESqlcipherVersion>
+    <SQLitePCLRawBundleWinsqlite3Version>2.0.3</SQLitePCLRawBundleWinsqlite3Version>
+    <SQLitePCLRawCoreVersion>2.0.3</SQLitePCLRawCoreVersion>
     <IdentityServer4EntityFrameworkVersion>3.0.0</IdentityServer4EntityFrameworkVersion>
     <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
     <BenchmarkDotNetVersion>0.12.0</BenchmarkDotNetVersion>
-    <MicrosoftDataSqlClientVersion>2.0.0-preview2.20084.1</MicrosoftDataSqlClientVersion>
+    <MicrosoftDataSqlClientVersion>2.0.0-preview3.20122.2</MicrosoftDataSqlClientVersion>
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/extensions">

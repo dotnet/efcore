@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
         ///     </para>
         /// </summary>
-        /// <param name="cacheServiceProvider"> If <c>true</c>, then the internal service provider is cached. </param>
+        /// <param name="cacheServiceProvider"> If <see langword="true" />, then the internal service provider is cached. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableServiceProviderCaching(bool cacheServiceProvider = true)
             => (DbContextOptionsBuilder<TContext>)base.EnableServiceProviderCaching(cacheServiceProvider);
@@ -368,10 +368,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <example>
         ///     <code>
-        ///         optionsBuilder.ConfigureWarnings(warnings =>
-        ///             warnings.Default(WarningBehavior.Ignore)
-        ///                     .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
-        ///                     .Throw(RelationalEventId.BoolWithDefaultWarning))
+        /// optionsBuilder.ConfigureWarnings(warnings =>
+        ///     warnings.Default(WarningBehavior.Ignore)
+        ///         .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
+        ///         .Throw(RelationalEventId.BoolWithDefaultWarning));
         ///     </code>
         /// </example>
         /// <param name="warningsConfigurationBuilderAction">

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="RelationalParameterBasedQueryTranslationPostprocessorFactory" />
+    ///         Service dependencies parameter class for <see cref="RelationalParameterBasedSqlProcessorFactory" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -32,11 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalParameterBasedQueryTranslationPostprocessorDependencies
+    public sealed class RelationalParameterBasedSqlProcessorDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="RelationalParameterBasedQueryTranslationPostprocessorFactory" />.
+        ///         Creates the service dependencies parameter object for a <see cref="RelationalParameterBasedSqlProcessorFactory" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationalParameterBasedQueryTranslationPostprocessorDependencies(
+        public RelationalParameterBasedSqlProcessorDependencies(
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
@@ -88,23 +88,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedQueryTranslationPostprocessorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(sqlExpressionFactory, TypeMappingSource, ParameterNameGeneratorFactory);
+        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            => new RelationalParameterBasedSqlProcessorDependencies(sqlExpressionFactory, TypeMappingSource, ParameterNameGeneratorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedQueryTranslationPostprocessorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(SqlExpressionFactory, typeMappingSource, ParameterNameGeneratorFactory);
+        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
+            => new RelationalParameterBasedSqlProcessorDependencies(SqlExpressionFactory, typeMappingSource, ParameterNameGeneratorFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="parameterNameGeneratorFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedQueryTranslationPostprocessorDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
-            => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(SqlExpressionFactory, TypeMappingSource, parameterNameGeneratorFactory);
+        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            => new RelationalParameterBasedSqlProcessorDependencies(SqlExpressionFactory, TypeMappingSource, parameterNameGeneratorFactory);
     }
 }

@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionIndexBuilder IsClustered(
             [NotNull] this IConventionIndexBuilder indexBuilder,
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="clustered"> A value indicating whether the index is clustered. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the index can be configured as clustered. </returns>
+        /// <returns> <see langword="true" /> if the index can be configured as clustered. </returns>
         public static bool CanSetIsClustered(
             [NotNull] this IConventionIndexBuilder indexBuilder,
             bool? clustered,
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionIndexBuilder IncludeProperties(
             [NotNull] this IConventionIndexBuilder indexBuilder,
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="propertyNames"> An array of property names to be used in 'include' clause. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the given include properties can be set. </returns>
+        /// <returns> <see langword="true" /> if the given include properties can be set. </returns>
         public static bool CanSetIncludeProperties(
             [NotNull] this IConventionIndexBuilder indexBuilder,
             [CanBeNull] IReadOnlyList<string> propertyNames,
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionIndexBuilder IsCreatedOnline(
             [NotNull] this IConventionIndexBuilder indexBuilder,
@@ -233,9 +233,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
-        /// <returns> <c>true</c> if the index can be configured with online option when targeting SQL Server. </returns>
+        /// <returns> <see langword="true" /> if the index can be configured with online option when targeting SQL Server. </returns>
         public static bool CanSetIsCreatedOnline(
             [NotNull] this IConventionIndexBuilder indexBuilder,
             bool? createdOnline,
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionIndexBuilder HasFillFactor(
             [NotNull] this IConventionIndexBuilder indexBuilder,
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the index can be configured with fill factor option when targeting SQL Server. </returns>
+        /// <returns> <see langword="true" /> if the index can be configured with fill factor option when targeting SQL Server. </returns>
         public static bool CanSetFillFactor(
             [NotNull] this IConventionIndexBuilder indexBuilder,
             int? fillFactor,

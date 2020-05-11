@@ -197,7 +197,7 @@
     <comment>Debug RelationalEventId.TransactionCommitting</comment>
   </data>
   <data name="LogCommittedTransaction" xml:space="preserve">
-    <value>Committing transaction.</value>
+    <value>Committed transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitted</comment>
   </data>
   <data name="LogRollingBackTransaction" xml:space="preserve">
@@ -488,8 +488,8 @@
   <data name="ClientGroupByNotSupported" xml:space="preserve">
     <value>Client side GroupBy is not supported.</value>
   </data>
-  <data name="UnexpectedJoinPredicateShape" xml:space="preserve">
-    <value>Unexpected join predicate shape: {predicate}.</value>
+  <data name="UnknownExpressionType" xml:space="preserve">
+    <value>Unknown expression '{expression}' of type - '{expressionType}' encountered in '{visitor}'.</value>
   </data>
   <data name="NoTypeMappingFoundForSubquery" xml:space="preserve">
     <value>The subquery '{subquery}' references type '{type}' for which no type mapping could be found.</value>

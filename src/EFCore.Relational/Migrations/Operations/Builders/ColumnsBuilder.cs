@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         ///         Adds a <see cref="AddColumnOperation" /> to the <see cref="CreateTableOperation" />.
         ///     </para>
         ///     <para>
-        ///         Note that for nullable parameters a <c>null</c> value means not-specified.
+        ///         Note that for nullable parameters a <see langword="null" /> value means not-specified.
         ///     </para>
         /// </summary>
         /// <typeparam name="T"> The CLR type of the column. </typeparam>
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="maxLength"> The maximum length for data in the column. </param>
         /// <param name="rowVersion"> Indicates whether or not the column will act as a rowversion/timestamp concurrency token. </param>
         /// <param name="name"> The column name. </param>
-        /// <param name="nullable"> Indicates whether or not the column can store <c>NULL</c> values. </param>
+        /// <param name="nullable"> Indicates whether or not the column can store <see langword="null" /> values. </param>
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>

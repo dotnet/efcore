@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="query"> An expression to optimize. </param>
         /// <returns> An expression which has SQL optimized. </returns>
-        [Obsolete("Use 'Optimize' method on " + nameof(RelationalParameterBasedQueryTranslationPostprocessor) + " instead. If you have a case for optimizations to be performed here, please file an issue on github.com/dotnet/efcore.")]
+        [Obsolete("Use 'Optimize' method on " + nameof(RelationalParameterBasedSqlProcessor) + " instead. If you have a case for optimizations to be performed here, please file an issue on github.com/dotnet/efcore.")]
         protected virtual Expression OptimizeSqlExpression([NotNull] Expression query)
             => query;
     }

@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the key is the primary key.
         /// </summary>
         /// <param name="key"> The key to find whether it is primary. </param>
-        /// <returns> <c>true</c> if the key is the primary key. </returns>
+        /// <returns> <see langword="true" /> if the key is the primary key. </returns>
         public static bool IsPrimaryKey([NotNull] this IKey key)
             => key == key.DeclaringEntityType.FindPrimaryKey();
 

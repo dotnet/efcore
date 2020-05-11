@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         if it does not already exist.
         ///     </para>
         ///     <para>
-        ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations
+        ///         Note that this API is mutually exclusive with <see cref="DatabaseFacade.EnsureCreated" />. EnsureCreated does not use migrations
         ///         to create the database and therefore the database that is created cannot be later updated using migrations.
         ///     </para>
         /// </summary>
@@ -93,8 +93,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         if it does not already exist.
         ///     </para>
         ///     <para>
-        ///         Note that this API is mutually exclusive with DbContext.Database.EnsureCreated(). EnsureCreated does not use migrations
-        ///         to create the database and therefore the database that is created cannot be later updated using migrations.
+        ///         Note that this API is mutually exclusive with <see cref="DatabaseFacade.EnsureCreated" />.
+        ///         <see cref="DatabaseFacade.EnsureCreated" /> does not use migrations to create the database and therefore the database
+        ///         that is created cannot be later updated using migrations.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -116,16 +117,22 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
-        ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///     </para>
+        ///     <para>
+        ///         <code>context.Database.ExecuteSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
+        ///     </para>
+        ///     <para>
+        ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
+        ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
+        ///         consider using <see cref="ExecuteSqlInterpolated"/> to create parameters.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -148,15 +155,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///     </para>
+        ///     <para>
+        ///         <code>context.Database.ExecuteSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -177,15 +186,22 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
-        ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///     </para>
+        ///     <para>
+        ///         <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
+        ///     </para>
+        ///     <para>
+        ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
+        ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
+        ///         consider using <see cref="ExecuteSqlInterpolated"/> to create parameters.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -232,15 +248,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlInterpolatedAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///     </para>
+        ///     <para>
+        ///         <code>context.Database.ExecuteSqlInterpolatedAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -265,9 +283,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
+        ///     </para>
+        ///     <para>
+        ///         <b>Never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
+        ///         into this method. Doing so may expose your application to SQL injection attacks.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -292,16 +314,22 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
         ///         can be used explicitly, making sure to also use a transaction if the SQL is not
         ///         idempotent.
         ///     </para>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
-        ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///     </para>
+        ///     <para>
+        ///         <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
+        ///     </para>
+        ///     <para>
+        ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
+        ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
+        ///         consider using <see cref="ExecuteSqlInterpolated"/> to create parameters.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -333,8 +361,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
-        ///         You can also consider using ExecuteSqlInterpolated to use interpolated string syntax to create parameters.
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///     </para>
+        ///     <para>
+        ///         <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
+        ///     </para>
+        ///     <para>
+        ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
+        ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
+        ///         consider using <see cref="ExecuteSqlInterpolated"/> to create parameters.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
