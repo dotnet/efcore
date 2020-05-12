@@ -213,7 +213,7 @@ stages:
                     Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig)
                 displayName: Restore packages
-              - script: .dotnet\dotnet msbuild eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog
                 displayName: Send job to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
