@@ -14,7 +14,7 @@
   <ItemGroup>
     <Compile Include="..\..\src\Shared\*.cs" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore\EFCore.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
@@ -22,7 +22,8 @@
 
   <ItemGroup>
     <PackageReference Include="NetTopologySuite" Version="$(NetTopologySuiteVersion)" />
-    <PackageReference Include="xunit" Version="$(XUnitVersion)" />
+    <PackageReference Include="xunit.assert" Version="$(XUnitVersion)" />
+    <PackageReference Include="xunit.core" Version="$(XUnitVersion)" />
   </ItemGroup>
 
 </Project>
