@@ -363,6 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
         {
+            value = ConvertUnderlyingEnumValueToEnum(value, typeMapping.ClrType);
+
             var converter = typeMapping.Converter;
             if (converter != null)
             {
@@ -376,6 +378,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
         }
+
+        // Enum when compared to constant will always have value of integral type
+        // when enum would contain convert node. We remove the convert node but we also
+        // need to convert the integral value to enum value.
+        // This allows us to use converter on enum value or print enum value directly if supported by provider
+        private object ConvertUnderlyingEnumValueToEnum(object value, Type clrType)
+            => value?.GetType().IsInteger() == true && clrType.UnwrapNullableType().IsEnum
+            ? Enum.ToObject(clrType.UnwrapNullableType(), value)
+            : value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
