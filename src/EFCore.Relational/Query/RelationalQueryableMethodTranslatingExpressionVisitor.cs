@@ -223,8 +223,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
-                    ? selectExpression.GetMappedProjection(new ProjectionMember())
+                    ? selectExpression.Projection.Count == 0
+                        ? selectExpression.GetMappedProjection(new ProjectionMember())
+                        : null
                     : RemapLambdaBody(source, selector);
+
+            if (newSelector == null)
+            {
+                return null;
+            }
 
             var projection = _sqlTranslator.TranslateAverage(newSelector);
             return projection != null
@@ -683,8 +690,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
-                    ? selectExpression.GetMappedProjection(new ProjectionMember())
+                    ? selectExpression.Projection.Count == 0
+                        ? selectExpression.GetMappedProjection(new ProjectionMember())
+                        : null
                     : RemapLambdaBody(source, selector);
+
+            if (newSelector == null)
+            {
+                return null;
+            }
 
             var projection = _sqlTranslator.TranslateMax(newSelector);
 
@@ -701,8 +715,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
-                    ? selectExpression.GetMappedProjection(new ProjectionMember())
+                    ? selectExpression.Projection.Count == 0
+                        ? selectExpression.GetMappedProjection(new ProjectionMember())
+                        : null
                     : RemapLambdaBody(source, selector);
+
+            if (newSelector == null)
+            {
+                return null;
+            }
 
             var projection = _sqlTranslator.TranslateMin(newSelector);
 
@@ -1028,10 +1049,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
+
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
-                    ? selectExpression.GetMappedProjection(new ProjectionMember())
+                    ? selectExpression.Projection.Count == 0
+                        ? selectExpression.GetMappedProjection(new ProjectionMember())
+                        : null
                     : RemapLambdaBody(source, selector);
+
+            if (newSelector == null)
+            {
+                return null;
+            }
 
             var projection = _sqlTranslator.TranslateSum(newSelector);
             return projection != null

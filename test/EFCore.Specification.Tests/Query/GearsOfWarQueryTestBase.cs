@@ -7481,6 +7481,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Client_eval_followed_by_set_operation_throws_meaningful_exception(bool async)
+        {
+            await AssertTranslationFailed(
+                () => AssertSum(
+                    async,
+                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+
+            await AssertTranslationFailed(
+                () => AssertAverage(
+                    async,
+                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+
+            await AssertTranslationFailed(
+                () => AssertMin(
+                    async,
+                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+
+            await AssertTranslationFailed(
+                () => AssertMax(
+                    async,
+                    ss => ss.Set<Mission>().Select(m => m.Duration.Ticks)));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
