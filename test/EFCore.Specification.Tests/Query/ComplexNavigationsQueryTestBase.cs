@@ -164,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2", navigationPath: "OneToMany_Optional1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional1")
             };
 
             return AssertIncludeQuery(
@@ -181,14 +181,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2", navigationPath: "OneToMany_Optional1"),
-                new ExpectedInclude<Level3>(
-                    l3 => l3.OneToMany_Required_Inverse3, "OneToMany_Required_Inverse3",
-                    navigationPath: "OneToMany_Optional1.OneToMany_Optional2"),
-                new ExpectedInclude<Level2>(
-                    l2 => l2.OneToMany_Optional2, "OneToMany_Optional2",
-                    navigationPath: "OneToMany_Optional1.OneToMany_Optional2.OneToMany_Required_Inverse3")
+                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToMany_Required_Inverse3, "OneToMany_Optional1.OneToMany_Optional2"),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional1.OneToMany_Optional2.OneToMany_Required_Inverse3")
             };
 
             return AssertIncludeQuery(
@@ -659,12 +655,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(
-                    l2 => l2.OneToMany_Optional2, "OneToMany_Optional2", navigationPath: "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1"),
-                new ExpectedInclude<Level2>(
-                    l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", navigationPath: "OneToMany_Optional1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToMany_Optional1")
             };
 
             return AssertIncludeQuery(
@@ -683,12 +677,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_Self1, "OneToOne_Optional_Self1"),
-                new ExpectedInclude<Level1>(
-                    l2 => l2.OneToMany_Optional_Self1, "OneToMany_Optional_Self1", navigationPath: "OneToOne_Optional_Self1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional_Self1, "OneToMany_Optional_Self1"),
-                new ExpectedInclude<Level1>(
-                    l2 => l2.OneToOne_Optional_Self1, "OneToOne_Optional_Self1", navigationPath: "OneToMany_Optional_Self1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_Self1),
+                new ExpectedInclude<Level1>(l2 => l2.OneToMany_Optional_Self1, "OneToOne_Optional_Self1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional_Self1),
+                new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_Self1, "OneToMany_Optional_Self1")
             };
 
             return AssertIncludeQuery(
@@ -707,12 +699,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(
-                    l2 => l2.OneToMany_Optional2, "OneToMany_Optional2", navigationPath: "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1"),
-                new ExpectedInclude<Level2>(
-                    l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", navigationPath: "OneToMany_Optional1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToMany_Optional1")
             };
 
             return AssertIncludeQuery(
@@ -1264,7 +1254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from l1 in ss.Set<Level1>().Include(e => e.OneToOne_Optional_FK1)
                       where l1.OneToOne_Optional_FK1.Name != "L2 05"
                       select l1,
-                new List<IExpectedInclude> { new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1") });
+                new List<IExpectedInclude> { new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1) });
         }
 
         [ConditionalTheory]
@@ -1273,10 +1263,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l1 => l1.OneToMany_Required2, "OneToMany_Required2", "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level3>(
-                    l1 => l1.OneToOne_Required_FK3, "OneToOne_Required_FK3", "OneToOne_Optional_FK1.OneToMany_Required2")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l1 => l1.OneToMany_Required2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level3>(l1 => l1.OneToOne_Required_FK3, "OneToOne_Optional_FK1.OneToMany_Required2")
             };
 
             return AssertIncludeQuery(
@@ -1444,9 +1433,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Required_FK1, "OneToOne_Required_FK1"),
-                new ExpectedInclude<Level2>(l1 => l1.OneToMany_Optional2, "OneToMany_Optional2", "OneToOne_Required_FK1"),
-                new ExpectedInclude<Level2>(l1 => l1.OneToMany_Required2, "OneToMany_Required2", "OneToOne_Required_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Required_FK1),
+                new ExpectedInclude<Level2>(l1 => l1.OneToMany_Optional2, "OneToOne_Required_FK1"),
+                new ExpectedInclude<Level2>(l1 => l1.OneToMany_Required2, "OneToOne_Required_FK1")
             };
 
             return AssertIncludeQuery(
@@ -1465,10 +1454,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2", "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Required_FK1, "OneToOne_Required_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Required2, "OneToMany_Required2", "OneToOne_Required_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Required_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Required2, "OneToOne_Required_FK1")
             };
 
             return AssertIncludeQuery(
@@ -1487,10 +1476,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2, "OneToOne_Required_FK2", "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level3>(
-                    l3 => l3.OneToMany_Optional3, "OneToMany_Optional3", "OneToOne_Optional_FK1.OneToOne_Required_FK2")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToOne_Optional_FK1.OneToOne_Required_FK2")
             };
 
             return AssertIncludeQuery(
@@ -1508,11 +1496,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Required_FK1, "OneToOne_Required_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2", "OneToOne_Required_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", "OneToOne_Required_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Required_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToOne_Required_FK1"),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Required_FK1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK1")
             };
 
             return AssertIncludeQuery(
@@ -1743,7 +1731,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2)
                 });
         }
 
@@ -1758,7 +1746,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2)
                 });
         }
 
@@ -1773,7 +1761,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToOne_Required_FK2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2, "OneToOne_Required_FK2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2)
                 });
         }
 
@@ -1783,8 +1771,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2, "OneToOne_Required_FK2"),
-                new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToMany_Optional3", "OneToOne_Required_FK2")
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2),
+                new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToOne_Required_FK2")
             };
 
             return AssertIncludeQuery(
@@ -1802,8 +1790,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Required_FK3, "OneToOne_Required_FK3"),
-                new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToMany_Optional3")
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Required_FK3),
+                new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3)
             };
 
             return AssertIncludeQuery(
@@ -1827,7 +1815,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include("OneToOne_Required_FK2"),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2, "OneToOne_Required_FK2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2)
                 });
         }
 
@@ -1837,8 +1825,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2, "OneToOne_Required_FK2"),
-                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Required_FK3, "OneToOne_Required_FK3", "OneToOne_Required_FK2")
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Required_FK3, "OneToOne_Required_FK2")
             };
 
             return AssertIncludeQuery(
@@ -1861,7 +1849,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include("OneToOne_Required_FK3"),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level3>(l3 => l3.OneToOne_Required_FK3, "OneToOne_Required_FK3")
+                    new ExpectedInclude<Level3>(l3 => l3.OneToOne_Required_FK3)
                 });
         }
 
@@ -1876,7 +1864,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Required_Inverse2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Required_Inverse2, "OneToMany_Required_Inverse2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Required_Inverse2)
                 });
         }
 
@@ -1886,9 +1874,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level3>(l3 => l3.OneToMany_Required_Inverse3, "OneToMany_Required_Inverse3"),
-                new ExpectedInclude<Level2>(
-                    l2 => l2.OneToMany_Optional_Inverse2, "OneToMany_Optional_Inverse2", "OneToMany_Required_Inverse3")
+                new ExpectedInclude<Level3>(l3 => l3.OneToMany_Required_Inverse3),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional_Inverse2, "OneToMany_Required_Inverse3")
             };
 
             return AssertIncludeQuery(
@@ -1911,7 +1898,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToOne_Optional_FK2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)
                 });
         }
 
@@ -1927,7 +1914,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToOne_Optional_FK2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)
                 });
         }
 
@@ -1942,7 +1929,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include("OneToOne_Optional_FK2"),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)
                 });
         }
 
@@ -1958,7 +1945,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include("OneToOne_Optional_FK2"),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)
                 });
         }
 
@@ -1973,7 +1960,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToOne_Optional_FK2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)
                 });
         }
 
@@ -1983,8 +1970,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2"),
-                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_FK3, "OneToOne_Optional_FK3", "OneToMany_Optional2")
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_FK3, "OneToMany_Optional2")
             };
 
             return AssertIncludeQuery(
@@ -2007,7 +1994,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l3 => l3.OneToMany_Optional3),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToMany_Optional3")
+                    new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3)
                 });
         }
 
@@ -2023,7 +2010,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include("OneToMany_Optional3"),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToMany_Optional3")
+                    new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3)
                 });
         }
 
@@ -2039,7 +2026,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2)
                 },
                 assertOrder: true);
         }
@@ -2056,7 +2043,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(l2 => l2.Name),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2)
                 },
                 assertOrder: true);
         }
@@ -2073,7 +2060,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2)
                 },
                 assertOrder: true);
         }
@@ -2090,7 +2077,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(l2 => l2.Name),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2)
                 },
                 assertOrder: true);
         }
@@ -2120,7 +2107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select l1,
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1")
+                    new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1)
                 });
         }
 
@@ -3238,7 +3225,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToOne_Optional_FK2),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)
                 },
                 elementSorter: e => e.Id);
         }
@@ -3494,7 +3481,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2)
                     .OrderBy(l2 => l2.Name)
                     .ThenBy(l2 => l2.Level1_Required_Id),
-                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2") },
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2) },
                 assertOrder: true);
         }
 
@@ -3508,7 +3495,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2)
                     .OrderBy(l2 => EF.Property<int>(l2, "Level1_Required_Id"))
                     .ThenBy(l2 => l2.Name),
-                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2") },
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2) },
                 assertOrder: true);
         }
 
@@ -3522,7 +3509,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2)
                     .OrderBy(l2 => Math.Abs(l2.Level1_Required_Id))
                     .ThenBy(l2 => l2.Name),
-                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2") },
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2) },
                 assertOrder: true);
         }
 
@@ -3536,7 +3523,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2)
                     .OrderBy(l2 => Math.Abs(l2.Level1_Required_Id) + 7)
                     .ThenBy(l2 => l2.Name),
-                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2") },
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2) },
                 assertOrder: true);
         }
 
@@ -3550,7 +3537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l2 => l2.OneToMany_Optional2)
                     .OrderBy(l2 => -l2.Level1_Required_Id)
                     .ThenBy(l2 => -l2.Level1_Required_Id).ThenBy(l2 => l2.Name),
-                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2") },
+                new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2) },
                 assertOrder: true);
         }
 
@@ -3566,7 +3553,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(l2 => l2.OneToMany_Optional2)
                         .OrderBy(l2 => -l2.Level1_Required_Id)
                         .ThenBy(l2 => -l2.Level1_Required_Id).ThenBy(l2 => l2.Name),
-                    new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2") },
+                    new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional2) },
                     assertOrder: true);
             }
         }
@@ -3599,7 +3586,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1, "OneToOne_Optional_FK1")
+                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1)
                 });
         }
 
@@ -3615,7 +3602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1, "OneToMany_Optional1")
+                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1)
                 });
         }
 
@@ -3625,8 +3612,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2", "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToOne_Optional_FK1")
             };
 
             return AssertIncludeQuery(
@@ -3651,7 +3638,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1, "OneToMany_Optional1")
+                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1)
                 });
         }
 
@@ -3668,7 +3655,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1, "OneToMany_Optional1")
+                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1)
                 });
         }
 
@@ -3678,8 +3665,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceSameType, "ReferenceSameType"),
-                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceSameType, "ReferenceSameType")
+                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceSameType),
+                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceSameType)
             };
 
             return AssertIncludeQuery(
@@ -3694,8 +3681,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceDifferentType, "ReferenceDifferentType"),
-                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceDifferentType, "ReferenceDifferentType")
+                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceDifferentType),
+                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceDifferentType)
             };
 
             return AssertIncludeQuery(
@@ -3712,9 +3699,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceDifferentType, "ReferenceDifferentType"),
-                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceDifferentType, "ReferenceDifferentType"),
-                new ExpectedInclude<InheritanceLeaf2>(e => e.BaseCollection, "BaseCollection", "ReferenceDifferentType")
+                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceDifferentType),
+                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceDifferentType),
+                new ExpectedInclude<InheritanceLeaf2>(e => e.BaseCollection, "ReferenceDifferentType")
             };
 
             return AssertIncludeQuery(
@@ -3729,8 +3716,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionSameType, "CollectionSameType"),
-                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionSameType, "CollectionSameType")
+                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionSameType),
+                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionSameType)
             };
 
             return AssertIncludeQuery(
@@ -3745,8 +3732,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType, "CollectionDifferentType"),
-                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType, "CollectionDifferentType")
+                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType),
+                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType)
             };
 
             return AssertIncludeQuery(
@@ -3763,9 +3750,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType, "CollectionDifferentType"),
-                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType, "CollectionDifferentType"),
-                new ExpectedInclude<InheritanceLeaf2>(e => e.BaseCollection, "BaseCollection", "CollectionDifferentType")
+                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType),
+                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType),
+                new ExpectedInclude<InheritanceLeaf2>(e => e.BaseCollection, "CollectionDifferentType")
             };
 
             return AssertIncludeQuery(
@@ -3780,12 +3767,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<InheritanceBase2>(e => e.Reference, "Reference"),
-                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType, "CollectionDifferentType", "Reference"),
-                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType, "CollectionDifferentType", "Reference"),
-                new ExpectedInclude<InheritanceBase2>(e => e.Collection, "Collection"),
-                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceSameType, "ReferenceSameType", "Collection"),
-                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceSameType, "ReferenceSameType", "Collection")
+                new ExpectedInclude<InheritanceBase2>(e => e.Reference),
+                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType, "Reference"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType, "Reference"),
+                new ExpectedInclude<InheritanceBase2>(e => e.Collection),
+                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceSameType, "Collection"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceSameType, "Collection")
             };
 
             return AssertIncludeQuery(
@@ -3805,8 +3792,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(l1 => (int?)l1.OneToOne_Optional_FK1.Id),
                 expectedIncludes: new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                    new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2", "OneToOne_Optional_FK1")
+                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1),
+                    new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToOne_Optional_FK1")
                 },
                 assertOrder: true);
         }
@@ -3840,7 +3827,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Required1).Select(l2 => l2.OneToOne_Optional_FK2)
                     .Include(l3 => l3.OneToMany_Optional3),
-                new List<IExpectedInclude> { new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToMany_Optional3") });
+                new List<IExpectedInclude> { new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3) });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -3851,7 +3838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Required1).SelectMany(l2 => l2.OneToMany_Optional2)
                     .Select(l3 => l3.OneToOne_Required_FK3).Include(l4 => l4.OneToMany_Required_Self4),
-                new List<IExpectedInclude> { new ExpectedInclude<Level4>(l4 => l4.OneToMany_Required_Self4, "OneToMany_Required_Self4") });
+                new List<IExpectedInclude> { new ExpectedInclude<Level4>(l4 => l4.OneToMany_Required_Self4) });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -3862,7 +3849,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Required1).Select(l2 => l2.OneToOne_Optional_FK2)
                     .Select(l3 => l3.OneToOne_Required_FK3).Include(l4 => l4.OneToMany_Optional_Self4),
-                new List<IExpectedInclude> { new ExpectedInclude<Level4>(l4 => l4.OneToMany_Optional_Self4, "OneToMany_Optional_Self4") });
+                new List<IExpectedInclude> { new ExpectedInclude<Level4>(l4 => l4.OneToMany_Optional_Self4) });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -3881,7 +3868,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       from lInner in lOuter.OneToMany_Optional3.Distinct()
                       where lInner != null
                       select lOuter,
-                new List<IExpectedInclude> { new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToMany_Optional") });
+                new List<IExpectedInclude> { new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3) });
         }
 
         [ConditionalTheory]
@@ -4007,7 +3994,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1),
-                new List<IExpectedInclude> { new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1") });
+                new List<IExpectedInclude> { new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1) });
         }
 
         [ConditionalTheory]
@@ -4016,8 +4003,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)
             };
 
             return AssertIncludeQuery(
@@ -4032,8 +4019,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1, "OneToOne_Optional_PK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1)
             };
 
             return AssertIncludeQuery(
@@ -4048,8 +4035,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_PK2", "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_FK1")
             };
 
             return AssertIncludeQuery(
@@ -4064,8 +4051,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_PK2", "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_FK1")
             };
 
             return AssertIncludeQuery(
@@ -4080,7 +4067,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_PK2")
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2)
             };
 
             return AssertIncludeQuery(
@@ -4105,7 +4092,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK_Inverse2, "OneToOne_Optional_FK_Inverse2")
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK_Inverse2)
             };
 
             return AssertIncludeQuery(
@@ -4122,7 +4109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK_Inverse2, "OneToOne_Optional_FK_Inverse2")
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK_Inverse2)
             };
 
             return AssertIncludeQuery(
@@ -4139,12 +4126,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_PK2", "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1, "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level3>(
-                    l3 => l3.OneToOne_Optional_PK3, "OneToOne_Optional_PK3", "OneToOne_Optional_FK1.OneToOne_Optional_FK2")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_PK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_PK3, "OneToOne_Optional_FK1.OneToOne_Optional_FK2")
             };
 
             return AssertIncludeQuery(
@@ -4161,18 +4147,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_PK2", "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1, "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level3>(
-                    l3 => l3.OneToOne_Optional_FK3, "OneToOne_Optional_FK3", "OneToOne_Optional_PK1.OneToOne_Optional_FK2"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1, "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level3>(
-                    l3 => l3.OneToOne_Optional_PK3, "OneToOne_Optional_PK3", "OneToOne_Optional_PK1.OneToOne_Optional_FK2"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_PK2", "OneToOne_Optional_PK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_PK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_FK3, "OneToOne_Optional_PK1.OneToOne_Optional_FK2"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_PK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_PK3, "OneToOne_Optional_PK1.OneToOne_Optional_FK2"),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_PK1")
             };
 
             return AssertIncludeQuery(
@@ -4192,7 +4176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)
             };
 
             return AssertIncludeQuery(
@@ -4209,7 +4193,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)
             };
 
             return AssertIncludeQuery(
@@ -4228,8 +4212,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK1")
             };
 
             return AssertIncludeQuery(
@@ -4289,7 +4273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)
             };
 
             return AssertIncludeQuery(
@@ -4304,7 +4288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)
             };
 
             return AssertIncludeQuery(
@@ -4319,7 +4303,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1")
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)
             };
 
             return AssertIncludeQuery(
@@ -4373,7 +4357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level2>(l1 => l1.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
+                new ExpectedInclude<Level2>(l1 => l1.OneToOne_Optional_FK2)
             };
 
             return AssertIncludeQuery(
@@ -4529,10 +4513,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Level1>(e => e.OneToMany_Optional1, "OneToMany_Optional1"),
-                new ExpectedInclude<Level2>(e => e.OneToOne_Optional_PK2, "OneToOne_Optional_PK2", "OneToMany_Optional1"),
-                new ExpectedInclude<Level3>(
-                    e => e.OneToOne_Optional_FK3, "OneToOne_Optional_FK3", "OneToMany_Optional1.OneToOne_Optional_PK2")
+                new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
+                new ExpectedInclude<Level2>(e => e.OneToOne_Optional_PK2, "OneToMany_Optional1"),
+                new ExpectedInclude<Level3>(e => e.OneToOne_Optional_FK3, "OneToMany_Optional1.OneToOne_Optional_PK2")
             };
 
             return AssertIncludeQuery(
@@ -4667,8 +4650,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).Include(l1 => l1.OneToMany_Required1),
                 new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1"),
-                    new ExpectedInclude<Level1>(l1 => l1.OneToMany_Required1, "OneToMany_Required1")
+                    new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1),
+                    new ExpectedInclude<Level1>(l1 => l1.OneToMany_Required1)
                 },
                 assertOrder: true);
         }
@@ -5009,7 +4992,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(l2 => l2.Id > 5))
                 });
         }
@@ -5025,7 +5007,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.OrderBy(x => x.Name))
                 });
         }
@@ -5039,11 +5020,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2.OrderBy(x => x.Name)),
                 new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(
-                        e => e.OneToMany_Optional1, "OneToMany_Optional1"),
+                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
-                        "OneToMany_Optional2",
                         "OneToMany_Optional1",
                         includeFilter: x => x.OrderBy(x => x.Name))
                 });
@@ -5062,11 +5041,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.OrderBy(x => x.Name)),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
-                        "OneToMany_Optional2",
                         "OneToMany_Optional1",
                         includeFilter: x => x.OrderByDescending(x => x.Name))
                 });
@@ -5083,7 +5060,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.OrderBy(x => x.Name).Take(3))
                 });
         }
@@ -5099,7 +5075,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.OrderBy(x => x.Name).Skip(1))
                 });
         }
@@ -5115,7 +5090,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.OrderBy(x => x.Name).Skip(1).Take(3))
                 });
         }
@@ -5147,10 +5121,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3)),
                 new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
+                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
-                        "OneToMany_Optional2",
                         "OneToOne_Optional_FK1",
                         x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))
                 });
@@ -5166,10 +5139,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3)),
                 new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1, "OneToOne_Optional_FK1"),
+                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
-                        "OneToMany_Optional2",
                         "OneToOne_Optional_FK1",
                         x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))
                 });
@@ -5188,11 +5160,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3)),
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Required1,
-                        "OneToMany_Required1",
                         includeFilter: x => x.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1))
                 });
         }
@@ -5210,11 +5180,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3)),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Required2,
-                        "OneToMany_Required2",
                         "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1))
                 });
@@ -5257,7 +5225,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderByDescending(x => x.Id).Take(2)),
                 });
         }
@@ -5275,10 +5242,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)),
-                    new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional1"),
-                    new ExpectedInclude<Level2>(e => e.OneToOne_Required_FK2, "OneToMany_Optional1"),
+                    new ExpectedInclude<Level2>(e => e.OneToMany_Optional2),
+                    new ExpectedInclude<Level2>(e => e.OneToOne_Required_FK2),
                 });
         }
 
@@ -5295,10 +5261,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)),
-                    new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional2", "OneToMany_Optional1"),
-                    new ExpectedInclude<Level2>(e => e.OneToOne_Required_FK2, "OneToOne_Required_FK2", "OneToMany_Optional1"),
+                    new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional1"),
+                    new ExpectedInclude<Level2>(e => e.OneToOne_Required_FK2, "OneToMany_Optional1"),
                 });
         }
 
@@ -5315,7 +5280,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))
                 });
         }
@@ -5333,7 +5297,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))
                 });
         }
@@ -5351,15 +5314,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)),
-                    new ExpectedInclude<Level2>(
-                        e => e.OneToOne_Optional_PK2,
-                        "OneToOne_Optional_PK2",
-                        "OneToMany_Optional1"),
+                    new ExpectedInclude<Level2>(e => e.OneToOne_Optional_PK2, "OneToMany_Optional1"),
                     new ExpectedFilteredInclude<Level3, Level4>(
                         e => e.OneToMany_Optional3,
-                        "OneToMany_Optional3",
                         "OneToMany_Optional1.OneToOne_Optional_PK2",
                         includeFilter: x => x.Where(x => x.Id > 1)),
                 });
@@ -5376,22 +5334,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)).ThenInclude(l3 => l3.OneToMany_Required3),
                 new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(
-                        e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1"),
+                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
-                        "OneToMany_Optional2",
                         "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)),
-                    new ExpectedInclude<Level3>(
-                        e => e.OneToMany_Optional3,
-                        "OneToMany_Optional3",
-                        "OneToMany_Optional1.OneToMany_Optional2"),
-                    new ExpectedInclude<Level3>(
-                        e => e.OneToMany_Required3,
-                        "OneToMany_Required3",
-                        "OneToMany_Optional1.OneToMany_Optional2"),
+                    new ExpectedInclude<Level3>(e => e.OneToMany_Optional3, "OneToMany_Optional1.OneToMany_Optional2"),
+                    new ExpectedInclude<Level3>(e => e.OneToMany_Required3, "OneToMany_Optional1.OneToMany_Optional2"),
                 });
         }
 
@@ -5406,22 +5355,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2).ThenInclude(l3 => l3.OneToMany_Required3),
                 new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<Level1>(
-                        e => e.OneToMany_Optional1,
-                        "OneToMany_Optional1"),
+                    new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
-                        "OneToMany_Optional2",
                         "OneToMany_Optional1",
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)),
-                    new ExpectedInclude<Level3>(
-                        e => e.OneToMany_Optional3,
-                        "OneToMany_Optional3",
-                        "OneToMany_Optional1.OneToMany_Optional2"),
-                    new ExpectedInclude<Level3>(
-                        e => e.OneToMany_Required3,
-                        "OneToMany_Required3",
-                        "OneToMany_Optional1.OneToMany_Optional2"),
+                    new ExpectedInclude<Level3>(e => e.OneToMany_Optional3, "OneToMany_Optional1.OneToMany_Optional2"),
+                    new ExpectedInclude<Level3>(e => e.OneToMany_Required3, "OneToMany_Optional1.OneToMany_Optional2"),
                 });
         }
 
@@ -5473,7 +5413,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 l1.Id,
                 FullInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2).ToList(),
-                FilteredInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l1.Id)).ToList() });
+                FilteredInclude = ctx.LevelTwo.Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l1.Id)).ToList()
+            });
             var result = query.ToList();
         }
 

@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from o in ss.Set<Order>().Include(o => o.Customer)
                       where o.Customer.City == "Seattle"
                       select o,
-                new List<IExpectedInclude> { new ExpectedInclude<Order>(o => o.Customer, "Customer") },
+                new List<IExpectedInclude> { new ExpectedInclude<Order>(o => o.Customer) },
                 entryCount: 15);
         }
 
@@ -319,8 +319,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<OrderDetail>(od => od.Order, "Order"),
-                new ExpectedInclude<Order>(o => o.Customer, "Customer", "Order")
+                new ExpectedInclude<OrderDetail>(od => od.Order),
+                new ExpectedInclude<Order>(o => o.Customer, "Order")
             };
 
             return AssertIncludeQuery(
