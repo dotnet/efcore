@@ -1995,6 +1995,31 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Can_compare_enum_to_constant()
+        {
+            using var context = CreateContext();
+            var query = context.Set<AnimalIdentification>()
+                .Where(a => a.Method == IdentificationMethod.EarTag)
+                .ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal(IdentificationMethod.EarTag, result.Method);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_compare_enum_to_parameter()
+        {
+            var method = IdentificationMethod.EarTag;
+            using var context = CreateContext();
+            var query = context.Set<AnimalIdentification>()
+                .Where(a => a.Method == method)
+                .ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal(IdentificationMethod.EarTag, result.Method);
+        }
+
+        [ConditionalFact]
         public virtual void Object_to_string_conversion()
         {
             using var context = CreateContext();
