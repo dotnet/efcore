@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             foreach (var expectedInclude in expectedIncludes.OfType<ExpectedInclude<TEntity>>().Where(i => i.NavigationPath == currentPath))
             {
-                var expectedIncludedNavigation = expectedInclude.Include(expected);
+                var expectedIncludedNavigation = GetIncluded(expected, expectedInclude.IncludeMember);
                 if (expectedInclude.GetType().BaseType != typeof(object))
                 {
                     var includedType = expectedInclude.GetType().GetGenericArguments()[1];
@@ -168,10 +168,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         CultureInfo.CurrentCulture);
                 }
 
-                var actualIncludedNavigation = expectedInclude.Include(actual);
+                var actualIncludedNavigation = GetIncluded(actual, expectedInclude.IncludeMember);
 
-                _path.Add(expectedInclude.IncludedName);
-                _fullPath.Push("." + expectedInclude.IncludedName);
+                _path.Add(expectedInclude.IncludeMember.Name);
+                _fullPath.Push("." + expectedInclude.IncludeMember.Name);
 
                 AssertObject(expectedIncludedNavigation, actualIncludedNavigation, expectedIncludes);
 
@@ -184,6 +184,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             IEnumerable<TIncluded> expected,
             ExpectedFilteredInclude<TEntity, TIncluded> expectedFilteredInclude)
             => expectedFilteredInclude.IncludeFilter(expected);
+
+        private object GetIncluded<TEntity>(TEntity entity, MemberInfo includeMember)
+            => includeMember switch
+                {
+                    FieldInfo fieldInfo => fieldInfo.GetValue(entity),
+                    PropertyInfo propertyInfo => propertyInfo.GetValue(entity),
+                    _ => throw new InvalidOperationException(),
+                };
 
         // for debugging purposes
         protected string FullPath => string.Join(string.Empty, _fullPath.Reverse());

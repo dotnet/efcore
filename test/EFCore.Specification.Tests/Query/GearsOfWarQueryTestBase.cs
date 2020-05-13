@@ -50,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<CogTag>(t => t.Gear, "Gear"),
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons", "Gear"),
-                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons", "Gear")
+                new ExpectedInclude<CogTag>(t => t.Gear),
+                new ExpectedInclude<Gear>(g => g.Weapons, "Gear"),
+                new ExpectedInclude<Officer>(o => o.Weapons, "Gear")
             };
 
             return AssertIncludeQuery(
@@ -91,9 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<CogTag>(t => t.Gear, "Gear"),
-                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "Gear"),
-                new ExpectedInclude<Officer>(o => o.Squad, "Squad", "Gear")
+                new ExpectedInclude<CogTag>(t => t.Gear),
+                new ExpectedInclude<Gear>(g => g.Squad, "Gear"),
+                new ExpectedInclude<Officer>(o => o.Squad, "Gear")
             };
 
             return AssertIncludeQuery(
@@ -116,9 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth")
+                new ExpectedInclude<Gear>(g => g.CityOfBirth),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth),
+                new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")
             };
 
             return AssertIncludeQuery(
@@ -133,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth")
+                new ExpectedInclude<Gear>(g => g.CityOfBirth),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth),
+                new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")
             };
 
             return AssertIncludeQuery(
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"), new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
+                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(o => o.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_navigation_on_derived_type(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) };
 
             return AssertIncludeQuery(
                 async,
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_based_Include_navigation_on_derived_type(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) };
 
             return AssertIncludeQuery(
                 async,
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Included(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<CogTag>(t => t.Gear, "Gear") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<CogTag>(t => t.Gear) };
 
             return AssertIncludeQuery(
                 async,
@@ -218,8 +218,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
+                new ExpectedInclude<Gear>(g => g.CityOfBirth),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth)
             };
 
             return AssertIncludeQuery(
@@ -238,8 +238,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
+                new ExpectedInclude<Gear>(g => g.CityOfBirth),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth)
             };
 
             return AssertIncludeQuery(
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"), new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
+                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(o => o.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"), new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
+                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(o => o.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -361,9 +361,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth")
+                new ExpectedInclude<Gear>(g => g.CityOfBirth),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth),
+                new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")
             };
 
             return AssertIncludeQuery(
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_join_and_inheritance1(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.CityOfBirth) };
 
             return AssertIncludeQuery(
                 async,
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_join_and_inheritance_with_orderby_before_and_after_include(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) };
 
             return AssertIncludeQuery(
                 async,
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_join_and_inheritance2(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Weapons, "Weapons") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Weapons) };
 
             return AssertIncludeQuery(
                 async,
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_join_and_inheritance3(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) };
 
             return AssertIncludeQuery(
                 async,
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_nested_navigation_in_order_by(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Weapon>(w => w.Owner, "Owner") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Weapon>(w => w.Owner) };
 
             return AssertIncludeQuery(
                 async,
@@ -1716,7 +1716,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        join g in ss.Set<Gear>().OfType<Officer>() on new { id1 = t.GearSquadId, id2 = t.GearNickName }
                            equals new { id1 = (int?)g.SquadId, id2 = g.Nickname }
                        select g).Include(g => g.Tag),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Tag, "Tag") });
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Tag) });
         }
 
         [ConditionalTheory]
@@ -1729,7 +1729,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        join t in ss.Set<CogTag>() on new { id1 = (int?)g.SquadId, id2 = g.Nickname }
                            equals new { id1 = t.GearSquadId, id2 = t.GearNickName }
                        select g).Include(g => g.Tag),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Tag, "Tag") });
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Tag) });
         }
 
         [ConditionalTheory]
@@ -1867,7 +1867,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"), new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
+                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(g => g.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -1886,7 +1886,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"), new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
+                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(g => g.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -1917,7 +1917,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"), new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
+                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(g => g.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -1936,7 +1936,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"), new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
+                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(g => g.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -1957,7 +1957,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"), new ExpectedInclude<Officer>(g => g.Weapons, "Weapons")
+                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(g => g.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -2743,7 +2743,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(g => g.FullName)
                     .Where(g => !g.HasSoulPatch)
                     .Select(g => g),
-                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Tag, "Tag") },
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Tag) },
                 assertOrder: true);
         }
 
@@ -2838,7 +2838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where !gear.HasSoulPatch
                       orderby gear.Nickname
                       select gear,
-                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.CityOfBirth, "CityOfBirth") },
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.CityOfBirth) },
                 assertOrder: true);
         }
 
@@ -3162,8 +3162,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
-                new ExpectedInclude<LocustHorde>(e => e.Leaders, "Leaders")
+                new ExpectedInclude<LocustHorde>(e => e.Commander),
+                new ExpectedInclude<LocustHorde>(e => e.Leaders)
             };
 
             return AssertIncludeQuery(
@@ -3179,7 +3179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_on_derived_entity_with_cast(bool async)
         {
-            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Faction>(e => e.Capital, "Capital") };
+            var expectedIncludes = new List<IExpectedInclude> { new ExpectedInclude<Faction>(e => e.Capital) };
 
             // TODO: should we disable this scenario? see #14671
             return AssertIncludeQuery(
@@ -3362,7 +3362,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<LocustLeader>().Include("DefeatedBy"),
-                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy) });
         }
 
         [ConditionalTheory]
@@ -3371,8 +3371,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy"),
-                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "DefeatedBy")
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
+                new ExpectedInclude<Gear>(g => g.Squad, "DefeatedBy")
             };
 
             return AssertIncludeQuery(
@@ -3387,9 +3387,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy"),
-                new ExpectedInclude<Officer>(o => o.Reports, "Reports", "DefeatedBy"),
-                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth", "DefeatedBy.Reports")
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
+                new ExpectedInclude<Officer>(o => o.Reports, "DefeatedBy"),
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "DefeatedBy.Reports")
             };
 
             return AssertIncludeQuery(
@@ -3405,7 +3405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<LocustLeader>().Include(ll => ((LocustCommander)ll).DefeatedBy),
-                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy) });
         }
 
         [ConditionalTheory]
@@ -3415,7 +3415,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<LocustLeader>().Include(ll => (ll as LocustCommander).DefeatedBy),
-                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy) });
         }
 
         [ConditionalTheory]
@@ -3425,7 +3425,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<LocustLeader>().AsTracking().Include(ll => ((LocustCommander)ll).DefeatedBy),
-                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") },
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy) },
                 entryCount: 7);
         }
 
@@ -3436,7 +3436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<Gear>().Include("Reports"),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) });
         }
 
         [ConditionalTheory]
@@ -3446,7 +3446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<Gear>().Include(g => ((Officer)g).Reports),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) });
         }
 
         [ConditionalTheory]
@@ -3456,7 +3456,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<Gear>().Include(g => (g as Officer).Reports),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) });
         }
 
         [ConditionalTheory]
@@ -3465,7 +3465,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Officer>(e => e.Tag, "Tag"), new ExpectedInclude<Officer>(e => e.Weapons, "Weapons")
+                new ExpectedInclude<Officer>(e => e.Tag), new ExpectedInclude<Officer>(e => e.Weapons)
             };
 
             return AssertIncludeQuery(
@@ -3480,7 +3480,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<CogTag>(e => e.Gear, "Gear"), new ExpectedInclude<Officer>(e => e.Weapons, "Weapons", "Gear")
+                new ExpectedInclude<CogTag>(e => e.Gear), new ExpectedInclude<Officer>(e => e.Weapons, "Gear")
             };
 
             return AssertIncludeQuery(
@@ -3495,9 +3495,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
-                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Commander"),
-                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy")
+                new ExpectedInclude<LocustHorde>(e => e.Commander),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "Commander"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Commander.DefeatedBy")
             };
 
             return AssertIncludeQuery(
@@ -3512,8 +3512,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Officer>(e => e.Reports, "Reports"),
-                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Reports")
+                new ExpectedInclude<Officer>(e => e.Reports),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports")
             };
 
             return AssertIncludeQuery(
@@ -3528,8 +3528,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<LocustHorde>(e => e.Leaders, "Leaders"),
-                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Leaders")
+                new ExpectedInclude<LocustHorde>(e => e.Leaders),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "Leaders")
             };
 
             return AssertIncludeQuery(
@@ -3544,9 +3544,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
-                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Commander"),
-                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy")
+                new ExpectedInclude<LocustHorde>(e => e.Commander),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "Commander"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Commander.DefeatedBy")
             };
 
             return AssertIncludeQuery(
@@ -3561,9 +3561,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Officer>(e => e.Reports, "Reports"),
-                new ExpectedInclude<Gear>(e => e.Squad, "Squad", "Reports"),
-                new ExpectedInclude<Squad>(e => e.Missions, "Missions", "Reports.Squad")
+                new ExpectedInclude<Officer>(e => e.Reports),
+                new ExpectedInclude<Gear>(e => e.Squad, "Reports"),
+                new ExpectedInclude<Squad>(e => e.Missions, "Reports.Squad")
             };
 
             return AssertIncludeQuery(
@@ -4734,8 +4734,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy"),
-                new ExpectedInclude<Gear>(e => e.Weapons, "Weapons", "DefeatedBy")
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy),
+                new ExpectedInclude<Gear>(e => e.Weapons, "DefeatedBy")
             };
 
             return AssertIncludeQuery(
@@ -4840,7 +4840,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(g => g.Squad, "Squad"), new ExpectedInclude<Officer>(o => o.Squad, "Squad")
+                new ExpectedInclude<Gear>(g => g.Squad), new ExpectedInclude<Officer>(o => o.Squad)
             };
 
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -5172,7 +5172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Squad>().Include(s => s.Members).OrderBy(s => 42).Select(s => s),
                 expectedQuery: ss => ss.Set<Squad>(),
-                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
+                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members) });
         }
 
         [ConditionalTheory]
@@ -5232,7 +5232,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Squad>().Include(s => s.Members).OrderBy(s => (MyDTO)null),
                 expectedQuery: ss => ss.Set<Squad>(),
-                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
+                new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members) });
         }
 
         [ConditionalFact(Skip = "issue #11567")]
@@ -5275,7 +5275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().OfType<Officer>()
                     .Include(o => o.Reports)
                     .OrderBy(o => o.Weapons.Count).ThenBy(o => o.Nickname),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") },
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) },
                 assertOrder: true);
         }
 
@@ -5288,7 +5288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().OfType<Officer>()
                     .Include(o => o.Reports)
                     .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic).ThenBy(o => o.Nickname),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") },
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) },
                 assertOrder: true);
         }
 
@@ -5301,7 +5301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().OfType<Officer>()
                     .Include(o => o.Reports)
                     .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()).ThenBy(o => o.Nickname),
-                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") },
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports) },
                 assertOrder: true);
         }
 
@@ -5862,8 +5862,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expectedIncludes = new List<IExpectedInclude>
             {
-                new ExpectedInclude<Gear>(e => e.CityOfBirth, "CityOfBirth"),
-                new ExpectedInclude<Officer>(e => e.CityOfBirth, "CityOfBirth")
+                new ExpectedInclude<Gear>(e => e.CityOfBirth),
+                new ExpectedInclude<Officer>(e => e.CityOfBirth)
             };
 
             return AssertIncludeQuery(
@@ -5879,7 +5879,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 async,
                 ss => ss.Set<Gear>().OfType<Officer>().Include(o => o.Weapons).Cast<Gear>(),
-                new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Weapons, "Weapons") });
+                new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Weapons) });
         }
 
         [ConditionalTheory]
@@ -6205,7 +6205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(g => g.Weapons)
                     .OrderBy(g => g.Weapons.FirstOrDefault(w => w.Name.Contains("Gnasher")).Name)
                     .ThenBy(g => g.Nickname),
-                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Weapons, "Weapons") },
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Gear>(e => e.Weapons) },
                 assertOrder: true);
         }
 
@@ -6507,7 +6507,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<CogTag>().AsTracking().OrderBy(t => t.Note).Include(t => t.Gear).ThenInclude(g => g.Squad),
                 new List<IExpectedInclude>
                 {
-                    new ExpectedInclude<CogTag>(t => t.Gear, "Gear"), new ExpectedInclude<Gear>(t => t.Squad, "Squad", "Gear")
+                    new ExpectedInclude<CogTag>(t => t.Gear), new ExpectedInclude<Gear>(t => t.Squad, "Gear")
                 },
                 entryCount: 13);
         }
