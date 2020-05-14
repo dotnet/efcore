@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public override async Task AssertSingleResultTyped<TResult>(
+        public override async Task AssertSingleResult<TResult>(
             Expression<Func<ISetSource, TResult>> actualSyncQuery,
             Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
             Expression<Func<ISetSource, TResult>> expectedQuery,
@@ -53,16 +53,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             string testMethodName)
         {
             using var context = _contextCreator();
-            TResult actual;
-
-            if (async)
-            {
-                actual = await actualAsyncQuery.Compile()(SetSourceCreator(context));
-            }
-            else
-            {
-                actual = actualSyncQuery.Compile()(SetSourceCreator(context));
-            }
+            var actual = async
+                ? await actualAsyncQuery.Compile()(SetSourceCreator(context))
+                : actualSyncQuery.Compile()(SetSourceCreator(context));
 
             var rewrittenExpectedQueryExpression = (Expression<Func<ISetSource, TResult>>)_expectedQueryRewritingVisitor.Visit(expectedQuery);
             var expected = rewrittenExpectedQueryExpression.Compile()(ExpectedData);
@@ -132,9 +125,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
         }
 
-        private void OrderingSettingsVerifier(bool assertOrder, Type type)
-            => OrderingSettingsVerifier(assertOrder, type, elementSorter: null);
-
         private void OrderingSettingsVerifier(bool assertOrder, Type type, object elementSorter)
         {
             if (!assertOrder
@@ -169,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return;
             }
 
-            OrderingSettingsVerifier(assertOrder, query.Expression.Type);
+            OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter: null);
 
             var actual = async
                 ? await query.ToListAsync()
@@ -204,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return;
             }
 
-            OrderingSettingsVerifier(assertOrder, query.Expression.Type);
+            OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter: null);
 
             var actual = async
                 ? await query.ToListAsync()
@@ -1468,25 +1458,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var rewrittenExpectedSelector = (Expression<Func<TResult, double?>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
             var expected = GetExpectedResults(expectedQuery).Average(rewrittenExpectedSelector);
-
-            AssertEqual(expected, actual, asserter);
-            Assert.Empty(context.ChangeTracker.Entries());
-        }
-
-        public override async Task AssertContains<TElement>(
-            Func<ISetSource, IQueryable<TElement>> actualQuery,
-            Func<ISetSource, IQueryable<TElement>> expectedQuery,
-            TElement actualElement,
-            TElement expectedElement,
-            Action<bool, bool> asserter = null,
-            bool async = false)
-        {
-            using var context = _contextCreator();
-            var actual = async
-                ? await actualQuery(SetSourceCreator(context)).ContainsAsync(actualElement)
-                : actualQuery(SetSourceCreator(context)).Contains(actualElement);
-
-            var expected = expectedQuery(ExpectedData).Contains(expectedElement);
 
             AssertEqual(expected, actual, asserter);
             Assert.Empty(context.ChangeTracker.Entries());

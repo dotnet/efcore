@@ -14,7 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public NorthwindAggregateOperatorsQueryCosmosTest(
             NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture,
+#pragma warning disable IDE0060 // Remove unused parameter
             ITestOutputHelper testOutputHelper)
+#pragma warning restore IDE0060 // Remove unused parameter
             : base(fixture)
         {
             ClearLog();
