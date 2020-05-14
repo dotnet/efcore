@@ -580,8 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] ITable target,
             [NotNull] DiffContext diffContext)
         {
-            if (!source.IsMigratable
-                || !target.IsMigratable)
+            if (source.IsExcludedFromMigrations
+                && target.IsExcludedFromMigrations)
             {
                 yield break;
             }
@@ -640,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Add(
             [NotNull] ITable target, [NotNull] DiffContext diffContext)
         {
-            if (!target.IsMigratable)
+            if (target.IsExcludedFromMigrations)
             {
                 yield break;
             }
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Remove(
             [NotNull] ITable source, [NotNull] DiffContext diffContext)
         {
-            if (!source.IsMigratable)
+            if (source.IsExcludedFromMigrations)
             {
                 yield break;
             }
@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 groups.Add(group.Key, group.Value.Values.ToList());
             }
 
-            foreach (var linkingForeignKey in table.GetReferencingInternalForeignKeys(entityType))
+            foreach (var linkingForeignKey in table.GetReferencingRowInternalForeignKeys(entityType))
             {
                 var linkingNavigationProperty = linkingForeignKey.PrincipalToDependent?.PropertyInfo;
                 var properties = GetSortedProperties(linkingForeignKey.DeclaringEntityType, table).ToList();
@@ -1278,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IForeignKeyConstraint target, [NotNull] DiffContext diffContext)
         {
             var targetTable = target.Table;
-            if (!targetTable.IsMigratable)
+            if (targetTable.IsExcludedFromMigrations)
             {
                 yield break;
             }
@@ -2226,8 +2226,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<string> GetSchemas([NotNull] IRelationalModel model)
-            => model.Tables.Where(t => t.IsMigratable).Select(t => t.Schema)
-                .Concat(model.Views.Where(t => t.ViewDefinition != null).Select(s => s.Schema))
+            => model.Tables.Where(t => !t.IsExcludedFromMigrations).Select(t => t.Schema)
+                .Concat(model.Views.Where(t => t.ViewDefinitionSql != null).Select(s => s.Schema))
                 .Concat(model.Sequences.Select(s => s.Schema))
                 .Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();
@@ -2259,7 +2259,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static IEntityType GetRootType(ITable table)
             => table.EntityTypeMappings.Select(m => m.EntityType).FirstOrDefault(
-                t => t.BaseType == null && !table.GetInternalForeignKeys(t).Any());
+                t => t.BaseType == null && !table.GetRowInternalForeignKeys(t).Any());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

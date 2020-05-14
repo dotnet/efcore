@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     Assert.Equal("view", view.GetViewName());
                     Assert.Null(view.GetTableName());
-                    Assert.NotNull(view.FindAnnotation(RelationalAnnotationNames.ViewDefinition));
+                    Assert.NotNull(view.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql));
                 }
             );
             Assert.Empty(model.GetEntityTypeErrors().Values);

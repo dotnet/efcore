@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
                 yield return new Annotation(SqlServerAnnotationNames.EditionOptions, options.ToString());
             }
 
-            if (model.Tables.Any(t => t.IsMigratable && (t[SqlServerAnnotationNames.MemoryOptimized] as bool? == true)))
+            if (model.Tables.Any(t => !t.IsExcludedFromMigrations && (t[SqlServerAnnotationNames.MemoryOptimized] as bool? == true)))
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.MemoryOptimized,

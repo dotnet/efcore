@@ -521,8 +521,8 @@ namespace Microsoft.EntityFrameworkCore
                 return false;
             }
 
-            var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
-            if (viewDefinition?.Value != null)
+            var viewDefinitionSql = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql);
+            if (viewDefinitionSql?.Value != null)
             {
                 return false;
             }

@@ -29,6 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the view definition or <see langword="null" /> if this view is not managed by migrations.
         /// </summary>
-        public string ViewDefinition { get; }
+        public string ViewDefinitionSql { get; }
     }
 }

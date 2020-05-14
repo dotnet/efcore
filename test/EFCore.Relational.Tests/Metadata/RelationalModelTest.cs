@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ordersView.Columns.Select(m => m.Name));
             Assert.Equal("OrderView", ordersView.Name);
             Assert.Equal("viewSchema", ordersView.Schema);
-            Assert.Null(ordersView.ViewDefinition);
+            Assert.Null(ordersView.ViewDefinitionSql);
 
             var orderDate = orderType.FindProperty(nameof(Order.OrderDate));
             Assert.False(orderDate.IsViewColumnNullable());
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsOwnership = orderType.FindNavigation(nameof(Order.Details)).ForeignKey;
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             Assert.Same(ordersView, orderDetailsType.GetViewMappings().Single().View);
-            Assert.Equal(ordersView.GetReferencingInternalForeignKeys(orderType), ordersView.GetInternalForeignKeys(orderDetailsType));
+            Assert.Equal(ordersView.GetReferencingRowInternalForeignKeys(orderType), ordersView.GetRowInternalForeignKeys(orderDetailsType));
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
             Assert.True(orderDetailsDate.IsViewColumnNullable());
@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ordersTable.Columns.Select(m => m.Name));
             Assert.Equal("Order", ordersTable.Name);
             Assert.Null(ordersTable.Schema);
-            Assert.True(ordersTable.IsMigratable);
-            Assert.True(ordersTable.IsSplit);
+            Assert.False(ordersTable.IsExcludedFromMigrations);
+            Assert.True(ordersTable.IsShared);
 
             var orderDate = orderType.FindProperty(nameof(Order.OrderDate));
             Assert.False(orderDate.IsColumnNullable());
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsOwnership = orderType.FindNavigation(nameof(Order.Details)).ForeignKey;
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             Assert.Same(ordersTable, orderDetailsType.GetTableMappings().Single().Table);
-            Assert.Equal(ordersTable.GetReferencingInternalForeignKeys(orderType), ordersTable.GetInternalForeignKeys(orderDetailsType));
+            Assert.Equal(ordersTable.GetReferencingRowInternalForeignKeys(orderType), ordersTable.GetRowInternalForeignKeys(orderDetailsType));
             Assert.Empty(orderDetailsOwnership.GetMappedConstraints());
             Assert.Empty(orderDetailsType.GetForeignKeys().Where(fk => fk != orderDetailsOwnership));
             Assert.Same(orderPkConstraint, orderDetailsType.FindPrimaryKey().GetMappedConstraints().Single());

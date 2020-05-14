@@ -1323,7 +1323,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (innerShaper == null)
                 {
                     if (entityType.GetViewOrTableMappings().Single().Table
-                        .GetReferencingInternalForeignKeys(foreignKey.PrincipalEntityType)?.Contains(foreignKey) == true)
+                        .GetReferencingRowInternalForeignKeys(foreignKey.PrincipalEntityType)?.Contains(foreignKey) == true)
                     {
                         // Since we are not going to update table or visit, we always generate propertyExpressions
                         // We just first column of PK to figure out the base table

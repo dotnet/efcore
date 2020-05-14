@@ -86,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         databaseModel.Tables.Add((tableName, schema), table);
                     }
 
-                    table.IsMigratable = table.IsMigratable
-                        || entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) == null;
+                    table.IsExcludedFromMigrations = table.IsExcludedFromMigrations
+                        && entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql) == null;
 
                     var tableMapping = new TableMapping(entityType, table, includesDerivedTypes: true);
                     foreach (var property in entityType.GetDeclaredProperties())
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                PopulateInternalForeignKeys(table);
+                PopulateRowInternalForeignKeys(table);
                 PopulateConstraints(table, relationalAnnotationProvider);
 
                 if (relationalAnnotationProvider != null)
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                PopulateInternalForeignKeys(view);
+                PopulateRowInternalForeignKeys(view);
 
                 if (relationalAnnotationProvider != null)
                 {
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private static void PopulateInternalForeignKeys(TableBase table)
+        private static void PopulateRowInternalForeignKeys(TableBase table)
         {
             SortedDictionary<IEntityType, IEnumerable<IForeignKey>> internalForeignKeyMap = null;
             SortedDictionary<IEntityType, IEnumerable<IForeignKey>> referencingInternalForeignKeyMap = null;
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                SortedSet<IForeignKey> internalForeignKeys = null;
+                SortedSet<IForeignKey> rowInternalForeignKeys = null;
                 foreach (var foreignKey in entityType.FindForeignKeys(primaryKey.Properties))
                 {
                     if (foreignKey.IsUnique
@@ -484,11 +484,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && !foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                         && ((ITableBase)table).EntityTypeMappings.Any(m => m.EntityType == foreignKey.PrincipalEntityType))
                     {
-                        if (internalForeignKeys == null)
+                        if (rowInternalForeignKeys == null)
                         {
-                            internalForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
+                            rowInternalForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
                         }
-                        internalForeignKeys.Add(foreignKey);
+                        rowInternalForeignKeys.Add(foreignKey);
 
                         if (referencingInternalForeignKeyMap == null)
                         {
@@ -506,29 +506,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                if (internalForeignKeys != null)
+                if (rowInternalForeignKeys != null)
                 {
                     if (internalForeignKeyMap == null)
                     {
                         internalForeignKeyMap =
                             new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
-                        table.InternalForeignKeys = internalForeignKeyMap;
+                        table.RowInternalForeignKeys = internalForeignKeyMap;
                     }
 
-                    internalForeignKeyMap[entityType] = internalForeignKeys;
+                    internalForeignKeyMap[entityType] = rowInternalForeignKeys;
                 }
 
-                if (internalForeignKeys == null
+                if (rowInternalForeignKeys == null
                     && ((ITableBase)table).EntityTypeMappings.Any(m => !m.EntityType.IsAssignableFrom(entityType)
                         && !entityType.IsAssignableFrom(m.EntityType)))
                 {
-                    table.IsSplit = true;
+                    table.IsShared = true;
                 }
             }
 
             if (referencingInternalForeignKeyMap != null)
             {
-                table.ReferencingInternalForeignKeys = referencingInternalForeignKeyMap;
+                table.ReferencingRowInternalForeignKeys = referencingInternalForeignKeyMap;
             }
         }
 

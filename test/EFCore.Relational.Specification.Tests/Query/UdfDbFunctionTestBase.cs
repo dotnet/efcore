@@ -1244,7 +1244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
-        #region QueryableFunction
+        #region TableValuedFunction
 
         [ConditionalFact(Skip = "Issue#15873")]
         public virtual void QF_Anonymous_Collection_No_PK_Throws()

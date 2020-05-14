@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the value indicating whether multiple entity types are sharing the rows in the table.
         /// </summary>
-        bool IsSplit { get; }
+        bool IsShared { get; }
 
         /// <summary>
         ///     Gets the entity type mappings.
@@ -50,11 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the foreign keys for the given entity type that point to other entity types sharing this table.
         /// </summary>
-        IEnumerable<IForeignKey> GetInternalForeignKeys([NotNull] IEntityType entityType);
+        IEnumerable<IForeignKey> GetRowInternalForeignKeys([NotNull] IEntityType entityType);
 
         /// <summary>
         ///     Gets the foreign keys referencing the given entity type from other entity types sharing this table.
         /// </summary>
-        IEnumerable<IForeignKey> GetReferencingInternalForeignKeys([NotNull] IEntityType entityType);
+        IEnumerable<IForeignKey> GetReferencingRowInternalForeignKeys([NotNull] IEntityType entityType);
     }
 }

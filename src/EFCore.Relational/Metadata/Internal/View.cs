@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = new SortedDictionary<string, ViewColumn>(StringComparer.Ordinal);
 
         /// <inheritdoc/>
-        public virtual string ViewDefinition
-            => (string)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinition]).FirstOrDefault(d => d != null);
+        public virtual string ViewDefinitionSql
+            => (string)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinitionSql]).FirstOrDefault(d => d != null);
 
         /// <inheritdoc/>
         public virtual IViewColumn FindColumn(string name)
@@ -97,16 +97,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetInternalForeignKeys(IEntityType entityType)
-            => InternalForeignKeys != null
-                && InternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
+        IEnumerable<IForeignKey> ITableBase.GetRowInternalForeignKeys(IEntityType entityType)
+            => RowInternalForeignKeys != null
+                && RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
                 : Enumerable.Empty<IForeignKey>();
 
         /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetReferencingInternalForeignKeys(IEntityType entityType)
-            => ReferencingInternalForeignKeys != null
-                && ReferencingInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
+        IEnumerable<IForeignKey> ITableBase.GetReferencingRowInternalForeignKeys(IEntityType entityType)
+            => ReferencingRowInternalForeignKeys != null
+                && ReferencingRowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
                 : Enumerable.Empty<IForeignKey>();
     }

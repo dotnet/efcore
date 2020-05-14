@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewMappings);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DbSetName);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewDefinition);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewDefinitionSql);
 
             if (!useDataAnnotations || entityType.GetViewName() != null)
             {

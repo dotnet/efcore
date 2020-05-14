@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The name for the annotation containing the definition of a database view.
         /// </summary>
-        public const string ViewDefinition = Prefix + "ViewDefinition";
+        public const string ViewDefinitionSql = Prefix + "ViewDefinitionSql";
 
         /// <summary>
         ///     The name for database model annotation.

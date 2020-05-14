@@ -803,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 table ??= tableMappings.Single().Table;
                 var discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
 
-                var linkingFks = table.GetInternalForeignKeys(entityType);
+                var linkingFks = table.GetRowInternalForeignKeys(entityType);
                 if (linkingFks.Any())
                 {
                     if (!discriminatorAdded)
@@ -972,7 +972,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var otherSelectExpression = new SelectExpression(entityType);
 
-                        var sameTable = table.GetInternalForeignKeys(referencingFk.DeclaringEntityType).Any();
+                        var sameTable = table.GetRowInternalForeignKeys(referencingFk.DeclaringEntityType).Any();
                         AddInnerJoin(
                             otherSelectExpression, referencingFk,
                             sameTable ? table : null,

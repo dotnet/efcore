@@ -194,7 +194,7 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code => Assert.Contains(".ToView(\"Vista\")", code.ContextFile.Code),
                 model => Assert.NotNull(
-                    model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinition)));
+                    model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql)));
         }
 
         [ConditionalFact]
