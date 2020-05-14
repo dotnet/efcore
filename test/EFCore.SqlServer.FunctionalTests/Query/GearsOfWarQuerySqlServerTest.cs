@@ -5248,20 +5248,11 @@ END");
         {
             await base.Double_order_by_on_string_compare(async);
 
-            // issue #16092
             AssertSql(
                 @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 ORDER BY CASE
-    WHEN (CASE
-        WHEN [w].[Name] = N'Marcus'' Lancer' THEN 0
-        WHEN [w].[Name] > N'Marcus'' Lancer' THEN 1
-        WHEN [w].[Name] < N'Marcus'' Lancer' THEN -1
-    END = 0) AND CASE
-        WHEN [w].[Name] = N'Marcus'' Lancer' THEN 0
-        WHEN [w].[Name] > N'Marcus'' Lancer' THEN 1
-        WHEN [w].[Name] < N'Marcus'' Lancer' THEN -1
-    END IS NOT NULL THEN CAST(1 AS bit)
+    WHEN ([w].[Name] = N'Marcus'' Lancer') AND [w].[Name] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [w].[Id]");
         }
@@ -5280,21 +5271,12 @@ ORDER BY [w].[Id] + 2");
         {
             await base.String_compare_with_null_conditional_argument(async);
 
-            // issue #16092
             AssertSql(
                 @"SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 ORDER BY CASE
-    WHEN (CASE
-        WHEN [w0].[Name] = N'Marcus'' Lancer' THEN 0
-        WHEN [w0].[Name] > N'Marcus'' Lancer' THEN 1
-        WHEN [w0].[Name] < N'Marcus'' Lancer' THEN -1
-    END = 0) AND CASE
-        WHEN [w0].[Name] = N'Marcus'' Lancer' THEN 0
-        WHEN [w0].[Name] > N'Marcus'' Lancer' THEN 1
-        WHEN [w0].[Name] < N'Marcus'' Lancer' THEN -1
-    END IS NOT NULL THEN CAST(1 AS bit)
+    WHEN ([w0].[Name] = N'Marcus'' Lancer') AND [w0].[Name] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -5303,21 +5285,12 @@ END");
         {
             await base.String_compare_with_null_conditional_argument2(async);
 
-            // issue #16092
             AssertSql(
                 @"SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 ORDER BY CASE
-    WHEN (CASE
-        WHEN N'Marcus'' Lancer' = [w0].[Name] THEN 0
-        WHEN N'Marcus'' Lancer' > [w0].[Name] THEN 1
-        WHEN N'Marcus'' Lancer' < [w0].[Name] THEN -1
-    END = 0) AND CASE
-        WHEN N'Marcus'' Lancer' = [w0].[Name] THEN 0
-        WHEN N'Marcus'' Lancer' > [w0].[Name] THEN 1
-        WHEN N'Marcus'' Lancer' < [w0].[Name] THEN -1
-    END IS NOT NULL THEN CAST(1 AS bit)
+    WHEN (N'Marcus'' Lancer' = [w0].[Name]) AND [w0].[Name] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }

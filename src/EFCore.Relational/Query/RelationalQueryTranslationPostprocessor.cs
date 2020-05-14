@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
-            query = new CaseWhenFlatteningExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
+            query = new CaseSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 
 #pragma warning disable 618
             query = OptimizeSqlExpression(query);

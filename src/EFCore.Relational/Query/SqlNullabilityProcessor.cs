@@ -832,7 +832,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             nullable = leftNullable || rightNullable;
-
             var result = sqlBinaryExpression.Update(left, right);
 
             return result is SqlBinaryExpression sqlBinaryResult
