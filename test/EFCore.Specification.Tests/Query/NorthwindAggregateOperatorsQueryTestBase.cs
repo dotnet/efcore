@@ -1556,10 +1556,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
         {
-            return AssertContains(
+            return AssertSingleResult(
                 async,
-                ss => ss.Set<Order>().Where(o => o.CustomerID == "VINET"),
-                null);
+                ss => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Contains(null),
+                ss => ss.Set<Order>().Where(o => o.CustomerID == "VINET").ContainsAsync(null, default));
         }
 
         [ConditionalTheory]

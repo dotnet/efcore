@@ -1105,7 +1105,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => ss.Set<Gear>().Select(g => g.LeaderNickname != null
-                        ? (bool?)(g.Nickname.Length == 5) ?? default(bool)
+                        ? (bool?)(g.Nickname.Length == 5) ?? default
                         : (bool?)null));
         }
 

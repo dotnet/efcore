@@ -4945,10 +4945,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains_over_optional_navigation_with_null_parameter(bool async)
         {
-            return AssertContains(
+            return AssertSingleResult(
                 async,
-                ss => ss.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1),
-                null);
+                ss => ss.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1).Contains(null),
+                ss => ss.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1).ContainsAsync(null, default));
         }
 
         [ConditionalTheory]

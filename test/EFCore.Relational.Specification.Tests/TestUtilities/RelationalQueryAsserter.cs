@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var count = ExecuteReader(command);
 
             // There may be more rows returned than entity instances created, but there
-            // should never vbe fewer.
+            // should never be fewer.
             Assert.True(count >= expectedCount);
 
             return (command.Connection, command.Transaction, command.CommandTimeout, count);
