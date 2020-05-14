@@ -208,22 +208,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(expected.Count, actual.Count);
 
             if (elementSorter == null
-                && !verifyOrdered)
+                && !verifyOrdered
+                && expected.Count > 1 // If there is only 1 element then sorting is not necessary
+                && expected.FirstOrDefault(e => e != null) is T nonNullElement
+                    && nonNullElement.GetType().GetInterface(nameof(IComparable)) == null)
             {
-                if (expected.Count > 1)
+                if (elementAsserter != null)
                 {
-                    if (expected.FirstOrDefault(e => e != null) is T nonNullElement
-                        && nonNullElement.GetType().GetInterface(nameof(IComparable)) == null)
-                    {
-                        if (elementAsserter != null)
-                        {
-                            throw new InvalidOperationException(
-                                "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
-                        }
-
-                        return AssertResults(expected, actual);
-                    }
+                    throw new InvalidOperationException(
+                        "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                 }
+
+                return AssertResults(expected, actual);
             }
 
             elementSorter ??= (e => e);

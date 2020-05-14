@@ -80,47 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TResult : struct
             => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
 
-        public Task<List<TResult>> AssertIncludeQuery<TResult>(
-            bool async,
-            Func<ISetSource, IQueryable<TResult>> query,
-            List<IExpectedInclude> expectedIncludes,
-            Func<TResult, object> elementSorter = null,
-            List<Func<TResult, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            => AssertIncludeQuery(
-                async,
-                query,
-                query,
-                expectedIncludes,
-                elementSorter,
-                clientProjections,
-                assertOrder,
-                entryCount,
-                testMethodName);
-
-        public Task<List<TResult>> AssertIncludeQuery<TResult>(
-            bool async,
-            Func<ISetSource, IQueryable<TResult>> actualQuery,
-            Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            List<IExpectedInclude> expectedIncludes,
-            Func<TResult, object> elementSorter = null,
-            List<Func<TResult, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            => Fixture.QueryAsserter.AssertIncludeQuery(
-                actualQuery,
-                expectedQuery,
-                expectedIncludes,
-                elementSorter,
-                clientProjections,
-                assertOrder,
-                entryCount,
-                async,
-                testMethodName);
-
         protected Task AssertSingleResult<TResult>(
             bool async,
             Expression<Func<ISetSource, TResult>> syncQuery,
@@ -1116,6 +1075,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<TElement, object> elementSorter = null,
             Action<TElement, TElement> elementAsserter = null)
             => Fixture.QueryAsserter.AssertCollection(expected, actual, ordered, elementSorter, elementAsserter);
+
+        protected void AssertInclude<TEntity>(
+            TEntity expected,
+            TEntity actual,
+            params IExpectedInclude[] expectedIncludes)
+            => Fixture.QueryAsserter.AssertInclude(expected, actual, expectedIncludes);
 
         protected void AssertGrouping<TKey, TElement>(
             IGrouping<TKey, TElement> expected,
