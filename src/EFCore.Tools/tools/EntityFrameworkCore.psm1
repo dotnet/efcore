@@ -350,6 +350,9 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER ContextNamespace
     Specify to override the namespace for the DbContext class.
 
+.PARAMETER NoPluralize
+    Don't use the pluralizer.
+
 .PARAMETER Args
     Arguments passed to the application.
 
@@ -377,6 +380,7 @@ function Scaffold-DbContext
         [string] $StartupProject,
         [string] $Namespace,
         [string] $ContextNamespace,
+        [switch] $NoPluralize,
         [string] $Args)
 
     $dteProject = GetProject $Project
@@ -430,6 +434,11 @@ function Scaffold-DbContext
     if ($NoOnConfiguring)
     {
         $params += '--no-onconfiguring'
+    }
+
+    if ($NoPluralize)
+    {
+        $params += '--no-pluralize'
     }
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0

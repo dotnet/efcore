@@ -145,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool useDatabaseNames,
             string modelNamespace,
             string contextNamespace,
-            bool suppressOnConfiguring)
+            bool suppressOnConfiguring,
+            bool noPluralize)
             => InvokeOperation<IDictionary>(
                 "ScaffoldContext",
                 new Dictionary<string, object>
@@ -162,7 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["useDatabaseNames"] = useDatabaseNames,
                     ["modelNamespace"] = modelNamespace,
                     ["contextNamespace"] = contextNamespace,
-                    ["suppressOnConfiguring"] = suppressOnConfiguring
+                    ["suppressOnConfiguring"] = suppressOnConfiguring,
+                    ["noPluralize"] = noPluralize
                 });
 
         public string ScriptMigration(

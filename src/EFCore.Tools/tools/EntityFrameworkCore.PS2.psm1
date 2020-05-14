@@ -190,6 +190,9 @@ function Remove-Migration(
 .PARAMETER ContextNamespace
     Specify to override the namespace for the DbContext class.
 
+.PARAMETER NoPluralize
+    Don't use the pluralizer.
+
 .LINK
     about_EntityFrameworkCore
 #>
@@ -208,7 +211,8 @@ function Scaffold-DbContext(
     $Project,
     $StartupProject,
     $Namespace,
-    $ContextNamespace)
+    $ContextNamespace,
+    [switch] $NoPluralize)
 {
     throw $UpdatePowerShell
 }

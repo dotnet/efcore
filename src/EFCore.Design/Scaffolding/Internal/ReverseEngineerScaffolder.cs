@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 databaseModel.RemoveAnnotation(ScaffoldingAnnotationNames.ConnectionString);
             }
 
-            var model = _factory.Create(databaseModel, modelOptions.UseDatabaseNames);
+            var model = _factory.Create(databaseModel, modelOptions);
 
             if (model == null)
             {

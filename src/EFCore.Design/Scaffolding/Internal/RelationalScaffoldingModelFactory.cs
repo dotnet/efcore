@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IOperationReporter _reporter;
         private readonly ICandidateNamingService _candidateNamingService;
         private Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>> _columnNamers;
-        private bool _useDatabaseNames;
+        private ModelReverseEngineerOptions _options;
         private readonly DatabaseTable _nullTable = new DatabaseTable();
         private CSharpUniqueNamer<DatabaseTable> _tableNamer;
         private CSharpUniqueNamer<DatabaseTable> _dbSetNamer;
@@ -80,30 +80,31 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Create(DatabaseModel databaseModel, bool useDatabaseNames)
+        public virtual IModel Create(DatabaseModel databaseModel, ModelReverseEngineerOptions options)
         {
             Check.NotNull(databaseModel, nameof(databaseModel));
+            Check.NotNull(options, nameof(options));
 
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
             _tableNamer = new CSharpUniqueNamer<DatabaseTable>(
-                useDatabaseNames
+                options.UseDatabaseNames
                     ? (Func<DatabaseTable, string>)(t => t.Name)
                     : t => _candidateNamingService.GenerateCandidateIdentifier(t),
                 _cSharpUtilities,
-                useDatabaseNames
+                options.UseDatabaseNames || options.NoPluralize
                     ? (Func<string, string>)null
                     : _pluralizer.Singularize);
             _dbSetNamer = new CSharpUniqueNamer<DatabaseTable>(
-                useDatabaseNames
+                options.UseDatabaseNames
                     ? (Func<DatabaseTable, string>)(t => t.Name)
                     : t => _candidateNamingService.GenerateCandidateIdentifier(t),
                 _cSharpUtilities,
-                useDatabaseNames
+                options.UseDatabaseNames || options.NoPluralize
                     ? (Func<string, string>)null
                     : _pluralizer.Pluralize);
             _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();
-            _useDatabaseNames = useDatabaseNames;
+            _options = options;
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
@@ -147,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!_columnNamers.ContainsKey(table))
             {
-                if (_useDatabaseNames)
+                if (_options.UseDatabaseNames)
                 {
                     _columnNamers.Add(
                         table,
@@ -893,7 +894,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (!foreignKey.IsUnique
                 && !foreignKey.IsSelfReferencing())
             {
-                principalEndNavigationPropertyCandidateName = _pluralizer.Pluralize(principalEndNavigationPropertyCandidateName);
+                principalEndNavigationPropertyCandidateName = _options.NoPluralize
+                    ? principalEndNavigationPropertyCandidateName
+                    : _pluralizer.Pluralize(principalEndNavigationPropertyCandidateName);
             }
 
             var principalEndNavigationPropertyName =

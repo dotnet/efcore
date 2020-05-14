@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool useDatabaseNames,
             string entityNamespace,
             string dbContextNamespace,
-            bool suppressOnConfiguring);
+            bool suppressOnConfiguring,
+            bool noPluralize);
 
         string ScriptMigration(string fromMigration, string toMigration, bool idempotent, string contextType);
 

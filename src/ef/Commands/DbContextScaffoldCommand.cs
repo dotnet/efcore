@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 _useDatabaseNames.HasValue(),
                 _namespace.Value(),
                 _contextNamespace.Value(),
-                _suppressOnConfiguring.HasValue());
+                _suppressOnConfiguring.HasValue(),
+                _noPluralize.HasValue());
             if (_json.HasValue())
             {
                 ReportJsonResults(result);

@@ -77,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             bool useDataAnnotations,
             bool overwriteFiles,
             bool useDatabaseNames,
-            bool suppressOnConfiguring)
+            bool suppressOnConfiguring,
+            bool noPluralize)
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 new DatabaseModelFactoryOptions(tables, schemas),
-                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames },
+                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize },
                 new ModelCodeGenerationOptions
                 {
                     UseDataAnnotations = useDataAnnotations,
