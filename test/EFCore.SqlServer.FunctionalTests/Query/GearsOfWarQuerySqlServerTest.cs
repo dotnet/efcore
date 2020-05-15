@@ -4839,22 +4839,6 @@ LEFT JOIN (
 ) AS [t0] ON [s].[Id] = [t0].[SquadId]");
         }
 
-        public override async Task Include_with_order_by_constant_null_of_non_mapped_type(bool async)
-        {
-            await base.Include_with_order_by_constant_null_of_non_mapped_type(async);
-
-            AssertSql(
-                "");
-        }
-
-        public override void Include_groupby_constant_null_of_non_mapped_type()
-        {
-            base.Include_groupby_constant_null_of_non_mapped_type();
-
-            AssertSql(
-                "");
-        }
-
         public override async Task Include_collection_OrderBy_aggregate(bool async)
         {
             await base.Include_collection_OrderBy_aggregate(async);

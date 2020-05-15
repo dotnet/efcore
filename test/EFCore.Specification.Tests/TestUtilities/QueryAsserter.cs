@@ -212,69 +212,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 assertOrder);
         }
 
-        public override async Task<List<TResult>> AssertIncludeQuery<TResult>(
-            Func<ISetSource, IQueryable<TResult>> actualQuery,
-            Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            List<IExpectedInclude> expectedIncludes,
-            Func<TResult, object> elementSorter,
-            List<Func<TResult, object>> clientProjections,
-            bool assertOrder,
-            int entryCount,
-            bool async,
-            string testMethodName)
-        {
-            using var context = _contextCreator();
-            var query = actualQuery(SetSourceCreator(context));
-            if (ProceduralQueryGeneration && !async)
-            {
-                new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
-
-                return default;
-            }
-
-            OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
-
-            var actual = async
-                ? await query.ToListAsync()
-                : query.ToList();
-
-            AssertRogueExecution(actual.Count, query);
-
-            var expected = GetExpectedResults(expectedQuery).ToList();
-
-            if (!assertOrder
-                && elementSorter == null)
-            {
-                _entitySorters.TryGetValue(typeof(TResult), out var sorter);
-                elementSorter = (Func<TResult, object>)sorter;
-            }
-
-            if (elementSorter != null)
-            {
-                actual = actual.OrderBy(elementSorter).ToList();
-                expected = expected.OrderBy(elementSorter).ToList();
-            }
-
-            if (clientProjections != null)
-            {
-                foreach (var clientProjection in clientProjections)
-                {
-                    var projectedActual = actual.Select(clientProjection).ToList();
-                    var projectedExpected = expected.Select(clientProjection).ToList();
-
-                    _includeResultAsserter.AssertResult(projectedExpected, projectedActual, expectedIncludes);
-                }
-            }
-            else
-            {
-                _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
-            }
-
-            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-
-            return actual;
-        }
-
         #region Assert termination operation methods
 
         public override async Task AssertAny<TResult>(
@@ -1550,6 +1487,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
         }
+
+        public override void AssertInclude<TEntity>(TEntity expected, TEntity actual, IExpectedInclude[] expectedIncludes)
+            => _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
 
         #endregion
 

@@ -51,17 +51,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             string testMethodName)
             where TResult : struct;
 
-        public abstract Task<List<TResult>> AssertIncludeQuery<TResult>(
-            Func<ISetSource, IQueryable<TResult>> actualQuery,
-            Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            List<IExpectedInclude> expectedIncludes,
-            Func<TResult, object> elementSorter,
-            List<Func<TResult, object>> clientProjections,
-            bool assertOrder,
-            int entryCount,
-            bool async,
-            string testMethodName);
-
         #region Assert termination operation methods
 
         public abstract Task AssertAny<TResult>(
@@ -536,6 +525,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool ordered = false,
             Func<TElement, object> elementSorter = null,
             Action<TElement, TElement> elementAsserter = null);
+
+        public abstract void AssertInclude<TEntity>(
+            TEntity expected,
+            TEntity actual,
+            IExpectedInclude[] expectedIncludes);
 
         #endregion
     }
