@@ -510,6 +510,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_FirstOrDefault_and_LastOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
+                {
+                    first = (char?)e.FirstName.FirstOrDefault(),
+                    last = (char?)e.FirstName.LastOrDefault()
+                }),
+                ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
+                {
+                    first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()),
+                    last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
+
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.first, a.first);
+                    AssertEqual(e.last, a.last);
+                });
+        }
+
         protected FunkyDataContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

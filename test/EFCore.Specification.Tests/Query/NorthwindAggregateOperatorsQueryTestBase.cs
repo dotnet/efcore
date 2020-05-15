@@ -1642,7 +1642,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_FirstOrDefault_in_projection_does_client_eval(bool async)
+        public virtual Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
         {
             return AssertQueryScalar(
                 async,
