@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
 
             entityTypeBuilder.Metadata.SetTableName(name);
-            entityTypeBuilder.Metadata.RemoveAnnotation(RelationalAnnotationNames.ViewDefinition);
+            entityTypeBuilder.Metadata.RemoveAnnotation(RelationalAnnotationNames.ViewDefinitionSql);
 
             return entityTypeBuilder;
         }
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
 
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(schema);
-            entityTypeBuilder.Metadata.RemoveAnnotation(RelationalAnnotationNames.ViewDefinition);
+            entityTypeBuilder.Metadata.RemoveAnnotation(RelationalAnnotationNames.ViewDefinitionSql);
 
             return entityTypeBuilder;
         }
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
 
             entityTypeBuilder.Metadata.SetViewName(name);
-            entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinition, null);
+            entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinitionSql, null);
 
             return entityTypeBuilder;
         }
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore
 
             entityTypeBuilder.Metadata.SetViewName(name);
             entityTypeBuilder.Metadata.SetViewSchema(schema);
-            entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinition, null);
+            entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinitionSql, null);
 
             return entityTypeBuilder;
         }

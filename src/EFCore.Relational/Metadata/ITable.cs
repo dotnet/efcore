@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the value indicating whether the table should be managed by migrations
         /// </summary>
-        bool IsMigratable { get; }
+        bool IsExcludedFromMigrations { get; }
 
         /// <summary>
         ///     Gets the foreing key constraints for this table.
