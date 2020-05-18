@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -542,6 +542,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
         public static IDbContextTransaction UseTransaction(
             [NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbTransaction transaction)
+            => databaseFacade.UseTransaction(transaction, Guid.NewGuid());
+
+        /// <summary>
+        ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
+        /// <param name="transactionId"> The unique identifier for the transaction. </param>
+        /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
+        public static IDbContextTransaction UseTransaction(
+            [NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbTransaction transaction, Guid transactionId)
         {
             var transactionManager = GetTransactionManager(databaseFacade);
 
@@ -550,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
             }
 
-            return relationalTransactionManager.UseTransaction(transaction);
+            return relationalTransactionManager.UseTransaction(transaction, transactionId);
         }
 
         /// <summary>
@@ -564,6 +575,21 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DatabaseFacade databaseFacade,
             [CanBeNull] DbTransaction transaction,
             CancellationToken cancellationToken = default)
+            => databaseFacade.UseTransactionAsync(transaction, Guid.NewGuid(), cancellationToken);
+
+        /// <summary>
+        ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
+        /// <param name="transactionId"> The unique identifier for the transaction. </param>
+        /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+        /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
+        public static Task<IDbContextTransaction> UseTransactionAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [CanBeNull] DbTransaction transaction,
+            Guid transactionId,
+            CancellationToken cancellationToken = default)
         {
             var transactionManager = GetTransactionManager(databaseFacade);
 
@@ -572,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
             }
 
-            return relationalTransactionManager.UseTransactionAsync(transaction, cancellationToken);
+            return relationalTransactionManager.UseTransactionAsync(transaction, transactionId, cancellationToken);
         }
 
         /// <summary>

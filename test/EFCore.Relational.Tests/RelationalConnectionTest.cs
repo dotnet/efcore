@@ -735,6 +735,28 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(connection.CurrentTransaction);
         }
 
+        [ConditionalFact]
+        public void Can_use_existing_transaction_identifier()
+        {
+            var dbConnection = new FakeDbConnection("Database=FrodoLives");
+
+            var dbTransaction = dbConnection.BeginTransaction(IsolationLevel.Unspecified);
+
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
+            Assert.Null(connection.CurrentTransaction);
+
+            var transactionId = Guid.NewGuid();
+
+            using (var transaction = connection.UseTransaction(dbTransaction, transactionId))
+            {
+                Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
+                Assert.Equal(transactionId, transaction.TransactionId);
+            }
+
+            Assert.Null(connection.CurrentTransaction);
+        }
+
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
