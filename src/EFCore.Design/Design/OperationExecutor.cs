@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var useDataAnnotations = (bool)args["useDataAnnotations"];
                 var overwriteFiles = (bool)args["overwriteFiles"];
                 var useDatabaseNames = (bool)args["useDatabaseNames"];
-                var suppressOnConfiguring = (bool)args["suppressOnConfiguring"];
+                var suppressOnConfiguring = (bool)(args["suppressOnConfiguring"] ?? false);
 
                 Execute(
                     () => executor.ScaffoldContextImpl(

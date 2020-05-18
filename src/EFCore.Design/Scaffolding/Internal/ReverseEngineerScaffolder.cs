@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -32,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly ICSharpHelper _code;
         private readonly INamedConnectionStringResolver _connectionStringResolver;
+        private readonly IOperationReporter _reporter;
         private const string DbContextSuffix = "Context";
         private const string DefaultDbContextName = "Model" + DbContextSuffix;
 
@@ -47,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IModelCodeGeneratorSelector modelCodeGeneratorSelector,
             [NotNull] ICSharpUtilities cSharpUtilities,
             [NotNull] ICSharpHelper cSharpHelper,
-            [NotNull] INamedConnectionStringResolver connectionStringResolver)
+            [NotNull] INamedConnectionStringResolver connectionStringResolver,
+            [NotNull] IOperationReporter reporter)
         {
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
@@ -55,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
             Check.NotNull(connectionStringResolver, nameof(connectionStringResolver));
+            Check.NotNull(reporter, nameof(reporter));
 
             _databaseModelFactory = databaseModelFactory;
             _factory = scaffoldingModelFactory;
@@ -62,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _cSharpUtilities = cSharpUtilities;
             _code = cSharpHelper;
             _connectionStringResolver = connectionStringResolver;
+            _reporter = reporter;
         }
 
         /// <summary>
@@ -101,6 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (resolvedConnectionString != connectionString)
             {
                 codeOptions.SuppressConnectionStringWarning = true;
+            }
+            else
+            {
+                _reporter.WriteWarning(DesignStrings.OnConfiguringWarning);
             }
 
             if (codeOptions.ConnectionString == null)

@@ -23,11 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 throw new CommandException(Resources.MissingArgument(_provider.Name));
             }
-
-            if (!_suppressOnConfiguring.HasValue())
-            {
-                Reporter.WriteWarning(Resources.OnConfiguringWarning);
-            }
         }
 
         protected override int Execute(string[] args)
