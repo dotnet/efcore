@@ -7555,6 +7555,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 + Environment.NewLine + CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task CompareTo_used_with_non_unicode_string_column_and_constant(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<City>().Where(c => c.Location.CompareTo("Unknown") == 0));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

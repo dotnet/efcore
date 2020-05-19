@@ -6961,6 +6961,16 @@ WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] IN (1) OR [w0].[Ammunitio
 FROM [Missions] AS [m]");
         }
 
+        public override async Task CompareTo_used_with_non_unicode_string_column_and_constant(bool async)
+        {
+            await base.CompareTo_used_with_non_unicode_string_column_and_constant(async);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Location] = 'Unknown'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
