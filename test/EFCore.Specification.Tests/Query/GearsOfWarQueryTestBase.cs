@@ -7564,6 +7564,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<City>().Where(c => c.Location.CompareTo("Unknown") == 0));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Coalesce_used_with_non_unicode_string_column_and_constant(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<City>().Select(c => c.Location ?? "Unknown"));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

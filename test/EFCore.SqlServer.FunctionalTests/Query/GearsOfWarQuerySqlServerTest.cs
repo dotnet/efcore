@@ -6971,6 +6971,15 @@ FROM [Cities] AS [c]
 WHERE [c].[Location] = 'Unknown'");
         }
 
+        public override async Task Coalesce_used_with_non_unicode_string_column_and_constant(bool async)
+        {
+            await base.Coalesce_used_with_non_unicode_string_column_and_constant(async);
+
+            AssertSql(
+                @"SELECT COALESCE([c].[Location], 'Unknown')
+FROM [Cities] AS [c]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
