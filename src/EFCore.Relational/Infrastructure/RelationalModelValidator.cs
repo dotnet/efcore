@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateDefaultValuesOnKeys(model, logger);
             ValidateBoolsWithDefaults(model, logger);
             ValidateDbFunctions(model, logger);
+            ValidateIndexMembersOnSameTable(model, logger);
         }
 
         /// <summary>
@@ -911,5 +912,73 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static string Format(string tableName, string schema)
             => schema == null ? tableName : schema + "." + tableName;
+
+        /// <summary>
+        ///     Validates that the members of any one index are all mapped to columns on the same table.
+        /// </summary>
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateIndexMembersOnSameTable(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var index in entityType.GetIndexes())
+                {
+                    (string MemberName, string Table, string Schema) existingTableMapping = (null, null, null);
+                    foreach (var member in index.Properties)
+                    {
+                        //TODO - update to use table-schema override of GetColumn() below when PR #20938 is checked in
+                        var tablesMappedToMember = member.DeclaringEntityType.GetDerivedTypesInclusive()
+                            .Select(t => (t.GetTableName(), t.GetSchema())).Distinct()
+                            .Where(n => member.GetColumnName(/* n.Item1, n.Item2 */) != null);
+                        var tablesMappedToMemberCount = tablesMappedToMember.Count();
+                        if (tablesMappedToMemberCount == 0)
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.IndexMemberNotMappedToAnyTable(
+                                    entityType.DisplayName(),
+                                    Format(index.Properties.Select(p => p.Name)),
+                                    member.Name));
+                        }
+                        else if (tablesMappedToMemberCount > 1)
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.IndexMemberMappedToMultipleTables(
+                                    entityType.DisplayName(),
+                                    Format(index.Properties.Select(p => p.Name)),
+                                    member.Name,
+                                    Format(tablesMappedToMember.Select(t => FormatTable(t.Item1, t.Item2)))));
+                        }
+
+                        var table = tablesMappedToMember.Single();
+                        if (existingTableMapping.MemberName == null)
+                        {
+                            existingTableMapping = (member.Name, table.Item1, table.Item2);
+                        }
+                        else if (!string.Equals(existingTableMapping.Table, table.Item1, StringComparison.Ordinal)
+                            || !string.Equals(existingTableMapping.Schema, table.Item2, StringComparison.Ordinal))
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.IndexMembersOnDifferentTables(
+                                    entityType.DisplayName(),
+                                    Format(index.Properties.Select(p => p.Name)),
+                                    existingTableMapping.MemberName,
+                                    FormatTable(existingTableMapping.Table, existingTableMapping.Schema),
+                                    member.Name,
+                                    FormatTable(table.Item1, table.Item2)));
+                        }
+                    }
+                }
+            }
+        }
+
+        private static string Format(IEnumerable<string> names)
+            => "{" + string.Join(", ", names.Select(s => "'" + s + "'")) + "}";
+
+        private static string FormatTable(string table, string schema)
+            => schema == null ? table : schema + "." + table;
     }
 }

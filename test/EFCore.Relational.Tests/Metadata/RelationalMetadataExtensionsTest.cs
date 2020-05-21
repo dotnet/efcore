@@ -348,11 +348,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("IX_Customer_Id", index.GetName());
 
+#pragma warning disable CS0618 // Type or member is obsolete
             index.SetName("MyIndex");
 
             Assert.Equal("MyIndex", index.GetName());
 
             index.SetName(null);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.Equal("IX_Customer_Id", index.GetName());
         }

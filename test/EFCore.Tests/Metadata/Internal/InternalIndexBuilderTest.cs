@@ -43,6 +43,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(metadata.IsUnique);
         }
 
+        [ConditionalFact]
+        public void Can_only_override_lower_source_Name()
+        {
+            var builder = CreateInternalIndexBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.NotNull(builder.HasName("ConventionIndexName", ConfigurationSource.Convention));
+            Assert.NotNull(builder.HasName("AnnotationIndexName", ConfigurationSource.DataAnnotation));
+
+            Assert.Equal("AnnotationIndexName", metadata.Name);
+
+            Assert.Null(builder.HasName("UpdatedConventionIndexName", ConfigurationSource.Convention));
+
+            Assert.Equal("AnnotationIndexName", metadata.Name);
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_existing_Name_value_explicitly()
+        {
+            var builder = CreateInternalIndexBuilder();
+            var metadata = builder.Metadata;
+            metadata.Name = "TestIndexName";
+
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetConfigurationSource());
+            Assert.NotNull(builder.HasName("TestIndexName", ConfigurationSource.DataAnnotation));
+            Assert.Null(builder.HasName("NewIndexName", ConfigurationSource.DataAnnotation));
+
+            Assert.Equal("TestIndexName", metadata.Name);
+
+            Assert.NotNull(builder.HasName("ExplicitIndexName", ConfigurationSource.Explicit));
+
+            Assert.Equal("ExplicitIndexName", metadata.Name);
+        }
+
         private InternalIndexBuilder CreateInternalIndexBuilder()
         {
             var modelBuilder = new InternalModelBuilder(new Model());

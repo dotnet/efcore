@@ -1248,6 +1248,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
+        [ConditionalFact(Skip = "Needs TPT to run")] //TODO - awaiting PR 20938
+        public void Detects_index_member_not_mapped_to_any_table()
+        {
+            // detect RelationalStrings.IndexMemberNotMappedToAnyTable exception
+        }
+
+        [ConditionalFact(Skip = "Needs TPT to run")] //TODO - awaiting PR 20938
+        public void Detects_index_member_mapped_to_multiple_tables()
+        {
+            // detect RelationalStrings.IndexMemberMappedToMultipleTables exception
+        }
+
+        [ConditionalFact(Skip = "Needs TPT to run")] //TODO - awaiting PR 20938
+        public void Detects_index_members_mapped_to_different_tables()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>().ToTable("Animals");
+            modelBuilder.Entity<Cat>().ToTable("Cats");
+            modelBuilder.Entity<Cat>().HasIndex(nameof(Animal.Id), nameof(Cat.Identity));
+
+            VerifyError(
+                RelationalStrings.IndexMembersOnDifferentTables(
+                    nameof(Cat),
+                    "{'Id', 'Identity'}",
+                    nameof(Animal.Id),
+                    "Animals",
+                    nameof(Cat.Identity),
+                    "Cats"),
+                modelBuilder.Model);
+        }
+
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping]
                 = new TestRelationalTypeMappingSource(

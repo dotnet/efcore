@@ -746,17 +746,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .AppendLine()
                 .Append(builderName)
-                .Append(".HasIndex(")
+                .Append(".")
+                .Append(nameof(EntityTypeBuilder.HasIndex))
+                .Append("(")
                 .Append(string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name))))
                 .Append(")");
 
             using (stringBuilder.Indent())
             {
+                if (index.Name != null)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".")
+                        .Append(nameof(IndexBuilder.HasName))
+                        .Append("(")
+                        .Append(Code.Literal(index.Name))
+                        .Append(")");
+                }
+
                 if (index.IsUnique)
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".IsUnique()");
+                        .Append(".")
+                        .Append(nameof(IndexBuilder.IsUnique))
+                        .Append("()");
                 }
 
                 GenerateIndexAnnotations(index, stringBuilder);
@@ -779,8 +794,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations,
                 RelationalAnnotationNames.TableIndexMappings);
 
-            GenerateFluentApiForAnnotation(
-                ref annotations, RelationalAnnotationNames.Name, nameof(RelationalIndexBuilderExtensions.HasName), stringBuilder);
             GenerateFluentApiForAnnotation(
                 ref annotations, RelationalAnnotationNames.Filter, nameof(RelationalIndexBuilderExtensions.HasFilter), stringBuilder);
 

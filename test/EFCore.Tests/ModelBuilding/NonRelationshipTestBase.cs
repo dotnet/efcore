@@ -1195,13 +1195,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityBuilder = modelBuilder.Entity<Customer>();
                 var firstIndexBuilder = entityBuilder.HasIndex(ix => ix.Id).IsUnique();
-                var secondIndexBuilder = entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
+                var secondIndexBuilder = entityBuilder.HasIndex(ix => ix.Name).HasName("MyIndex").HasAnnotation("A1", "V1");
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Customer));
 
                 Assert.Equal(2, entityType.GetIndexes().Count());
                 Assert.True(firstIndexBuilder.Metadata.IsUnique);
                 Assert.False(((IIndex)secondIndexBuilder.Metadata).IsUnique);
+                Assert.Equal("MyIndex", secondIndexBuilder.Metadata.Name);
                 Assert.Equal("V1", secondIndexBuilder.Metadata["A1"]);
             }
 

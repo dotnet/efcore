@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
@@ -22,9 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex
     {
         private bool? _isUnique;
+        private string _name;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
+        private ConfigurationSource? _nameConfigurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private object _nullableValueFactory;
@@ -144,10 +147,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual string Name
+        {
+            get => _name;
+            set => SetName(value, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string SetName([CanBeNull] string name, ConfigurationSource configurationSource)
+        {
+            var oldName = Name;
+            var isChanging = !string.Equals(oldName, name, StringComparison.Ordinal);
+            _name = name;
+
+            if (name == null)
+            {
+                _nameConfigurationSource = null;
+            }
+            else
+            {
+                UpdateNameConfigurationSource(configurationSource);
+            }
+
+            return isChanging
+                ? DeclaringEntityType.Model.ConventionDispatcher.OnIndexNameChanged(Builder)
+                : oldName;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual ConfigurationSource? GetIsUniqueConfigurationSource() => _isUniqueConfigurationSource;
 
         private void UpdateIsUniqueConfigurationSource(ConfigurationSource configurationSource)
             => _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetNameConfigurationSource() => _nameConfigurationSource;
+
+        private void UpdateNameConfigurationSource(ConfigurationSource configurationSource)
+            => _nameConfigurationSource = configurationSource.Max(_nameConfigurationSource);
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
@@ -286,5 +338,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         bool? IConventionIndex.SetIsUnique(bool? unique, bool fromDataAnnotation)
             => SetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        string IConventionIndex.SetName(string name, bool fromDataAnnotation)
+            => SetName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

@@ -606,4 +606,13 @@
   <data name="PropertyNotMappedToTable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is not mapped to the table '{table}'.</value>
   </data>
+  <data name="IndexMemberNotMappedToAnyTable" xml:space="preserve">
+    <value>An index on the entity type '{entityType}' specifies members {indexMemberList}. But the property or field with name '{memberName}' is not mapped to a column in any table. Please use only members mapped to a column.</value>
+  </data>
+  <data name="IndexMemberMappedToMultipleTables" xml:space="preserve">
+    <value>An index on the entity type '{entityType}' specifies members {indexMemberList}. But the property or field with name '{memberName}' is mapped to columns in multiple tables {tableList}. Please use only members mapped to a single table.</value>
+  </data>
+  <data name="IndexMembersOnDifferentTables" xml:space="preserve">
+    <value>An index on the entity type '{entityType}' specifies members {indexMemberList}. The member '{memberName1}' is mapped to a column on table '{table1}', whereas the member '{memberName2}' is mapped to a column on table '{table2}'. All index members must map to the same table.</value>
+  </data>
 </root>

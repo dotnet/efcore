@@ -200,6 +200,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             = new List<IIndexUniquenessChangedConvention>();
 
         /// <summary>
+        ///     Conventions to run when the name of an index is changed.
+        /// </summary>
+        public virtual IList<IIndexNameChangedConvention> IndexNameChangedConventions { get; }
+            = new List<IIndexNameChangedConvention>();
+
+        /// <summary>
         ///     Conventions to run when an annotation is changed on an index.
         /// </summary>
         public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; }

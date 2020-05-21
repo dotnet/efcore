@@ -2414,7 +2414,7 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
-                o => Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First()["Relational:Name"]));
+                o => Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First().Name));
         }
 
         [ConditionalFact]
@@ -2486,9 +2486,9 @@ namespace RootNamespace
                 o =>
                 {
                     var index = o.GetEntityTypes().First().GetIndexes().First();
-                    Assert.Equal(3, index.GetAnnotations().Count());
+                    Assert.Equal(2, index.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
-                    Assert.Equal("IndexName", index["Relational:Name"]);
+                    Assert.Equal("IndexName", index.Name);
                 });
         }
 
