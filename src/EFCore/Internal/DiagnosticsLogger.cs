@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual LoggingDefinitions Definitions { get; }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             Interceptors = null;
         }
