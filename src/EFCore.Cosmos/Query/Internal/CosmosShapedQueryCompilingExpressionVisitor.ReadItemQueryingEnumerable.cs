@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly ReadItemExpression _readItemExpression;
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _performIdentityResolution;
 
             public ReadItemQueryingEnumerable(
@@ -42,14 +42,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 ReadItemExpression readItemExpression,
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
                 bool performIdentityResolution)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _readItemExpression = readItemExpression;
                 _shaper = shaper;
                 _contextType = contextType;
-                _logger = logger;
+                _queryLogger = _cosmosQueryContext.QueryLogger;
                 _performIdentityResolution = performIdentityResolution;
             }
 
@@ -71,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly ReadItemExpression _readItemExpression;
                 private readonly Func<CosmosQueryContext, JObject, T> _shaper;
                 private readonly Type _contextType;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _performIdentityResolution;
                 private readonly CancellationToken _cancellationToken;
 
@@ -84,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _readItemExpression = readItemEnumerable._readItemExpression;
                     _shaper = readItemEnumerable._shaper;
                     _contextType = readItemEnumerable._contextType;
-                    _logger = readItemEnumerable._logger;
+                    _queryLogger = readItemEnumerable._queryLogger;
                     _performIdentityResolution = readItemEnumerable._performIdentityResolution;
                     _cancellationToken = cancellationToken;
                 }
@@ -124,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
@@ -163,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
