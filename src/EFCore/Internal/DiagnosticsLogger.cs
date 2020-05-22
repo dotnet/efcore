@@ -52,6 +52,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        private DiagnosticsLogger(
+            [NotNull] ILogger logger,
+            [NotNull] ILoggingOptions loggingOptions,
+            [NotNull] DiagnosticSource diagnosticSource,
+            [NotNull] LoggingDefinitions loggingDefinitions)
+        {
+            Logger = logger;
+            Options = loggingOptions;
+            DiagnosticSource = diagnosticSource;
+            Definitions = loggingDefinitions;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual ILoggingOptions Options { get; }
 
         /// <summary>
@@ -85,6 +103,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual LoggingDefinitions Definitions { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IDiagnosticsLogger<TLoggerCategory> CloneWithoutInterceptor()
+            => new DiagnosticsLogger<TLoggerCategory>(Logger, Options, DiagnosticSource, Definitions);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

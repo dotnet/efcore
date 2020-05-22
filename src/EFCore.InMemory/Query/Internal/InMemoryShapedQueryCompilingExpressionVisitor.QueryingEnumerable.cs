@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _innerEnumerable = innerEnumerable;
                 _shaper = shaper;
                 _contextType = contextType;
-                _logger = logger;
+                _logger = logger.CloneWithoutInterceptor();
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)

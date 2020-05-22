@@ -35,6 +35,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public IDisposable BeginScope<TState>(TState state) => null;
 
+        public IDiagnosticsLogger<T> CloneWithoutInterceptor()
+            => new FakeDiagnosticsLogger<T>();
+
         public virtual LoggingDefinitions Definitions { get; } = new TestRelationalLoggingDefinitions();
 
         public IInterceptors Interceptors { get; }

@@ -32,5 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Holds registered interceptors, if any.
         /// </summary>
         IInterceptors Interceptors { get; }
+
+        IDiagnosticsLogger<TLoggerCategory> CloneWithoutInterceptor();
     }
 }

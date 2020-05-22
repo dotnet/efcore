@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Model = dependencies.Model;
             ContextOptions = dependencies.ContextOptions;
             ContextType = context.GetType();
-            Logger = dependencies.Logger;
+            Logger = dependencies.Logger.CloneWithoutInterceptor();
 
             _queryTranslationPreprocessorFactory = dependencies.QueryTranslationPreprocessorFactory;
             _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;

@@ -10,5 +10,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         where TDefinitions : LoggingDefinitions, new()
     {
         public IInterceptors Interceptors { get; }
+
+        public IDiagnosticsLogger<TCategory> CloneWithoutInterceptor()
+            => new TestLogger<TCategory, TDefinitions>();
     }
 }
