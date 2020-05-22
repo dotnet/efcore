@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _selectExpression = selectExpression;
                 _shaper = shaper;
                 _contextType = contextType;
-                _logger = logger;
+                _logger = logger ?? cosmosQueryContext.QueryLogger;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)

@@ -24,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             : base(dependencies, queryCompilationContext)
         {
             _contextType = queryCompilationContext.ContextType;
-            _logger = queryCompilationContext.Logger;
+            _logger = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue21016", out var isEnabled) && isEnabled
+                ? queryCompilationContext.Logger
+                : null;
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
@@ -69,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerEnumerable,
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(_logger));
+                Expression.Constant(_logger, typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)));
         }
 
         private static readonly MethodInfo _tableMethodInfo

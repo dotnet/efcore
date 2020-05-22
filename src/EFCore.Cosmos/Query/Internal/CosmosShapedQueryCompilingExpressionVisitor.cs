@@ -38,7 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _contextType = queryCompilationContext.ContextType;
-            _logger = queryCompilationContext.Logger;
+            _logger = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue21016", out var isEnabled) && isEnabled
+                ? queryCompilationContext.Logger
+                : null;
         }
 
         /// <summary>
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Expression.Constant(selectExpression),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(_logger));
+                Expression.Constant(_logger, typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)));
         }
     }
 }
