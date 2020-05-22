@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly IEnumerable<ValueBuffer> _innerEnumerable;
             private readonly Func<QueryContext, ValueBuffer, T> _shaper;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _performIdentityResolution;
 
             public QueryingEnumerable(
@@ -36,14 +36,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 IEnumerable<ValueBuffer> innerEnumerable,
                 Func<QueryContext, ValueBuffer, T> shaper,
                 Type contextType,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
                 bool performIdentityResolution)
             {
                 _queryContext = queryContext;
                 _innerEnumerable = innerEnumerable;
                 _shaper = shaper;
                 _contextType = contextType;
-                _logger = logger;
+                _queryLogger = queryContext.QueryLogger;
                 _performIdentityResolution = performIdentityResolution;
             }
 
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 private readonly IEnumerable<ValueBuffer> _innerEnumerable;
                 private readonly Func<QueryContext, ValueBuffer, T> _shaper;
                 private readonly Type _contextType;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _performIdentityResolution;
                 private readonly CancellationToken _cancellationToken;
 
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _innerEnumerable = queryingEnumerable._innerEnumerable;
                     _shaper = queryingEnumerable._shaper;
                     _contextType = queryingEnumerable._contextType;
-                    _logger = queryingEnumerable._logger;
+                    _queryLogger = queryingEnumerable._queryLogger;
                     _performIdentityResolution = queryingEnumerable._performIdentityResolution;
                     _cancellationToken = cancellationToken;
                 }
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }

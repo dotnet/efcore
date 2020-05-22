@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
         private readonly Type _contextType;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private readonly ISet<string> _tags;
         private readonly bool _detailedErrorsEnabled;
         private readonly bool _useRelationalNulls;
@@ -42,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalDependencies = relationalDependencies;
 
             _contextType = queryCompilationContext.ContextType;
-            _logger = queryCompilationContext.Logger;
             _tags = queryCompilationContext.Tags;
             _detailedErrorsEnabled = relationalDependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
@@ -109,7 +107,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(projectionColumns, typeof(IReadOnlyList<ReaderColumn>)),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(_logger),
                 Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
         }
     }

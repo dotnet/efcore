@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IReadOnlyList<ReaderColumn> _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
         private readonly Type _contextType;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _performIdentityResolution;
 
         /// <summary>
@@ -44,7 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IReadOnlyList<ReaderColumn> readerColumns,
             [NotNull] Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
             [NotNull] Type contextType,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             bool performIdentityResolution)
         {
             _relationalQueryContext = relationalQueryContext;
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _readerColumns = readerColumns;
             _shaper = shaper;
             _contextType = contextType;
-            _logger = logger;
+            _queryLogger = relationalQueryContext.QueryLogger;
             _performIdentityResolution = performIdentityResolution;
         }
 
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IReadOnlyList<ReaderColumn> _readerColumns;
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _performIdentityResolution;
 
             private RelationalDataReader _dataReader;
@@ -166,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _readerColumns = queryingEnumerable._readerColumns;
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
-                _logger = queryingEnumerable._logger;
+                _queryLogger = queryingEnumerable._queryLogger;
                 _performIdentityResolution = queryingEnumerable._performIdentityResolution;
             }
 
@@ -228,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 catch (Exception exception)
                 {
-                    _logger.QueryIterationFailed(_contextType, exception);
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
 
                     throw;
                 }
@@ -273,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IReadOnlyList<ReaderColumn> _readerColumns;
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _performIdentityResolution;
             private readonly CancellationToken _cancellationToken;
 
@@ -292,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _readerColumns = queryingEnumerable._readerColumns;
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
-                _logger = queryingEnumerable._logger;
+                _queryLogger = queryingEnumerable._queryLogger;
                 _performIdentityResolution = queryingEnumerable._performIdentityResolution;
                 _cancellationToken = cancellationToken;
             }
@@ -353,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 catch (Exception exception)
                 {
-                    _logger.QueryIterationFailed(_contextType, exception);
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
 
                     throw;
                 }

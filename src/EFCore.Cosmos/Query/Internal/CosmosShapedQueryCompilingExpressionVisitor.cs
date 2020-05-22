@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private readonly string _partitionKeyFromExtension;
 
         /// <summary>
@@ -41,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _contextType = cosmosQueryCompilationContext.ContextType;
-            _logger = cosmosQueryCompilationContext.Logger;
             _partitionKeyFromExtension = cosmosQueryCompilationContext.PartitionKeyFromExtension;
         }
 
@@ -87,7 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(shaperLambda.Compile()),
                         Expression.Constant(_contextType),
                         Expression.Constant(_partitionKeyFromExtension, typeof(string)),
-                        Expression.Constant(_logger),
                         Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
 
                 case ReadItemExpression readItemExpression:
@@ -109,7 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(readItemExpression),
                         Expression.Constant(shaperReadItemLambda.Compile()),
                         Expression.Constant(_contextType),
-                        Expression.Constant(_logger),
                         Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
 
                 default:

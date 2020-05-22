@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly Type _contextType;
             private readonly string _partitionKey;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _performIdentityResolution;
 
             public QueryingEnumerable(
@@ -43,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
                 string partitionKeyFromExtension,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
                 bool performIdentityResolution)
             {
                 _cosmosQueryContext = cosmosQueryContext;
@@ -52,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _selectExpression = selectExpression;
                 _shaper = shaper;
                 _contextType = contextType;
-                _logger = logger;
+                _queryLogger = cosmosQueryContext.QueryLogger;
                 _performIdentityResolution = performIdentityResolution;
 
                 var partitionKey = selectExpression.GetPartitionKey(cosmosQueryContext.ParameterValues);
@@ -108,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Func<CosmosQueryContext, JObject, T> _shaper;
                 private readonly Type _contextType;
                 private readonly string _partitionKey;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _performIdentityResolution;
 
                 private IEnumerator<JObject> _enumerator;
@@ -121,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _selectExpression = queryingEnumerable._selectExpression;
                     _contextType = queryingEnumerable._contextType;
                     _partitionKey = queryingEnumerable._partitionKey;
-                    _logger = queryingEnumerable._logger;
+                    _queryLogger = queryingEnumerable._queryLogger;
                     _performIdentityResolution = queryingEnumerable._performIdentityResolution;
                 }
 
@@ -160,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
@@ -183,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Func<CosmosQueryContext, JObject, T> _shaper;
                 private readonly Type _contextType;
                 private readonly string _partitionKey;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _performIdentityResolution;
                 private readonly CancellationToken _cancellationToken;
 
@@ -197,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _selectExpression = queryingEnumerable._selectExpression;
                     _contextType = queryingEnumerable._contextType;
                     _partitionKey = queryingEnumerable._partitionKey;
-                    _logger = queryingEnumerable._logger;
+                    _queryLogger = queryingEnumerable._queryLogger;
                     _performIdentityResolution = queryingEnumerable._performIdentityResolution;
                     _cancellationToken = cancellationToken;
                 }
@@ -235,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }

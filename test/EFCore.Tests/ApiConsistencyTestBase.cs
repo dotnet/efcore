@@ -916,7 +916,9 @@ namespace Microsoft.EntityFrameworkCore
                     typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
                     typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.IsTracking)),
                     typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager)),
+#pragma warning disable CS0618 // Type or member is obsolete
                     typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.QueryProvider))
+#pragma warning restore CS0618 // Type or member is obsolete
                 };
 
 
