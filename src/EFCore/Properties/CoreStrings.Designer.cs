@@ -4243,5 +4243,29 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
             return (EventDefinition<string, string>)definition;
         }
+
+        /// <summary>
+        ///     Entity '{principalEntityType}' has global query filter defined and is a required end of a relationship with the entity '{declaringEntityType}'. This may lead to unexpected results when the required entity is filtered out. Either use optional navigation or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+        /// </summary>
+        public static EventDefinition<string, string> LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
+                            _resourceManager.GetString("LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
     }
 }

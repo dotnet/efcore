@@ -1375,6 +1375,10 @@
     <value>Conflicting attributes have been applied: the 'Key' attribute on property '{property}' and the 'Keyless' attribute on its entity '{entity}'. Note that the entity will have no key unless you use fluent API to override this.</value>
     <comment>Warning CoreEventId.ConflictingKeylessAndKeyAttributesWarning string string</comment>
   </data>
+  <data name="LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction" xml:space="preserve">
+    <value>Entity '{principalEntityType}' has global query filter defined and is a required end of a relationship with the entity '{declaringEntityType}'. This may lead to unexpected results when the required entity is filtered out. Either use optional navigation or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.</value>
+    <comment>Warning CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning string string</comment>
+  </data>
   <data name="InvalidSwitch" xml:space="preserve">
     <value>Invalid {name}: {value}</value>
   </data>

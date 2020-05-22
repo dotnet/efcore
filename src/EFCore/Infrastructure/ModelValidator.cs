@@ -947,6 +947,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     throw new InvalidOperationException(
                         CoreStrings.BadFilterDerivedType(entityType.GetQueryFilter(), entityType.DisplayName()));
                 }
+
+                var requiredNavigationWithQueryFilter = entityType.GetNavigations()
+                    .Where(n => !n.IsCollection
+                        && n.ForeignKey.IsRequired
+                        && n.IsOnDependent
+                        && n.ForeignKey.PrincipalEntityType.GetQueryFilter() != null
+                        && n.ForeignKey.DeclaringEntityType.GetQueryFilter() == null).FirstOrDefault();
+
+                if (requiredNavigationWithQueryFilter != null)
+                {
+                    logger.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(requiredNavigationWithQueryFilter.ForeignKey);
+                }
             }
         }
 

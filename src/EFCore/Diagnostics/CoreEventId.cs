@@ -104,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             RequiredAttributeOnCollection,
             CollectionWithoutComparer,
             ConflictingKeylessAndKeyAttributesWarning,
+            PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -645,6 +646,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ConflictingKeylessAndKeyAttributesWarning = MakeModelId(Id.ConflictingKeylessAndKeyAttributesWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         Required navigation with principal entity having global query filter defined
+        ///         and the declaring entity not having a matching filter
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning
+            = MakeModelValidationId(Id.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning);
 
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
         private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);

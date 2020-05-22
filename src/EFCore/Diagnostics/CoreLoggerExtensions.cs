@@ -2996,5 +2996,44 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 p.Property.Name,
                 p.Property.DeclaringEntityType.DisplayName());
         }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="foreignKey"> Foreign key which is used in the incorrectly setup navigation. </param>
+        public static void PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IForeignKey foreignKey)
+        {
+            var definition = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(
+                    diagnostics,
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new ForeignKeyEventData(
+                    definition,
+                    PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
+                    foreignKey);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ForeignKeyEventData)payload;
+            return d.GenerateMessage(
+                p.ForeignKey.PrincipalEntityType.DisplayName(),
+                p.ForeignKey.DeclaringEntityType.DisplayName());
+        }
     }
 }
