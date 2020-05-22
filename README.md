@@ -122,3 +122,5 @@ See also
 * [How to write an EF Core provider](https://docs.microsoft.com/ef/core/providers/writing-a-provider)
 * [Security](./docs/security.md)
 * [Code of conduct](.github/CODE_OF_CONDUCT.md)
+
+Ef core is great
