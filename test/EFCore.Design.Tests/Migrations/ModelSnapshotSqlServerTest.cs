@@ -2526,7 +2526,7 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
-                model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetName().Length));
+                model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName().Length));
         }
 
         #endregion
@@ -2876,7 +2876,7 @@ namespace RootNamespace
                     var originalIndex = originalChild.FindIndex(originalChild.FindProperty("Property"));
                     var index = child.FindIndex(child.FindProperty("Property"));
 
-                    Assert.Equal(originalIndex.GetName(), index.GetName());
+                    Assert.Equal(originalIndex.GetDatabaseName(), index.GetDatabaseName());
                 });
         }
 

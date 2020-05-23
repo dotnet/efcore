@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 // If there are annotations that cannot be represented
                 // using an IndexAttribute then use fluent API instead.
                 if (!index.GetAnnotations().Any(
-                    a => !RelationalAnnotationNames.TableIndexMappings.Equals(a.Name, StringComparison.Ordinal)))
+                        a => !CSharpModelGenerator.IgnoredIndexAnnotations.Contains(a.Name)))
                 {
                     var indexAttribute = new AttributeWriter(nameof(IndexAttribute));
                     foreach (var property in index.Properties)

@@ -78,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the name of this index.
         /// </summary>
         /// <param name="name">
-        ///     The name of this index (can be <see langword="null"/>
-        ///     to indicate that a unique name should be generated).
+        ///     The name of this index which can be <see langword="null"/>
+        ///     to indicate that a unique name should be generated.
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual IndexBuilder HasName([CanBeNull] string name)

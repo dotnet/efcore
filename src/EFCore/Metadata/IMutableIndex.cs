@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new bool IsUnique { get; set; }
 
         /// <summary>
-        ///     Gets or sets the name of the index (can be <see langword="null"/>
-        ///     to indicate that a unique name should be generated).
+        ///     Gets or sets the name of the index which can be <see langword="null"/>
+        ///     to indicate that a unique name should be generated.
         /// </summary>
         new string Name { get; [param: CanBeNull] set; }
 

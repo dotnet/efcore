@@ -73,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeAddedConventions.Add(relationshipDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(new DerivedTypeDiscoveryConvention(Dependencies));
-            conventionSet.EntityTypeAddedConventions.Add(new IndexEntityTypeAttributeConvention(Dependencies));
 
             conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeIgnoredConventions.Add(relationshipDiscoveryConvention);
@@ -182,6 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizingConventions.Add(new QueryFilterDefiningQueryRewritingConvention(Dependencies));
             conventionSet.ModelFinalizingConventions.Add(inversePropertyAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(backingFieldConvention);
+            conventionSet.ModelFinalizingConventions.Add(new IndexAttributeConvention(Dependencies));
 
             conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(Dependencies));
 

@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the name of this index.
         /// </summary>
-        /// <param name="name"> The name of the index (can be <see langword="null"/>
-        ///     to indicate that a unique name should be generated). </param>
+        /// <param name="name"> The name of the index which can be <see langword="null"/>
+        ///     to indicate that a unique name should be generated. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the name is unchanged,

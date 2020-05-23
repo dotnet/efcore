@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName(tableName, schema),
+                            index.GetDatabaseName(),
                             index.Properties.FormatColumns(tableName, schema),
                             duplicateIndex.Properties.FormatColumns(tableName, schema)));
                 }
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName(tableName, schema)));
+                            index.GetDatabaseName()));
                 }
 
                 return false;

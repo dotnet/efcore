@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var index = entityType.GetIndexes().Single();
 
             Assert.True(index.IsUnique);
-            Assert.Equal("MyUniqueConstraint", index.GetName());
+            Assert.Equal("MyUniqueConstraint", index.GetDatabaseName());
             Assert.Same(entityType.FindProperty("MyColumn"), index.Properties.Single());
         }
 
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 indexColumn1 =>
                 {
                     Assert.False(indexColumn1.IsUnique);
-                    Assert.Equal("IDX_C1", indexColumn1.GetName());
+                    Assert.Equal("IDX_C1", indexColumn1.GetDatabaseName());
                     Assert.Same(entityType.FindProperty("C1"), indexColumn1.Properties.Single());
                 },
                 uniqueColumn2 =>

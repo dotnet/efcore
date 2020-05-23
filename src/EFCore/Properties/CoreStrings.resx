@@ -1403,13 +1403,12 @@
   <data name="QueryContextAlreadyInitializedStateManager" xml:space="preserve">
     <value>InitializeStateManager method has been called multiple times on current query context. This method is intended to be called only once before query enumeration starts.</value>
   </data>
-  <data name="IndexMemberNameEmpty" xml:space="preserve">
-    <value>An index on the entity type '{entityType}' specifies members {indexMemberList}. Member names must not be null or empty or consist only of white-space characters.</value>
+  <data name="LogIndexDefinedOnIgnoredProperty" xml:space="preserve">
+    <value>The index named '{indexName}' on the entity type '{entityType}' with properties {indexPropertyList} is invalid. The property '{propertyName}' has been marked NotMapped or Ignore(). An index cannot use such properties.</value>
+    <comment>Error CoreEventId.IndexDefinedOnIgnoredProperty string string string string</comment>
   </data>
-  <data name="IndexMemberIsIgnored" xml:space="preserve">
-    <value>An index on the entity type '{entityType}' specifies members {indexMemberList}. But the property or field '{memberName}' has been marked NotMapped or Ignore(). An index cannot use such members.</value>
-  </data>
-  <data name="IndexMemberHasNoMatchingMember" xml:space="preserve">
-    <value>An index on the entity type '{entityType}' specifies members {indexMemberList}. But no property or field with name '{memberName}' exists on that entity type or any of its base types.</value>
+  <data name="LogIndexDefinedOnNonExistentProperty" xml:space="preserve">
+    <value>An index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertyList}. But no property with name '{propertyName}' exists on that entity type or any of its base types.</value>
+    <comment>Error CoreEventId.IndexDefinedOnNonExistentProperty string string string string</comment>
   </data>
 </root>

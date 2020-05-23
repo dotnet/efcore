@@ -401,6 +401,19 @@ namespace Microsoft.EntityFrameworkCore
                 + "}";
 
         /// <summary>
+        ///     Creates a formatted string representation of the given
+        ///     property names such as is useful when throwing exceptions.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties to format. </param>
+        /// <returns> The string representation. </returns>
+        public static string Format([NotNull] this IEnumerable<string> propertyNames)
+            => "{"
+                + string.Join(
+                    ", ",
+                    propertyNames.Select(name => "'" + name + "'"))
+                + "}";
+
+        /// <summary>
         ///     <para>
         ///         Creates a human-readable representation of the given metadata.
         ///     </para>

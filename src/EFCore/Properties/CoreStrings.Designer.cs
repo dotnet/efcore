@@ -2658,30 +2658,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string QueryContextAlreadyInitializedStateManager
             => GetString("QueryContextAlreadyInitializedStateManager");
 
-        /// <summary>
-        ///     An index on the entity type '{entityType}' specifies members {indexMemberList}. Member names must not be null or empty or consist only of white-space characters.
-        /// </summary>
-        public static string IndexMemberNameEmpty([CanBeNull] object entityType, [CanBeNull] object indexMemberList)
-            => string.Format(
-                GetString("IndexMemberNameEmpty", nameof(entityType), nameof(indexMemberList)),
-                entityType, indexMemberList);
-
-        /// <summary>
-        ///     An index on the entity type '{entityType}' specifies members {indexMemberList}. But the property or field '{memberName}' has been marked NotMapped or Ignore(). An index cannot use such members.
-        /// </summary>
-        public static string IndexMemberIsIgnored([CanBeNull] object entityType, [CanBeNull] object indexMemberList, [CanBeNull] object memberName)
-            => string.Format(
-                GetString("IndexMemberIsIgnored", nameof(entityType), nameof(indexMemberList), nameof(memberName)),
-                entityType, indexMemberList, memberName);
-
-        /// <summary>
-        ///     An index on the entity type '{entityType}' specifies members {indexMemberList}. But no property or field with name '{memberName}' exists on that entity type or any of its base types.
-        /// </summary>
-        public static string IndexMemberHasNoMatchingMember([CanBeNull] object entityType, [CanBeNull] object indexMemberList, [CanBeNull] object memberName)
-            => string.Format(
-                GetString("IndexMemberHasNoMatchingMember", nameof(entityType), nameof(indexMemberList), nameof(memberName)),
-                entityType, indexMemberList, memberName);
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -4290,6 +4266,54 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The index named '{indexName}' on the entity type '{entityType}' with properties {indexPropertyList} is invalid. The property '{propertyName}' has been marked NotMapped or Ignore(). An index cannot use such properties.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogIndexDefinedOnIgnoredProperty([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogIndexDefinedOnIgnoredProperty;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogIndexDefinedOnIgnoredProperty,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.IndexDefinedOnIgnoredProperty,
+                        LogLevel.Error,
+                        "CoreEventId.IndexDefinedOnIgnoredProperty",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            CoreEventId.IndexDefinedOnIgnoredProperty,
+                            _resourceManager.GetString("LogIndexDefinedOnIgnoredProperty"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     An index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertyList}. But no property with name '{propertyName}' exists on that entity type or any of its base types.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogIndexDefinedOnNonExistentProperty([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogIndexDefinedOnNonExistentProperty;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogIndexDefinedOnNonExistentProperty,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        CoreEventId.IndexDefinedOnNonExistentProperty,
+                        LogLevel.Error,
+                        "CoreEventId.IndexDefinedOnNonExistentProperty",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            CoreEventId.IndexDefinedOnNonExistentProperty,
+                            _resourceManager.GetString("LogIndexDefinedOnNonExistentProperty"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
         }
     }
 }

@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource? GetIsUniqueConfigurationSource();
 
         /// <summary>
-        ///     Sets the name of the index (can be <see langword="null"/>
-        ///     to indicate that a unique name should be generated).
+        ///     Sets the name of the index which can be <see langword="null"/>
+        ///     to indicate that a unique name should be generated.
         /// </summary>
         /// <param name="name"> The name of the index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

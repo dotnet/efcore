@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -743,12 +744,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(index, nameof(index));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
+            // Note - method names below are meant to be hard-coded
+            // because old snapshot files will fail if they are changed
             stringBuilder
                 .AppendLine()
                 .Append(builderName)
-                .Append(".")
-                .Append(nameof(EntityTypeBuilder.HasIndex))
-                .Append("(")
+                .Append(".HasIndex(")
                 .Append(string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name))))
                 .Append(")");
 
@@ -758,9 +759,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".")
-                        .Append(nameof(IndexBuilder.HasName))
-                        .Append("(")
+                        .Append(".HasName(")
                         .Append(Code.Literal(index.Name))
                         .Append(")");
                 }
@@ -769,9 +768,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".")
-                        .Append(nameof(IndexBuilder.IsUnique))
-                        .Append("()");
+                        .Append(".IsUnique()");
                 }
 
                 GenerateIndexAnnotations(index, stringBuilder);
@@ -792,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             IgnoreAnnotations(
                 annotations,
-                RelationalAnnotationNames.TableIndexMappings);
+                CSharpModelGenerator.IgnoredIndexAnnotations.ToArray());
 
             GenerateFluentApiForAnnotation(
                 ref annotations, RelationalAnnotationNames.Filter, nameof(RelationalIndexBuilderExtensions.HasFilter), stringBuilder);

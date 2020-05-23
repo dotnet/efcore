@@ -808,6 +808,40 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(Fixture.ListLoggerFactory.Log);
         }
 
+        [ConditionalFact]
+        public virtual void IndexAttribute_with_an_ignored_property_causes_error()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entity = modelBuilder.Entity<EntityWithIgnoredProperty>();
+            modelBuilder.Model.FinalizeModel();
+
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Error, logEntry.Level);
+            Assert.Equal(
+                CoreResources.LogIndexDefinedOnIgnoredProperty(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage("(null)", nameof(EntityWithIgnoredProperty), "{'A', 'B'}", "B"),
+                logEntry.Message);
+        }
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_with_a_non_existent_property_causes_error()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entity = modelBuilder.Entity<EntityWithNonExistentProperty>();
+            modelBuilder.Model.FinalizeModel();
+
+            var logEntry = Fixture.ListLoggerFactory.Log.Single();
+            Assert.Equal(LogLevel.Error, logEntry.Level);
+            Assert.Equal(
+                CoreResources.LogIndexDefinedOnNonExistentProperty(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(
+                        "IndexOnAAndNonExistentProperty",
+                        nameof(EntityWithNonExistentProperty),
+                        "{'A', 'DoesNotExist'}",
+                        "DoesNotExist"),
+                logEntry.Message);
+        }
+
         private class CompositeKeyAttribute
         {
             [Key]
@@ -2373,7 +2407,9 @@ namespace Microsoft.EntityFrameworkCore
                         .Log(CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning)
                         .Log(CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning)
                         .Log(CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning)
-                        .Log(CoreEventId.ConflictingKeylessAndKeyAttributesWarning));
+                        .Log(CoreEventId.ConflictingKeylessAndKeyAttributesWarning)
+                        .Log(CoreEventId.IndexDefinedOnIgnoredProperty)
+                        .Log(CoreEventId.IndexDefinedOnNonExistentProperty));
 
             protected override bool ShouldLogCategory(string logCategory)
                 => logCategory == DbLoggerCategory.Model.Name;
@@ -2469,6 +2505,23 @@ namespace Microsoft.EntityFrameworkCore
         protected class KeyFluentApiAndKeylessAttribute
         {
             public int MyKey { get; set; }
+        }
+
+        [Index(nameof(A), nameof(B))]
+        private class EntityWithIgnoredProperty
+        {
+            public int Id { get; set; }
+            public int A { get; set; }
+            [NotMapped]
+            public int B { get; set; }
+        }
+
+        [Index(nameof(A), "DoesNotExist", Name = "IndexOnAAndNonExistentProperty")]
+        private class EntityWithNonExistentProperty
+        {
+            public int Id { get; set; }
+            public int A { get; set; }
+            public int B { get; set; }
         }
     }
 }

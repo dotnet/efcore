@@ -68,7 +68,7 @@ WHERE [p].[DependentId] = @__category_PrincipalId_0");
                 entityType.GetForeignKeys().Single().GetConstraintName());
             Assert.Equal(
                 "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-                entityType.GetIndexes().Single().GetName());
+                entityType.GetIndexes().Single().GetDatabaseName());
 
             var entityType2 = context.Model.FindEntityType(
                 typeof(
@@ -89,7 +89,7 @@ WHERE [p].[DependentId] = @__category_PrincipalId_0");
                 entityType2.GetProperties().ElementAt(2).GetColumnName());
             Assert.Equal(
                 "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWor~1",
-                entityType2.GetIndexes().Single().GetName());
+                entityType2.GetIndexes().Single().GetDatabaseName());
         }
 
         private void AssertSql(params string[] expected)

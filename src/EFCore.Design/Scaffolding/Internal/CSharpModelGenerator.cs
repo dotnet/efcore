@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -128,5 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return resultingFiles;
         }
+
+        /// <summary>
+        /// The set of annotations ignored for the purposes of code generation for indexes.
+        /// </summary>
+        public static IEnumerable<string> IgnoredIndexAnnotations
+            => new List<string> { RelationalAnnotationNames.TableIndexMappings };
     }
 }

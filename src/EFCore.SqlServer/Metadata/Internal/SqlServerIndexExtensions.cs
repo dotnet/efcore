@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 FormatInclude(duplicateIndex, tableName, schema)));
                     }
 
-                    return false;
+                return false;
                 }
             }
 

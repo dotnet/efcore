@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateDefaultValuesOnKeys(model, logger);
             ValidateBoolsWithDefaults(model, logger);
             ValidateDbFunctions(model, logger);
-            ValidateIndexMembersOnSameTable(model, logger);
+            ValidateIndexProperties(model, logger);
         }
 
         /// <summary>
@@ -692,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var index in mappedTypes.SelectMany(et => et.GetDeclaredIndexes()))
             {
-                var indexName = index.GetName(tableName, schema);
+                var indexName = index.GetDatabaseName();
                 if (!indexMappings.TryGetValue(indexName, out var duplicateIndex))
                 {
                     indexMappings[indexName] = index;
@@ -914,71 +915,85 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => schema == null ? tableName : schema + "." + tableName;
 
         /// <summary>
-        ///     Validates that the members of any one index are all mapped to columns on the same table.
+        ///     Validates that the properties of any one index are
+        ///     all mapped to columns on at least one common table.
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateIndexMembersOnSameTable(
+        protected virtual void ValidateIndexProperties(
             [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             Check.NotNull(model, nameof(model));
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                foreach (var index in entityType.GetIndexes())
+                foreach (var index in entityType.GetIndexes()
+                    .Where(i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
                 {
-                    (string MemberName, string Table, string Schema) existingTableMapping = (null, null, null);
-                    foreach (var member in index.Properties)
+                    Tuple<string, List<(string Table, string Schema)>> firstPropertyTables = null;
+                    Tuple<string, List<(string Table, string Schema)>> lastPropertyTables = null;
+                    HashSet<(string Table, string Schema)> overlappingTables = null;
+                    foreach (var property in index.Properties)
                     {
                         //TODO - update to use table-schema override of GetColumn() below when PR #20938 is checked in
-                        var tablesMappedToMember = member.DeclaringEntityType.GetDerivedTypesInclusive()
+                        var tablesMappedToProperty = property.DeclaringEntityType.GetDerivedTypesInclusive()
                             .Select(t => (t.GetTableName(), t.GetSchema())).Distinct()
-                            .Where(n => member.GetColumnName(/* n.Item1, n.Item2 */) != null);
-                        var tablesMappedToMemberCount = tablesMappedToMember.Count();
-                        if (tablesMappedToMemberCount == 0)
+                            .Where(n => n.Item1 != null && property.GetColumnName(/* n.Item1, n.Item2 */) != null)
+                            .ToList<(string Table, string Schema)>();
+                        if (tablesMappedToProperty.Count == 0)
                         {
-                            throw new InvalidOperationException(
-                                RelationalStrings.IndexMemberNotMappedToAnyTable(
-                                    entityType.DisplayName(),
-                                    Format(index.Properties.Select(p => p.Name)),
-                                    member.Name));
-                        }
-                        else if (tablesMappedToMemberCount > 1)
-                        {
-                            throw new InvalidOperationException(
-                                RelationalStrings.IndexMemberMappedToMultipleTables(
-                                    entityType.DisplayName(),
-                                    Format(index.Properties.Select(p => p.Name)),
-                                    member.Name,
-                                    Format(tablesMappedToMember.Select(t => FormatTable(t.Item1, t.Item2)))));
+                            logger.IndexPropertyNotMappedToAnyTable(
+                                entityType,
+                                index,
+                                property.Name);
+
+                            overlappingTables = null;
+                            break;
                         }
 
-                        var table = tablesMappedToMember.Single();
-                        if (existingTableMapping.MemberName == null)
+                        if (firstPropertyTables == null)
                         {
-                            existingTableMapping = (member.Name, table.Item1, table.Item2);
+                            // store off which tables the first member maps to
+                            firstPropertyTables =
+                                new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
                         }
-                        else if (!string.Equals(existingTableMapping.Table, table.Item1, StringComparison.Ordinal)
-                            || !string.Equals(existingTableMapping.Schema, table.Item2, StringComparison.Ordinal))
+                        else
                         {
-                            throw new InvalidOperationException(
-                                RelationalStrings.IndexMembersOnDifferentTables(
-                                    entityType.DisplayName(),
-                                    Format(index.Properties.Select(p => p.Name)),
-                                    existingTableMapping.MemberName,
-                                    FormatTable(existingTableMapping.Table, existingTableMapping.Schema),
-                                    member.Name,
-                                    FormatTable(table.Item1, table.Item2)));
+                            // store off which tables the last member we encountered maps to
+                            lastPropertyTables =
+                                new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
                         }
+
+                        if (overlappingTables == null)
+                        {
+                            overlappingTables = new HashSet<(string Table, string Schema)>(tablesMappedToProperty);
+                        }
+                        else
+                        {
+                            overlappingTables.IntersectWith(tablesMappedToProperty);
+                            if (overlappingTables.Count == 0)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (overlappingTables != null
+                        && overlappingTables.Count == 0)
+                    {
+                        Debug.Assert(firstPropertyTables != null, nameof(firstPropertyTables));
+                        Debug.Assert(lastPropertyTables != null, nameof(lastPropertyTables));
+
+                        logger.IndexPropertiesMappedToNonOverlappingTables(
+                            entityType,
+                            index,
+                            firstPropertyTables.Item1,
+                            firstPropertyTables.Item2,
+                            lastPropertyTables.Item1,
+                            lastPropertyTables.Item2);
                     }
                 }
             }
         }
-
-        private static string Format(IEnumerable<string> names)
-            => "{" + string.Join(", ", names.Select(s => "'" + s + "'")) + "}";
-
-        private static string FormatTable(string table, string schema)
-            => schema == null ? table : schema + "." + table;
     }
 }

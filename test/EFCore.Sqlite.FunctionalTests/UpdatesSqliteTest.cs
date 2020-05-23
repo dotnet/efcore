@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
                 entityType.GetForeignKeys().Single().GetConstraintName());
             Assert.Equal(
                 "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly_ProfileId_ProfileId1_ProfileId3_ProfileId4_ProfileId5_ProfileId6_ProfileId7_ProfileId8_ProfileId9_ProfileId10_ProfileId11_ProfileId12_ProfileId13_ProfileId14_ExtraProperty",
-                entityType.GetIndexes().Single().GetName());
+                entityType.GetIndexes().Single().GetDatabaseName());
         }
     }
 }

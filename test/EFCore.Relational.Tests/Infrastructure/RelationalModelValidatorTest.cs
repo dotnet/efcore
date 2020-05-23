@@ -692,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.NotEqual(index1.GetName(), index2.GetName());
+            Assert.NotEqual(index1.GetDatabaseName(), index2.GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -732,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.Equal(index1.GetName(), index2.GetName());
+            Assert.Equal(index1.GetDatabaseName(), index2.GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.Equal(index1.GetName(), index2.GetName());
+            Assert.Equal(index1.GetDatabaseName(), index2.GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -799,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.Equal(index1.GetName(), index2.GetName());
+            Assert.Equal(index1.GetDatabaseName(), index2.GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -847,7 +847,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var index1 = fk1.DeclaringEntityType.GetDeclaredIndexes().Single();
             var index2 = fk2.DeclaringEntityType.GetDeclaredIndexes().Single();
             Assert.NotSame(index1, index2);
-            Assert.Equal(index1.GetName(), index2.GetName());
+            Assert.Equal(index1.GetDatabaseName(), index2.GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -946,8 +946,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Validate(modelBuilder.Model);
 
-            Assert.Equal("IX_Animal_Name", index1.GetName());
-            Assert.Equal("IX_Animal_Name1", index2.GetName());
+            Assert.Equal("IX_Animal_Name", index1.GetDatabaseName());
+            Assert.Equal("IX_Animal_Name1", index2.GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -973,7 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
 
             Assert.NotSame(index1, index2);
-            Assert.Equal(index1.GetName(), index2.GetName());
+            Assert.Equal(index1.GetDatabaseName(), index2.GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -1248,20 +1248,29 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [ConditionalFact(Skip = "Needs TPT to run")] //TODO - awaiting PR 20938
-        public void Detects_index_member_not_mapped_to_any_table()
+        [ConditionalFact]
+        public void Detects_index_property_not_mapped_to_any_table()
         {
-            // detect RelationalStrings.IndexMemberNotMappedToAnyTable exception
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>().ToTable(null);
+            modelBuilder.Entity<Animal>().HasIndex(nameof(Animal.Name));
+
+            var definition = RelationalResources
+                .LogIndexPropertyNotMappedToAnyTable(
+                    new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(
+                definition.GenerateMessage(
+                    "(null)",
+                    nameof(Animal),
+                    "{'Name'}",
+                    "Name"),
+                modelBuilder.Model,
+                LogLevel.Error);
         }
 
-        [ConditionalFact(Skip = "Needs TPT to run")] //TODO - awaiting PR 20938
-        public void Detects_index_member_mapped_to_multiple_tables()
-        {
-            // detect RelationalStrings.IndexMemberMappedToMultipleTables exception
-        }
-
-        [ConditionalFact(Skip = "Needs TPT to run")] //TODO - awaiting PR 20938
-        public void Detects_index_members_mapped_to_different_tables()
+        [ConditionalFact(Skip = "Needs TPT (PR 20938) to run")] //TODO - awaiting PR 20938
+        public void Passes_for_index_properties_mapped_to_same_table_in_TPT_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -1269,15 +1278,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Cat>().ToTable("Cats");
             modelBuilder.Entity<Cat>().HasIndex(nameof(Animal.Id), nameof(Cat.Identity));
 
-            VerifyError(
-                RelationalStrings.IndexMembersOnDifferentTables(
-                    nameof(Cat),
-                    "{'Id', 'Identity'}",
-                    nameof(Animal.Id),
-                    "Animals",
-                    nameof(Cat.Identity),
-                    "Cats"),
-                modelBuilder.Model);
+            Validate(modelBuilder.Model);
+
+            Assert.Empty(LoggerFactory.Log);
+        }
+
+        [ConditionalFact(Skip = "Needs TPT (PR 20938) to run")] //TODO - awaiting PR 20938
+        public void Detects_index_properties_mapped_to_different_tables_in_TPT_hierarchy()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>().ToTable("Animals");
+            modelBuilder.Entity<Cat>().ToTable("Cats");
+            modelBuilder.Entity<Cat>().HasIndex(nameof(Animal.Name), nameof(Cat.Identity));
+
+            var definition = RelationalResources
+                .LogIndexPropertiesMappedToNonOverlappingTables(
+                    new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(
+                definition.GenerateMessage(
+                    l => l.Log(
+                        definition.Level,
+                        definition.EventId,
+                        definition.MessageFormat,
+                        "(null)",
+                        nameof(Cat),
+                        "{'Name', 'Identity'}",
+                        nameof(Animal.Name),
+                        "{'Animals'}",
+                        nameof(Cat.Identity),
+                        "{'Cats'}")),
+                modelBuilder.Model,
+                LogLevel.Error);
         }
 
         private static void GenerateMapping(IMutableProperty property)

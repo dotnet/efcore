@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -11,32 +13,46 @@ namespace Microsoft.EntityFrameworkCore
     ///     Specifies an index to be generated in the database.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class IndexAttribute : Attribute
+    public sealed class IndexAttribute : Attribute
     {
+        private static readonly bool DefaultIsUnique = false;
+        private bool? _isUnique;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="IndexAttribute" /> class.
         /// </summary>
-        /// <param name="memberNames"> The members which constitute the index, in order (there must be at least one). </param>
-        public IndexAttribute(params string[] memberNames)
+        /// <param name="propertyNames"> The properties which constitute the index, in order (there must be at least one). </param>
+        public IndexAttribute(params string[] propertyNames)
         {
-            Check.NotEmpty(memberNames, nameof(memberNames));
-            MemberNames = memberNames;
+            Check.NotEmpty(propertyNames, nameof(propertyNames));
+            Check.HasNoEmptyElements(propertyNames, nameof(propertyNames));
+            PropertyNames = propertyNames.ToList();
         }
 
         /// <summary>
-        ///     The members which constitute the index, in order.
+        ///     The properties which constitute the index, in order.
         /// </summary>
-        public virtual string[] MemberNames { get; }
+        public List<string> PropertyNames { get; }
 
         /// <summary>
-        ///     The name of the index in the database.
+        ///     The name of the index.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public string Name { get; [param: NotNull] set; }
 
 
         /// <summary>
         ///     Whether the index is unique.
         /// </summary>
-        public virtual bool IsUnique { get; set; }
+        public bool IsUnique
+        {
+            get => _isUnique ?? DefaultIsUnique;
+            set => _isUnique = value;
+        }
+
+        /// <summary>
+        ///     Use this method if you want to know the uniqueness of
+        ///     the index or <see langword="null"/> if it was not specified.
+        /// </summary>
+        public bool? GetIsUnique() => _isUnique;
     }
 }

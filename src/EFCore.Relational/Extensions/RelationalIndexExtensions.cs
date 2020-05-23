@@ -24,6 +24,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The name for this index. </returns>
+        public static string GetDatabaseName([NotNull] this IIndex index)
+            => index.Name ?? index.GetDefaultName();
+
+        /// <summary>
+        ///     Returns the name for this index.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> The name for this index. </returns>
+        [Obsolete("Use GetDatabaseName() instead")]
         public static string GetName([NotNull] this IIndex index)
             => index.Name ?? index.GetDefaultName();
 

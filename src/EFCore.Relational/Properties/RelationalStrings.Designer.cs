@@ -873,22 +873,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("IndexMemberNotMappedToAnyTable", nameof(entityType), nameof(indexMemberList), nameof(memberName)),
                 entityType, indexMemberList, memberName);
 
-        /// <summary>
-        ///     An index on the entity type '{entityType}' specifies members {indexMemberList}. But the property or field with name '{memberName}' is mapped to columns in multiple tables {tableList}. Please use only members mapped to a single table.
-        /// </summary>
-        public static string IndexMemberMappedToMultipleTables([CanBeNull] object entityType, [CanBeNull] object indexMemberList, [CanBeNull] object memberName, [CanBeNull] object tableList)
-            => string.Format(
-                GetString("IndexMemberMappedToMultipleTables", nameof(entityType), nameof(indexMemberList), nameof(memberName), nameof(tableList)),
-                entityType, indexMemberList, memberName, tableList);
-
-        /// <summary>
-        ///     An index on the entity type '{entityType}' specifies members {indexMemberList}. The member '{memberName1}' is mapped to a column on table '{table1}', whereas the member '{memberName2}' is mapped to a column on table '{table2}'. All index members must map to the same table.
-        /// </summary>
-        public static string IndexMembersOnDifferentTables([CanBeNull] object entityType, [CanBeNull] object indexMemberList, [CanBeNull] object memberName1, [CanBeNull] object table1, [CanBeNull] object memberName2, [CanBeNull] object table2)
-            => string.Format(
-                GetString("IndexMembersOnDifferentTables", nameof(entityType), nameof(indexMemberList), nameof(memberName1), nameof(table1), nameof(memberName2), nameof(table2)),
-                entityType, indexMemberList, memberName1, table1, memberName2, table2);
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -1825,6 +1809,51 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. But the property '{propertyName}' is not mapped to a column in any table. Please use only properties mapped to a column.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogIndexPropertyNotMappedToAnyTable([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogIndexPropertyNotMappedToAnyTable;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogIndexPropertyNotMappedToAnyTable,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        RelationalEventId.IndexPropertyNotMappedToAnyTable,
+                        LogLevel.Error,
+                        "RelationalEventId.IndexPropertyNotMappedToAnyTable",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            RelationalEventId.IndexPropertyNotMappedToAnyTable,
+                            _resourceManager.GetString("LogIndexPropertyNotMappedToAnyTable"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The index named '{indexName}' on the entity type '{entityType}' specifies members {indexPropertiesList}. The property '{propertyName1}' is mapped to table(s) {tableList1}, whereas the property '{propertyName2}' is mapped to table(s) {tableList2}. All index properties must map to at least one common table.
+        /// </summary>
+        public static FallbackEventDefinition LogIndexPropertiesMappedToNonOverlappingTables([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogIndexPropertiesMappedToNonOverlappingTables;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogIndexPropertiesMappedToNonOverlappingTables,
+                    () => new FallbackEventDefinition(
+                        logger.Options,
+                        RelationalEventId.IndexPropertiesMappedToNonOverlappingTables,
+                        LogLevel.Error,
+                        "RelationalEventId.IndexPropertiesMappedToNonOverlappingTables",
+                        _resourceManager.GetString("LogIndexPropertiesMappedToNonOverlappingTables")));
+            }
+
+            return (FallbackEventDefinition)definition;
         }
     }
 }
