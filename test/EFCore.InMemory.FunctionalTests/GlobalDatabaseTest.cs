@@ -88,6 +88,42 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Owned_types_are_found_correctly_with_database_root()
+        {
+            var options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase("20784", _databaseRoot)
+                .Options;
+
+            using (var context = new BooFooContext(options))
+            {
+                context.Add(new Foo { Goo1 = null, Goo2 = new Goo() });
+                context.Add(new Boo { Goo1 = new Goo(), Goo2 = new Goo() });
+                context.SaveChanges();
+
+                var foos = context.Foos.Single();
+                Assert.Null(foos.Goo1);
+                Assert.NotNull(foos.Goo2);
+
+                var boos = context.Boos.Single();
+                Assert.NotNull(boos.Goo1);
+                Assert.NotNull(boos.Goo2);
+                Assert.NotSame(boos.Goo1, boos.Goo2);
+            }
+
+            using (var context = new BooFooContext(options))
+            {
+                var foos = context.Foos.Single();
+                Assert.Null(foos.Goo1);
+                Assert.NotNull(foos.Goo2);
+
+                var boos = context.Boos.Single();
+                Assert.NotNull(boos.Goo1);
+                Assert.NotNull(boos.Goo2);
+                Assert.NotSame(boos.Goo1, boos.Goo2);
+            }
+        }
+
+        [ConditionalFact]
         public void Global_store_can_be_used_when_AddDbContext_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
@@ -159,6 +195,23 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Foo>(
+                    b =>
+                    {
+                        b.OwnsOne(e => e.Goo1);
+                        b.OwnsOne(e => e.Goo2);
+                    });
+
+                modelBuilder.Entity<Boo>(
+                    b =>
+                    {
+                        b.OwnsOne(e => e.Goo1);
+                        b.OwnsOne(e => e.Goo2);
+                    });
+            }
+
             public DbSet<Foo> Foos { get; set; }
             public DbSet<Boo> Boos { get; set; }
         }
@@ -166,11 +219,20 @@ namespace Microsoft.EntityFrameworkCore
         private class Foo
         {
             public int Id { get; set; }
+            public Goo Goo1 { get; set; }
+            public Goo Goo2 { get; set; }
         }
 
         private class Boo
         {
             public int Id { get; set; }
+            public Goo Goo1 { get; set; }
+            public Goo Goo2 { get; set; }
+        }
+
+        private class Goo
+        {
+            public string Goop { get; set; }
         }
     }
 }
