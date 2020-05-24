@@ -308,6 +308,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Determines whether or not the database is available and can be connected to.
         ///     </para>
         ///     <para>
+        ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
+        ///     </para>
+        ///     <para>
+        ///         The configured connection string is used to create the connection in the normal way, so all
+        ///         configured options such as timeouts are honored.
+        ///     </para>
+        ///     <para>
         ///         Note that being able to connect to the database does not mean that it is
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
@@ -328,6 +335,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     <para>
         ///         Determines whether or not the database is available and can be connected to.
+        ///     </para>
+        ///     <para>
+        ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
+        ///     </para>
+        ///     <para>
+        ///         The configured connection string is used to create the connection in the normal way, so all
+        ///         configured options such as timeouts are honored.
         ///     </para>
         ///     <para>
         ///         Note that being able to connect to the database does not mean that it is

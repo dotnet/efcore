@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="model"> The <see cref="IModel" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
-        /// <returns> True if the annotation is handled by convention; false if code must be generated. </returns>
+        /// <returns> <see langword="true" /> if the annotation is handled by convention; <see langword="false" /> if code must be generated. </returns>
         bool IsHandledByConvention([NotNull] IModel model, [NotNull] IAnnotation annotation);
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="entityType"> The <see cref="IEntityType" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
-        /// <returns> True if the annotation is handled by convention; false if code must be generated. </returns>
+        /// <returns> <see langword="true" /> if the annotation is handled by convention; <see langword="false" /> if code must be generated. </returns>
         bool IsHandledByConvention([NotNull] IEntityType entityType, [NotNull] IAnnotation annotation);
 
         /// <summary>
@@ -38,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="key"> The <see cref="IKey" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
+        /// <returns> <see langword="true" /> if the annotation is handled by convention; <see langword="false" /> if code must be generated. </returns>
         bool IsHandledByConvention([NotNull] IKey key, [NotNull] IAnnotation annotation);
 
         /// <summary>
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="property"> The <see cref="IProperty" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
+        /// <returns> <see langword="true" /> if the annotation is handled by convention; <see langword="false" /> if code must be generated. </returns>
         bool IsHandledByConvention([NotNull] IProperty property, [NotNull] IAnnotation annotation);
 
         /// <summary>
@@ -54,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="foreignKey"> The <see cref="IForeignKey" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
+        /// <returns> <see langword="true" /> if the annotation is handled by convention; <see langword="false" /> if code must be generated. </returns>
         bool IsHandledByConvention([NotNull] IForeignKey foreignKey, [NotNull] IAnnotation annotation);
 
         /// <summary>
@@ -62,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="index"> The <see cref="IIndex" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
+        /// <returns> <see langword="true" /> if the annotation is handled by convention; <see langword="false" /> if code must be generated. </returns>
         bool IsHandledByConvention([NotNull] IIndex index, [NotNull] IAnnotation annotation);
 
         /// <summary>

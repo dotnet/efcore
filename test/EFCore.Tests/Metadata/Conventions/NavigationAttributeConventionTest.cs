@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
                 CoreResources.LogRequiredAttributeOnCollection(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Principal), nameof(Principal.Dependent)), logEntry.Message);
+                    nameof(Principal), nameof(Principal.Dependents)), logEntry.Message);
         }
 
         [ConditionalFact]

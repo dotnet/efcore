@@ -1417,7 +1417,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,navigation.Name,navigation.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, navigation.DeclaringEntityType.DisplayName(), navigation.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1435,7 +1435,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (NavigationEventData)payload;
-            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
+            return d.GenerateMessage(p.Navigation.DeclaringEntityType.DisplayName(), p.Navigation.Name);
         }
 
         /// <summary>
