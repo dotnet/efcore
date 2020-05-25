@@ -531,6 +531,22 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
         [ConditionalFact]
+        public virtual Task Add_column_with_check_constraint()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("DriverLicense");
+                        e.HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 0");
+                    }),
+                model =>
+                {
+                    // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
+                });
+
+        [ConditionalFact]
         public virtual Task Alter_column_change_type()
             => Test(
                 builder => builder.Entity("People").Property<int>("Id"),
