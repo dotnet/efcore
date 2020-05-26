@@ -12,15 +12,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<NullSemanticsContext>, IQueryFixtureBase
     {
-        public NullSemanticsQueryFixtureBase()
-        {
-            var entitySorters = new Dictionary<Type, Func<object, object>>
+        public Func<DbContext> GetContextCreator() => () => CreateContext();
+
+        public ISetSource GetExpectedData() => new NullSemanticsData();
+
+        public IReadOnlyDictionary<Type, object> GetEntitySorters()
+            => new Dictionary<Type, Func<object, object>>
                 {
                     { typeof(NullSemanticsEntity1), e => ((NullSemanticsEntity1)e)?.Id },
                     { typeof(NullSemanticsEntity2), e => ((NullSemanticsEntity2)e)?.Id }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, Action<object, object>>
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+            => new Dictionary<Type, Action<object, object>>
                 {
                     {
                         typeof(NullSemanticsEntity1), (e, a) =>
@@ -86,21 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     },
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
-        }
-
-        protected virtual QueryAsserter<NullSemanticsContext> CreateQueryAsserter(
-            Dictionary<Type, object> entitySorters,
-            Dictionary<Type, object> entityAsserters)
-            => new QueryAsserter<NullSemanticsContext>(
-                CreateContext,
-                new NullSemanticsData(),
-                entitySorters,
-                entityAsserters);
-
         protected override string StoreName { get; } = "NullSemanticsQueryTest";
-
-        public QueryAsserterBase QueryAsserter { get; set; }
 
         public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
 

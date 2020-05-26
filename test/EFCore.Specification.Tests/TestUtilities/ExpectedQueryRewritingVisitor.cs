@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             if (!memberExpression.Type.IsValueType
                 && !memberExpression.Type.IsNullableValueType()
                 && memberExpression.Expression != null)
-            { 
+            {
                 var expression = Visit(memberExpression.Expression);
 
                 var lambdaParameter = Expression.Parameter(expression.Type, "x");

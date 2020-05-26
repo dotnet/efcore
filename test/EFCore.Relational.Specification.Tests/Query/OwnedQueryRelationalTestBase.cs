@@ -7,27 +7,22 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class RelationalOwnedQueryTestBase<TFixture> : OwnedQueryTestBase<TFixture>
-        where TFixture : RelationalOwnedQueryTestBase<TFixture>.RelationalOwnedQueryFixture, new()
+    public abstract class OwnedQueryRelationalTestBase<TFixture> : OwnedQueryTestBase<TFixture>
+        where TFixture : OwnedQueryRelationalTestBase<TFixture>.RelationalOwnedQueryFixture, new()
     {
-        protected RelationalOwnedQueryTestBase(TFixture fixture)
+        protected OwnedQueryRelationalTestBase(TFixture fixture)
             : base(fixture)
         {
         }
 
+        protected virtual bool CanExecuteQueryString => false;
+
+        protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
+            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+
         public abstract class RelationalOwnedQueryFixture : OwnedQueryFixtureBase
         {
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-
-            protected override QueryAsserter<PoolableDbContext> CreateQueryAsserter(
-                Dictionary<Type, object> entitySorters,
-                Dictionary<Type, object> entityAsserters)
-                => new RelationalQueryAsserter<PoolableDbContext>(
-                    CreateContext,
-                    new OwnedQueryData(),
-                    entitySorters,
-                    entityAsserters,
-                    CanExecuteQueryString);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

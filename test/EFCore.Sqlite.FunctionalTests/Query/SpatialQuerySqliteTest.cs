@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     [SpatialiteRequired]
-    public class SpatialQuerySqliteTest : SpatialQueryTestBase<SpatialQuerySqliteFixture>
+    public class SpatialQuerySqliteTest : SpatialQueryRelationalTestBase<SpatialQuerySqliteFixture>
     {
         public SpatialQuerySqliteTest(SpatialQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

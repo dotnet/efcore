@@ -16,9 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "ComplexNavigations";
 
-        protected ComplexNavigationsQueryFixtureBase()
-        {
-            var entitySorters = new Dictionary<Type, Func<object, object>>
+        public Func<DbContext> GetContextCreator() => () => CreateContext();
+
+        public virtual ISetSource GetExpectedData() => new ComplexNavigationsDefaultData();
+
+        public IReadOnlyDictionary<Type, object> GetEntitySorters()
+            => new Dictionary<Type, Func<object, object>>
             {
                 { typeof(Level1), e => ((Level1)e)?.Id },
                 { typeof(Level2), e => ((Level2)e)?.Id },
@@ -32,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(InheritanceLeaf2), e => ((InheritanceLeaf2)e)?.Id }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, Action<object, object>>
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+            => new Dictionary<Type, Action<object, object>>
             {
                 {
                     typeof(Level1), (e, a) =>
@@ -193,93 +197,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
-
-            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
-        }
-
-        protected virtual QueryAsserter<ComplexNavigationsContext> CreateQueryAsserter(
-            Dictionary<Type, object> entitySorters,
-            Dictionary<Type, object> entityAsserters)
-            => new QueryAsserter<ComplexNavigationsContext>(
-                CreateContext,
-                new ComplexNavigationsDefaultData(),
-                entitySorters,
-                entityAsserters,
-                CreateExpectedQueryRewritingVisitor());
-
-        private MemberInfo GetMemberInfo(Type sourceType, string name)
-            => sourceType.GetMember(name).Single();
-
-        protected virtual ExpectedQueryRewritingVisitor CreateExpectedQueryRewritingVisitor()
-            => new ExpectedQueryRewritingVisitor(new Dictionary<(Type, string), MemberInfo[]>
-                {
-                    {
-                        (typeof(Level1), "OneToMany_Optional_Self_Inverse1Id"),
-                        new []
-                        {
-                            GetMemberInfo(typeof(Level1), "OneToMany_Optional_Self_Inverse1"),
-                            GetMemberInfo(typeof(Level1), "Id")
-                        }
-                    },
-                    {
-                        (typeof(Level1), "OneToOne_Optional_Self1Id"),
-                        new []
-                        {
-                            GetMemberInfo(typeof(Level1), "OneToOne_Optional_Self1"),
-                            GetMemberInfo(typeof(Level1), "Id")
-                        }
-                    },
-                    {
-                        (typeof(Level2), "OneToMany_Optional_Self_Inverse2Id"),
-                        new []
-                        {
-                            GetMemberInfo(typeof(Level2), "OneToMany_Optional_Self_Inverse2"),
-                            GetMemberInfo(typeof(Level2), "Id")
-                        }
-                    },
-                    {
-                        (typeof(Level2), "OneToOne_Optional_Self2Id"),
-                        new []
-                        {
-                            GetMemberInfo(typeof(Level2), "OneToOne_Optional_Self2"),
-                            GetMemberInfo(typeof(Level2), "Id")
-                        }
-                    },
-                    {
-                        (typeof(Level3), "OneToMany_Optional_Self_Inverse3Id"),
-                        new []
-                        {
-                            GetMemberInfo(typeof(Level3), "OneToMany_Optional_Self_Inverse3"),
-                            GetMemberInfo(typeof(Level3), "Id")
-                        }
-                    },
-                    {
-                        (typeof(Level3), "OneToOne_Optional_Self3Id"),
-                        new []
-                        {
-                            GetMemberInfo(typeof(Level3), "OneToOne_Optional_Self3"),
-                            GetMemberInfo(typeof(Level3), "Id")
-                        }
-                    },
-                    {
-                        (typeof(Level4), "OneToMany_Optional_Self_Inverse4Id"),
-                        new []
-                        {
-                            GetMemberInfo(typeof(Level4), "OneToMany_Optional_Self_Inverse4"),
-                            GetMemberInfo(typeof(Level4), "Id")
-                        }
-                    },
-                    {
-                        (typeof(Level4), "OneToOne_Optional_Self4Id"),
-                        new []
-                        {
-                            GetMemberInfo(typeof(Level4), "OneToOne_Optional_Self4"),
-                            GetMemberInfo(typeof(Level4), "Id")
-                        }
-                    },
-                });
-
-        public QueryAsserterBase QueryAsserter { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

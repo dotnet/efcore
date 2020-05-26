@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindNavigationsQuerySqlServerTest : NorthwindNavigationsQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindNavigationsQuerySqlServerTest : NorthwindNavigationsQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindNavigationsQuerySqlServerTest(
             NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             fixture.TestSqlLoggerFactory.Clear();
         }
+
+        protected override bool CanExecuteQueryString => true;
 
         public override async Task Select_Where_Navigation(bool async)
         {

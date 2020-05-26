@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool async)
         {
             using var context = CreateContext();
-            var expectedQuery = Fixture.QueryAsserter.ExpectedData.Set<OwnedPerson>().OrderBy(p => p.Id);
+            var expectedQuery = QueryAsserter.ExpectedData.Set<OwnedPerson>().OrderBy(p => p.Id);
             var expectedResult = expectedQuery.Select(q => new { Query = q, Count = expectedQuery.Count() }).Skip(0).Take(100).ToList();
 
             var baseQuery = context.Set<OwnedPerson>().OrderBy(p => p.Id);
@@ -823,9 +823,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            public OwnedQueryFixtureBase()
-            {
-                var entitySorters = new Dictionary<Type, Func<object, object>>
+            public Func<DbContext> GetContextCreator() => () => CreateContext();
+
+            public ISetSource GetExpectedData() => new OwnedQueryData();
+
+            public IReadOnlyDictionary<Type, object> GetEntitySorters()
+                => new Dictionary<Type, Func<object, object>>
                 {
                     { typeof(OwnedPerson), e => ((OwnedPerson)e)?.Id },
                     { typeof(Branch), e => ((Branch)e)?.Id },
@@ -845,7 +848,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     { typeof(Throned), e => ((Throned)e)?.Property }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-                var entityAsserters = new Dictionary<Type, Action<object, object>>
+            public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+                => new Dictionary<Type, Action<object, object>>
                 {
                     {
                         typeof(OwnedPerson), (e, a) =>
@@ -1065,23 +1069,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
-                ;
-
-                QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
-            }
-
-            protected virtual QueryAsserter<PoolableDbContext> CreateQueryAsserter(
-                Dictionary<Type, object> entitySorters,
-                Dictionary<Type, object> entityAsserters)
-                => new QueryAsserter<PoolableDbContext>(
-                    CreateContext,
-                    new OwnedQueryData(),
-                    entitySorters,
-                    entityAsserters);
 
             protected override string StoreName { get; } = "OwnedQueryTest";
-
-            public QueryAsserterBase QueryAsserter { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
