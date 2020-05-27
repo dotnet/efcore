@@ -3185,6 +3185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => (from f in ss.Set<Faction>()
                        where f is LocustHorde
+                       orderby f.Id
                        select f).Include(f => f.Capital),
                 elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes),
                 assertOrder: true);
