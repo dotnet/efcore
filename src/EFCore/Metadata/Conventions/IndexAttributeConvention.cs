@@ -42,50 +42,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     foreach (var indexAttribute in
                         entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
                     {
-                        var shouldGenerate = true;
                         var indexProperties = new List<IConventionProperty>();
                         foreach (var propertyName in indexAttribute.PropertyNames)
                         {
                             if (ignoredMembers.Contains(propertyName))
                             {
-                                Dependencies.Logger
-                                    .IndexDefinedOnIgnoredProperty(
-                                        entityType,
-                                        indexAttribute,
-                                        propertyName);
-                                shouldGenerate = false;
-                                break;
+                                throw new InvalidOperationException(
+                                    CoreStrings.IndexDefinedOnIgnoredProperty(
+                                        indexAttribute.Name,
+                                        entityType.DisplayName(),
+                                        indexAttribute.PropertyNames.Format(),
+                                        propertyName));
                             }
 
                             var property = entityType.FindProperty(propertyName);
                             if (property == null)
                             {
-                                Dependencies.Logger
-                                    .IndexDefinedOnNonExistentProperty(
-                                        entityType,
-                                        indexAttribute,
-                                        propertyName);
-                                shouldGenerate = false;
-                                break;
+                                throw new InvalidOperationException(
+                                    CoreStrings.IndexDefinedOnNonExistentProperty(
+                                        indexAttribute.Name,
+                                        entityType.DisplayName(),
+                                        indexAttribute.PropertyNames.Format(),
+                                        propertyName));
                             }
 
                             indexProperties.Add(property);
                         }
 
-                        if (shouldGenerate)
+                        var indexBuilder = entityType.Builder.HasIndex(indexProperties, fromDataAnnotation: true);
+                        if (indexBuilder != null)
                         {
-                            var indexBuilder = entityType.Builder.HasIndex(indexProperties, fromDataAnnotation: true);
-                            if (indexBuilder != null)
+                            if (indexAttribute.Name != null)
                             {
-                                if (indexAttribute.Name != null)
-                                {
-                                    indexBuilder.HasName(indexAttribute.Name, fromDataAnnotation: true);
-                                }
+                                indexBuilder.HasName(indexAttribute.Name, fromDataAnnotation: true);
+                            }
 
-                                if (indexAttribute.GetIsUnique().HasValue)
-                                {
-                                    indexBuilder.IsUnique(indexAttribute.GetIsUnique().Value, fromDataAnnotation: true);
-                                }
+                            if (indexAttribute.GetIsUnique().HasValue)
+                            {
+                                indexBuilder.IsUnique(indexAttribute.GetIsUnique().Value, fromDataAnnotation: true);
                             }
                         }
                     }

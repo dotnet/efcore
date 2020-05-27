@@ -1249,22 +1249,65 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public void Detects_index_property_not_mapped_to_any_table()
+        public void Passes_for_all_index_properties_not_mapped_to_any_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<Animal>().ToTable(null);
-            modelBuilder.Entity<Animal>().HasIndex(nameof(Animal.Name));
+            modelBuilder.Entity<Animal>().HasIndex(nameof(Animal.Id), nameof(Animal.Name));
 
             var definition = RelationalResources
-                .LogIndexPropertyNotMappedToAnyTable(
+                .LogAllIndexPropertiesNotToMappedToAnyTable(
                     new TestLogger<TestRelationalLoggingDefinitions>());
             VerifyWarning(
                 definition.GenerateMessage(
                     "(null)",
                     nameof(Animal),
-                    "{'Name'}",
-                    "Name"),
+                    "{'Id', 'Name'}"),
+                modelBuilder.Model,
+                LogLevel.Information);
+        }
+
+        [ConditionalFact(Skip = "Needs TPT (PR 20938) to run")] //TODO - awaiting PR 20938
+        public void Detects_mix_of_index_property_mapped_and_not_mapped_to_any_table_unmapped_first()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>().ToTable(null);
+            modelBuilder.Entity<Cat>().ToTable("Cats");
+            modelBuilder.Entity<Cat>().HasIndex(nameof(Animal.Id), nameof(Cat.Identity));
+
+            var definition = RelationalResources
+                .LogIndexPropertiesBothMappedAndNotMappedToTable(
+                    new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(
+                definition.GenerateMessage(
+                    "(null)",
+                    nameof(Cat),
+                    "{'Id', 'Identity'}",
+                    "Id"),
+                modelBuilder.Model,
+                LogLevel.Error);
+        }
+
+        [ConditionalFact(Skip = "Needs TPT (PR 20938) to run")] //TODO - awaiting PR 20938
+        public void Detects_mix_of_index_property_mapped_and_not_mapped_to_any_table_mapped_first()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>().ToTable(null);
+            modelBuilder.Entity<Cat>().ToTable("Cats");
+            modelBuilder.Entity<Cat>().HasIndex(nameof(Cat.Identity), nameof(Animal.Id));
+
+            var definition = RelationalResources
+                .LogIndexPropertiesBothMappedAndNotMappedToTable(
+                    new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(
+                definition.GenerateMessage(
+                    "(null)",
+                    nameof(Cat),
+                    "{'Identity', 'Id'}",
+                    "Id"),
                 modelBuilder.Model,
                 LogLevel.Error);
         }

@@ -75,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Model validation events
             ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
             BoolWithDefaultWarning,
-            IndexPropertyNotMappedToAnyTable,
+            AllIndexPropertiesNotToMappedToAnyTable,
+            IndexPropertiesBothMappedAndNotMappedToTable,
             IndexPropertiesMappedToNonOverlappingTables,
 
             // Update events
@@ -557,7 +558,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         An index specifies a property which is not mapped to a column in any table.
+        ///         An index specifies properties all of which are not mapped to a column in any table.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="IndexEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId AllIndexPropertiesNotToMappedToAnyTable = MakeValidationId(Id.AllIndexPropertiesNotToMappedToAnyTable);
+
+        /// <summary>
+        ///     <para>
+        ///         An index specifies properties some of which are mapped and some of which are not mapped to a column in a table.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
@@ -566,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="IndexInvalidPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId IndexPropertyNotMappedToAnyTable = MakeValidationId(Id.IndexPropertyNotMappedToAnyTable);
+        public static readonly EventId IndexPropertiesBothMappedAndNotMappedToTable = MakeValidationId(Id.IndexPropertiesBothMappedAndNotMappedToTable);
 
         /// <summary>
         ///     <para>

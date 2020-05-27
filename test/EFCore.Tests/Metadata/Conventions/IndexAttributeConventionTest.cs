@@ -155,6 +155,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 prop1 => Assert.Equal("B", prop1.Name));
         }
 
+        [ConditionalFact]
+        public virtual void IndexAttribute_with_an_ignored_property_causes_error()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var entity = modelBuilder.Entity<EntityWithIgnoredProperty>();
+
+            Assert.Equal(
+                CoreStrings.IndexDefinedOnIgnoredProperty(
+                    "",
+                    nameof(EntityWithIgnoredProperty),
+                    "{'A', 'B'}",
+                    "B"),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Model.FinalizeModel()).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_with_a_non_existent_property_causes_error()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var entity = modelBuilder.Entity<EntityWithNonExistentProperty>();
+
+            Assert.Equal(
+                CoreStrings.IndexDefinedOnNonExistentProperty(
+                        "IndexOnAAndNonExistentProperty",
+                        nameof(EntityWithNonExistentProperty),
+                        "{'A', 'DoesNotExist'}",
+                        "DoesNotExist"),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Model.FinalizeModel()).Message);
+        }
+
         #endregion
 
         private void RunConvention(InternalModelBuilder modelBuilder)
@@ -227,6 +259,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         [Index(nameof(A), " \r\n\t", Name = "IndexOnAAndWhiteSpace")]
         private class EntityWithInvalidWhiteSpaceIndexProperty
+        {
+            public int Id { get; set; }
+            public int A { get; set; }
+            public int B { get; set; }
+        }
+
+        [Index(nameof(A), nameof(B))]
+        private class EntityWithIgnoredProperty
+        {
+            public int Id { get; set; }
+            public int A { get; set; }
+            [NotMapped]
+            public int B { get; set; }
+        }
+
+        [Index(nameof(A), "DoesNotExist", Name = "IndexOnAAndNonExistentProperty")]
+        private class EntityWithNonExistentProperty
         {
             public int Id { get; set; }
             public int A { get; set; }

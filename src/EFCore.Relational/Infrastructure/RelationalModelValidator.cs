@@ -930,6 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 foreach (var index in entityType.GetIndexes()
                     .Where(i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
                 {
+                    IProperty propertyNotMappedToAnyTable = null;
                     Tuple<string, List<(string Table, string Schema)>> firstPropertyTables = null;
                     Tuple<string, List<(string Table, string Schema)>> lastPropertyTables = null;
                     HashSet<(string Table, string Schema)> overlappingTables = null;
@@ -942,13 +943,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             .ToList<(string Table, string Schema)>();
                         if (tablesMappedToProperty.Count == 0)
                         {
-                            logger.IndexPropertyNotMappedToAnyTable(
-                                entityType,
-                                index,
-                                property.Name);
-
+                            propertyNotMappedToAnyTable = property;
                             overlappingTables = null;
-                            break;
+
+                            if (firstPropertyTables != null)
+                            {
+                                // Property is not mapped but we already found
+                                // a property that is mapped.
+                                break;
+                            }
+
+                            continue;
                         }
 
                         if (firstPropertyTables == null)
@@ -962,6 +967,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             // store off which tables the last member we encountered maps to
                             lastPropertyTables =
                                 new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
+                        }
+
+                        if (propertyNotMappedToAnyTable != null)
+                        {
+                            // Property is mapped but we already found
+                            // a property that is not mapped.
+                            overlappingTables = null;
+                            break;
                         }
 
                         if (overlappingTables == null)
@@ -978,8 +991,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         }
                     }
 
-                    if (overlappingTables != null
-                        && overlappingTables.Count == 0)
+                    if (overlappingTables == null)
+                    {
+                        if (firstPropertyTables == null)
+                        {
+                            logger.AllIndexPropertiesNotToMappedToAnyTable(
+                                entityType,
+                                index);
+                        }
+                        else
+                        {
+                            logger.IndexPropertiesBothMappedAndNotMappedToTable(
+                                entityType,
+                                index,
+                                propertyNotMappedToAnyTable.Name);
+                        }
+                    }
+                    else if (overlappingTables.Count == 0)
                     {
                         Debug.Assert(firstPropertyTables != null, nameof(firstPropertyTables));
                         Debug.Assert(lastPropertyTables != null, nameof(lastPropertyTables));

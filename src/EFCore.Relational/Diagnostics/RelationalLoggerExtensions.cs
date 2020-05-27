@@ -3604,19 +3604,63 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs the <see cref="RelationalEventId.IndexPropertyNotMappedToAnyTable" /> event.
+        ///     Logs the <see cref="RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="entityType"> The entity type on which the index is defined. </param>
+        /// <param name="index"> The index on the entity type. </param>
+        public static void AllIndexPropertiesNotToMappedToAnyTable(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IEntityType entityType,
+            [NotNull] IIndex index)
+        {
+            var definition = RelationalResources.LogAllIndexPropertiesNotToMappedToAnyTable(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics,
+                    index.Name,
+                    entityType.DisplayName(),
+                    index.Properties.Format());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new IndexEventData(
+                    definition,
+                    AllIndexPropertiesNotToMappedToAnyTable,
+                    entityType,
+                    index.Name,
+                    index.Properties.Select(p => p.Name).ToList());
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string AllIndexPropertiesNotToMappedToAnyTable(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string>)definition;
+            var p = (IndexEventData)payload;
+            return d.GenerateMessage(
+                p.Name,
+                p.EntityType.DisplayName(),
+                p.PropertyNames.Format());
+        }
+
+        /// <summary>
+        ///     Logs the <see cref="RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="entityType"> The entity type on which the index is defined. </param>
         /// <param name="index"> The index on the entity type. </param>
         /// <param name="unmappedPropertyName"> The name of the property which is not mapped. </param>
-        public static void IndexPropertyNotMappedToAnyTable(
+        public static void IndexPropertiesBothMappedAndNotMappedToTable(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             [NotNull] IEntityType entityType,
             [NotNull] IIndex index,
             [NotNull] string unmappedPropertyName)
         {
-            var definition = RelationalResources.LogIndexPropertyNotMappedToAnyTable(diagnostics);
+            var definition = RelationalResources.LogIndexPropertiesBothMappedAndNotMappedToTable(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
@@ -3631,7 +3675,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = new IndexInvalidPropertyEventData(
                     definition,
-                    IndexPropertyNotMappedToAnyTable,
+                    IndexPropertiesBothMappedAndNotMappedToTable,
                     entityType,
                     index.Name,
                     index.Properties.Select(p => p.Name).ToList(),
@@ -3641,7 +3685,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
-        private static string IndexPropertyNotMappedToAnyTable(EventDefinitionBase definition, EventData payload)
+        private static string IndexPropertiesBothMappedAndNotMappedToTable(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
             var p = (IndexInvalidPropertyEventData)payload;

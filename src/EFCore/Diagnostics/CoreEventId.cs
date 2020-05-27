@@ -105,8 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CollectionWithoutComparer,
             ConflictingKeylessAndKeyAttributesWarning,
             PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
-            IndexDefinedOnIgnoredProperty,
-            IndexDefinedOnNonExistentProperty,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -664,32 +662,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning
             = MakeModelValidationId(Id.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning);
-
-        /// <summary>
-        ///     <para>
-        ///         An index has specified a property which has been marked [NotMapped] or Ignore().
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="IndexInvalidPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </summary>
-        public static readonly EventId IndexDefinedOnIgnoredProperty = MakeModelId(Id.IndexDefinedOnIgnoredProperty);
-
-        /// <summary>
-        ///     <para>
-        ///         An index has specified a property which does not exist on the entity type or any of its base types.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="IndexInvalidPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </summary>
-        public static readonly EventId IndexDefinedOnNonExistentProperty = MakeModelId(Id.IndexDefinedOnNonExistentProperty);
 
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
         private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);

@@ -865,14 +865,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("PropertyNotMappedToTable", nameof(property), nameof(entityType), nameof(table)),
                 property, entityType, table);
 
-        /// <summary>
-        ///     An index on the entity type '{entityType}' specifies members {indexMemberList}. But the property or field with name '{memberName}' is not mapped to a column in any table. Please use only members mapped to a column.
-        /// </summary>
-        public static string IndexMemberNotMappedToAnyTable([CanBeNull] object entityType, [CanBeNull] object indexMemberList, [CanBeNull] object memberName)
-            => string.Format(
-                GetString("IndexMemberNotMappedToAnyTable", nameof(entityType), nameof(indexMemberList), nameof(memberName)),
-                entityType, indexMemberList, memberName);
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -1812,31 +1804,55 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. But the property '{propertyName}' is not mapped to a column in any table. Please use only properties mapped to a column.
+        ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. None of these properties are mapped to a column in any table. This index will not be created in the database.
         /// </summary>
-        public static EventDefinition<string, string, string, string> LogIndexPropertyNotMappedToAnyTable([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string> LogAllIndexPropertiesNotToMappedToAnyTable([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogIndexPropertyNotMappedToAnyTable;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogAllIndexPropertiesNotToMappedToAnyTable;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogIndexPropertyNotMappedToAnyTable,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogAllIndexPropertiesNotToMappedToAnyTable,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+                        LogLevel.Information,
+                        "RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+                            _resourceManager.GetString("LogAllIndexPropertiesNotToMappedToAnyTable"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. Either all or none of the properties should be mapped.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogIndexPropertiesBothMappedAndNotMappedToTable([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogIndexPropertiesBothMappedAndNotMappedToTable;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogIndexPropertiesBothMappedAndNotMappedToTable,
                     () => new EventDefinition<string, string, string, string>(
                         logger.Options,
-                        RelationalEventId.IndexPropertyNotMappedToAnyTable,
+                        RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
                         LogLevel.Error,
-                        "RelationalEventId.IndexPropertyNotMappedToAnyTable",
+                        "RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable",
                         level => LoggerMessage.Define<string, string, string, string>(
                             level,
-                            RelationalEventId.IndexPropertyNotMappedToAnyTable,
-                            _resourceManager.GetString("LogIndexPropertyNotMappedToAnyTable"))));
+                            RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
+                            _resourceManager.GetString("LogIndexPropertiesBothMappedAndNotMappedToTable"))));
             }
 
             return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>
-        ///     The index named '{indexName}' on the entity type '{entityType}' specifies members {indexPropertiesList}. The property '{propertyName1}' is mapped to table(s) {tableList1}, whereas the property '{propertyName2}' is mapped to table(s) {tableList2}. All index properties must map to at least one common table.
+        ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. The property '{propertyName1}' is mapped to table(s) {tableList1}, whereas the property '{propertyName2}' is mapped to table(s) {tableList2}. All index properties must map to at least one common table.
         /// </summary>
         public static FallbackEventDefinition LogIndexPropertiesMappedToNonOverlappingTables([NotNull] IDiagnosticsLogger logger)
         {

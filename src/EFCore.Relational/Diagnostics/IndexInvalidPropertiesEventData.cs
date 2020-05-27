@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public class IndexInvalidPropertiesEventData : EventData
     {
         /// <summary>
-        ///     Constructs the event payload for the <see cref="CoreEventId.IndexDefinedOnIgnoredProperty" /> event.
+        ///     Constructs the event payload for the <see cref="RelationalEventId.IndexPropertiesMappedToNonOverlappingTables" /> event.
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
