@@ -219,8 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => (from i in ss.Set<Order>().Include(o => o.Customer.Orders)
-                      where i.OrderID < 10800
-                      select i)
+                       where i.OrderID < 10800
+                       select i)
                       .PerformIdentityResolution());
         }
 

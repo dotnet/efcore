@@ -2443,10 +2443,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         internal static readonly MethodInfo ThenIncludeAfterEnumerableMethodInfo
-            = GetThenIncludeMethodInfo(typeof(IEnumerable<>));
-
-        private static MethodInfo GetThenIncludeMethodInfo(Type navType)
-            => typeof(EntityFrameworkQueryableExtensions)
+            = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(ThenInclude))
                 .Where(mi => mi.GetGenericArguments().Count() == 3)
                 .Single(
@@ -2454,7 +2451,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
                         return typeInfo.IsGenericType
-                            && typeInfo.GetGenericTypeDefinition() == navType;
+                            && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>);
                     });
 
         internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
