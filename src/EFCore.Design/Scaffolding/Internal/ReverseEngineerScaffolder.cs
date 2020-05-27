@@ -107,9 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 codeOptions.SuppressConnectionStringWarning = true;
             }
-            else
+            else if (!codeOptions.SuppressOnConfiguring)
             {
-                _reporter.WriteWarning(DesignStrings.OnConfiguringWarning);
+                _reporter.WriteWarning(DesignStrings.SensitiveInformationWarning);
             }
 
             if (codeOptions.ConnectionString == null)
