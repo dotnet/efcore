@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override async Task Create_table()
@@ -412,6 +412,16 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
             AssertSql(
                 @"ALTER TABLE [Base] ADD [Foo] nvarchar(max) NULL;");
+        }
+
+        public override async Task Add_column_with_check_constraint()
+        {
+            await base.Add_column_with_check_constraint();
+
+            AssertSql(
+                @"ALTER TABLE [People] ADD [DriverLicense] int NOT NULL DEFAULT 0;",
+                //
+                @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 0);");
         }
 
         [ConditionalFact]

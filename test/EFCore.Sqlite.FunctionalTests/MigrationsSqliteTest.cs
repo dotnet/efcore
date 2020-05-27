@@ -326,6 +326,10 @@ be found in the docs.";
                 @"ALTER TABLE ""People"" ADD ""Name"" AS ('hello') COLLATE NOCASE;");
         }
 
+        [ConditionalFact]
+        public override Task Add_column_with_check_constraint()
+            => AssertNotSupportedAsync(base.Add_column_with_check_constraint, SqliteStrings.InvalidMigrationOperation("CreateCheckConstraintOperation"));
+
         public override Task Alter_column_make_required()
             => AssertNotSupportedAsync(base.Alter_column_make_required, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 

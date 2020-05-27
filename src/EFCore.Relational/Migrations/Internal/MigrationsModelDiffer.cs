@@ -59,7 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static readonly Type[] _columnOperationTypes = { typeof(AddColumnOperation), typeof(AlterColumnOperation) };
 
-        private static readonly Type[] _constraintOperationTypes = { typeof(AddForeignKeyOperation), typeof(CreateIndexOperation) };
+        private static readonly Type[] _constraintOperationTypes =
+        {
+            typeof(AddForeignKeyOperation),
+            typeof(CreateIndexOperation),
+            typeof(CreateCheckConstraintOperation)
+        };
 
         private IUpdateAdapter _sourceUpdateAdapter;
         private IUpdateAdapter _targetUpdateAdapter;
@@ -211,10 +216,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 else if (type == typeof(CreateSequenceOperation))
                 {
                     createSequenceOperations.Add(operation);
-                }
-                else if (type == typeof(CreateCheckConstraintOperation))
-                {
-                    createCheckConstraintOperations.Add(operation);
                 }
                 else if (type == typeof(CreateTableOperation))
                 {
