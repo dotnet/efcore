@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static SqlServerTestStore GetOrCreateInitialized(string name)
             => new SqlServerTestStore(name).InitializeSqlServer(null, (Func<DbContext>)null, null);
 
-        public static SqlServerTestStore GetOrCreate(string name, string scriptPath)
-            => new SqlServerTestStore(name, scriptPath: scriptPath);
+        public static SqlServerTestStore GetOrCreate(string name, string scriptPath, bool? multipleActiveResultSets = null)
+            => new SqlServerTestStore(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets);
 
         public static SqlServerTestStore Create(string name, bool useFileName = false)
             => new SqlServerTestStore(name, useFileName, shared: false);

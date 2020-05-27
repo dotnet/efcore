@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <inheritdoc />
     public class RelationalQueryTranslationPreprocessor : QueryTranslationPreprocessor
     {
+        private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
+
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryTranslationPreprocessor" /> class.
         /// </summary>
@@ -26,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
             RelationalDependencies = relationalDependencies;
+            _relationalQueryCompilationContext = (RelationalQueryCompilationContext)queryCompilationContext;
         }
 
         /// <summary>
@@ -36,10 +39,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         public override Expression NormalizeQueryableMethod(Expression expression)
         {
+            expression = new RelationalQueryMetadataExtractingExpressionVisitor(_relationalQueryCompilationContext).Visit(expression);
             expression = base.NormalizeQueryableMethod(expression);
             expression = new TableValuedFunctionToQueryRootConvertingExpressionVisitor(QueryCompilationContext.Model).Visit(expression);
 
             return expression;
+        }
+
+        /// <inheritdoc />
+        public override Expression Process(Expression query)
+        {
+            query = base.Process(query);
+
+            return _relationalQueryCompilationContext.IsSplitQuery
+                ? new SplitIncludeRewritingExpressionVisitor().Visit(query)
+                : query;
         }
     }
 }

@@ -169,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryTranslationPreprocessorFactory, RelationalQueryTranslationPreprocessorFactory>();
             TryAdd<IRelationalParameterBasedSqlProcessorFactory, RelationalParameterBasedSqlProcessorFactory>();
             TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
+            TryAdd<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
@@ -201,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalCompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
-                .AddDependencyScoped<RelationalQueryContextDependencies>();
+                .AddDependencyScoped<RelationalQueryContextDependencies>()
+                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
 
             return base.TryAddCoreServices();
         }

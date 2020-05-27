@@ -6,6 +6,7 @@ using System.Collections;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSqlRaw<TEntity>(
             [NotNull] this DbSet<TEntity> source,
-            [NotNull] [NotParameterized] string sql,
+            [NotNull][NotParameterized] string sql,
             [NotNull] params object[] parameters)
             where TEntity : class
         {
@@ -133,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
         public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
             [NotNull] this DbSet<TEntity> source,
-            [NotNull] [NotParameterized] FormattableString sql)
+            [NotNull][NotParameterized] FormattableString sql)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -161,5 +162,31 @@ namespace Microsoft.EntityFrameworkCore
                 sql,
                 Expression.Constant(arguments));
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a new query in which the collections in the query results will be loaded through separate database queries.
+        ///     </para>
+        ///     <para>
+        ///         This strategy fetches all the data from the server through separate database queries before generating any results.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns> A new query where collections will be loaded through separate database queries. </returns>
+        public static IQueryable<TEntity> AsSplitQuery<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+
+            return source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(AsSplitQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
+                : source;
+        }
+
+        internal static readonly MethodInfo AsSplitQueryMethodInfo
+            = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery));
     }
 }
