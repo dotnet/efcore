@@ -522,6 +522,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("RemainingArguments", nameof(remainingArguments)),
                 remainingArguments);
 
+        /// <summary>
+        ///     Suppress generation of the DbContext.OnConfiguring() method.
+        /// </summary>
+        public static string SuppressOnConfiguringDescription
+            => GetString("SuppressOnConfiguringDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

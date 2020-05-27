@@ -120,6 +120,48 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
+        public void SuppressOnConfiguring_works()
+        {
+            Test(
+                modelBuilder => { },
+                new ModelCodeGenerationOptions { SuppressOnConfiguring = true },
+                code =>
+                {
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile.Code,
+                        ignoreLineEndingDifferences: true);
+
+                    Assert.Empty(code.AdditionalFiles);
+                });
+        }
+
+        [ConditionalFact]
         public void Plugins_work()
         {
             var services = new ServiceCollection()

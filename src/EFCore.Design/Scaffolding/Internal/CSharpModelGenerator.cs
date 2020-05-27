@@ -100,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 options.ContextNamespace,
                 options.ModelNamespace,
                 options.UseDataAnnotations,
-                options.SuppressConnectionStringWarning);
+                options.SuppressConnectionStringWarning,
+                options.SuppressOnConfiguring);
 
             // output DbContext .cs file
             var dbContextFileName = options.ContextName + FileExtension;

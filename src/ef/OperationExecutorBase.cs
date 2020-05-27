@@ -143,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool overwriteFiles,
             bool useDatabaseNames,
             string modelNamespace,
-            string contextNamespace)
+            string contextNamespace,
+            bool suppressOnConfiguring)
             => InvokeOperation<IDictionary>(
                 "ScaffoldContext",
                 new Dictionary<string, object>
@@ -159,7 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["overwriteFiles"] = overwriteFiles,
                     ["useDatabaseNames"] = useDatabaseNames,
                     ["modelNamespace"] = modelNamespace,
-                    ["contextNamespace"] = contextNamespace
+                    ["contextNamespace"] = contextNamespace,
+                    ["suppressOnConfiguring"] = suppressOnConfiguring
                 });
 
         public string ScriptMigration(
