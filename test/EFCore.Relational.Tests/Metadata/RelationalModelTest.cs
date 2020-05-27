@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("PK_Order", orderPkConstraint.Name);
             Assert.Equal(nameof(Order.OrderId), orderPkConstraint.Columns.Single().Name);
             Assert.Same(ordersTable, orderPkConstraint.Table);
-            Assert.True(orderPkConstraint.IsPrimaryKey);
+            Assert.True(orderPkConstraint.GetIsPrimaryKey());
             Assert.Same(orderPkConstraint, ordersTable.UniqueConstraints.Last());
             Assert.Same(orderPkConstraint, ordersTable.PrimaryKey);
 
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("AK_AlternateId", orderAkConstraint.Name);
             Assert.Equal(nameof(Order.AlternateId), orderAkConstraint.Columns.Single().Name);
             Assert.Same(ordersTable, orderAkConstraint.Table);
-            Assert.False(orderAkConstraint.IsPrimaryKey);
+            Assert.False(orderAkConstraint.GetIsPrimaryKey());
             Assert.Same(orderAkConstraint, ordersTable.UniqueConstraints.First());
 
             var orderDateIndex = orderType.GetIndexes().Single(i => i.Properties.Any(p => p.Name == nameof(Order.OrderDate)));
@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Empty(customerTable.ForeignKeyConstraints);
 
-                var specialCustomerUniqueConstraint = customerTable.UniqueConstraints.Single(c => !c.IsPrimaryKey);
+                var specialCustomerUniqueConstraint = customerTable.UniqueConstraints.Single(c => !c.GetIsPrimaryKey());
                 Assert.Equal("AK_Customer_SpecialityAk", specialCustomerUniqueConstraint.Name);
                 Assert.NotNull(specialCustomerUniqueConstraint.MappedKeys.Single());
 
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var idProperty = customerPk.Properties.Single();
                 Assert.Equal(2, idProperty.GetTableColumnMappings().Count());
 
-                var specialCustomerUniqueConstraint = specialCustomerTable.UniqueConstraints.Single(c => !c.IsPrimaryKey);
+                var specialCustomerUniqueConstraint = specialCustomerTable.UniqueConstraints.Single(c => !c.GetIsPrimaryKey());
                 Assert.Equal("AK_Customer_SpecialityAk", specialCustomerUniqueConstraint.Name);
                 Assert.NotNull(specialCustomerUniqueConstraint.MappedKeys.Single());
 

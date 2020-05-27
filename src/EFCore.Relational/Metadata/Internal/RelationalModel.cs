@@ -454,8 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             continue;
                         }
 
-                        constraint = new UniqueConstraint(name, table, columns, key.IsPrimaryKey());
-                        if (constraint.IsPrimaryKey)
+                        constraint = new UniqueConstraint(name, table, columns);
+                        if (key.IsPrimaryKey())
                         {
                             table.PrimaryKey = constraint;
                         }

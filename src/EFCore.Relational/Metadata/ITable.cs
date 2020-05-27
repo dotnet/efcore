@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the primary key for this table.
         /// </summary>
-        IUniqueConstraint PrimaryKey { get; }
+        IPrimaryKeyConstraint PrimaryKey { get; }
 
         /// <summary>
         ///     Gets the indexes for this table.

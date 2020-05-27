@@ -17,11 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Name { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether this constraint is the primary key.
-        /// </summary>
-        bool IsPrimaryKey { get; }
-
-        /// <summary>
         ///     Gets the mapped keys.
         /// </summary>
         IEnumerable<IKey> MappedKeys { get; }
