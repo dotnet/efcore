@@ -6,7 +6,7 @@ using System.Linq;
 using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
     ///     Extension methods for tuples.
