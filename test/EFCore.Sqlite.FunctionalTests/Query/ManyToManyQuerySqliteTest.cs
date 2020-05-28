@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyQuerySqliteTest : ManyToManyQueryTestBase<ManyToManyQuerySqliteFixture>
+    public class ManyToManyQuerySqliteTest : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
     {
         public ManyToManyQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
             : base(fixture)

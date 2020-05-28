@@ -14,16 +14,20 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "ManyToManyQueryTest";
 
-        public ManyToManyQueryFixtureBase()
-        {
-            var entitySorters = new Dictionary<Type, Func<object, object>>
+        public Func<DbContext> GetContextCreator() => () => CreateContext();
+
+        public ISetSource GetExpectedData() => new ManyToManyData();
+
+        public IReadOnlyDictionary<Type, object> GetEntitySorters()
+            => new Dictionary<Type, Func<object, object>>
             {
                 { typeof(EntityOne), e => ((EntityOne)e)?.Id },
                 { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
                 { typeof(EntityThree), e => ((EntityThree)e)?.Id },
-            }.ToDictionary(e => e.Key, e => (object)e.Value); ;
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, Action<object, object>>
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+            => new Dictionary<Type, Action<object, object>>
             {
                 {
                     typeof(EntityOne), (e, a) =>
@@ -70,21 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 },
-            }.ToDictionary(e => e.Key, e => (object)e.Value); ;
-
-            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
-        }
-
-        protected virtual QueryAsserter<ManyToManyContext> CreateQueryAsserter(
-            Dictionary<Type, object> entitySorters,
-            Dictionary<Type, object> entityAsserters)
-            => new QueryAsserter<ManyToManyContext>(
-                CreateContext,
-                new ManyToManyData(),
-                entitySorters,
-                entityAsserters);
-
-        public QueryAsserterBase QueryAsserter { get; set; }
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

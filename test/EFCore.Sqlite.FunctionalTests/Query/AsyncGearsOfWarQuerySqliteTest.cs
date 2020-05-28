@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class AsyncGearsOfWarQuerySqliteTest : AsyncGearsOfWarQueryTestBase<GearsOfWarQuerySqliteFixture>
+    public class AsyncGearsOfWarQuerySqliteTest : AsyncGearsOfWarQueryRelationalTestBase<GearsOfWarQuerySqliteFixture>
     {
         public AsyncGearsOfWarQuerySqliteTest(GearsOfWarQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -28,15 +30,87 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : ComplexNavigationsQueryFixtureBase, new()
     {
-        protected ComplexNavigationsContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected ComplexNavigationsContext CreateContext() => Fixture.CreateContext();
 
         protected ComplexNavigationsQueryTestBase(TFixture fixture)
             : base(fixture)
         {
         }
+
+        protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
+            => CreateExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
+
+        private MemberInfo GetMemberInfo(Type sourceType, string name)
+            => sourceType.GetMember(name).Single();
+
+        private ExpectedQueryRewritingVisitor CreateExpectedQueryRewritingVisitor()
+            => new ExpectedQueryRewritingVisitor(new Dictionary<(Type, string), MemberInfo[]>
+                {
+                    {
+                        (typeof(Level1), "OneToMany_Optional_Self_Inverse1Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level1), "OneToMany_Optional_Self_Inverse1"),
+                            GetMemberInfo(typeof(Level1), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level1), "OneToOne_Optional_Self1Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level1), "OneToOne_Optional_Self1"),
+                            GetMemberInfo(typeof(Level1), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level2), "OneToMany_Optional_Self_Inverse2Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level2), "OneToMany_Optional_Self_Inverse2"),
+                            GetMemberInfo(typeof(Level2), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level2), "OneToOne_Optional_Self2Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level2), "OneToOne_Optional_Self2"),
+                            GetMemberInfo(typeof(Level2), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level3), "OneToMany_Optional_Self_Inverse3Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level3), "OneToMany_Optional_Self_Inverse3"),
+                            GetMemberInfo(typeof(Level3), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level3), "OneToOne_Optional_Self3Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level3), "OneToOne_Optional_Self3"),
+                            GetMemberInfo(typeof(Level3), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level4), "OneToMany_Optional_Self_Inverse4Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level4), "OneToMany_Optional_Self_Inverse4"),
+                            GetMemberInfo(typeof(Level4), "Id")
+                        }
+                    },
+                    {
+                        (typeof(Level4), "OneToOne_Optional_Self4Id"),
+                        new []
+                        {
+                            GetMemberInfo(typeof(Level4), "OneToOne_Optional_Self4"),
+                            GetMemberInfo(typeof(Level4), "Id")
+                        }
+                    },
+                });
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -3506,7 +3580,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-            var entity = Fixture.QueryAsserter.SetSourceCreator(context).Set<Level2>().OrderBy(l2 => l2.Id).First();
+            var entity = QueryAsserter.SetSourceCreator(context).Set<Level2>().OrderBy(l2 => l2.Id).First();
             var entry = context.ChangeTracker.Entries().Single();
             Assert.Same(entity, entry.Entity);
 
@@ -4864,7 +4938,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var ctx = CreateContext();
             var result = ctx.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1).Contains(null);
-            var expected = Fixture.QueryAsserter.ExpectedData.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1).Contains(null);
+            var expected = QueryAsserter.ExpectedData.Set<Level1>().Select(l1 => l1.OneToOne_Optional_FK1).Contains(null);
 
             Assert.Equal(expected, result);
         }

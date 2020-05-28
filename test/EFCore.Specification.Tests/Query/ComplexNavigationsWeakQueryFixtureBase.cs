@@ -11,15 +11,14 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsWeakQueryFixtureBase : ComplexNavigationsQueryFixtureBase
+    public abstract class ComplexNavigationsWeakQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
     {
         protected override string StoreName { get; } = "ComplexNavigationsOwned";
 
-        protected ComplexNavigationsWeakQueryFixtureBase()
-        {
-            QueryAsserter.SetSourceCreator = ctx => new ComplexNavigationsWeakSetExtractor(ctx);
-            QueryAsserter.ExpectedData = new ComplexNavigationsWeakData();
-        }
+        public override ISetSource GetExpectedData() => new ComplexNavigationsWeakData();
+
+        Func<DbContext, ISetSource> IQueryFixtureBase.GetSetSourceCreator()
+            => context => new ComplexNavigationsWeakSetExtractor(context);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

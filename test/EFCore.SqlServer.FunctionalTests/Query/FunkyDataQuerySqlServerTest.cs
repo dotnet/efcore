@@ -1,10 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -18,6 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected virtual bool CanExecuteQueryString => true;
+
+        protected override QueryAsserter CreateQueryAsserter(FunkyDataQuerySqlServerFixture fixture)
+            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 
         public override async Task String_contains_on_argument_with_wildcard_constant(bool async)
         {
@@ -463,18 +465,6 @@ ORDER BY [f].[Id]");
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-
-            protected override bool CanExecuteQueryString => true;
-
-            protected override QueryAsserter<FunkyDataContext> CreateQueryAsserter(
-                Dictionary<Type, object> entitySorters,
-                Dictionary<Type, object> entityAsserters)
-                => new RelationalQueryAsserter<FunkyDataContext>(
-                    CreateContext,
-                    new FunkyDataData(),
-                    entitySorters,
-                    entityAsserters,
-                    CanExecuteQueryString);
         }
     }
 }

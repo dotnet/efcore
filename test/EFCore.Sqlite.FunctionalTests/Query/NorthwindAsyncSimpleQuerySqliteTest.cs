@@ -10,7 +10,7 @@ using Xunit;
 #pragma warning disable 1998
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindAsyncSimpleQuerySqliteTest : NorthwindAsyncSimpleQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class NorthwindAsyncSimpleQuerySqliteTest : NorthwindAsyncSimpleQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
         public NorthwindAsyncSimpleQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
             : base(fixture)

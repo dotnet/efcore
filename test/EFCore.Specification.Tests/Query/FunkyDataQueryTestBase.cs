@@ -543,12 +543,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public abstract class FunkyDataQueryFixtureBase : SharedStoreFixtureBase<FunkyDataContext>, IQueryFixtureBase
         {
-            public FunkyDataQueryFixtureBase()
-            {
-                var entitySorters = new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
+            public Func<DbContext> GetContextCreator() => () => CreateContext();
+
+            public ISetSource GetExpectedData() => new FunkyDataData();
+
+            public IReadOnlyDictionary<Type, object> GetEntitySorters()
+                => new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
                     .ToDictionary(e => e.Key, e => (object)e.Value);
 
-                var entityAsserters = new Dictionary<Type, Action<object, object>>
+            public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+                => new Dictionary<Type, Action<object, object>>
                 {
                     {
                         typeof(FunkyCustomer), (e, a) =>
@@ -568,21 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-                QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
-            }
-
-            protected virtual QueryAsserter<FunkyDataContext> CreateQueryAsserter(
-                Dictionary<Type, object> entitySorters,
-                Dictionary<Type, object> entityAsserters)
-                => new QueryAsserter<FunkyDataContext>(
-                    CreateContext,
-                    new FunkyDataData(),
-                    entitySorters,
-                    entityAsserters);
-
             protected override string StoreName { get; } = "FunkyDataQueryTest";
-
-            public QueryAsserterBase QueryAsserter { get; set; }
 
             public override FunkyDataContext CreateContext()
             {

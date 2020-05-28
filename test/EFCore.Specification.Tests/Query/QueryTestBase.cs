@@ -16,9 +16,24 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : class, IQueryFixtureBase, new()
     {
-        protected QueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected QueryTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            QueryAsserter = CreateQueryAsserter(fixture);
+        }
 
         protected TFixture Fixture { get; }
+        protected QueryAsserter QueryAsserter { get; }
+
+        protected virtual QueryAsserter CreateQueryAsserter(TFixture fixture)
+            => new QueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, IgnoreEntryCount);
+
+        protected virtual bool IgnoreEntryCount => false;
+
+        protected virtual Expression RewriteServerQueryExpression(Expression serverQueryExpression) => serverQueryExpression;
+
+        protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
+            => new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
 
         public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 
@@ -43,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TResult : class
-            => Fixture.QueryAsserter.AssertQuery(
+            => QueryAsserter.AssertQuery(
                 actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, async, testMethodName);
 
         public Task AssertQueryScalar<TResult>(
@@ -61,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool assertOrder = false,
             [CallerMemberName] string testMethodName = null)
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
+            => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
 
         public Task AssertQueryScalar<TResult>(
             bool async,
@@ -78,16 +93,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool assertOrder = false,
             [CallerMemberName] string testMethodName = null)
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
+            => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
 
         protected Task AssertSingleResult<TResult>(
             bool async,
             Expression<Func<ISetSource, TResult>> syncQuery,
             Expression<Func<ISetSource, Task<TResult>>> asyncQuery,
             Action<TResult, TResult> asserter = null,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            => AssertSingleResult(async, syncQuery, asyncQuery, syncQuery, asserter, entryCount, testMethodName);
+            int entryCount = 0)
+            => AssertSingleResult(async, syncQuery, asyncQuery, syncQuery, asserter, entryCount);
 
         protected Task AssertSingleResult<TResult>(
             bool async,
@@ -95,10 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
             Expression<Func<ISetSource, TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            => Fixture.QueryAsserter.AssertSingleResult(
-                actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, async, testMethodName);
+            int entryCount = 0)
+            => QueryAsserter.AssertSingleResult(
+                actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, async);
 
         #region Assert termination operation methods
 
@@ -111,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool async,
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery)
-            => Fixture.QueryAsserter.AssertAny(
+            => QueryAsserter.AssertAny(
                 actualQuery, expectedQuery, async);
 
         protected Task AssertAny<TResult>(
@@ -126,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate)
-            => Fixture.QueryAsserter.AssertAny(
+            => QueryAsserter.AssertAny(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, async);
 
         protected Task AssertAll<TResult>(
@@ -141,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate)
-            => Fixture.QueryAsserter.AssertAll(
+            => QueryAsserter.AssertAll(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, async);
 
         protected Task AssertFirst<TResult>(
@@ -157,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertFirst(
+            => QueryAsserter.AssertFirst(
                 actualQuery, expectedQuery, asserter, entryCount, async);
 
         protected Task AssertFirst<TResult>(
@@ -176,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertFirst(
+            => QueryAsserter.AssertFirst(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
 
         protected Task AssertFirstOrDefault<TResult>(
@@ -192,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertFirstOrDefault(
+            => QueryAsserter.AssertFirstOrDefault(
                 actualQuery, expectedQuery, asserter, entryCount, async);
 
         protected Task AssertFirstOrDefault<TResult>(
@@ -211,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertFirstOrDefault(
+            => QueryAsserter.AssertFirstOrDefault(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
 
         protected Task AssertSingle<TResult>(
@@ -227,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertSingle(
+            => QueryAsserter.AssertSingle(
                 actualQuery, expectedQuery, asserter, entryCount, async);
 
         protected Task AssertSingle<TResult>(
@@ -246,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertSingle(
+            => QueryAsserter.AssertSingle(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
 
         protected Task AssertSingleOrDefault<TResult>(
@@ -262,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertSingleOrDefault(
+            => QueryAsserter.AssertSingleOrDefault(
                 actualQuery, expectedQuery, asserter, entryCount, async);
 
         protected Task AssertSingleOrDefault<TResult>(
@@ -281,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertSingleOrDefault(
+            => QueryAsserter.AssertSingleOrDefault(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
 
         protected Task AssertLast<TResult>(
@@ -297,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertLast(
+            => QueryAsserter.AssertLast(
                 actualQuery, expectedQuery, asserter, entryCount, async);
 
         protected Task AssertLast<TResult>(
@@ -316,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertLast(
+            => QueryAsserter.AssertLast(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
 
         protected Task AssertLastOrDefault<TResult>(
@@ -332,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertLastOrDefault(
+            => QueryAsserter.AssertLastOrDefault(
                 actualQuery, expectedQuery, asserter, entryCount, async);
 
         protected Task AssertLastOrDefault<TResult>(
@@ -351,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertLastOrDefault(
+            => QueryAsserter.AssertLastOrDefault(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
 
         protected Task AssertCount<TResult>(
@@ -363,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool async,
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery)
-            => Fixture.QueryAsserter.AssertCount(actualQuery, expectedQuery, async);
+            => QueryAsserter.AssertCount(actualQuery, expectedQuery, async);
 
         protected Task AssertCount<TResult>(
             bool async,
@@ -377,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate)
-            => Fixture.QueryAsserter.AssertCount(
+            => QueryAsserter.AssertCount(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, async);
 
         protected Task AssertLongCount<TResult>(
@@ -389,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool async,
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery)
-            => Fixture.QueryAsserter.AssertLongCount(actualQuery, expectedQuery, async);
+            => QueryAsserter.AssertLongCount(actualQuery, expectedQuery, async);
 
         protected Task AssertMin<TResult>(
             bool async,
@@ -404,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertMin(
+            => QueryAsserter.AssertMin(
                 actualQuery, expectedQuery, asserter, entryCount, async);
 
         protected Task AssertMin<TResult, TSelector>(
@@ -423,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, TSelector>> expectedSelector,
             Action<TSelector, TSelector> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertMin(
+            => QueryAsserter.AssertMin(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, async);
 
         protected Task AssertMax<TResult>(
@@ -439,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertMax(
+            => QueryAsserter.AssertMax(
                 actualQuery, expectedQuery, asserter, entryCount, async);
 
         protected Task AssertMax<TResult, TSelector>(
@@ -458,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, TSelector>> expectedSelector,
             Action<TSelector, TSelector> asserter = null,
             int entryCount = 0)
-            => Fixture.QueryAsserter.AssertMax(
+            => QueryAsserter.AssertMax(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, async);
 
         protected Task AssertSum(
@@ -472,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<int, int> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -485,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<int?, int?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -498,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<long, long> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -511,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<long?>> actualQuery,
             Func<ISetSource, IQueryable<long?>> expectedQuery,
             Action<long?, long?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -524,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<decimal>> actualQuery,
             Func<ISetSource, IQueryable<decimal>> expectedQuery,
             Action<decimal, decimal> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -537,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<decimal?>> actualQuery,
             Func<ISetSource, IQueryable<decimal?>> expectedQuery,
             Action<decimal?, decimal?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -550,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<float>> actualQuery,
             Func<ISetSource, IQueryable<float>> expectedQuery,
             Action<float, float> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -563,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<float?>> actualQuery,
             Func<ISetSource, IQueryable<float?>> expectedQuery,
             Action<float?, float?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -576,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<double>> actualQuery,
             Func<ISetSource, IQueryable<double>> expectedQuery,
             Action<double, double> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum(
             bool async,
@@ -589,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<double?>> actualQuery,
             Func<ISetSource, IQueryable<double?>> expectedQuery,
             Action<double?, double?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertSum<TResult>(
             bool async,
@@ -605,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
             Action<int, int> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -622,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
             Action<int?, int?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -639,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
             Action<long, long> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -656,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
             Action<long?, long?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -673,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
             Action<decimal, decimal> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -690,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, decimal?>> actualSelector,
             Expression<Func<TResult, decimal?>> expectedSelector,
             Action<decimal?, decimal?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -707,7 +720,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
             Action<float, float> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -724,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, float?>> actualSelector,
             Expression<Func<TResult, float?>> expectedSelector,
             Action<float?, float?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -741,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, double>> actualSelector,
             Expression<Func<TResult, double>> expectedSelector,
             Action<double, double> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertSum<TResult>(
@@ -758,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, double?>> actualSelector,
             Expression<Func<TResult, double?>> expectedSelector,
             Action<double?, double?> asserter = null)
-            => Fixture.QueryAsserter.AssertSum(
+            => QueryAsserter.AssertSum(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage(
@@ -772,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<double, double> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -785,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<double?, double?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -798,7 +811,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<double, double> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -811,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<long?>> actualQuery,
             Func<ISetSource, IQueryable<long?>> expectedQuery,
             Action<double?, double?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -824,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<decimal>> actualQuery,
             Func<ISetSource, IQueryable<decimal>> expectedQuery,
             Action<decimal, decimal> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -837,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<decimal?>> actualQuery,
             Func<ISetSource, IQueryable<decimal?>> expectedQuery,
             Action<decimal?, decimal?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -850,7 +863,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<float>> actualQuery,
             Func<ISetSource, IQueryable<float>> expectedQuery,
             Action<float, float> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -863,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<float?>> actualQuery,
             Func<ISetSource, IQueryable<float?>> expectedQuery,
             Action<float?, float?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -876,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<double>> actualQuery,
             Func<ISetSource, IQueryable<double>> expectedQuery,
             Action<double, double> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage(
             bool async,
@@ -889,7 +902,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<ISetSource, IQueryable<double?>> actualQuery,
             Func<ISetSource, IQueryable<double?>> expectedQuery,
             Action<double?, double?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
+            => QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, async);
 
         protected Task AssertAverage<TResult>(
             bool async,
@@ -905,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
             Action<double, double> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -922,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
             Action<double?, double?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -939,7 +952,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
             Action<double, double> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -956,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
             Action<double?, double?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -973,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
             Action<decimal, decimal> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -990,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, decimal?>> actualSelector,
             Expression<Func<TResult, decimal?>> expectedSelector,
             Action<decimal?, decimal?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -1007,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
             Action<float, float> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -1024,7 +1037,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, float?>> actualSelector,
             Expression<Func<TResult, float?>> expectedSelector,
             Action<float?, float?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -1041,7 +1054,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, double>> actualSelector,
             Expression<Func<TResult, double>> expectedSelector,
             Action<double, double> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         protected Task AssertAverage<TResult>(
@@ -1058,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression<Func<TResult, double?>> actualSelector,
             Expression<Func<TResult, double?>> expectedSelector,
             Action<double?, double?> asserter = null)
-            => Fixture.QueryAsserter.AssertAverage(
+            => QueryAsserter.AssertAverage(
                 actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
         #endregion
@@ -1066,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         #region Helpers
 
         protected void AssertEqual<T>(T expected, T actual, Action<T, T> asserter = null)
-            => Fixture.QueryAsserter.AssertEqual(expected, actual, asserter);
+            => QueryAsserter.AssertEqual(expected, actual, asserter);
 
         protected void AssertCollection<TElement>(
             IEnumerable<TElement> expected,
@@ -1074,13 +1087,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool ordered = false,
             Func<TElement, object> elementSorter = null,
             Action<TElement, TElement> elementAsserter = null)
-            => Fixture.QueryAsserter.AssertCollection(expected, actual, ordered, elementSorter, elementAsserter);
+            => QueryAsserter.AssertCollection(expected, actual, ordered, elementSorter, elementAsserter);
 
         protected void AssertInclude<TEntity>(
             TEntity expected,
             TEntity actual,
             params IExpectedInclude[] expectedIncludes)
-            => Fixture.QueryAsserter.AssertInclude(expected, actual, expectedIncludes);
+            => QueryAsserter.AssertInclude(expected, actual, expectedIncludes);
 
         protected void AssertGrouping<TKey, TElement>(
             IGrouping<TKey, TElement> expected,
