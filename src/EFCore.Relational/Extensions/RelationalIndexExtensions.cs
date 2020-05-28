@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The name for this index. </returns>
         public static string GetDatabaseName([NotNull] this IIndex index)
-            => index.Name ?? index.GetDefaultName();
+            => index.Name ?? index.GetDefaultDatabaseName();
 
         /// <summary>
         ///     Returns the name for this index.
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name for this index. </returns>
         [Obsolete("Use GetDatabaseName() instead")]
         public static string GetName([NotNull] this IIndex index)
-            => index.Name ?? index.GetDefaultName();
+            => GetDatabaseName(index);
 
         /// <summary>
         ///     Returns the name for this index.
@@ -42,18 +42,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="tableName"> The table name. </param>
         /// <param name="schema"> The schema. </param>
         /// <returns> The name for this index. </returns>
-        public static string GetName(
+        public static string GetDatabaseName(
             [NotNull] this IIndex index,
             [NotNull] string tableName,
             [CanBeNull] string schema)
-            => index.Name ?? index.GetDefaultName(tableName, schema);
+            => index.Name ?? index.GetDefaultDatabaseName(tableName, schema);
 
         /// <summary>
         ///     Returns the default name that would be used for this index.
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The default name that would be used for this index. </returns>
-        public static string GetDefaultName([NotNull] this IIndex index)
+        public static string GetDefaultDatabaseName([NotNull] this IIndex index)
         {
             var tableName = index.DeclaringEntityType.GetTableName();
             var schema = index.DeclaringEntityType.GetSchema();
@@ -71,10 +71,19 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the default name that would be used for this index.
         /// </summary>
         /// <param name="index"> The index. </param>
+        /// <returns> The default name that would be used for this index. </returns>
+        [Obsolete("Use GetDefaultDatabaseName() instead")]
+        public static string GetDefaultName([NotNull] this IIndex index)
+            => GetDefaultDatabaseName(index);
+
+        /// <summary>
+        ///     Returns the default name that would be used for this index.
+        /// </summary>
+        /// <param name="index"> The index. </param>
         /// <param name="tableName"> The table name. </param>
         /// <param name="schema"> The schema. </param>
         /// <returns> The default name that would be used for this index. </returns>
-        public static string GetDefaultName(
+        public static string GetDefaultDatabaseName(
             [NotNull] this IIndex index,
             [NotNull] string tableName,
             [CanBeNull] string schema)
@@ -100,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (rootIndex != index)
             {
-                return rootIndex.GetName(tableName, schema);
+                return rootIndex.GetDatabaseName(tableName, schema);
             }
 
             var baseName = new StringBuilder()
@@ -237,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(index, nameof(index));
             Check.NotNull(tableName, nameof(tableName));
 
-            var indexName = index.GetName(tableName, schema);
+            var indexName = index.GetDatabaseName(tableName, schema);
             var rootIndex = index;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -247,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore
                 var linkedIndex = rootIndex.DeclaringEntityType
                     .FindTableRowInternalForeignKeys(tableName, schema)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
-                    .FirstOrDefault(i => i.GetName(tableName, schema) == indexName);
+                    .FirstOrDefault(i => i.GetDatabaseName(tableName, schema) == indexName);
                 if (linkedIndex == null)
                 {
                     break;
