@@ -66,8 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     typeof(IList<IDictionary<string, string>>),
                     () => new List<IDictionary<string, string>> { new Dictionary<string, string> { { "A", "B" } } }
                 },
-                { typeof(IDictionary<string, string>), () => new Dictionary<string, string>() },
-                { typeof(IndexAttribute), () => new IndexAttribute("FakeProperty")}
+                { typeof(IDictionary<string, string>), () => new Dictionary<string, string>() }
             };
 
             TestEventLogging(

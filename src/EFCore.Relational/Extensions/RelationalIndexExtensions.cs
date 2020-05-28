@@ -8,7 +8,6 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -47,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IIndex index,
             [NotNull] string tableName,
             [CanBeNull] string schema)
-            => (string)index[RelationalAnnotationNames.Name]
-            ?? index.GetDefaultName(tableName, schema);
+            => index.Name ?? index.GetDefaultName(tableName, schema);
 
         /// <summary>
         ///     Returns the default name that would be used for this index.

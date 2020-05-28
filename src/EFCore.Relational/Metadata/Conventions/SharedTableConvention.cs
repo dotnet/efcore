@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
-                var indexName = index.GetDatabaseName();
+                var indexName = index.GetName(tableName, schema);
                 if (!indexes.TryGetValue(indexName, out var otherIndex))
                 {
                     indexes[indexName] = index;

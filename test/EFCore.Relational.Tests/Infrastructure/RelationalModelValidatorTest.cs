@@ -1268,14 +1268,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 LogLevel.Information);
         }
 
-        [ConditionalFact(Skip = "Needs TPT (PR 20938) to run")] //TODO - awaiting PR 20938
+        [ConditionalFact]
         public void Detects_mix_of_index_property_mapped_and_not_mapped_to_any_table_unmapped_first()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<Animal>().ToTable(null);
             modelBuilder.Entity<Cat>().ToTable("Cats");
-            modelBuilder.Entity<Cat>().HasIndex(nameof(Animal.Id), nameof(Cat.Identity));
+            modelBuilder.Entity<Cat>().HasIndex(nameof(Animal.Name), nameof(Cat.Identity));
 
             var definition = RelationalResources
                 .LogIndexPropertiesBothMappedAndNotMappedToTable(
@@ -1284,20 +1284,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 definition.GenerateMessage(
                     "(null)",
                     nameof(Cat),
-                    "{'Id', 'Identity'}",
-                    "Id"),
+                    "{'Name', 'Identity'}",
+                    "Name"),
                 modelBuilder.Model,
                 LogLevel.Error);
         }
 
-        [ConditionalFact(Skip = "Needs TPT (PR 20938) to run")] //TODO - awaiting PR 20938
+        [ConditionalFact]
         public void Detects_mix_of_index_property_mapped_and_not_mapped_to_any_table_mapped_first()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<Animal>().ToTable(null);
             modelBuilder.Entity<Cat>().ToTable("Cats");
-            modelBuilder.Entity<Cat>().HasIndex(nameof(Cat.Identity), nameof(Animal.Id));
+            modelBuilder.Entity<Cat>().HasIndex(nameof(Cat.Identity), nameof(Animal.Name));
 
             var definition = RelationalResources
                 .LogIndexPropertiesBothMappedAndNotMappedToTable(
@@ -1306,13 +1306,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 definition.GenerateMessage(
                     "(null)",
                     nameof(Cat),
-                    "{'Identity', 'Id'}",
-                    "Id"),
+                    "{'Identity', 'Name'}",
+                    "Name"),
                 modelBuilder.Model,
                 LogLevel.Error);
         }
 
-        [ConditionalFact(Skip = "Needs TPT (PR 20938) to run")] //TODO - awaiting PR 20938
+        [ConditionalFact]
         public void Passes_for_index_properties_mapped_to_same_table_in_TPT_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1323,10 +1323,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Validate(modelBuilder.Model);
 
-            Assert.Empty(LoggerFactory.Log);
+            Assert.Empty(LoggerFactory.Log
+                .Where(l => l.Level != LogLevel.Trace && l.Level != LogLevel.Debug));
         }
 
-        [ConditionalFact(Skip = "Needs TPT (PR 20938) to run")] //TODO - awaiting PR 20938
+        [ConditionalFact]
         public void Detects_index_properties_mapped_to_different_tables_in_TPT_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();

@@ -31,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <param name="table"> The (Table, Schema) tuple to format. </param>
         /// <returns> The string representation. </returns>
         public static string FormatTable(this (string Table, string Schema) table)
-            => table.Schema == null ? table.Table : table.Schema + "." + table.Table;
+            => "'"
+                + (table.Schema == null ? table.Table : table.Schema + "." + table.Table)
+                + "'";
     }
 }

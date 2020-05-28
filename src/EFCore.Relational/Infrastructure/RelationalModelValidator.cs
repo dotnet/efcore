@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var index in mappedTypes.SelectMany(et => et.GetDeclaredIndexes()))
             {
-                var indexName = index.GetDatabaseName();
+                var indexName = index.GetName(tableName, schema);
                 if (!indexMappings.TryGetValue(indexName, out var duplicateIndex))
                 {
                     indexMappings[indexName] = index;
@@ -936,10 +936,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     HashSet<(string Table, string Schema)> overlappingTables = null;
                     foreach (var property in index.Properties)
                     {
-                        //TODO - update to use table-schema override of GetColumn() below when PR #20938 is checked in
                         var tablesMappedToProperty = property.DeclaringEntityType.GetDerivedTypesInclusive()
                             .Select(t => (t.GetTableName(), t.GetSchema())).Distinct()
-                            .Where(n => n.Item1 != null && property.GetColumnName(/* n.Item1, n.Item2 */) != null)
+                            .Where(n => n.Item1 != null && property.GetColumnName(n.Item1, n.Item2) != null)
                             .ToList<(string Table, string Schema)>();
                         if (tablesMappedToProperty.Count == 0)
                         {
