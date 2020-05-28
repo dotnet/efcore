@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public void MarkAsOptional() => IsOptional = true;
 
-            public void Print(ExpressionPrinter expressionPrinter)
+            void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {
                 Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return this;
             }
 
-            public void Print(ExpressionPrinter expressionPrinter)
+            void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {
                 Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override Type Type => Value.Type;
 
-            public void Print(ExpressionPrinter expressionPrinter)
+            void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {
                 Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

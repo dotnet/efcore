@@ -76,8 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
-        /// <inheritdoc />
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        /// <summary>
+        ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter"/>.
+        /// </summary>
+        /// <param name="expressionPrinter"> The expression printer to use. </param>
+        protected virtual void Print([NotNull] ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
@@ -90,6 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expressionPrinter.Append($"DbSet<{EntityType.ClrType.ShortDisplayName()}>()");
             }
         }
+
+        /// <inheritdoc />
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter) => Print(expressionPrinter);
 
         /// <inheritdoc />
         public override bool Equals(object obj)

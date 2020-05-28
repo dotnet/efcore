@@ -47,8 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override Type Type => typeof(object);
         /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
+
+        /// <summary>
+        ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter"/>.
+        /// </summary>
+        /// <param name="expressionPrinter"> The expression printer to use. </param>
+        protected abstract void Print([NotNull] ExpressionPrinter expressionPrinter);
+
         /// <inheritdoc />
-        public abstract void Print(ExpressionPrinter expressionPrinter);
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter) => Print(expressionPrinter);
 
         /// <inheritdoc />
         public override bool Equals(object obj)
