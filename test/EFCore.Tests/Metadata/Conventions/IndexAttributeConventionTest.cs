@@ -156,15 +156,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public virtual void IndexAttribute_with_an_ignored_property_causes_error()
+        public virtual void IndexAttribute_without_name_and_an_ignored_property_causes_error()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            var entity = modelBuilder.Entity<EntityWithIgnoredProperty>();
+            modelBuilder.Entity<EntityUnnamedIndexWithIgnoredProperty>();
 
             Assert.Equal(
-                CoreStrings.IndexDefinedOnIgnoredProperty(
-                    "",
-                    nameof(EntityWithIgnoredProperty),
+                CoreStrings.UnnamedIndexDefinedOnIgnoredProperty(
+                    nameof(EntityUnnamedIndexWithIgnoredProperty),
                     "{'A', 'B'}",
                     "B"),
                 Assert.Throws<InvalidOperationException>(
@@ -172,15 +171,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public virtual void IndexAttribute_with_a_non_existent_property_causes_error()
+        public virtual void IndexAttribute_with_name_and_an_ignored_property_causes_error()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            var entity = modelBuilder.Entity<EntityWithNonExistentProperty>();
+            modelBuilder.Entity<EntityIndexWithIgnoredProperty>();
 
             Assert.Equal(
-                CoreStrings.IndexDefinedOnNonExistentProperty(
+                CoreStrings.NamedIndexDefinedOnIgnoredProperty(
+                    "IndexOnAAndIgnoredProperty",
+                    nameof(EntityIndexWithIgnoredProperty),
+                    "{'A', 'B'}",
+                    "B"),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Model.FinalizeModel()).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_without_name_and_non_existent_property_causes_error()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<EntityUnnamedIndexWithNonExistentProperty>();
+
+            Assert.Equal(
+                CoreStrings.UnnamedIndexDefinedOnNonExistentProperty(
+                        nameof(EntityUnnamedIndexWithNonExistentProperty),
+                        "{'A', 'DoesNotExist'}",
+                        "DoesNotExist"),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Model.FinalizeModel()).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_with_name_and_non_existent_property_causes_error()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var entity = modelBuilder.Entity<EntityIndexWithNonExistentProperty>();
+
+            Assert.Equal(
+                CoreStrings.NamedIndexDefinedOnNonExistentProperty(
                         "IndexOnAAndNonExistentProperty",
-                        nameof(EntityWithNonExistentProperty),
+                        nameof(EntityIndexWithNonExistentProperty),
                         "{'A', 'DoesNotExist'}",
                         "DoesNotExist"),
                 Assert.Throws<InvalidOperationException>(
@@ -266,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [Index(nameof(A), nameof(B))]
-        private class EntityWithIgnoredProperty
+        private class EntityUnnamedIndexWithIgnoredProperty
         {
             public int Id { get; set; }
             public int A { get; set; }
@@ -274,8 +304,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public int B { get; set; }
         }
 
+        [Index(nameof(A), nameof(B), Name = "IndexOnAAndIgnoredProperty")]
+        private class EntityIndexWithIgnoredProperty
+        {
+            public int Id { get; set; }
+            public int A { get; set; }
+            [NotMapped]
+            public int B { get; set; }
+        }
+
+        [Index(nameof(A), "DoesNotExist")]
+        private class EntityUnnamedIndexWithNonExistentProperty
+        {
+            public int Id { get; set; }
+            public int A { get; set; }
+            public int B { get; set; }
+        }
+
         [Index(nameof(A), "DoesNotExist", Name = "IndexOnAAndNonExistentProperty")]
-        private class EntityWithNonExistentProperty
+        private class EntityIndexWithNonExistentProperty
         {
             public int Id { get; set; }
             public int A { get; set; }
