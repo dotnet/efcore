@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="returnType"> The <see cref="Type"/> of the expression. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         /// <returns> An expression representing a function call in a SQL tree. </returns>
-        [Obsolete("Use overload that explicitly specifies value for 'nullable' argument.")]
+        [Obsolete("Use NiladicFunction method.")]
         SqlFunctionExpression Function(
             [NotNull] string name,
             [NotNull] Type returnType,
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="returnType"> The <see cref="Type"/> of the expression. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         /// <returns> An expression representing a function call in a SQL tree. </returns>
-        [Obsolete("Use overload that explicitly specifies value for 'nullable' argument.")]
+        [Obsolete("Use NiladicFunction method.")]
         SqlFunctionExpression Function(
             [NotNull] string schema,
             [NotNull] string name,
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="returnType"> The <see cref="Type"/> of the expression. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         /// <returns> An expression representing a function call in a SQL tree. </returns>
-        [Obsolete("Use overload that explicitly specifies value for 'instancePropagatesNullability' argument.")]
+        [Obsolete("Use NiladicFunction method.")]
         SqlFunctionExpression Function(
             [NotNull] SqlExpression instance,
             [NotNull] string name,
@@ -435,21 +435,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         /// <summary>
-        ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a function call in a SQL tree.
+        ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a niladic function call in a SQL tree.
         /// </summary>
         /// <param name="name"> The name of the function. </param>
         /// <param name="nullable"> A bool value indicating whether this function can return null. </param>
         /// <param name="returnType"> The <see cref="Type"/> of the expression. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         /// <returns> An expression representing a function call in a SQL tree. </returns>
-        SqlFunctionExpression Function(
+        SqlFunctionExpression NiladicFunction(
             [NotNull] string name,
             bool nullable,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         /// <summary>
-        ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a function call in a SQL tree.
+        ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a niladic function call in a SQL tree.
         /// </summary>
         /// <param name="schema"> The schema in which the function is defined. </param>
         /// <param name="name"> The name of the function. </param>
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="returnType"> The <see cref="Type"/> of the expression. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         /// <returns> An expression representing a function call in a SQL tree. </returns>
-        SqlFunctionExpression Function(
+        SqlFunctionExpression NiladicFunction(
             [NotNull] string schema,
             [NotNull] string name,
             bool nullable,
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         /// <summary>
-        ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a function call in a SQL tree.
+        ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a niladic function call in a SQL tree.
         /// </summary>
         /// <param name="instance"> An expression on which the function is applied. </param>
         /// <param name="name"> The name of the function. </param>
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="returnType"> The <see cref="Type"/> of the expression. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         /// <returns> An expression representing a function call in a SQL tree. </returns>
-        SqlFunctionExpression Function(
+        SqlFunctionExpression NiladicFunction(
             [NotNull] SqlExpression instance,
             [NotNull] string name,
             bool nullable,

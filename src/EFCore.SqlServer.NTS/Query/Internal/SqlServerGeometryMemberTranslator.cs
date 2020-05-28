@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 if (Equals(member, _srid))
                 {
-                    return _sqlExpressionFactory.Function(
+                    return _sqlExpressionFactory.NiladicFunction(
                         instance,
                         "STSrid",
                         nullable: true,

@@ -555,19 +555,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 typeMapping);
 
         /// <inheritdoc />
-        [Obsolete("Use overload that explicitly specifies value for 'nullable' argument.")]
+        [Obsolete("Use NiladicFunction method.")]
         public virtual SqlFunctionExpression Function(string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => Function(name, nullable: true, returnType, typeMapping);
+            => NiladicFunction(name, nullable: true, returnType, typeMapping);
 
         /// <inheritdoc />
-        [Obsolete("Use overload that explicitly specifies value for 'nullable' argument.")]
+        [Obsolete("Use NiladicFunction method.")]
         public virtual SqlFunctionExpression Function(string schema, string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => Function(schema, name, nullable: true, returnType, typeMapping);
+            => NiladicFunction(schema, name, nullable: true, returnType, typeMapping);
 
         /// <inheritdoc />
-        [Obsolete("Use overload that explicitly specifies value for 'instancePropagatesNullability' argument.")]
+        [Obsolete("Use NiladicFunction method.")]
         public virtual SqlFunctionExpression Function(SqlExpression instance, string name, Type returnType, RelationalTypeMapping typeMapping = null)
-            => Function(instance, name, nullable: true, instancePropagatesNullability: false, returnType, typeMapping);
+            => NiladicFunction(instance, name, nullable: true, instancePropagatesNullability: false, returnType, typeMapping);
 
         /// <inheritdoc />
         public virtual SqlFunctionExpression Function(
@@ -645,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public virtual SqlFunctionExpression Function(string name, bool nullable, Type returnType, RelationalTypeMapping typeMapping = null)
+        public virtual SqlFunctionExpression NiladicFunction(string name, bool nullable, Type returnType, RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(returnType, nameof(returnType));
@@ -654,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public virtual SqlFunctionExpression Function(string schema, string name, bool nullable, Type returnType, RelationalTypeMapping typeMapping = null)
+        public virtual SqlFunctionExpression NiladicFunction(string schema, string name, bool nullable, Type returnType, RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(schema, nameof(schema));
             Check.NotEmpty(name, nameof(name));
@@ -664,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public virtual SqlFunctionExpression Function(
+        public virtual SqlFunctionExpression NiladicFunction(
             SqlExpression instance,
             string name,
             bool nullable,
