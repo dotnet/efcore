@@ -48,23 +48,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         {
                             if (ignoredMembers.Contains(propertyName))
                             {
-                                throw new InvalidOperationException(
-                                    CoreStrings.IndexDefinedOnIgnoredProperty(
-                                        indexAttribute.Name,
-                                        entityType.DisplayName(),
-                                        indexAttribute.PropertyNames.Format(),
-                                        propertyName));
+                                if (indexAttribute.Name == null)
+                                {
+                                    throw new InvalidOperationException(
+                                        CoreStrings.UnnamedIndexDefinedOnIgnoredProperty(
+                                            entityType.DisplayName(),
+                                            indexAttribute.PropertyNames.Format(),
+                                            propertyName));
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException(
+                                        CoreStrings.NamedIndexDefinedOnIgnoredProperty(
+                                            indexAttribute.Name,
+                                            entityType.DisplayName(),
+                                            indexAttribute.PropertyNames.Format(),
+                                            propertyName));
+                                }
                             }
 
                             var property = entityType.FindProperty(propertyName);
                             if (property == null)
                             {
-                                throw new InvalidOperationException(
-                                    CoreStrings.IndexDefinedOnNonExistentProperty(
-                                        indexAttribute.Name,
-                                        entityType.DisplayName(),
-                                        indexAttribute.PropertyNames.Format(),
-                                        propertyName));
+                                if (indexAttribute.Name == null)
+                                {
+                                    throw new InvalidOperationException(
+                                        CoreStrings.UnnamedIndexDefinedOnNonExistentProperty(
+                                            entityType.DisplayName(),
+                                            indexAttribute.PropertyNames.Format(),
+                                            propertyName));
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException(
+                                        CoreStrings.NamedIndexDefinedOnNonExistentProperty(
+                                            indexAttribute.Name,
+                                            entityType.DisplayName(),
+                                            indexAttribute.PropertyNames.Format(),
+                                            propertyName));
+                                }
                             }
 
                             indexProperties.Add(property);

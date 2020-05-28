@@ -2661,18 +2661,34 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The index named '{indexName}' on the entity type '{entityType}' with properties {indexPropertyList} is invalid. The property '{propertyName}' has been marked NotMapped or Ignore(). An index cannot use such properties.
         /// </summary>
-        public static string IndexDefinedOnIgnoredProperty([CanBeNull] object indexName, [CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
+        public static string NamedIndexDefinedOnIgnoredProperty([CanBeNull] object indexName, [CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
             => string.Format(
-                GetString("IndexDefinedOnIgnoredProperty", nameof(indexName), nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
+                GetString("NamedIndexDefinedOnIgnoredProperty", nameof(indexName), nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
                 indexName, entityType, indexPropertyList, propertyName);
+
+        /// <summary>
+        ///     The unnamed index on the entity type '{entityType}' with properties {indexPropertyList} is invalid. The property '{propertyName}' has been marked NotMapped or Ignore(). An index cannot use such properties.
+        /// </summary>
+        public static string UnnamedIndexDefinedOnIgnoredProperty([CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
+            => string.Format(
+                GetString("UnnamedIndexDefinedOnIgnoredProperty", nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
+                entityType, indexPropertyList, propertyName);
 
         /// <summary>
         ///     An index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertyList}. But no property with name '{propertyName}' exists on that entity type or any of its base types.
         /// </summary>
-        public static string IndexDefinedOnNonExistentProperty([CanBeNull] object indexName, [CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
+        public static string NamedIndexDefinedOnNonExistentProperty([CanBeNull] object indexName, [CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
             => string.Format(
-                GetString("IndexDefinedOnNonExistentProperty", nameof(indexName), nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
+                GetString("NamedIndexDefinedOnNonExistentProperty", nameof(indexName), nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
                 indexName, entityType, indexPropertyList, propertyName);
+
+        /// <summary>
+        ///     An unnamed index on the entity type '{entityType}' specifies properties {indexPropertyList}. But no property with name '{propertyName}' exists on that entity type or any of its base types.
+        /// </summary>
+        public static string UnnamedIndexDefinedOnNonExistentProperty([CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
+            => string.Format(
+                GetString("UnnamedIndexDefinedOnNonExistentProperty", nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
+                entityType, indexPropertyList, propertyName);
 
         private static string GetString(string name, params string[] formatterNames)
         {
