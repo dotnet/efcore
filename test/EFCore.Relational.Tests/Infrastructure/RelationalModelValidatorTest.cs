@@ -1249,7 +1249,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public void Passes_for_all_index_properties_not_mapped_to_any_table()
+        public void Passes_for_unnamed_index_with_all_properties_not_mapped_to_any_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -1257,11 +1257,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Animal>().HasIndex(nameof(Animal.Id), nameof(Animal.Name));
 
             var definition = RelationalResources
-                .LogAllIndexPropertiesNotToMappedToAnyTable(
+                .LogUnnamedIndexAllPropertiesNotToMappedToAnyTable(
                     new TestLogger<TestRelationalLoggingDefinitions>());
             VerifyWarning(
                 definition.GenerateMessage(
-                    "(null)",
+                    nameof(Animal),
+                    "{'Id', 'Name'}"),
+                modelBuilder.Model,
+                LogLevel.Information);
+        }
+
+        [ConditionalFact]
+        public void Passes_for_named_index_with_all_properties_not_mapped_to_any_table()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>().ToTable(null);
+            modelBuilder.Entity<Animal>()
+                .HasIndex(nameof(Animal.Id), nameof(Animal.Name))
+                .HasName("IX_AllPropertiesNotMapped");
+
+            var definition = RelationalResources
+                .LogNamedIndexAllPropertiesNotToMappedToAnyTable(
+                    new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(
+                definition.GenerateMessage(
+                    "IX_AllPropertiesNotMapped",
                     nameof(Animal),
                     "{'Id', 'Name'}"),
                 modelBuilder.Model,
@@ -1278,11 +1299,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Cat>().HasIndex(nameof(Animal.Name), nameof(Cat.Identity));
 
             var definition = RelationalResources
-                .LogIndexPropertiesBothMappedAndNotMappedToTable(
+                .LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable(
                     new TestLogger<TestRelationalLoggingDefinitions>());
             VerifyWarning(
                 definition.GenerateMessage(
-                    "(null)",
                     nameof(Cat),
                     "{'Name', 'Identity'}",
                     "Name"),
@@ -1297,14 +1317,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.Entity<Animal>().ToTable(null);
             modelBuilder.Entity<Cat>().ToTable("Cats");
-            modelBuilder.Entity<Cat>().HasIndex(nameof(Cat.Identity), nameof(Animal.Name));
+            modelBuilder.Entity<Cat>()
+                .HasIndex(nameof(Cat.Identity), nameof(Animal.Name))
+                .HasName("IX_MixOfMappedAndUnmappedProperties");
 
             var definition = RelationalResources
-                .LogIndexPropertiesBothMappedAndNotMappedToTable(
+                .LogNamedIndexPropertiesBothMappedAndNotMappedToTable(
                     new TestLogger<TestRelationalLoggingDefinitions>());
             VerifyWarning(
                 definition.GenerateMessage(
-                    "(null)",
+                    "IX_MixOfMappedAndUnmappedProperties",
                     nameof(Cat),
                     "{'Identity', 'Name'}",
                     "Name"),
@@ -1328,7 +1350,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public void Detects_index_properties_mapped_to_different_tables_in_TPT_hierarchy()
+        public void Detects_unnamed_index_properties_mapped_to_different_tables_in_TPT_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -1337,7 +1359,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Cat>().HasIndex(nameof(Animal.Name), nameof(Cat.Identity));
 
             var definition = RelationalResources
-                .LogIndexPropertiesMappedToNonOverlappingTables(
+                .LogUnnamedIndexPropertiesMappedToNonOverlappingTables(
+                    new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(
+                definition.GenerateMessage(
+                    nameof(Cat),
+                    "{'Name', 'Identity'}",
+                    nameof(Animal.Name),
+                    "{'Animals'}",
+                    nameof(Cat.Identity),
+                    "{'Cats'}"),
+                modelBuilder.Model,
+                LogLevel.Error);
+        }
+
+        [ConditionalFact]
+        public void Detects_named_index_properties_mapped_to_different_tables_in_TPT_hierarchy()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>().ToTable("Animals");
+            modelBuilder.Entity<Cat>().ToTable("Cats");
+            modelBuilder.Entity<Cat>()
+                .HasIndex(nameof(Animal.Name), nameof(Cat.Identity))
+                .HasName("IX_MappedToDifferentTables");
+
+            var definition = RelationalResources
+                .LogNamedIndexPropertiesMappedToNonOverlappingTables(
                     new TestLogger<TestRelationalLoggingDefinitions>());
             VerifyWarning(
                 definition.GenerateMessage(
@@ -1345,7 +1393,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         definition.Level,
                         definition.EventId,
                         definition.MessageFormat,
-                        "(null)",
+                        "IX_MappedToDifferentTables",
                         nameof(Cat),
                         "{'Name', 'Identity'}",
                         nameof(Animal.Name),

@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             IgnoreAnnotations(
                 annotations,
-                CSharpModelGenerator.IgnoredIndexAnnotations.ToArray());
+                CSharpModelGenerator.IgnoredIndexAnnotations);
 
             GenerateFluentApiForAnnotation(
                 ref annotations, RelationalAnnotationNames.Filter, nameof(RelationalIndexBuilderExtensions.HasFilter), stringBuilder);
@@ -1209,6 +1209,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="annotationNames"> The ignored annotation names. </param>
         protected virtual void IgnoreAnnotations(
             [NotNull] IList<IAnnotation> annotations, [NotNull] params string[] annotationNames)
+        {
+            Check.NotNull(annotations, nameof(annotations));
+            Check.NotNull(annotationNames, nameof(annotationNames));
+
+            foreach (var annotationName in annotationNames)
+            {
+                var annotation = annotations.FirstOrDefault(a => a.Name == annotationName);
+                if (annotation != null)
+                {
+                    annotations.Remove(annotation);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Removes ignored annotations.
+        /// </summary>
+        /// <param name="annotations"> The annotations to remove from. </param>
+        /// <param name="annotationNames"> The ignored annotation names. </param>
+        protected virtual void IgnoreAnnotations(
+            [NotNull] IList<IAnnotation> annotations, [NotNull] IReadOnlyList<string> annotationNames)
         {
             Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(annotationNames, nameof(annotationNames));

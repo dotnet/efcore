@@ -927,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                foreach (var index in entityType.GetIndexes()
+                foreach (var index in entityType.GetDeclaredIndexes()
                     .Where(i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
                 {
                     IProperty propertyNotMappedToAnyTable = null;

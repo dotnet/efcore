@@ -9,27 +9,30 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     Extension methods for tuples.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class TupleExtensions
     {
         /// <summary>
-        ///     Creates a formatted string representation of the given tables such as is useful
-        ///     when throwing exceptions.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="tables"> The (Table, Schema) tuples to format. </param>
-        /// <returns> The string representation. </returns>
         public static string FormatTables([NotNull] this IEnumerable<(string Table, string Schema)> tables)
             => "{"
                 + string.Join(", ", tables.Select(FormatTable))
                 + "}";
 
         /// <summary>
-        ///     Creates a formatted string representation of the given table such as is useful
-        ///     when throwing exceptions.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="table"> The (Table, Schema) tuple to format. </param>
-        /// <returns> The string representation. </returns>
         public static string FormatTable(this (string Table, string Schema) table)
             => "'"
                 + (table.Schema == null ? table.Table : table.Schema + "." + table.Table)
