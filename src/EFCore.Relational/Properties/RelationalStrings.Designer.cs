@@ -1802,5 +1802,146 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
             return (EventDefinition<string>)definition;
         }
+
+        /// <summary>
+        ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. None of these properties are mapped to a column in any table. This index will not be created in the database.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogNamedIndexAllPropertiesNotToMappedToAnyTable([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexAllPropertiesNotToMappedToAnyTable;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexAllPropertiesNotToMappedToAnyTable,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+                        LogLevel.Information,
+                        "RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+                            _resourceManager.GetString("LogNamedIndexAllPropertiesNotToMappedToAnyTable"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The unnamed index on the entity type '{entityType}' specifies properties {indexPropertiesList}. None of these properties are mapped to a column in any table. This index will not be created in the database.
+        /// </summary>
+        public static EventDefinition<string, string> LogUnnamedIndexAllPropertiesNotToMappedToAnyTable([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexAllPropertiesNotToMappedToAnyTable;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexAllPropertiesNotToMappedToAnyTable,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+                        LogLevel.Information,
+                        "RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
+                            _resourceManager.GetString("LogUnnamedIndexAllPropertiesNotToMappedToAnyTable"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties should be mapped for the index to be created in the database.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogNamedIndexPropertiesBothMappedAndNotMappedToTable([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexPropertiesBothMappedAndNotMappedToTable;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexPropertiesBothMappedAndNotMappedToTable,
+                    () => new EventDefinition<string, string, string, string>(
+                        logger.Options,
+                        RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
+                        LogLevel.Error,
+                        "RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable",
+                        level => LoggerMessage.Define<string, string, string, string>(
+                            level,
+                            RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
+                            _resourceManager.GetString("LogNamedIndexPropertiesBothMappedAndNotMappedToTable"))));
+            }
+
+            return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The unnamed index on the entity type '{entityType}' specifies properties {indexPropertiesList}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties should be mapped for the index to be created in the database.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable,
+                    () => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
+                        LogLevel.Error,
+                        "RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
+                            _resourceManager.GetString("LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable"))));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. The property '{propertyName1}' is mapped to table(s) {tableList1}, whereas the property '{propertyName2}' is mapped to table(s) {tableList2}. All index properties must map to at least one common table.
+        /// </summary>
+        public static FallbackEventDefinition LogNamedIndexPropertiesMappedToNonOverlappingTables([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexPropertiesMappedToNonOverlappingTables;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexPropertiesMappedToNonOverlappingTables,
+                    () => new FallbackEventDefinition(
+                        logger.Options,
+                        RelationalEventId.IndexPropertiesMappedToNonOverlappingTables,
+                        LogLevel.Error,
+                        "RelationalEventId.IndexPropertiesMappedToNonOverlappingTables",
+                        _resourceManager.GetString("LogNamedIndexPropertiesMappedToNonOverlappingTables")));
+            }
+
+            return (FallbackEventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     The unnamed index on the entity type '{entityType}' specifies properties {indexPropertiesList}. The property '{propertyName1}' is mapped to table(s) {tableList1}, whereas the property '{propertyName2}' is mapped to table(s) {tableList2}. All index properties must map to at least one common table.
+        /// </summary>
+        public static EventDefinition<string, string, string, string, string, string> LogUnnamedIndexPropertiesMappedToNonOverlappingTables([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexPropertiesMappedToNonOverlappingTables;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexPropertiesMappedToNonOverlappingTables,
+                    () => new EventDefinition<string, string, string, string, string, string>(
+                        logger.Options,
+                        RelationalEventId.IndexPropertiesMappedToNonOverlappingTables,
+                        LogLevel.Error,
+                        "RelationalEventId.IndexPropertiesMappedToNonOverlappingTables",
+                        level => LoggerMessage.Define<string, string, string, string, string, string>(
+                            level,
+                            RelationalEventId.IndexPropertiesMappedToNonOverlappingTables,
+                            _resourceManager.GetString("LogUnnamedIndexPropertiesMappedToNonOverlappingTables"))));
+            }
+
+            return (EventDefinition<string, string, string, string, string, string>)definition;
+        }
     }
 }

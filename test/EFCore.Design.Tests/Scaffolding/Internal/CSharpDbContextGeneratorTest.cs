@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -345,6 +346,175 @@ namespace TestNamespace
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.Equal("Some Collation", entity.GetProperty("UseCollation").GetCollation());
                 });
+        }
+
+
+        [ConditionalFact]
+        public void Entity_with_indexes_and_use_data_annotations_false_always_generates_fluent_API()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithIndexes",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("A");
+                            x.Property<int>("B");
+                            x.Property<int>("C");
+                            x.HasKey("Id");
+                            x.HasIndex("A", "B")
+                                .HasName("IndexOnAAndB")
+                                .IsUnique();
+                            x.HasIndex("B", "C")
+                                .HasName("IndexOnBAndC")
+                                .HasFilter("Filter SQL")
+                                .HasAnnotation("AnnotationName", "AnnotationValue");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EntityWithIndexes>(entity =>
+            {
+                entity.HasIndex(x => new { x.A, x.B })
+                    .HasName(""IndexOnAAndB"")
+                    .IsUnique();
+
+                entity.HasIndex(x => new { x.B, x.C })
+                    .HasName(""IndexOnBAndC"")
+                    .HasFilter(""Filter SQL"")
+                    .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+                entity.Property(e => e.Id).HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile.Code,
+                        ignoreLineEndingDifferences: true);
+                },
+                model =>
+                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
+        }
+
+        [ConditionalFact]
+        public void Entity_with_indexes_and_use_data_annotations_true_generates_fluent_API_only_for_indexes_with_annotations()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithIndexes",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("A");
+                            x.Property<int>("B");
+                            x.Property<int>("C");
+                            x.HasKey("Id");
+                            x.HasIndex("A", "B")
+                                .HasName("IndexOnAAndB")
+                                .IsUnique();
+                            x.HasIndex("B", "C")
+                                .HasName("IndexOnBAndC")
+                                .HasFilter("Filter SQL")
+                                .HasAnnotation("AnnotationName", "AnnotationValue");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EntityWithIndexes>(entity =>
+            {
+                entity.HasIndex(x => new { x.B, x.C })
+                    .HasName(""IndexOnBAndC"")
+                    .HasFilter(""Filter SQL"")
+                    .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+                entity.Property(e => e.Id).HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile.Code,
+                        ignoreLineEndingDifferences: true);
+                },
+                model =>
+                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
         }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin

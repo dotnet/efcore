@@ -2817,6 +2817,102 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [InlineData(false, true)]
         [InlineData(true, true)]
         [ConditionalTheory]
+        public void OnIndexNameChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+        {
+            var conventions = new ConventionSet();
+
+            var convention1 = new IndexNameChangedConvention(terminate: false);
+            var convention2 = new IndexNameChangedConvention(terminate: true);
+            var convention3 = new IndexNameChangedConvention(terminate: false);
+            conventions.IndexNameChangedConventions.Add(convention1);
+            conventions.IndexNameChangedConventions.Add(convention2);
+            conventions.IndexNameChangedConventions.Add(convention3);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var index = entityBuilder.HasIndex(
+                new List<string> { "OrderId" }, ConfigurationSource.Convention).Metadata;
+
+            var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+            if (useBuilder)
+            {
+                index.Builder.HasName("OriginalIndexName", ConfigurationSource.Convention);
+            }
+            else
+            {
+                index.Name = "OriginalIndexName";
+            }
+
+            if (useScope)
+            {
+                Assert.Empty(convention1.Calls);
+                Assert.Empty(convention2.Calls);
+                scope.Dispose();
+            }
+
+            Assert.Equal(new[] { "OriginalIndexName" }, convention1.Calls);
+            Assert.Equal(new[] { "OriginalIndexName" }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                index.Builder.HasName("OriginalIndexName", ConfigurationSource.Convention);
+            }
+            else
+            {
+                index.Name = "OriginalIndexName";
+            }
+
+            Assert.Equal(new[] { "OriginalIndexName" }, convention1.Calls);
+            Assert.Equal(new[] { "OriginalIndexName" }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                index.Builder.HasName("UpdatedIndexName", ConfigurationSource.Convention);
+            }
+            else
+            {
+                index.Name = "UpdatedIndexName";
+            }
+
+            Assert.Equal(new[] { "OriginalIndexName", "UpdatedIndexName" }, convention1.Calls);
+            Assert.Equal(new[] { "OriginalIndexName", "UpdatedIndexName" }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            Assert.Same(index, entityBuilder.Metadata.RemoveIndex(index.Properties));
+        }
+
+        private class IndexNameChangedConvention : IIndexNameChangedConvention
+        {
+            private readonly bool _terminate;
+            public readonly List<string> Calls = new List<string>();
+
+            public IndexNameChangedConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public void ProcessIndexNameChanged(
+                IConventionIndexBuilder indexBuilder, IConventionContext<string> context)
+            {
+                Assert.NotNull(indexBuilder.Metadata.Builder);
+
+                Calls.Add(indexBuilder.Metadata.Name);
+
+                if (_terminate)
+                {
+                    context.StopProcessing();
+                }
+            }
+        }
+
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        [ConditionalTheory]
         public void OnIndexAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();

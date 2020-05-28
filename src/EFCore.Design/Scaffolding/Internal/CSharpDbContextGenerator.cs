@@ -414,7 +414,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var index in entityType.GetIndexes())
             {
-                GenerateIndex(index);
+                // If there are annotations that cannot be represented
+                // using an IndexAttribute then use fluent API even
+                // if useDataAnnotations is true.
+                if (!useDataAnnotations
+                    || index.GetAnnotations().Any(
+                        a => !CSharpModelGenerator.IgnoredIndexAnnotations.Contains(a.Name)))
+                {
+                    GenerateIndex(index);
+                }
             }
 
             foreach (var property in entityType.GetProperties())
@@ -582,14 +590,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var annotations = index.GetAnnotations().ToList();
 
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableIndexMappings);
+            foreach (var annotation in CSharpModelGenerator.IgnoredIndexAnnotations)
+            {
+                RemoveAnnotation(ref annotations, annotation);
+            }
 
-            if (!string.IsNullOrEmpty((string)index[RelationalAnnotationNames.Name]))
+            if (index.Name != null)
             {
                 lines.Add(
-                    $".{nameof(RelationalIndexBuilderExtensions.HasName)}" +
-                    $"({_code.Literal(index.GetName())})");
-                RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
+                    $".{nameof(IndexBuilder.HasName)}" +
+                    $"({_code.Literal(index.GetDatabaseName())})");
             }
 
             if (index.IsUnique)

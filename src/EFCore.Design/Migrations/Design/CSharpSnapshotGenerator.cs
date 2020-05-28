@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -743,6 +744,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(index, nameof(index));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
+            // Note - method names below are meant to be hard-coded
+            // because old snapshot files will fail if they are changed
             stringBuilder
                 .AppendLine()
                 .Append(builderName)
@@ -752,6 +755,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             using (stringBuilder.Indent())
             {
+                if (index.Name != null)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".HasName(")
+                        .Append(Code.Literal(index.Name))
+                        .Append(")");
+                }
+
                 if (index.IsUnique)
                 {
                     stringBuilder
@@ -777,10 +789,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             IgnoreAnnotations(
                 annotations,
-                RelationalAnnotationNames.TableIndexMappings);
+                CSharpModelGenerator.IgnoredIndexAnnotations);
 
-            GenerateFluentApiForAnnotation(
-                ref annotations, RelationalAnnotationNames.Name, nameof(RelationalIndexBuilderExtensions.HasName), stringBuilder);
             GenerateFluentApiForAnnotation(
                 ref annotations, RelationalAnnotationNames.Filter, nameof(RelationalIndexBuilderExtensions.HasFilter), stringBuilder);
 
@@ -1199,6 +1209,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="annotationNames"> The ignored annotation names. </param>
         protected virtual void IgnoreAnnotations(
             [NotNull] IList<IAnnotation> annotations, [NotNull] params string[] annotationNames)
+        {
+            Check.NotNull(annotations, nameof(annotations));
+            Check.NotNull(annotationNames, nameof(annotationNames));
+
+            foreach (var annotationName in annotationNames)
+            {
+                var annotation = annotations.FirstOrDefault(a => a.Name == annotationName);
+                if (annotation != null)
+                {
+                    annotations.Remove(annotation);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Removes ignored annotations.
+        /// </summary>
+        /// <param name="annotations"> The annotations to remove from. </param>
+        /// <param name="annotationNames"> The ignored annotation names. </param>
+        protected virtual void IgnoreAnnotations(
+            [NotNull] IList<IAnnotation> annotations, [NotNull] IReadOnlyList<string> annotationNames)
         {
             Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(annotationNames, nameof(annotationNames));

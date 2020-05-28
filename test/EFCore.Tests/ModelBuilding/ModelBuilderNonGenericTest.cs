@@ -459,6 +459,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestIndexBuilder<TEntity> IsUnique(bool isUnique = true)
                 => new NonGenericTestIndexBuilder<TEntity>(IndexBuilder.IsUnique(isUnique));
 
+            public override TestIndexBuilder<TEntity> HasName(string name)
+                => new NonGenericTestIndexBuilder<TEntity>(IndexBuilder.HasName(name));
+
             IndexBuilder IInfrastructure<IndexBuilder>.Instance => IndexBuilder;
         }
 

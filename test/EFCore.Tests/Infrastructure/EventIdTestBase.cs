@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             }
                             catch (Exception)
                             {
-                                Assert.True(false, "Need to add factory for type " + type.DisplayName());
+                                Assert.True(false, "Need to add fake test factory for type " + type.DisplayName() + " in class " + eventIdType.Name + "Test");
                             }
                         }
                     }

@@ -37,6 +37,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
 
+        /// <summary>
+        ///     The collection argument '{argumentName}' must not contain any empty elements.
+        /// </summary>
+        public static string CollectionArgumentHasEmptyElements([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("CollectionArgumentHasEmptyElements", nameof(argumentName)),
+                argumentName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

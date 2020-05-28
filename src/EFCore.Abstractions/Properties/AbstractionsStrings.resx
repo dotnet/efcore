@@ -123,4 +123,7 @@
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
+  <data name="CollectionArgumentHasEmptyElements" xml:space="preserve">
+    <value>The collection argument '{argumentName}' must not contain any empty elements.</value>
+  </data>
 </root>

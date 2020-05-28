@@ -17,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IReadOnlyList<IProperty> Properties { get; }
 
         /// <summary>
+        ///     Gets the name of this index.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         ///     Gets a value indicating whether the values assigned to the indexed properties are unique.
         /// </summary>
         bool IsUnique { get; }

@@ -136,6 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             GenerateKeylessAttribute(entityType);
             GenerateTableAttribute(entityType);
+            GenerateIndexAttributes(entityType);
         }
 
         private void GenerateKeylessAttribute(IEntityType entityType)
@@ -167,6 +168,39 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
 
                 _sb.AppendLine(tableAttribute.ToString());
+            }
+        }
+
+        private void GenerateIndexAttributes(IEntityType entityType)
+        {
+            // Do not generate IndexAttributes for indexes which
+            // would be generated anyway by convention.
+            foreach (var index in entityType.GetIndexes().Where(i =>
+                ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
+            {
+                // If there are annotations that cannot be represented
+                // using an IndexAttribute then use fluent API instead.
+                if (!index.GetAnnotations().Any(
+                        a => !CSharpModelGenerator.IgnoredIndexAnnotations.Contains(a.Name)))
+                {
+                    var indexAttribute = new AttributeWriter(nameof(IndexAttribute));
+                    foreach (var property in index.Properties)
+                    {
+                        indexAttribute.AddParameter($"nameof({property.Name})");
+                    }
+
+                    if (index.Name != null)
+                    {
+                        indexAttribute.AddParameter($"{nameof(IndexAttribute.Name)} = {_code.Literal(index.Name)}");
+                    }
+
+                    if (index.IsUnique)
+                    {
+                        indexAttribute.AddParameter($"{nameof(IndexAttribute.IsUnique)} = {_code.Literal(index.IsUnique)}");
+                    }
+
+                    _sb.AppendLine(indexAttribute.ToString());
+                }
             }
         }
 

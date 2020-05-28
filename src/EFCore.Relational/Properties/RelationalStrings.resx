@@ -606,4 +606,28 @@
   <data name="PropertyNotMappedToTable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is not mapped to the table '{table}'.</value>
   </data>
+  <data name="LogNamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
+    <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. None of these properties are mapped to a column in any table. This index will not be created in the database.</value>
+    <comment>Information RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string string</comment>
+  </data>
+  <data name="LogUnnamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
+    <value>The unnamed index on the entity type '{entityType}' specifies properties {indexPropertiesList}. None of these properties are mapped to a column in any table. This index will not be created in the database.</value>
+    <comment>Information RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string</comment>
+  </data>
+  <data name="LogNamedIndexPropertiesBothMappedAndNotMappedToTable" xml:space="preserve">
+    <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties should be mapped for the index to be created in the database.</value>
+    <comment>Error RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable string string string string</comment>
+  </data>
+  <data name="LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable" xml:space="preserve">
+    <value>The unnamed index on the entity type '{entityType}' specifies properties {indexPropertiesList}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties should be mapped for the index to be created in the database.</value>
+    <comment>Error RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable string string string</comment>
+  </data>
+  <data name="LogNamedIndexPropertiesMappedToNonOverlappingTables" xml:space="preserve">
+    <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertiesList}. The property '{propertyName1}' is mapped to table(s) {tableList1}, whereas the property '{propertyName2}' is mapped to table(s) {tableList2}. All index properties must map to at least one common table.</value>
+    <comment>Error RelationalEventId.IndexPropertiesMappedToNonOverlappingTables string string string string string string string</comment>
+  </data>
+  <data name="LogUnnamedIndexPropertiesMappedToNonOverlappingTables" xml:space="preserve">
+    <value>The unnamed index on the entity type '{entityType}' specifies properties {indexPropertiesList}. The property '{propertyName1}' is mapped to table(s) {tableList1}, whereas the property '{propertyName2}' is mapped to table(s) {tableList2}. All index properties must map to at least one common table.</value>
+    <comment>Error RelationalEventId.IndexPropertiesMappedToNonOverlappingTables string string string string string string</comment>
+  </data>
 </root>

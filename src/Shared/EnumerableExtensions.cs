@@ -137,5 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public static List<TSource> ToList<TSource>(this IEnumerable source)
             => source.OfType<TSource>().ToList();
+
+        public static string Format([NotNull] this IEnumerable<string> strings)
+            => "{"
+                + string.Join(
+                    ", ",
+                    strings.Select(s => "'" + s + "'"))
+                + "}";
     }
 }

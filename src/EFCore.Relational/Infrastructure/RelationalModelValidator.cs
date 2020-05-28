@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateDefaultValuesOnKeys(model, logger);
             ValidateBoolsWithDefaults(model, logger);
             ValidateDbFunctions(model, logger);
+            ValidateIndexProperties(model, logger);
         }
 
         /// <summary>
@@ -911,5 +913,114 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static string Format(string tableName, string schema)
             => schema == null ? tableName : schema + "." + tableName;
+
+        /// <summary>
+        ///     Validates that the properties of any one index are
+        ///     all mapped to columns on at least one common table.
+        /// </summary>
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateIndexProperties(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var index in entityType.GetDeclaredIndexes()
+                    .Where(i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
+                {
+                    IProperty propertyNotMappedToAnyTable = null;
+                    Tuple<string, List<(string Table, string Schema)>> firstPropertyTables = null;
+                    Tuple<string, List<(string Table, string Schema)>> lastPropertyTables = null;
+                    HashSet<(string Table, string Schema)> overlappingTables = null;
+                    foreach (var property in index.Properties)
+                    {
+                        var tablesMappedToProperty = property.DeclaringEntityType.GetDerivedTypesInclusive()
+                            .Select(t => (t.GetTableName(), t.GetSchema())).Distinct()
+                            .Where(n => n.Item1 != null && property.GetColumnName(n.Item1, n.Item2) != null)
+                            .ToList<(string Table, string Schema)>();
+                        if (tablesMappedToProperty.Count == 0)
+                        {
+                            propertyNotMappedToAnyTable = property;
+                            overlappingTables = null;
+
+                            if (firstPropertyTables != null)
+                            {
+                                // Property is not mapped but we already found
+                                // a property that is mapped.
+                                break;
+                            }
+
+                            continue;
+                        }
+
+                        if (firstPropertyTables == null)
+                        {
+                            // store off which tables the first member maps to
+                            firstPropertyTables =
+                                new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
+                        }
+                        else
+                        {
+                            // store off which tables the last member we encountered maps to
+                            lastPropertyTables =
+                                new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
+                        }
+
+                        if (propertyNotMappedToAnyTable != null)
+                        {
+                            // Property is mapped but we already found
+                            // a property that is not mapped.
+                            overlappingTables = null;
+                            break;
+                        }
+
+                        if (overlappingTables == null)
+                        {
+                            overlappingTables = new HashSet<(string Table, string Schema)>(tablesMappedToProperty);
+                        }
+                        else
+                        {
+                            overlappingTables.IntersectWith(tablesMappedToProperty);
+                            if (overlappingTables.Count == 0)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (overlappingTables == null)
+                    {
+                        if (firstPropertyTables == null)
+                        {
+                            logger.AllIndexPropertiesNotToMappedToAnyTable(
+                                entityType,
+                                index);
+                        }
+                        else
+                        {
+                            logger.IndexPropertiesBothMappedAndNotMappedToTable(
+                                entityType,
+                                index,
+                                propertyNotMappedToAnyTable.Name);
+                        }
+                    }
+                    else if (overlappingTables.Count == 0)
+                    {
+                        Debug.Assert(firstPropertyTables != null, nameof(firstPropertyTables));
+                        Debug.Assert(lastPropertyTables != null, nameof(lastPropertyTables));
+
+                        logger.IndexPropertiesMappedToNonOverlappingTables(
+                            entityType,
+                            index,
+                            firstPropertyTables.Item1,
+                            firstPropertyTables.Item2,
+                            lastPropertyTables.Item1,
+                            lastPropertyTables.Item2);
+                    }
+                }
+            }
+        }
     }
 }

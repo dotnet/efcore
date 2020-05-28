@@ -2414,7 +2414,7 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
-                o => Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First()["Relational:Name"]));
+                o => Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First().Name));
         }
 
         [ConditionalFact]
@@ -2486,9 +2486,9 @@ namespace RootNamespace
                 o =>
                 {
                     var index = o.GetEntityTypes().First().GetIndexes().First();
-                    Assert.Equal(3, index.GetAnnotations().Count());
+                    Assert.Equal(2, index.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
-                    Assert.Equal("IndexName", index["Relational:Name"]);
+                    Assert.Equal("IndexName", index.Name);
                 });
         }
 
@@ -2526,7 +2526,7 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
-                model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetName().Length));
+                model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName().Length));
         }
 
         #endregion
@@ -2876,7 +2876,7 @@ namespace RootNamespace
                     var originalIndex = originalChild.FindIndex(originalChild.FindProperty("Property"));
                     var index = child.FindIndex(child.FindProperty("Property"));
 
-                    Assert.Equal(originalIndex.GetName(), index.GetName());
+                    Assert.Equal(originalIndex.GetDatabaseName(), index.GetDatabaseName());
                 });
         }
 

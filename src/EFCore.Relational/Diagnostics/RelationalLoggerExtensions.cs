@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -14,12 +15,14 @@ using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -3599,6 +3602,291 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (EventDefinition<int, int>)definition;
             var p = (MinBatchSizeEventData)payload;
             return d.GenerateMessage(p.CommandCount, p.MinBatchSize);
+        }
+
+        /// <summary>
+        ///     Logs the <see cref="RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="entityType"> The entity type on which the index is defined. </param>
+        /// <param name="index"> The index on the entity type. </param>
+        public static void AllIndexPropertiesNotToMappedToAnyTable(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IEntityType entityType,
+            [NotNull] IIndex index)
+        {
+            if (index.Name == null)
+            {
+                var definition = RelationalResources.LogUnnamedIndexAllPropertiesNotToMappedToAnyTable(diagnostics);
+
+                if (diagnostics.ShouldLog(definition))
+                {
+                    definition.Log(diagnostics,
+                        entityType.DisplayName(),
+                        index.Properties.Format());
+                }
+
+                if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                {
+                    var eventData = new IndexEventData(
+                        definition,
+                        UnnamedIndexAllPropertiesNotToMappedToAnyTable,
+                        entityType,
+                        null,
+                        index.Properties.Select(p => p.Name).ToList());
+
+                    diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+                }
+            }
+            else
+            {
+                var definition = RelationalResources.LogNamedIndexAllPropertiesNotToMappedToAnyTable(diagnostics);
+
+                if (diagnostics.ShouldLog(definition))
+                {
+                    definition.Log(diagnostics,
+                        index.Name,
+                        entityType.DisplayName(),
+                        index.Properties.Format());
+                }
+
+                if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                {
+                    var eventData = new IndexEventData(
+                        definition,
+                        NamedIndexAllPropertiesNotToMappedToAnyTable,
+                        entityType,
+                        index.Name,
+                        index.Properties.Select(p => p.Name).ToList());
+
+                    diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+                }
+            }
+        }
+
+        private static string UnnamedIndexAllPropertiesNotToMappedToAnyTable(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (IndexEventData)payload;
+            return d.GenerateMessage(
+                p.EntityType.DisplayName(),
+                p.PropertyNames.Format());
+        }
+
+        private static string NamedIndexAllPropertiesNotToMappedToAnyTable(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string>)definition;
+            var p = (IndexEventData)payload;
+            return d.GenerateMessage(
+                p.Name,
+                p.EntityType.DisplayName(),
+                p.PropertyNames.Format());
+        }
+
+        /// <summary>
+        ///     Logs the <see cref="RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="entityType"> The entity type on which the index is defined. </param>
+        /// <param name="index"> The index on the entity type. </param>
+        /// <param name="unmappedPropertyName"> The name of the property which is not mapped. </param>
+        public static void IndexPropertiesBothMappedAndNotMappedToTable(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IEntityType entityType,
+            [NotNull] IIndex index,
+            [NotNull] string unmappedPropertyName)
+        {
+            if (index.Name == null)
+            {
+                var definition = RelationalResources.LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable(diagnostics);
+
+                if (diagnostics.ShouldLog(definition))
+                {
+                    definition.Log(diagnostics,
+                        entityType.DisplayName(),
+                        index.Properties.Format(),
+                        unmappedPropertyName);
+                }
+
+                if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                {
+                    var eventData = new IndexInvalidPropertyEventData(
+                        definition,
+                        UnnamedIndexPropertiesBothMappedAndNotMappedToTable,
+                        entityType,
+                        null,
+                        index.Properties.Select(p => p.Name).ToList(),
+                        unmappedPropertyName);
+
+                    diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+                }
+            }
+            else
+            {
+                var definition = RelationalResources.LogNamedIndexPropertiesBothMappedAndNotMappedToTable(diagnostics);
+
+                if (diagnostics.ShouldLog(definition))
+                {
+                    definition.Log(diagnostics,
+                        index.Name,
+                        entityType.DisplayName(),
+                        index.Properties.Format(),
+                        unmappedPropertyName);
+                }
+
+                if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                {
+                    var eventData = new IndexInvalidPropertyEventData(
+                        definition,
+                        NamedIndexPropertiesBothMappedAndNotMappedToTable,
+                        entityType,
+                        index.Name,
+                        index.Properties.Select(p => p.Name).ToList(),
+                        unmappedPropertyName);
+
+                    diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+                }
+            }
+        }
+
+        private static string UnnamedIndexPropertiesBothMappedAndNotMappedToTable(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string>)definition;
+            var p = (IndexInvalidPropertyEventData)payload;
+            return d.GenerateMessage(
+                p.EntityType.DisplayName(),
+                p.PropertyNames.Format(),
+                p.InvalidPropertyName);
+        }
+
+        private static string NamedIndexPropertiesBothMappedAndNotMappedToTable(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string, string>)definition;
+            var p = (IndexInvalidPropertyEventData)payload;
+            return d.GenerateMessage(
+                p.Name,
+                p.EntityType.DisplayName(),
+                p.PropertyNames.Format(),
+                p.InvalidPropertyName);
+        }
+
+        /// <summary>
+        ///     Logs the <see cref="RelationalEventId.IndexPropertiesMappedToNonOverlappingTables" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="entityType"> The entity type on which the index is defined. </param>
+        /// <param name="index"> The index on the entity type. </param>
+        /// <param name="property1Name"> The first property name which is invalid. </param>
+        /// <param name="tablesMappedToProperty1"> The tables mapped to the first property. </param>
+        /// <param name="property2Name"> The second property name which is invalid. </param>
+        /// <param name="tablesMappedToProperty2"> The tables mapped to the second property. </param>
+        public static void IndexPropertiesMappedToNonOverlappingTables(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IEntityType entityType,
+            [NotNull] IIndex index,
+            [NotNull] string property1Name,
+            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty1,
+            [NotNull] string property2Name,
+            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty2)
+        {
+            if (index.Name == null)
+            {
+                var definition = RelationalResources.LogUnnamedIndexPropertiesMappedToNonOverlappingTables(diagnostics);
+
+                if (diagnostics.ShouldLog(definition))
+                {
+                    definition.Log(diagnostics,
+                        entityType.DisplayName(),
+                        index.Properties.Format(),
+                            property1Name,
+                            tablesMappedToProperty1.FormatTables(),
+                            property2Name,
+                            tablesMappedToProperty2.FormatTables());
+                }
+
+                if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                {
+                    var eventData = new IndexInvalidPropertiesEventData(
+                        definition,
+                        UnnamedIndexPropertiesMappedToNonOverlappingTables,
+                        entityType,
+                        null,
+                        index.Properties.Select(p => p.Name).ToList(),
+                        property1Name,
+                        tablesMappedToProperty1,
+                        property2Name,
+                        tablesMappedToProperty2);
+
+                    diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+                }
+            }
+            else
+            {
+                var definition = RelationalResources.LogNamedIndexPropertiesMappedToNonOverlappingTables(diagnostics);
+
+                if (diagnostics.ShouldLog(definition))
+                {
+                    definition.Log(diagnostics,
+                        l => l.Log(
+                            definition.Level,
+                            definition.EventId,
+                            definition.MessageFormat,
+                            index.Name,
+                            entityType.DisplayName(),
+                            index.Properties.Format(),
+                            property1Name,
+                            tablesMappedToProperty1.FormatTables(),
+                            property2Name,
+                            tablesMappedToProperty2.FormatTables()));
+                }
+
+                if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                {
+                    var eventData = new IndexInvalidPropertiesEventData(
+                        definition,
+                        NamedIndexPropertiesMappedToNonOverlappingTables,
+                        entityType,
+                        index.Name,
+                        index.Properties.Select(p => p.Name).ToList(),
+                        property1Name,
+                        tablesMappedToProperty1,
+                        property2Name,
+                        tablesMappedToProperty2);
+
+                    diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+                }
+            }
+        }
+
+        private static string UnnamedIndexPropertiesMappedToNonOverlappingTables(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string, string, string, string>)definition;
+            var p = (IndexInvalidPropertiesEventData)payload;
+            return d.GenerateMessage(
+                p.EntityType.DisplayName(),
+                p.PropertyNames.Format(),
+                p.Property1Name,
+                p.TablesMappedToProperty1.FormatTables(),
+                p.Property2Name,
+                p.TablesMappedToProperty2.FormatTables());
+        }
+
+        private static string NamedIndexPropertiesMappedToNonOverlappingTables(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (FallbackEventDefinition)definition;
+            var p = (IndexInvalidPropertiesEventData)payload;
+            return d.GenerateMessage(
+                    l => l.Log(
+                        d.Level,
+                        d.EventId,
+                        d.MessageFormat,
+                        p.Name,
+                        p.EntityType.DisplayName(),
+                        p.PropertyNames.Format(),
+                        p.Property1Name,
+                        p.TablesMappedToProperty1.FormatTables(),
+                        p.Property2Name,
+                        p.TablesMappedToProperty2.FormatTables()));
         }
     }
 }

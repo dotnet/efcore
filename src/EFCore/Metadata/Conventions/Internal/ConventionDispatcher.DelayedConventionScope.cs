@@ -182,6 +182,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return indexBuilder.Metadata.IsUnique;
             }
 
+            public override string OnIndexNameChanged(IConventionIndexBuilder indexBuilder)
+            {
+                Add(new OnIndexNameChangedNode(indexBuilder));
+                return indexBuilder.Metadata.Name;
+            }
+
             public override IConventionAnnotation OnIndexAnnotationChanged(
                 IConventionIndexBuilder indexBuilder,
                 string name,
@@ -859,6 +865,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnIndexUniquenessChanged(IndexBuilder);
+        }
+
+        private sealed class OnIndexNameChangedNode : ConventionNode
+        {
+            public OnIndexNameChangedNode(IConventionIndexBuilder indexBuilder)
+            {
+                IndexBuilder = indexBuilder;
+            }
+
+            public IConventionIndexBuilder IndexBuilder { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnIndexNameChanged(IndexBuilder);
         }
 
         private sealed class OnIndexAnnotationChangedNode : ConventionNode

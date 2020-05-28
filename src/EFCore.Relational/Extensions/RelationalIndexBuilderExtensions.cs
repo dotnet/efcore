@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,15 +21,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="name"> The name of the index. </param>
         /// <returns> A builder to further configure the index. </returns>
+        [Obsolete("Use IndexBuilder.HasName() instead.")]
         public static IndexBuilder HasName([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string name)
-        {
-            Check.NotNull(indexBuilder, nameof(indexBuilder));
-            Check.NullButNotEmpty(name, nameof(name));
-
-            indexBuilder.Metadata.SetName(name);
-
-            return indexBuilder;
-        }
+            => indexBuilder.HasName(name);
 
         /// <summary>
         ///     Configures the name of the index in the database when targeting a relational database.
@@ -37,8 +32,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="name"> The name of the index. </param>
         /// <returns> A builder to further configure the index. </returns>
+        [Obsolete("Use IndexBuilder<TEntity>.HasName() instead.")]
         public static IndexBuilder<TEntity> HasName<TEntity>([NotNull] this IndexBuilder<TEntity> indexBuilder, [CanBeNull] string name)
-            => (IndexBuilder<TEntity>)HasName((IndexBuilder)indexBuilder, name);
+            => indexBuilder.HasName(name);
 
         /// <summary>
         ///     Configures the name of the index in the database when targeting a relational database.
@@ -50,17 +46,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
+        [Obsolete("Use IConventionIndexBuilder.HasName() instead.")]
         public static IConventionIndexBuilder HasName(
             [NotNull] this IConventionIndexBuilder indexBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
-        {
-            if (indexBuilder.CanSetName(name, fromDataAnnotation))
-            {
-                indexBuilder.Metadata.SetName(name, fromDataAnnotation);
-                return indexBuilder;
-            }
-
-            return null;
-        }
+            => indexBuilder.HasName(name, fromDataAnnotation);
 
         /// <summary>
         ///     Returns a value indicating whether the given name can be set for the index.
@@ -69,9 +58,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given name can be set for the index. </returns>
+        [Obsolete("Use IConventionIndexBuilder.CanSetName() instead.")]
         public static bool CanSetName(
             [NotNull] this IConventionIndexBuilder indexBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => indexBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
+            => indexBuilder.CanSetName(name, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the filter expression for the index.

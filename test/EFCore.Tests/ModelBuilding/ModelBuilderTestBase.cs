@@ -306,6 +306,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestIndexBuilder<TEntity> HasAnnotation(string annotation, object value);
             public abstract TestIndexBuilder<TEntity> IsUnique(bool isUnique = true);
+            public abstract TestIndexBuilder<TEntity> HasName(string name);
         }
 
         public abstract class TestPropertyBuilder<TProperty>

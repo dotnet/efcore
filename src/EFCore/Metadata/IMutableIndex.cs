@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -20,6 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets or sets a value indicating whether the values assigned to the indexed properties are unique.
         /// </summary>
         new bool IsUnique { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the name of the index which can be <see langword="null"/>
+        ///     to indicate that a unique name should be generated.
+        /// </summary>
+        new string Name { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets the properties that this index is defined on.
