@@ -78,18 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15312")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Include_non_existing_navigation(bool async)
-        {
-            Assert.Equal(
-                CoreStrings.IncludeBadNavigation("ArcticMonkeys", nameof(Order)),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => AssertQuery(
-                        async,
-                        ss => ss.Set<Order>().Include("ArcticMonkeys")))).Message);
-        }
-
-        [ConditionalTheory(Skip = "issue #15312")]
-        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_property_expression_invalid(bool async)
         {
             Assert.Equal(
