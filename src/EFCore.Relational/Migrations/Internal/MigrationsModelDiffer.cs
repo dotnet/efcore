@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             createTableOperation.UniqueConstraints.AddRange(
-                target.UniqueConstraints.Where(c => !c.IsPrimaryKey).SelectMany(c => Add(c, diffContext))
+                target.UniqueConstraints.Where(c => !c.GetIsPrimaryKey()).SelectMany(c => Add(c, diffContext))
                     .Cast<AddUniqueConstraintOperation>());
             createTableOperation.CheckConstraints.AddRange(
                 target.CheckConstraints.SelectMany(c => Add(c, diffContext))
@@ -1133,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t, c) => s.Name == t.Name
                     && s.Columns.Select(p => p.Name).SequenceEqual(
                         t.Columns.Select(p => c.FindSource(p)?.Name))
-                    && s.IsPrimaryKey == t.IsPrimaryKey
+                    && s.GetIsPrimaryKey() == t.GetIsPrimaryKey()
                     && !HasDifferences(s.GetAnnotations(), t.GetAnnotations()));
 
         /// <summary>
@@ -1160,7 +1160,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var columns = target.Columns;
 
             MigrationOperation operation;
-            if (target.IsPrimaryKey)
+            if (target.GetIsPrimaryKey())
             {
                 operation = new AddPrimaryKeyOperation
                 {
@@ -1199,7 +1199,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var table = source.Table;
 
             MigrationOperation operation;
-            if (source.IsPrimaryKey)
+            if (source.GetIsPrimaryKey())
             {
                 operation = new DropPrimaryKeyOperation
                 {

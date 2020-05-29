@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc/>
-        IUniqueConstraint ITable.PrimaryKey
+        IPrimaryKeyConstraint ITable.PrimaryKey
         {
             [DebuggerStepThrough]
             get => PrimaryKey;

@@ -14,6 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public static class UniqueConstraintExtensions
     {
         /// <summary>
+        ///     Gets a value indicating whether this constraint is the primary key.
+        /// </summary>
+        /// <param name="uniqueConstraint"> The metadata item. </param>
+        /// <returns> <see langword="true"/> if the constraint is the primary key </returns>
+        public static bool GetIsPrimaryKey([NotNull] this IUniqueConstraint uniqueConstraint)
+            => uniqueConstraint.Table.PrimaryKey == uniqueConstraint;
+
+        /// <summary>
         ///     <para>
         ///         Creates a human-readable representation of the given metadata.
         ///     </para>
@@ -46,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Append(" ")
                 .Append(Column.Format(uniqueConstraint.Columns));
 
-            if (uniqueConstraint.IsPrimaryKey)
+            if (uniqueConstraint.GetIsPrimaryKey())
             {
                 builder.Append(" PrimaryKey");
             }

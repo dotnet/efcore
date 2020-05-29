@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class UniqueConstraint : Annotatable, IUniqueConstraint
+    public class UniqueConstraint : Annotatable, IPrimaryKeyConstraint
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,20 +24,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public UniqueConstraint(
             [NotNull] string name,
             [NotNull] Table table,
-            [NotNull] IReadOnlyList<Column> columns,
-            bool primaryKey)
+            [NotNull] IReadOnlyList<Column> columns)
         {
             Name = name;
             Table = table;
             Columns = columns;
-            IsPrimaryKey = primaryKey;
         }
 
         /// <inheritdoc />
         public virtual string Name { get; }
-
-        /// <inheritdoc />
-        public virtual bool IsPrimaryKey { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
