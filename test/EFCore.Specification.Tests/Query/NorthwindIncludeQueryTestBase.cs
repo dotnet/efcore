@@ -882,6 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? await context.Set<Order>().Include(o => o.Customer).Where(o => o.CustomerID == "ALFKI").ToListAsync()
                     : context.Set<Order>().Include(o => o.Customer).Where(o => o.CustomerID == "ALFKI").ToList();
 
+            Assert.Equal(6, orders.Count);
             Assert.True(orders.All(o => ReferenceEquals(o.Customer, customer)));
             Assert.Equal(7, context.ChangeTracker.Entries().Count());
         }
@@ -1567,56 +1568,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 },
                 entryCount: 14);
         }
-
-        // TODO: move to notracking test base
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
-        //public virtual async Task NoTracking_Include_with_cycles_throws(bool async)
-        //{
-        //    return AssertQuery(
-        //async,
-        //ss => ,
-        //entryCount: 0);
-
-        //    var query = (from o in ss.Set<Order>().Include(o => o.Customer.Orders)
-        //                 where o.OrderID < 10800
-        //                 select o)
-        //                .AsNoTracking();
-
-        //    Assert.Equal(
-        //        CoreStrings.IncludeWithCycle("Customer", "Orders"),
-        //        async
-        //        ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
-        //        : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
-        //}
-
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
-        //public virtual async Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool async)
-        //{
-        //    return AssertQuery(
-        //async,
-        //ss => ,
-        //entryCount: 0);
-
-        //    var query = (from o in (async
-        //                            ? ss.Set<Order>().Include("Customer.Orders")
-        //                            : ss.Set<Order>().Include(o => o.Customer.Orders))
-        //                 where o.OrderID < 10800
-        //                 select o)
-        //                 .PerformIdentityResolution();
-
-        //    var result = async
-        //        ? await query.ToListAsync()
-        //        : query.ToList();
-
-        //    Assert.Empty(ss.ChangeTracker.Entries());
-        //    foreach (var order in result)
-        //    {
-        //        Assert.NotNull(order.Customer);
-        //        Assert.Same(order, order.Customer.Orders.First(o => o.OrderID == order.OrderID));
-        //    }
-        //}
 
         protected virtual void ClearLog()
         {
