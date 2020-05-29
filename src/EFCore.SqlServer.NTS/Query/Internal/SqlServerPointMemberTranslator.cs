@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         ? _geographyMemberToPropertyName.TryGetValue(member, out propertyName)
                         : _geometryMemberToPropertyName.TryGetValue(member, out propertyName)))
                 {
-                    return _sqlExpressionFactory.Function(
+                    return _sqlExpressionFactory.NiladicFunction(
                         instance,
                         propertyName,
                         nullable: true,
