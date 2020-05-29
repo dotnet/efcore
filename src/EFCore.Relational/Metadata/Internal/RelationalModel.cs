@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var index in entityType.GetIndexes())
                 {
-                    var name = index.GetName(table.Name, table.Schema);
+                    var name = index.GetDatabaseName(table.Name, table.Schema);
                     if (!table.Indexes.TryGetValue(name, out var tableIndex))
                     {
                         var columns = new Column[index.Properties.Count];

@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 duplicateIndex.Properties.Format(),
                                 duplicateIndex.DeclaringEntityType.DisplayName(),
                                 index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                                index.GetName(tableName, schema),
+                                index.GetDatabaseName(tableName, schema),
                                 FormatInclude(index, tableName, schema),
                                 FormatInclude(duplicateIndex, tableName, schema)));
                     }
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName(tableName, schema)));
+                            index.GetDatabaseName(tableName, schema)));
                 }
 
                 return false;
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName(tableName, schema)));
+                            index.GetDatabaseName(tableName, schema)));
                 }
 
                 return false;
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetName(tableName, schema)));
+                            index.GetDatabaseName(tableName, schema)));
                 }
 
                 return false;

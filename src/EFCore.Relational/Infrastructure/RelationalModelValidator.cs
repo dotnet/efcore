@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var index in mappedTypes.SelectMany(et => et.GetDeclaredIndexes()))
             {
-                var indexName = index.GetName(tableName, schema);
+                var indexName = index.GetDatabaseName(tableName, schema);
                 if (!indexMappings.TryGetValue(indexName, out var duplicateIndex))
                 {
                     indexMappings[indexName] = index;

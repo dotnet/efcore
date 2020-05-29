@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var indexBuilder = builder.HasIndex(propertyNames).IsUnique();
 
             if (!string.IsNullOrEmpty(uniqueConstraint.Name)
-                && uniqueConstraint.Name != indexBuilder.Metadata.GetDefaultName())
+                && uniqueConstraint.Name != indexBuilder.Metadata.GetDefaultDatabaseName())
             {
                 indexBuilder.HasName(uniqueConstraint.Name);
             }
@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             if (!string.IsNullOrEmpty(index.Name)
-                && index.Name != indexBuilder.Metadata.GetDefaultName())
+                && index.Name != indexBuilder.Metadata.GetDefaultDatabaseName())
             {
                 indexBuilder.HasName(index.Name);
             }
