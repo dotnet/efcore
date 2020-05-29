@@ -809,6 +809,25 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override async Task Element_selector_with_case_block_repeated_inside_another_case_block_in_projection(bool async)
+        {
+            await base.Element_selector_with_case_block_repeated_inside_another_case_block_in_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], COALESCE(SUM(CASE
+    WHEN [o].[CustomerID] = N'ALFKI' THEN CASE
+        WHEN [o].[OrderID] > 1000 THEN [o].[OrderID]
+        ELSE -[o].[OrderID]
+    END
+    ELSE -CASE
+        WHEN [o].[OrderID] > 1000 THEN [o].[OrderID]
+        ELSE -[o].[OrderID]
+    END
+END), 0) AS [Aggregate]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]");
+        }
+
         public override async Task GroupBy_empty_key_Aggregate(bool async)
         {
             await base.GroupBy_empty_key_Aggregate(async);
@@ -1129,6 +1148,19 @@ GROUP BY [o].[CustomerID]");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [c].[CustomerID]");
+        }
+
+        public override async Task GroupBy_after_anonymous_projection_and_distinct_followed_by_another_anonymous_projection(bool async)
+        {
+            await base.GroupBy_after_anonymous_projection_and_distinct_followed_by_another_anonymous_projection(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID] AS [Key], COUNT(*) AS [Count]
+FROM (
+    SELECT DISTINCT [o].[CustomerID], [o].[OrderID]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[CustomerID]");
         }
 
         public override async Task GroupBy_OrderBy_key(bool async)
@@ -1747,6 +1779,18 @@ FROM (
 GROUP BY [t].[City]");
         }
 
+        public override async Task Join_groupby_anonymous_orderby_anonymous_projection(bool async)
+        {
+            await base.Join_groupby_anonymous_orderby_anonymous_projection(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderDate]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+GROUP BY [c].[CustomerID], [o].[OrderDate]
+ORDER BY [o].[OrderDate]");
+        }
+
         public override async Task GroupBy_with_group_key_access_thru_navigation(bool async)
         {
             await base.GroupBy_with_group_key_access_thru_navigation(async);
@@ -1831,6 +1875,17 @@ GROUP BY [t].[CustomerID]");
                 () => base.GroupBy_Property_Select_LongCount_with_predicate(async));
         }
 
+        public override async Task GroupBy_orderby_projection_with_coalesce_operation(bool async)
+        {
+            await base.GroupBy_orderby_projection_with_coalesce_operation(async);
+
+            AssertSql(
+                @"SELECT COALESCE([c].[City], N'Unknown') AS [Locality], COUNT(*) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]
+ORDER BY COUNT(*) DESC, [c].[City]");
+        }
+
         public override async Task GroupBy_with_grouping_key_using_Like(bool async)
         {
             await base.GroupBy_with_grouping_key_using_Like(async);
@@ -1889,6 +1944,55 @@ GROUP BY [o].[CustomerID]");
 
             AssertSql(
                 @"");
+        }
+
+        public override async Task Group_by_with_projection_into_DTO(bool async)
+        {
+            await base.Group_by_with_projection_into_DTO(async);
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] AS bigint) AS [Id], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]");
+        }
+
+        public override async Task Where_select_function_groupby_followed_by_another_select_with_aggregates(bool async)
+        {
+            await base.Where_select_function_groupby_followed_by_another_select_with_aggregates(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], COALESCE(SUM(CASE
+    WHEN (2020 - DATEPART(year, [o].[OrderDate])) <= 30 THEN [o].[OrderID]
+    ELSE 0
+END), 0) AS [Sum1], COALESCE(SUM(CASE
+    WHEN ((2020 - DATEPART(year, [o].[OrderDate])) > 30) AND ((2020 - DATEPART(year, [o].[OrderDate])) <= 60) THEN [o].[OrderID]
+    ELSE 0
+END), 0) AS [Sum2]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task Group_by_column_project_constant(bool async)
+        {
+            await base.Group_by_column_project_constant(async);
+
+            AssertSql(
+                @"SELECT 42
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+ORDER BY [o].[CustomerID]");
+        }
+
+        public override async Task Key_plus_key_in_projection(bool async)
+        {
+            await base.Key_plus_key_in_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID] + [o].[OrderID] AS [Value], AVG(CAST([o].[OrderID] AS float)) AS [Average]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[OrderID]");
         }
 
         public override async Task Complex_query_with_groupBy_in_subquery4(bool async)

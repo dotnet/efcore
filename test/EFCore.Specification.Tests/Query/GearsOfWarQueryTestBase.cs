@@ -7574,6 +7574,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<City>().Select(c => c.Location ?? "Unknown"));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Groupby_anonymous_type_with_navigations_followed_up_by_anonymous_projection_and_orderby(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Weapon>()
+                    .GroupBy(w => new { w.Owner.CityOfBirth.Name, w.Owner.CityOfBirth.Location })
+                    .Select(x => new { x.Key.Name, x.Key.Location, Count = x.Count() })
+                    .OrderBy(x => x.Location),
+                assertOrder: true);
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

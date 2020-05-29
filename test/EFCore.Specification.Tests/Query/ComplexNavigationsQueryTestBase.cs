@@ -5416,5 +5416,60 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(l1 => l1.OneToMany_Optional1)
                         .ThenInclude(l2 => l2.AsQueryable().Where(xx => xx.Id != 42))))).Message;
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Element_selector_with_coalesce_repeated_in_aggregate(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Level1>().GroupBy(
+                    l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2.Name,
+                    l1 => new
+                    {
+                        Id = ((int?)l1.OneToOne_Required_PK1.Id ?? 0)
+                    })
+                .Where(g => g.Min(l1 => l1.Id + l1.Id) > 0)
+                .Select(g => g.Count()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_object_constructed_from_group_key_properties(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                .Where(l1 => l1.OneToOne_Optional_FK1 != null)
+                .GroupBy(l1 => new
+                {
+                    l1.Id,
+                    l1.Date,
+                    l1.Name,
+                    InnerId = l1.OneToOne_Optional_FK1.Id,
+                    InnerDate = l1.OneToOne_Optional_FK1.Date,
+                    InnerOptionalId = l1.OneToOne_Optional_FK1.Level1_Optional_Id,
+                    InnerRequiredId = l1.OneToOne_Optional_FK1.Level1_Required_Id,
+                    InnerName = l1.OneToOne_Required_FK1.Name
+                })
+                .Select(g => new
+                {
+                    NestedEntity = new Level1
+                    {
+                        Id = g.Key.Id,
+                        Name = g.Key.Name,
+                        Date = g.Key.Date,
+                        OneToOne_Optional_FK1 = new Level2
+                        {
+                            Id = g.Key.InnerId,
+                            Name = g.Key.InnerName,
+                            Date = g.Key.InnerDate,
+                            Level1_Optional_Id = g.Key.InnerOptionalId,
+                            Level1_Required_Id = g.Key.InnerRequiredId
+                        }
+                    },
+                    Aggregate = g.Sum(x => x.Name.Length)
+                }));
+        }
     }
 }

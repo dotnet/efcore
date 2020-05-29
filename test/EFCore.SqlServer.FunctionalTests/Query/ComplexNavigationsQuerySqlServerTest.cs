@@ -5749,6 +5749,32 @@ ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
             AssertSql(" ");
         }
 
+        public override async Task Element_selector_with_coalesce_repeated_in_aggregate(bool async)
+        {
+            await base.Element_selector_with_coalesce_repeated_in_aggregate(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Id]
+LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Id]
+GROUP BY [l1].[Name]
+HAVING MIN(COALESCE([l0].[Id], 0) + COALESCE([l0].[Id], 0)) > 0");
+        }
+
+        public override async Task Nested_object_constructed_from_group_key_properties(bool async)
+        {
+            await base.Nested_object_constructed_from_group_key_properties(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Name], [l].[Date], [l0].[Id], [l1].[Name], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], COALESCE(SUM(CAST(LEN([l].[Name]) AS int)), 0) AS [Aggregate]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Required_Id]
+WHERE [l0].[Id] IS NOT NULL
+GROUP BY [l].[Id], [l].[Date], [l].[Name], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l1].[Name]");
+        }
+
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

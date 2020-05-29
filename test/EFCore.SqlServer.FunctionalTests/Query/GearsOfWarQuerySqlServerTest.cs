@@ -7006,6 +7006,19 @@ WHERE [c].[Location] = 'Unknown'");
 FROM [Cities] AS [c]");
         }
 
+        public override async Task Groupby_anonymous_type_with_navigations_followed_up_by_anonymous_projection_and_orderby(bool async)
+        {
+            await base.Groupby_anonymous_type_with_navigations_followed_up_by_anonymous_projection_and_orderby(async);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], COUNT(*) AS [Count]
+FROM [Weapons] AS [w]
+LEFT JOIN [Gears] AS [g] ON [w].[OwnerFullName] = [g].[FullName]
+LEFT JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
+GROUP BY [c].[Name], [c].[Location]
+ORDER BY [c].[Location]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
