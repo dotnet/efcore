@@ -663,6 +663,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableColumnMappings);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewColumnMappings);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.RelationalOverrides);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.ColumnOrdinal);
 
             if (!useDataAnnotations)

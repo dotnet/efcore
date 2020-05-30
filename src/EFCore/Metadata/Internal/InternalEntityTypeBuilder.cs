@@ -4051,6 +4051,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Metadata.SetDiscriminatorProperty(null, configurationSource);
 
+            if (configurationSource == ConfigurationSource.Explicit)
+            {
+                Metadata.SetDiscriminatorMappingComplete(null);
+            }
+            else if (CanSetAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, null, configurationSource))
+            {
+                Metadata.SetDiscriminatorMappingComplete(null, configurationSource == ConfigurationSource.DataAnnotation);
+            }
+
             return this;
         }
 

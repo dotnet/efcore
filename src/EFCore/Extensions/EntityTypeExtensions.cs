@@ -742,15 +742,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         public static bool GetIsDiscriminatorMappingComplete([NotNull] this IEntityType entityType)
-        {
-            if (entityType.BaseType != null)
-            {
-                return entityType.GetRootType().GetIsDiscriminatorMappingComplete();
-            }
-
-            return (bool?)entityType[CoreAnnotationNames.DiscriminatorMappingComplete]
+            => (bool?)entityType[CoreAnnotationNames.DiscriminatorMappingComplete]
                 ?? GetDefaultIsDiscriminatorMappingComplete(entityType);
-        }
 
         private static bool GetDefaultIsDiscriminatorMappingComplete(IEntityType entityType) => true;
 

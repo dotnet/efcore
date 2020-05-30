@@ -38,9 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly int _minBatchSize;
         private readonly bool _sensitiveLoggingEnabled;
 
-        private IReadOnlyDictionary<(string, string), SharedTableEntryMapFactory<ModificationCommand>>
-            _sharedTableEntryMapFactories;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -167,12 +164,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
-            if (_sharedTableEntryMapFactories == null)
-            {
-                _sharedTableEntryMapFactories = SharedTableEntryMap<ModificationCommand>
-                    .CreateSharedTableEntryMapFactories(updateAdapter.Model, updateAdapter);
-            }
-
             Dictionary<(string Name, string Schema), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap =
                 null;
             foreach (var entry in entries)
@@ -194,23 +185,21 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                     ModificationCommand command;
                     var isMainEntry = true;
-                    if (_sharedTableEntryMapFactories.TryGetValue(tableKey, out var commandIdentityMapFactory))
+                    if (table.IsShared)
                     {
                         if (sharedTablesCommandsMap == null)
                         {
-                            sharedTablesCommandsMap =
-                                new Dictionary<(string, string), SharedTableEntryMap<ModificationCommand>>();
+                            sharedTablesCommandsMap = new Dictionary<(string, string), SharedTableEntryMap<ModificationCommand>>();
                         }
 
                         if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
                         {
-                            sharedCommandsMap = commandIdentityMapFactory(
-                                (n, s, c) => new ModificationCommand(
-                                    n, s, generateParameterName, _sensitiveLoggingEnabled, c));
+                            sharedCommandsMap = new SharedTableEntryMap<ModificationCommand>(table, updateAdapter);
                             sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
                         }
 
-                        command = sharedCommandsMap.GetOrAddValue(entry);
+                        command = sharedCommandsMap.GetOrAddValue(entry,
+                            (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else

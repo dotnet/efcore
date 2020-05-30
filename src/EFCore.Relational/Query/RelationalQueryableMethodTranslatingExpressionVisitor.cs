@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == resultType);
                 if (derivedType != null)
                 {
-                    if (!derivedType.GetIsDiscriminatorMappingComplete()
+                    if (!derivedType.GetRootType().GetIsDiscriminatorMappingComplete()
                         || !derivedType.GetAllBaseTypesInclusiveAscending()
                             .All(e => (e == derivedType || e.IsAbstract()) && !HasSiblings(e)))
                     {

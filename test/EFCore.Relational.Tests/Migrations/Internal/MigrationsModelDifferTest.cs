@@ -1749,6 +1749,66 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 skipSourceConventions: true);
         }
 
+        [ConditionalFact]
+        public void Rename_column_in_TPT_with_table_sharing_and_seed_data()
+        {
+            Execute(
+                common => {
+                    common.Entity(
+                     "Order",
+                     x =>
+                     {
+                         x.ToTable("Order");
+                         x.Property<int>("Id");
+                     });
+                    common.Entity(
+                     "DetailedOrder",
+                     x =>
+                     {
+                         x.ToTable("DetailedOrder");
+                         x.HasBaseType("Order");
+                         x.Property<string>("Description").HasColumnName("Description");
+                         x.HasData(new { Id = 42, Description = "Order 1" });
+                     });
+                    common.Entity(
+                     "OrderDetails",
+                     x =>
+                     {
+                         x.ToTable("DetailedOrder");
+                         x.Property<int>("Id");
+                         x.Property<string>("Description").HasColumnName("Description");
+                         x.Property<DateTime>("OrderDate");
+                         x.HasOne("DetailedOrder", null).WithOne().HasForeignKey("OrderDetails", "Id");
+                         x.HasData(new { Id = 42, Description = "Order 1", OrderDate = DateTime.MinValue });
+                     });
+                },
+                _ => { },
+                target => {
+                    target.Entity(
+                         "DetailedOrder",
+                         x =>
+                         {
+                             x.Property<string>("Description").HasColumnName("OrderDescription");
+                         });
+                    target.Entity(
+                         "OrderDetails",
+                         x =>
+                         {
+                             x.Property<string>("Description").HasColumnName("OrderDescription");
+                         });
+                    },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Null(operation.Schema);
+                    Assert.Equal("DetailedOrder", operation.Table);
+                    Assert.Equal("Description", operation.Name);
+                    Assert.Equal("OrderDescription", operation.NewName);
+                });
+        }
+
         private class Crab
         {
             public string Id { get; set; }

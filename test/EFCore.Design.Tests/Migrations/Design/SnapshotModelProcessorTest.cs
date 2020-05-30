@@ -239,6 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     && a != RelationalAnnotationNames.ForeignKeyMappings
                     && a != RelationalAnnotationNames.TableIndexMappings
                     && a != RelationalAnnotationNames.UniqueConstraintMappings
+                    && a != RelationalAnnotationNames.RelationalOverrides
 #pragma warning disable CS0618 // Type or member is obsolete
                     && a != RelationalAnnotationNames.SequencePrefix))
 #pragma warning restore CS0618 // Type or member is obsolete

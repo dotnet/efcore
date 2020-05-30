@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            entityType.GetRootType().SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete);
+            entityType.SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete);
         }
 
         /// <summary>

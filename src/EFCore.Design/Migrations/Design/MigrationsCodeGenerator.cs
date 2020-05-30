@@ -251,7 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.ViewColumnMappings,
                 RelationalAnnotationNames.ForeignKeyMappings,
                 RelationalAnnotationNames.TableIndexMappings,
-                RelationalAnnotationNames.UniqueConstraintMappings
+                RelationalAnnotationNames.UniqueConstraintMappings,
+                RelationalAnnotationNames.RelationalOverrides
             };
 
             return items.SelectMany(

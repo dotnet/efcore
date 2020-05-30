@@ -34,9 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public int Compare(IColumnMappingBase x, IColumnMappingBase y)
         {
-            var result = x.Column.IsNullable == y.Column.IsNullable
-                ? 0
-                : x.Column.IsNullable ? 1 : -1;
+            var result = y.Column.IsNullable.CompareTo(x.Column.IsNullable);
             if (result != 0)
             {
                 return result;

@@ -601,6 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.ColumnType,
                 RelationalAnnotationNames.TableColumnMappings,
                 RelationalAnnotationNames.ViewColumnMappings,
+                RelationalAnnotationNames.RelationalOverrides,
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.PropertyAccessMode,
                 CoreAnnotationNames.ChangeTrackingStrategy,
@@ -849,7 +850,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var discriminatorMappingCompleteAnnotation = annotations.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorMappingComplete);
             var discriminatorValueAnnotation = annotations.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorValue);
 
-            if ((discriminatorPropertyAnnotation ?? discriminatorMappingCompleteAnnotation ?? discriminatorValueAnnotation) != null)
+            if ((discriminatorPropertyAnnotation?.Value
+                ?? discriminatorMappingCompleteAnnotation?.Value
+                ?? discriminatorValueAnnotation?.Value) != null)
             {
                 stringBuilder
                     .AppendLine()

@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public int Compare(ITableMappingBase x, ITableMappingBase y)
         {
             var result = _isForEntityType
-                ? x.IsMainTableMapping.CompareTo(y.IsMainTableMapping)
-                : x.IsMainEntityTypeMapping.CompareTo(y.IsMainEntityTypeMapping);
+                ? y.IsMainTableMapping.CompareTo(x.IsMainTableMapping)
+                : y.IsMainEntityTypeMapping.CompareTo(x.IsMainEntityTypeMapping);
             if (result != 0)
             {
                 return result;

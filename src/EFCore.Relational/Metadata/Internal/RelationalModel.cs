@@ -81,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var schema = entityType.GetSchema();
                     TableMapping lastMapping = null;
                     var mappedType = entityType;
+                    SortedSet<TableMapping> tableMappings = null;
                     while (mappedType != null)
                     {
                         var mappedTable = mappedType.GetTableName();
@@ -147,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             continue;
                         }
 
-                        var tableMappings = entityType[RelationalAnnotationNames.TableMappings] as SortedSet<TableMapping>;
+                        tableMappings = entityType[RelationalAnnotationNames.TableMappings] as SortedSet<TableMapping>;
                         if (tableMappings == null)
                         {
                             tableMappings = new SortedSet<TableMapping>(TableMappingBaseComparer.EntityTypeInstance);
@@ -160,7 +161,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         lastMapping = tableMapping;
                     }
 
+                    // Re-add the mapping to update the order
+                    tableMappings.Remove(lastMapping);
                     lastMapping.IsMainTableMapping = true;
+                    tableMappings.Add(lastMapping);
                 }
 
                 var viewName = entityType.GetViewName();
@@ -168,6 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     var schema = entityType.GetViewSchema();
                     ViewMapping lastMapping = null;
+                    SortedSet<ViewMapping> viewMappings = null;
                     var mappedType = entityType;
                     while (mappedType != null)
                     {
@@ -232,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             continue;
                         }
 
-                        var viewMappings = entityType[RelationalAnnotationNames.ViewMappings] as SortedSet<ViewMapping>;
+                        viewMappings = entityType[RelationalAnnotationNames.ViewMappings] as SortedSet<ViewMapping>;
                         if (viewMappings == null)
                         {
                             viewMappings = new SortedSet<ViewMapping>(TableMappingBaseComparer.EntityTypeInstance);
@@ -245,7 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         lastMapping = viewMapping;
                     }
 
+                    // Re-add the mapping to update the order
+                    viewMappings.Remove(lastMapping);
                     lastMapping.IsMainTableMapping = true;
+                    viewMappings.Add(lastMapping);
                 }
             }
 
@@ -600,7 +608,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            mainMapping.IsMainEntityTypeMapping = true;
+            // Re-add the mapping to update the order
+            if (mainMapping is TableMapping mainTableMapping)
+            {
+                ((Table)mainMapping.Table).EntityTypeMappings.Remove(mainTableMapping);
+                mainMapping.IsMainEntityTypeMapping = true;
+                ((Table)mainMapping.Table).EntityTypeMappings.Add(mainTableMapping);
+            }
+            else
+            {
+                ((View)mainMapping.Table).EntityTypeMappings.Remove((ViewMapping)mainMapping);
+                mainMapping.IsMainEntityTypeMapping = true;
+                ((View)mainMapping.Table).EntityTypeMappings.Add((ViewMapping)mainMapping);
+            }
 
             if (referencingInternalForeignKeyMap != null)
             {

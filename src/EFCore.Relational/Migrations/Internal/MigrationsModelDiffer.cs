@@ -68,10 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private IUpdateAdapter _sourceUpdateAdapter;
         private IUpdateAdapter _targetUpdateAdapter;
-        private readonly Dictionary<ITable, SharedTableEntryMap<EntryMapping>> _sourceSharedTableEntryMaps =
-            new Dictionary<ITable, SharedTableEntryMap<EntryMapping>>();
-        private readonly Dictionary<ITable, SharedTableEntryMap<List<IUpdateEntry>>> _targetSharedTableEntryMaps =
-            new Dictionary<ITable, SharedTableEntryMap<List<IUpdateEntry>>>();
+        private readonly Dictionary<ITable, SharedIdentityMap> _sourceSharedIdentityEntryMaps =
+            new Dictionary<ITable, SharedIdentityMap>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1785,24 +1783,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     if (targetTableMapping.IsMainTableMapping)
                     {
                         mainSourceTable = diffContext.FindSource(targetTable);
-                        if (!_targetSharedTableEntryMaps.TryGetValue(targetTable, out var targetTableEntryMappingMap))
-                        {
-                            targetTableEntryMappingMap = SharedTableEntryMap<List<IUpdateEntry>>.CreateSharedTableEntryMapFactory(
-                                targetTable,
-                                _targetUpdateAdapter)
-                            ((_, __, ___) => new List<IUpdateEntry>());
-                            _targetSharedTableEntryMaps.Add(targetTable, targetTableEntryMappingMap);
-                        }
-
-                        foreach (var targetSeed in targetEntityType.GetSeedData())
-                        {
-                            var targetEntry = GetEntry(targetSeed, targetEntityType, _targetUpdateAdapter);
-                            var targetEntries = targetTableEntryMappingMap.GetOrAddValue(targetEntry);
-                            targetEntries.Add(targetEntry);
-                        }
 
                         continue;
                     }
+
+                    Check.DebugAssert(mainSourceTable != null, "mainSourceTable is null");
 
                     var newMapping = true;
                     var sourceTable = diffContext.FindSource(targetTable);
@@ -1853,6 +1838,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             continue;
                         }
 
+                        Check.DebugAssert(mainSourceTable != null, "mainSourceTable is null");
+
                         var targetTable = diffContext.FindTarget(sourceTable);
                         var removedMapping = true;
                         if (targetTable != null
@@ -1886,20 +1873,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     continue;
                 }
 
+                // If table sharing is being used find the main table of the principal entity type
+                var mainSourceEntityType = sourceEntityType;
+                var mainPrincipalSourceTable = mainSourceTable;
+                while (mainSourceTable.GetRowInternalForeignKeys(mainSourceEntityType).Any())
+                {
+                    mainSourceEntityType = mainPrincipalSourceTable.EntityTypeMappings.First(m => m.IsMainEntityTypeMapping).EntityType;
+                    mainPrincipalSourceTable = mainSourceEntityType.GetTableMappings().First(m => m.IsMainTableMapping).Table;
+                }
+
                 foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
                     var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceUpdateAdapter);
 
-                    if (!_sourceSharedTableEntryMaps.TryGetValue(mainSourceTable, out var sourceTableEntryMappingMap))
+                    if (!_sourceSharedIdentityEntryMaps.TryGetValue(mainPrincipalSourceTable, out var sourceTableEntryMappingMap))
                     {
-                        sourceTableEntryMappingMap = SharedTableEntryMap<EntryMapping>.CreateSharedTableEntryMapFactory(
-                            mainSourceTable,
-                            _sourceUpdateAdapter)
-                            ((_, __, ___) => new EntryMapping());
-                        _sourceSharedTableEntryMaps.Add(mainSourceTable, sourceTableEntryMappingMap);
+                        sourceTableEntryMappingMap = new SharedIdentityMap(_sourceUpdateAdapter);
+                        _sourceSharedIdentityEntryMaps.Add(mainPrincipalSourceTable, sourceTableEntryMappingMap);
                     }
 
-                    var entryMapping = sourceTableEntryMappingMap.GetOrAddValue(sourceEntry);
+                    var entryMapping = sourceTableEntryMappingMap.GetOrAddValue(sourceEntry, mainSourceTable);
                     entryMapping.SourceEntries.Add(sourceEntry);
 
                     if (targetKeyMap == null)
@@ -1925,28 +1918,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         }
 
                         var entry = _targetUpdateAdapter.TryGetEntry(targetKey, targetKeyValues);
-                        if (entry == null
-                            || !_targetSharedTableEntryMaps.TryGetValue(targetTable, out var targetTableEntryMappingMap))
+                        if (entry == null)
                         {
                             continue;
                         }
 
-                        foreach (var targetEntry in targetTableEntryMappingMap.GetOrAddValue(entry))
+                        if (entryMapping.TargetEntries.Add(entry))
                         {
-                            if (!entryMapping.TargetEntries.Add(targetEntry))
+                            if (entry.EntityState != EntityState.Added)
                             {
+                                Check.DebugAssert(false, "All entries must be in added state at this point");
                                 continue;
                             }
 
-                            foreach (var targetProperty in targetEntry.EntityType.GetProperties())
+                            foreach (var targetProperty in entry.EntityType.GetProperties())
                             {
                                 if (targetProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                                 {
-                                    targetEntry.SetOriginalValue(targetProperty, targetProperty.ClrType.GetDefaultValue());
+                                    entry.SetOriginalValue(targetProperty, targetProperty.ClrType.GetDefaultValue());
                                 }
                             }
 
-                            targetEntry.EntityState = EntityState.Unchanged;
+                            entry.EntityState = EntityState.Unchanged;
                         }
 
                         if (entryMapping.RecreateRow)
@@ -2079,7 +2072,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var changedTableMappings = DiffData(source, target, diffContext);
 
-            foreach (var sourceTableEntryMappingMap in _sourceSharedTableEntryMaps)
+            foreach (var sourceTableEntryMappingMap in _sourceSharedIdentityEntryMaps)
             {
                 foreach (var entryMapping in sourceTableEntryMappingMap.Value.Values)
                 {
@@ -2104,7 +2097,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             var entriesWithRemovedMappings = new HashSet<IUpdateEntry>();
-            foreach (var sourceTableEntryMappingMap in _sourceSharedTableEntryMaps)
+            foreach (var sourceTableEntryMappingMap in _sourceSharedIdentityEntryMaps)
             {
                 foreach (var entryMapping in sourceTableEntryMappingMap.Value.Values)
                 {
@@ -2131,8 +2124,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            _sourceSharedTableEntryMaps.Clear();
-            _targetSharedTableEntryMaps.Clear();
+            _sourceSharedIdentityEntryMaps.Clear();
 
             var dataOperations = GetDataOperations(forSource: true, changedTableMappings, entriesWithRemovedMappings, diffContext)
                 .Concat(GetDataOperations(forSource: false, changedTableMappings, entriesWithRemovedMappings, diffContext));
@@ -2221,8 +2213,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 batchInsertOperation = null;
                             }
 
-                            // There shouldn't be any updates using the source model
-                            Check.DebugAssert(!forSource, "Update using the source model");
+                            if (forSource)
+                            {
+                                // There shouldn't be any updates using the source model
+                                Check.DebugAssert(false, "Update using the source model");
+                                break;
+                            }
 
                             if (command.Entries.Any(en => changedTableMappings.TryGetValue(en.EntityType, out var newTables)
                                 && newTables.Any(t => t.Name == command.TableName && t.Schema == command.Schema)))
@@ -2484,6 +2480,68 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public HashSet<IUpdateEntry> SourceEntries { get; } = new HashSet<IUpdateEntry>();
             public HashSet<IUpdateEntry> TargetEntries { get; } = new HashSet<IUpdateEntry>();
             public bool RecreateRow { get; set; }
+        }
+
+        private sealed class SharedIdentityMap
+        {
+            private readonly IUpdateAdapter _updateAdapter;
+            private readonly Dictionary<IUpdateEntry, EntryMapping> _entryValueMap
+                = new Dictionary<IUpdateEntry, EntryMapping>();
+
+            public SharedIdentityMap(IUpdateAdapter updateAdapter)
+            {
+                _updateAdapter = updateAdapter;
+            }
+
+            /// <summary>
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+            /// </summary>
+            public IEnumerable<EntryMapping> Values => _entryValueMap.Values;
+
+            /// <summary>
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+            /// </summary>
+            public EntryMapping GetOrAddValue([NotNull] IUpdateEntry entry, ITable table)
+            {
+                var mainEntry = GetMainEntry(entry, table);
+                if (_entryValueMap.TryGetValue(mainEntry, out var entryMapping))
+                {
+                    return entryMapping;
+                }
+
+                entryMapping = new EntryMapping();
+                _entryValueMap.Add(mainEntry, entryMapping);
+
+                return entryMapping;
+            }
+
+            private IUpdateEntry GetMainEntry(IUpdateEntry entry, ITable table)
+            {
+                var entityType = entry.EntityType;
+                var foreignKeys = table.GetRowInternalForeignKeys(entityType);
+                foreach (var foreignKey in foreignKeys)
+                {
+                    var principalEntry = _updateAdapter.FindPrincipal(entry, foreignKey);
+                    if (principalEntry != null)
+                    {
+                        return GetMainEntry(principalEntry, table);
+                    }
+                }
+
+                var mainTable = entry.EntityType.GetTableMappings().First(m => m.IsMainTableMapping).Table;
+                if (mainTable != table)
+                {
+                    return GetMainEntry(entry, mainTable);
+                }
+
+                return entry;
+            }
         }
 
         /// <summary>

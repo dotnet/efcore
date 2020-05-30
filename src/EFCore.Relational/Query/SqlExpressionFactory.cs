@@ -881,7 +881,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private bool AddDiscriminatorCondition(SelectExpression selectExpression, IEntityType entityType)
         {
-            if (entityType.GetIsDiscriminatorMappingComplete()
+            if (entityType.GetRootType().GetIsDiscriminatorMappingComplete()
                 && entityType.GetAllBaseTypesInclusiveAscending()
                     .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e)))
             {
