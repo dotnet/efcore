@@ -52,6 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionStarting,
             TransactionCommitting,
             TransactionRollingBack,
+            CreatingTransactionSavepoint,
+            CreatedTransactionSavepoint,
+            RollingBackToTransactionSavepoint,
+            RolledBackToTransactionSavepoint,
+            ReleasingTransactionSavepoint,
+            ReleasedTransactionSavepoint,
 
             // DataReader events
             DataReaderDisposing = CoreEventId.RelationalBaseId + 300,
@@ -313,6 +319,84 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId TransactionRolledBack = MakeTransactionId(Id.TransactionRolledBack);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction savepoint is being created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CreatingTransactionSavepoint = MakeTransactionId(Id.CreatingTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction savepoint has been created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CreatedTransactionSavepoint = MakeTransactionId(Id.CreatedTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction is being rolled back to a savepoint.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RollingBackToTransactionSavepoint = MakeTransactionId(Id.RollingBackToTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction has been rolled back to a savepoint.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RolledBackToTransactionSavepoint = MakeTransactionId(Id.RolledBackToTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction savepoint is being released.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ReleasingTransactionSavepoint = MakeTransactionId(Id.ReleasingTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction savepoint has been released.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ReleasedTransactionSavepoint = MakeTransactionId(Id.ReleasedTransactionSavepoint);
 
         /// <summary>
         ///     <para>

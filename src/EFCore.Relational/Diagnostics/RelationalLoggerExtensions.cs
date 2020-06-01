@@ -2746,6 +2746,732 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.CreatingTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult CreatingTransactionSavepoint(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogCreatingTransactionSavepoint(diagnostics);
+
+            LogCreatingTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastCreatingTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.CreatingSavepoint(transaction, eventData, default);
+                }
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.CreatingTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        public static Task<InterceptionResult> CreatingTransactionSavepointAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogCreatingTransactionSavepoint(diagnostics);
+
+            LogCreatingTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastCreatingTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.CreatingSavepointAsync(transaction, eventData, default, cancellationToken);
+                }
+            }
+
+            return Task.FromResult(default(InterceptionResult));
+        }
+
+        private static TransactionEventData BroadcastCreatingTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            return eventData;
+        }
+
+        private static void LogCreatingTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.CreatedTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        public static void CreatedTransactionSavepoint(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogCreatedTransactionSavepoint(diagnostics);
+
+            LogCreatedTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastCreatedTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                interceptor?.CreatedSavepoint(transaction, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.CreatedTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        public static Task CreatedTransactionSavepointAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogCreatedTransactionSavepoint(diagnostics);
+
+            LogCreatedTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastCreatedTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.CreatedSavepointAsync(transaction, eventData, cancellationToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static TransactionEventData BroadcastCreatedTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            return eventData;
+        }
+
+        private static void LogCreatedTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.RollingBackToTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult RollingBackToTransactionSavepoint(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogRollingBackToTransactionSavepoint(diagnostics);
+
+            LogRollingBackToTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastRollingBackToTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.RollingBackToSavepoint(transaction, eventData, default);
+                }
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.RollingBackToTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        public static Task<InterceptionResult> RollingBackToTransactionSavepointAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogRollingBackToTransactionSavepoint(diagnostics);
+
+            LogRollingBackToTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastRollingBackToTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.RollingBackToSavepointAsync(transaction, eventData, default, cancellationToken);
+                }
+            }
+
+            return Task.FromResult(default(InterceptionResult));
+        }
+
+        private static TransactionEventData BroadcastRollingBackToTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            return eventData;
+        }
+
+        private static void LogRollingBackToTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.RolledBackToTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        public static void RolledBackToTransactionSavepoint(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogRolledBackToTransactionSavepoint(diagnostics);
+
+            LogRolledBackToTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastRolledBackToTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                interceptor?.RolledBackToSavepoint(transaction, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.CreatedTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        public static Task RolledBackToTransactionSavepointAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogRolledBackToTransactionSavepoint(diagnostics);
+
+            LogCreatedTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastRolledBackToTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.RolledBackToSavepointAsync(transaction, eventData, cancellationToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static TransactionEventData BroadcastRolledBackToTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            return eventData;
+        }
+
+        private static void LogRolledBackToTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.RollingBackToTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        public static InterceptionResult ReleasingTransactionSavepoint(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogReleasingTransactionSavepoint(diagnostics);
+
+            LogReleasingTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastReleasingTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ReleasingSavepoint(transaction, eventData, default);
+                }
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.ReleasingTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        public static Task<InterceptionResult> ReleasingTransactionSavepointAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogReleasingTransactionSavepoint(diagnostics);
+
+            LogReleasingTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastReleasingTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ReleasingSavepointAsync(transaction, eventData, default, cancellationToken);
+                }
+            }
+
+            return Task.FromResult(default(InterceptionResult));
+        }
+
+        private static TransactionEventData BroadcastReleasingTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            return eventData;
+        }
+
+        private static void LogReleasingTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.ReleasedTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        public static void ReleasedTransactionSavepoint(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime)
+        {
+            var definition = RelationalResources.LogReleasedTransactionSavepoint(diagnostics);
+
+            LogReleasedTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastReleasedTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    false,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                interceptor?.ReleasedSavepoint(transaction, eventData);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.ReleasedTransactionSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="connection"> The connection. </param>
+        /// <param name="transaction"> The transaction. </param>
+        /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
+        /// <param name="startTime"> The time that the operation was started. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        public static Task ReleasedTransactionSavepointAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = RelationalResources.LogReleasedTransactionSavepoint(diagnostics);
+
+            LogReleasedTransactionSavepoint(diagnostics, definition);
+
+            if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = BroadcastReleasedTransactionSavepoint(
+                    diagnostics,
+                    connection,
+                    transaction,
+                    transactionId,
+                    startTime,
+                    definition,
+                    true,
+                    diagnosticSourceEnabled,
+                    simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.ReleasedSavepointAsync(transaction, eventData, cancellationToken);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static TransactionEventData BroadcastReleasedTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            Guid transactionId,
+            DateTimeOffset startTime,
+            EventDefinition definition,
+            bool async,
+            bool diagnosticSourceEnabled,
+            bool simpleLogEnabled)
+        {
+            var eventData = new TransactionEventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                transaction,
+                connection.Context,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            return eventData;
+        }
+
+        private static void LogReleasedTransactionSavepoint(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            EventDefinition definition)
+        {
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="RelationalEventId.TransactionDisposed" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

@@ -208,6 +208,30 @@
     <value>Rolled back transaction.</value>
     <comment>Debug RelationalEventId.TransactionRolledBack</comment>
   </data>
+  <data name="LogCreatingTransactionSavepoint" xml:space="preserve">
+    <value>Creating transaction savepoint.</value>
+    <comment>Debug RelationalEventId.CreatingTransactionSavepoint</comment>
+  </data>
+  <data name="LogCreatedTransactionSavepoint" xml:space="preserve">
+    <value>Created transaction savepoint.</value>
+    <comment>Debug RelationalEventId.CreatedTransactionSavepoint</comment>
+  </data>
+  <data name="LogRollingBackToTransactionSavepoint" xml:space="preserve">
+    <value>Rolling back to transaction savepoint..</value>
+    <comment>Debug RelationalEventId.RollingBackToTransactionSavepoint</comment>
+  </data>
+  <data name="LogRolledBackToTransactionSavepoint" xml:space="preserve">
+    <value>Rolled back to transaction savepoint..</value>
+    <comment>Debug RelationalEventId.RolledBackToTransactionSavepoint</comment>
+  </data>
+  <data name="LogReleasingTransactionSavepoint" xml:space="preserve">
+    <value>Releasing transaction savepoint.</value>
+    <comment>Debug RelationalEventId.ReleasingTransactionSavepoint</comment>
+  </data>
+  <data name="LogReleasedTransactionSavepoint" xml:space="preserve">
+    <value>Released transaction savepoint.</value>
+    <comment>Debug RelationalEventId.ReleasedTransactionSavepoint</comment>
+  </data>
   <data name="LogDisposingTransaction" xml:space="preserve">
     <value>Disposing transaction.</value>
     <comment>Debug RelationalEventId.TransactionDisposed</comment>

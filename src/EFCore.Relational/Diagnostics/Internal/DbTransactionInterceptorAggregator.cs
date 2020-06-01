@@ -220,6 +220,156 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 }
             }
 
+            public InterceptionResult CreatingSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    result = _interceptors[i].CreatingSavepoint(transaction, eventData, result);
+                }
+
+                return result;
+            }
+
+            public void CreatedSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    _interceptors[i].CreatedSavepoint(transaction, eventData);
+                }
+            }
+
+            public async Task<InterceptionResult> CreatingSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result,
+                CancellationToken cancellationToken = default)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    result = await _interceptors[i].CreatingSavepointAsync(transaction, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                return result;
+            }
+
+            public async Task CreatedSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                CancellationToken cancellationToken = default)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    await _interceptors[i].CreatedSavepointAsync(transaction, eventData, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            public InterceptionResult RollingBackToSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    result = _interceptors[i].RollingBackToSavepoint(transaction, eventData, result);
+                }
+
+                return result;
+            }
+
+            public void RolledBackToSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    _interceptors[i].RolledBackToSavepoint(transaction, eventData);
+                }
+            }
+
+            public async Task<InterceptionResult> RollingBackToSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result,
+                CancellationToken cancellationToken = default)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    result = await _interceptors[i].RollingBackToSavepointAsync(transaction, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                return result;
+            }
+
+            public async Task RolledBackToSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                CancellationToken cancellationToken = default)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    await _interceptors[i].RolledBackToSavepointAsync(transaction, eventData, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            public InterceptionResult ReleasingSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    result = _interceptors[i].ReleasingSavepoint(transaction, eventData, result);
+                }
+
+                return result;
+            }
+
+            public void ReleasedSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    _interceptors[i].ReleasedSavepoint(transaction, eventData);
+                }
+            }
+
+            public async Task<InterceptionResult> ReleasingSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result,
+                CancellationToken cancellationToken = default)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    result = await _interceptors[i].ReleasingSavepointAsync(transaction, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                return result;
+            }
+
+            public async Task ReleasedSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                CancellationToken cancellationToken = default)
+            {
+                for (var i = 0; i < _interceptors.Length; i++)
+                {
+                    await _interceptors[i].ReleasedSavepointAsync(transaction, eventData, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+
             public void TransactionFailed(DbTransaction transaction, TransactionErrorEventData eventData)
             {
                 for (var i = 0; i < _interceptors.Length; i++)

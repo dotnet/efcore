@@ -315,6 +315,93 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 
+        /// <inheritdoc />
+        public virtual InterceptionResult CreatingSavepoint(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            InterceptionResult result)
+            => result;
+
+        /// <inheritdoc />
+        public virtual void CreatedSavepoint(
+            DbTransaction transaction,
+            TransactionEventData eventData)
+        {
+        }
+
+        /// <inheritdoc />
+        public virtual Task<InterceptionResult> CreatingSavepointAsync(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(result);
+
+        /// <inheritdoc />
+        public virtual Task CreatedSavepointAsync(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+
+        /// <inheritdoc />
+        public virtual InterceptionResult RollingBackToSavepoint(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            InterceptionResult result)
+            => result;
+
+        /// <inheritdoc />
+        public virtual void RolledBackToSavepoint(
+            DbTransaction transaction,
+            TransactionEventData eventData)
+        {
+        }
+
+        /// <inheritdoc />
+        public virtual Task<InterceptionResult> RollingBackToSavepointAsync(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(result);
+
+        /// <inheritdoc />
+        public virtual Task RolledBackToSavepointAsync(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+
+        /// <inheritdoc />
+        public virtual InterceptionResult ReleasingSavepoint(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            InterceptionResult result)
+            => result;
+
+        /// <inheritdoc />
+        public virtual void ReleasedSavepoint(
+            DbTransaction transaction,
+            TransactionEventData eventData)
+        {
+        }
+
+        /// <inheritdoc />
+        public virtual Task<InterceptionResult> ReleasingSavepointAsync(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(result);
+
+        /// <inheritdoc />
+        public virtual Task ReleasedSavepointAsync(
+            DbTransaction transaction,
+            TransactionEventData eventData,
+            CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+
         /// <summary>
         ///     Called when use of a <see cref="DbTransaction" /> has failed with an exception.
         /// </summary>

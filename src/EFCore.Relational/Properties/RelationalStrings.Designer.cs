@@ -1204,6 +1204,150 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Creating transaction savepoint.
+        /// </summary>
+        public static EventDefinition LogCreatingTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCreatingTransactionSavepoint;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCreatingTransactionSavepoint,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.CreatingTransactionSavepoint,
+                        LogLevel.Debug,
+                        "RelationalEventId.CreatingTransactionSavepoint",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.CreatingTransactionSavepoint,
+                            _resourceManager.GetString("LogCreatingTransactionSavepoint"))));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Created transaction savepoint.
+        /// </summary>
+        public static EventDefinition LogCreatedTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCreatedTransactionSavepoint;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCreatedTransactionSavepoint,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.CreatedTransactionSavepoint,
+                        LogLevel.Debug,
+                        "RelationalEventId.CreatedTransactionSavepoint",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.CreatedTransactionSavepoint,
+                            _resourceManager.GetString("LogCreatedTransactionSavepoint"))));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Rolling back to transaction savepoint.
+        /// </summary>
+        public static EventDefinition LogRollingBackToTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRollingBackToTransactionSavepoint;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRollingBackToTransactionSavepoint,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.RollingBackToTransactionSavepoint,
+                        LogLevel.Debug,
+                        "RelationalEventId.RollingBackToTransactionSavepoint",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.RollingBackToTransactionSavepoint,
+                            _resourceManager.GetString("LogRollingBackToTransactionSavepoint"))));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Rolled back to transaction savepoint.
+        /// </summary>
+        public static EventDefinition LogRolledBackToTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRolledBackToTransactionSavepoint;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogRolledBackToTransactionSavepoint,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.RolledBackToTransactionSavepoint,
+                        LogLevel.Debug,
+                        "RelationalEventId.RolledBackToTransactionSavepoint",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.RolledBackToTransactionSavepoint,
+                            _resourceManager.GetString("LogRolledBackToTransactionSavepoint"))));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Releasing transaction savepoint.
+        /// </summary>
+        public static EventDefinition LogReleasingTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogReleasingTransactionSavepoint;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogReleasingTransactionSavepoint,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.ReleasingTransactionSavepoint,
+                        LogLevel.Debug,
+                        "RelationalEventId.ReleasingTransactionSavepoint",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.ReleasingTransactionSavepoint,
+                            _resourceManager.GetString("LogReleasingTransactionSavepoint"))));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Released transaction savepoint.
+        /// </summary>
+        public static EventDefinition LogReleasedTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogReleasedTransactionSavepoint;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogReleasedTransactionSavepoint,
+                    () => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.ReleasedTransactionSavepoint,
+                        LogLevel.Debug,
+                        "RelationalEventId.ReleasedTransactionSavepoint",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.ReleasedTransactionSavepoint,
+                            _resourceManager.GetString("LogReleasedTransactionSavepoint"))));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     Disposing transaction.
         /// </summary>
         public static EventDefinition LogDisposingTransaction([NotNull] IDiagnosticsLogger logger)
