@@ -231,6 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
         ///     set of properties, then the existing index will be returned for configuration.
+        ///     The name of the index will be set to <see langword="null" />.
         /// </summary>
         /// <param name="properties"> The properties that make up the index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -240,6 +241,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionIndexBuilder HasIndex(
             [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures an index on the specified properties, with the specified name.
+        ///     If there is an existing index on the given set of properties and with the given name,
+        ///     then the existing index will be returned for configuration.
+        /// </summary>
+        /// <param name="properties"> The properties that make up the index. </param>
+        /// <param name="name"> The name of the index. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the index if it exists on the entity type,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionIndexBuilder HasIndex(
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            [NotNull] string name,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes an index from this entity type.

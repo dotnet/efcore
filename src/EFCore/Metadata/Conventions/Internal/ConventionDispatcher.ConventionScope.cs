@@ -116,7 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionIndex index);
 
             public abstract bool? OnIndexUniquenessChanged([NotNull] IConventionIndexBuilder indexBuilder);
-            public abstract string OnIndexNameChanged([NotNull] IConventionIndexBuilder indexBuilder);
             public abstract IConventionKeyBuilder OnKeyAdded([NotNull] IConventionKeyBuilder keyBuilder);
 
             public abstract IConventionAnnotation OnKeyAnnotationChanged(

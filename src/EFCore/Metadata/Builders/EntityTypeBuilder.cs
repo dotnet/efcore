@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
-        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex" /> to specify uniqueness
+        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex(string[], string)" /> to specify uniqueness
         ///     in the model that does not force properties to be read-only.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the key. </param>
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures an index on the specified properties. If there is an existing index on the given
+        ///     Configures an unnamed index on the specified properties. If there is an existing index on the given
         ///     set of properties, then the existing index will be returned for configuration.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
@@ -266,6 +266,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
             => new IndexBuilder(
                 Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     Configures an index on the specified properties and with the given name. If there is an existing index on the given
+        ///     set of properties and with the given name, then the existing index will be returned for configuration.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties that make up the index. </param>
+        /// <param name="name"> The name to assign to the index. </param>
+        /// <returns> An object that can be used to configure the index. </returns>
+        public virtual IndexBuilder HasIndex(
+            [NotNull] string[] propertyNames,
+            [CanBeNull] string name)
+            => new IndexBuilder(
+                Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), name, ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>

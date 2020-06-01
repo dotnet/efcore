@@ -443,7 +443,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     .HasForeignKey<Order>(o => o.OrderDate).HasPrincipalKey<DateDetails>(o => o.Date)
                     .HasConstraintName("FK_DateDetails");
 
-                ob.HasIndex(o => o.OrderDate).HasName("IX_OrderDate");
+                // Note: the below is resetting the name of the anonymous index
+                // created in HasForeignKey() above, not creating a new index.
+                ob.HasIndex(o => o.OrderDate).HasDatabaseName("IX_OrderDate");
 
                 ob.OwnsOne(o => o.Details, odb =>
                 {

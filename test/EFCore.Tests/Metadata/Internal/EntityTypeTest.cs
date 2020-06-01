@@ -79,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
             public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IIndex FindIndex(IReadOnlyList<IProperty> properties, string name) => throw new NotImplementedException();
             public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => throw new NotImplementedException();
             public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();

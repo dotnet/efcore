@@ -34,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
 
             var indexProperties = new List<string> { propA.Metadata.Name, propB.Metadata.Name };
-            var indexBuilder = entityBuilder.HasIndex(indexProperties, ConfigurationSource.Convention);
-            indexBuilder.HasName("ConventionalIndexName", ConfigurationSource.Convention);
+            var indexBuilder = entityBuilder.HasIndex(indexProperties, "IndexOnAAndB", ConfigurationSource.Convention);
             indexBuilder.IsUnique(false, ConfigurationSource.Convention);
 
             RunConvention(modelBuilder);
@@ -43,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var index = entityBuilder.Metadata.GetIndexes().Single();
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
             Assert.Equal("IndexOnAAndB", index.Name);
-            Assert.Equal(ConfigurationSource.DataAnnotation, index.GetNameConfigurationSource());
             Assert.True(index.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetIsUniqueConfigurationSource());
             Assert.Collection(index.Properties,
@@ -57,16 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             var entityBuilder = modelBuilder.Entity<EntityWithIndex>();
 
-            entityBuilder.HasIndex("A", "B")
-                .HasName("OverridenIndexName")
+            entityBuilder.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
                 .IsUnique(false);
 
             modelBuilder.Model.FinalizeModel();
 
             var index = (Metadata.Internal.Index)entityBuilder.Metadata.GetIndexes().Single();
             Assert.Equal(ConfigurationSource.Explicit, index.GetConfigurationSource());
-            Assert.Equal("OverridenIndexName", index.Name);
-            Assert.Equal(ConfigurationSource.Explicit, index.GetNameConfigurationSource());
+            Assert.Equal("IndexOnAAndB", index.Name);
             Assert.False(index.IsUnique);
             Assert.Equal(ConfigurationSource.Explicit, index.GetIsUniqueConfigurationSource());
             Assert.Collection(index.Properties,
@@ -114,7 +110,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var index0 = (Metadata.Internal.Index)indexes.First();
             Assert.Equal(ConfigurationSource.DataAnnotation, index0.GetConfigurationSource());
             Assert.Equal("IndexOnAAndB", index0.Name);
-            Assert.Equal(ConfigurationSource.DataAnnotation, index0.GetNameConfigurationSource());
             Assert.True(index0.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index0.GetIsUniqueConfigurationSource());
             Assert.Collection(index0.Properties,
@@ -124,7 +119,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var index1 = (Metadata.Internal.Index)indexes.Skip(1).First();
             Assert.Equal(ConfigurationSource.DataAnnotation, index1.GetConfigurationSource());
             Assert.Equal("IndexOnBAndC", index1.Name);
-            Assert.Equal(ConfigurationSource.DataAnnotation, index1.GetNameConfigurationSource());
             Assert.False(index1.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index1.GetIsUniqueConfigurationSource());
             Assert.Collection(index1.Properties,
@@ -147,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var index = (Metadata.Internal.Index)entityBuilder.Metadata.GetIndexes().Single();
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
             Assert.Equal("IndexOnAAndB", index.Name);
-            Assert.Equal(ConfigurationSource.DataAnnotation, index.GetNameConfigurationSource());
             Assert.True(index.IsUnique);
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetIsUniqueConfigurationSource());
             Assert.Collection(index.Properties,

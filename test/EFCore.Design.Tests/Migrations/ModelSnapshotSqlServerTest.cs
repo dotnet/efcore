@@ -2386,12 +2386,14 @@ namespace RootNamespace
         }
 
         [ConditionalFact]
-        public virtual void Index_name_annotation_is_stored_in_snapshot_as_fluent_api()
+        public virtual void Index_database_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
                 builder =>
                 {
-                    builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId).HasName("IndexName");
+                    builder.Entity<EntityWithTwoProperties>()
+                        .HasIndex(t => t.AlternateId)
+                            .HasDatabaseName("IndexName");
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
@@ -2410,11 +2412,16 @@ namespace RootNamespace
                     b.HasKey(""Id"");
 
                     b.HasIndex(""AlternateId"")
-                        .HasName(""IndexName"");
+                        .HasDatabaseName(""IndexName"");
 
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
-                o => Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First().Name));
+                o =>
+                {
+                    var index = o.GetEntityTypes().First().GetIndexes().First();
+                    Assert.Null(index.Name);
+                    Assert.Equal("IndexName", index.GetDatabaseName());
+                });
         }
 
         [ConditionalFact]
@@ -2458,7 +2465,7 @@ namespace RootNamespace
             Test(
                 builder =>
                 {
-                    builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId).HasName("IndexName")
+                    builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId, "IndexName")
                         .HasAnnotation("AnnotationName", "AnnotationValue");
                     builder.Ignore<EntityWithOneProperty>();
                 },
@@ -2477,8 +2484,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.HasIndex(""AlternateId"")
-                        .HasName(""IndexName"")
+                    b.HasIndex(new[] { ""AlternateId"" }, ""IndexName"")
                         .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
                     b.ToTable(""EntityWithTwoProperties"");
@@ -2486,9 +2492,10 @@ namespace RootNamespace
                 o =>
                 {
                     var index = o.GetEntityTypes().First().GetIndexes().First();
+                    Assert.Equal("IndexName", index.Name);
                     Assert.Equal(2, index.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
-                    Assert.Equal("IndexName", index.Name);
+                    Assert.Null(index["RelationalAnnotationNames.Name"]);
                 });
         }
 

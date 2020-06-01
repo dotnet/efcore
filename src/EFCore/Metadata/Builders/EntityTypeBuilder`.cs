@@ -240,12 +240,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures an index on the specified properties. If there is an existing index on the given
         ///     set of properties, then the existing index will be returned for configuration.
         /// </summary>
+        /// <param name="indexExpression">
+        ///     <para>
+        ///         A lambda expression representing the property(s) to be included in the index
+        ///         (<c>blog => blog.Url</c>).
+        ///     </para>
+        ///     <para>
+        ///         If the index is made up of multiple properties then specify an anonymous type including the
+        ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
+        ///     </para>
+        /// </param>
+        /// <param name="name"> The name of the index. </param>
+        /// <returns> An object that can be used to configure the index. </returns>
+        public virtual IndexBuilder<TEntity> HasIndex(
+            [NotNull] Expression<Func<TEntity, object>> indexExpression,
+            [CanBeNull] string name)
+            => new IndexBuilder<TEntity>(
+                Builder.HasIndex(
+                    Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(),
+                    name,
+                    ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     Configures an index on the specified properties. If there is an existing index on the given
+        ///     set of properties, then the existing index will be returned for configuration.
+        /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public new virtual IndexBuilder<TEntity> HasIndex([NotNull] params string[] propertyNames)
             => new IndexBuilder<TEntity>(
                 Builder.HasIndex(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)),
+                    ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     Configures an index on the specified properties. If there is an existing index on the given
+        ///     set of properties, then the existing index will be returned for configuration.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties that make up the index. </param>
+        /// <param name="name"> The name to assign to the index. </param>
+        /// <returns> An object that can be used to configure the index. </returns>
+        public new virtual IndexBuilder<TEntity> HasIndex(
+            [NotNull] string[] propertyNames,
+            [CanBeNull] string name)
+            => new IndexBuilder<TEntity>(
+                Builder.HasIndex(
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)),
+                    name,
                     ConfigurationSource.Explicit).Metadata);
 
         /// <summary>

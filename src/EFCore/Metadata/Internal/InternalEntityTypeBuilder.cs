@@ -2171,8 +2171,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalIndexBuilder HasIndex(
+            [NotNull] IReadOnlyList<string> propertyNames,
+            [CanBeNull] string name,
+            ConfigurationSource configurationSource)
+            => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), name, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalIndexBuilder HasIndex(
             [NotNull] IReadOnlyList<MemberInfo> clrMembers, ConfigurationSource configurationSource)
-            => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
+            => HasIndex(clrMembers, null, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalIndexBuilder HasIndex(
+            [NotNull] IReadOnlyList<MemberInfo> clrMembers,
+            [CanBeNull] string name,
+            ConfigurationSource configurationSource)
+            => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), name, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2182,6 +2206,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalIndexBuilder HasIndex(
             [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+            => HasIndex(properties, null, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalIndexBuilder HasIndex(
+            [CanBeNull] IReadOnlyList<Property> properties,
+            [CanBeNull] string name,
+            ConfigurationSource configurationSource)
         {
             if (properties == null)
             {
@@ -2189,17 +2225,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             List<InternalIndexBuilder> detachedIndexes = null;
-            var existingIndex = Metadata.FindIndex(properties);
+            var existingIndex = Metadata.FindIndex(properties, name);
             if (existingIndex == null)
             {
-                detachedIndexes = Metadata.FindDerivedIndexes(properties).ToList().Select(DetachIndex).ToList();
+                detachedIndexes = Metadata.FindDerivedIndexes(properties, name).ToList().Select(DetachIndex).ToList();
             }
             else if (existingIndex.DeclaringEntityType != Metadata)
             {
-                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, configurationSource);
+                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, name, configurationSource);
             }
 
-            var indexBuilder = HasIndex(existingIndex, properties, configurationSource);
+            var indexBuilder = HasIndex(existingIndex, properties, name, configurationSource);
 
             if (detachedIndexes != null)
             {
@@ -2213,11 +2249,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private InternalIndexBuilder HasIndex(
-            Index index, IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+            Index index,
+            IReadOnlyList<Property> properties,
+            string name,
+            ConfigurationSource configurationSource)
         {
             if (index == null)
             {
-                index = Metadata.AddIndex(properties, configurationSource);
+                index = Metadata.AddIndex(properties, name, configurationSource);
             }
             else
             {
@@ -4369,6 +4408,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasIndex(
                 properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionIndexBuilder IConventionEntityTypeBuilder.HasIndex(
+            IReadOnlyList<IConventionProperty> properties, string name, bool fromDataAnnotation)
+            => HasIndex(
+                properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(),
+                name,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

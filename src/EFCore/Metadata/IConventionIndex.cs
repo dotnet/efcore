@@ -54,20 +54,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The configuration source for <see cref="IIndex.IsUnique" />. </returns>
         ConfigurationSource? GetIsUniqueConfigurationSource();
-
-        /// <summary>
-        ///     Sets the name of the index which can be <see langword="null"/>
-        ///     to indicate that a unique name should be generated.
-        /// </summary>
-        /// <param name="name"> The name of the index. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The configured name. </returns>
-        string SetName([CanBeNull] string name, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns the configuration source for <see cref="IIndex.Name" />.
-        /// </summary>
-        /// <returns> The configuration source for <see cref="IIndex.Name" />. </returns>
-        ConfigurationSource? GetNameConfigurationSource();
     }
 }

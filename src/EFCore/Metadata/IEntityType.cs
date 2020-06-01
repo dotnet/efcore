@@ -125,11 +125,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<ISkipNavigation> GetSkipNavigations();
 
         /// <summary>
-        ///     Gets the index defined on the given properties. Returns <see langword="null" /> if no index is defined.
+        ///     Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
         IIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+
+        /// <summary>
+        ///     Gets the index defined on the given properties with the given name. Returns <see langword="null" /> if no such index is defined.
+        /// </summary>
+        /// <param name="properties"> The properties to find the index on. </param>
+        /// <param name="name"> The name of the index to find. </param>
+        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        IIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties, [CanBeNull] string name);
 
         /// <summary>
         ///     Gets the indexes defined on this entity type.

@@ -855,8 +855,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<int>("Shadow");
-            modelBuilder.Entity<Cat>().HasIndex(nameof(Cat.Name), "Shadow").HasName("IX");
-            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasName("IX");
+            modelBuilder.Entity<Cat>().HasIndex(nameof(Cat.Name), "Shadow").HasDatabaseName("IX");
+            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX");
 
             VerifyError(
                 RelationalStrings.DuplicateIndexColumnMismatch(
@@ -879,14 +879,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     et.HasIndex(
-                        c => new { c.Name, c.Breed }).HasName("IX");
+                        c => new { c.Name, c.Breed }).HasDatabaseName("IX");
                 });
             modelBuilder.Entity<Dog>(
                 et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     et.HasIndex(
-                        d => new { d.Breed, d.Name }).HasName("IX");
+                        d => new { d.Breed, d.Name }).HasDatabaseName("IX");
                 });
 
             VerifyError(
@@ -905,9 +905,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasIndex(
-                c => new { c.Name, c.Breed }).HasName("IX");
+                c => new { c.Name, c.Breed }).HasDatabaseName("IX");
             modelBuilder.Entity<Dog>().HasIndex(
-                d => new { d.Name, d.Breed }).HasName("IX");
+                d => new { d.Name, d.Breed }).HasDatabaseName("IX");
             modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("DogBreed");
 
             VerifyError(
@@ -925,8 +925,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasName("IX_Animal_Name");
-            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).HasName("IX_Animal_Name");
+            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasDatabaseName("IX_Animal_Name");
+            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).HasDatabaseName("IX_Animal_Name");
 
             VerifyError(
                 RelationalStrings.DuplicateIndexUniquenessMismatch(
@@ -941,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasName("IX_Animal_Name").Metadata;
+            var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasDatabaseName("IX_Animal_Name").Metadata;
             var index2 = modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).Metadata;
 
             Validate(modelBuilder.Model);
@@ -961,13 +961,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
-                    index1 = et.HasIndex(c => c.Breed).HasName("IX_Animal_Breed").Metadata;
+                    index1 = et.HasIndex(c => c.Breed, "IX_Animal_Breed").Metadata;
                 });
             modelBuilder.Entity<Dog>(
                 et =>
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
-                    index2 = et.HasIndex(c => c.Breed).HasName("IX_Animal_Breed").Metadata;
+                    index2 = et.HasIndex(c => c.Breed, "IX_Animal_Breed").Metadata;
                 });
 
             Validate(modelBuilder.Model);
@@ -1274,8 +1274,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.Entity<Animal>().ToTable(null);
             modelBuilder.Entity<Animal>()
-                .HasIndex(nameof(Animal.Id), nameof(Animal.Name))
-                .HasName("IX_AllPropertiesNotMapped");
+                .HasIndex(
+                    new[] { nameof(Animal.Id), nameof(Animal.Name) },
+                    "IX_AllPropertiesNotMapped");
 
             var definition = RelationalResources
                 .LogNamedIndexAllPropertiesNotToMappedToAnyTable(
@@ -1318,8 +1319,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Animal>().ToTable(null);
             modelBuilder.Entity<Cat>().ToTable("Cats");
             modelBuilder.Entity<Cat>()
-                .HasIndex(nameof(Cat.Identity), nameof(Animal.Name))
-                .HasName("IX_MixOfMappedAndUnmappedProperties");
+                .HasIndex(
+                    new[] { nameof(Cat.Identity), nameof(Animal.Name) },
+                    "IX_MixOfMappedAndUnmappedProperties");
 
             var definition = RelationalResources
                 .LogNamedIndexPropertiesBothMappedAndNotMappedToTable(
@@ -1381,8 +1383,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Animal>().ToTable("Animals");
             modelBuilder.Entity<Cat>().ToTable("Cats");
             modelBuilder.Entity<Cat>()
-                .HasIndex(nameof(Animal.Name), nameof(Cat.Identity))
-                .HasName("IX_MappedToDifferentTables");
+                .HasIndex(
+                    new[] { nameof(Animal.Name), nameof(Cat.Identity) },
+                    "IX_MappedToDifferentTables");
 
             var definition = RelationalResources
                 .LogNamedIndexPropertiesMappedToNonOverlappingTables(

@@ -48,16 +48,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual IndexBuilder<T> IsUnique(bool unique = true)
             => (IndexBuilder<T>)base.IsUnique(unique);
-
-        /// <summary>
-        ///     Configures the name of this index.
-        /// </summary>
-        /// <param name="name">
-        ///     The name of this index which can be <see langword="null"/>
-        ///     to indicate that a unique name should be generated.
-        /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual IndexBuilder<T> HasName([CanBeNull] string name)
-            => (IndexBuilder<T>)base.HasName(name);
     }
 }

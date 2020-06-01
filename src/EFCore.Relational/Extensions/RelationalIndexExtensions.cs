@@ -19,34 +19,38 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalIndexExtensions
     {
         /// <summary>
-        ///     Returns the name for this index.
+        ///     Returns the name of the index on the database.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <returns> The name for this index. </returns>
+        /// <returns> The name of the index on the database. </returns>
         public static string GetDatabaseName([NotNull] this IIndex index)
-            => index.Name ?? index.GetDefaultDatabaseName();
+            => (string)index[RelationalAnnotationNames.Name]
+                ?? index.Name
+                ?? index.GetDefaultDatabaseName();
 
         /// <summary>
-        ///     Returns the name for this index.
+        ///     Returns the name of the index on the database.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <returns> The name for this index. </returns>
+        /// <returns> The name of the index on the database. </returns>
         [Obsolete("Use GetDatabaseName() instead")]
         public static string GetName([NotNull] this IIndex index)
             => GetDatabaseName(index);
 
         /// <summary>
-        ///     Returns the name for this index.
+        ///     Returns the name of the index on the database.
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="tableName"> The table name. </param>
         /// <param name="schema"> The schema. </param>
-        /// <returns> The name for this index. </returns>
+        /// <returns> The name of the index on the database. </returns>
         public static string GetDatabaseName(
             [NotNull] this IIndex index,
             [NotNull] string tableName,
             [CanBeNull] string schema)
-            => index.Name ?? index.GetDefaultDatabaseName(tableName, schema);
+            => (string)index[RelationalAnnotationNames.Name]
+                ?? index.Name
+                ?? index.GetDefaultDatabaseName(tableName, schema);
 
         /// <summary>
         ///     Returns the default name that would be used for this index.
@@ -123,33 +127,70 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Sets the index name.
+        ///     Sets the name of the index on the database.
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="name"> The value to set. </param>
-        [Obsolete("Use IMutableIndex.Name instead.")]
-        public static void SetName([NotNull] this IMutableIndex index, [CanBeNull] string name)
-            => index.Name = Check.NullButNotEmpty(name, nameof(name));
+        public static void SetDatabaseName([NotNull] this IMutableIndex index, [CanBeNull] string name)
+        {
+            index.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.Name,
+                Check.NullButNotEmpty(name, nameof(name)));
+        }
 
         /// <summary>
-        ///     Sets the index name.
+        ///     Sets the name of the index on the database.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="name"> The value to set. </param>
+        [Obsolete("Use SetDatabaseName() instead.")]
+        public static void SetName([NotNull] this IMutableIndex index, [CanBeNull] string name)
+            => SetDatabaseName(index, name);
+
+        /// <summary>
+        ///     Sets the name of the index on the database.
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="name"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        [Obsolete("Use IConventionIndex.SetName() instead.")]
-        public static string SetName([NotNull] this IConventionIndex index, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => index.SetName(Check.NullButNotEmpty(name, nameof(name)), fromDataAnnotation);
+        public static string SetDatabaseName([NotNull] this IConventionIndex index, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            index.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.Name,
+                Check.NullButNotEmpty(name, nameof(name)),
+                fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
-        ///     Gets the <see cref="ConfigurationSource" /> for the index name.
+        ///     Sets the name of the index on the database.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the index name. </returns>
-        [Obsolete("Use IConventionIndex.GetNameConfigurationSource() instead.")]
+        /// <param name="name"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        [Obsolete("Use SetDatabaseName() instead.")]
+        public static string SetName([NotNull] this IConventionIndex index, [CanBeNull] string name, bool fromDataAnnotation = false)
+            => SetDatabaseName(index, name, fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the name of the index on the database.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the name of the index on the database. </returns>
+        public static ConfigurationSource? GetDatabaseNameConfigurationSource([NotNull] this IConventionIndex index)
+            => index.FindAnnotation(RelationalAnnotationNames.Name)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the name of the index on the database.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the name of the index on the database. </returns>
+        [Obsolete("Use GetDatabaseNameConfigurationSource() instead.")]
         public static ConfigurationSource? GetNameConfigurationSource([NotNull] this IConventionIndex index)
-            => index.GetNameConfigurationSource();
+            => GetDatabaseNameConfigurationSource(index);
 
         /// <summary>
         ///     Returns the index filter expression.

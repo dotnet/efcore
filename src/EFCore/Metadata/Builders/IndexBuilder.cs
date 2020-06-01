@@ -74,21 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        /// <summary>
-        ///     Configures the name of this index.
-        /// </summary>
-        /// <param name="name">
-        ///     The name of this index which can be <see langword="null"/>
-        ///     to indicate that a unique name should be generated.
-        /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual IndexBuilder HasName([CanBeNull] string name)
-        {
-            Builder.HasName(name, ConfigurationSource.Explicit);
-
-            return this;
-        }
-
         #region Hidden System.Object members
 
         /// <summary>
