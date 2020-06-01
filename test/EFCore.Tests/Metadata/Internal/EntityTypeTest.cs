@@ -2267,6 +2267,104 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Indexes_for_owned_collection_types_are_calculated_correctly()
+        {
+            using var context = new SideBySide();
+            var model = context.Model;
+
+            var parent = model.FindEntityType(typeof(Parent1Entity));
+            var indexes = GetIndexes(parent.GetPropertiesAndNavigations());
+            Assert.Equal(2, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, -1, 0, 0, 0), indexes[nameof(Parent1Entity.Id)]);
+            Assert.Equal((0, -1, -1, -1, 1), indexes[nameof(Parent1Entity.Children)]);
+
+            indexes = GetIndexes(model.FindEntityType(typeof(ChildEntity), nameof(Parent1Entity.Children), parent).GetProperties());
+            Assert.Equal(3, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, 0, 0, 0, 0), indexes[nameof(Parent1Entity) + "Id"]);
+            Assert.Equal((1, 1, 1, 1, 1), indexes["Id"]);
+            Assert.Equal((2, -1, 2, -1, -1), indexes[nameof(ChildEntity.Name)]);
+
+            parent = model.FindEntityType(typeof(Parent2Entity));
+            indexes = GetIndexes(parent.GetPropertiesAndNavigations());
+            Assert.Equal(2, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, -1, 0, 0, 0), indexes[nameof(Parent2Entity.Id)]);
+            Assert.Equal((0, -1, -1, -1, 1), indexes[nameof(Parent2Entity.Children)]);
+
+            indexes = GetIndexes(model.FindEntityType(typeof(ChildEntity), nameof(Parent2Entity.Children), parent).GetProperties());
+            Assert.Equal(3, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, 0, 0, 0, 0), indexes[nameof(Parent2Entity) + "Id"]);
+            Assert.Equal((1, 1, 1, 1, 1), indexes["Id"]);
+            Assert.Equal((2, -1, 2, -1, -1), indexes[nameof(ChildEntity.Name)]);
+
+            parent = model.FindEntityType(typeof(Parent3Entity));
+            indexes = GetIndexes(parent.GetPropertiesAndNavigations());
+            Assert.Equal(2, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, -1, 0, 0, 0), indexes[nameof(Parent3Entity.Id)]);
+            Assert.Equal((0, -1, -1, -1, 1), indexes[nameof(Parent3Entity.Children)]);
+
+            indexes = GetIndexes(model.FindEntityType(typeof(ChildEntity), nameof(Parent3Entity.Children), parent).GetProperties());
+            Assert.Equal(3, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, 0, 0, 0, 0), indexes[nameof(Parent3Entity) + "Id"]);
+            Assert.Equal((1, 1, 1, 1, 1), indexes["Id"]);
+            Assert.Equal((2, -1, 2, -1, -1), indexes[nameof(ChildEntity.Name)]);
+
+            Dictionary<string, (int, int, int, int, int)> GetIndexes(IEnumerable<IPropertyBase> properties)
+                => properties.ToDictionary(
+                    p => p.Name,
+                    p =>
+                        (p.GetIndex(),
+                            p.GetShadowIndex(),
+                            p.GetOriginalValueIndex(),
+                            p.GetStoreGeneratedIndex(),
+                            p.GetRelationshipIndex()
+                        ));
+        }
+
+        private class SideBySide : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Parent1Entity>().OwnsMany(e => e.Children);
+                modelBuilder.Entity<Parent2Entity>().OwnsMany(e => e.Children);
+                modelBuilder.Entity<Parent3Entity>().OwnsMany(e => e.Children);
+            }
+        }
+
+        private class Parent1Entity
+        {
+            public Guid Id { get; set; }
+            public ICollection<ChildEntity> Children { get; set; }
+        }
+
+        private class Parent2Entity
+        {
+            public Guid Id { get; set; }
+            public ICollection<ChildEntity> Children { get; set; }
+        }
+
+        private class Parent3Entity
+        {
+            public Guid Id { get; set; }
+            public ICollection<ChildEntity> Children { get; set; }
+        }
+
+        private class ChildEntity
+        {
+            public string Name { get; set; }
+        }
+
+        [ConditionalFact]
         public void Indexes_are_ordered_by_property_count_then_property_names()
         {
             var model = CreateModel();

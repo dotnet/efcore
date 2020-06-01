@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         else if ((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                             || (!isKey && nonMainEntry))
                         {
-                            writeValue = columnPropagator?.TryPropagate(property, (InternalEntityEntry)entry)
+                            writeValue = columnPropagator?.TryPropagate(property, entry)
                                 ?? entry.IsModified(property);
                         }
                     }
@@ -457,6 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
                         || (entry.EntityState == EntityState.Added && Equals(_originalValue, entry.GetCurrentValue(property)))))
                 {
+                    // Should be `entry.SetStoreGeneratedValue(property, _currentValue);` but see issue #21041
                     ((InternalEntityEntry)entry)[property] = _currentValue;
 
                     return false;

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -512,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                             var principalKeyValue = _keyValueIndexFactorySource
                                 .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
-                                .CreatePrincipalKeyValue((InternalEntityEntry)entry, foreignKey);
+                                .CreatePrincipalKeyValue(entry, foreignKey);
 
                             if (principalKeyValue != null)
                             {
@@ -547,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                             var dependentKeyValue = _keyValueIndexFactorySource
                                 .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
-                                .CreateDependentKeyValueFromOriginalValues((InternalEntityEntry)entry, foreignKey);
+                                .CreateDependentKeyValueFromOriginalValues(entry, foreignKey);
 
                             if (dependentKeyValue != null)
                             {
@@ -594,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                                 var dependentKeyValue = _keyValueIndexFactorySource
                                     .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
-                                    .CreateDependentKeyValue((InternalEntityEntry)entry, foreignKey);
+                                    .CreateDependentKeyValue(entry, foreignKey);
                                 if (dependentKeyValue == null)
                                 {
                                     continue;
@@ -622,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                                 var principalKeyValue = _keyValueIndexFactorySource
                                     .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
-                                    .CreatePrincipalKeyValueFromOriginalValues((InternalEntityEntry)entry, foreignKey);
+                                    .CreatePrincipalKeyValueFromOriginalValues(entry, foreignKey);
                                 if (principalKeyValue != null)
                                 {
                                     AddMatchingPredecessorEdge(

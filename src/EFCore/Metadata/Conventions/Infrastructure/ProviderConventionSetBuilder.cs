@@ -164,6 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(new NavigationEagerLoadingConvention(Dependencies));
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.ForeignKeyOwnershipChangedConventions.Add(valueGeneratorConvention);
 
             conventionSet.ModelInitializedConventions.Add(new DbSetFindingConvention(Dependencies));
 
