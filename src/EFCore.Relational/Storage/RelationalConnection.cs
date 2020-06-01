@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            CurrentTransaction.Save(savepointName);
+            CurrentTransaction.CreateSavepoint(savepointName);
         }
 
         /// <inheritdoc />
@@ -550,29 +550,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            return CurrentTransaction.SaveAsync(savepointName, cancellationToken);
+            return CurrentTransaction.CreateSavepointAsync(savepointName, cancellationToken);
         }
 
         /// <inheritdoc />
-        public virtual void RollbackSavepoint(string savepointName)
+        public virtual void RollbackToSavepoint(string savepointName)
         {
             if (CurrentTransaction == null)
             {
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            CurrentTransaction.Rollback(savepointName);
+            CurrentTransaction.RollbackToSavepoint(savepointName);
         }
 
         /// <inheritdoc />
-        public virtual Task RollbackSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual Task RollbackToSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
         {
             if (CurrentTransaction == null)
             {
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            return CurrentTransaction.RollbackAsync(savepointName, cancellationToken);
+            return CurrentTransaction.RollbackToSavepointAsync(savepointName, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            CurrentTransaction.Release(savepointName);
+            CurrentTransaction.ReleaseSavepoint(savepointName);
         }
 
         /// <inheritdoc />
@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            return CurrentTransaction.ReleaseAsync(savepointName, cancellationToken);
+            return CurrentTransaction.ReleaseSavepointAsync(savepointName, cancellationToken);
         }
 
         /// <inheritdoc />

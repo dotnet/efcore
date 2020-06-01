@@ -220,8 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
         /// <param name="savepointName"> The name of the savepoint to roll back to. </param>
-        public virtual void RollbackSavepoint([NotNull] string savepointName)
-            => Dependencies.TransactionManager.RollbackSavepoint(savepointName);
+        public virtual void RollbackToSavepoint([NotNull] string savepointName)
+            => Dependencies.TransactionManager.RollbackToSavepoint(savepointName);
 
         /// <summary>
         ///     Rolls back all commands that were executed after the specified savepoint was established.
@@ -229,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="savepointName"> The name of the savepoint to roll back to. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        public virtual Task RollbackSavepointAsync([NotNull] string savepointName, CancellationToken cancellationToken = default)
-            => Dependencies.TransactionManager.RollbackSavepointAsync(savepointName, cancellationToken);
+        public virtual Task RollbackToSavepointAsync([NotNull] string savepointName, CancellationToken cancellationToken = default)
+            => Dependencies.TransactionManager.RollbackToSavepointAsync(savepointName, cancellationToken);
 
         /// <summary>
         ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets a value that indicates whether this <see cref="DatabaseFacade"/> instance supports
         ///     database savepoints. If <see langword="false" />, the methods <see cref="CreateSavepointAsync"/>,
-        ///     <see cref="RollbackSavepointAsync"/>
+        ///     <see cref="RollbackToSavepointAsync"/>
         ///     and <see cref="ReleaseSavepointAsync"/> as well as their synchronous counterparts are expected to throw
         ///     <see cref="NotSupportedException"/>.
         /// </summary>

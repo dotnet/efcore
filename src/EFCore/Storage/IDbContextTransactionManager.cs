@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
         /// <param name="savepointName"> The name of the savepoint to roll back to. </param>
-        void RollbackSavepoint([NotNull] string savepointName) => throw new NotSupportedException();
+        void RollbackToSavepoint([NotNull] string savepointName) => throw new NotSupportedException();
 
         /// <summary>
         ///     Rolls back all commands that were executed after the specified savepoint was established.
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="savepointName"> The name of the savepoint to roll back to. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        Task RollbackSavepointAsync([NotNull] string savepointName, CancellationToken cancellationToken = default)
+        Task RollbackToSavepointAsync([NotNull] string savepointName, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets a value that indicates whether this <see cref="IDbContextTransactionManager"/> instance supports
         ///     database savepoints. If <see langword="false" />, the methods <see cref="CreateSavepointAsync"/>,
-        ///     <see cref="RollbackSavepointAsync"/>
+        ///     <see cref="RollbackToSavepointAsync"/>
         ///     and <see cref="ReleaseSavepointAsync"/> as well as their synchronous counterparts are expected to throw
         ///     <see cref="NotSupportedException"/>.
         /// </summary>

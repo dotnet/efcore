@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <inheritdoc />
-        public virtual void Save(string savepointName)
+        public virtual void CreateSavepoint(string name)
         {
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetSavepointSaveSql(savepointName);
+                    command.CommandText = GetCreateSavepointSql(name);
                     command.ExecuteNonQuery();
                 }
 
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <inheritdoc />
-        public virtual async Task SaveAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual async Task CreateSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetSavepointSaveSql(savepointName);
+                    command.CommandText = GetCreateSavepointSql(name);
                     await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
                 }
 
@@ -356,10 +356,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
         /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetSavepointSaveSql([NotNull] string name) => "SAVEPOINT " + name;
+        protected virtual string GetCreateSavepointSql([NotNull] string name) => "SAVEPOINT " + name;
 
         /// <inheritdoc />
-        public virtual void Rollback(string savepointName)
+        public virtual void RollbackToSavepoint(string name)
         {
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetSavepointRollbackSql(savepointName);
+                    command.CommandText = GetRollbackToSavepointSql(name);
                     command.ExecuteNonQuery();
                 }
 
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <inheritdoc />
-        public virtual async Task RollbackAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual async Task RollbackToSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetSavepointRollbackSql(savepointName);
+                    command.CommandText = GetRollbackToSavepointSql(name);
                     await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
                 }
 
@@ -453,10 +453,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
         /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetSavepointRollbackSql([NotNull] string name) => "ROLLBACK TO " + name;
+        protected virtual string GetRollbackToSavepointSql([NotNull] string name) => "ROLLBACK TO " + name;
 
         /// <inheritdoc />
-        public virtual void Release(string savepointName)
+        public virtual void ReleaseSavepoint(string name)
         {
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetSavepointReleaseSql(savepointName);
+                    command.CommandText = GetReleaseSavepointSql(name);
                     command.ExecuteNonQuery();
                 }
 
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <inheritdoc />
-        public virtual async Task ReleaseAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual async Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetSavepointReleaseSql(savepointName);
+                    command.CommandText = GetReleaseSavepointSql(name);
                     await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
                 }
 
@@ -550,13 +550,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         SQL statement which releases a savepoint with the given name.
         ///     </para>
         ///     <para>
-        ///         If savepoint release isn't supported, <see cref="Release "/> and <see cref="ReleaseAsync "/> should
+        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint "/> and <see cref="ReleaseSavepointAsync "/> should
         ///         be overridden to do nothing.
         ///     </para>
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
         /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetSavepointReleaseSql([NotNull] string name) => "RELEASE SAVEPOINT " + name;
+        protected virtual string GetReleaseSavepointSql([NotNull] string name) => "RELEASE SAVEPOINT " + name;
 
         /// <inheritdoc />
         public virtual bool AreSavepointsSupported => true;

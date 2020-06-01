@@ -126,11 +126,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         /// <inheritdoc />
-        public virtual void RollbackSavepoint(string savepointName)
+        public virtual void RollbackToSavepoint(string savepointName)
             => _logger.TransactionIgnoredWarning();
 
         /// <inheritdoc />
-        public virtual Task RollbackSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual Task RollbackToSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
         {
             _logger.TransactionIgnoredWarning();
             return Task.CompletedTask;

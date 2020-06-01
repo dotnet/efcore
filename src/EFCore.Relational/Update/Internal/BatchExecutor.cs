@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                     if (transaction?.AreSavepointsSupported == true)
                     {
-                        transaction.Save(SavepointName);
+                        transaction.CreateSavepoint(SavepointName);
                         createdSavepoint = true;
                     }
                 }
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (createdSavepoint)
                 {
-                    transaction.Rollback(SavepointName);
+                    transaction.RollbackToSavepoint(SavepointName);
                 }
 
                 throw;
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (createdSavepoint)
                 {
-                    transaction.Release(SavepointName);
+                    transaction.ReleaseSavepoint(SavepointName);
                 }
                 else if (beganTransaction)
                 {
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                     if (transaction?.AreSavepointsSupported == true)
                     {
-                        await transaction.SaveAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                        await transaction.CreateSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                         createdSavepoint = true;
                     }
                 }
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (createdSavepoint)
                 {
-                    await transaction.RollbackAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                    await transaction.RollbackToSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                 }
 
                 throw;
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (createdSavepoint)
                 {
-                    await transaction.ReleaseAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                    await transaction.ReleaseSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                 }
                 else if (beganTransaction)
                 {

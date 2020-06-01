@@ -186,9 +186,9 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public void RollbackSavepoint(string savepointName) => RollbackSavepointCalls++;
+            public void RollbackToSavepoint(string savepointName) => RollbackSavepointCalls++;
 
-            public Task RollbackSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+            public Task RollbackToSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
             {
                 RollbackSavepointCalls++;
                 return Task.CompletedTask;
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
             var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
 
-            context.Database.RollbackSavepoint("foo");
+            context.Database.RollbackToSavepoint("foo");
 
             Assert.Equal(1, manager.RollbackSavepointCalls);
         }
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore
             var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
 
-            await context.Database.RollbackSavepointAsync("foo");
+            await context.Database.RollbackToSavepointAsync("foo");
 
             Assert.Equal(1, manager.RollbackSavepointCalls);
         }

@@ -391,11 +391,11 @@ namespace Microsoft.EntityFrameworkCore
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 if (async)
                 {
-                    await contextTransaction.SaveAsync("dummy");
+                    await contextTransaction.CreateSavepointAsync("dummy");
                 }
                 else
                 {
-                    contextTransaction.Save("dummy");
+                    contextTransaction.CreateSavepoint("dummy");
                 }
 
                 AssertCreateSavepoint(context, contextTransaction, interceptor, async);
@@ -417,22 +417,22 @@ namespace Microsoft.EntityFrameworkCore
                     : context.Database.BeginTransaction();
                 if (async)
                 {
-                    await contextTransaction.SaveAsync("dummy");
+                    await contextTransaction.CreateSavepointAsync("dummy");
                 }
                 else
                 {
-                    contextTransaction.Save("dummy");
+                    contextTransaction.CreateSavepoint("dummy");
                 }
                 interceptor.Reset();
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 if (async)
                 {
-                    await contextTransaction.RollbackAsync("dummy");
+                    await contextTransaction.RollbackToSavepointAsync("dummy");
                 }
                 else
                 {
-                    contextTransaction.Rollback("dummy");
+                    contextTransaction.RollbackToSavepoint("dummy");
                 }
 
                 AssertRollbackToSavepoint(context, contextTransaction, interceptor, async);
@@ -454,22 +454,22 @@ namespace Microsoft.EntityFrameworkCore
                     : context.Database.BeginTransaction();
                 if (async)
                 {
-                    await contextTransaction.SaveAsync("dummy");
+                    await contextTransaction.CreateSavepointAsync("dummy");
                 }
                 else
                 {
-                    contextTransaction.Save("dummy");
+                    contextTransaction.CreateSavepoint("dummy");
                 }
                 interceptor.Reset();
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 if (async)
                 {
-                    await contextTransaction.ReleaseAsync("dummy");
+                    await contextTransaction.ReleaseSavepointAsync("dummy");
                 }
                 else
                 {
-                    contextTransaction.Release("dummy");
+                    contextTransaction.ReleaseSavepoint("dummy");
                 }
 
                 AssertReleaseSavepoint(context, contextTransaction, interceptor, async);
