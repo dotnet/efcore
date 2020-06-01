@@ -74,15 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> Logger { get; }
 
-        /// <summary>
-        ///     A correlation ID that allows this transaction to be identified and
-        ///     correlated across multiple database calls.
-        /// </summary>
+        /// <inheritdoc />
         public virtual Guid TransactionId { get; }
 
-        /// <summary>
-        ///     Commits all changes made to the database in the current transaction.
-        /// </summary>
+        /// <inheritdoc />
         public virtual void Commit()
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -125,9 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ClearTransaction();
         }
 
-        /// <summary>
-        ///     Discards all changes made to the database in the current transaction.
-        /// </summary>
+        /// <inheritdoc />
         public virtual void Rollback()
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -170,11 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ClearTransaction();
         }
 
-        /// <summary>
-        ///     Commits all changes made to the database in the current transaction asynchronously.
-        /// </summary>
-        /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <inheritdoc />
         public virtual async Task CommitAsync(CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -223,11 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             await ClearTransactionAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>
-        ///     Discards all changes made to the database in the current transaction asynchronously.
-        /// </summary>
-        /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <inheritdoc />
         public virtual async Task RollbackAsync(CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -276,9 +261,94 @@ namespace Microsoft.EntityFrameworkCore.Storage
             await ClearTransactionAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        /// <inheritdoc />
+        public virtual void Save(string savepointName)
+        {
+            using var command = Connection.DbConnection.CreateCommand();
+            command.Transaction = _dbTransaction;
+            command.CommandText = GetSavepointSaveSql(savepointName);
+            command.ExecuteNonQuery();
+        }
+
+        /// <inheritdoc />
+        public virtual Task SaveAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            using var command = Connection.DbConnection.CreateCommand();
+            command.Transaction = _dbTransaction;
+            command.CommandText = GetSavepointSaveSql(savepointName);
+            return command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     When implemented in a provider supporting transaction savepoints, this method should return an
+        ///     SQL statement which creates a savepoint with the given name.
         /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        protected virtual string GetSavepointSaveSql([NotNull] string name) => "SAVEPOINT " + name;
+
+        /// <inheritdoc />
+        public virtual void Rollback(string savepointName)
+        {
+            using var command = Connection.DbConnection.CreateCommand();
+            command.Transaction = _dbTransaction;
+            command.CommandText = GetSavepointRollbackSql(savepointName);
+            command.ExecuteNonQuery();
+        }
+
+        /// <inheritdoc />
+        public virtual Task RollbackAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            using var command = Connection.DbConnection.CreateCommand();
+            command.Transaction = _dbTransaction;
+            command.CommandText = GetSavepointRollbackSql(savepointName);
+            return command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        /// <summary>
+        ///     When implemented in a provider supporting transaction savepoints, this method should return an
+        ///     SQL statement which rolls back a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        protected virtual string GetSavepointRollbackSql([NotNull] string name) => "ROLLBACK TO " + name;
+
+        /// <inheritdoc />
+        public virtual void Release(string savepointName)
+        {
+            using var command = Connection.DbConnection.CreateCommand();
+            command.Transaction = _dbTransaction;
+            command.CommandText = GetSavepointReleaseSql(savepointName);
+            command.ExecuteNonQuery();
+        }
+
+        /// <inheritdoc />
+        public virtual Task ReleaseAsync(string savepointName, CancellationToken cancellationToken = default)
+        {
+            using var command = Connection.DbConnection.CreateCommand();
+            command.Transaction = _dbTransaction;
+            command.CommandText = GetSavepointReleaseSql(savepointName);
+            return command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         When implemented in a provider supporting transaction savepoints, this method should return an
+        ///         SQL statement which releases a savepoint with the given name.
+        ///     </para>
+        ///     <para>
+        ///         If savepoint release isn't supported, <see cref="Release "/> and <see cref="ReleaseAsync "/> should
+        ///         be overridden to do nothing.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        protected virtual string GetSavepointReleaseSql([NotNull] string name) => "RELEASE SAVEPOINT " + name;
+
+        /// <inheritdoc />
+        public virtual bool AreSavepointsSupported => true;
+
+        /// <inheritdoc />
         public virtual void Dispose()
         {
             if (!_disposed)
@@ -300,9 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public virtual async ValueTask DisposeAsync()
         {
             if (!_disposed)
