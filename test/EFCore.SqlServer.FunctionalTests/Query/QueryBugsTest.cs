@@ -5683,7 +5683,7 @@ WHERE [f].[String] = N'1337'");
                 AssertSql(
                     @"SELECT [t].[Id], [t].[Nombre]
 FROM [TipoServicio9582] AS [t]
-WHERE CHARINDEX('lla', [t].[Nombre]) > 0");
+WHERE [t].[Nombre] LIKE '%lla%'");
             }
         }
 

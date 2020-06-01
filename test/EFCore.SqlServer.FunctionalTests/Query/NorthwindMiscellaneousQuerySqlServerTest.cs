@@ -2772,7 +2772,7 @@ WHERE [o].[OrderDate] > @__p_0");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__NewLine_0 = N'') OR (CHARINDEX(@__NewLine_0, [c].[CustomerID]) > 0)");
+WHERE (@__NewLine_0 LIKE N'') OR (CHARINDEX(@__NewLine_0, [c].[CustomerID]) > 0)");
         }
 
         public override async Task Concat_string_int(bool async)
@@ -3150,7 +3150,7 @@ ORDER BY (
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(10), [o].[EmployeeID])) > 0)");
+WHERE [o].[OrderDate] IS NOT NULL AND (CONVERT(VARCHAR(10), [o].[EmployeeID]) LIKE N'%10%')");
         }
 
         public override async Task Select_expression_long_to_string(bool async)

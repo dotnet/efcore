@@ -59,7 +59,7 @@ WHERE [c].[City] = N'London'
 INTERSECT
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Customers] AS [c0]
-WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");
+WHERE [c0].[ContactName] LIKE N'%Thomas%'");
         }
 
         public override async Task Except(bool async)
@@ -73,7 +73,7 @@ WHERE [c].[City] = N'London'
 EXCEPT
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Customers] AS [c0]
-WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");
+WHERE [c0].[ContactName] LIKE N'%Thomas%'");
         }
 
         public override async Task Union_OrderBy_Skip_Take(bool async)
@@ -112,7 +112,7 @@ FROM (
     FROM [Customers] AS [c0]
     WHERE [c0].[City] = N'London'
 ) AS [t]
-WHERE CHARINDEX(N'Thomas', [t].[ContactName]) > 0");
+WHERE [t].[ContactName] LIKE N'%Thomas%'");
         }
 
         public override async Task Union_Skip_Take_OrderBy_ThenBy_Where(bool async)
@@ -137,7 +137,7 @@ FROM (
     ORDER BY [t].[Region], [t].[City]
     OFFSET @__p_0 ROWS
 ) AS [t0]
-WHERE CHARINDEX(N'Thomas', [t0].[ContactName]) > 0
+WHERE [t0].[ContactName] LIKE N'%Thomas%'
 ORDER BY [t0].[Region], [t0].[City]");
         }
 
@@ -176,7 +176,7 @@ WHERE [c1].[City] = N'Mannheim'");
 INTERSECT
 SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c1]
-WHERE CHARINDEX(N'Thomas', [c1].[ContactName]) > 0");
+WHERE [c1].[ContactName] LIKE N'%Thomas%'");
         }
 
         [ConditionalTheory]
@@ -243,7 +243,7 @@ FROM (
     FROM [Customers] AS [c0]
     WHERE [c0].[City] = N'London'
 ) AS [t]
-WHERE CHARINDEX(N'Hanover', [t].[Address]) > 0");
+WHERE [t].[Address] LIKE N'%Hanover%'");
         }
 
         public override async Task Union_Select_scalar(bool async)

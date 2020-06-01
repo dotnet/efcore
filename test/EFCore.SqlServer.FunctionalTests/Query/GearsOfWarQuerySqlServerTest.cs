@@ -1319,7 +1319,7 @@ WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
-        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND (CHARINDEX(N'Lancer', [w].[Name]) > 0)
+        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')
     ) AS [t]) = CAST(1 AS bit))
 ORDER BY [g].[Nickname]");
         }
@@ -1334,7 +1334,7 @@ FROM [Gears] AS [g]
 WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
     SELECT DISTINCT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
-    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND (CHARINDEX(N'Lancer', [w].[Name]) > 0)) = CAST(1 AS bit))
+    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')) = CAST(1 AS bit))
 ORDER BY [g].[Nickname]");
         }
 
@@ -1350,7 +1350,7 @@ WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
-        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND (CHARINDEX(N'Lancer', [w].[Name]) > 0)
+        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')
     ) AS [t]) = CAST(1 AS bit))
 ORDER BY [g].[Nickname]");
         }
@@ -1715,7 +1715,7 @@ WHERE ([g].[Nickname] = N'Marcus') AND ([c].[Location] = 'Jacinto''s location')"
             AssertSql(
                 @"SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE CHARINDEX('Jacinto', [c].[Location]) > 0");
+WHERE [c].[Location] LIKE '%Jacinto%'");
         }
 
         public override async Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool async)
@@ -1725,7 +1725,7 @@ WHERE CHARINDEX('Jacinto', [c].[Location]) > 0");
             AssertSql(
                 @"SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE CHARINDEX('Add', COALESCE([c].[Location], '') + 'Added') > 0");
+WHERE COALESCE([c].[Location], '') + 'Added' LIKE '%Add%'");
         }
 
         public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
@@ -2007,7 +2007,7 @@ END = CAST(1 AS bit)");
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
-WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) OR (CHARINDEX(N'Cole', [t].[Note]) > 0)");
+WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) OR ([t].[Note] LIKE N'%Cole%')");
         }
 
         public override async Task Optional_navigation_type_compensation_works_with_binary_and_expression(bool async)
@@ -2016,7 +2016,7 @@ WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) OR (CHARINDEX(N'Cole', [t].[Note]) >
 
             AssertSql(
                 @"SELECT CASE
-    WHEN ([g].[HasSoulPatch] = CAST(1 AS bit)) AND (CHARINDEX(N'Cole', [t].[Note]) > 0) THEN CAST(1 AS bit)
+    WHEN ([g].[HasSoulPatch] = CAST(1 AS bit)) AND ([t].[Note] LIKE N'%Cole%') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Tags] AS [t]
@@ -5080,7 +5080,7 @@ FROM [Gears] AS [g]");
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
-        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND (CHARINDEX(N'Lancer', [w].[Name]) > 0)
+        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')
     ) AS [t])
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
@@ -5094,7 +5094,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
                 @"SELECT (
     SELECT DISTINCT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
-    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND (CHARINDEX(N'Lancer', [w].[Name]) > 0))
+    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%'))
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
         }
@@ -5109,7 +5109,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
-        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND (CHARINDEX(N'Lancer', [w].[Name]) > 0)
+        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')
     ) AS [t])
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
@@ -5782,7 +5782,7 @@ LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 ORDER BY (
     SELECT TOP(1) [w0].[Name]
     FROM [Weapons] AS [w0]
-    WHERE ([g].[FullName] = [w0].[OwnerFullName]) AND (CHARINDEX(N'Gnasher', [w0].[Name]) > 0)), [g].[Nickname], [g].[SquadId], [w].[Id]");
+    WHERE ([g].[FullName] = [w0].[OwnerFullName]) AND ([w0].[Name] LIKE N'%Gnasher%')), [g].[Nickname], [g].[SquadId], [w].[Id]");
         }
 
         public override async Task Anonymous_projection_take_followed_by_projecting_single_element_from_collection_navigation(bool async)
