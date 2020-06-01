@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefaultNetCoreTargetFramework>net5.0</DefaultNetCoreTargetFramework>
+    <DefaultNetCoreTargetFramework>netcoreapp5.0</DefaultNetCoreTargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
