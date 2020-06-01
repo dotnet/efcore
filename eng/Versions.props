@@ -30,6 +30,7 @@
     <IdentityServer4EntityFrameworkVersion>3.0.0</IdentityServer4EntityFrameworkVersion>
     <FxCopAnalyzersVersion>3.0.0</FxCopAnalyzersVersion>
     <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
+    <DotNetAnalyzersDocumentationAnalyzersVersion>1.0.0-beta.59</DotNetAnalyzersDocumentationAnalyzersVersion>
     <BenchmarkDotNetVersion>0.12.0</BenchmarkDotNetVersion>
     <MicrosoftDataSqlClientVersion>2.0.0-preview3.20122.2</MicrosoftDataSqlClientVersion>
     <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>

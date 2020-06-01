@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         * Id
     ///         * [entity name]Id
     ///     </para>
-    ///     If the entity type is owned through a reference navigation property then the corresponding foreign key
-    ///     properties are used.
     ///     <para>
+    ///         If the entity type is owned through a reference navigation property then the corresponding foreign key
+    ///         properties are used.
     ///     </para>
     ///     <para>
     ///         If the entity type is owned through a collection navigation property then a composite primary key

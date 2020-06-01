@@ -411,8 +411,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="targetType"> Entity type to search for in ownership path. </param>
+        /// <returns>
         ///     <see langword="true" /> if <paramref name="targetType" /> is in ownership path of <paramref name="entityType" />,
         ///     otherwise <see langword="false" />.
+        /// </returns>
         public static bool IsInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] IEntityType targetType)
         {
             var owner = entityType;

@@ -123,12 +123,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Registers the given <see cref="DbContext"/> as a service in the <see cref="IServiceCollection" />,
         ///         and enables DbContext pooling for this registration.
         ///     </para>
+        ///     <para>
         ///         DbContext pooling can increase performance in high-throughput scenarios by re-using context instances.
         ///         However, for most application this performance gain is very small.
         ///         Note that when using pooling, the context configuration cannot change between uses, and scoped services
         ///         injected into the context will only be resolved once from the initial scope.
         ///         Only consider using DbContext pooling when performance testing indicates it provides a real boost.
-        ///     <para>
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with ASP.NET Core.
@@ -168,12 +168,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Registers the given <see cref="DbContext"/> as a service in the <see cref="IServiceCollection" />,
         ///         and enables DbContext pooling for this registration.
         ///     </para>
+        ///     <para>
         ///         DbContext pooling can increase performance in high-throughput scenarios by re-using context instances.
         ///         However, for most application this performance gain is very small.
         ///         Note that when using pooling, the context configuration cannot change between uses, and scoped services
         ///         injected into the context will only be resolved once from the initial scope.
         ///         Only consider using DbContext pooling when performance testing indicates it provides a real boost.
-        ///     <para>
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with ASP.NET Core.
@@ -219,12 +219,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Registers the given <see cref="DbContext"/> as a service in the <see cref="IServiceCollection" />,
         ///         and enables DbContext pooling for this registration.
         ///     </para>
+        ///     <para>
         ///         DbContext pooling can increase performance in high-throughput scenarios by re-using context instances.
         ///         However, for most application this performance gain is very small.
         ///         Note that when using pooling, the context configuration cannot change between uses, and scoped services
         ///         injected into the context will only be resolved once from the initial scope.
         ///         Only consider using DbContext pooling when performance testing indicates it provides a real boost.
-        ///     <para>
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with ASP.NET Core.
@@ -272,12 +272,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Registers the given <see cref="DbContext"/> as a service in the <see cref="IServiceCollection" />,
         ///         and enables DbContext pooling for this registration.
         ///     </para>
+        ///     <para>
         ///         DbContext pooling can increase performance in high-throughput scenarios by re-using context instances.
         ///         However, for most application this performance gain is very small.
         ///         Note that when using pooling, the context configuration cannot change between uses, and scoped services
         ///         injected into the context will only be resolved once from the initial scope.
         ///         Only consider using DbContext pooling when performance testing indicates it provides a real boost.
-        ///     <para>
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with ASP.NET Core.

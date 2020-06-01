@@ -66,9 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Blogs.FromSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
-        ///     </para>
+        ///     <code>context.Blogs.FromSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -78,9 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         This overload also accepts DbParameter instances as parameter values. This allows you to use named
         ///         parameters in the SQL query string:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Blogs.FromSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({@searchTerm})", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>
-        ///     </para>
+        ///     <code>context.Blogs.FromSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({@searchTerm})", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source">
@@ -114,16 +110,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
-        ///         LINQ operators - <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM dbo.Blogs").OrderBy(b => b.Name)</code>.
+        ///         LINQ operators:
         ///     </para>
+        ///     <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM dbo.Blogs").OrderBy(b => b.Name)</code>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include interpolated parameter place holders in the SQL query string. Any interpolated parameter values
         ///         you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
-        ///     </para>
+        ///     <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source">

@@ -2,4 +2,5 @@
 <RuleSet Name="EFCore" ToolsVersion="15.0">
   <Include Path="StyleCop.ruleset" Action="Default" />
   <Include Path="FxCop.ruleset" Action="Default" />
+  <Include Path="Documentation.ruleset" Action="Default" />
 </RuleSet>
