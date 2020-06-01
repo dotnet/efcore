@@ -2665,6 +2665,61 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
+        public void InsertDataOperation_required_empty_array()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "Tags" },
+                    Values = new object[,] { { new string[0] } }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    column: \"Tags\","
+                + _eol
+                + "    value: new string[0]);",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Single(o.Columns);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal(new string[0], (string[])o.Values[0, 0]);
+                });
+        }
+
+        [ConditionalFact]
+        public void InsertDataOperation_required_empty_array_composite()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "First Name", "Last Name", "Geometry" },
+                    Values = new object[,] { { "John", "Snow", new string[0] } }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    columns: new[] { \"First Name\", \"Last Name\", \"Geometry\" },"
+                + _eol
+                + "    values: new object[] { \"John\", \"Snow\", new string[0] });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
+                    Assert.Equal("Snow", o.Values[0, 1]);
+                    Assert.Equal(new string[0], (string[])o.Values[0, 2]);
+                });
+        }
+
+        [ConditionalFact]
         public void InsertDataOperation_required_args_composite()
         {
             Test(
