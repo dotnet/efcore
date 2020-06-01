@@ -626,9 +626,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         foreach (InternalEntityEntry dependentEntry in dependents)
                         {
-                            if (!foreignKey.IsOwnership
-                                || (dependentEntry.EntityState != EntityState.Deleted
-                                    && dependentEntry.EntityState != EntityState.Detached))
+                            if ((!foreignKey.IsOwnership
+                                    || (dependentEntry.EntityState != EntityState.Deleted
+                                        && dependentEntry.EntityState != EntityState.Detached))
+                                && (!fromQuery
+                                    || foreignKey.DependentToPrincipal == null
+                                    || dependentEntry.GetCurrentValue(foreignKey.DependentToPrincipal) == null))
                             {
                                 // Add to collection on principal indicated by FK and set inverse navigation
                                 AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
