@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
     public partial class NorthwindData : ISetSource
     {
         private readonly Customer[] _customers;
-        private readonly CustomerView[] _customerViews;
+        private readonly CustomerQuery[] _customerQueries;
         private readonly Employee[] _employees;
         private readonly Product[] _products;
         private readonly Order[] _orders;
@@ -28,14 +28,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             _orders = CreateOrders();
             _orderDetails = CreateOrderDetails();
 
-            var customerViews = new List<CustomerView>();
+            var customerQueries = new List<CustomerQuery>();
+            var customerQueriesWithQueryFilter = new List<CustomerQueryWithQueryFilter>();
 
             foreach (var customer in _customers)
             {
                 customer.Orders = new List<Order>();
 
-                customerViews.Add(
-                    new CustomerView
+                customerQueries.Add(
+                    new CustomerQuery
                     {
                         Address = customer.Address,
                         City = customer.City,
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                     });
             }
 
-            _customerViews = customerViews.ToArray();
+            _customerQueries = customerQueries.ToArray();
 
             foreach (var product in _products)
             {
@@ -114,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 return (IQueryable<TEntity>)_products.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(CustomerView))
+            if (typeof(TEntity) == typeof(CustomerQuery))
             {
-                return (IQueryable<TEntity>)_customerViews.AsQueryable();
+                return (IQueryable<TEntity>)_customerQueries.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(OrderQuery))

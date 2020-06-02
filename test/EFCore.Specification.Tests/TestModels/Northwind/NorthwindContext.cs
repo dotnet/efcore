@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
         public virtual DbSet<Product> Products { get; set; }
-        public virtual DbSet<CustomerView> CustomerQueries { get; set; }
+        public virtual DbSet<CustomerQuery> CustomerQueries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -75,12 +75,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 });
 
             modelBuilder
-                .Entity<CustomerView>()
+                .Entity<CustomerQuery>()
                 .HasNoKey()
                 .ToQuery(
                     () => Customers
                         .Select(
-                            c => new CustomerView
+                            c => new CustomerQuery
                             {
                                 Address = c.Address,
                                 City = c.City,
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                             }));
 
             modelBuilder
-                .Entity<CustomerQuery>()
+                .Entity<CustomerQueryWithQueryFilter>()
                 .HasNoKey()
                 .HasQueryFilter(cq => cq.CompanyName.StartsWith(_searchTerm))
                 .ToQuery(
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                             .Include(c => c.Orders) // ignored
                             .Select(
                                 c =>
-                                    new CustomerQuery
+                                    new CustomerQueryWithQueryFilter
                                     {
                                         CompanyName = c.CompanyName,
                                         OrderCount = c.Orders.Count(),

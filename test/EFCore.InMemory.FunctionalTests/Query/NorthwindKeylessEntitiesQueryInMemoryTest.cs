@@ -17,5 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
+
+        // mapping to view not supported on InMemory
+        public override void KeylessEntity_by_database_view()
+        {
+        }
+
+        public override void Entity_mapped_to_view_on_right_side_of_join()
+        {
+        }
     }
 }

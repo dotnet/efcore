@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new Dictionary<Type, Func<object, object>>
             {
                 { typeof(Customer), e => ((Customer)e)?.CustomerID },
-                { typeof(CustomerView), e => ((CustomerView)e)?.CompanyName },
+                { typeof(CustomerQuery), e => ((CustomerQuery)e)?.CompanyName },
                 { typeof(Order), e => ((Order)e)?.OrderID },
                 { typeof(OrderQuery), e => ((OrderQuery)e)?.CustomerID },
                 { typeof(Employee), e => ((Employee)e)?.EmployeeID },

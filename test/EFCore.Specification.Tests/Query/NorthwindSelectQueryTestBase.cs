@@ -1678,7 +1678,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Select(c => ss.Set<CustomerView>().FirstOrDefault(cv => cv.CompanyName == c.CompanyName)));
+                ss => ss.Set<Customer>().Select(c => ss.Set<CustomerQuery>().FirstOrDefault(cv => cv.CompanyName == c.CompanyName)));
         }
 
         [ConditionalTheory]

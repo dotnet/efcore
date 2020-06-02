@@ -1549,7 +1549,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Contains_over_keyless_entity_throws()
         {
             using var context = CreateContext();
-            Assert.Throws<InvalidOperationException>(() => context.CustomerQueries.Contains(new CustomerView()));
+            Assert.Throws<InvalidOperationException>(() => context.CustomerQueries.Contains(new CustomerQuery()));
         }
 
         [ConditionalTheory]
