@@ -78,22 +78,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
-            var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken);
+            var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken)
+                .ConfigureAwait(false);
             foreach (var entityType in _model.GetEntityTypes())
             {
                 var containerName = entityType.GetContainer();
                 if (containerName != null)
                 {
                     created |= await _cosmosClient.CreateContainerIfNotExistsAsync(
-                        containerName,
-                        GetPartitionKeyStoreName(entityType),
-                        cancellationToken);
+                            containerName,
+                            GetPartitionKeyStoreName(entityType),
+                            cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
 
             if (created)
             {
-                await SeedAsync(cancellationToken);
+                await SeedAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return created;

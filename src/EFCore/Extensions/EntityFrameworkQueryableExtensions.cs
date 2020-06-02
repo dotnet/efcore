@@ -2360,7 +2360,7 @@ namespace Microsoft.EntityFrameworkCore
         public static async Task<TSource[]> ToArrayAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
-            => (await source.ToListAsync(cancellationToken)).ToArray();
+            => (await source.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
 
         #endregion
 
@@ -2937,7 +2937,7 @@ namespace Microsoft.EntityFrameworkCore
 
             await using (var enumerator = source.AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken))
             {
-                while (await enumerator.MoveNextAsync())
+                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                 }
             }

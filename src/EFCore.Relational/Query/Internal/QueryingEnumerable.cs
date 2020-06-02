@@ -311,10 +311,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
                             }
 
-                            await _executionStrategy.ExecuteAsync(true, InitializeReaderAsync, null, _cancellationToken);
+                            await _executionStrategy.ExecuteAsync(true, InitializeReaderAsync, null, _cancellationToken)
+                                .ConfigureAwait(false);
                         }
 
-                        var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync(_cancellationToken);
+                        var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync(_cancellationToken).ConfigureAwait(false);
                         Current = default;
 
                         if (hasNext)
@@ -333,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     break;
                                 }
 
-                                if (!await _dataReader.ReadAsync(_cancellationToken))
+                                if (!await _dataReader.ReadAsync(_cancellationToken).ConfigureAwait(false))
                                 {
                                     _resultCoordinator.HasNext = false;
                                     // Enumeration has ended, materialize last element
@@ -370,7 +371,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             _readerColumns,
                             _relationalQueryContext.Context,
                             _relationalQueryContext.CommandLogger),
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
 
                 _indexMap = BuildIndexMap(_columnNames, _dataReader.DbDataReader);
 
