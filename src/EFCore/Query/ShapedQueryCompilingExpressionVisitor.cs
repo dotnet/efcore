@@ -141,14 +141,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             CancellationToken cancellationToken = default)
         {
             await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
-            if (!await enumerator.MoveNextAsync())
+            if (!await enumerator.MoveNextAsync().ConfigureAwait(false))
             {
                 throw new InvalidOperationException(CoreStrings.SequenceContainsNoElements);
             }
 
             var result = enumerator.Current;
 
-            if (await enumerator.MoveNextAsync())
+            if (await enumerator.MoveNextAsync().ConfigureAwait(false))
             {
                 throw new InvalidOperationException(CoreStrings.SequenceContainsMoreThanOneElement);
             }
@@ -161,14 +161,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             CancellationToken cancellationToken = default)
         {
             await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
-            if (!(await enumerator.MoveNextAsync()))
+            if (!(await enumerator.MoveNextAsync().ConfigureAwait(false)))
             {
                 return default;
             }
 
             var result = enumerator.Current;
 
-            if (await enumerator.MoveNextAsync())
+            if (await enumerator.MoveNextAsync().ConfigureAwait(false))
             {
                 throw new InvalidOperationException(CoreStrings.SequenceContainsMoreThanOneElement);
             }

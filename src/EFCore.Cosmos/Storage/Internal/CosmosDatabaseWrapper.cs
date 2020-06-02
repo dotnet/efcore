@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 entriesSaved.Add(entry);
                 try
                 {
-                    if (await SaveAsync(entry, cancellationToken))
+                    if (await SaveAsync(entry, cancellationToken).ConfigureAwait(false))
                     {
                         rowsAffected++;
                     }
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             foreach (var rootEntry in rootEntriesToSave)
             {
                 if (!entriesSaved.Contains(rootEntry)
-                    && await SaveAsync(rootEntry, cancellationToken))
+                    && await SaveAsync(rootEntry, cancellationToken).ConfigureAwait(false))
                 {
                     rowsAffected++;
                 }

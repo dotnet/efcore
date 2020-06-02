@@ -97,12 +97,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             using (var masterConnection = _connection.CreateMasterConnection())
             {
                 await Dependencies.MigrationCommandExecutor
-                    .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken);
+                    .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken)
+                    .ConfigureAwait(false);
 
                 ClearPool();
             }
 
-            await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken);
+            await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -144,6 +146,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 Dependencies.CurrentContext.Context,
                                 Dependencies.CommandLogger),
                             cancellationToken: ct)
+                        .ConfigureAwait(false)
                     != 0, cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()
@@ -260,7 +263,7 @@ SELECT 1 ELSE SELECT 0");
                         try
                         {
                             using var _ = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-                            await _connection.OpenAsync(ct, errorsExpected: true);
+                            await _connection.OpenAsync(ct, errorsExpected: true).ConfigureAwait(false);
                             opened = true;
 
                             await _rawSqlCommandBuilder
@@ -272,7 +275,8 @@ SELECT 1 ELSE SELECT 0");
                                         null,
                                         Dependencies.CurrentContext.Context,
                                         Dependencies.CommandLogger),
-                                    ct);
+                                    ct)
+                                .ConfigureAwait(false);
 
                             return true;
                         }
@@ -290,13 +294,13 @@ SELECT 1 ELSE SELECT 0");
                                 throw;
                             }
 
-                            await Task.Delay(RetryDelay, ct);
+                            await Task.Delay(RetryDelay, ct).ConfigureAwait(false);
                         }
                         finally
                         {
                             if (opened)
                             {
-                                await _connection.CloseAsync();
+                                await _connection.CloseAsync().ConfigureAwait(false);
                             }
                         }
                     }
@@ -369,7 +373,8 @@ SELECT 1 ELSE SELECT 0");
 
             using var masterConnection = _connection.CreateMasterConnection();
             await Dependencies.MigrationCommandExecutor
-                .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken);
+                .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         private IReadOnlyList<MigrationCommand> CreateDropCommands()
