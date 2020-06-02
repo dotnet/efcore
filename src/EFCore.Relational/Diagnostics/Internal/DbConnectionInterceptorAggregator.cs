@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].ConnectionOpeningAsync(connection, eventData, result, cancellationToken);
+                    result = await _interceptors[i].ConnectionOpeningAsync(connection, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -80,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    await _interceptors[i].ConnectionOpenedAsync(connection, eventData, cancellationToken);
+                    await _interceptors[i].ConnectionOpenedAsync(connection, eventData, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
 
@@ -104,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].ConnectionClosingAsync(connection, eventData, result);
+                    result = await _interceptors[i].ConnectionClosingAsync(connection, eventData, result)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -126,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    await _interceptors[i].ConnectionClosedAsync(connection, eventData);
+                    await _interceptors[i].ConnectionClosedAsync(connection, eventData)
+                        .ConfigureAwait(false);
                 }
             }
 
@@ -147,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    await _interceptors[i].ConnectionFailedAsync(connection, eventData, cancellationToken);
+                    await _interceptors[i].ConnectionFailedAsync(connection, eventData, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
         }

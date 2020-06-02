@@ -595,7 +595,8 @@ namespace Microsoft.EntityFrameworkCore
 
             try
             {
-                var entitiesSaved = await DbContextDependencies.StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+                var entitiesSaved = await DbContextDependencies.StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken)
+                    .ConfigureAwait(false);
 
                 DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
 
@@ -711,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             foreach (var service in GetResettableServices())
             {
-                await service.ResetStateAsync(cancellationToken);
+                await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
 
             _disposed = true;
@@ -924,7 +925,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
 
-            await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken);
+            await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
+                .ConfigureAwait(false);
 
             return entry;
         }
@@ -1128,7 +1130,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
 
-            await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken);
+            await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
+                .ConfigureAwait(false);
 
             return entry;
         }
@@ -1456,7 +1459,8 @@ namespace Microsoft.EntityFrameworkCore
                 await SetEntityStateAsync(
                     stateManager.GetOrCreateEntry(entity),
                     EntityState.Added,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 

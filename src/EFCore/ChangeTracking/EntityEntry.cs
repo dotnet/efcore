@@ -349,7 +349,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </returns>
         public virtual async Task<PropertyValues> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {
-            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken);
+            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken)
+                .ConfigureAwait(false);
 
             return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
         }
@@ -387,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     A task that represents the asynchronous operation.
         /// </returns>
         public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
-            => Reload(await GetDatabaseValuesAsync(cancellationToken));
+            => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false));
 
         private void Reload(PropertyValues storeValues)
         {

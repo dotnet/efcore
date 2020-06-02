@@ -1,8 +1,14 @@
 <Project>
   <Import Project="..\Directory.Build.props" />
-  
+
   <PropertyGroup>
     <IsPackable>True</IsPackable>
     <IncludeSymbols>True</IncludeSymbols>
+    <CodeAnalysisRuleSet>..\..\rulesets\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="$(FxCopAnalyzersVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
 </Project>

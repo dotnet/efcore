@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     contains the schema for the current model.
         /// </summary>
         /// <returns>
-        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>. 
+        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>.
         /// </returns>
         public abstract bool Exists();
 
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>. 
+        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>.
         /// </returns>
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
         {
@@ -206,9 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
         {
-            if (await ExistsAsync(cancellationToken))
+            if (await ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
-                await DeleteAsync(cancellationToken);
+                await DeleteAsync(cancellationToken).ConfigureAwait(false);
 
                 return true;
             }
@@ -260,24 +260,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                if (!await ExistsAsync(cancellationToken))
+                if (!await ExistsAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    await CreateAsync(cancellationToken);
-                    await CreateTablesAsync(cancellationToken);
+                    await CreateAsync(cancellationToken).ConfigureAwait(false);
+                    await CreateTablesAsync(cancellationToken).ConfigureAwait(false);
 
                     return true;
                 }
 
-                if (!await HasTablesAsync(cancellationToken))
+                if (!await HasTablesAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    await CreateTablesAsync(cancellationToken);
+                    await CreateTablesAsync(cancellationToken).ConfigureAwait(false);
 
                     return true;
                 }
             }
             finally
             {
-                await transactionScope.DisposeAsyncIfAvailable();
+                await transactionScope.DisposeAsyncIfAvailable().ConfigureAwait(false);
             }
 
             return false;
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             try
             {
-                return await ExistsAsync(cancellationToken);
+                return await ExistsAsync(cancellationToken).ConfigureAwait(false);
             }
             catch
             {

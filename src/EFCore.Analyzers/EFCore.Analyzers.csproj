@@ -6,7 +6,6 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
 

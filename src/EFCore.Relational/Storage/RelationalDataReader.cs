@@ -167,10 +167,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     if (!interceptionResult.IsSuppressed)
                     {
-                        await _reader.DisposeAsync();
+                        await _reader.DisposeAsync().ConfigureAwait(false);
                         _command.Parameters.Clear();
-                        await _command.DisposeAsync();
-                        await _connection.CloseAsync();
+                        await _command.DisposeAsync().ConfigureAwait(false);
+                        await _connection.CloseAsync().ConfigureAwait(false);
                     }
                 }
             }

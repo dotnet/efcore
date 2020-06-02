@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].TransactionStartingAsync(connection, eventData, result, cancellationToken);
+                    result = await _interceptors[i].TransactionStartingAsync(connection, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -84,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].TransactionStartedAsync(connection, eventData, result, cancellationToken);
+                    result = await _interceptors[i].TransactionStartedAsync(connection, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -111,7 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].TransactionUsedAsync(connection, eventData, result, cancellationToken);
+                    result = await _interceptors[i].TransactionUsedAsync(connection, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -148,7 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].TransactionCommittingAsync(transaction, eventData, result, cancellationToken);
+                    result = await _interceptors[i].TransactionCommittingAsync(transaction, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -161,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    await _interceptors[i].TransactionCommittedAsync(transaction, eventData, cancellationToken);
+                    await _interceptors[i].TransactionCommittedAsync(transaction, eventData, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
 
@@ -196,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].TransactionRollingBackAsync(transaction, eventData, result, cancellationToken);
+                    result = await _interceptors[i].TransactionRollingBackAsync(transaction, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -209,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    await _interceptors[i].TransactionRolledBackAsync(transaction, eventData, cancellationToken);
+                    await _interceptors[i].TransactionRolledBackAsync(transaction, eventData, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
 
@@ -228,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    await _interceptors[i].TransactionFailedAsync(transaction, eventData, cancellationToken);
+                    await _interceptors[i].TransactionFailedAsync(transaction, eventData, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
         }

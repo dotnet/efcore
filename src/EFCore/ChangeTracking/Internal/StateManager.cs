@@ -1068,7 +1068,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (_concurrencyDetector.EnterCriticalSection())
             {
-                return await _database.SaveChangesAsync(entriesToSave, cancellationToken);
+                return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
 
@@ -1152,7 +1153,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             try
             {
                 SavingChanges = true;
-                var result = await SaveChangesAsync(entriesToSave, cancellationToken);
+                var result = await SaveChangesAsync(entriesToSave, cancellationToken)
+                    .ConfigureAwait(false);
 
                 if (acceptAllChangesOnSuccess)
                 {

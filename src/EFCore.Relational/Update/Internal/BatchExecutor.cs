@@ -145,36 +145,36 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
-                    transaction = await connection.BeginTransactionAsync(cancellationToken);
+                    transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
                     beganTransaction = true;
                 }
                 else
                 {
-                    await connection.OpenAsync(cancellationToken);
+                    await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
                     if (transaction?.AreSavepointsSupported == true)
                     {
-                        await transaction.SaveAsync(SavepointName, cancellationToken);
+                        await transaction.SaveAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                         createdSavepoint = true;
                     }
                 }
 
                 foreach (var batch in commandBatches)
                 {
-                    await batch.ExecuteAsync(connection, cancellationToken);
+                    await batch.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                     rowsAffected += batch.ModificationCommands.Count;
                 }
 
                 if (beganTransaction)
                 {
-                    await transaction.CommitAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
                 }
             }
             catch
             {
                 if (createdSavepoint)
                 {
-                    await transaction.RollbackAsync(SavepointName, cancellationToken);
+                    await transaction.RollbackAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                 }
 
                 throw;
@@ -183,15 +183,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (createdSavepoint)
                 {
-                    await transaction.ReleaseAsync(SavepointName, cancellationToken);
+                    await transaction.ReleaseAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                 }
                 else if (beganTransaction)
                 {
-                    await transaction.DisposeAsync();
+                    await transaction.DisposeAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    await connection.CloseAsync();
+                    await connection.CloseAsync().ConfigureAwait(false);
                 }
             }
 

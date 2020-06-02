@@ -187,11 +187,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _dbTransaction,
                     TransactionId,
                     startTime,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
 
                 if (!interceptionResult.IsSuppressed)
                 {
-                    await _dbTransaction.CommitAsync(cancellationToken);
+                    await _dbTransaction.CommitAsync(cancellationToken).ConfigureAwait(false);
                 }
 
                 await Logger.TransactionCommittedAsync(
@@ -200,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TransactionId,
                     startTime,
                     stopwatch.Elapsed,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -212,12 +214,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     e,
                     startTime,
                     stopwatch.Elapsed,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
 
                 throw;
             }
 
-            await ClearTransactionAsync(cancellationToken);
+            await ClearTransactionAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -237,11 +240,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _dbTransaction,
                     TransactionId,
                     startTime,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
 
                 if (!interceptionResult.IsSuppressed)
                 {
-                    await _dbTransaction.RollbackAsync(cancellationToken);
+                    await _dbTransaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
                 }
 
                 await Logger.TransactionRolledBackAsync(
@@ -250,7 +254,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TransactionId,
                     startTime,
                     stopwatch.Elapsed,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -262,12 +267,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     e,
                     startTime,
                     stopwatch.Elapsed,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
 
                 throw;
             }
 
-            await ClearTransactionAsync(cancellationToken);
+            await ClearTransactionAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -305,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (_transactionOwned)
                 {
-                    await _dbTransaction.DisposeAsync();
+                    await _dbTransaction.DisposeAsync().ConfigureAwait(false);
 
                     Logger.TransactionDisposed(
                         Connection,
@@ -314,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         DateTimeOffset.UtcNow);
                 }
 
-                await ClearTransactionAsync();
+                await ClearTransactionAsync().ConfigureAwait(false);
             }
         }
 
@@ -346,13 +352,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Connection.CurrentTransaction == null || Connection.CurrentTransaction == this,
                 "Connection.CurrentTransaction is unexpected instance");
 
-            await Connection.UseTransactionAsync(null, cancellationToken);
+            await Connection.UseTransactionAsync(null, cancellationToken).ConfigureAwait(false);
 
             if (!_connectionClosed)
             {
                 _connectionClosed = true;
 
-                await Connection.CloseAsync();
+                await Connection.CloseAsync().ConfigureAwait(false);
             }
         }
 

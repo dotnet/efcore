@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 _cosmosQueryContext.InitializeStateManager(_performIdentityResolution);
                             }
 
-                            var hasNext = await _enumerator.MoveNextAsync();
+                            var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
 
                             Current
                                 = hasNext

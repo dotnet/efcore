@@ -100,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken);
+                    var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken)
+                        .ConfigureAwait(false);
 
                     if (valueGenerator.GeneratesTemporaryValues)
                     {

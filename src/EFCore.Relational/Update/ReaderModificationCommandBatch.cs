@@ -278,8 +278,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.Logger),
-                    cancellationToken);
-                await ConsumeAsync(dataReader, cancellationToken);
+                    cancellationToken).ConfigureAwait(false);
+                await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
             }
             catch (DbUpdateException)
             {

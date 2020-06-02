@@ -28,6 +28,7 @@
     <SQLitePCLRawBundleWinsqlite3Version>2.0.3</SQLitePCLRawBundleWinsqlite3Version>
     <SQLitePCLRawCoreVersion>2.0.3</SQLitePCLRawCoreVersion>
     <IdentityServer4EntityFrameworkVersion>3.0.0</IdentityServer4EntityFrameworkVersion>
+    <FxCopAnalyzersVersion>3.0.0</FxCopAnalyzersVersion>
     <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
     <BenchmarkDotNetVersion>0.12.0</BenchmarkDotNetVersion>
     <MicrosoftDataSqlClientVersion>2.0.0-preview3.20122.2</MicrosoftDataSqlClientVersion>

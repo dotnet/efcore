@@ -202,9 +202,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 do
                 {
-                    _bufferedDataRecords.Add(await new BufferedDataRecord().InitializeAsync(_underlyingReader, columns, cancellationToken));
+                    _bufferedDataRecords.Add(
+                        await new BufferedDataRecord().InitializeAsync(_underlyingReader, columns, cancellationToken)
+                            .ConfigureAwait(false));
                 }
-                while (await _underlyingReader.NextResultAsync(cancellationToken));
+                while (await _underlyingReader.NextResultAsync(cancellationToken).ConfigureAwait(false));
 
                 _recordsAffected = _underlyingReader.RecordsAffected;
                 _currentResultSet = _bufferedDataRecords[_currentResultSetNumber];
@@ -884,7 +886,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ReadMetadata();
                 InitializeFields();
 
-                while (await reader.ReadAsync(cancellationToken))
+                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {
                     ReadRow();
                 }
