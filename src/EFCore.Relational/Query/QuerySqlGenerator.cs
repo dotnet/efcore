@@ -413,10 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _relationalCommandBuilder.AppendLine("(");
 
-            if (!_composableSql.IsMatch(fromSqlExpression.Sql))
-            {
-                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
-            }
+            CheckComposableSql(fromSqlExpression.Sql);
 
             using (_relationalCommandBuilder.Indent())
             {
@@ -428,6 +425,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Append(_sqlGenerationHelper.DelimitIdentifier(fromSqlExpression.Alias));
 
             return fromSqlExpression;
+        }
+
+        /// <summary>
+        ///     Checks whether a given SQL string is composable, i.e. can be embedded as a subquery within a
+        ///     larger SQL query.
+        /// </summary>
+        /// <param name="sql"> An SQL string to be checked for composability. </param>
+        /// <exception cref="InvalidOperationException"> The given SQL isn't composable. </exception>
+        protected virtual void CheckComposableSql([NotNull] string sql)
+        {
+            Check.NotNull(sql, nameof(sql));
+
+            if (!_composableSql.IsMatch(sql))
+            {
+                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+            }
         }
 
         /// <inheritdoc />
