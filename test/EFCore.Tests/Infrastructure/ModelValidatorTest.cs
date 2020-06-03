@@ -173,6 +173,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_filter_on_owned_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var queryFilter = (Expression<Func<ReferencedEntity, bool>>)(_ => true);
+            modelBuilder.Entity<SampleEntity>()
+                .OwnsOne(
+                    s => s.ReferencedEntity, eb =>
+                    {
+                        eb.OwnedEntityType.SetQueryFilter(queryFilter);
+                    });
+
+            VerifyError(CoreStrings.BadFilterOwnedType(queryFilter, nameof(ReferencedEntity)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_defining_query_on_keyed_entity_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();

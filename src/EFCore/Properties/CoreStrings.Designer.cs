@@ -1687,6 +1687,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
+        ///     The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the entity that is not owned.
+        /// </summary>
+        public static string BadFilterOwnedType([CanBeNull] object filter, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("BadFilterOwnedType", nameof(filter), nameof(entityType)),
+                filter, entityType);
+
+        /// <summary>
         ///     The entity type '{entityType}' cannot use 'ToQuery' to create a defining query because it also defines a primary key. Defining queries can only be used to back entity types without keys.
         /// </summary>
         public static string DefiningQueryWithKey([CanBeNull] object entityType)

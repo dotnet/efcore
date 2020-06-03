@@ -969,11 +969,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.GetQueryFilter() != null
-                    && entityType.BaseType != null)
+                if (entityType.GetQueryFilter() != null)
                 {
-                    throw new InvalidOperationException(
-                        CoreStrings.BadFilterDerivedType(entityType.GetQueryFilter(), entityType.DisplayName()));
+                    if (entityType.BaseType != null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.BadFilterDerivedType(entityType.GetQueryFilter(), entityType.DisplayName()));
+                    }
+
+                    if (entityType.IsOwned())
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.BadFilterOwnedType(entityType.GetQueryFilter(), entityType.DisplayName()));
+                    }
                 }
 
                 var requiredNavigationWithQueryFilter = entityType.GetNavigations()

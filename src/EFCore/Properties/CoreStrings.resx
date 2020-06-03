@@ -890,6 +890,9 @@
   <data name="BadFilterDerivedType" xml:space="preserve">
     <value>The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type in a hierarchy.</value>
   </data>
+  <data name="BadFilterOwnedType" xml:space="preserve">
+    <value>The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the entity that is not owned.</value>
+  </data>
   <data name="DefiningQueryWithKey" xml:space="preserve">
     <value>The entity type '{entityType}' cannot use 'ToQuery' to create a defining query because it also defines a primary key. Defining queries can only be used to back entity types without keys.</value>
   </data>
