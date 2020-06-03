@@ -457,8 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
                         || (entry.EntityState == EntityState.Added && Equals(_originalValue, entry.GetCurrentValue(property)))))
                 {
-                    // Should be `entry.SetStoreGeneratedValue(property, _currentValue);` but see issue #21041
-                    ((InternalEntityEntry)entry)[property] = _currentValue;
+                    entry.SetStoreGeneratedValue(property, _currentValue);
 
                     return false;
                 }
