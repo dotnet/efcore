@@ -173,9 +173,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
                         // We avoid object here since the result does not get typeMapping from outside.
-                        ?? (left.Type != typeof(object)
-                            ? _typeMappingSource.FindMapping(left.Type)
-                            : _typeMappingSource.FindMapping(right.Type));
+                        ?? (left.Type != typeof(object) ? _typeMappingSource.FindMapping(left.Type) : null)
+                        ?? (right.Type != typeof(object) ? _typeMappingSource.FindMapping(right.Type) : null)
+                        // If we still haven't found anything, unwrap convert to object as a last resort
+                        ?? (UnwrapConvertToObject(left) is SqlExpression leftOperand
+                            ? _typeMappingSource.FindMapping(leftOperand.Type)
+                            : UnwrapConvertToObject(right) is SqlExpression rightOperand
+                                ? _typeMappingSource.FindMapping(rightOperand.Type)
+                                : null);
+
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                     break;
@@ -214,6 +220,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ApplyTypeMapping(right, inferredTypeMapping),
                 resultType,
                 resultTypeMapping);
+
+            static SqlExpression UnwrapConvertToObject(SqlExpression expression)
+                => expression.Type == typeof(object)
+                   && expression is SqlUnaryExpression unaryExpression
+                   && unaryExpression.OperatorType == ExpressionType.Convert
+                    ? unaryExpression.Operand
+                    : null;
         }
 
         /// <inheritdoc />

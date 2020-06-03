@@ -1513,6 +1513,26 @@ FROM [Customers] AS [c]
 WHERE [c].[City] IS NULL AND ([c].[Country] = N'UK')");
         }
 
+        public override async Task Where_compare_null_with_cast_to_object(bool async)
+        {
+            await base.Where_compare_null_with_cast_to_object(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] IS NULL");
+        }
+
+        public override async Task Where_compare_with_both_cast_to_object(bool async)
+        {
+            await base.Where_compare_with_both_cast_to_object(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CAST([c].[City] AS nvarchar(max)) = CAST(N'London' AS nvarchar(max))");
+        }
+
         public override async Task Where_Is_on_same_type(bool async)
         {
             await base.Where_Is_on_same_type(async);
