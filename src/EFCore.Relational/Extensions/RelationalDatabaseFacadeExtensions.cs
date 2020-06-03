@@ -127,9 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Database.ExecuteSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
-        ///     </para>
+        ///     <code>context.Database.ExecuteSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -165,9 +163,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Database.ExecuteSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
-        ///     </para>
+        ///     <code>context.Database.ExecuteSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
@@ -196,9 +192,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
-        ///     </para>
+        ///     <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -258,9 +252,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Database.ExecuteSqlInterpolatedAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
-        ///     </para>
+        ///     <code>context.Database.ExecuteSqlInterpolatedAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
@@ -324,9 +316,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
-        ///     </para>
+        ///     <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -364,9 +354,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <para>
-        ///         <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
-        ///     </para>
+        ///     <code>context.Database.ExecuteSqlRawAsync("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
