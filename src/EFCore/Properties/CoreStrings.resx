@@ -511,7 +511,10 @@
     <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {key} on '{principalType}'.</value>
   </data>
   <data name="DuplicateIndex" xml:space="preserve">
-    <value>The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.</value>
+    <value>The index {indexProperties} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="DuplicateNamedIndex" xml:space="preserve">
+    <value>The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists.</value>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.</value>
@@ -1170,7 +1173,10 @@
     <value>The foreign key {foreignKey} targeting the key {key} on '{principalType}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
   </data>
   <data name="IndexWrongType" xml:space="preserve">
-    <value>The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
+    <value>The index {indexProperties} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
+  </data>
+  <data name="NamedIndexWrongType" xml:space="preserve">
+    <value>The index with name {indexName} cannot be removed from the entity type '{entityType}' because no such index exists on that entity type.</value>
   </data>
   <data name="KeyWrongType" xml:space="preserve">
     <value>The key {key} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>

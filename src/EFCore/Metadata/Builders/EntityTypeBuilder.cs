@@ -258,8 +258,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures an unnamed index on the specified properties. If there is an existing index on the given
-        ///     set of properties, then the existing index will be returned for configuration.
+        ///     Configures an unnamed index on the specified properties.
+        ///     If there is an existing unnamed index on the given
+        ///     list of properties, then the existing index will be
+        ///     returned for configuration.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
@@ -268,8 +270,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
-        ///     Configures an index on the specified properties and with the given name. If there is an existing index on the given
-        ///     set of properties and with the given name, then the existing index will be returned for configuration.
+        ///     Configures an index on the specified properties and with the given name.
+        ///     If there is an existing index on the given list of properties and with
+        ///     the given name, then the existing index will be returned for configuration.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <param name="name"> The name to assign to the index. </param>

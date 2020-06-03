@@ -790,9 +790,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var principalKey = principalEntityType.FindKey(principalProperties);
             if (principalKey == null)
             {
-                var readOnlyPrincipalProperties = principalProperties.AsReadOnly();
                 var index = principalEntityType.GetIndexes()
-                    .Where(i => i.Properties.SequenceEqual(readOnlyPrincipalProperties) && i.IsUnique)
+                    .Where(i => i.Properties.SequenceEqual(principalProperties) && i.IsUnique)
                     .FirstOrDefault();
                 if (index != null)
                 {

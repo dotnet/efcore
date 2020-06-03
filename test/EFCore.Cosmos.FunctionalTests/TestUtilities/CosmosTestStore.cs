@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
             public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) => throw new NotImplementedException();
             public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
-            public IIndex FindIndex(IReadOnlyList<IProperty> properties, string name) => throw new NotImplementedException();
+            public IIndex FindIndex(string name) => throw new NotImplementedException();
             public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
             public IKey FindPrimaryKey() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => null;

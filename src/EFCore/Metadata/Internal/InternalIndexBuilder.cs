@@ -68,7 +68,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var newIndexBuilder = entityTypeBuilder.HasIndex(properties, Metadata.GetConfigurationSource());
+            InternalIndexBuilder newIndexBuilder;
+            if (Metadata.Name == null)
+            {
+                newIndexBuilder = entityTypeBuilder.HasIndex(properties, Metadata.GetConfigurationSource());
+            }
+            else
+            {
+                newIndexBuilder = entityTypeBuilder.HasIndex(properties, Metadata.Name, Metadata.GetConfigurationSource());
+            }
+
             newIndexBuilder?.MergeAnnotationsFrom(Metadata);
 
             var isUniqueConfigurationSource = Metadata.GetIsUniqueConfigurationSource();

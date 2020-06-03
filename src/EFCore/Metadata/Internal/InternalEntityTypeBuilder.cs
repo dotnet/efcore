@@ -1653,9 +1653,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (detachedIndexes != null)
                 {
-                    foreach (var indexBuilderTuple in detachedIndexes)
+                    foreach (var detachedIndex in detachedIndexes)
                     {
-                        indexBuilderTuple.Attach(indexBuilderTuple.Metadata.DeclaringEntityType.Builder);
+                        detachedIndex.Attach(detachedIndex.Metadata.DeclaringEntityType.Builder);
                     }
                 }
 
@@ -2172,7 +2172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalIndexBuilder HasIndex(
             [NotNull] IReadOnlyList<string> propertyNames,
-            [CanBeNull] string name,
+            [NotNull] string name,
             ConfigurationSource configurationSource)
             => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), name, configurationSource);
 
@@ -2184,7 +2184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalIndexBuilder HasIndex(
             [NotNull] IReadOnlyList<MemberInfo> clrMembers, ConfigurationSource configurationSource)
-            => HasIndex(clrMembers, null, configurationSource);
+            => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2194,7 +2194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalIndexBuilder HasIndex(
             [NotNull] IReadOnlyList<MemberInfo> clrMembers,
-            [CanBeNull] string name,
+            [NotNull] string name,
             ConfigurationSource configurationSource)
             => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), name, configurationSource);
 
@@ -2206,7 +2206,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalIndexBuilder HasIndex(
             [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
-            => HasIndex(properties, null, configurationSource);
+        {
+            if (properties == null)
+            {
+                return null;
+            }
+
+            List<InternalIndexBuilder> detachedIndexes = null;
+            var existingIndex = Metadata.FindIndex(properties);
+            if (existingIndex == null)
+            {
+                detachedIndexes = Metadata.FindDerivedIndexes(properties).ToList().Select(DetachIndex).ToList();
+            }
+            else if (existingIndex.DeclaringEntityType != Metadata)
+            {
+                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, null, configurationSource);
+            }
+
+            var indexBuilder = HasIndex(existingIndex, properties, null, configurationSource);
+
+            if (detachedIndexes != null)
+            {
+                foreach (var detachedIndex in detachedIndexes)
+                {
+                    detachedIndex.Attach(detachedIndex.Metadata.DeclaringEntityType.Builder);
+                }
+            }
+
+            return indexBuilder;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2216,19 +2244,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalIndexBuilder HasIndex(
             [CanBeNull] IReadOnlyList<Property> properties,
-            [CanBeNull] string name,
+            [NotNull] string name,
             ConfigurationSource configurationSource)
         {
+            Check.NotEmpty(name, nameof(name));
+
             if (properties == null)
             {
                 return null;
             }
 
             List<InternalIndexBuilder> detachedIndexes = null;
-            var existingIndex = Metadata.FindIndex(properties, name);
+            var existingIndex = Metadata.FindIndex(name);
             if (existingIndex == null)
             {
-                detachedIndexes = Metadata.FindDerivedIndexes(properties, name).ToList().Select(DetachIndex).ToList();
+                detachedIndexes = Metadata.FindDerivedIndexes(name).ToList().Select(DetachIndex).ToList();
             }
             else if (existingIndex.DeclaringEntityType != Metadata)
             {
@@ -2239,9 +2269,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (detachedIndexes != null)
             {
-                foreach (var indexBuilderTuple in detachedIndexes)
+                foreach (var detachedIndex in detachedIndexes)
                 {
-                    indexBuilderTuple.Attach(indexBuilderTuple.Metadata.DeclaringEntityType.Builder);
+                    detachedIndex.Attach(detachedIndex.Metadata.DeclaringEntityType.Builder);
                 }
             }
 
@@ -2256,7 +2286,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (index == null)
             {
-                index = Metadata.AddIndex(properties, name, configurationSource);
+                if (name == null)
+                {
+                    index = Metadata.AddIndex(properties, configurationSource);
+                }
+                else
+                {
+                    index = Metadata.AddIndex(properties, name, configurationSource);
+                }
             }
             else
             {

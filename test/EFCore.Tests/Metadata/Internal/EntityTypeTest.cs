@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
             public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
-            public IIndex FindIndex(IReadOnlyList<IProperty> properties, string name) => throw new NotImplementedException();
+            public IIndex FindIndex(string name) => throw new NotImplementedException();
             public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => throw new NotImplementedException();
             public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
@@ -1512,7 +1512,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void AddIndex_throws_if_duplicate()
+        public void AddIndex_throws_if_duplicate_properties()
         {
             var model = CreateModel();
             var entityType = model.AddEntityType(typeof(Customer));
@@ -1522,10 +1522,100 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateIndex(
-                    "{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).Name,
+                    "{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}",
+                    typeof(Customer).Name,
                     typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType.AddIndex(new[] { property1, property2 })).Message);
+        }
+
+        [ConditionalFact]
+        public void AddIndex_throws_if_duplicate_name()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+            entityType.AddIndex(new[] { property1 }, "NamedIndex");
+
+            Assert.Equal(
+                CoreStrings.DuplicateNamedIndex(
+                    "NamedIndex",
+                    "{'" + Customer.NameProperty.Name + "'}",
+                    typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.AddIndex(new[] { property2 }, "NamedIndex")).Message);
+        }
+
+        [ConditionalFact]
+        public void Can_add_multiple_named_indexes_on_the_same_properties()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+
+            entityType.AddIndex(new[] { property1, property2 }, "Index1");
+            entityType.AddIndex(new[] { property1, property2 }, "Index2");
+        }
+
+        [ConditionalFact]
+        public void RemoveIndex_throws_if_incorrect_properties()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+            entityType.AddIndex(new[] { property1, property2 });
+
+            var anotherIndex = new Index(
+                new List<Property> { (Property)property2 },
+                (EntityType)entityType,
+                ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.IndexWrongType(
+                    "{'" + Customer.NameProperty.Name + "'}",
+                    typeof(Customer).Name,
+                    typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.RemoveIndex(anotherIndex)).Message);
+        }
+
+        [ConditionalFact]
+        public void RemoveIndex_throws_if_incorrect_name()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+            entityType.AddIndex(new[] { property1 }, "NamedIndex");
+
+            var anotherIndex = new Index(
+                new List<Property> { (Property)property1 },
+                "NonExistentIndex",
+                (EntityType)entityType,
+                ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.NamedIndexWrongType("NonExistentIndex", typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.RemoveIndex(anotherIndex)).Message);
+        }
+
+        [ConditionalFact]
+        public void Can_remove_named_index_by_name()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            entityType.AddIndex(new[] { property1 }, "NamedIndex");
+            Assert.Single(entityType.GetIndexes());
+
+            var index = ((EntityType)entityType).RemoveIndex("NamedIndex");
+
+            Assert.Equal("NamedIndex", index.Name);
+            Assert.Empty(entityType.GetIndexes());
         }
 
         [ConditionalFact]

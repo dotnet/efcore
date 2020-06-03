@@ -624,6 +624,64 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Index_returns_same_instance_if_asked_for_twice()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Same(
+                indexBuilder,
+                entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.Explicit));
+        }
+
+        [ConditionalFact]
+        public void Named_index_returns_same_instance_for_clr_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, "TestIndex", ConfigurationSource.Explicit);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Same(
+                indexBuilder,
+                entityBuilder.HasIndex(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "TestIndex", ConfigurationSource.DataAnnotation));
+        }
+
+        [ConditionalFact]
+        public void Named_index_returns_same_instance_for_property_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "TestIndex", ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Same(
+                indexBuilder, entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, "TestIndex", ConfigurationSource.Explicit));
+        }
+
+        [ConditionalFact]
+        public void Named_index_returns_same_instance_if_asked_for_twice()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "TestIndex", ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Same(
+                indexBuilder,
+                entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, "TestIndex", ConfigurationSource.Explicit));
+        }
+
+        [ConditionalFact]
         public void Can_promote_index_to_base()
         {
             var modelBuilder = CreateModelBuilder();

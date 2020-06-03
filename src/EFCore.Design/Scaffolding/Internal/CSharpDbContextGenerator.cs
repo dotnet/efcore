@@ -586,12 +586,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateIndex(IIndex index)
         {
+            var annotations = index.GetAnnotations().ToList();
+
             var lines = new List<string> {
                 $".{nameof(EntityTypeBuilder.HasIndex)}" +
                 $"({_code.Lambda(index.Properties)}, " +
                 $"{_code.Literal(index.GetDatabaseName())})" };
-
-            var annotations = index.GetAnnotations().ToList();
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
 
             foreach (var annotation in CSharpModelGenerator.IgnoredIndexAnnotations)
             {
