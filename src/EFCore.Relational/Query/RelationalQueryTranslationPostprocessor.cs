@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new CollectionJoinApplyingExpressionVisitor(((RelationalQueryCompilationContext)QueryCompilationContext).IsSplitQuery).Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
             query = new CaseSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
+            query = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 
 #pragma warning disable 618
             query = OptimizeSqlExpression(query);

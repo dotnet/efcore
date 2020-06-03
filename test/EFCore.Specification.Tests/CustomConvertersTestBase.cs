@@ -483,6 +483,52 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
+        {
+            using var context = CreateContext();
+            var query1 = context.Set<Blog>().Where(b => b.IsVisible == true).ToList();
+            var query2 = context.Set<Blog>().Where(b => b.IsVisible != true).ToList();
+
+            var result1 = Assert.Single(query1);
+            Assert.Equal("http://blog.com", result1.Url);
+
+            var result2 = Assert.Single(query2);
+            Assert.Equal("http://rssblog.com", result2.Url);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var result = context.Set<Blog>().Select(b => b.IsVisible).ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Contains(true, result);
+            Assert.Contains(false, result);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_conditional_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => (b.IsVisible ? "Foo" : "Bar") == "Foo").ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
+        }
+
+        [ConditionalFact(Skip = "Issue #21142")]
+        public virtual void Select_conditional_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var result = context.Set<Blog>().Select(b => b.IsVisible ? "Foo" : "Bar").ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Contains("Foo", result);
+            Assert.Contains("Bar", result);
+        }
+
+        [ConditionalFact]
         public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
         {
             using var context = CreateContext();

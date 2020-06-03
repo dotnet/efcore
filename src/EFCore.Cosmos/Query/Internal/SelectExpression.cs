@@ -60,6 +60,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _orderings = orderings;
         }
 
+        private SelectExpression(
+            List<ProjectionExpression> projections,
+            RootReferenceExpression fromExpression,
+            List<OrderingExpression> orderings,
+            string container)
+            : this(projections, fromExpression, orderings)
+        {
+            Container = container;
+        }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -494,6 +504,39 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SelectExpression Update(
+            [NotNull] List<ProjectionExpression> projections,
+            [NotNull] RootReferenceExpression fromExpression,
+            [CanBeNull] SqlExpression predicate,
+            [CanBeNull] List<OrderingExpression> orderings,
+            [CanBeNull] SqlExpression limit,
+            [CanBeNull] SqlExpression offset)
+        {
+            Check.NotNull(projections, nameof(projections));
+            Check.NotNull(fromExpression, nameof(fromExpression));
+
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            foreach (var kvp in _projectionMapping)
+            {
+                projectionMapping[kvp.Key] = kvp.Value;
+            }
+
+            return new SelectExpression(projections, fromExpression, orderings, Container)
+            {
+                _projectionMapping = projectionMapping,
+                Predicate = predicate,
+                Offset = offset,
+                Limit = limit,
+                IsDistinct = IsDistinct,
+            };
         }
     }
 }

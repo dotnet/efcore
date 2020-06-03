@@ -2652,7 +2652,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(projections, nameof(projections));
             Check.NotNull(tables, nameof(tables));
 
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>(_projectionMapping.Count);
             foreach (var kvp in _projectionMapping)
             {
                 projectionMapping[kvp.Key] = kvp.Value;

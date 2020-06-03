@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Value_conversion_is_appropriately_used_for_left_join_condition();
         }
 
-        [ConditionalFact(Skip = "Issue#18147")]
+        [ConditionalFact]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
@@ -124,7 +124,7 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
         }
 
-        [ConditionalFact(Skip = "Issue#18147")]
+        [ConditionalFact]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
@@ -135,7 +135,7 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
         }
 
-        [ConditionalFact(Skip = "Issue#18147")]
+        [ConditionalFact]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
