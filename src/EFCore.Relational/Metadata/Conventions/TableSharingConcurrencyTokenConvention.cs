@@ -107,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 !exampleProperty.IsNullable).Builder;
                         concurrencyShadowPropertyBuilder
                             .HasColumnName(concurrencyColumnName)
+                            .HasColumnType(exampleProperty.GetColumnType())
                             ?.IsConcurrencyToken(true)
                             ?.ValueGenerated(exampleProperty.ValueGenerated);
 #pragma warning restore EF1001 // Internal EF Core API usage.
@@ -141,8 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    if (property.IsConcurrencyToken
-                        && (property.ValueGenerated & ValueGenerated.OnUpdate) != 0)
+                    if (property.IsConcurrencyToken)
                     {
                         if (!concurrencyColumnsToProperties.TryGetValue(table, out var columnToProperties))
                         {

@@ -448,7 +448,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameConcurrencyTokenMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder.Model);
+                    nameof(Animal), "_TableSharingConcurrencyTokenConvention_Breed",
+                    nameof(Dog), nameof(Dog.Breed),
+                    nameof(Cat.Breed), nameof(Animal)),
+                modelBuilder.Model);
         }
 
         [ConditionalFact]
