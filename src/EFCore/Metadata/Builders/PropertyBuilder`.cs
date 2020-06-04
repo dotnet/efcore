@@ -233,6 +233,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.ValueGeneratedOnUpdate();
 
         /// <summary>
+        ///     Configures a property to have a value generated under certain conditions when saving an existing entity.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> ValueGeneratedOnUpdateSometimes()
+            => (PropertyBuilder<TProperty>)base.ValueGeneratedOnUpdateSometimes();
+
+        /// <summary>
         ///     <para>
         ///         Sets the backing field to use for this property.
         ///     </para>

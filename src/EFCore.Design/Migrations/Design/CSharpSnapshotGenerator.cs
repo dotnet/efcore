@@ -525,7 +525,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 ? ".ValueGeneratedOnAdd()"
                                 : property.ValueGenerated == ValueGenerated.OnUpdate
                                     ? ".ValueGeneratedOnUpdate()"
-                                    : ".ValueGeneratedOnAddOrUpdate()");
+                                    : property.ValueGenerated == ValueGenerated.OnUpdateSometimes
+                                        ? ".ValueGeneratedOnUpdateSometimes()"
+                                        : ".ValueGeneratedOnAddOrUpdate()");
                 }
 
                 GeneratePropertyAnnotations(property, stringBuilder);

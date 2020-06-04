@@ -304,8 +304,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var valueBuffer = new ValueBuffer(valuesArray);
             var entity = entityType.HasClrType()
-                ? EntityMaterializerSource.GetMaterializer(entityType)(
-                    new MaterializationContext(valueBuffer, Context))
+                ? EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context))
                 : null;
 
             var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
@@ -1086,8 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual int SaveChanges(
-            [NotNull] IList<IUpdateEntry> entriesToSave)
+        protected virtual int SaveChanges([NotNull] IList<IUpdateEntry> entriesToSave)
         {
             using (_concurrencyDetector.EnterCriticalSection())
             {
