@@ -617,14 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var propertyNames = uniqueConstraint.Columns.Select(GetPropertyName).ToArray();
-            var indexBuilder = builder.HasIndex(propertyNames).IsUnique();
-
-            if (!string.IsNullOrEmpty(uniqueConstraint.Name)
-                && uniqueConstraint.Name != indexBuilder.Metadata.GetDefaultDatabaseName())
-            {
-                indexBuilder.HasName(uniqueConstraint.Name);
-            }
-
+            var indexBuilder = builder.HasIndex(propertyNames, uniqueConstraint.Name).IsUnique();
             indexBuilder.Metadata.AddAnnotations(uniqueConstraint.GetAnnotations());
 
             return indexBuilder;
@@ -674,18 +667,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var propertyNames = index.Columns.Select(GetPropertyName).ToArray();
-            var indexBuilder = builder.HasIndex(propertyNames)
+            var indexBuilder =
+                index.Name == null
+                    ? builder.HasIndex(propertyNames)
+                    : builder.HasIndex(propertyNames, index.Name)
                 .IsUnique(index.IsUnique);
 
             if (index.Filter != null)
             {
                 indexBuilder.HasFilter(index.Filter);
-            }
-
-            if (!string.IsNullOrEmpty(index.Name)
-                && index.Name != indexBuilder.Metadata.GetDefaultDatabaseName())
-            {
-                indexBuilder.HasName(index.Name);
             }
 
             indexBuilder.Metadata.AddAnnotations(index.GetAnnotations());
@@ -803,8 +793,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var principalKey = principalEntityType.FindKey(principalProperties);
             if (principalKey == null)
             {
-                var index = principalEntityType.FindIndex(principalProperties.AsReadOnly());
-                if (index?.IsUnique == true)
+                var index = principalEntityType.GetIndexes()
+                    .Where(i => i.Properties.SequenceEqual(principalProperties) && i.IsUnique)
+                    .FirstOrDefault();
+                if (index != null)
                 {
                     // ensure all principal properties are non-nullable even if the columns
                     // are nullable on the database. EF's concept of a key requires this.
@@ -844,9 +836,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 dependentProperties, principalKey, principalEntityType);
 
             var dependentKey = dependentEntityType.FindKey(dependentProperties);
-            var dependentIndex = dependentEntityType.FindIndex(dependentProperties);
+            var dependentIndexes = dependentEntityType.GetIndexes()
+                .Where(i => i.Properties.SequenceEqual(dependentProperties));
             newForeignKey.IsUnique = dependentKey != null
-                                     || dependentIndex?.IsUnique == true;
+                                     || dependentIndexes.Any(i => i.IsUnique);
 
             if (!string.IsNullOrEmpty(foreignKey.Name)
                 && foreignKey.Name != newForeignKey.GetDefaultName())

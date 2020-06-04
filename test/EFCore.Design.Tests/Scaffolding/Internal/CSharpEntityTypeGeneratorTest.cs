@@ -424,11 +424,9 @@ namespace TestNamespace
                             x.Property<int>("B");
                             x.Property<int>("C");
                             x.HasKey("Id");
-                            x.HasIndex("A", "B")
-                                .HasName("IndexOnAAndB")
+                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
                                 .IsUnique();
-                            x.HasIndex("B", "C")
-                                .HasName("IndexOnBAndC");
+                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC");
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
@@ -481,11 +479,9 @@ namespace TestNamespace
                             x.Property<int>("B");
                             x.Property<int>("C");
                             x.HasKey("Id");
-                            x.HasIndex("A", "B")
-                                .HasName("IndexOnAAndB")
+                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
                                 .IsUnique();
-                            x.HasIndex("B", "C")
-                                .HasName("IndexOnBAndC")
+                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL");
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },

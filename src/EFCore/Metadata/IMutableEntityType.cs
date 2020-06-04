@@ -213,18 +213,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableSkipNavigation RemoveSkipNavigation([NotNull] IMutableSkipNavigation navigation);
 
         /// <summary>
-        ///     Adds an index to this entity type.
+        ///     Adds an unnamed index to this entity type.
         /// </summary>
         /// <param name="properties"> The properties that are to be indexed. </param>
         /// <returns> The newly created index. </returns>
         IMutableIndex AddIndex([NotNull] IReadOnlyList<IMutableProperty> properties);
 
         /// <summary>
-        ///     Gets the index defined on the given properties. Returns <see langword="null" /> if no index is defined.
+        ///     Adds a named index to this entity type.
+        /// </summary>
+        /// <param name="properties"> The properties that are to be indexed. </param>
+        /// <param name="name"> The name of the index. </param>
+        /// <returns> The newly created index. </returns>
+        IMutableIndex AddIndex(
+            [NotNull] IReadOnlyList<IMutableProperty> properties, [NotNull] string name);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
         new IMutableIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+
+        /// <summary>
+        ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
+        /// </summary>
+        /// <param name="name"> The name of the index. </param>
+        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        new IMutableIndex FindIndex([NotNull] string name);
 
         /// <summary>
         ///     Gets the indexes defined on this entity type.

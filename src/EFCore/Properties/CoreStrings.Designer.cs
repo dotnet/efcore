@@ -723,12 +723,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKey, entityType, duplicateEntityType, key, principalType);
 
         /// <summary>
-        ///     The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.
+        ///     The index {indexProperties} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string DuplicateIndex([CanBeNull] object index, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+        public static string DuplicateIndex([CanBeNull] object indexProperties, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
             => string.Format(
-                GetString("DuplicateIndex", nameof(index), nameof(entityType), nameof(duplicateEntityType)),
-                index, entityType, duplicateEntityType);
+                GetString("DuplicateIndex", nameof(indexProperties), nameof(entityType), nameof(duplicateEntityType)),
+                indexProperties, entityType, duplicateEntityType);
+
+        /// <summary>
+        ///     The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists on entity type '{duplicateEntityType}'.
+        /// </summary>
+        public static string DuplicateNamedIndex([CanBeNull] object indexName, [CanBeNull] object indexProperties, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+            => string.Format(
+                GetString("DuplicateNamedIndex", nameof(indexName), nameof(indexProperties), nameof(entityType), nameof(duplicateEntityType)),
+                indexName, indexProperties, entityType, duplicateEntityType);
 
         /// <summary>
         ///     The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.
@@ -2139,12 +2147,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKey, key, principalType, entityType, otherEntityType);
 
         /// <summary>
-        ///     The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
+        ///     The index {indexProperties} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
         /// </summary>
-        public static string IndexWrongType([CanBeNull] object index, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+        public static string IndexWrongType([CanBeNull] object indexProperties, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
             => string.Format(
-                GetString("IndexWrongType", nameof(index), nameof(entityType), nameof(otherEntityType)),
-                index, entityType, otherEntityType);
+                GetString("IndexWrongType", nameof(indexProperties), nameof(entityType), nameof(otherEntityType)),
+                indexProperties, entityType, otherEntityType);
+
+        /// <summary>
+        ///     The index with name {indexName} cannot be removed from the entity type '{entityType}' because no such index exists on that entity type.
+        /// </summary>
+        public static string NamedIndexWrongType([CanBeNull] object indexName, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NamedIndexWrongType", nameof(indexName), nameof(entityType)),
+                indexName, entityType);
 
         /// <summary>
         ///     The key {key} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.

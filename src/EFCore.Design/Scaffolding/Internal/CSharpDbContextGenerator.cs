@@ -586,20 +586,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateIndex(IIndex index)
         {
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasIndex)}({_code.Lambda(index.Properties)})" };
-
             var annotations = index.GetAnnotations().ToList();
+
+            var lines = new List<string> {
+                $".{nameof(EntityTypeBuilder.HasIndex)}" +
+                $"({_code.Lambda(index.Properties)}, " +
+                $"{_code.Literal(index.GetDatabaseName())})" };
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
 
             foreach (var annotation in CSharpModelGenerator.IgnoredIndexAnnotations)
             {
                 RemoveAnnotation(ref annotations, annotation);
-            }
-
-            if (index.Name != null)
-            {
-                lines.Add(
-                    $".{nameof(IndexBuilder.HasName)}" +
-                    $"({_code.Literal(index.GetDatabaseName())})");
             }
 
             if (index.IsUnique)

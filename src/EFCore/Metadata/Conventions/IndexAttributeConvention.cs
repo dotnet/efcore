@@ -92,14 +92,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             indexProperties.Add(property);
                         }
 
-                        var indexBuilder = entityType.Builder.HasIndex(indexProperties, fromDataAnnotation: true);
+                        var indexBuilder = indexAttribute.Name == null
+                            ? entityType.Builder.HasIndex(
+                                indexProperties, fromDataAnnotation: true)
+                            : entityType.Builder.HasIndex(
+                                indexProperties, indexAttribute.Name, fromDataAnnotation: true);
+
                         if (indexBuilder != null)
                         {
-                            if (indexAttribute.Name != null)
-                            {
-                                indexBuilder.HasName(indexAttribute.Name, fromDataAnnotation: true);
-                            }
-
                             if (indexAttribute.GetIsUnique().HasValue)
                             {
                                 indexBuilder.IsUnique(indexAttribute.GetIsUnique().Value, fromDataAnnotation: true);

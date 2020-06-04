@@ -1042,34 +1042,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return _boolConventionContext.Result;
             }
 
-            public override string OnIndexNameChanged(IConventionIndexBuilder indexBuilder)
-            {
-                using (_dispatcher.DelayConventions())
-                {
-                    _stringConventionContext.ResetState(indexBuilder.Metadata.Name);
-                    foreach (var indexConvention in _conventionSet.IndexNameChangedConventions)
-                    {
-                        if (indexBuilder.Metadata.Builder == null)
-                        {
-                            return null;
-                        }
-
-                        indexConvention.ProcessIndexNameChanged(indexBuilder, _stringConventionContext);
-                        if (_stringConventionContext.ShouldStopProcessing())
-                        {
-                            return _stringConventionContext.Result;
-                        }
-                    }
-                }
-
-                if (indexBuilder.Metadata.Builder == null)
-                {
-                    return null;
-                }
-
-                return _stringConventionContext.Result;
-            }
-
             public override IConventionAnnotation OnIndexAnnotationChanged(
                 IConventionIndexBuilder indexBuilder,
                 string name,

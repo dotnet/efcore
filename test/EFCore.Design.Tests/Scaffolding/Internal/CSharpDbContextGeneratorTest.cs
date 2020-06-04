@@ -363,11 +363,9 @@ namespace TestNamespace
                             x.Property<int>("B");
                             x.Property<int>("C");
                             x.HasKey("Id");
-                            x.HasIndex("A", "B")
-                                .HasName("IndexOnAAndB")
+                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
                                 .IsUnique();
-                            x.HasIndex("B", "C")
-                                .HasName("IndexOnBAndC")
+                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
                         }),
@@ -409,12 +407,10 @@ namespace TestNamespace
         {
             modelBuilder.Entity<EntityWithIndexes>(entity =>
             {
-                entity.HasIndex(x => new { x.A, x.B })
-                    .HasName(""IndexOnAAndB"")
+                entity.HasIndex(x => new { x.A, x.B }, ""IndexOnAAndB"")
                     .IsUnique();
 
-                entity.HasIndex(x => new { x.B, x.C })
-                    .HasName(""IndexOnBAndC"")
+                entity.HasIndex(x => new { x.B, x.C }, ""IndexOnBAndC"")
                     .HasFilter(""Filter SQL"")
                     .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
@@ -449,11 +445,9 @@ namespace TestNamespace
                             x.Property<int>("B");
                             x.Property<int>("C");
                             x.HasKey("Id");
-                            x.HasIndex("A", "B")
-                                .HasName("IndexOnAAndB")
+                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
                                 .IsUnique();
-                            x.HasIndex("B", "C")
-                                .HasName("IndexOnBAndC")
+                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
                         }),
@@ -495,8 +489,7 @@ namespace TestNamespace
         {
             modelBuilder.Entity<EntityWithIndexes>(entity =>
             {
-                entity.HasIndex(x => new { x.B, x.C })
-                    .HasName(""IndexOnBAndC"")
+                entity.HasIndex(x => new { x.B, x.C }, ""IndexOnBAndC"")
                     .HasFilter(""Filter SQL"")
                     .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 

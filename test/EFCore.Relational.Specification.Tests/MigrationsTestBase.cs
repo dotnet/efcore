@@ -894,8 +894,8 @@ namespace Microsoft.EntityFrameworkCore
                         e.Property<int>("Id");
                         e.Property<string>("FirstName");
                     }),
-                builder => builder.Entity("People").HasIndex("FirstName").HasName("Foo"),
-                builder => builder.Entity("People").HasIndex("FirstName").HasName("foo"),
+                builder => builder.Entity("People").HasIndex(new[] { "FirstName" }, "Foo"),
+                builder => builder.Entity("People").HasIndex(new[] { "FirstName" }, "foo"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);

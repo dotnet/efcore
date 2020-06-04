@@ -349,10 +349,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static string TryUniquify<T>(
             IConventionIndex index, string indexName, Dictionary<string, T> indexes, int maxLength)
         {
-            if (index.Builder.CanSetName(null))
+            if (index.Builder.CanSetDatabaseName(null))
             {
                 indexName = Uniquifier.Uniquify(indexName, indexes, maxLength);
-                index.Builder.HasName(indexName);
+                index.Builder.HasDatabaseName(indexName);
                 return indexName;
             }
 

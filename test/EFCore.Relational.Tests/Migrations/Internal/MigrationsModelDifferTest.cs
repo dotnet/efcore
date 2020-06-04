@@ -3486,7 +3486,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Donkey", "dbo");
                         x.Property<int>("Id");
                         x.Property<int>("Value");
-                        x.HasIndex("Value").HasName("IX_dbo.Donkey_Value");
+                        x.HasIndex(new[] { "Value" }, "IX_dbo.Donkey_Value");
                     }),
                 operations =>
                 {
@@ -3522,7 +3522,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<int>("Value");
                         x.Property<int>("MuleValue");
-                        x.HasIndex("MuleValue").HasName("IX_Muel_Value");
+                        x.HasIndex(new[] { "MuleValue" },"IX_Muel_Value");
                     }),
                 operations =>
                 {
@@ -4418,7 +4418,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id").HasName("PK_Gnat");
                         x.Property<string>("Name");
-                        x.HasIndex("Name").HasName("IX_Gnat_Name");
+                        x.HasIndex(new[] { "Name" }, "IX_Gnat_Name");
                     }),
                 operations =>
                 {
@@ -4476,7 +4476,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id").HasName("PK_Cricket");
                         x.Property<string>("Name");
-                        x.HasIndex("Name").HasName("IX_Cricket_Name");
+                        x.HasIndex("Name").HasDatabaseName("IX_Cricket_Name");
                     }),
                 operations =>
                 {
@@ -4572,7 +4572,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.HasKey("Id").HasName("PK_Zonkey");
                             x.Property<int>("ParentId");
                             x.HasOne("Zebra").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Zonkey_Zebra_ParentId");
-                            x.HasIndex("ParentId").HasName("IX_Zonkey_ParentId");
+                            x.HasIndex("ParentId").HasDatabaseName("IX_Zonkey_ParentId");
                         });
                 },
                 operations =>
@@ -4830,7 +4830,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.HasBaseType("Animal");
                             x.Property<string>("Name");
-                            x.HasIndex("Name").HasName("IX_Animal_Pike_Name");
+                            x.HasIndex("Name").HasDatabaseName("IX_Animal_Pike_Name");
                         });
                 },
                 operations =>
@@ -5760,14 +5760,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                         {
                             x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
-                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                         });
                     target.Entity(
                         "EndangeredAnimal",
                         x =>
                         {
                             x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
-                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                         });
                 },
                 operations =>
@@ -5802,7 +5802,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                         {
                             x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
-                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                         });
                 },
                 source => { },
@@ -5814,7 +5814,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                         {
                             x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
-                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                         });
                 },
                 operations => Assert.Equal(0, operations.Count));
@@ -6105,7 +6105,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id").HasName("PK_Table");
                             x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                            x.HasIndex("ForeignId").HasDatabaseName("IX_Table_ForeignId");
                             x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
                         }),
                 operations =>
@@ -6146,7 +6146,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id").HasName("PK_Table");
                             x.Property<int>("ForeignId").HasColumnName("RenamedForeignId");
-                            x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                            x.HasIndex("ForeignId").HasDatabaseName("IX_Table_ForeignId");
                             x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
                         }),
                 operations =>
@@ -6730,7 +6730,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id").HasName("PK_Table");
                             x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                            x.HasIndex("ForeignId").HasDatabaseName("IX_Table_ForeignId");
                         }),
                 operations =>
                 {

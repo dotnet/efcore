@@ -69,6 +69,9 @@ namespace Microsoft.EntityFrameworkCore
                             ? p.DeclaringEntityType.DisplayName() + "." + p.Name
                             : p.Name));
 
+            builder.Append(" " +
+                index.Name ?? "<unnamed>");
+
             if (index.IsUnique)
             {
                 builder.Append(" Unique");

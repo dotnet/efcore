@@ -750,21 +750,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .AppendLine()
                 .Append(builderName)
-                .Append(".HasIndex(")
-                .Append(string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name))))
-                .Append(")");
+                .Append(".HasIndex(");
+
+            if (index.Name == null)
+            {
+                stringBuilder
+                    .Append(string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name))));
+            }
+            else
+            {
+                stringBuilder
+                    .Append("new[] { ")
+                    .Append(string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name))))
+                    .Append(" }, ")
+                    .Append(Code.Literal(index.Name));
+            }
+
+            stringBuilder.Append(")");
 
             using (stringBuilder.Indent())
             {
-                if (index.Name != null)
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".HasName(")
-                        .Append(Code.Literal(index.Name))
-                        .Append(")");
-                }
-
                 if (index.IsUnique)
                 {
                     stringBuilder
@@ -792,6 +797,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations,
                 CSharpModelGenerator.IgnoredIndexAnnotations);
 
+            GenerateFluentApiForAnnotation(
+                ref annotations, RelationalAnnotationNames.Name, nameof(RelationalIndexBuilderExtensions.HasDatabaseName), stringBuilder);
             GenerateFluentApiForAnnotation(
                 ref annotations, RelationalAnnotationNames.Filter, nameof(RelationalIndexBuilderExtensions.HasFilter), stringBuilder);
 
