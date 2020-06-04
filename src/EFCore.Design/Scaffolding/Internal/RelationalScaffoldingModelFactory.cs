@@ -667,7 +667,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var propertyNames = index.Columns.Select(GetPropertyName).ToArray();
-            var indexBuilder = builder.HasIndex(propertyNames, index.Name)
+            var indexBuilder =
+                index.Name == null
+                    ? builder.HasIndex(propertyNames)
+                    : builder.HasIndex(propertyNames, index.Name)
                 .IsUnique(index.IsUnique);
 
             if (index.Filter != null)
