@@ -316,8 +316,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no index is defined.
-        ///     Note: named indexes will not be returned even if the list of properties matches.
+        ///     <para>
+        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>

@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
-        ///     a parent of the other, that parent is returned. Returns null if the two entity types aren't in the same hierarchy.
+        ///     a parent of the other, that parent is returned. Returns <see langword="null"/> if the two entity types aren't in the same hierarchy.
         /// </summary>
         /// <param name="entityType1"> An entity type.</param>
         /// <param name="entityType2"> Another entity type.</param>
@@ -661,8 +661,12 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AsEntityType().FindDeclaredProperty(name);
 
         /// <summary>
-        ///     Gets the unnamed index defined on the given property. Returns null if no such index is defined.
-        ///     Note: named indexes will not be returned even if the list of properties matches.
+        ///     <para>
+        ///         Gets the unnamed index defined on the given property. Returns <see langword="null"/> if no such index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to find the index on. </param>

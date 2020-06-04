@@ -514,7 +514,7 @@
     <value>The index {indexProperties} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="DuplicateNamedIndex" xml:space="preserve">
-    <value>The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists.</value>
+    <value>The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="DuplicateKey" xml:space="preserve">
     <value>The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.</value>

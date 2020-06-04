@@ -537,8 +537,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the unnamed index defined on the given property. Returns null if no such index is defined.
-        ///     Note: named indexes will not be returned even if the list of properties matches.
+        ///     <para>
+        ///         Gets the unnamed index defined on the given property. Returns <see langword="null"/> if no such index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to find the index on. </param>

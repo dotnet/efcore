@@ -1910,18 +1910,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(name, nameof(name));
 
-            if (_namedIndexes.ContainsKey(name))
-            {
-                throw new InvalidOperationException(CoreStrings.DuplicateNamedIndex(name, properties.Format(), this.DisplayName()));
-            }
-
             CheckIndexProperties(properties);
 
             var duplicateIndex = FindIndexesInHierarchy(name).FirstOrDefault();
             if (duplicateIndex != null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.DuplicateIndex(properties.Format(), this.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
+                    CoreStrings.DuplicateNamedIndex(
+                        name,
+                        properties.Format(),
+                        this.DisplayName(),
+                        duplicateIndex.DeclaringEntityType.DisplayName()));
             }
 
             var index = new Index(properties, name, this, configurationSource);

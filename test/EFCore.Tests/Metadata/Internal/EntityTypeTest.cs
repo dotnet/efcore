@@ -1542,6 +1542,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.DuplicateNamedIndex(
                     "NamedIndex",
                     "{'" + Customer.NameProperty.Name + "'}",
+                    typeof(Customer).Name,
                     typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType.AddIndex(new[] { property2 }, "NamedIndex")).Message);

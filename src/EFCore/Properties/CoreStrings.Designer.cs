@@ -731,12 +731,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 indexProperties, entityType, duplicateEntityType);
 
         /// <summary>
-        ///     The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists.
+        ///     The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string DuplicateNamedIndex([CanBeNull] object indexName, [CanBeNull] object indexProperties, [CanBeNull] object entityType)
+        public static string DuplicateNamedIndex([CanBeNull] object indexName, [CanBeNull] object indexProperties, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
             => string.Format(
-                GetString("DuplicateNamedIndex", nameof(indexName), nameof(indexProperties), nameof(entityType)),
-                indexName, indexProperties, entityType);
+                GetString("DuplicateNamedIndex", nameof(indexName), nameof(indexProperties), nameof(entityType), nameof(duplicateEntityType)),
+                indexName, indexProperties, entityType, duplicateEntityType);
 
         /// <summary>
         ///     The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.

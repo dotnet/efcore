@@ -125,8 +125,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<ISkipNavigation> GetSkipNavigations();
 
         /// <summary>
-        ///     Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
-        ///     Note: named indexes will not be returned even if the list of properties matches.
+        ///     <para>
+        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>

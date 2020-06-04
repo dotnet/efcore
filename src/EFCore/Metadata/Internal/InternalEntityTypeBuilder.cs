@@ -2255,10 +2255,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             List<InternalIndexBuilder> detachedIndexes = null;
-            var existingIndex = Metadata.FindIndex(name);
+            var existingIndex = Metadata.GetIndexes()
+                .Where(i => string.Equals(i.Name, name, StringComparison.Ordinal)
+                    && i.Properties.SequenceEqual(properties))
+                .FirstOrDefault();
             if (existingIndex == null)
             {
-                detachedIndexes = Metadata.FindDerivedIndexes(name).ToList().Select(DetachIndex).ToList();
+                detachedIndexes = Metadata.FindDerivedIndexes(name)
+                    .Where(i => i.Properties.SequenceEqual(properties))
+                    .ToList().Select(DetachIndex).ToList();
             }
             else if (existingIndex.DeclaringEntityType != Metadata)
             {
@@ -2317,7 +2322,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var removedIndex = Metadata.RemoveIndex(index.Properties);
+            var removedIndex = index.Name == null
+                ? Metadata.RemoveIndex(index.Properties)
+                : Metadata.RemoveIndex(index.Name);
             Check.DebugAssert(removedIndex == index, "removedIndex != index");
 
             RemoveUnusedShadowProperties(index.Properties);
