@@ -81,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         private const char LikeEscapeChar = '\\';
+        private const string LikeEscapeString = "\\";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -283,26 +284,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 if (pattern is SqlConstantExpression constantPattern)
                 {
-                    // Intentionally string.Empty since we don't want to match nulls here.
-#pragma warning disable CA1820 // Test for empty strings using string length
-                    if ((string)constantPattern.Value == string.Empty)
-#pragma warning restore CA1820 // Test for empty strings using string length
+                    if (!(constantPattern.Value is string patternValue))
+                    {
+                        return _sqlExpressionFactory.Like(
+                            instance,
+                            _sqlExpressionFactory.Constant(null, stringTypeMapping));
+                    }
+
+                    if (patternValue.Length == 0)
                     {
                         return _sqlExpressionFactory.Constant(true);
                     }
 
-                    return _sqlExpressionFactory.GreaterThan(
-                        _sqlExpressionFactory.Function(
-                            "CHARINDEX",
-                            new[] { pattern, instance },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
-                            typeof(int)),
-                        _sqlExpressionFactory.Constant(0));
+                    return patternValue.Any(IsLikeWildChar)
+                        ? _sqlExpressionFactory.Like(
+                            instance,
+                            _sqlExpressionFactory.Constant($"%{EscapeLikePattern(patternValue)}%"),
+                            _sqlExpressionFactory.Constant(LikeEscapeString))
+                        : _sqlExpressionFactory.Like(instance, _sqlExpressionFactory.Constant($"%{patternValue}%"));
                 }
 
                 return _sqlExpressionFactory.OrElse(
-                    _sqlExpressionFactory.Equal(
+                    _sqlExpressionFactory.Like(
                         pattern,
                         _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
                     _sqlExpressionFactory.GreaterThan(
@@ -369,25 +372,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 // The pattern is constant. Aside from null or empty, we escape all special characters (%, _, \)
                 // in C# and send a simple LIKE
-                if (!(constantExpression.Value is string constantString))
+                if (!(constantExpression.Value is string patternValue))
                 {
                     return _sqlExpressionFactory.Like(
                         instance,
                         _sqlExpressionFactory.Constant(null, stringTypeMapping));
                 }
 
-                return constantString.Any(c => IsLikeWildChar(c))
+                return patternValue.Any(IsLikeWildChar)
                     ? _sqlExpressionFactory.Like(
                         instance,
                         _sqlExpressionFactory.Constant(
                             startsWith
-                                ? EscapeLikePattern(constantString) + '%'
-                                : '%' + EscapeLikePattern(constantString)),
-                        _sqlExpressionFactory.Constant(
-                            LikeEscapeChar.ToString())) // SQL Server has no char mapping, avoid value conversion warning)
+                                ? EscapeLikePattern(patternValue) + '%'
+                                : '%' + EscapeLikePattern(patternValue)),
+                        _sqlExpressionFactory.Constant(LikeEscapeString))
                     : _sqlExpressionFactory.Like(
                         instance,
-                        _sqlExpressionFactory.Constant(startsWith ? constantString + '%' : '%' + constantString));
+                        _sqlExpressionFactory.Constant(startsWith ? patternValue + '%' : '%' + patternValue));
             }
 
             // The pattern is non-constant, we use LEFT or RIGHT to extract substring and compare.

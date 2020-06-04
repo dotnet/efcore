@@ -28,26 +28,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(N'%B', [f].[FirstName]) > 0",
+WHERE [f].[FirstName] LIKE N'%\%B%' ESCAPE N'\'",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(N'a_', [f].[FirstName]) > 0",
+WHERE [f].[FirstName] LIKE N'%a\_%' ESCAPE N'\'",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(NULL, [f].[FirstName]) > 0",
+WHERE [f].[FirstName] LIKE NULL",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(N'_Ba_', [f].[FirstName]) > 0",
+WHERE [f].[FirstName] LIKE N'%\_Ba\_%' ESCAPE N'\'",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE NOT (CHARINDEX(N'%B%a%r', [f].[FirstName]) > 0)",
+WHERE NOT ([f].[FirstName] LIKE N'%\%B\%a\%r%' ESCAPE N'\')",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
@@ -55,7 +55,7 @@ WHERE 0 = 1",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE NOT (CHARINDEX(NULL, [f].[FirstName]) > 0)");
+WHERE NOT ([f].[FirstName] LIKE NULL)");
         }
 
         public override async Task String_contains_on_argument_with_wildcard_parameter(bool async)
@@ -67,45 +67,45 @@ WHERE NOT (CHARINDEX(NULL, [f].[FirstName]) > 0)");
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm1_0 = N'') OR (CHARINDEX(@__prm1_0, [f].[FirstName]) > 0)",
+WHERE (@__prm1_0 LIKE N'') OR (CHARINDEX(@__prm1_0, [f].[FirstName]) > 0)",
                 //
                 @"@__prm2_0='a_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm2_0 = N'') OR (CHARINDEX(@__prm2_0, [f].[FirstName]) > 0)",
+WHERE (@__prm2_0 LIKE N'') OR (CHARINDEX(@__prm2_0, [f].[FirstName]) > 0)",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(NULL, [f].[FirstName]) > 0",
+WHERE (NULL LIKE N'') OR (CHARINDEX(NULL, [f].[FirstName]) > 0)",
                 //
                 @"@__prm4_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm4_0 = N'') OR (CHARINDEX(@__prm4_0, [f].[FirstName]) > 0)",
+WHERE (@__prm4_0 LIKE N'') OR (CHARINDEX(@__prm4_0, [f].[FirstName]) > 0)",
                 //
                 @"@__prm5_0='_Ba_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm5_0 = N'') OR (CHARINDEX(@__prm5_0, [f].[FirstName]) > 0)",
+WHERE (@__prm5_0 LIKE N'') OR (CHARINDEX(@__prm5_0, [f].[FirstName]) > 0)",
                 //
                 @"@__prm6_0='%B%a%r' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE NOT ((@__prm6_0 = N'') OR (CHARINDEX(@__prm6_0, [f].[FirstName]) > 0))",
+WHERE NOT ((@__prm6_0 LIKE N'') OR (CHARINDEX(@__prm6_0, [f].[FirstName]) > 0))",
                 //
                 @"@__prm7_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE NOT ((@__prm7_0 = N'') OR (CHARINDEX(@__prm7_0, [f].[FirstName]) > 0))",
+WHERE NOT ((@__prm7_0 LIKE N'') OR (CHARINDEX(@__prm7_0, [f].[FirstName]) > 0))",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE NOT (CHARINDEX(NULL, [f].[FirstName]) > 0)");
+WHERE NOT ((NULL LIKE N'') OR (CHARINDEX(NULL, [f].[FirstName]) > 0))");
         }
 
         public override async Task String_contains_on_argument_with_wildcard_column(bool async)
@@ -116,7 +116,7 @@ WHERE NOT (CHARINDEX(NULL, [f].[FirstName]) > 0)");
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
-WHERE ([f0].[LastName] = N'') OR (CHARINDEX([f0].[LastName], [f].[FirstName]) > 0)");
+WHERE ([f0].[LastName] LIKE N'') OR (CHARINDEX([f0].[LastName], [f].[FirstName]) > 0)");
         }
 
         public override async Task String_contains_on_argument_with_wildcard_column_negated(bool async)
@@ -127,7 +127,7 @@ WHERE ([f0].[LastName] = N'') OR (CHARINDEX([f0].[LastName], [f].[FirstName]) > 
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
-WHERE NOT ((([f0].[LastName] = N'') AND [f0].[LastName] IS NOT NULL) OR (CHARINDEX([f0].[LastName], [f].[FirstName]) > 0))");
+WHERE NOT (([f0].[LastName] LIKE N'') OR (CHARINDEX([f0].[LastName], [f].[FirstName]) > 0))");
         }
 
         public override async Task String_starts_with_on_argument_with_wildcard_constant(bool async)

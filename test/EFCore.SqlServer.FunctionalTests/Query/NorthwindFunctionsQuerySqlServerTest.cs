@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             ClearLog();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         protected override bool CanExecuteQueryString => true;
@@ -115,7 +115,7 @@ WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'%m')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%M%'");
         }
 
         public override async Task String_Contains_Identity(bool async)
@@ -125,7 +125,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0)");
+WHERE ([c].[ContactName] LIKE N'') OR (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0)");
         }
 
         public override async Task String_Contains_Column(bool async)
@@ -135,7 +135,29 @@ WHERE ([c].[ContactName] = N'') OR (CHARINDEX([c].[ContactName], [c].[ContactNam
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0)");
+WHERE ([c].[ContactName] LIKE N'') OR (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0)");
+        }
+
+        public override async Task String_Contains_constant_with_whitespace(bool async)
+        {
+            await base.String_Contains_constant_with_whitespace(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE N'%     %'");
+        }
+
+        public override async Task String_Contains_parameter_with_whitespace(bool async)
+        {
+            await base.String_Contains_parameter_with_whitespace(async);
+
+            AssertSql(
+                @"@__pattern_0='     ' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (@__pattern_0 LIKE N'') OR (CHARINDEX(@__pattern_0, [c].[ContactName]) > 0)");
         }
 
         public override async Task String_FirstOrDefault_MethodCall(bool async)
@@ -169,7 +191,7 @@ WHERE SUBSTRING([c].[ContactName], LEN([c].[ContactName]), 1) = N's'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%M%'");
         }
 
         public override async Task String_Compare_simple_zero(bool async)
@@ -1181,7 +1203,7 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CHARINDEX(N'1997', CONVERT(nvarchar(max), [o].[OrderDate])) > 0) OR (CHARINDEX(N'1998', CONVERT(nvarchar(max), [o].[OrderDate])) > 0))");
+WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1997%') OR (CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1998%'))");
         }
 
         public override async Task Indexof_with_emptystring(bool async)

@@ -37,7 +37,7 @@ WHERE [c].[City] = N'Seattle'");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE CHARINDEX(N'Sea', [c].[City]) > 0");
+WHERE [c].[City] LIKE N'%Sea%'");
         }
 
         public override async Task Select_Where_Navigation_Deep(bool async)
