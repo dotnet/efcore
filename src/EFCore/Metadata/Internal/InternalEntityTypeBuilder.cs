@@ -2255,10 +2255,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             List<InternalIndexBuilder> detachedIndexes = null;
-            var existingIndex = Metadata.GetIndexes()
-                .Where(i => string.Equals(i.Name, name, StringComparison.Ordinal)
-                    && i.Properties.SequenceEqual(properties))
-                .FirstOrDefault();
+
+            var existingIndex = Metadata.FindIndex(name);
+            if (existingIndex != null
+                && !existingIndex.Properties.SequenceEqual(properties))
+            {
+                // use existing index only if properties match
+                existingIndex = null;
+            }
+
             if (existingIndex == null)
             {
                 detachedIndexes = Metadata.FindDerivedIndexes(name)
