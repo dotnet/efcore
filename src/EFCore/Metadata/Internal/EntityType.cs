@@ -1860,7 +1860,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Index AddIndex(
             [NotNull] Property property,
-            [CanBeNull] string name,
+            [NotNull] string name,
             ConfigurationSource configurationSource)
             => AddIndex(
                 new[] { property }, name, configurationSource);
@@ -1931,7 +1931,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return (Index)Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
         }
 
-        private void CheckIndexProperties([NotNull] IReadOnlyList<Property> properties)
+        private void CheckIndexProperties(IReadOnlyList<Property> properties)
         {
             for (var i = 0; i < properties.Count; i++)
             {
@@ -1952,7 +1952,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private void UpdatePropertyIndexes([NotNull] IReadOnlyList<Property> properties, [NotNull] Index index)
+        private void UpdatePropertyIndexes(IReadOnlyList<Property> properties, Index index)
         {
             foreach (var property in properties)
             {
@@ -2039,7 +2039,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Index FindDeclaredIndex([NotNull] string name)
-            => _namedIndexes.TryGetValue(name, out var index)
+            => _namedIndexes.TryGetValue(Check.NotEmpty(name, nameof(name)), out var index)
                 ? index
                 : null;
 
@@ -2077,7 +2077,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] string name)
-            => ToEnumerable(FindIndex(name)).Concat(FindDerivedIndexes(name));
+            => ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name)))).Concat(FindDerivedIndexes(name));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

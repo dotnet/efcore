@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder<TEntity> HasIndex(
             [NotNull] Expression<Func<TEntity, object>> indexExpression,
-            [CanBeNull] string name)
+            [NotNull] string name)
             => new IndexBuilder<TEntity>(
                 Builder.HasIndex(
                     Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(),
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the index. </returns>
         public new virtual IndexBuilder<TEntity> HasIndex(
             [NotNull] string[] propertyNames,
-            [CanBeNull] string name)
+            [NotNull] string name)
             => new IndexBuilder<TEntity>(
                 Builder.HasIndex(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)),

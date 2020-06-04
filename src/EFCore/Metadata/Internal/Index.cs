@@ -40,8 +40,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<Property> properties,
             [NotNull] EntityType declaringEntityType,
             ConfigurationSource configurationSource)
-            : this(properties, null, declaringEntityType, configurationSource)
         {
+            Check.NotEmpty(properties, nameof(properties));
+            Check.HasNoNulls(properties, nameof(properties));
+            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
+
+            Properties = properties;
+            DeclaringEntityType = declaringEntityType;
+            _configurationSource = configurationSource;
+
+            Builder = new InternalIndexBuilder(this, declaringEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -51,21 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Index(
-        [NotNull] IReadOnlyList<Property> properties,
-        [CanBeNull] string name,
-        [NotNull] EntityType declaringEntityType,
-        ConfigurationSource configurationSource)
+            [NotNull] IReadOnlyList<Property> properties,
+            [NotNull] string name,
+            [NotNull] EntityType declaringEntityType,
+            ConfigurationSource configurationSource)
+            : this(properties, declaringEntityType, configurationSource)
         {
-            Check.NotEmpty(properties, nameof(properties));
-            Check.HasNoNulls(properties, nameof(properties));
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
+            Check.NotEmpty(name, nameof(name));
 
-            Properties = properties;
             Name = name;
-            DeclaringEntityType = declaringEntityType;
-            _configurationSource = configurationSource;
-
-            Builder = new InternalIndexBuilder(this, declaringEntityType.Model.Builder);
         }
 
         /// <summary>

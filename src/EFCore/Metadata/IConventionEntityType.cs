@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The newly created index. </returns>
         IConventionIndex AddIndex(
             [NotNull] IReadOnlyList<IConventionProperty> properties,
-            [CanBeNull] string name,
+            [NotNull] string name,
             bool fromDataAnnotation = false);
 
         /// <summary>
