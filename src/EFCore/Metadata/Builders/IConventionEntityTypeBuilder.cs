@@ -229,9 +229,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool CanRemoveKey(bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Configures an index on the specified properties. If there is an existing index on the given
-        ///     set of properties, then the existing index will be returned for configuration.
-        ///     The name of the index will be set to <see langword="null" />.
+        ///     Configures an index on the specified properties.
+        ///     If there is an existing index on the given list of properties,
+        ///     then the existing index will be returned for configuration.
         /// </summary>
         /// <param name="properties"> The properties that make up the index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
