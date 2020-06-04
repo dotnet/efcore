@@ -152,7 +152,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var longTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(long));
 
             var srid = operation[SqliteAnnotationNames.Srid] as int? ?? 0;
-            var dimension = operation[SqliteAnnotationNames.Dimension] as string;
 
             var geometryType = operation.ColumnType
                 ?? GetColumnType(
@@ -161,10 +160,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     operation.Name,
                     operation,
                     model);
-            if (!string.IsNullOrEmpty(dimension))
-            {
-                geometryType += dimension;
-            }
 
             builder
                 .Append("SELECT AddGeometryColumn(")

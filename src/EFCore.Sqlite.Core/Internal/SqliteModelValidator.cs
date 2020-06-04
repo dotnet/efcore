@@ -112,20 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         columnName,
                         tableName));
             }
-
-            var propertyDimension = property.GetGeometricDimension(tableName, schema);
-            var duplicatePropertyDimension = duplicateProperty.GetGeometricDimension(tableName, schema);
-            if (propertyDimension != duplicatePropertyDimension)
-            {
-                throw new InvalidOperationException(
-                    SqliteStrings.DuplicateColumnNameDimensionMismatch(
-                        duplicateProperty.DeclaringEntityType.DisplayName(),
-                        duplicateProperty.Name,
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        columnName,
-                        tableName));
-            }
         }
     }
 }

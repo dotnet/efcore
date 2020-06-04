@@ -62,24 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Assert.Equal(1, property.GetSrid());
         }
 
-        [ConditionalFact]
-        public void Can_set_dimension_convention()
-        {
-            var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
-
-            modelBuilder
-                .Entity(typeof(Customer))
-                .Property(typeof(string), "Geometry")
-                .HasGeometricDimension("Z");
-
-            var property = modelBuilder
-                .Entity(typeof(Customer))
-                .Property(typeof(string), "Geometry")
-                .Metadata;
-
-            Assert.Equal("Z", property.GetGeometricDimension());
-        }
-
         protected virtual ModelBuilder CreateConventionModelBuilder()
             => SqliteTestHelpers.Instance.CreateConventionBuilder();
 

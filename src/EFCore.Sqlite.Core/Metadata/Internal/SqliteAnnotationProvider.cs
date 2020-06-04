@@ -75,12 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal
             {
                 yield return new Annotation(SqliteAnnotationNames.Srid, srid);
             }
-
-            var dimension = property.GetGeometricDimension();
-            if (dimension != null)
-            {
-                yield return new Annotation(SqliteAnnotationNames.Dimension, dimension);
-            }
         }
 
         private static bool HasConverter(IProperty property)

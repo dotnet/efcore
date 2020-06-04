@@ -80,46 +80,5 @@ namespace Microsoft.EntityFrameworkCore
                 SqliteAnnotationNames.Srid,
                 srid,
                 fromDataAnnotation);
-
-        /// <summary>
-        ///     Configures the dimension of the column that the property maps to when targeting SQLite.
-        /// </summary>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="dimension"> The dimension. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
-        public static IConventionPropertyBuilder HasGeometricDimension(
-            [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string dimension,
-            bool fromDataAnnotation = false)
-        {
-            if (propertyBuilder.CanSetGeometricDimension(dimension, fromDataAnnotation))
-            {
-                propertyBuilder.Metadata.SetGeometricDimension(dimension, fromDataAnnotation);
-
-                return propertyBuilder;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     Returns a value indicating whether the given value can be set as the dimension for the column.
-        /// </summary>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="dimension"> The dimension. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the dimension for the column. </returns>
-        public static bool CanSetGeometricDimension(
-            [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string dimension,
-            bool fromDataAnnotation = false)
-            => Check.NotNull(propertyBuilder, nameof(propertyBuilder)).CanSetAnnotation(
-                SqliteAnnotationNames.Srid,
-                dimension,
-                fromDataAnnotation);
     }
 }

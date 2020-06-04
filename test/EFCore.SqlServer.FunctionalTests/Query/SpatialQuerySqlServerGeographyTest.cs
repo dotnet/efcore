@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.SimpleSelect(async);
 
             AssertSql(
-                @"SELECT [p].[Id], [p].[Geometry], [p].[Point]
+                @"SELECT [p].[Id], [p].[Geometry], [p].[Point], [p].[PointM], [p].[PointZ], [p].[PointZM]
 FROM [PointEntity] AS [p]");
         }
 

@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         [UsedImplicitly]
         public SqliteGeometryTypeMapping([NotNull] NtsGeometryServices geometryServices, [NotNull] string storeType)
-            : base(new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter()), storeType)
+            : base(new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter(storeType)), storeType)
         {
         }
 
@@ -131,7 +132,60 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 geometryServices.DefaultCoordinateSequenceFactory,
                 geometryServices.DefaultPrecisionModel);
 
-        private static GaiaGeoWriter CreateWriter()
-            => new GaiaGeoWriter { HandleOrdinates = Ordinates.XY };
+        private static GaiaGeoWriter CreateWriter(string storeType)
+        {
+            Ordinates handleOrdinates;
+            switch (storeType.ToUpperInvariant())
+            {
+                case "POINT":
+                case "LINESTRING":
+                case "POLYGON":
+                case "MULTIPOINT":
+                case "MULTILINESTRING":
+                case "MULTIPOLYGON":
+                case "GEOMETRYCOLLECTION":
+                case "GEOMETRY":
+                    handleOrdinates = Ordinates.XY;
+                    break;
+
+                case "POINTZ":
+                case "LINESTRINGZ":
+                case "POLYGONZ":
+                case "MULTIPOINTZ":
+                case "MULTILINESTRINGZ":
+                case "MULTIPOLYGONZ":
+                case "GEOMETRYCOLLECTIONZ":
+                case "GEOMETRYZ":
+                    handleOrdinates = Ordinates.XYZ;
+                    break;
+
+                case "POINTM":
+                case "LINESTRINGM":
+                case "POLYGONM":
+                case "MULTIPOINTM":
+                case "MULTILINESTRINGM":
+                case "MULTIPOLYGONM":
+                case "GEOMETRYCOLLECTIONM":
+                case "GEOMETRYM":
+                    handleOrdinates = Ordinates.XYM;
+                    break;
+
+                case "POINTZM":
+                case "LINESTRINGZM":
+                case "POLYGONZM":
+                case "MULTIPOINTZM":
+                case "MULTILINESTRINGZM":
+                case "MULTIPOLYGONZM":
+                case "GEOMETRYCOLLECTIONZM":
+                case "GEOMETRYZM":
+                    handleOrdinates = Ordinates.XYZM;
+                    break;
+
+                default:
+                    throw new ArgumentException(SqliteNTSStrings.InvalidGeometryType(storeType), nameof(storeType));
+            }
+
+            return new GaiaGeoWriter { HandleOrdinates = handleOrdinates };
+        }
     }
 }

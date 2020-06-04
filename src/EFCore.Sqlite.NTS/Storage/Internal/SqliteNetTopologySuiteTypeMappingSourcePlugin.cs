@@ -32,13 +32,37 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
             {
                 { "GEOMETRY", typeof(Geometry) },
+                { "GEOMETRYZ", typeof(Geometry) },
+                { "GEOMETRYM", typeof(Geometry) },
+                { "GEOMETRYZM", typeof(Geometry) },
                 { "GEOMETRYCOLLECTION", typeof(GeometryCollection) },
+                { "GEOMETRYCOLLECTIONZ", typeof(GeometryCollection) },
+                { "GEOMETRYCOLLECTIONM", typeof(GeometryCollection) },
+                { "GEOMETRYCOLLECTIONZM", typeof(GeometryCollection) },
                 { "LINESTRING", typeof(LineString) },
+                { "LINESTRINGZ", typeof(LineString) },
+                { "LINESTRINGM", typeof(LineString) },
+                { "LINESTRINGZM", typeof(LineString) },
                 { "MULTILINESTRING", typeof(MultiLineString) },
+                { "MULTILINESTRINGZ", typeof(MultiLineString) },
+                { "MULTILINESTRINGM", typeof(MultiLineString) },
+                { "MULTILINESTRINGZM", typeof(MultiLineString) },
                 { "MULTIPOINT", typeof(MultiPoint) },
+                { "MULTIPOINTZ", typeof(MultiPoint) },
+                { "MULTIPOINTM", typeof(MultiPoint) },
+                { "MULTIPOINTZM", typeof(MultiPoint) },
                 { "MULTIPOLYGON", typeof(MultiPolygon) },
+                { "MULTIPOLYGONZ", typeof(MultiPolygon) },
+                { "MULTIPOLYGONM", typeof(MultiPolygon) },
+                { "MULTIPOLYGONZM", typeof(MultiPolygon) },
                 { "POINT", typeof(Point) },
-                { "POLYGON", typeof(Polygon) }
+                { "POINTZ", typeof(Point) },
+                { "POINTM", typeof(Point) },
+                { "POINTZM", typeof(Point) },
+                { "POLYGON", typeof(Polygon) },
+                { "POLYGONZ", typeof(Polygon) },
+                { "POLYGONM", typeof(Polygon) },
+                { "POLYGONZM", typeof(Polygon) }
             };
 
         private readonly NtsGeometryServices _geometryServices;

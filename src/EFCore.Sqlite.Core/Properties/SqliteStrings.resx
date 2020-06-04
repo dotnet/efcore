@@ -181,9 +181,6 @@
     <value>A connection of an unexpected type ({type}) is being used. The SQL functions prefixed with 'ef_' could not be created automatically. Manually define them if you encounter errors while querying.</value>
     <comment>Warning SqliteEventId.UnexpectedConnectionTypeWarning string</comment>
   </data>
-  <data name="DuplicateColumnNameDimensionMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different geometric dimensions.</value>
-  </data>
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.</value>
   </data>
