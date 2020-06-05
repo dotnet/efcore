@@ -164,6 +164,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public TProperty Property { get; set; }
         }
 
+        [Index(nameof(FirstName), nameof(LastName))]
+        private class EntityWithIndexAttribute
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
+        [Index(nameof(FirstName), nameof(LastName), Name = "NamedIndex")]
+        private class EntityWithNamedIndexAttribute
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
+        [Index(nameof(FirstName), nameof(LastName), IsUnique = true)]
+        private class EntityWithUniqueIndexAttribute
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
         public class TestOwner
         {
             public int Id { get; set; }
@@ -2363,7 +2387,7 @@ namespace RootNamespace
 
         #endregion
 
-        #region HasIndex
+        #region Index
 
         [ConditionalFact]
         public virtual void Index_annotations_are_stored_in_snapshot()
@@ -2579,6 +2603,146 @@ namespace RootNamespace
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
                 model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName().Length));
+        }
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_causes_column_to_have_key_or_index_column_length()
+        {
+            Test(
+                builder => builder.Entity<EntityWithIndexAttribute>(),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithIndexAttribute"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>(""FirstName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.Property<string>(""LastName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(""FirstName"", ""LastName"");
+
+                    b.ToTable(""EntityWithIndexAttribute"");
+                });"),
+                model =>
+                    Assert.Collection(
+                        model.GetEntityTypes().First().GetIndexes().First().Properties,
+                        p0 =>
+                            {
+                                Assert.Equal("FirstName", p0.Name);
+                                Assert.Equal("nvarchar(450)", p0.GetColumnType());
+                            },
+                        p1 =>
+                            {
+                                Assert.Equal("LastName", p1.Name);
+                                Assert.Equal("nvarchar(450)", p1.GetColumnType());
+                            }
+                    ));
+        }
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_name_is_stored_in_snapshot()
+        {
+            Test(
+                builder => builder.Entity<EntityWithNamedIndexAttribute>(),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithNamedIndexAttribute"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>(""FirstName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.Property<string>(""LastName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(new[] { ""FirstName"", ""LastName"" }, ""NamedIndex"");
+
+                    b.ToTable(""EntityWithNamedIndexAttribute"");
+                });"),
+                model =>
+                    {
+                        var index = model.GetEntityTypes().First().GetIndexes().First();
+                        Assert.Equal("NamedIndex", index.Name);
+                        Assert.Collection(
+                            index.Properties,
+                            p0 =>
+                            {
+                                Assert.Equal("FirstName", p0.Name);
+                                Assert.Equal("nvarchar(450)", p0.GetColumnType());
+                            },
+                            p1 =>
+                            {
+                                Assert.Equal("LastName", p1.Name);
+                                Assert.Equal("nvarchar(450)", p1.GetColumnType());
+                            }
+                        );
+                    });
+        }
+
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_IsUnique_is_stored_in_snapshot()
+        {
+            Test(
+                builder => builder.Entity<EntityWithUniqueIndexAttribute>(),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithUniqueIndexAttribute"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>(""FirstName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.Property<string>(""LastName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(""FirstName"", ""LastName"")
+                        .IsUnique()
+                        .HasFilter(""[FirstName] IS NOT NULL AND [LastName] IS NOT NULL"");
+
+                    b.ToTable(""EntityWithUniqueIndexAttribute"");
+                });"),
+                model =>
+                {
+                    var index = model.GetEntityTypes().First().GetIndexes().First();
+                    Assert.True(index.IsUnique);
+                    Assert.Collection(
+                        index.Properties,
+                        p0 =>
+                        {
+                            Assert.Equal("FirstName", p0.Name);
+                            Assert.Equal("nvarchar(450)", p0.GetColumnType());
+                        },
+                        p1 =>
+                        {
+                            Assert.Equal("LastName", p1.Name);
+                            Assert.Equal("nvarchar(450)", p1.GetColumnType());
+                        }
+                    );
+                });
         }
 
         #endregion

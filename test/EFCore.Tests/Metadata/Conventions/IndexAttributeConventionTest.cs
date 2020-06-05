@@ -29,14 +29,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var entityBuilder = modelBuilder.Entity(typeof(EntityWithIndex), ConfigurationSource.Convention);
             entityBuilder.Property("Id", ConfigurationSource.Convention);
-            var propA = entityBuilder.Property("A", ConfigurationSource.Convention);
-            var propB = entityBuilder.Property("B", ConfigurationSource.Convention);
+            var propABuilder = entityBuilder.Property("A", ConfigurationSource.Convention);
+            var propBBuilder = entityBuilder.Property("B", ConfigurationSource.Convention);
             entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
 
-            var indexProperties = new List<string> { propA.Metadata.Name, propB.Metadata.Name };
+            var indexProperties = new List<string> { propABuilder.Metadata.Name, propBBuilder.Metadata.Name };
             var indexBuilder = entityBuilder.HasIndex(indexProperties, "IndexOnAAndB", ConfigurationSource.Convention);
             indexBuilder.IsUnique(false, ConfigurationSource.Convention);
 
+            RunConvention(entityBuilder);
+            RunConvention(propABuilder);
+            RunConvention(propBBuilder);
             RunConvention(modelBuilder);
 
             var index = entityBuilder.Metadata.GetIndexes().Single();
@@ -74,12 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void IndexAttribute_with_no_property_names_throws()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            modelBuilder.Entity<EntityWithInvalidEmptyIndex>();
 
             Assert.Equal(
                 AbstractionsStrings.CollectionArgumentIsEmpty("propertyNames"),
                 Assert.Throws<ArgumentException>(
-                    () => modelBuilder.Model.FinalizeModel()).Message);
+                    () => modelBuilder.Entity<EntityWithInvalidEmptyIndex>()).Message);
         }
 
         [InlineData(typeof(EntityWithInvalidNullIndexProperty))]
@@ -89,12 +91,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void IndexAttribute_properties_cannot_include_whitespace(Type entityTypeWithInvalidIndex)
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            modelBuilder.Entity(entityTypeWithInvalidIndex);
 
             Assert.Equal(
                 AbstractionsStrings.CollectionArgumentHasEmptyElements("propertyNames"),
                 Assert.Throws<ArgumentException>(
-                    () => modelBuilder.Model.FinalizeModel()).Message);
+                    () => modelBuilder.Entity(entityTypeWithInvalidIndex)).Message);
         }
 
         [ConditionalFact]
@@ -210,15 +211,84 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     () => modelBuilder.Model.FinalizeModel()).Message);
         }
 
+        [ConditionalFact]
+        public void IndexAttribute_index_replicated_to_derived_type_when_base_type_changes()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var baseEntityBuilder = modelBuilder.Entity(typeof(BaseEntityWithIndex));
+            var derivedEntityBuilder = modelBuilder.Entity<DerivedEntity>();
+
+            // Index is created on base type but not on derived type.
+            Assert.NotNull(derivedEntityBuilder.Metadata.BaseType);
+            Assert.Single(baseEntityBuilder.Metadata.GetDeclaredIndexes());
+            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
+
+            derivedEntityBuilder.HasBaseType((string)null);
+
+            // Now the Index is replicated on the derived type.
+            Assert.Null(derivedEntityBuilder.Metadata.BaseType);
+            var index = (Metadata.Internal.Index)
+                Assert.Single(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
+            Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
+            Assert.Equal("IndexOnBaseGetsReplicatedToDerived", index.Name);
+            Assert.False(index.IsUnique);
+            Assert.Null(index.GetIsUniqueConfigurationSource());
+            var indexProperty = Assert.Single(index.Properties);
+            Assert.Equal("B", indexProperty.Name);
+
+            // Check there are no errors.
+            modelBuilder.Model.FinalizeModel();
+        }
+
+        [ConditionalFact]
+        public void IndexAttribute_index_is_created_when_missing_property_added()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(EntityWithIndexOnShadowProperty));
+
+            Assert.Empty(entityBuilder.Metadata.GetDeclaredIndexes());
+
+            entityBuilder.Property<int>("Y");
+
+            var index = (Metadata.Internal.Index)
+                Assert.Single(entityBuilder.Metadata.GetDeclaredIndexes());
+
+            Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
+            Assert.Equal("IndexOnShadowProperty", index.Name);
+            Assert.Collection(index.Properties,
+                prop0 => Assert.Equal("X", prop0.Name),
+                prop1 => Assert.Equal("Y", prop1.Name));
+
+            // Check there are no errors.
+            modelBuilder.Model.FinalizeModel();
+        }
+
         #endregion
+
+        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+        {
+            var context = new ConventionContext<IConventionEntityTypeBuilder>(
+                entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+            CreateIndexAttributeConvention().ProcessEntityTypeAdded(entityTypeBuilder, context);
+        }
+
+        private void RunConvention(InternalPropertyBuilder propertyBuilder)
+        {
+            var context = new ConventionContext<IConventionPropertyBuilder>(
+                propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+
+            CreateIndexAttributeConvention().ProcessPropertyAdded(propertyBuilder, context);
+        }
 
         private void RunConvention(InternalModelBuilder modelBuilder)
         {
             var context = new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher);
 
-            new IndexAttributeConvention(CreateDependencies())
-                .ProcessModelFinalizing(modelBuilder, context);
+            CreateIndexAttributeConvention().ProcessModelFinalizing(modelBuilder, context);
         }
+
+        private IndexAttributeConvention CreateIndexAttributeConvention() => new IndexAttributeConvention(CreateDependencies());
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
@@ -320,6 +390,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public int Id { get; set; }
             public int A { get; set; }
             public int B { get; set; }
+        }
+
+        [Index(nameof(B), Name = "IndexOnBaseGetsReplicatedToDerived")]
+        private class BaseEntityWithIndex
+        {
+            public int Id { get; set; }
+            public int A { get; set; }
+            public int B { get; set; }
+        }
+
+        private class DerivedEntity : BaseEntityWithIndex
+        {
+            public int C { get; set; }
+            public int D { get; set; }
+        }
+
+        [Index(nameof(X), "Y", Name = "IndexOnShadowProperty")]
+        private class EntityWithIndexOnShadowProperty
+        {
+            public int Id { get; set; }
+            public int X { get; set; }
         }
     }
 }

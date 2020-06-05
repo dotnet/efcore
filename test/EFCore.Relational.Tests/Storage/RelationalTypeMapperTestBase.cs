@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             builder.Entity<MyRelatedType4>().Property(e => e.Relationship2Id).IsUnicode();
             builder.Entity<MyPrecisionType>().Property(e => e.PrecisionOnly).HasPrecision(16);
             builder.Entity<MyPrecisionType>().Property(e => e.PrecisionAndScale).HasPrecision(18, 7);
+            builder.Entity<MyTypeWithIndexAttribute>();
 
             return builder.Model;
         }
@@ -84,6 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public string Relationship2Id { get; set; }
             public MyRelatedType3 Relationship2 { get; set; }
+        }
+
+        [Index(nameof(Name))]
+        protected class MyTypeWithIndexAttribute
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
     }
 }
