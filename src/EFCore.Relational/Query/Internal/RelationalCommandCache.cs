@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class RelationalCommandCache : IPrintableExpression
     {
-        private static readonly ConcurrentDictionary<object, object> _syncObjects
+        private static readonly ConcurrentDictionary<object, object> _locks
             = new ConcurrentDictionary<object, object>();
 
         private readonly IMemoryCache _memoryCache;
@@ -56,31 +56,39 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
-            retry:
-            if (!_memoryCache.TryGetValue(cacheKey, out IRelationalCommand relationalCommand))
+            if (_memoryCache.TryGetValue(cacheKey, out IRelationalCommand relationalCommand))
             {
-                if (!_syncObjects.TryAdd(cacheKey, value: null))
-                {
-                    goto retry;
-                }
-
-                try
-                {
-                    var selectExpression = _relationalParameterBasedSqlProcessor.Optimize(_selectExpression, parameters, out var canCache);
-                    relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
-
-                    if (canCache)
-                    {
-                        _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
-                    }
-                }
-                finally
-                {
-                    _syncObjects.TryRemove(cacheKey, out _);
-                }
+                return relationalCommand;
             }
 
-            return relationalCommand;
+            // When multiple threads attempt to start processing the same query (program startup / thundering
+            // herd), have only one actually process and block the others.
+            // Note that the following synchronization isn't perfect - some race conditions may cause concurrent
+            // processing. This is benign (and rare).
+            var compilationLock = _locks.GetOrAdd(cacheKey, _ => new object());
+            try
+            {
+                lock (compilationLock)
+                {
+                    if (!_memoryCache.TryGetValue(cacheKey, out relationalCommand))
+                    {
+                        var selectExpression = _relationalParameterBasedSqlProcessor.Optimize(
+                            _selectExpression, parameters, out var canCache);
+                        relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
+
+                        if (canCache)
+                        {
+                            _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
+                        }
+                    }
+
+                    return relationalCommand;
+                }
+            }
+            finally
+            {
+                _locks.TryRemove(compilationLock, out _);
+            }
         }
 
         /// <summary>
