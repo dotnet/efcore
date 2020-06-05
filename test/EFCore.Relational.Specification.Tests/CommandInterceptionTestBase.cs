@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader());
             }
 
-            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult(InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
+                return new ValueTask<InterceptionResult<DbDataReader>>(InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
             }
         }
 
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.ReaderExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<object>.SuppressWithResult(InterceptedResult);
             }
 
-            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -329,8 +329,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult(
-                    InterceptionResult<object>.SuppressWithResult(InterceptedResult));
+                return new ValueTask<InterceptionResult<object>>(InterceptionResult<object>.SuppressWithResult(InterceptedResult));
             }
         }
 
@@ -382,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<int>.SuppressWithResult(2);
             }
 
-            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -390,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult(InterceptionResult<int>.SuppressWithResult(2));
+                return new ValueTask<InterceptionResult<int>>(InterceptionResult<int>.SuppressWithResult(2));
             }
         }
 
@@ -440,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.ReaderExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -507,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.ScalarExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -572,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.NonQueryExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -631,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<DbDataReader>.SuppressWithResult(CreateNewCommand(command).ExecuteReader());
             }
 
-            public override async Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -704,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<object>.SuppressWithResult(CreateNewCommand(command).ExecuteScalar());
             }
 
-            public override async Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public override async ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -778,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<int>.SuppressWithResult(CreateNewCommand(command).ExecuteNonQuery());
             }
 
-            public override async Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -852,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new CompositeFakeDbDataReader(result, new FakeDbDataReader());
             }
 
-            public override Task<DbDataReader> ReaderExecutedAsync(
+            public override ValueTask<DbDataReader> ReaderExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 DbDataReader result,
@@ -860,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult<DbDataReader>(new CompositeFakeDbDataReader(result, new FakeDbDataReader()));
+                return new ValueTask<DbDataReader>(new CompositeFakeDbDataReader(result, new FakeDbDataReader()));
             }
         }
 
@@ -983,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptedResult;
             }
 
-            public override Task<object> ScalarExecutedAsync(
+            public override ValueTask<object> ScalarExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 object result,
@@ -991,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult<object>(InterceptedResult);
+                return new ValueTask<object>(InterceptedResult);
             }
         }
 
@@ -1043,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore
                 return 7;
             }
 
-            public override async Task<int> NonQueryExecutedAsync(
+            public override async ValueTask<int> NonQueryExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 int result,
@@ -1228,7 +1227,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -1245,7 +1244,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -1262,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -1656,7 +1655,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public virtual ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -1666,10 +1665,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuting(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult<DbDataReader>>(result);
             }
 
-            public virtual Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public virtual ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -1679,10 +1678,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuting(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult<object>>(result);
             }
 
-            public virtual Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public virtual ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -1692,7 +1691,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuting(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult<int>>(result);
             }
 
             public virtual DbDataReader ReaderExecuted(
@@ -1731,7 +1730,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<DbDataReader> ReaderExecutedAsync(
+            public virtual ValueTask<DbDataReader> ReaderExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 DbDataReader result,
@@ -1741,10 +1740,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuted(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<DbDataReader>(result);
             }
 
-            public virtual Task<object> ScalarExecutedAsync(
+            public virtual ValueTask<object> ScalarExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 object result,
@@ -1754,10 +1753,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuted(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<object>(result);
             }
 
-            public virtual Task<int> NonQueryExecutedAsync(
+            public virtual ValueTask<int> NonQueryExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 int result,
@@ -1767,7 +1766,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuted(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<int>(result);
             }
 
             public void CommandFailed(

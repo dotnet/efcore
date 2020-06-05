@@ -86,10 +86,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+        public virtual ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
             DbConnection connection, TransactionStartingEventData eventData, InterceptionResult<DbTransaction> result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult<DbTransaction>>(result);
 
         /// <summary>
         ///     <para>
@@ -114,9 +114,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<DbTransaction> TransactionStartedAsync(
+        public virtual ValueTask<DbTransaction> TransactionStartedAsync(
             DbConnection connection, TransactionEndEventData eventData, DbTransaction result, CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<DbTransaction>(result);
 
         /// <summary>
         ///     <para>
@@ -158,12 +158,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<DbTransaction> TransactionUsedAsync(
+        public virtual ValueTask<DbTransaction> TransactionUsedAsync(
             DbConnection connection,
             TransactionEventData eventData,
             DbTransaction result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<DbTransaction>(result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbTransaction.Commit" />.
@@ -220,12 +220,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual Task<InterceptionResult> TransactionCommittingAsync(
+        public virtual ValueTask<InterceptionResult> TransactionCommittingAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult>(result);
 
         /// <summary>
         ///     Called immediately after EF calls <see cref="DbTransaction.CommitAsync" />.
@@ -295,12 +295,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual Task<InterceptionResult> TransactionRollingBackAsync(
+        public virtual ValueTask<InterceptionResult> TransactionRollingBackAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult>(result);
 
         /// <summary>
         ///     Called immediately after EF calls <see cref="DbTransaction.RollbackAsync" />.
@@ -330,12 +330,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <inheritdoc />
-        public virtual Task<InterceptionResult> CreatingSavepointAsync(
+        public virtual ValueTask<InterceptionResult> CreatingSavepointAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult>(result);
 
         /// <inheritdoc />
         public virtual Task CreatedSavepointAsync(
@@ -359,12 +359,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <inheritdoc />
-        public virtual Task<InterceptionResult> RollingBackToSavepointAsync(
+        public virtual ValueTask<InterceptionResult> RollingBackToSavepointAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult>(result);
 
         /// <inheritdoc />
         public virtual Task RolledBackToSavepointAsync(
@@ -388,12 +388,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <inheritdoc />
-        public virtual Task<InterceptionResult> ReleasingSavepointAsync(
+        public virtual ValueTask<InterceptionResult> ReleasingSavepointAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult>(result);
 
         /// <inheritdoc />
         public virtual Task ReleasedSavepointAsync(

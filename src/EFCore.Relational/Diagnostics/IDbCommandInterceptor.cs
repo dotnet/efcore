@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+        ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
             InterceptionResult<DbDataReader> result,
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<InterceptionResult<object>> ScalarExecutingAsync(
+        ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
             InterceptionResult<object> result,
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<InterceptionResult<int>> NonQueryExecutingAsync(
+        ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandEventData eventData,
             InterceptionResult<int> result,
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<DbDataReader> ReaderExecutedAsync(
+        ValueTask<DbDataReader> ReaderExecutedAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandExecutedEventData eventData,
             [NotNull] DbDataReader result,
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<object> ScalarExecutedAsync(
+        ValueTask<object> ScalarExecutedAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandExecutedEventData eventData,
             [CanBeNull] object result,
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<int> NonQueryExecutedAsync(
+        ValueTask<int> NonQueryExecutedAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandExecutedEventData eventData,
             int result,
