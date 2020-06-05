@@ -127,7 +127,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (hasDependencyContext)
             {
                 var candidateAssets = new Dictionary<(string, string), int>();
-                var rid = RuntimeEnvironment.GetRuntimeIdentifier();
+#if NET5 || NET50 || NETCOREAPP5_0
+#error Update to use RuntimeEnvironment.RuntimeIdentifier instead
+#endif
+                var rid = AppContext.GetData("RUNTIME_IDENTIFIER") as string
+                    ?? RuntimeEnvironment.GetRuntimeIdentifier();
                 var rids = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks.ToList()
                     ?? new List<string>();
                 rids.Insert(0, rid);
