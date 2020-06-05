@@ -279,9 +279,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex(
             [NotNull] string[] propertyNames,
-            [CanBeNull] string name)
+            [NotNull] string name)
             => new IndexBuilder(
-                Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), name, ConfigurationSource.Explicit).Metadata);
+                Builder.HasIndex(
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)),
+                    Check.NotEmpty(name, nameof(name)),
+                    ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
