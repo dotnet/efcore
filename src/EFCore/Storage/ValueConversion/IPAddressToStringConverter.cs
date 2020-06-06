@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// </summary>
     public class IPAddressToStringConverter : ValueConverter<IPAddress, string>
     {
+        // IPv4-mapped IPv6 addresses can go up to 45 bytes, e.g. 0000:0000:0000:0000:0000:ffff:192.168.1.1
+        private static readonly ConverterMappingHints _defaultHints
+            = new ConverterMappingHints(size: 45);
+
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
@@ -24,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             : base(
                 ToString(),
                 ToIPAddress(),
-                mappingHints)
+                _defaultHints.With(mappingHints))
         {
         }
 
@@ -32,7 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(IPAddress), typeof(string), i => new IPAddressToStringConverter(i.MappingHints));
+            = new ValueConverterInfo(
+                typeof(IPAddress),
+                typeof(string), i => new IPAddressToStringConverter(i.MappingHints),
+                _defaultHints);
 
         private static new Expression<Func<IPAddress, string>> ToString()
             => v => v == null ? default : v.ToString();
