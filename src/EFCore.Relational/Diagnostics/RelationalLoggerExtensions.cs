@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> An intercepted result. </returns>
-        public static Task<InterceptionResult<DbDataReader>> CommandReaderExecutingAsync(
+        public static ValueTask<InterceptionResult<DbDataReader>> CommandReaderExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(default(InterceptionResult<DbDataReader>));
+            return default;
         }
 
         /// <summary>
@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> An intercepted result. </returns>
-        public static Task<InterceptionResult<object>> CommandScalarExecutingAsync(
+        public static ValueTask<InterceptionResult<object>> CommandScalarExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
@@ -496,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(default(InterceptionResult<object>));
+            return default;
         }
 
         /// <summary>
@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> An intercepted result. </returns>
-        public static Task<InterceptionResult<int>> CommandNonQueryExecutingAsync(
+        public static ValueTask<InterceptionResult<int>> CommandNonQueryExecutingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(default(InterceptionResult<int>));
+            return default;
         }
 
         private static CommandEventData BroadcastCommandExecuting(
@@ -800,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static Task<DbDataReader> CommandReaderExecutedAsync(
+        public static ValueTask<DbDataReader> CommandReaderExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
@@ -841,7 +841,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(methodResult);
+            return new ValueTask<DbDataReader>(methodResult);
         }
 
         /// <summary>
@@ -858,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static Task<object> CommandScalarExecutedAsync(
+        public static ValueTask<object> CommandScalarExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
@@ -899,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(methodResult);
+            return new ValueTask<object>(methodResult);
         }
 
         /// <summary>
@@ -916,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static Task<int> CommandNonQueryExecutedAsync(
+        public static ValueTask<int> CommandNonQueryExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
@@ -957,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(methodResult);
+            return new ValueTask<int>(methodResult);
         }
 
         private static CommandExecutedEventData BroadcastCommandExecuted(
@@ -1253,7 +1253,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        public static Task<InterceptionResult> ConnectionOpeningAsync(
+        public static ValueTask<InterceptionResult> ConnectionOpeningAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime,
@@ -1281,7 +1281,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(default(InterceptionResult));
+            return default;
         }
 
         private static void LogConnectionOpening(
@@ -1496,7 +1496,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        public static Task<InterceptionResult> ConnectionClosingAsync(
+        public static ValueTask<InterceptionResult> ConnectionClosingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
             DateTimeOffset startTime)
@@ -1523,7 +1523,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(default(InterceptionResult));
+            return default;
         }
 
         private static ConnectionEventData BroadcastConnectionClosing(
@@ -1884,7 +1884,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+        public static ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             IsolationLevel isolationLevel,
@@ -1916,7 +1916,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(default(InterceptionResult<DbTransaction>));
+            return default;
         }
 
         private static TransactionStartingEventData BroadcastTransactionStarting(
@@ -2021,7 +2021,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The amount of time before the connection was opened. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static Task<DbTransaction> TransactionStartedAsync(
+        public static ValueTask<DbTransaction> TransactionStartedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
@@ -2055,7 +2055,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(transaction);
+            return new ValueTask<DbTransaction>(transaction);
         }
 
         private static TransactionEndEventData BroadcastTransactionStarted(
@@ -2157,7 +2157,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static Task<DbTransaction> TransactionUsedAsync(
+        public static ValueTask<DbTransaction> TransactionUsedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
@@ -2189,7 +2189,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(transaction);
+            return new ValueTask<DbTransaction>(transaction);
         }
 
         private static TransactionEventData BroadcasstTransactionUsed(
@@ -2298,7 +2298,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        public static Task<InterceptionResult> TransactionCommittingAsync(
+        public static ValueTask<InterceptionResult> TransactionCommittingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
@@ -2330,7 +2330,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(default(InterceptionResult));
+            return default;
         }
 
         private static TransactionEventData BroadcastTransactionCommitting(
@@ -2674,7 +2674,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        public static Task<InterceptionResult> TransactionRollingBackAsync(
+        public static ValueTask<InterceptionResult> TransactionRollingBackAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbTransaction transaction,
@@ -2706,7 +2706,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return Task.FromResult(default(InterceptionResult));
+            return default;
         }
 
         private static TransactionEventData BroadcastTransactionRollingBack(
