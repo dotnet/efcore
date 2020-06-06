@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult> ConnectionOpeningAsync(
+            public async ValueTask<InterceptionResult> ConnectionOpeningAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
                 InterceptionResult result,
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult> ConnectionClosingAsync(
+            public async ValueTask<InterceptionResult> ConnectionClosingAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
                 InterceptionResult result)

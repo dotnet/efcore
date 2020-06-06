@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+            public async ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
                 InterceptionResult<DbTransaction> result,
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<DbTransaction> TransactionStartedAsync(
+            public async ValueTask<DbTransaction> TransactionStartedAsync(
                 DbConnection connection,
                 TransactionEndEventData eventData,
                 DbTransaction result,
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<DbTransaction> TransactionUsedAsync(
+            public async ValueTask<DbTransaction> TransactionUsedAsync(
                 DbConnection connection,
                 TransactionEventData eventData,
                 DbTransaction result,
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 }
             }
 
-            public async Task<InterceptionResult> TransactionCommittingAsync(
+            public async ValueTask<InterceptionResult> TransactionCommittingAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 }
             }
 
-            public async Task<InterceptionResult> TransactionRollingBackAsync(
+            public async ValueTask<InterceptionResult> TransactionRollingBackAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,

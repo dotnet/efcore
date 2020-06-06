@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public async ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<DbDataReader> ReaderExecutedAsync(
+            public async ValueTask<DbDataReader> ReaderExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 DbDataReader result,
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<object> ScalarExecutedAsync(
+            public async ValueTask<object> ScalarExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 object result,
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<int> NonQueryExecutedAsync(
+            public async ValueTask<int> NonQueryExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 int result,

@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+        ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
             [NotNull] DbConnection connection,
             [NotNull] TransactionStartingEventData eventData,
             InterceptionResult<DbTransaction> result,
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<DbTransaction> TransactionStartedAsync(
+        ValueTask<DbTransaction> TransactionStartedAsync(
             [NotNull] DbConnection connection,
             [NotNull] TransactionEndEventData eventData,
             [CanBeNull] DbTransaction result,
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        Task<DbTransaction> TransactionUsedAsync(
+        ValueTask<DbTransaction> TransactionUsedAsync(
             [NotNull] DbConnection connection,
             [NotNull] TransactionEventData eventData,
             [CanBeNull] DbTransaction result,
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        Task<InterceptionResult> TransactionCommittingAsync(
+        ValueTask<InterceptionResult> TransactionCommittingAsync(
             [NotNull] DbTransaction transaction,
             [NotNull] TransactionEventData eventData,
             InterceptionResult result,
@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        Task<InterceptionResult> TransactionRollingBackAsync(
+        ValueTask<InterceptionResult> TransactionRollingBackAsync(
             [NotNull] DbTransaction transaction,
             [NotNull] TransactionEventData eventData,
             InterceptionResult result,

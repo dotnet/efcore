@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult> ConnectionOpeningAsync(
+            public override async ValueTask<InterceptionResult> ConnectionOpeningAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
                 InterceptionResult result,
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult> ConnectionOpeningAsync(
+            public virtual ValueTask<InterceptionResult> ConnectionOpeningAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
                 InterceptionResult result,
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertOpening(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(result);
             }
 
             public virtual void ConnectionOpened(
@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult> ConnectionClosingAsync(
+            public virtual ValueTask<InterceptionResult> ConnectionClosingAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
                 InterceptionResult result)
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertClosing(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(result);
             }
 
             public virtual void ConnectionClosed(
