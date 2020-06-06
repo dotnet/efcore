@@ -150,12 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+        public virtual ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
             DbCommand command,
             CommandEventData eventData,
             InterceptionResult<DbDataReader> result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult<DbDataReader>>(result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteScalarAsync()" />.
@@ -176,12 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<InterceptionResult<object>> ScalarExecutingAsync(
+        public virtual ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
             DbCommand command,
             CommandEventData eventData,
             InterceptionResult<object> result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult<object>>(result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteNonQueryAsync()" />.
@@ -202,12 +202,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<InterceptionResult<int>> NonQueryExecutingAsync(
+        public virtual ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
             DbCommand command,
             CommandEventData eventData,
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult<int>>(result);
 
         /// <summary>
         ///     <para>
@@ -308,12 +308,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<DbDataReader> ReaderExecutedAsync(
+        public virtual ValueTask<DbDataReader> ReaderExecutedAsync(
             DbCommand command,
             CommandExecutedEventData eventData,
             DbDataReader result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<DbDataReader>(result);
 
         /// <summary>
         ///     <para>
@@ -336,12 +336,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<object> ScalarExecutedAsync(
+        public virtual ValueTask<object> ScalarExecutedAsync(
             DbCommand command,
             CommandExecutedEventData eventData,
             object result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<object>(result);
 
         /// <summary>
         ///     <para>
@@ -364,12 +364,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        public virtual Task<int> NonQueryExecutedAsync(
+        public virtual ValueTask<int> NonQueryExecutedAsync(
             DbCommand command,
             CommandExecutedEventData eventData,
             int result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<int>(result);
 
         /// <summary>
         ///     Called when execution of a command has failed with an exception.

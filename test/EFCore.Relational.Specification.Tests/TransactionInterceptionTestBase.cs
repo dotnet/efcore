@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<DbTransaction>.SuppressWithResult(new FakeDbTransaction(connection, eventData.IsolationLevel));
             }
 
-            public override async Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+            public override async ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
                 InterceptionResult<DbTransaction> result,
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new WrappedDbTransaction(result);
             }
 
-            public override async Task<DbTransaction> TransactionStartedAsync(
+            public override async ValueTask<DbTransaction> TransactionStartedAsync(
                 DbConnection connection,
                 TransactionEndEventData eventData,
                 DbTransaction result,
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new WrappedDbTransaction(result);
             }
 
-            public override async Task<DbTransaction> TransactionUsedAsync(
+            public override async ValueTask<DbTransaction> TransactionUsedAsync(
                 DbConnection connection,
                 TransactionEventData eventData,
                 DbTransaction result,
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult> TransactionCommittingAsync(
+            public override async ValueTask<InterceptionResult> TransactionCommittingAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult> TransactionRollingBackAsync(
+            public override async ValueTask<InterceptionResult> TransactionRollingBackAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -1110,7 +1110,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+            public virtual ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
                 InterceptionResult<DbTransaction> result,
@@ -1120,10 +1120,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertStarting(connection, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult<DbTransaction>>(Task.FromResult(result));
             }
 
-            public virtual Task<DbTransaction> TransactionStartedAsync(
+            public virtual ValueTask<DbTransaction> TransactionStartedAsync(
                 DbConnection connection,
                 TransactionEndEventData eventData,
                 DbTransaction result,
@@ -1133,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertStarted(connection, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<DbTransaction>(Task.FromResult(result));
             }
 
             public virtual DbTransaction TransactionUsed(
@@ -1148,7 +1148,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<DbTransaction> TransactionUsedAsync(
+            public virtual ValueTask<DbTransaction> TransactionUsedAsync(
                 DbConnection connection,
                 TransactionEventData eventData,
                 DbTransaction result,
@@ -1158,7 +1158,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertUsed(connection, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<DbTransaction>(Task.FromResult(result));
             }
 
             public virtual InterceptionResult TransactionCommitting(
@@ -1182,7 +1182,7 @@ namespace Microsoft.EntityFrameworkCore
                 AssertCommitted(eventData);
             }
 
-            public virtual Task<InterceptionResult> TransactionCommittingAsync(
+            public virtual ValueTask<InterceptionResult> TransactionCommittingAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -1192,7 +1192,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertCommitting(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
             }
 
             public virtual Task TransactionCommittedAsync(
@@ -1228,7 +1228,7 @@ namespace Microsoft.EntityFrameworkCore
                 AssertRolledBack(eventData);
             }
 
-            public virtual Task<InterceptionResult> TransactionRollingBackAsync(
+            public virtual ValueTask<InterceptionResult> TransactionRollingBackAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -1238,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertRollingBack(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
             }
 
             public virtual Task TransactionRolledBackAsync(
@@ -1274,7 +1274,7 @@ namespace Microsoft.EntityFrameworkCore
                 AssertCreatedSavepoint(eventData);
             }
 
-            public virtual Task<InterceptionResult> CreatingSavepointAsync(
+            public virtual ValueTask<InterceptionResult> CreatingSavepointAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -1284,7 +1284,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertCreatingSavepoint(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
             }
 
             public virtual Task CreatedSavepointAsync(
@@ -1320,7 +1320,7 @@ namespace Microsoft.EntityFrameworkCore
                 AssertRolledBackToSavepoint(eventData);
             }
 
-            public virtual Task<InterceptionResult> RollingBackToSavepointAsync(
+            public virtual ValueTask<InterceptionResult> RollingBackToSavepointAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -1330,7 +1330,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertRollingBackToSavepoint(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
             }
 
             public virtual Task RolledBackToSavepointAsync(
@@ -1366,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore
                 AssertReleasedSavepoint(eventData);
             }
 
-            public virtual Task<InterceptionResult> ReleasingSavepointAsync(
+            public virtual ValueTask<InterceptionResult> ReleasingSavepointAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -1376,7 +1376,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertReleasingSavepoint(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
             }
 
             public virtual Task ReleasedSavepointAsync(
