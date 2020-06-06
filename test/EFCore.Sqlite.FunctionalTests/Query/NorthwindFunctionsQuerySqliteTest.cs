@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        public override Task Convert_ToBoolean(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToBoolean(async));
+
         public override Task Convert_ToByte(bool async)
             => AssertTranslationFailed(() => base.Convert_ToByte(async));
 

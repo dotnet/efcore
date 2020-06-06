@@ -640,6 +640,18 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Convert_ToBoolean(bool async)
+        {
+            await base.Convert_ToBoolean(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
+
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Convert_ToByte(bool async)
         {
             await base.Convert_ToByte(async);

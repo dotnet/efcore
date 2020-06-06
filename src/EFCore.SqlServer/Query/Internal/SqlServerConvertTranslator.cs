@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private static readonly Dictionary<string, string> _typeMapping = new Dictionary<string, string>
         {
+            [nameof(Convert.ToBoolean)] = "bit",
             [nameof(Convert.ToByte)] = "tinyint",
             [nameof(Convert.ToDecimal)] = "decimal(18, 2)",
             [nameof(Convert.ToDouble)] = "float",
@@ -33,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private static readonly List<Type> _supportedTypes = new List<Type>
         {
+            typeof(bool),
             typeof(byte),
             typeof(DateTime),
             typeof(decimal),

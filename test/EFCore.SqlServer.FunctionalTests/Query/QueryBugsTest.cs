@@ -4308,8 +4308,8 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                         Assert.Null(t.Turnovers);
                     });
 
-            AssertSql(
-                @"SELECT [p].[Id], CAST(0 AS bit), [a].[Turnovers_AmountIn], [a].[Id]
+                AssertSql(
+                    @"SELECT [p].[Id], CAST(0 AS bit), [a].[Turnovers_AmountIn], [a].[Id]
 FROM [Partners] AS [p]
 LEFT JOIN [Address13157] AS [a] ON [p].[Id] = [a].[Partner13157Id]
 ORDER BY [p].[Id], [a].[Id]");

@@ -1065,10 +1065,37 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Convert_ToBoolean(bool async)
+        {
+            var convertMethods = new List<Expression<Func<Order, bool>>>
+            {
+                o => Convert.ToBoolean(Convert.ToBoolean(o.OrderID % 3)),
+                o => Convert.ToBoolean(Convert.ToByte(o.OrderID % 3)),
+                o => Convert.ToBoolean(Convert.ToDecimal(o.OrderID % 3)),
+                o => Convert.ToBoolean(Convert.ToDouble(o.OrderID % 3)),
+                o => Convert.ToBoolean((float)Convert.ToDouble(o.OrderID % 3)),
+                o => Convert.ToBoolean(Convert.ToInt16(o.OrderID % 3)),
+                o => Convert.ToBoolean(Convert.ToInt32(o.OrderID % 3)),
+                o => Convert.ToBoolean(Convert.ToInt64(o.OrderID % 3)),
+            };
+
+            foreach (var convertMethod in convertMethods)
+            {
+                await AssertQuery(
+                    async,
+                    ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                        .Where(convertMethod),
+                    entryCount: 5);
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Convert_ToByte(bool async)
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
+                o => Convert.ToByte(Convert.ToBoolean(o.OrderID % 1)) >= 0,
                 o => Convert.ToByte(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToByte(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToByte(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -1095,6 +1122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
+                o => Convert.ToDecimal(Convert.ToBoolean(o.OrderID % 1)) >= 0,
                 o => Convert.ToDecimal(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToDecimal(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToDecimal(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -1121,6 +1149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
+                o => Convert.ToDouble(Convert.ToBoolean(o.OrderID % 1)) >= 0,
                 o => Convert.ToDouble(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToDouble(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToDouble(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -1147,6 +1176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
+                o => Convert.ToInt16(Convert.ToBoolean(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt16(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt16(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt16(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -1173,6 +1203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
+                o => Convert.ToInt32(Convert.ToBoolean(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt32(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt32(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt32(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -1199,6 +1230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
+                o => Convert.ToInt64(Convert.ToBoolean(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt64(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt64(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt64(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -1225,6 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
+                o => Convert.ToString(Convert.ToBoolean(o.OrderID % 1)) != "10",
                 o => Convert.ToString(Convert.ToByte(o.OrderID % 1)) != "10",
                 o => Convert.ToString(Convert.ToDecimal(o.OrderID % 1)) != "10",
                 o => Convert.ToString(Convert.ToDouble(o.OrderID % 1)) != "10",
