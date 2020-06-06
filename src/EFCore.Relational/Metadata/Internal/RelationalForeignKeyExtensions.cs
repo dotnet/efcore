@@ -74,11 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (!foreignKey.PrincipalKey.Properties
-                .Select(p => p.GetColumnName(tableName, schema))
-                .SequenceEqual(
-                    duplicateForeignKey.PrincipalKey.Properties
-                        .Select(p => p.GetColumnName(tableName, schema))))
+            if (!foreignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(tableName, schema))
+                .SequenceEqual(duplicateForeignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(tableName, schema))))
             {
                 if (shouldThrow)
                 {

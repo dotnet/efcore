@@ -34,9 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (index.GetIncludeProperties() == null
                     || duplicateIndex.GetIncludeProperties() == null
                     || !index.GetIncludeProperties().Select(
-                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(tableName, schema)).SequenceEqual(
-                        duplicateIndex.GetIncludeProperties().Select(
-                            p => duplicateIndex.DeclaringEntityType.FindProperty(p).GetColumnName(tableName, schema)))) {
+                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(tableName, schema))
+                        .SequenceEqual(
+                            duplicateIndex.GetIncludeProperties().Select(
+                                p => duplicateIndex.DeclaringEntityType.FindProperty(p).GetColumnName(tableName, schema))))
+                {
                     if (shouldThrow)
                     {
                         throw new InvalidOperationException(

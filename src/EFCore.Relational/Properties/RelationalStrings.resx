@@ -654,4 +654,7 @@
     <value>The unnamed index on the entity type '{entityType}' specifies properties {indexPropertiesList}. The property '{propertyName1}' is mapped to table(s) {tableList1}, whereas the property '{propertyName2}' is mapped to table(s) {tableList2}. All index properties must map to at least one common table.</value>
     <comment>Error RelationalEventId.IndexPropertiesMappedToNonOverlappingTables string string string string string string</comment>
   </data>
+  <data name="IncompatibleTableDerivedRelationship" xml:space="preserve">
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}', there is a relationship between their primary keys in which '{entityType}' is the dependent and '{entityType}' has a base entity type mapped to a different table. Either map '{otherEntityType}' to a different table or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>
+  </data>
 </root>

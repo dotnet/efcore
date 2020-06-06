@@ -865,6 +865,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("PropertyNotMappedToTable", nameof(property), nameof(entityType), nameof(table)),
                 property, entityType, table);
 
+        /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}', there is a relationship between their primary keys in which '{entityType}' is the dependent and '{entityType}' has a base entity type mapped to a different table. Either map '{otherEntityType}' to a different table or invert the relationship between '{entityType}' and '{otherEntityType}'.
+        /// </summary>
+        public static string IncompatibleTableDerivedRelationship([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+            => string.Format(
+                GetString("IncompatibleTableDerivedRelationship", nameof(table), nameof(entityType), nameof(otherEntityType)),
+                table, entityType, otherEntityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -1252,7 +1260,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Rolling back to transaction savepoint.
+        ///     Rolling back to transaction savepoint..
         /// </summary>
         public static EventDefinition LogRollingBackToTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
         {
@@ -1276,7 +1284,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Rolled back to transaction savepoint.
+        ///     Rolled back to transaction savepoint..
         /// </summary>
         public static EventDefinition LogRolledBackToTransactionSavepoint([NotNull] IDiagnosticsLogger logger)
         {

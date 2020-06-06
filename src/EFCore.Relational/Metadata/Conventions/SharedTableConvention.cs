@@ -159,6 +159,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var property in entityType.GetDeclaredProperties())
             {
                 var columnName = property.GetColumnName(tableName, schema);
+                if (columnName == null)
+                {
+                    continue;
+                }
+
                 if (!properties.TryGetValue(columnName, out var otherProperty))
                 {
                     properties[columnName] = property;

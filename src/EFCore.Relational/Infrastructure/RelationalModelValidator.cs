@@ -222,12 +222,29 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IEntityType root = null;
             foreach (var mappedType in mappedTypes)
             {
-                if ((mappedType.BaseType != null && unvalidatedTypes.Contains(mappedType.BaseType))
-                    || (mappedType.FindPrimaryKey() != null
+                if (mappedType.BaseType != null && unvalidatedTypes.Contains(mappedType.BaseType))
+                {
+                    continue;
+                }
+
+                if (mappedType.FindPrimaryKey() != null
                         && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
                             .Any(fk => fk.PrincipalKey.IsPrimaryKey()
-                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType))))
+                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
                 {
+                    if (mappedType.BaseType != null)
+                    {
+                        var principalType = mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                            .First(fk => fk.PrincipalKey.IsPrimaryKey()
+                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType))
+                            .PrincipalEntityType;
+                        throw new InvalidOperationException(
+                            RelationalStrings.IncompatibleTableDerivedRelationship(
+                                Format(tableName, schema),
+                                mappedType.DisplayName(),
+                                principalType.DisplayName()));
+                    }
+
                     continue;
                 }
 
@@ -352,7 +369,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             storeConcurrencyTokens = new Dictionary<string, IProperty>();
                         }
 
-                        storeConcurrencyTokens[property.GetColumnName(tableName, schema)] = property;
+                        var columnName = property.GetColumnName(tableName, schema);
+                        if (columnName == null)
+                        {
+                            continue;
+                        }
+
+                        storeConcurrencyTokens[columnName] = property;
                         if (missingConcurrencyTokens == null)
                         {
                             missingConcurrencyTokens = new HashSet<string>();
