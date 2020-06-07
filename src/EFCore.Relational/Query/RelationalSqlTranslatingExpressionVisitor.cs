@@ -770,9 +770,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                         // Unwrap up-cast to base type when its mapped, but object convert needs to be converted to
                         // explicit cast when mismatching types (see below)
-                        || Dependencies.TypeMappingSource.FindMapping(unaryExpression.Type) != null
-                        && unaryExpression.Type.IsAssignableFrom(operand.Type)
-                        // Unwrap nullables and enums
+                        || (unaryExpression.Type != typeof(object)
+                            && Dependencies.TypeMappingSource.FindMapping(unaryExpression.Type) != null
+                            && unaryExpression.Type.IsAssignableFrom(operand.Type))
+                        // Unwrap cast to nullables and enums
                         || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
                         || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                     {
@@ -780,7 +781,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     // Introduce explicit cast only if the target type is mapped else we need to client eval
-                    if (Dependencies.TypeMappingSource.FindMapping(unaryExpression.Type) != null)
+                    if (unaryExpression.Type == typeof(object)
+                        || Dependencies.TypeMappingSource.FindMapping(unaryExpression.Type) != null)
                     {
                         sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
 
