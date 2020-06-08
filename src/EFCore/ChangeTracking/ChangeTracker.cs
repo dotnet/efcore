@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         Note that this method calls <see cref="DetectChanges" /> unless
-        ///         <see cref="AutoDetectChangesEnabled" /> has been set to <see langword="false"/>. 
+        ///         <see cref="AutoDetectChangesEnabled" /> has been set to <see langword="false"/>.
         ///     </para>
         /// </summary>
         /// <returns> <see langword="true"/> if there are changes to save, otherwise <see langword="false"/>. </returns>
@@ -395,6 +395,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             return default;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Stops tracking all currently tracked entities.
+        ///     </para>
+        ///     <para>
+        ///         <see cref="DbContext"/> is designed to have a short lifetime where a new instance is created for each unit-of-work.
+        ///         This manner means all tracked entities are discarded when the context is disposed at the end of each unit-of-work.
+        ///         However, clearing all tracked entities using this method may be useful in situations where creating a new context
+        ///         instance is not practical.
+        ///     </para>
+        ///     <para>
+        ///         This method should always be preferred over detaching every tracked entity.
+        ///         Detaching entities is a slow process that may have side effects.
+        ///         This method is much more efficient at clearing all tracked entities from the context.
+        ///     </para>
+        /// </summary>
+        public virtual void Clear()
+            => StateManager.Clear();
 
         /// <summary>
         ///     <para>

@@ -25,6 +25,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ChangeTrackerTest
     {
+        [ConditionalFact]
+        public void Change_tracker_can_be_cleared()
+        {
+            Seed();
+
+            using var context = new LikeAZooContext();
+
+            var cats = context.Cats.ToList();
+            var hats = context.Set<Hat>().ToList();
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(cats[0]).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(hats[0]).State);
+
+            context.ChangeTracker.Clear();
+
+            Assert.Empty(context.ChangeTracker.Entries());
+            Assert.Equal(EntityState.Detached, context.Entry(cats[0]).State);
+            Assert.Equal(EntityState.Detached, context.Entry(hats[0]).State);
+
+            var catsAgain = context.Cats.ToList();
+            var hatsAgain = context.Set<Hat>().ToList();
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(catsAgain[0]).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(hatsAgain[0]).State);
+
+            Assert.Equal(EntityState.Detached, context.Entry(cats[0]).State);
+            Assert.Equal(EntityState.Detached, context.Entry(hats[0]).State);
+        }
+
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
