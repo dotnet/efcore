@@ -1170,6 +1170,49 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_on_valid_table_sharing_with_TPT()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>()
+                .Ignore(a => a.FavoritePerson);
+
+            modelBuilder.Entity<Cat>(
+                x =>
+                {
+                    x.ToTable("Cat");
+                    x.HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Person>(c => c.Id);
+                });
+
+            modelBuilder.Entity<Person>().ToTable("Cat");
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_linking_relationship_on_derived_type_in_TPT()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>()
+                .Ignore(a => a.FavoritePerson);
+
+            modelBuilder.Entity<Cat>(
+             x =>
+             {
+                 x.ToTable("Cat");
+                 x.HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Cat>(c => c.Id);
+             });
+
+            modelBuilder.Entity<Person>().ToTable("Cat");
+
+            VerifyError(
+                RelationalStrings.IncompatibleTableDerivedRelationship(
+                    "Cat", "Cat", "Person"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_for_valid_table_overrides()
         {
             var modelBuilder = CreateConventionalModelBuilder();

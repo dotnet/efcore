@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -34,6 +35,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.True(concurrencyProperty.IsShadowProperty());
             Assert.Equal("Version", concurrencyProperty.GetColumnName());
             Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
+        }
+
+        [ConditionalFact]
+        public virtual void Missing_concurrency_token_property_is_not_created_for_TPT()
+        {
+            var modelBuilder = GetModelBuilder();
+            modelBuilder.Entity<Animal>().Ignore(a => a.FavoritePerson)
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Cat>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Cat>().ToTable(nameof(Cat));
+            modelBuilder.Entity<Person>().ToTable(nameof(Cat));
+
+            var model = modelBuilder.Model;
+            model.FinalizeModel();
+
+            var person = model.FindEntityType(typeof(Person));
+            Assert.DoesNotContain(person.GetProperties(), p => p.IsConcurrencyToken);
         }
 
         [ConditionalFact]

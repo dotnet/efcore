@@ -151,6 +151,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         }
 
                         var columnName = property.GetColumnName(tableName, table.Schema);
+                        if (columnName == null)
+                        {
+                            continue;
+                        }
+
                         if (!columnToProperties.TryGetValue(columnName, out var properties))
                         {
                             properties = new List<IConventionProperty>();

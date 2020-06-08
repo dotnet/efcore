@@ -179,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 return null;
             }
+
             var schema = index.DeclaringEntityType.GetSchema();
 
             var nullableColumns = index.Properties

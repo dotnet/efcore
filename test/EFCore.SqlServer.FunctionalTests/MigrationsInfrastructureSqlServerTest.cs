@@ -498,7 +498,7 @@ GO
 
                         b.HasIndex("NormalizedName")
                             .IsUnique()
-                            .HasName("RoleNameIndex")
+                            .HasName("RoleNameIndex") // Don't change to HasDatabaseName
                             .HasFilter("[NormalizedName] IS NOT NULL");
 
                         b.ToTable("AspNetRoles");

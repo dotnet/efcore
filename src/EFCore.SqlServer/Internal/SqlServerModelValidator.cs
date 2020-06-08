@@ -237,7 +237,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             {
                 if (property.GetValueGenerationStrategy(tableName, schema) == SqlServerValueGenerationStrategy.IdentityColumn)
                 {
-                    identityColumns[property.GetColumnName(tableName, schema)] = property;
+                    var columnName = property.GetColumnName(tableName, schema);
+                    if (columnName == null)
+                    {
+                        continue;
+                    }
+
+                    identityColumns[columnName] = property;
                 }
             }
 
