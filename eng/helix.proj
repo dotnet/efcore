@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <HelixPreCommands Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">$(HelixPreCommands); SqlLocalDB start</HelixPreCommands>
     <XUnitPublishTargetFramework>netcoreapp5.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.1</XUnitRunnerVersion>
