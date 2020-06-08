@@ -1110,7 +1110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected static async Task AssertTranslationFailed(Func<Task> query)
             => Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
+                CoreStrings.TranslationFailed("").Substring(48),
                 (await Assert.ThrowsAsync<InvalidOperationException>(query))
                 .Message);
 

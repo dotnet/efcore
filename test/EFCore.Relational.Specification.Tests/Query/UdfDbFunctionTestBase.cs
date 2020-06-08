@@ -1927,7 +1927,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void AssertTranslationFailed(Action testCode)
             => Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
+                CoreStrings.TranslationFailed("").Substring(48),
                 Assert.Throws<InvalidOperationException>(testCode).Message);
     }
 }

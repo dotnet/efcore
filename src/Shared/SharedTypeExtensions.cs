@@ -380,7 +380,7 @@ namespace System
             return stringBuilder.ToString();
         }
 
-                private static void ProcessType(StringBuilder builder, Type type, bool fullName)
+        private static void ProcessType(StringBuilder builder, Type type, bool fullName)
         {
             if (type.IsGenericType)
             {

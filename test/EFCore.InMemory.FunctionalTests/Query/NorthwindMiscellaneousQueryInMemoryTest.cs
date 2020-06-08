@@ -50,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Client_code_using_instance_in_anonymous_type()
             => base.Client_code_using_instance_in_anonymous_type();
 
+        [ConditionalTheory(Skip = "Issue#17050")]
+        public override Task Client_code_unknown_method(bool async)
+            => base.Client_code_unknown_method(async);
+
         [ConditionalFact(Skip = "Issue#17050")]
         public override void Client_code_using_instance_in_static_method()
             => base.Client_code_using_instance_in_static_method();

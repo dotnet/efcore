@@ -2607,7 +2607,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("QueryUnableToTranslateStringEqualsWithStringComparison");
 
         /// <summary>
-        ///     Translation of method '{declaringTypeName}.{methodName}' failed. If you are trying to map your custom function, see https://go.microsoft.com/fwlink/?linkid=****** for more information.
+        ///     Translation of method '{declaringTypeName}.{methodName}' failed. If you are trying to map your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
         /// </summary>
         public static string QueryUnableToTranslateMethod([CanBeNull] object methodName, [CanBeNull] object declaringTypeName)
             => string.Format(
