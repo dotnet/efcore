@@ -552,19 +552,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return inExpression.Update(item, values: null, subquery);
             }
 
-            // for relational null semantics just leave as is
-            // same for values we don't know how to properly handle (i.e. other than constant or parameter)
+            // for relational null semantics we don't need to extract null values from the array
             if (UseRelationalNulls
                 || !(inExpression.Values is SqlConstantExpression || inExpression.Values is SqlParameterExpression))
             {
-                var values = Visit(inExpression.Values, out _);
+                var (valuesExpression, valuesList, _) = ProcessInExpressionValues(inExpression.Values, extractNullValues: false);
                 nullable = false;
 
-                return inExpression.Update(item, values, subquery: null);
+                return valuesList.Count == 0
+                    ? (SqlExpression)_sqlExpressionFactory.Constant(false, inExpression.TypeMapping)
+                    : inExpression.Update(item, valuesExpression, subquery: null);
             }
 
             // for c# null semantics we need to remove nulls from Values and add IsNull/IsNotNull when necessary
-            var (inValuesExpression, inValuesList, hasNullValue) = ProcessInExpressionValues(inExpression.Values);
+            var (inValuesExpression, inValuesList, hasNullValue) = ProcessInExpressionValues(inExpression.Values, extractNullValues: true);
 
             // either values array is empty or only contains null
             if (inValuesList.Count == 0)
@@ -613,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     inExpression.Update(item, inValuesExpression, subquery: null),
                     _sqlExpressionFactory.IsNull(item));
 
-            (SqlConstantExpression ProcessedValuesExpression, List<object> ProcessedValuesList, bool HasNullValue) ProcessInExpressionValues(SqlExpression valuesExpression)
+            (SqlConstantExpression ProcessedValuesExpression, List<object> ProcessedValuesList, bool HasNullValue) ProcessInExpressionValues(SqlExpression valuesExpression, bool extractNullValues)
             {
                 var inValues = new List<object>();
                 var hasNullValue = false;
@@ -634,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 foreach (var value in values)
                 {
-                    if (value == null)
+                    if (value == null && extractNullValues)
                     {
                         hasNullValue = true;
                         continue;

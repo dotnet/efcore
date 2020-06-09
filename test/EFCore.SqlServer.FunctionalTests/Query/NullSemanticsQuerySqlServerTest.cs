@@ -1005,6 +1005,36 @@ FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
         }
 
+        public override void Where_contains_on_parameter_array_with_relational_null_semantics()
+        {
+            base.Where_contains_on_parameter_array_with_relational_null_semantics();
+
+            AssertSql(
+                @"SELECT [e].[NullableStringA]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableStringA] IN (N'Foo', N'Bar')");
+        }
+
+        public override void Where_contains_on_parameter_empty_array_with_relational_null_semantics()
+        {
+            base.Where_contains_on_parameter_empty_array_with_relational_null_semantics();
+
+            AssertSql(
+                @"SELECT [e].[NullableStringA]
+FROM [Entities1] AS [e]
+WHERE 0 = 1");
+        }
+
+        public override void Where_contains_on_parameter_array_with_just_null_with_relational_null_semantics()
+        {
+            base.Where_contains_on_parameter_array_with_just_null_with_relational_null_semantics();
+
+            AssertSql(
+                @"SELECT [e].[NullableStringA]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableStringA] IN (NULL)");
+        }
+
         public override async Task Where_nullable_bool(bool async)
         {
             await base.Where_nullable_bool(async);

@@ -606,6 +606,42 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(e => e.Id).ToList();
         }
 
+        [ConditionalFact]
+        public virtual void Where_contains_on_parameter_array_with_relational_null_semantics()
+        {
+            using var context = CreateContext(useRelationalNulls: true);
+            var names = new[] { "Foo", "Bar" };
+            var result = context.Entities1
+                .Where(e => names.Contains(e.NullableStringA))
+                .Select(e => e.NullableStringA).ToList();
+
+            Assert.True(result.All(r => r == "Foo" || r == "Bar"));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_contains_on_parameter_empty_array_with_relational_null_semantics()
+        {
+            using var context = CreateContext(useRelationalNulls: true);
+            var names = new string[0];
+            var result = context.Entities1
+                .Where(e => names.Contains(e.NullableStringA))
+                .Select(e => e.NullableStringA).ToList();
+
+            Assert.Equal(0, result.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_contains_on_parameter_array_with_just_null_with_relational_null_semantics()
+        {
+            using var context = CreateContext(useRelationalNulls: true);
+            var names = new string[] { null };
+            var result = context.Entities1
+                .Where(e => names.Contains(e.NullableStringA))
+                .Select(e => e.NullableStringA).ToList();
+
+            Assert.Equal(0, result.Count);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_nullable_bool(bool async)
