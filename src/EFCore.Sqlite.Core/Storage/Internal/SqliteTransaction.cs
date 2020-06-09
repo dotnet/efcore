@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             using var command = Connection.DbConnection.CreateCommand();
             command.Transaction = _dbTransaction;
             command.CommandText = "SAVEPOINT " + savepointName;
-            await command.ExecuteNonQueryAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             using var command = Connection.DbConnection.CreateCommand();
             command.Transaction = _dbTransaction;
             command.CommandText = "ROLLBACK TO " + savepointName;
-            await command.ExecuteNonQueryAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             using var command = Connection.DbConnection.CreateCommand();
             command.Transaction = _dbTransaction;
             command.CommandText = "RELEASE " + savepointName;
-            await command.ExecuteNonQueryAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />

@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     if (!_contextPool.Return(Context))
                     {
                         ((IDbContextPoolable)Context).SetPool(null);
-                        await Context.DisposeAsync();
+                        await Context.DisposeAsync().ConfigureAwait(false);
                     }
 
                     _contextPool = null;
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             while (_pool.TryDequeue(out var context))
             {
                 ((IDbContextPoolable)context).SetPool(null);
-                await context.DisposeAsync();
+                await context.DisposeAsync().ConfigureAwait(false);
             }
         }
     }

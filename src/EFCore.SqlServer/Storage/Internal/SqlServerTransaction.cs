@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             using var command = Connection.DbConnection.CreateCommand();
             command.Transaction = _dbTransaction;
             command.CommandText = "SAVE TRANSACTION " + savepointName;
-            await command.ExecuteNonQueryAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             using var command = Connection.DbConnection.CreateCommand();
             command.Transaction = _dbTransaction;
             command.CommandText = "ROLLBACK TRANSACTION " + savepointName;
-            await command.ExecuteNonQueryAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />

@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
-            => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken)
+            => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
                 && InterpretExistsResult(
                     await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
                         new RelationalCommandParameterObject(
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             null,
                             Dependencies.CurrentContext.Context,
                             Dependencies.CommandLogger),
-                        cancellationToken));
+                        cancellationToken).ConfigureAwait(false));
 
         /// <summary>
         ///     Interprets the result of executing <see cref="ExistsSql" />.
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             var rows = new List<HistoryRow>();
 
-            if (await ExistsAsync(cancellationToken))
+            if (await ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
@@ -255,8 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.CommandLogger),
-                    cancellationToken);
-                while (await reader.ReadAsync(cancellationToken))
+                    cancellationToken).ConfigureAwait(false);
+                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {
                     rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                 }

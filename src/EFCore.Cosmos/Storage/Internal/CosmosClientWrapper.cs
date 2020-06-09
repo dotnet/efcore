@@ -287,14 +287,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             await using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
             using var jsonWriter = new JsonTextWriter(writer);
             JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
-            await jsonWriter.FlushAsync(cancellationToken);
+            await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
 
             var entry = parameters.Entry;
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
             var itemRequestOptions = CreateItemRequestOptions(entry);
             var partitionKey = CreatePartitionKey(entry);
 
-            using var response = await container.CreateItemStreamAsync(stream, partitionKey, itemRequestOptions, cancellationToken);
+            using var response = await container.CreateItemStreamAsync(stream, partitionKey, itemRequestOptions, cancellationToken)
+                .ConfigureAwait(false);
             ProcessResponse(response, entry);
 
             return response.StatusCode == HttpStatusCode.Created;
@@ -348,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
             using var jsonWriter = new JsonTextWriter(writer);
             JsonSerializer.Create().Serialize(jsonWriter, parameters.Document);
-            await jsonWriter.FlushAsync(cancellationToken);
+            await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
 
             var entry = parameters.Entry;
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
@@ -356,7 +357,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var partitionKey = CreatePartitionKey(entry);
 
             using var response = await container.ReplaceItemStreamAsync(
-                stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken);
+                    stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken)
+                .ConfigureAwait(false);
             ProcessResponse(response, entry);
 
             return response.StatusCode == HttpStatusCode.OK;
@@ -417,7 +419,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var partitionKey = CreatePartitionKey(entry);
 
             using var response = await items.DeleteItemStreamAsync(
-                parameters.DocumentId, partitionKey, itemRequestOptions, cancellationToken: cancellationToken);
+                    parameters.DocumentId, partitionKey, itemRequestOptions, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
             ProcessResponse(response, entry);
 
             return response.StatusCode == HttpStatusCode.NoContent;
@@ -550,7 +553,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _commandLogger.ExecutingReadItem(partitionKey, resourceId);
 
             var responseMessage = await CreateSingleItemQuery(
-                containerId, partitionKey, resourceId, cancellationToken);
+                    containerId, partitionKey, resourceId, cancellationToken)
+                .ConfigureAwait(false);
 
             return JObjectFromReadItemResponseMessage(responseMessage);
         }
@@ -597,11 +601,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CancellationToken cancellationToken = default)
         {
             var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
-            
+
             return await container.ReadItemStreamAsync(
-                resourceId,
-                string.IsNullOrEmpty(partitionKey) ? PartitionKey.None : new PartitionKey(partitionKey),
-                cancellationToken: cancellationToken);
+                    resourceId,
+                    string.IsNullOrEmpty(partitionKey) ? PartitionKey.None : new PartitionKey(partitionKey),
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
 
@@ -781,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 private JsonTextReader _jsonReader;
 
                 private FeedIterator _query;
-                
+
                 public JObject Current { get; private set; }
 
                 public AsyncEnumerator(DocumentAsyncEnumerable documentEnumerable, CancellationToken cancellationToken)
@@ -808,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                             return false;
                         }
 
-                        _responseMessage = await _query.ReadNextAsync(_cancellationToken);
+                        _responseMessage = await _query.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
                         _responseMessage.EnsureSuccessStatusCode();
 
                         _responseStream = _responseMessage.Content;
@@ -822,26 +827,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         return true;
                     }
 
-                    await ResetReadAsync();
+                    await ResetReadAsync().ConfigureAwait(false);
 
-                    return await MoveNextAsync();
+                    return await MoveNextAsync().ConfigureAwait(false);
                 }
 
                 private async Task ResetReadAsync()
                 {
                     _jsonReader?.Close();
                     _jsonReader = null;
-                    await _reader.DisposeAsyncIfAvailable();
+                    await _reader.DisposeAsyncIfAvailable().ConfigureAwait(false);
                     _reader = null;
-                    await _responseStream.DisposeAsyncIfAvailable();
+                    await _responseStream.DisposeAsyncIfAvailable().ConfigureAwait(false);
                     _responseStream = null;
                 }
 
                 public async ValueTask DisposeAsync()
                 {
-                    await ResetReadAsync();
+                    await ResetReadAsync().ConfigureAwait(false);
 
-                    await _responseMessage.DisposeAsyncIfAvailable();
+                    await _responseMessage.DisposeAsyncIfAvailable().ConfigureAwait(false);
                     _responseMessage = null;
                 }
             }

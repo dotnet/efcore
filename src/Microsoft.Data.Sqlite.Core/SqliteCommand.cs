@@ -422,7 +422,7 @@ namespace Microsoft.Data.Sqlite
         protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(
             CommandBehavior behavior,
             CancellationToken cancellationToken)
-            => await ExecuteReaderAsync(behavior, cancellationToken);
+            => await ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
 
         /// <summary>
         ///     Executes the <see cref="CommandText" /> against the database.

@@ -152,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                     _readItemExpression.Container,
                                     partitionKey,
                                     resourceId,
-                                    _cancellationToken);
+                                    _cancellationToken)
+                                    .ConfigureAwait(false);
 
                                 return ShapeResult();
                             }
