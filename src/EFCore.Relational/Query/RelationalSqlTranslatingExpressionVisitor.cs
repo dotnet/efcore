@@ -664,11 +664,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var translation = Dependencies.MethodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
 
-            if (translation == null
-                && (methodCallExpression.Method == _stringEqualsWithStringComparison
-                    || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic))
+            if (translation == null)
             {
-                ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+                if (methodCallExpression.Method == _stringEqualsWithStringComparison
+                    || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic)
+                {
+                    ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+                }
+                else
+                {
+                    ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateMethod(
+                        methodCallExpression.Method.Name,
+                        methodCallExpression.Method.DeclaringType?.DisplayName()));
+                }
             }
 
             return translation;

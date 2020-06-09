@@ -1374,6 +1374,9 @@
   <data name="QueryUnableToTranslateStringEqualsWithStringComparison" xml:space="preserve">
     <value>Translation of 'string.Equals' method which takes 'StringComparison' argument is not supported. See https://go.microsoft.com/fwlink/?linkid=2129535 for more information.</value>
   </data>
+  <data name="QueryUnableToTranslateMethod" xml:space="preserve">
+    <value>Translation of method '{declaringTypeName}.{methodName}' failed. If you are trying to map your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.</value>
+  </data>
   <data name="InvalidStateEncountered" xml:space="preserve">
     <value>Invalid {state} encountered.</value>
   </data>

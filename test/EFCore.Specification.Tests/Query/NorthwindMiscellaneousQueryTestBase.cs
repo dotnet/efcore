@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -5461,6 +5462,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Throws<InvalidOperationException>(
                     () => context.Customers.Select(c => new { A = this }).ToList()).Message);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Client_code_unknown_method(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>().Where(c => UnknownMethod(c.ContactName) == "foo")),
+                CoreStrings.QueryUnableToTranslateMethod(
+                    nameof(UnknownMethod),
+                    GetType().GetMethod(
+                            nameof(UnknownMethod),
+                            BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+                        ?.DeclaringType?.DisplayName()));
+        }
+
+        public static string UnknownMethod(string foo) => foo;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
