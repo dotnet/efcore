@@ -33,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [InlineData("-- comment\n SELECT something")]
         [InlineData("-- comment1\r\n --\t\rcomment2\r\nSELECT something")]
         [InlineData("SELECT--\n1")]
+        [InlineData("  /* comment */ SELECT--\n1")]
+        [InlineData("  /* multi\n*line\r\n * comment */ \nSELECT--\n1")]
+        [InlineData("SELECT/* comment */1")]
         public void CheckComposableSql_does_not_throw(string sql)
             => CreateDummyQuerySqlGenerator().CheckComposableSql(sql);
 

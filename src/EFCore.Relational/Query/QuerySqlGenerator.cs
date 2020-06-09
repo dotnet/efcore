@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var pos = -1;
             char c;
 
-            do
+            while (true)
             {
                 c = NextChar();
 
@@ -447,6 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     continue;
                 }
 
+                // SQL -- comment
                 if (c == '-')
                 {
                     if (NextChar() != '-')
@@ -459,6 +460,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                     continue;
                 }
 
+                // SQL /* */ comment
+                if (c == '/')
+                {
+                    if (NextChar() != '*')
+                    {
+                        throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+                    }
+
+                    while (true)
+                    {
+                        while (NextChar() != '*') { }
+
+                        if (NextChar() == '/')
+                        {
+                            break;
+                        }
+                    }
+
+                    continue;
+                }
+
                 if (char.ToLowerInvariant(c) == 's' &&
                     char.ToLowerInvariant(NextChar()) == 'e' &&
                     char.ToLowerInvariant(NextChar()) == 'l' &&
@@ -466,9 +488,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     char.ToLowerInvariant(NextChar()) == 'c' &&
                     char.ToLowerInvariant(NextChar()) == 't')
                 {
-                    c = NextChar();
-                    if (char.IsWhiteSpace(c)
-                        || c == '-' && NextChar() == '-')
+                    var (c1, c2) = (NextChar(), NextChar());
+                    if (char.IsWhiteSpace(c1)
+                        || c1 == '-' && c2 == '-'
+                        || c1 == '/' && c2 == '*')
                     {
                         return;
                     }
@@ -476,7 +499,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
             }
-            while (true);
 
             char NextChar()
                 => ++pos < sql.Length
