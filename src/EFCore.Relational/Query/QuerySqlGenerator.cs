@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -26,9 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
-        private static readonly Regex _composableSql
-            = new Regex(@"^\s*?SELECT\b", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(value: 1000.0));
-
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
@@ -437,10 +435,75 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(sql, nameof(sql));
 
-            if (!_composableSql.IsMatch(sql))
+            var pos = -1;
+            char c;
+
+            while (true)
             {
+                c = NextChar();
+
+                if (char.IsWhiteSpace(c))
+                {
+                    continue;
+                }
+
+                // SQL -- comment
+                if (c == '-')
+                {
+                    if (NextChar() != '-')
+                    {
+                        throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+                    }
+
+                    while (NextChar() != '\n') { }
+
+                    continue;
+                }
+
+                // SQL /* */ comment
+                if (c == '/')
+                {
+                    if (NextChar() != '*')
+                    {
+                        throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+                    }
+
+                    while (true)
+                    {
+                        while (NextChar() != '*') { }
+
+                        if (NextChar() == '/')
+                        {
+                            break;
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (char.ToLowerInvariant(c) == 's' &&
+                    char.ToLowerInvariant(NextChar()) == 'e' &&
+                    char.ToLowerInvariant(NextChar()) == 'l' &&
+                    char.ToLowerInvariant(NextChar()) == 'e' &&
+                    char.ToLowerInvariant(NextChar()) == 'c' &&
+                    char.ToLowerInvariant(NextChar()) == 't')
+                {
+                    var (c1, c2) = (NextChar(), NextChar());
+                    if (char.IsWhiteSpace(c1)
+                        || c1 == '-' && c2 == '-'
+                        || c1 == '/' && c2 == '*')
+                    {
+                        return;
+                    }
+                }
+
                 throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
             }
+
+            char NextChar()
+                => ++pos < sql.Length
+                    ? sql[pos]
+                    : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
         }
 
         /// <inheritdoc />
