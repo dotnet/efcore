@@ -2,37 +2,38 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a database function parameter in an <see cref="IDbFunction" />.
+    ///     Represents a <see cref="IDbFunction" /> parameter.
     /// </summary>
-    public interface IDbFunctionParameter
+    public interface IDbFunctionParameter : IAnnotatable
     {
         /// <summary>
-        ///     The <see cref="IDbFunction" /> to which this parameter belongs.
+        ///     Gets the <see cref="IDbFunction" /> to which this parameter belongs.
         /// </summary>
         IDbFunction Function { get; }
 
         /// <summary>
-        ///     The parameter name.
+        ///     Gets the parameter name.
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        ///     The parameter type.
+        ///     Gets the parameter type.
         /// </summary>
         Type ClrType { get; }
 
         /// <summary>
-        ///     The store (database) type of this parameter.
+        ///     Gets the store type of this parameter.
         /// </summary>
         string StoreType { get; }
 
         /// <summary>
-        ///     The <see cref="RelationalTypeMapping" /> for this parameter.
+        ///     Gets the <see cref="RelationalTypeMapping" /> for this parameter.
         /// </summary>
         RelationalTypeMapping TypeMapping { get; }
     }

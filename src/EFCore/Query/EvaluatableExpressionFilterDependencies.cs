@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -50,8 +53,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public EvaluatableExpressionFilterDependencies()
+        public EvaluatableExpressionFilterDependencies([NotNull] IEnumerable<IEvaluatableExpressionFilterPlugin> plugins)
         {
+            Check.NotNull(plugins, nameof(plugins));
+
+            Plugins = plugins;
         }
+
+        /// <summary>
+        ///     Gets the plugins.
+        /// </summary>
+        public IEnumerable<IEvaluatableExpressionFilterPlugin> Plugins { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EvaluatableExpressionFilterDependencies With([NotNull] IEnumerable<IEvaluatableExpressionFilterPlugin> plugins)
+            => new EvaluatableExpressionFilterDependencies(plugins);
     }
 }

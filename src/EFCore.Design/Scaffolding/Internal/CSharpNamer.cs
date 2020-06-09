@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -18,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         private readonly Func<T, string> _nameGetter;
         private readonly ICSharpUtilities _cSharpUtilities;
-        private readonly Func<string, string> _singularizePluralizer;
+        private readonly Func<string, string>? _singularizePluralizer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public CSharpNamer(
             [NotNull] Func<T, string> nameGetter,
             [NotNull] ICSharpUtilities cSharpUtilities,
-            [CanBeNull] Func<string, string> singularizePluralizer)
+            [CanBeNull] Func<string, string>? singularizePluralizer)
         {
             Check.NotNull(nameGetter, nameof(nameGetter));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));

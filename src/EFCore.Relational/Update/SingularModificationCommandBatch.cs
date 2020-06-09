@@ -26,18 +26,18 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
-        ///     Only returns <c>true</c> if the no command has already been added.
+        ///     Only returns <see langword="true" /> if the no command has already been added.
         /// </summary>
         /// <param name="modificationCommand"> The command to potentially add. </param>
-        /// <returns> <c>True</c> if no command has already been added. </returns>
+        /// <returns> <see langword="true" /> if no command has already been added. </returns>
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
             => ModificationCommands.Count == 0;
 
         /// <summary>
-        ///     Returns <c>true</c> since only a single command is generated so the command text must be valid.
+        ///     Returns <see langword="true" /> since only a single command is generated so the command text must be valid.
         /// </summary>
         /// <returns>
-        ///     <c>True</c>
+        ///     <see langword="true" />
         /// </returns>
         protected override bool IsCommandTextValid()
             => true;

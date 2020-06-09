@@ -16,13 +16,8 @@ namespace Microsoft.EntityFrameworkCore
             base.Property_entry_original_value_is_set();
 
             AssertSql(
-                @"SELECT ""e"".""Id"", ""e"".""EngineSupplierId"", ""e"".""Name"", ""t"".""Id"", ""t"".""StorageLocation_Latitude"", ""t"".""StorageLocation_Longitude""
+                @"SELECT ""e"".""Id"", ""e"".""EngineSupplierId"", ""e"".""Name"", ""e"".""StorageLocation_Latitude"", ""e"".""StorageLocation_Longitude""
 FROM ""Engines"" AS ""e""
-LEFT JOIN (
-    SELECT ""e0"".""Id"", ""e0"".""StorageLocation_Latitude"", ""e0"".""StorageLocation_Longitude""
-    FROM ""Engines"" AS ""e0""
-    WHERE ""e0"".""StorageLocation_Longitude"" IS NOT NULL AND ""e0"".""StorageLocation_Latitude"" IS NOT NULL
-) AS ""t"" ON ""e"".""Id"" = ""t"".""Id""
 ORDER BY ""e"".""Id""
 LIMIT 1",
                 //

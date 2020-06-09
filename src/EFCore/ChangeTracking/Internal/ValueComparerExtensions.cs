@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     newSnapshotParam));
         }
 
-        private class NonNullNullableValueComparer<T> : ValueComparer<T>
+        private sealed class NonNullNullableValueComparer<T> : ValueComparer<T>
         {
 #pragma warning disable CA1061 // Do not hide base class methods
             public NonNullNullableValueComparer(

@@ -410,7 +410,50 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Default_Context_configuration__is_reset()
+        public void Change_tracker_can_be_cleared_without_resetting_context_config()
+        {
+            var context = new PooledContext(
+                new DbContextOptionsBuilder().UseSqlServer(
+                    SqlServerNorthwindTestStoreFactory.NorthwindConnectionString).Options);
+
+            context.ChangeTracker.AutoDetectChangesEnabled = true;
+            context.ChangeTracker.LazyLoadingEnabled = true;
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
+            context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
+            context.Database.AutoTransactionsEnabled = true;
+            context.ChangeTracker.Tracked += ChangeTracker_OnTracked;
+            context.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
+
+            context.ChangeTracker.Clear();
+
+            Assert.True(context.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.True(context.ChangeTracker.LazyLoadingEnabled);
+            Assert.Equal(QueryTrackingBehavior.NoTracking, context.ChangeTracker.QueryTrackingBehavior);
+            Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.CascadeDeleteTiming);
+            Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.DeleteOrphansTiming);
+            Assert.True(context.Database.AutoTransactionsEnabled);
+
+            Assert.False(_changeTracker_OnTracked);
+            Assert.False(_changeTracker_OnStateChanged);
+
+            context.Customers.Attach(
+                new PooledContext.Customer { CustomerId = "C" }).State = EntityState.Modified;
+
+            Assert.True(_changeTracker_OnTracked);
+            Assert.True(_changeTracker_OnStateChanged);
+        }
+
+        private bool _changeTracker_OnTracked;
+        private void ChangeTracker_OnTracked(object sender, EntityTrackedEventArgs e)
+            => _changeTracker_OnTracked = true;
+
+        private bool _changeTracker_OnStateChanged;
+        private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
+            => _changeTracker_OnStateChanged = true;
+
+        [ConditionalFact]
+        public void Default_Context_configuration_is_reset()
         {
             var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>();
 
@@ -650,18 +693,16 @@ namespace Microsoft.EntityFrameworkCore
             Parallel.For(
                 fromInclusive: 0, toExclusive: 100, body: s =>
                 {
-                    using (var scope = serviceProvider.CreateScope())
-                    {
-                        var scopedProvider = scope.ServiceProvider;
+                    using var scope = serviceProvider.CreateScope();
+                    var scopedProvider = scope.ServiceProvider;
 
-                        var context = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        var _ = context.Customers.ToList();
+                    var _ = context.Customers.ToList();
 
-                        context.Dispose();
-                    }
+                    context.Dispose();
                 });
         }
 
@@ -684,18 +725,16 @@ namespace Microsoft.EntityFrameworkCore
             {
                 while (_stopwatch.IsRunning)
                 {
-                    using (var serviceScope = serviceProvider.CreateScope())
-                    {
-                        var scopedProvider = serviceScope.ServiceProvider;
+                    using var serviceScope = serviceProvider.CreateScope();
+                    var scopedProvider = serviceScope.ServiceProvider;
 
-                        var context = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        await context.Customers.AsNoTracking().FirstAsync(c => c.CustomerId == "ALFKI");
+                    await context.Customers.AsNoTracking().FirstAsync(c => c.CustomerId == "ALFKI");
 
-                        Interlocked.Increment(ref _requests);
-                    }
+                    Interlocked.Increment(ref _requests);
                 }
             }
 

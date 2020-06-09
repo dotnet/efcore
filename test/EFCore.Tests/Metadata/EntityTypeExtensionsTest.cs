@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, pk, entityType);
             fk.IsUnique = true;
-            var dependentToPrincipal = fk.HasDependentToPrincipal(nameof(SelfRef.SelfRefPrincipal));
-            var principalToDependent = fk.HasPrincipalToDependent(nameof(SelfRef.SelfRefDependent));
+            var dependentToPrincipal = fk.SetDependentToPrincipal(nameof(SelfRef.SelfRefPrincipal));
+            var principalToDependent = fk.SetPrincipalToDependent(nameof(SelfRef.SelfRefDependent));
 
             Assert.Equal(
                 new IPropertyBase[] { pk.Properties.Single(), fkProp, principalToDependent, dependentToPrincipal },

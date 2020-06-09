@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -118,11 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => annotation;
 
         /// <summary>
-        ///     Gets the annotation with the given name, returning <c>null</c> if it does not exist.
+        ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <c>null</c>.
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
         public virtual Annotation FindAnnotation([NotNull] string name)
         {
@@ -163,12 +164,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the value annotation with the given name, returning <c>null</c> if it does not exist.
+        ///     Gets the value annotation with the given name, returning <see langword="null" /> if it does not exist.
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists.
-        ///     Otherwise, <c>null</c>.
+        ///     Otherwise, <see langword="null" />.
         /// </returns>
         public virtual object this[string name]
         {
@@ -197,18 +198,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual Annotation CreateAnnotation([NotNull] string name, [CanBeNull] object value)
             => new Annotation(name, value);
 
-        /// <summary>
-        ///     Gets all annotations on the current object.
-        /// </summary>
+        /// <inheritdoc />
+        [DebuggerStepThrough]
         IEnumerable<IAnnotation> IAnnotatable.GetAnnotations() => GetAnnotations();
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         IAnnotation IAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         IAnnotation IMutableAnnotatable.AddAnnotation(string name, object value) => AddAnnotation(name, value);
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         IAnnotation IMutableAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
     }
 }

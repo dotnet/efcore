@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -19,10 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class DbFunctionParameterBuilder : IConventionDbFunctionParameterBuilder
+    public class DbFunctionParameterBuilder : IInfrastructure<IConventionDbFunctionParameterBuilder>
     {
-        private readonly DbFunctionParameter _parameter;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,16 +32,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(parameter, nameof(parameter));
 
-            _parameter = (DbFunctionParameter)parameter;
+            Builder = ((DbFunctionParameter)parameter).Builder;
+        }
+
+        private InternalDbFunctionParameterBuilder Builder { [DebuggerStepThrough] get; }
+
+        /// <inheritdoc />
+        IConventionDbFunctionParameterBuilder IInfrastructure<IConventionDbFunctionParameterBuilder>.Instance
+        {
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>
         ///     The function parameter metadata that is being built.
         /// </summary>
-        public virtual IMutableDbFunctionParameter Metadata => _parameter;
-
-        /// <inheritdoc />
-        IConventionDbFunctionParameter IConventionDbFunctionParameterBuilder.Metadata => _parameter;
+        public virtual IMutableDbFunctionParameter Metadata => Builder.Metadata;
 
         /// <summary>
         ///     Sets the store type of the function parameter in the database.
@@ -52,49 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that further configuration calls can be chained. </returns>
         public virtual DbFunctionParameterBuilder HasStoreType([CanBeNull] string storeType)
         {
-            _parameter.StoreType = storeType;
+            Builder.HasStoreType(storeType, ConfigurationSource.Explicit);
 
             return this;
         }
-
-        /// <inheritdoc />
-        IConventionDbFunctionParameterBuilder IConventionDbFunctionParameterBuilder.HasStoreType(string storeType, bool fromDataAnnotation)
-        {
-            if (((IConventionDbFunctionParameterBuilder)this).CanSetStoreType(storeType, fromDataAnnotation))
-            {
-                ((IConventionDbFunctionParameter)_parameter).SetStoreType(storeType, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionDbFunctionParameterBuilder.CanSetStoreType(string storeType, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _parameter.GetStoreTypeConfigurationSource())
-                || _parameter.StoreType == storeType;
-
-        /// <inheritdoc />
-        IConventionDbFunctionParameterBuilder IConventionDbFunctionParameterBuilder.HasTypeMapping(
-            RelationalTypeMapping typeMapping, bool fromDataAnnotation)
-        {
-            if (((IConventionDbFunctionParameterBuilder)this).CanSetTypeMapping(typeMapping, fromDataAnnotation))
-            {
-                ((IConventionDbFunctionParameter)_parameter).SetTypeMapping(typeMapping, fromDataAnnotation);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <inheritdoc />
-        bool IConventionDbFunctionParameterBuilder.CanSetTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
-            => Overrides(fromDataAnnotation, _parameter.GetTypeMappingConfigurationSource())
-                || _parameter.TypeMapping == typeMapping;
-
-        private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
-            => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                .Overrides(configurationSource);
 
         #region Hidden System.Object members
 
@@ -109,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);

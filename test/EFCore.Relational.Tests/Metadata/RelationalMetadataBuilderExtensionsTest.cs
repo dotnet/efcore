@@ -147,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
             var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.NotNull(indexBuilder.HasName("Splew"));
             Assert.Equal("Splew", indexBuilder.Metadata.GetName());
 
@@ -155,6 +156,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Null(indexBuilder.HasName("Splod"));
             Assert.Equal("Splow", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName(null, fromDataAnnotation: true));
+            Assert.Equal("IX_Splot_Id", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName("Splod"));
+            Assert.Equal("Splod", indexBuilder.Metadata.GetName());
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            Assert.NotNull(indexBuilder.HasFilter("Splew"));
+            Assert.Equal("Splew", indexBuilder.Metadata.GetFilter());
+
+            Assert.NotNull(indexBuilder.HasFilter("Splow", fromDataAnnotation: true));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetFilter());
+
+            Assert.Null(indexBuilder.HasFilter("Splod"));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetFilter());
+
+            Assert.NotNull(indexBuilder.HasFilter(null, fromDataAnnotation: true));
+            Assert.Null(indexBuilder.Metadata.GetFilter());
+
+            Assert.Null(indexBuilder.HasFilter("Splod"));
+            Assert.Null(indexBuilder.Metadata.GetFilter());
         }
 
         [ConditionalFact]
@@ -179,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_access_check_constraint()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
-            var entityType = typeBuilder.Metadata;
+            IEntityType entityType = typeBuilder.Metadata;
 
             Assert.NotNull(typeBuilder.HasCheckConstraint("Splew", "s > p"));
             Assert.Equal("Splew", entityType.GetCheckConstraints().Single().Name);

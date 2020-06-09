@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public static InternalRelationshipBuilder Run(
-            [NotNull] this IConventionBatch batch, [NotNull] InternalRelationshipBuilder relationshipBuilder)
-            => (InternalRelationshipBuilder)batch.Run(relationshipBuilder.Metadata)?.Builder;
+        public static InternalForeignKeyBuilder Run(
+            [NotNull] this IConventionBatch batch, [NotNull] InternalForeignKeyBuilder relationshipBuilder)
+            => (InternalForeignKeyBuilder)batch.Run(relationshipBuilder.Metadata)?.Builder;
     }
 }

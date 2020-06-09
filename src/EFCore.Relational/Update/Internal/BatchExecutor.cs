@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,18 +28,17 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public class BatchExecutor : IBatchExecutor
     {
+        private const string SavepointName = "__EFSavePoint";
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public BatchExecutor([NotNull] ICurrentDbContext currentContext, [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+        public BatchExecutor([NotNull] ICurrentDbContext currentContext)
         {
             CurrentContext = currentContext;
-#pragma warning disable 618
-            ExecutionStrategyFactory = executionStrategyFactory;
-#pragma warning restore 618
         }
 
         /// <summary>
@@ -57,33 +55,33 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete("This isn't used anymore")]
-        protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual int Execute(
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection)
         {
             var rowsAffected = 0;
-            IDbContextTransaction startedTransaction = null;
+            var transaction = connection.CurrentTransaction;
+            var beganTransaction = false;
+            var createdSavepoint = false;
             try
             {
-                if (connection.CurrentTransaction == null
+                if (transaction == null
                     && (connection as ITransactionEnlistmentManager)?.EnlistedTransaction == null
                     && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
-                    startedTransaction = connection.BeginTransaction();
+                    transaction = connection.BeginTransaction();
+                    beganTransaction = true;
                 }
                 else
                 {
                     connection.Open();
+
+                    if (transaction?.AreSavepointsSupported == true)
+                    {
+                        transaction.CreateSavepoint(SavepointName);
+                        createdSavepoint = true;
+                    }
                 }
 
                 foreach (var batch in commandBatches)
@@ -92,13 +90,29 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     rowsAffected += batch.ModificationCommands.Count;
                 }
 
-                startedTransaction?.Commit();
+                if (beganTransaction)
+                {
+                    transaction.Commit();
+                }
+            }
+            catch
+            {
+                if (createdSavepoint)
+                {
+                    transaction.RollbackToSavepoint(SavepointName);
+                }
+
+                throw;
             }
             finally
             {
-                if (startedTransaction != null)
+                if (createdSavepoint)
                 {
-                    startedTransaction.Dispose();
+                    transaction.ReleaseSavepoint(SavepointName);
+                }
+                else if (beganTransaction)
+                {
+                    transaction.Dispose();
                 }
                 else
                 {
@@ -121,38 +135,63 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             CancellationToken cancellationToken = default)
         {
             var rowsAffected = 0;
-            IDbContextTransaction startedTransaction = null;
+            var transaction = connection.CurrentTransaction;
+            var beganTransaction = false;
+            var createdSavepoint = false;
             try
             {
-                if (connection.CurrentTransaction == null
+                if (transaction == null
                     && (connection as ITransactionEnlistmentManager)?.EnlistedTransaction == null
                     && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
-                    startedTransaction = await connection.BeginTransactionAsync(cancellationToken);
+                    transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+                    beganTransaction = true;
                 }
                 else
                 {
-                    await connection.OpenAsync(cancellationToken);
+                    await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+                    if (transaction?.AreSavepointsSupported == true)
+                    {
+                        await transaction.CreateSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                        createdSavepoint = true;
+                    }
                 }
 
                 foreach (var batch in commandBatches)
                 {
-                    await batch.ExecuteAsync(connection, cancellationToken);
+                    await batch.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                     rowsAffected += batch.ModificationCommands.Count;
                 }
 
-                startedTransaction?.Commit();
+                if (beganTransaction)
+                {
+                    await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch
+            {
+                if (createdSavepoint)
+                {
+                    await transaction.RollbackToSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                }
+
+                throw;
             }
             finally
             {
-                if (startedTransaction != null)
+                if (createdSavepoint)
                 {
-                    await startedTransaction.DisposeAsync();
+                    await transaction.ReleaseSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                }
+                else if (beganTransaction)
+                {
+                    await transaction.DisposeAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    await connection.CloseAsync();
+                    await connection.CloseAsync().ConfigureAwait(false);
                 }
             }
 

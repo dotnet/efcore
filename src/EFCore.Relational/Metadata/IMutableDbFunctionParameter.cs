@@ -7,22 +7,22 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a mutable database function parameter in an <see cref="IMutableDbFunction" />.
+    ///     Represents a <see cref="IMutableDbFunction" /> parameter.
     /// </summary>
-    public interface IMutableDbFunctionParameter : IDbFunctionParameter
+    public interface IMutableDbFunctionParameter : IMutableAnnotatable, IDbFunctionParameter
     {
         /// <summary>
-        ///     The <see cref="IMutableDbFunction" /> to which this parameter belongs.
+        ///     Gets the <see cref="IMutableDbFunction" /> to which this parameter belongs.
         /// </summary>
         new IMutableDbFunction Function { get; }
 
         /// <summary>
-        ///     The store (database) type of this parameter.
+        ///     Gets or sets the store type of this parameter.
         /// </summary>
         new string StoreType { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The <see cref="RelationalTypeMapping" /> for this parameter.
+        ///     Gets or sets the <see cref="RelationalTypeMapping" /> for this parameter.
         /// </summary>
         new RelationalTypeMapping TypeMapping { get; [param: CanBeNull] set; }
     }

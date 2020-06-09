@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that ensures that properties aren't configured to have a default value and as computed column at the same time.
     /// </summary>
-    public class StoreGenerationConvention : IPropertyAnnotationChangedConvention, IModelFinalizedConvention
+    public class StoreGenerationConvention : IPropertyAnnotationChangedConvention, IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="StoreGenerationConvention" />.
@@ -86,18 +86,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
+                var tableName = entityType.GetTableName();
+                if (tableName == null)
+                {
+                    continue;
+                }
+
+                var schema = entityType.GetSchema();
                 foreach (var declaredProperty in entityType.GetDeclaredProperties())
                 {
-                    Validate(declaredProperty);
+                    Validate(declaredProperty, tableName, schema);
                 }
             }
         }
@@ -106,25 +109,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Throws if there is conflicting store generation configuration for this property.
         /// </summary>
         /// <param name="property"> The property to check. </param>
-        protected virtual void Validate([NotNull] IConventionProperty property)
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        protected virtual void Validate(
+            [NotNull] IConventionProperty property,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
         {
-            if (property.GetDefaultValue() != null)
+            if (property.GetDefaultValue(tableName, schema) != null)
             {
-                if (property.GetDefaultValueSql() != null)
+                if (property.GetDefaultValueSql(tableName, schema) != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration("DefaultValue", property.Name, "DefaultValueSql"));
                 }
 
-                if (property.GetComputedColumnSql() != null)
+                if (property.GetComputedColumnSql(tableName, schema) != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration("DefaultValue", property.Name, "ComputedColumnSql"));
                 }
             }
-            else if (property.GetDefaultValueSql() != null)
+            else if (property.GetDefaultValueSql(tableName, schema) != null)
             {
-                if (property.GetComputedColumnSql() != null)
+                if (property.GetComputedColumnSql(tableName, schema) != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration("DefaultValueSql", property.Name, "ComputedColumnSql"));

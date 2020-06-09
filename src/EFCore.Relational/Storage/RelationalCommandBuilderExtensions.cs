@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static IRelationalCommandBuilder AppendLine(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
-            [NotNull] object value)
+            [NotNull] string value)
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotNull(value, nameof(value));
@@ -41,17 +41,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="commandBuilder"> The command builder. </param>
         /// <param name="value"> The object to be written. </param>
-        /// <param name="skipFinalNewline"> If <code>true</code>, then the final newline character is skipped. </param>
+        /// <param name="skipFinalNewline"> If <see langword="true" />, then the final newline character is skipped. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static IRelationalCommandBuilder AppendLines(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
-            [NotNull] object value,
+            [NotNull] string value,
             bool skipFinalNewline = false)
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotNull(value, nameof(value));
 
-            using (var reader = new StringReader(value.ToString()))
+            using (var reader = new StringReader(value))
             {
                 var first = true;
                 string line;

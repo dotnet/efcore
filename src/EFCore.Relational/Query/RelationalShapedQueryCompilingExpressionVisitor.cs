@@ -6,39 +6,56 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <inheritdoc />
     public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
         private readonly Type _contextType;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private readonly ISet<string> _tags;
+        private readonly bool _detailedErrorsEnabled;
         private readonly bool _useRelationalNulls;
 
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ShapedQueryCompilingExpressionVisitor" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
+        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         public RelationalShapedQueryCompilingExpressionVisitor(
-            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
-            QueryCompilationContext queryCompilationContext)
+            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            [NotNull] RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
             RelationalDependencies = relationalDependencies;
 
             _contextType = queryCompilationContext.ContextType;
-            _logger = queryCompilationContext.Logger;
             _tags = queryCompilationContext.Tags;
+            _detailedErrorsEnabled = relationalDependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
 
+        /// <summary>
+        ///     Parameter object containing relational service dependencies.
+        /// </summary>
         protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
 
-        protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
+        /// <inheritdoc />
+        protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
         {
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             selectExpression.ApplyTags(_tags);
 
@@ -60,10 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     selectExpression,
                     dataReaderParameter,
                     isNonComposedFromSql ? indexMapParameter : null,
-                    IsBuffering)
+                    _detailedErrorsEnabled,
+                    QueryCompilationContext.IsBuffering)
                 .Visit(shaper, out var projectionColumns);
 
-            shaper = new CustomShaperCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, IsTracking)
+            shaper = new CustomShaperCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, QueryCompilationContext.IsTracking)
                 .Visit(shaper);
 
             IReadOnlyList<string> columnNames = null;
@@ -74,9 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var relationalCommandCache = new RelationalCommandCache(
                 Dependencies.MemoryCache,
-                RelationalDependencies.SqlExpressionFactory,
-                RelationalDependencies.ParameterNameGeneratorFactory,
                 RelationalDependencies.QuerySqlGeneratorFactory,
+                RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
                 _useRelationalNulls,
                 selectExpression);
 
@@ -90,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(projectionColumns, typeof(IReadOnlyList<ReaderColumn>)),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(_logger));
+                Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
         }
     }
 }

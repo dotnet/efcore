@@ -13,9 +13,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
         public DerivedReferenceOnDerived DerivedReferenceOnDerived { get; set; }
         public ReferenceOnDerived ReferenceOnDerived { get; set; }
         public BaseInheritanceRelationshipEntity BaseSelfReferenceOnDerived { get; set; }
+        public OwnedEntity OwnedReferenceOnDerived { get; set; }
 
         public List<BaseCollectionOnDerived> BaseCollectionOnDerived { get; set; }
         public List<DerivedCollectionOnDerived> DerivedCollectionOnDerived { get; set; }
         public List<CollectionOnDerived> CollectionOnDerived { get; set; }
+        public List<OwnedEntity> OwnedCollectionOnDerived { get; set; }
     }
 }

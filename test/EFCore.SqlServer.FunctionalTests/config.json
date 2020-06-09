@@ -3,11 +3,7 @@
       "SqlServer": {
         "DefaultConnection": "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=60;ConnectRetryCount=0",
         "ElasticPoolName": "",
-        "SupportsSequences": true,
-        "SupportsOffset": true,
-        "SupportsMemoryOptimized": false,
-        "SupportsHiddenColumns": true,
-        "SupportsFullTextSearch": true
+        "SupportsMemoryOptimized": null
       }
     }
 }

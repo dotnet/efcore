@@ -14,6 +14,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.OnModelCreating(modelBuilder, context);
 
+            modelBuilder.Entity<ProductViewTable>().HasBaseType((string)null).ToTable("ProductView");
+            modelBuilder.Entity<ProductTableWithView>().HasBaseType((string)null).ToView("ProductView").ToTable("ProductTable");
+            modelBuilder.Entity<ProductTableView>().HasBaseType((string)null).ToView("ProductTable");
+
             modelBuilder
                 .Entity<
                     LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails

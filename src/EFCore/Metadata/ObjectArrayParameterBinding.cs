@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     {
                         var expression = b.BindToParameter(bindingInfo);
 
-                        if (expression.Type.GetTypeInfo().IsValueType)
+                        if (expression.Type.IsValueType)
                         {
                             expression = Expression.Convert(expression, typeof(object));
                         }

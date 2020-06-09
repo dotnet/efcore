@@ -11,20 +11,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a database sequence in the <see cref="IConventionModel" /> in a form that
     ///     can be mutated while building the model.
     /// </summary>
-    public interface IConventionSequence : ISequence
+    public interface IConventionSequence : ISequence, IConventionAnnotatable
     {
         /// <summary>
-        ///     The <see cref="IConventionModel" /> in which this sequence is defined.
+        ///     Gets the <see cref="IConventionModel" /> in which this sequence is defined.
         /// </summary>
         new IConventionModel Model { get; }
 
         /// <summary>
         ///     Gets the builder that can be used to configure this sequence.
         /// </summary>
-        IConventionSequenceBuilder Builder { get; }
+        new IConventionSequenceBuilder Builder { get; }
 
         /// <summary>
-        ///     Returns the configuration source for this <see cref="IConventionSequence" />.
+        ///     Gets the configuration source for this <see cref="IConventionSequence" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="IConventionSequence" />. </returns>
         ConfigurationSource GetConfigurationSource();
@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="startValue"> The value at which the sequence will start. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetStartValue(long? startValue, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        long? SetStartValue(long? startValue, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="ISequence.StartValue" />.
@@ -47,10 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="incrementBy"> The amount incremented to obtain each new value in the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetIncrementBy(int? incrementBy, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        int? SetIncrementBy(int? incrementBy, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="ISequence.IncrementBy" />.
+        ///     Gets the configuration source for <see cref="ISequence.IncrementBy" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="ISequence.IncrementBy" />. </returns>
         ConfigurationSource? GetIncrementByConfigurationSource();
@@ -60,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="minValue"> The minimum value supported by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetMinValue(long? minValue, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        long? SetMinValue(long? minValue, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="ISequence.MinValue" />.
@@ -73,10 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="maxValue"> The maximum value supported by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetMaxValue(long? maxValue, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        long? SetMaxValue(long? maxValue, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="ISequence.MaxValue" />.
+        ///     Gets the configuration source for <see cref="ISequence.MaxValue" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="ISequence.MaxValue" />. </returns>
         ConfigurationSource? GetMaxValueConfigurationSource();
@@ -86,10 +90,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="clrType"> The <see cref="Type" /> of values returned by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetClrType([CanBeNull] Type clrType, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        Type SetClrType([CanBeNull] Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="ISequence.ClrType" />.
+        ///     Gets the configuration source for <see cref="ISequence.ClrType" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="ISequence.ClrType" />. </returns>
         ConfigurationSource? GetClrTypeConfigurationSource();
@@ -98,14 +103,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets whether the sequence will start again from the beginning when the max value is reached.
         /// </summary>
         /// <param name="cyclic">
-        ///     If <c>true</c>, then the sequence will start again from the beginning when the max value
+        ///     If <see langword="true" />, then the sequence will start again from the beginning when the max value
         ///     is reached.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetIsCyclic(bool? cyclic, bool fromDataAnnotation = false);
+        /// <returns> The configured value. </returns>
+        bool? SetIsCyclic(bool? cyclic, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="ISequence.IsCyclic" />.
+        ///     Gets the configuration source for <see cref="ISequence.IsCyclic" />.
         /// </summary>
         /// <returns> The configuration source for <see cref="ISequence.IsCyclic" />. </returns>
         ConfigurationSource? GetIsCyclicConfigurationSource();

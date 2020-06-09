@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
+using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
 namespace System
@@ -13,6 +15,26 @@ namespace System
     [DebuggerStepThrough]
     internal static class SharedTypeExtensions
     {
+        private static readonly Dictionary<Type, string> _builtInTypeNames = new Dictionary<Type, string>
+        {
+            { typeof(bool), "bool" },
+            { typeof(byte), "byte" },
+            { typeof(char), "char" },
+            { typeof(decimal), "decimal" },
+            { typeof(double), "double" },
+            { typeof(float), "float" },
+            { typeof(int), "int" },
+            { typeof(long), "long" },
+            { typeof(object), "object" },
+            { typeof(sbyte), "sbyte" },
+            { typeof(short), "short" },
+            { typeof(string), "string" },
+            { typeof(uint), "uint" },
+            { typeof(ulong), "ulong" },
+            { typeof(ushort), "ushort" },
+            { typeof(void), "void" }
+        };
+
         public static Type UnwrapNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
         public static bool IsNullableValueType(this Type type)
@@ -22,7 +44,7 @@ namespace System
             => !type.IsValueType || type.IsNullableValueType();
 
         public static bool IsValidEntityType(this Type type)
-            => type.GetTypeInfo().IsClass;
+            => type.IsClass;
 
         public static Type MakeNullable(this Type type, bool nullable = true)
             => type.IsNullableType() == nullable
@@ -105,9 +127,7 @@ namespace System
             return props.SingleOrDefault();
         }
 
-        public static bool IsInstantiable(this Type type) => IsInstantiable(type.GetTypeInfo());
-
-        private static bool IsInstantiable(TypeInfo type)
+        public static bool IsInstantiable(this Type type)
             => !type.IsAbstract
                 && !type.IsInterface
                 && (!type.IsGenericType || !type.IsGenericTypeDefinition);
@@ -116,7 +136,7 @@ namespace System
         {
             var isNullable = type.IsNullableType();
             var underlyingNonNullableType = isNullable ? type.UnwrapNullableType() : type;
-            if (!underlyingNonNullableType.GetTypeInfo().IsEnum)
+            if (!underlyingNonNullableType.IsEnum)
             {
                 return type;
             }
@@ -143,7 +163,7 @@ namespace System
 
         public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
-            if (type.GetTypeInfo().IsGenericTypeDefinition)
+            if (type.IsGenericTypeDefinition)
             {
                 return null;
             }
@@ -164,7 +184,23 @@ namespace System
                 }
             }
 
-            return singleImplementation?.GetTypeInfo().GenericTypeArguments.FirstOrDefault();
+            return singleImplementation?.GenericTypeArguments.FirstOrDefault();
+        }
+
+        public static bool IsCompatibleWith(this Type propertyType, Type fieldType)
+        {
+            if (propertyType.IsAssignableFrom(fieldType)
+                || fieldType.IsAssignableFrom(propertyType))
+            {
+                return true;
+            }
+
+            var propertyElementType = propertyType.TryGetSequenceType();
+            var fieldElementType = fieldType.TryGetSequenceType();
+
+            return propertyElementType != null
+                && fieldElementType != null
+                && IsCompatibleWith(propertyElementType, fieldElementType);
         }
 
         public static IEnumerable<Type> GetGenericTypeImplementations(this Type type, Type interfaceOrBaseType)
@@ -177,14 +213,14 @@ namespace System
                     : type.GetBaseTypes();
                 foreach (var baseType in baseTypes)
                 {
-                    if (baseType.GetTypeInfo().IsGenericType
+                    if (baseType.IsGenericType
                         && baseType.GetGenericTypeDefinition() == interfaceOrBaseType)
                     {
                         yield return baseType;
                     }
                 }
 
-                if (type.GetTypeInfo().IsGenericType
+                if (type.IsGenericType
                     && type.GetGenericTypeDefinition() == interfaceOrBaseType)
                 {
                     yield return type;
@@ -194,13 +230,13 @@ namespace System
 
         public static IEnumerable<Type> GetBaseTypes(this Type type)
         {
-            type = type.GetTypeInfo().BaseType;
+            type = type.BaseType;
 
             while (type != null)
             {
                 yield return type;
 
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
         }
 
@@ -210,7 +246,7 @@ namespace System
             {
                 yield return type;
 
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
         }
 
@@ -290,7 +326,7 @@ namespace System
 
         public static object GetDefaultValue(this Type type)
         {
-            if (!type.GetTypeInfo().IsValueType)
+            if (!type.IsValueType)
             {
                 return null;
             }
@@ -317,6 +353,143 @@ namespace System
             catch (ReflectionTypeLoadException ex)
             {
                 return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo);
+            }
+        }
+
+        public static bool IsQueryableType(this Type type)
+        {
+            if (type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+            {
+                return true;
+            }
+
+            return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryable<>));
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static string DisplayName([NotNull] this Type type, bool fullName = true)
+        {
+            var stringBuilder = new StringBuilder();
+            ProcessType(stringBuilder, type, fullName);
+            return stringBuilder.ToString();
+        }
+
+        private static void ProcessType(StringBuilder builder, Type type, bool fullName)
+        {
+            if (type.IsGenericType)
+            {
+                var genericArguments = type.GetGenericArguments();
+                ProcessGenericType(builder, type, genericArguments, genericArguments.Length, fullName);
+            }
+            else if (type.IsArray)
+            {
+                ProcessArrayType(builder, type, fullName);
+            }
+            else if (_builtInTypeNames.TryGetValue(type, out var builtInName))
+            {
+                builder.Append(builtInName);
+            }
+            else if (!type.IsGenericParameter)
+            {
+                builder.Append(fullName ? type.FullName : type.Name);
+            }
+        }
+
+        private static void ProcessArrayType(StringBuilder builder, Type type, bool fullName)
+        {
+            var innerType = type;
+            while (innerType.IsArray)
+            {
+                innerType = innerType.GetElementType();
+            }
+
+            ProcessType(builder, innerType, fullName);
+
+            while (type.IsArray)
+            {
+                builder.Append('[');
+                builder.Append(',', type.GetArrayRank() - 1);
+                builder.Append(']');
+                type = type.GetElementType();
+            }
+        }
+
+        private static void ProcessGenericType(StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName)
+        {
+            var offset = type.IsNested ? type.DeclaringType.GetGenericArguments().Length : 0;
+
+            if (fullName)
+            {
+                if (type.IsNested)
+                {
+                    ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName);
+                    builder.Append('+');
+                }
+                else
+                {
+                    builder.Append(type.Namespace);
+                    builder.Append('.');
+                }
+            }
+
+            var genericPartIndex = type.Name.IndexOf('`');
+            if (genericPartIndex <= 0)
+            {
+                builder.Append(type.Name);
+                return;
+            }
+
+            builder.Append(type.Name, 0, genericPartIndex);
+            builder.Append('<');
+
+            for (var i = offset; i < length; i++)
+            {
+                ProcessType(builder, genericArguments[i], fullName);
+                if (i + 1 == length)
+                {
+                    continue;
+                }
+
+                builder.Append(',');
+                if (!genericArguments[i + 1].IsGenericParameter)
+                {
+                    builder.Append(' ');
+                }
+            }
+
+            builder.Append('>');
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IEnumerable<string> GetNamespaces([NotNull] this Type type)
+        {
+            if (_builtInTypeNames.ContainsKey(type))
+            {
+                yield break;
+            }
+
+            yield return type.Namespace;
+
+            if (type.IsGenericType)
+            {
+                foreach (var typeArgument in type.GenericTypeArguments)
+                {
+                    foreach (var ns in typeArgument.GetNamespaces())
+                    {
+                        yield return ns;
+                    }
+                }
             }
         }
     }

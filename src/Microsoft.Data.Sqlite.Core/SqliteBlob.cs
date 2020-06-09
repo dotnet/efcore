@@ -13,6 +13,7 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     ///     Provides methods to access the contents of a blob.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
     public class SqliteBlob : Stream
     {
         private sqlite3_blob _blob;
@@ -27,6 +28,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
         /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
         public SqliteBlob(
             SqliteConnection connection,
             string tableName,
@@ -46,6 +48,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
         /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
         public SqliteBlob(
             SqliteConnection connection,
             string databaseName,
@@ -87,20 +90,20 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the current stream supports reading.
         ///     Always true.
         /// </summary>
-        /// <value>true if the stream supports reading; otherwise, false.</value>
+        /// <value><see langword="true"/> if the stream supports reading; otherwise, <see langword="false"/>. </value>
         public override bool CanRead => true;
 
         /// <summary>
         ///     Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <value>true if the stream supports writing; otherwise, false.</value>
+        /// <value><see langword="true"/> if the stream supports writing; otherwise, <see langword="false"/>. </value>
         public override bool CanWrite { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the current stream supports seeking.
         ///     Always true.
         /// </summary>
-        /// <value>true if the stream supports seeking; otherwise, false.</value>
+        /// <value><see langword="true"/> if the stream supports seeking; otherwise, <see langword="false"/>. </value>
         public override bool CanSeek => true;
 
         /// <summary>
@@ -276,7 +279,7 @@ namespace Microsoft.Data.Sqlite
         ///     Releases any resources used by the blob and closes it.
         /// </summary>
         /// <param name="disposing">
-        ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
+        ///     true to release managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {

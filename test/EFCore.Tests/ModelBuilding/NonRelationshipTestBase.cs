@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
@@ -1251,6 +1252,160 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Can_set_key_on_an_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<EntityWithFields>().HasKey(e => e.Id);
+
+                var entity = modelBuilder.Model.FindEntityType(typeof(EntityWithFields));
+                var primaryKey = entity.FindPrimaryKey();
+                Assert.NotNull(primaryKey);
+                var property = Assert.Single(primaryKey.Properties);
+                Assert.Equal(nameof(EntityWithFields.Id), property.Name);
+                Assert.Null(property.PropertyInfo);
+                Assert.NotNull(property.FieldInfo);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_set_composite_key_on_an_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<EntityWithFields>().HasKey(e => new { e.TenantId, e.CompanyId });
+
+                var entity = modelBuilder.Model.FindEntityType(typeof(EntityWithFields));
+                var primaryKeyProperties = entity.FindPrimaryKey().Properties;
+                Assert.Equal(2, primaryKeyProperties.Count);
+                var first = primaryKeyProperties[0];
+                var second = primaryKeyProperties[1];
+                Assert.Equal(nameof(EntityWithFields.TenantId), first.Name);
+                Assert.Null(first.PropertyInfo);
+                Assert.NotNull(first.FieldInfo);
+                Assert.Equal(nameof(EntityWithFields.CompanyId), second.Name);
+                Assert.Null(second.PropertyInfo);
+                Assert.NotNull(second.FieldInfo);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_set_alternate_key_on_an_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<EntityWithFields>().HasAlternateKey(e => e.CompanyId);
+
+                var entity = modelBuilder.Model.FindEntityType(typeof(EntityWithFields));
+                var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFields)).GetProperties();
+                Assert.Single(properties);
+                var property = properties.Single();
+                Assert.Equal(nameof(EntityWithFields.CompanyId), property.Name);
+                Assert.Null(property.PropertyInfo);
+                Assert.NotNull(property.FieldInfo);
+                var keys = entity.GetKeys();
+                var key = Assert.Single(keys);
+                Assert.Equal(properties, key.Properties);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_set_composite_alternate_key_on_an_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<EntityWithFields>().HasAlternateKey(e => new { e.TenantId, e.CompanyId });
+
+                var keys = modelBuilder.Model.FindEntityType(typeof(EntityWithFields)).GetKeys();
+                Assert.Single(keys);
+                var properties = keys.Single().Properties;
+                Assert.Equal(2, properties.Count);
+                var first = properties[0];
+                var second = properties[1];
+                Assert.Equal(nameof(EntityWithFields.TenantId), first.Name);
+                Assert.Null(first.PropertyInfo);
+                Assert.NotNull(first.FieldInfo);
+                Assert.Equal(nameof(EntityWithFields.CompanyId), second.Name);
+                Assert.Null(second.PropertyInfo);
+                Assert.NotNull(second.FieldInfo);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_call_Property_on_an_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<EntityWithFields>().Property(e => e.Id);
+
+                var properties = modelBuilder.Model.FindEntityType(typeof(EntityWithFields)).GetProperties();
+                var property = Assert.Single(properties);
+                Assert.Equal(nameof(EntityWithFields.Id), property.Name);
+                Assert.Null(property.PropertyInfo);
+                Assert.NotNull(property.FieldInfo);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_set_index_on_an_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<EntityWithFields>().HasIndex(e => e.CompanyId);
+
+                var indexes = modelBuilder.Model.FindEntityType(typeof(EntityWithFields)).GetIndexes();
+                var index = Assert.Single(indexes);
+                var property = Assert.Single(index.Properties);
+                Assert.Null(property.PropertyInfo);
+                Assert.NotNull(property.FieldInfo);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_set_composite_index_on_an_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<EntityWithFields>().HasIndex(e => new { e.TenantId, e.CompanyId });
+
+                var indexes = modelBuilder.Model.FindEntityType(typeof(EntityWithFields)).GetIndexes();
+                var index = Assert.Single(indexes);
+                Assert.Equal(2, index.Properties.Count);
+                var properties = index.Properties;
+                var first = properties[0];
+                var second = properties[1];
+                Assert.Equal(nameof(EntityWithFields.TenantId), first.Name);
+                Assert.Null(first.PropertyInfo);
+                Assert.NotNull(first.FieldInfo);
+                Assert.Equal(nameof(EntityWithFields.CompanyId), second.Name);
+                Assert.Null(second.PropertyInfo);
+                Assert.NotNull(second.FieldInfo);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_ignore_a_field_on_an_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<EntityWithFields>()
+                    .Ignore(e => e.CompanyId)
+                    .HasKey(e => e.Id);
+
+                var entity = modelBuilder.Model.FindEntityType(typeof(EntityWithFields));
+                var property = Assert.Single(entity.GetProperties());
+                Assert.Equal(nameof(EntityWithFields.Id), property.Name);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_ignore_a_field_on_a_keyless_entity_with_fields()
+            {
+                var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+                modelBuilder.Entity<KeylessEntityWithFields>()
+                    .HasNoKey()
+                    .Ignore(e => e.FirstName)
+                   .Property(e => e.LastName);
+
+                var entity = modelBuilder.Model.FindEntityType(typeof(KeylessEntityWithFields));
+                var property = Assert.Single(entity.GetProperties());
+                Assert.Equal(nameof(KeylessEntityWithFields.LastName), property.Name);
+            }
+
+            [ConditionalFact]
             public virtual void Can_add_seed_data_objects()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -1307,6 +1462,98 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 Assert.Single(modelBuilder.Model.FindEntityType(typeof(Gamma)).GetProperties());
+            }
+
+            [ConditionalFact]
+            public virtual void Can_add_seed_data_objects_indexed_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<IndexedClass>(
+                    b =>
+                    {
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
+                        var d = new IndexedClass { Id = -1 };
+                        d["Required"] = 2;
+                        b.HasData(d);
+                    });
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = model.FindEntityType(typeof(IndexedClass));
+                var data = Assert.Single(entityType.GetSeedData());
+                Assert.Equal(-1, data["Id"]);
+                Assert.Equal(2, data["Required"]);
+                Assert.Null(data["Optional"]);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_add_seed_data_anonymous_objects_indexed_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<IndexedClass>(
+                    b =>
+                    {
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
+                        b.HasData(new { Id = -1, Required = 2 });
+                    });
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = model.FindEntityType(typeof(IndexedClass));
+                var data = Assert.Single(entityType.GetSeedData());
+                Assert.Equal(-1, data["Id"]);
+                Assert.Equal(2, data["Required"]);
+                Assert.False(data.ContainsKey("Optional"));
+            }
+
+            [ConditionalFact]
+            public virtual void Can_add_seed_data_objects_indexed_property_dictionary()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<IndexedClassByDictionary>(
+                    b =>
+                    {
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
+                        var d = new IndexedClassByDictionary { Id = -1 };
+                        d["Required"] = 2;
+                        b.HasData(d);
+                    });
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = model.FindEntityType(typeof(IndexedClassByDictionary));
+                var data = Assert.Single(entityType.GetSeedData());
+                Assert.Equal(-1, data["Id"]);
+                Assert.Equal(2, data["Required"]);
+                Assert.Null(data["Optional"]);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_add_seed_data_anonymous_objects_indexed_property_dictionary()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<IndexedClassByDictionary>(
+                    b =>
+                    {
+                        b.IndexerProperty<int>("Required");
+                        b.IndexerProperty<string>("Optional");
+                        b.HasData(new { Id = -1, Required = 2 });
+                    });
+
+                modelBuilder.FinalizeModel();
+
+                var entityType = model.FindEntityType(typeof(IndexedClassByDictionary));
+                var data = Assert.Single(entityType.GetSeedData());
+                Assert.Equal(-1, data["Id"]);
+                Assert.Equal(2, data["Required"]);
+                Assert.False(data.ContainsKey("Optional"));
             }
         }
     }

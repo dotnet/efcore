@@ -34,6 +34,25 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ConnectionString_defaults_to_empty()
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            Assert.Empty(builder.ConnectionString);
+        }
+
+        [Fact]
+        public void ConnectionString_coalesces_to_empty()
+        {
+            var builder = new SqliteConnectionStringBuilder
+            {
+                ConnectionString = null
+            };
+
+            Assert.Empty(builder.ConnectionString);
+        }
+
+        [Fact]
         public void Filename_is_alias_for_DataSource()
         {
             var builder = new SqliteConnectionStringBuilder("Filename=inline.db");

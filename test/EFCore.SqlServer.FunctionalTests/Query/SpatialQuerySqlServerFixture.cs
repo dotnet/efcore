@@ -34,10 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.HasDbFunction(
                 typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
                 b => b.HasTranslation(
-                    e => SqlFunctionExpression.Create(
-                        e.First(),
+                    e => new SqlFunctionExpression(
+                        instance: e.First(),
                         "STDistance",
-                        e.Skip(1),
+                        arguments: e.Skip(1),
+                        nullable: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability: e.Skip(1).Select(a => true),
                         typeof(double),
                         null)));
         }

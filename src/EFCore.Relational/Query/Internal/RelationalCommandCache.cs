@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
@@ -16,64 +17,94 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class RelationalCommandCache
+    public class RelationalCommandCache : IPrintableExpression
     {
-        private static readonly ConcurrentDictionary<object, object> _syncObjects
+        private static readonly ConcurrentDictionary<object, object> _locks
             = new ConcurrentDictionary<object, object>();
 
         private readonly IMemoryCache _memoryCache;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly ParameterValueBasedSelectExpressionOptimizer _parameterValueBasedSelectExpressionOptimizer;
+        private readonly RelationalParameterBasedSqlProcessor _relationalParameterBasedSqlProcessor;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public RelationalCommandCache(
-            IMemoryCache memoryCache,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] IMemoryCache memoryCache,
+            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
             bool useRelationalNulls,
-            SelectExpression selectExpression)
+            [NotNull] SelectExpression selectExpression)
         {
             _memoryCache = memoryCache;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _selectExpression = selectExpression;
-
-            _parameterValueBasedSelectExpressionOptimizer = new ParameterValueBasedSelectExpressionOptimizer(
-                sqlExpressionFactory,
-                parameterNameGeneratorFactory,
-                useRelationalNulls);
+            _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(useRelationalNulls);
         }
 
-        public virtual IRelationalCommand GetRelationalCommand(IReadOnlyDictionary<string, object> parameters)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IRelationalCommand GetRelationalCommand([NotNull] IReadOnlyDictionary<string, object> parameters)
         {
             var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
-            retry:
-            if (!_memoryCache.TryGetValue(cacheKey, out IRelationalCommand relationalCommand))
+            if (_memoryCache.TryGetValue(cacheKey, out IRelationalCommand relationalCommand))
             {
-                if (!_syncObjects.TryAdd(cacheKey, value: null))
-                {
-                    goto retry;
-                }
-
-                try
-                {
-                    var (selectExpression, canCache) =
-                        _parameterValueBasedSelectExpressionOptimizer.Optimize(_selectExpression, parameters);
-                    relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
-
-                    if (canCache)
-                    {
-                        _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
-                    }
-                }
-                finally
-                {
-                    _syncObjects.TryRemove(cacheKey, out _);
-                }
+                return relationalCommand;
             }
 
-            return relationalCommand;
+            // When multiple threads attempt to start processing the same query (program startup / thundering
+            // herd), have only one actually process and block the others.
+            // Note that the following synchronization isn't perfect - some race conditions may cause concurrent
+            // processing. This is benign (and rare).
+            var compilationLock = _locks.GetOrAdd(cacheKey, _ => new object());
+            try
+            {
+                lock (compilationLock)
+                {
+                    if (!_memoryCache.TryGetValue(cacheKey, out relationalCommand))
+                    {
+                        var selectExpression = _relationalParameterBasedSqlProcessor.Optimize(
+                            _selectExpression, parameters, out var canCache);
+                        relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
+
+                        if (canCache)
+                        {
+                            _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
+                        }
+                    }
+
+                    return relationalCommand;
+                }
+            }
+            finally
+            {
+                _locks.TryRemove(compilationLock, out _);
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+        {
+            expressionPrinter.AppendLine("RelationalCommandCache.SelectExpression(");
+            using (expressionPrinter.Indent())
+            {
+                expressionPrinter.Visit(_selectExpression);
+                expressionPrinter.Append(")");
+            }
         }
 
         private readonly struct CommandCacheKey

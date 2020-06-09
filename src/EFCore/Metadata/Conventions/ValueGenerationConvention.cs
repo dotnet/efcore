@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,
         IForeignKeyPropertiesChangedConvention,
-        IEntityTypeBaseTypeChangedConvention
+        IEntityTypeBaseTypeChangedConvention,
+        IForeignKeyOwnershipChangedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ValueGenerationConvention" />.
@@ -41,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
         {
             foreach (var property in relationshipBuilder.Metadata.Properties)
             {
@@ -71,10 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyPropertiesChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,
             IConventionKey oldPrincipalKey,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionContext<IReadOnlyList<IConventionProperty>> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))
@@ -204,6 +205,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return (propertyType.IsInteger()
                     && propertyType != typeof(byte))
                 || propertyType == typeof(Guid);
+        }
+
+        /// <summary>
+        ///     Called after the ownership value for a foreign key is changed.
+        /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyOwnershipChanged(
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
+        {
+            foreach (var property in relationshipBuilder.Metadata.DeclaringEntityType.GetProperties())
+            {
+                property.Builder.ValueGenerated(GetValueGenerated(property));
+            }
         }
     }
 }

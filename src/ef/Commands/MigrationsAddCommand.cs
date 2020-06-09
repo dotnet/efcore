@@ -19,9 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             }
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var files = CreateExecutor().AddMigration(_name.Value, _outputDir.Value(), Context.Value());
+            var files = CreateExecutor(args)
+                .AddMigration(_name.Value, _outputDir.Value(), Context.Value(), _namespace.Value());
 
             if (_json.HasValue())
             {
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 Reporter.WriteInformation(Resources.MigrationsAddCompleted);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
 
         private static void ReportJson(IDictionary files)

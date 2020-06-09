@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 new ObservableHashSet<int>().Comparer);
 
             Assert.Same(
-                ReferenceEqualityComparer.Instance,
-                new ObservableHashSet<object>(ReferenceEqualityComparer.Instance).Comparer);
+                LegacyReferenceEqualityComparer.Instance,
+                new ObservableHashSet<object>(LegacyReferenceEqualityComparer.Instance).Comparer);
 
             var testData1 = CreateTestData();
 
@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             var testData2 = CreateTestData().Cast<object>();
 
-            var rh2 = new HashSet<object>(testData2, ReferenceEqualityComparer.Instance);
-            var ohs2 = new ObservableHashSet<object>(testData2, ReferenceEqualityComparer.Instance);
+            var rh2 = new HashSet<object>(testData2, LegacyReferenceEqualityComparer.Instance);
+            var ohs2 = new ObservableHashSet<object>(testData2, LegacyReferenceEqualityComparer.Instance);
             Assert.Equal(rh2.OrderBy(i => i), ohs2.OrderBy(i => i));
             Assert.Same(rh2.Comparer, ohs2.Comparer);
         }

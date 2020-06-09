@@ -16,11 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<Plant>().HasDiscriminator(p => p.Genus)
                 .HasValue<Rose>(PlantGenus.Rose)
-                .HasValue<Daisy>(PlantGenus.Daisy);
+                .HasValue<Daisy>(PlantGenus.Daisy)
+                .IsComplete(IsDiscriminatorMappingComplete);
 
             modelBuilder.Entity<Country>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<Eagle>().HasMany(e => e.Prey).WithOne().HasForeignKey(e => e.EagleId).IsRequired(false);
 
+            modelBuilder.Entity<Animal>().HasDiscriminator().IsComplete(IsDiscriminatorMappingComplete);
             modelBuilder.Entity<Animal>().Property(e => e.Species).HasMaxLength(100);
 
             modelBuilder.Entity<Coke>().Property(e => e.Carbonation).HasColumnName("CokeCO2");

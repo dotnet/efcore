@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionIndexBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The index being configured.
+        ///     Gets the index being configured.
         /// </summary>
         new IConventionIndex Metadata { get; }
 
@@ -26,17 +26,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the uniqueness was configured,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionIndexBuilder IsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether this index uniqueness can be configured
-        ///     from the current configuration source
+        ///     from the current configuration source.
         /// </summary>
         /// <param name="unique"> A value indicating whether the index is unique. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the index uniqueness can be configured. </returns>
+        /// <returns> <see langword="true" /> if the index uniqueness can be configured. </returns>
         bool CanSetIsUnique(bool? unique, bool fromDataAnnotation = false);
     }
 }

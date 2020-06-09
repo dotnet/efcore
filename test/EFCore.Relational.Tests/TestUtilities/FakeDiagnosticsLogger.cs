@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
@@ -19,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public ILogger Logger => this;
 
         public DiagnosticSource DiagnosticSource { get; } = new DiagnosticListener("Fake");
+
+        public IDbContextLogger DbContextLogger { get; } = new NullDbContextLogger();
 
         public void Log<TState>(
             LogLevel logLevel,

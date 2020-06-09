@@ -7,7 +7,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
 {
     public class NestedCollectionBase
     {
-        [NotMapped]
         public int Id { get; set; }
 
         public string Name { get; set; }

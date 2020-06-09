@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var loggerParameters = loggerMethod.GetParameters();
                     var category = loggerParameters[0].ParameterType.GenericTypeArguments[0];
 
-                    if (category.GetTypeInfo().ContainsGenericParameters)
+                    if (category.ContainsGenericParameters)
                     {
                         category = typeof(DbLoggerCategory.Infrastructure);
                         loggerMethod = loggerMethod.MakeGenericMethod(category);
@@ -70,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var testLogger =
                         (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<,>).MakeGenericType(category, loggerDefinitionsType));
                     var testDiagnostics = (TestDiagnosticSource)testLogger.DiagnosticSource;
+                    var contextLogger = (TestDbContextLogger)testLogger.DbContextLogger;
 
                     var args = new object[loggerParameters.Length];
                     args[0] = testLogger;
@@ -90,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             }
                             catch (Exception)
                             {
-                                Assert.True(false, "Need to add factory for type " + type.DisplayName());
+                                Assert.True(false, "Need to add fake test factory for type " + type.DisplayName() + " in class " + eventIdType.Name + "Test");
                             }
                         }
                     }
@@ -112,6 +113,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             {
                                 Assert.Equal(logLevel, testLogger.LoggedAt);
                                 logged = true;
+
+                                if (categoryName != DbLoggerCategory.Scaffolding.Name)
+                                {
+                                    Assert.Equal(logLevel, contextLogger.LoggedAt);
+                                    Assert.Equal(eventId, contextLogger.LoggedEvent);
+                                }
                             }
 
                             if (enableFor == eventId.Name

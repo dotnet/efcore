@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -44,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The unique name used to identify the database provider. This should be the same as the NuGet package name
         ///     for the providers runtime.
         /// </summary>
-        public virtual string Name => typeof(TOptionsExtension).GetTypeInfo().Assembly.GetName().Name;
+        public virtual string Name => typeof(TOptionsExtension).Assembly.GetName().Name;
 
         /// <summary>
         ///     Gets a value indicating whether this database provider has been selected for a given context.
         /// </summary>
         /// <param name="options"> The options for the context. </param>
-        /// <returns> True if the database provider has been selected, otherwise false. </returns>
+        /// <returns> <see langword="true"/> if the database provider has been selected, otherwise <see langword="false"/>. </returns>
         public virtual bool IsConfigured(IDbContextOptions options)
             => Check.NotNull(options, nameof(options)).Extensions.OfType<TOptionsExtension>().Any();
     }

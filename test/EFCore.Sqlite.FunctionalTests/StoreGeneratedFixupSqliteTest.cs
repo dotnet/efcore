@@ -20,22 +20,20 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Temp_values_can_be_made_permanent()
         {
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new TestTemp());
+            using var context = CreateContext();
+            var entry = context.Add(new TestTemp());
 
-                Assert.True(entry.Property(e => e.Id).IsTemporary);
-                Assert.False(entry.Property(e => e.NotId).IsTemporary);
+            Assert.True(entry.Property(e => e.Id).IsTemporary);
+            Assert.False(entry.Property(e => e.NotId).IsTemporary);
 
-                var tempValue = entry.Property(e => e.Id).CurrentValue;
+            var tempValue = entry.Property(e => e.Id).CurrentValue;
 
-                entry.Property(e => e.Id).IsTemporary = false;
+            entry.Property(e => e.Id).IsTemporary = false;
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.False(entry.Property(e => e.Id).IsTemporary);
-                Assert.Equal(tempValue, entry.Property(e => e.Id).CurrentValue);
-            }
+            Assert.False(entry.Property(e => e.Id).IsTemporary);
+            Assert.Equal(tempValue, entry.Property(e => e.Id).CurrentValue);
         }
 
         protected override bool EnforcesFKs => true;

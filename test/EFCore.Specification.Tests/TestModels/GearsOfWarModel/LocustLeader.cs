@@ -7,5 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
     {
         public string Name { get; set; }
         public short ThreatLevel { get; set; }
+        public byte ThreatLevelByte { get; set; }
+        public byte? ThreatLevelNullableByte { get; set; }
     }
 }

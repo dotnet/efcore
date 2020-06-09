@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var fk = entityType.GetForeignKeys().Single();
             Assert.False(fk.IsUnique);
-            Assert.True(fk.PrincipalEntityType.ClrType.GetTypeInfo().IsAbstract);
+            Assert.True(fk.PrincipalEntityType.ClrType.IsAbstract);
             Assert.Single(entityType.GetNavigations());
         }
 
@@ -991,7 +991,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullDbContextLogger());
             return modelLogger;
         }
 
@@ -1051,7 +1052,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Navigation navigation, string expectedInverseName, bool unique, bool singleRelationship = true)
         {
             IForeignKey fk = navigation.ForeignKey;
-            Assert.Equal(expectedInverseName, navigation.FindInverse()?.Name);
+            Assert.Equal(expectedInverseName, navigation.Inverse?.Name);
             Assert.Equal(unique, fk.IsUnique);
             Assert.NotSame(fk.Properties.Single(), fk.PrincipalKey.Properties.Single());
             Assert.NotEqual(fk.PrincipalToDependent?.Name, fk.DependentToPrincipal?.Name);
@@ -1063,7 +1064,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 Assert.Single(principalEntityType.GetKeys());
                 Assert.Empty(principalEntityType.GetDeclaredForeignKeys());
                 if ((expectedInverseName == null)
-                    && navigation.IsDependentToPrincipal())
+                    && navigation.IsOnDependent)
                 {
                     Assert.Empty(principalEntityType.GetNavigations());
                 }
@@ -1072,7 +1073,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 Assert.Single(dependentEntityType.GetDeclaredProperties());
                 Assert.Equal(principalEntityType.IsAssignableFrom(dependentEntityType) ? 1 : 0, dependentEntityType.GetKeys().Count());
                 if ((expectedInverseName == null)
-                    && !navigation.IsDependentToPrincipal())
+                    && !navigation.IsOnDependent)
                 {
                     Assert.Empty(dependentEntityType.GetNavigations());
                 }
@@ -1084,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             IForeignKey fk = navigation.ForeignKey;
             Assert.Single(fk.DeclaringEntityType.Model.GetEntityTypes());
-            Assert.Equal(expectedInverseName, navigation.FindInverse()?.Name);
+            Assert.Equal(expectedInverseName, navigation.Inverse?.Name);
             Assert.Equal(unique, fk.IsUnique);
             Assert.NotSame(fk.Properties.Single(), fk.PrincipalKey.Properties.Single());
             Assert.NotEqual(fk.PrincipalToDependent?.Name, fk.DependentToPrincipal?.Name);
@@ -1118,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Cleanup(InternalModelBuilder modelBuilder)
         {
             new ModelCleanupConvention(CreateDependencies())
-                .ProcessModelFinalized(
+                .ProcessModelFinalizing(
                     modelBuilder,
                     new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
         }

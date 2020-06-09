@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionKeyBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The key being configured.
+        ///     Gets the key being configured.
         /// </summary>
         new IConventionKey Metadata { get; }
     }

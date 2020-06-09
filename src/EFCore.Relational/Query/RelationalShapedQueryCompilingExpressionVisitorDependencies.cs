@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -57,15 +58,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalShapedQueryCompilingExpressionVisitorDependencies(
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
+            [NotNull] ICoreSingletonOptions coreSingletonOptions)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(relationalParameterBasedSqlProcessorFactory, nameof(relationalParameterBasedSqlProcessorFactory));
 
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
+#pragma warning disable CS0618 // Type or member is obsolete
             SqlExpressionFactory = sqlExpressionFactory;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
+#pragma warning restore CS0618 // Type or member is obsolete
+            RelationalParameterBasedSqlProcessorFactory = relationalParameterBasedSqlProcessorFactory;
+            CoreSingletonOptions = coreSingletonOptions;
         }
 
         /// <summary>
@@ -76,12 +84,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The SQL expression factory.
         /// </summary>
+        [Obsolete("Use the service from " + nameof(RelationalParameterBasedSqlProcessorDependencies) + ".")]
         public ISqlExpressionFactory SqlExpressionFactory { get; }
 
         /// <summary>
         ///     The parameter name-generator factory.
         /// </summary>
+        [Obsolete("Use the service from " + nameof(RelationalParameterBasedSqlProcessorDependencies) + ".")]
         public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
+
+        /// <summary>
+        ///     The SQL processor based on parameter values.
+        /// </summary>
+        public IRelationalParameterBasedSqlProcessorFactory RelationalParameterBasedSqlProcessorFactory { get; }
+
+        /// <summary>
+        ///     Core singleton options.
+        /// </summary>
+        public ICoreSingletonOptions CoreSingletonOptions { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -92,8 +112,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
             => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
                 querySqlGeneratorFactory,
+#pragma warning disable CS0618 // Type or member is obsolete
                 SqlExpressionFactory,
-                ParameterNameGeneratorFactory);
+                ParameterNameGeneratorFactory,
+#pragma warning restore CS0618 // Type or member is obsolete
+                RelationalParameterBasedSqlProcessorFactory,
+                CoreSingletonOptions);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -104,7 +128,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
                 QuerySqlGeneratorFactory,
                 sqlExpressionFactory,
-                ParameterNameGeneratorFactory);
+#pragma warning disable CS0618 // Type or member is obsolete
+                ParameterNameGeneratorFactory,
+#pragma warning restore CS0618 // Type or member is obsolete
+                RelationalParameterBasedSqlProcessorFactory,
+                CoreSingletonOptions);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -115,7 +143,43 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
             => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
                 QuerySqlGeneratorFactory,
+#pragma warning disable CS0618 // Type or member is obsolete
                 SqlExpressionFactory,
-                parameterNameGeneratorFactory);
+#pragma warning restore CS0618 // Type or member is obsolete
+                parameterNameGeneratorFactory,
+                RelationalParameterBasedSqlProcessorFactory,
+                CoreSingletonOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalParameterBasedSqlProcessorFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalShapedQueryCompilingExpressionVisitorDependencies With(
+            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory)
+            => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
+                QuerySqlGeneratorFactory,
+#pragma warning disable CS0618 // Type or member is obsolete
+                SqlExpressionFactory,
+                ParameterNameGeneratorFactory,
+#pragma warning restore CS0618 // Type or member is obsolete
+                relationalParameterBasedSqlProcessorFactory,
+                CoreSingletonOptions);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="coreSingletonOptions"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalShapedQueryCompilingExpressionVisitorDependencies With(
+            [NotNull] ICoreSingletonOptions coreSingletonOptions)
+            => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
+                QuerySqlGeneratorFactory,
+#pragma warning disable CS0618 // Type or member is obsolete
+                SqlExpressionFactory,
+                ParameterNameGeneratorFactory,
+#pragma warning restore CS0618 // Type or member is obsolete
+                RelationalParameterBasedSqlProcessorFactory,
+                coreSingletonOptions);
     }
 }

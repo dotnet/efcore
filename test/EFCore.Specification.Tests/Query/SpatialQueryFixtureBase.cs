@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -13,16 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private GeometryFactory _geometryFactory;
 
-        protected SpatialQueryFixtureBase()
-        {
-            QueryAsserter = new QueryAsserter<SpatialContext>(
-                CreateContext,
-                new SpatialData(GeometryFactory),
-                entitySorters: null,
-                entityAsserters: null);
-        }
+        public Func<DbContext> GetContextCreator() => () => CreateContext();
 
-        public QueryAsserterBase QueryAsserter { get; set; }
+        public ISetSource GetExpectedData() => new SpatialData(GeometryFactory);
+
+        public IReadOnlyDictionary<Type, object> GetEntitySorters() => null;
+
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters() => null;
 
         public virtual GeometryFactory GeometryFactory
             => LazyInitializer.EnsureInitialized(

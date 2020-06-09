@@ -18,10 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class KeyBuilder : IInfrastructure<InternalKeyBuilder>
+    public class KeyBuilder : IInfrastructure<IConventionKeyBuilder>
     {
-        private readonly InternalKeyBuilder _builder;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -33,13 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(key, nameof(key));
 
-            _builder = ((Key)key).Builder;
+            Builder = ((Key)key).Builder;
         }
 
         /// <summary>
         ///     The internal builder being used to configure the key.
         /// </summary>
-        InternalKeyBuilder IInfrastructure<InternalKeyBuilder>.Instance => _builder;
+        IConventionKeyBuilder IInfrastructure<IConventionKeyBuilder>.Instance => Builder;
+
+        private InternalKeyBuilder Builder { get; }
 
         /// <summary>
         ///     The key being configured.
@@ -64,8 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        private InternalKeyBuilder Builder => this.GetInfrastructure();
-
         #region Hidden System.Object members
 
         /// <summary>
@@ -79,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);

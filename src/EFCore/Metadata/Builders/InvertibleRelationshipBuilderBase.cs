@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Base class used for configuring an invertible relationship.
     /// </summary>
-    public abstract class InvertibleRelationshipBuilderBase : IInfrastructure<InternalRelationshipBuilder>
+    public abstract class InvertibleRelationshipBuilderBase : IInfrastructure<IConventionForeignKeyBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
@@ -34,10 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] IMutableForeignKey foreignKey)
             : this(((ForeignKey)foreignKey).Builder, null)
         {
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-            Check.NotNull(relatedEntityType, nameof(relatedEntityType));
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
         }
@@ -50,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected InvertibleRelationshipBuilderBase(
-            InternalRelationshipBuilder builder,
-            InvertibleRelationshipBuilderBase oldBuilder,
+            [NotNull] InternalForeignKeyBuilder builder,
+            [CanBeNull] InvertibleRelationshipBuilderBase oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -113,12 +110,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder Builder { get; [param: NotNull] set; }
+        protected virtual InternalForeignKeyBuilder Builder { get; [param: NotNull] set; }
 
-        /// <summary>
-        ///     Gets the internal builder being used to configure this relationship.
-        /// </summary>
-        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
+        /// <inheritdoc />
+        IConventionForeignKeyBuilder IInfrastructure<IConventionForeignKeyBuilder>.Instance
+        {
+            [DebuggerStepThrough]
+            get => Builder;
+        }
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => base.Equals(obj);
 

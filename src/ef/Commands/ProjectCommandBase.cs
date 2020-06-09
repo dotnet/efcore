@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             }
         }
 
-        protected IOperationExecutor CreateExecutor()
+        protected IOperationExecutor CreateExecutor(string[] remainingArguments)
         {
             try
             {
@@ -56,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         _projectDir.Value(),
                         _dataDir.Value(),
                         _rootNamespace.Value(),
-                        _language.Value());
+                        _language.Value(),
+                        remainingArguments);
                 }
                 catch (MissingMethodException) // NB: Thrown with EF Core 3.1
                 {
@@ -70,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _projectDir.Value(),
                     _dataDir.Value(),
                     _rootNamespace.Value(),
-                    _language.Value());
+                    _language.Value(),
+                    remainingArguments);
             }
             catch (FileNotFoundException ex)
                 when (new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)

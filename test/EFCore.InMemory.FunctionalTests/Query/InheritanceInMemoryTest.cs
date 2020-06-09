@@ -23,10 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    @"DbSet<Bird>
+                    @"DbSet<Bird>()
     .Select(b => InheritanceInMemoryFixture.MaterializeView(b))
     .OrderBy(a => a.CountryId)"),
-                message);
+                message,
+                ignoreLineEndingDifferences: true);
         }
 
         protected override bool EnforcesFkConstraints => false;

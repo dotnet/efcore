@@ -153,24 +153,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after a navigation is added to the entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
-            IConventionContext<IConventionNavigation> context)
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-            Check.NotNull(navigation, nameof(navigation));
-
+            var navigation = navigationBuilder.Metadata;
             var attributes = GetAttributes<TAttribute>(navigation.DeclaringEntityType, navigation);
             foreach (var attribute in attributes)
             {
-                ProcessNavigationAdded(relationshipBuilder, navigation, attribute, context);
+                ProcessNavigationAdded(navigationBuilder, attribute, context);
                 if (((IReadableConventionContext)context).ShouldStopProcessing())
                 {
                     break;
@@ -231,9 +223,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] IConventionEntityType entityType, [NotNull] IConventionNavigation navigation)
             where TCustomAttribute : Attribute
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(navigation, nameof(navigation));
-
             var memberInfo = navigation.GetIdentifyingMemberInfo();
             if (!entityType.HasClrType()
                 || memberInfo == null)
@@ -303,15 +292,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a navigation property that has an attribute is added to an entity type.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the relationship. </param>
-        /// <param name="navigation"> The navigation. </param>
+        /// <param name="navigationBuilder"> The builder for the navigation. </param>
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessNavigationAdded(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
-            [NotNull] IConventionNavigation navigation,
+            [NotNull] IConventionNavigationBuilder navigationBuilder,
             [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<IConventionNavigation> context)
+            [NotNull] IConventionContext<IConventionNavigationBuilder> context)
             => throw new NotImplementedException();
 
         /// <summary>

@@ -28,9 +28,5 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public interface IDiagnosticsLogger<TLoggerCategory> : IDiagnosticsLogger
         where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
     {
-        /// <summary>
-        ///     Holds registered interceptors, if any.
-        /// </summary>
-        IInterceptors Interceptors { get; }
     }
 }

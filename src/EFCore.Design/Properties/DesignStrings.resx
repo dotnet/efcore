@@ -213,6 +213,12 @@
   <data name="FindingContexts" xml:space="preserve">
     <value>Finding DbContext classes...</value>
   </data>
+  <data name="BadConnection" xml:space="preserve">
+    <value>Failed creating connection: {exceptionMessage}</value>
+  </data>
+  <data name="NoRelationalConnection" xml:space="preserve">
+    <value>Connection information is only available for relational database providers.</value>
+  </data>
   <data name="ForeignMigrations" xml:space="preserve">
     <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
   </data>
@@ -225,7 +231,7 @@ Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.U
 Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list, or by executing "dotnet ef" from the directory containing the migrations project.</value>
   </data>
   <data name="SensitiveInformationWarning" xml:space="preserve">
-    <value>To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.</value>
+    <value>To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.</value>
     <comment>Localize the URL if we have localized docs.</comment>
   </data>
   <data name="ForceRemoveMigration" xml:space="preserve">
@@ -327,9 +333,6 @@ Change your target project to the migrations project by using the Package Manage
   <data name="NoLanguageService" xml:space="preserve">
     <value>The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.</value>
   </data>
-  <data name="RevertingMigration" xml:space="preserve">
-    <value>Reverting migration '{name}'.</value>
-  </data>
   <data name="FindingReferencedServices" xml:space="preserve">
     <value>Finding design-time services referenced by assembly '{startupAssembly}'.</value>
   </data>
@@ -356,5 +359,11 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="UsingHostingServices" xml:space="preserve">
     <value>Using application service provider from Microsoft.Extensions.Hosting.</value>
+  </data>
+  <data name="UnhandledEnumValue" xml:space="preserve">
+    <value>Unhandled enum value '{enumValue}'.</value>
+  </data>
+  <data name="ConflictingContextAndMigrationName" xml:space="preserve">
+    <value>The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?</value>
   </data>
 </root>

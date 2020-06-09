@@ -6,18 +6,38 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class TableAliasUniquifyingExpressionVisitor : ExpressionVisitor
     {
         private readonly ISet<string> _usedAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private readonly ISet<TableExpressionBase> _visitedTableExpressionBases
-            = new HashSet<TableExpressionBase>(ReferenceEqualityComparer.Instance);
+            = new HashSet<TableExpressionBase>(LegacyReferenceEqualityComparer.Instance);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
+            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+            {
+                return shapedQueryExpression.Update(Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+            }
+
             var visitedExpression = base.VisitExtension(extensionExpression);
             if (visitedExpression is TableExpressionBase tableExpressionBase
                 && !_visitedTableExpressionBases.Contains(tableExpressionBase)

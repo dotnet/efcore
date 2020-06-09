@@ -229,8 +229,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueComparer,
+#pragma warning disable 618
                 CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
+#pragma warning restore 618
                 CoreAnnotationNames.ConstructorBinding,
                 CoreAnnotationNames.NavigationAccessMode,
                 CoreAnnotationNames.PropertyAccessMode,
@@ -239,12 +241,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.DefiningQuery,
                 CoreAnnotationNames.QueryFilter,
-                RelationalAnnotationNames.CheckConstraints
-            };
-
-            var ignoredAnnotationTypes = new List<string>
-            {
-                RelationalAnnotationNames.DbFunction, RelationalAnnotationNames.SequencePrefix
+                RelationalAnnotationNames.RelationalModel,
+                RelationalAnnotationNames.CheckConstraints,
+                RelationalAnnotationNames.Sequences,
+                RelationalAnnotationNames.DbFunctions,
+                RelationalAnnotationNames.TableMappings,
+                RelationalAnnotationNames.TableColumnMappings,
+                RelationalAnnotationNames.ViewMappings,
+                RelationalAnnotationNames.ViewColumnMappings,
+                RelationalAnnotationNames.ForeignKeyMappings,
+                RelationalAnnotationNames.TableIndexMappings,
+                RelationalAnnotationNames.UniqueConstraintMappings,
+                RelationalAnnotationNames.RelationalOverrides
             };
 
             return items.SelectMany(
@@ -252,8 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         a => new { Annotatable = i, Annotation = a })
                     .Where(
                         a => a.Annotation.Value != null
-                             && !ignoredAnnotations.Contains(a.Annotation.Name)
-                             && !ignoredAnnotationTypes.Any(p => a.Annotation.Name.StartsWith(p, StringComparison.Ordinal)))
+                             && !ignoredAnnotations.Contains(a.Annotation.Name))
                     .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
         }
 

@@ -8,7 +8,7 @@ namespace Microsoft.Data.Sqlite.Properties
     internal static class Resources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.Data.Sqlite.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.Data.Sqlite.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
         /// {methodName} can only be called when the connection is open.
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Sqlite.Properties
                 errorCode, message);
 
         /// <summary>
-        /// For more information on this error code see http://sqlite.org/rescode.html
+        /// For more information on this error code see https://www.sqlite.org/rescode.html
         /// </summary>
         public static string DefaultNativeError
             => GetString("DefaultNativeError");

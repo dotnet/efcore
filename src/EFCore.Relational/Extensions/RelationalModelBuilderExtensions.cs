@@ -30,13 +30,11 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            return new SequenceBuilder(GetOrAddSequence(modelBuilder, name, schema));
-        }
+            => new SequenceBuilder(HasSequence(
+                Check.NotNull(modelBuilder, nameof(modelBuilder)).Model,
+                name,
+                schema,
+                ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
@@ -65,9 +63,6 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema,
             [NotNull] Action<SequenceBuilder> builderAction)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
             builderAction(HasSequence(modelBuilder, name, schema));
@@ -89,12 +84,10 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string name,
             [CanBeNull] string schema = null)
         {
-            Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotNull(clrType, nameof(clrType));
 
-            var sequence = GetOrAddSequence(modelBuilder, name, schema);
+            var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
             sequence.ClrType = clrType;
 
             return new SequenceBuilder(sequence);
@@ -131,10 +124,6 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema,
             [NotNull] Action<SequenceBuilder> builderAction)
         {
-            Check.NotNull(clrType, nameof(clrType));
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
             builderAction(HasSequence(modelBuilder, clrType, name, schema));
@@ -156,10 +145,8 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema = null)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
 
-            var sequence = GetOrAddSequence(modelBuilder, name, schema);
+            var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
             sequence.ClrType = typeof(T);
 
             return new SequenceBuilder(sequence);
@@ -194,40 +181,11 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema,
             [NotNull] Action<SequenceBuilder> builderAction)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
             builderAction(HasSequence<T>(modelBuilder, name, schema));
 
             return modelBuilder;
-        }
-
-        private static IMutableSequence GetOrAddSequence(ModelBuilder modelBuilder, string name, string schema)
-        {
-            var sequence = modelBuilder.Model.FindSequence(name, schema);
-            if (sequence != null)
-            {
-                ((Sequence)sequence).UpdateConfigurationSource(ConfigurationSource.Explicit);
-                return sequence;
-            }
-
-            return modelBuilder.Model.AddSequence(name, schema);
-        }
-
-        private static IConventionSequence GetOrAddSequence(
-            IConventionModelBuilder modelBuilder, string name, string schema, bool fromDataAnnotation)
-        {
-            var sequence = modelBuilder.Metadata.FindSequence(name, schema);
-            if (sequence != null)
-            {
-                ((Sequence)sequence).UpdateConfigurationSource(
-                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-                return sequence;
-            }
-
-            return modelBuilder.Metadata.AddSequence(name, schema);
         }
 
         /// <summary>
@@ -243,12 +201,26 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string name,
             [CanBeNull] string schema = null,
             bool fromDataAnnotation = false)
+            => HasSequence(
+                (IMutableModel)Check.NotNull(modelBuilder, nameof(modelBuilder)).Metadata,
+                name,
+                schema,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention).Builder;
+
+        private static Sequence HasSequence(
+            IMutableModel model, string name, string schema, ConfigurationSource configurationSource)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            return new SequenceBuilder((IMutableSequence)GetOrAddSequence(modelBuilder, name, schema, fromDataAnnotation));
+            var sequence = Sequence.FindSequence(model, name, schema);
+            if (sequence != null)
+            {
+                sequence.UpdateConfigurationSource(configurationSource);
+                return sequence;
+            }
+
+            return Sequence.AddSequence(model, name, schema, configurationSource);
         }
 
         /// <summary>
@@ -312,8 +284,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] MethodInfo methodInfo,
             [NotNull] Action<DbFunctionBuilder> builderAction)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotNull(methodInfo, nameof(methodInfo));
             Check.NotNull(builderAction, nameof(builderAction));
 
             builderAction(HasDbFunction(modelBuilder, methodInfo));
@@ -339,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore
             var dbFunction = modelBuilder.Metadata.FindDbFunction(methodInfo);
             if (dbFunction == null)
             {
-                dbFunction = modelBuilder.Metadata.AddDbFunction(methodInfo);
+                dbFunction = modelBuilder.Metadata.AddDbFunction(methodInfo, fromDataAnnotation);
             }
             else
             {
@@ -347,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
             }
 
-            return new DbFunctionBuilder((IMutableDbFunction)dbFunction);
+            return dbFunction.Builder;
         }
 
         /// <summary>
@@ -378,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder HasDefaultSchema(
             [NotNull] this IConventionModelBuilder modelBuilder,
@@ -387,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (modelBuilder.CanSetDefaultSchema(schema, fromDataAnnotation))
             {
-                modelBuilder.Metadata.SetDefaultSchema(schema);
+                modelBuilder.Metadata.SetDefaultSchema(schema, fromDataAnnotation);
 
                 return modelBuilder;
             }
@@ -401,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="schema"> The default schema. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the given schema can be set as default. </returns>
+        /// <returns> <see langword="true" /> if the given schema can be set as default. </returns>
         public static bool CanSetDefaultSchema(
             [NotNull] this IConventionModelBuilder modelBuilder,
             [CanBeNull] string schema,
@@ -421,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder HasMaxIdentifierLength(
             [NotNull] this IConventionModelBuilder modelBuilder,
@@ -430,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (modelBuilder.CanSetMaxIdentifierLength(length, fromDataAnnotation))
             {
-                modelBuilder.Metadata.SetMaxIdentifierLength(length);
+                modelBuilder.Metadata.SetMaxIdentifierLength(length, fromDataAnnotation);
 
                 return modelBuilder;
             }
@@ -444,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="length"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the maximum length allowed for store identifiers can be set. </returns>
+        /// <returns> <see langword="true" /> if the maximum length allowed for store identifiers can be set. </returns>
         public static bool CanSetMaxIdentifierLength(
             [NotNull] this IConventionModelBuilder modelBuilder,
             int? length,
@@ -453,6 +423,67 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(modelBuilder, nameof(modelBuilder));
 
             return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.MaxIdentifierLength, length, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Configures the database collation, which will be used by all columns without an explicit collation.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="collation"> The collation. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static ModelBuilder UseCollation(
+            [NotNull] this ModelBuilder modelBuilder,
+            [CanBeNull] string collation)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NullButNotEmpty(collation, nameof(collation));
+
+            modelBuilder.Model.SetCollation(collation);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the database collation, which will be used by all columns without an explicit collation.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="collation"> The collation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionModelBuilder UseCollation(
+            [NotNull] this IConventionModelBuilder modelBuilder,
+            [CanBeNull] string collation,
+            bool fromDataAnnotation = false)
+        {
+            if (modelBuilder.CanSetCollation(collation, fromDataAnnotation))
+            {
+                modelBuilder.Metadata.SetCollation(collation, fromDataAnnotation);
+
+                return modelBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given collation can be set as default.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="collation"> The collation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the given collation can be set as default. </returns>
+        public static bool CanSetCollation(
+            [NotNull] this IConventionModelBuilder modelBuilder,
+            [CanBeNull] string collation,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NullButNotEmpty(collation, nameof(collation));
+
+            return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
         }
     }
 }

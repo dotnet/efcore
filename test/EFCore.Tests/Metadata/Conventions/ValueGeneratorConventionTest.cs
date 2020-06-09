@@ -453,12 +453,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     new ConventionContext<IConventionKey>(entityBuilder.Metadata.Model.ConventionDispatcher));
         }
 
-        private static void RunConvention(InternalRelationshipBuilder foreignKeyBuilder)
+        private static void RunConvention(InternalForeignKeyBuilder foreignKeyBuilder)
         {
             new ValueGenerationConvention(CreateDependencies())
                 .ProcessForeignKeyAdded(
                     foreignKeyBuilder,
-                    new ConventionContext<IConventionRelationshipBuilder>(
+                    new ConventionContext<IConventionForeignKeyBuilder>(
                         foreignKeyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher));
         }
 

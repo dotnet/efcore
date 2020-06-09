@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceCollectionBuilder(
-            InternalRelationshipBuilder builder,
-            ReferenceCollectionBuilder oldBuilder,
+            [NotNull] InternalForeignKeyBuilder builder,
+            [CanBeNull] ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
+        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
             => Builder.HasForeignKey(foreignKeyPropertyNames, (EntityType)DependentEntityType, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<MemberInfo> foreignKeyProperties)
-            => Builder.HasForeignKey(foreignKeyProperties, (EntityType)DependentEntityType, ConfigurationSource.Explicit);
+        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<MemberInfo> foreignKeyMembers)
+            => Builder.HasForeignKey(foreignKeyMembers, (EntityType)DependentEntityType, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<string> keyPropertyNames)
+        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<string> keyPropertyNames)
             => Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -151,12 +151,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<MemberInfo> keyProperties)
-            => Builder.HasPrincipalKey(keyProperties, ConfigurationSource.Explicit);
+        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<MemberInfo> keyMembers)
+            => Builder.HasPrincipalKey(keyMembers, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned <c>null</c>).
+        ///     be assigned <see langword="null" />).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>

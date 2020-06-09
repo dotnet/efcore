@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_dependentMaps == null)
             {
-                _dependentMaps = new Dictionary<IForeignKey, IDependentsMap>(ReferenceEqualityComparer.Instance);
+                _dependentMaps = new Dictionary<IForeignKey, IDependentsMap>(LegacyReferenceEqualityComparer.Instance);
             }
 
             if (!_dependentMaps.TryGetValue(foreignKey, out var map))

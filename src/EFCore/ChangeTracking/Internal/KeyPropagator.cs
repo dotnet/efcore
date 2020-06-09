@@ -1,13 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry PropagateValue(InternalEntityEntry entry, IProperty property)
         {
-            Debug.Assert(property.IsForeignKey());
+            Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
             var principalEntry = TryPropagateValue(entry, property);
             if (principalEntry == null
@@ -71,6 +71,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         entry[property] = value;
                     }
+
+                    entry.MarkUnknown(property);
                 }
             }
 
@@ -88,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IProperty property,
             CancellationToken cancellationToken = default)
         {
-            Debug.Assert(property.IsForeignKey());
+            Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
             var principalEntry = TryPropagateValue(entry, property);
             if (principalEntry == null
@@ -98,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken);
+                    var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken)
+                        .ConfigureAwait(false);
 
                     if (valueGenerator.GeneratesTemporaryValues)
                     {
@@ -108,6 +111,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         entry[property] = value;
                     }
+
+                    entry.MarkUnknown(property);
                 }
             }
 

@@ -15,6 +15,18 @@ namespace Microsoft.EntityFrameworkCore.Design
             Assert.IsType<TestContext>(result);
         }
 
+        [ConditionalFact]
+        public void CreateInstance_with_arguments_works()
+        {
+            var result = DbContextActivator.CreateInstance(
+                typeof(TestContext),
+                null,
+                null,
+                new[] { "A", "B" });
+
+            Assert.IsType<TestContext>(result);
+        }
+
         private class TestContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder options)

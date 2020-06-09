@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -81,6 +82,144 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
             => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
+
+        /// <summary>
+        ///     <para>
+        ///         Logs using the supplied action. For example, use <c>optionsBuilder.LogTo(Console.WriteLine)</c> to
+        ///         log to the console.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows the minimum level of logging and the log formatting to be controlled.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///         overload to log only specific events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
+        ///         overload to log only events in specific categories.
+        ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
+        ///         overload to use a custom filter for events.
+        ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+        ///     </para>
+        /// </summary>
+        /// <param name="action"> Delegate called when there is a message to log. </param>
+        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="options">
+        ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> LogTo(
+            [NotNull] Action<string> action,
+            LogLevel minimumLevel = LogLevel.Debug,
+            DbContextLoggerOptions? options = null)
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(action, minimumLevel, options);
+
+        /// <summary>
+        ///     <para>
+        ///         Logs the specified events using the supplied action. For example, use
+        ///         <c>optionsBuilder.LogTo(Console.WriteLine, new[] { CoreEventId.ContextInitialized })</c> to log the
+        ///         <see cref="CoreEventId.ContextInitialized" /> event to the console.
+        ///     </para>
+        ///     <para>
+        ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
+        ///         all events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
+        ///         overload to log only events in specific categories.
+        ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
+        ///         overload to use a custom filter for events.
+        ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+        ///     </para>
+        /// </summary>
+        /// <param name="action"> Delegate called when there is a message to log. </param>
+        /// <param name="events"> The <see cref="EventId" /> of each event to log. </param>
+        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="options">
+        ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> LogTo(
+            [NotNull] Action<string> action,
+            [NotNull] IEnumerable<EventId> events,
+            LogLevel minimumLevel = LogLevel.Debug,
+            DbContextLoggerOptions? options = null)
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(action, events, minimumLevel, options);
+
+        /// <summary>
+        ///     <para>
+        ///         Logs all events in the specified categories using the supplied action. For example, use
+        ///         <c>optionsBuilder.LogTo(Console.WriteLine, new[] { DbLoggerCategory.Infrastructure.Name })</c> to log all
+        ///         events in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
+        ///         all events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///         overload to log only specific events.
+        ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
+        ///         overload to use a custom filter for events.
+        ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+        ///     </para>
+        /// </summary>
+        /// <param name="action"> Delegate called when there is a message to log. </param>
+        /// <param name="categories"> The <see cref="DbLoggerCategory" /> of each event to log. </param>
+        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="options">
+        ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> LogTo(
+            [NotNull] Action<string> action,
+            [NotNull] IEnumerable<string> categories,
+            LogLevel minimumLevel = LogLevel.Debug,
+            DbContextLoggerOptions? options = null)
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(action, categories, minimumLevel, options);
+
+        /// <summary>
+        ///     <para>
+        ///         Logs events filtered by a supplied custom filter delegate. The filter should return true to
+        ///         log a message, or false to filter it out of the log.
+        ///     </para>
+        ///     <para>
+        ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
+        ///         all events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
+        ///         overload to log only events in specific categories.
+        ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+        ///     </para>
+        /// </summary>
+        /// <param name="action"> Delegate called when there is a message to log. </param>
+        /// <param name="filter"> Delegate that returns true to log the message or false to ignore it. </param>
+        /// <param name="options">
+        ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> LogTo(
+            [NotNull] Action<string> action,
+            [NotNull] Func<EventId, LogLevel, bool> filter,
+            DbContextLoggerOptions? options = null)
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(action, filter, options);
+
+        /// <summary>
+        ///     <para>
+        ///         Logs events to a custom logger delegate filtered by a custom filter delegate. The filter should return true to
+        ///         log a message, or false to filter it out of the log.
+        ///     </para>
+        ///     <para>
+        ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
+        ///         all events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
+        ///         overload to log only events in specific categories.
+        ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
+        ///         overload to use a custom filter for events.
+        ///     </para>
+        /// </summary>
+        /// <param name="filter"> Delegate that returns true to log the message or false to ignore it. </param>
+        /// <param name="logger"> Delegate called when there is a message to log. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        // Filter comes first, logger second, otherwise it's hard to get the correct overload to resolve
+        public new virtual DbContextOptionsBuilder<TContext> LogTo(
+            [NotNull] Func<EventId, LogLevel, bool> filter,
+            [NotNull] Action<EventData> logger)
+            => (DbContextOptionsBuilder<TContext>)base.LogTo(filter, logger);
 
         /// <summary>
         ///     <para>
@@ -184,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
         ///     </para>
         /// </summary>
-        /// <param name="cacheServiceProvider"> If <c>true</c>, then the internal service provider is cached. </param>
+        /// <param name="cacheServiceProvider"> If <see langword="true" />, then the internal service provider is cached. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableServiceProviderCaching(bool cacheServiceProvider = true)
             => (DbContextOptionsBuilder<TContext>)base.EnableServiceProviderCaching(cacheServiceProvider);
@@ -229,10 +368,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <example>
         ///     <code>
-        ///         optionsBuilder.ConfigureWarnings(warnings =>
-        ///             warnings.Default(WarningBehavior.Ignore)
-        ///                     .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
-        ///                     .Throw(RelationalEventId.BoolWithDefaultWarning))
+        /// optionsBuilder.ConfigureWarnings(warnings =>
+        ///     warnings.Default(WarningBehavior.Ignore)
+        ///         .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
+        ///         .Throw(RelationalEventId.BoolWithDefaultWarning));
         ///     </code>
         /// </example>
         /// <param name="warningsConfigurationBuilderAction">
@@ -245,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Replaces the internal Entity Framework implementation of a service contract with a different
+        ///         Replaces all internal Entity Framework implementations of a service contract with a different
         ///         implementation.
         ///     </para>
         ///     <para>
@@ -264,5 +403,85 @@ namespace Microsoft.EntityFrameworkCore
         public new virtual DbContextOptionsBuilder<TContext> ReplaceService<TService, TImplementation>()
             where TImplementation : TService
             => (DbContextOptionsBuilder<TContext>)base.ReplaceService<TService, TImplementation>();
+
+        /// <summary>
+        ///     <para>
+        ///         Replaces the internal Entity Framework implementation of a specific implementation of a service contract
+        ///         with a different implementation.
+        ///     </para>
+        ///     <para>
+        ///         This method is useful for replacing a single instance of services that can be legitimately registered
+        ///         multiple times in the EF internal service provider.
+        ///     </para>
+        ///     <para>
+        ///         This method can only be used when EF is building and managing its internal service provider.
+        ///         If the service provider is being built externally and passed to
+        ///         <see cref="UseInternalServiceProvider" />, then replacement services should be configured on
+        ///         that service provider before it is passed to EF.
+        ///     </para>
+        ///     <para>
+        ///         The replacement service gets the same scope as the EF service that it is replacing.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TService"> The type (usually an interface) that defines the contract of the service to replace. </typeparam>
+        /// <typeparam name="TCurrentImplementation"> The current implementation type for the service. </typeparam>
+        /// <typeparam name="TNewImplementation"> The new implementation type for the service. </typeparam>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> ReplaceService<TService, TCurrentImplementation, TNewImplementation>()
+            where TCurrentImplementation : TService
+            where TNewImplementation : TService
+            => (DbContextOptionsBuilder<TContext>)base.ReplaceService<TService, TCurrentImplementation, TNewImplementation>();
+
+        /// <summary>
+        ///     <para>
+        ///         Adds <see cref="IInterceptor" /> instances to those registered on the context.
+        ///     </para>
+        ///     <para>
+        ///         Interceptors can be used to view, change, or suppress operations taken by Entity Framework.
+        ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
+        ///     </para>
+        ///     <para>
+        ///         A single interceptor instance can implement multiple different interceptor interfaces. I will be registered as
+        ///         an interceptor for all interfaces that it implements.
+        ///     </para>
+        ///     <para>
+        ///         Extensions can also register multiple <see cref="IInterceptor" />s in the internal service provider.
+        ///         If both injected and application interceptors are found, then the injected interceptors are run in the
+        ///         order that they are resolved from the service provider, and then the application interceptors are run
+        ///         in the order that they were added to the context.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
+        ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptors"> The interceptors to add. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors([NotNull] IEnumerable<IInterceptor> interceptors)
+            => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
+
+        /// <summary>
+        ///     <para>
+        ///         Adds <see cref="IInterceptor" /> instances to those registered on the context.
+        ///     </para>
+        ///     <para>
+        ///         Interceptors can be used to view, change, or suppress operations taken by Entity Framework.
+        ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
+        ///     </para>
+        ///     <para>
+        ///         Extensions can also register multiple <see cref="IInterceptor" />s in the internal service provider.
+        ///         If both injected and application interceptors are found, then the injected interceptors are run in the
+        ///         order that they are resolved from the service provider, and then the application interceptors are run
+        ///         in the order that they were added to the context.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
+        ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptors"> The interceptors to add. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors([NotNull] params IInterceptor[] interceptors)
+            => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
     }
 }

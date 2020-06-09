@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -221,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public IRelationalCommand Build() => new FakeRelationalCommand();
 
-            public IRelationalCommandBuilder Append(object value)
+            public IRelationalCommandBuilder Append(string value)
             {
                 Instance.Append(value);
 

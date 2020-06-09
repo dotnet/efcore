@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Base class used for configuring a relationship.
     /// </summary>
-    public abstract class RelationshipBuilderBase : IInfrastructure<InternalRelationshipBuilder>
+    public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForeignKeyBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected RelationshipBuilderBase(
-            InternalRelationshipBuilder builder,
-            RelationshipBuilderBase oldBuilder,
+            [NotNull] InternalForeignKeyBuilder builder,
+            [CanBeNull] RelationshipBuilderBase oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -81,13 +81,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     The principal entity type used to configure this relationship.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual IMutableEntityType PrincipalEntityType { get; }
 
         /// <summary>
-        ///     The dependent entity type used to configure this relationship.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual IMutableEntityType DependentEntityType { get; }
 
         /// <summary>
@@ -97,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder Builder { get; [param: NotNull] set; }
+        protected virtual InternalForeignKeyBuilder Builder { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -107,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.
         /// </summary>
-        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
+        IConventionForeignKeyBuilder IInfrastructure<IConventionForeignKeyBuilder>.Instance => Builder;
 
         #region Hidden System.Object members
 
@@ -122,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);

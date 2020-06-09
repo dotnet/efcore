@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -17,8 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     info/metadata for the given extension.
         /// </summary>
         /// <param name="extension"> The extension. </param>
-        protected DbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
+        protected DbContextOptionsExtensionInfo([NotNull] IDbContextOptionsExtension extension)
         {
+            Check.NotNull(extension, nameof(extension));
+
             Extension = extension;
         }
 
@@ -28,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual IDbContextOptionsExtension Extension { get; }
 
         /// <summary>
-        ///     True if the extension is a database provider; false otherwise.
+        ///     <see langword="true"/> if the extension is a database provider; <see langword="false"/> otherwise.
         /// </summary>
         public abstract bool IsDatabaseProvider { get; }
 

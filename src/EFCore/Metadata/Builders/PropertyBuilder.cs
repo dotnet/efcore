@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyBuilder : IInfrastructure<InternalPropertyBuilder>
+    public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the property.
         /// </summary>
-        InternalPropertyBuilder IInfrastructure<InternalPropertyBuilder>.Instance => Builder;
+        IConventionPropertyBuilder IInfrastructure<IConventionPropertyBuilder>.Instance => Builder;
+
+        private InternalPropertyBuilder Builder { get; }
 
         /// <summary>
         ///     The property being configured.
@@ -65,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures whether this property must have a value assigned or <c>null</c> is a valid value.
+        ///     Configures whether this property must have a value assigned or <see langword="null" /> is a valid value.
         ///     A property can only be configured as non-required if it is based on a CLR type that can be
-        ///     assigned <c>null</c>.
+        ///     assigned <see langword="null" />.
         /// </summary>
         /// <param name="required"> A value indicating whether the property is required. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -87,6 +89,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder HasMaxLength(int maxLength)
         {
             Builder.HasMaxLength(maxLength, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures the precision and scale of the property.
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <param name="scale"> The scale of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasPrecision(int precision, int scale)
+        {
+            Builder.HasPrecision(precision, ConfigurationSource.Explicit);
+            Builder.HasScale(scale, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the precision of the property.
+        ///     </para>
+        ///     <para>
+        ///         Note: has the side-effect of setting the scale to 0.
+        ///     </para>
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasPrecision(int precision)
+        {
+            Builder.HasPrecision(precision, ConfigurationSource.Explicit);
+            Builder.HasScale(0, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -130,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -159,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -192,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -369,8 +403,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        private InternalPropertyBuilder Builder { get; }
-
         #region Hidden System.Object members
 
         /// <summary>
@@ -384,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);

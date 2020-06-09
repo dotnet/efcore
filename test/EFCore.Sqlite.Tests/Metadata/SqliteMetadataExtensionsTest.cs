@@ -29,27 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(property.GetSrid());
         }
 
-        [ConditionalFact]
-        public void Can_get_and_set_dimension()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Geometry)
-                .Metadata;
-
-            Assert.Null(property.GetGeometricDimension());
-
-            property.SetGeometricDimension("Z");
-
-            Assert.Equal("Z", property.GetGeometricDimension());
-
-            property.SetGeometricDimension(null);
-
-            Assert.Null(property.GetGeometricDimension());
-        }
-
         private class Customer
         {
             public int Id { get; set; }

@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .KeyBuilderExtension("V1")
                 .KeyBuilderExtension("V2");
 
-            Assert.IsType<KeyBuilder>(returnedBuilder);
+            Assert.IsType<KeyBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<KeyBuilder>(returnedBuilder);
+            Assert.IsType<KeyBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();

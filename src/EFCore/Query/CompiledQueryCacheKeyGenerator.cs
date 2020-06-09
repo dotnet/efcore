@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query"> The query to get the cache key for. </param>
         /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
         /// <returns> The cache key. </returns>
-        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
+        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async) // Intentionally non-virtual
             => new CompiledQueryCacheKey(
                 Check.NotNull(query, nameof(query)),
                 Dependencies.Model,
@@ -110,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     The object to compare this key to.
             /// </param>
             /// <returns>
-            ///     True if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise false.
+            ///     <see langword="true"/> if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise <see langword="false"/>. 
             /// </returns>
             public override bool Equals(object obj)
             {

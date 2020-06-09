@@ -5,6 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -28,7 +29,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeAnnotationChangedConvention,
         IEntityTypeBaseTypeChangedConvention
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         public static readonly string IdPropertyName = "id";
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         public static readonly string JObjectPropertyName = "__jObject";
 
         /// <summary>
@@ -107,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var jObjectProperty = entityType.FindDeclaredProperty(JObjectPropertyName);
                 if (jObjectProperty != null)
                 {
-                    entityType.Builder.RemoveUnusedShadowProperties(new[] { jObjectProperty });
+                    entityType.Builder.HasNoUnusedShadowProperties(new[] { jObjectProperty });
                 }
             }
         }
@@ -132,8 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyOwnershipChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(context, nameof(context));

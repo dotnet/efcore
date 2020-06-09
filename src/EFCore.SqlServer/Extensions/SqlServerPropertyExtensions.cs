@@ -23,7 +23,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The name to use for the hi-lo sequence. </returns>
         public static string GetHiLoSequenceName([NotNull] this IProperty property)
-            => (string)property[SqlServerAnnotationNames.HiLoSequenceName];
+        {
+            var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceName);
+            if (annotation != null)
+            {
+                return (string)annotation.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedTableRootProperty(
+                property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema());
+            return sharedTableRootProperty != null
+                ? sharedTableRootProperty.GetHiLoSequenceSchema()
+                : null;
+        }
 
         /// <summary>
         ///     Sets the name to use for the hi-lo sequence.
@@ -41,12 +53,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="name"> The sequence name to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetHiLoSequenceName(
+        /// <returns> The configured value. </returns>
+        public static string SetHiLoSequenceName(
             [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceName,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation);
+
+            return name;
+        }
 
         /// <summary>
         ///     Returns the <see cref="ConfigurationSource" /> for the hi-lo sequence name.
@@ -62,7 +79,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The schema to use for the hi-lo sequence. </returns>
         public static string GetHiLoSequenceSchema([NotNull] this IProperty property)
-            => (string)property[SqlServerAnnotationNames.HiLoSequenceSchema];
+        {
+            var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema);
+            if (annotation != null)
+            {
+                return (string)annotation.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedTableRootProperty(
+                property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema());
+            return sharedTableRootProperty != null
+                ? sharedTableRootProperty.GetHiLoSequenceSchema()
+                : null;
+        }
 
         /// <summary>
         ///     Sets the schema to use for the hi-lo sequence.
@@ -80,12 +109,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="schema"> The schema to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetHiLoSequenceSchema(
+        /// <returns> The configured value. </returns>
+        public static string SetHiLoSequenceSchema(
             [NotNull] this IConventionProperty property, [CanBeNull] string schema, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.HiLoSequenceSchema,
                 Check.NullButNotEmpty(schema, nameof(schema)),
                 fromDataAnnotation);
+
+            return schema;
+        }
 
         /// <summary>
         ///     Returns the <see cref="ConfigurationSource" /> for the hi-lo sequence schema.
@@ -98,15 +132,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Finds the <see cref="ISequence" /> in the model to use for the hi-lo pattern.
         /// </summary>
-        /// <returns> The sequence to use, or <c>null</c> if no sequence exists in the model. </returns>
+        /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
         public static ISequence FindHiLoSequence([NotNull] this IProperty property)
         {
             var model = property.DeclaringEntityType.Model;
-
-            if (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.SequenceHiLo)
-            {
-                return null;
-            }
 
             var sequenceName = property.GetHiLoSequenceName()
                 ?? model.GetHiLoSequenceName();
@@ -126,6 +155,27 @@ namespace Microsoft.EntityFrameworkCore
             => (int?)property[SqlServerAnnotationNames.IdentitySeed];
 
         /// <summary>
+        ///     Returns the identity seed.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The identity seed. </returns>
+        public static int? GetIdentitySeed([NotNull] this IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+        {
+            var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
+            if (annotation != null)
+            {
+                return (int?)annotation.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            return sharedTableRootProperty != null
+                ? sharedTableRootProperty.GetIdentitySeed(tableName, schema)
+                : null;
+        }
+
+        /// <summary>
         ///     Sets the identity seed.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -141,12 +191,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="seed"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIdentitySeed(
+        /// <returns> The configured value. </returns>
+        public static int? SetIdentitySeed(
             [NotNull] this IConventionProperty property, int? seed, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.IdentitySeed,
                 seed,
                 fromDataAnnotation);
+
+            return seed;
+        }
 
         /// <summary>
         ///     Returns the <see cref="ConfigurationSource" /> for the identity seed.
@@ -165,6 +220,27 @@ namespace Microsoft.EntityFrameworkCore
             => (int?)property[SqlServerAnnotationNames.IdentityIncrement];
 
         /// <summary>
+        ///     Returns the identity increment.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The identity increment. </returns>
+        public static int? GetIdentityIncrement([NotNull] this IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+        {
+            var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement);
+            if (annotation != null)
+            {
+                return (int?)annotation.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            return sharedTableRootProperty != null
+                ? sharedTableRootProperty.GetIdentityIncrement(tableName, schema)
+                : null;
+        }
+
+        /// <summary>
         ///     Sets the identity increment.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -180,12 +256,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="increment"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIdentityIncrement(
+        /// <returns> The configured value. </returns>
+        public static int? SetIdentityIncrement(
             [NotNull] this IConventionProperty property, int? increment, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        {
+            property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.IdentityIncrement,
                 increment,
                 fromDataAnnotation);
+
+            return increment;
+        }
 
         /// <summary>
         ///     Returns the <see cref="ConfigurationSource" /> for the identity increment.
@@ -203,25 +284,18 @@ namespace Microsoft.EntityFrameworkCore
         ///         If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
         ///     </para>
         /// </summary>
+        /// <param name="property"> The property. </param>
         /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
         public static SqlServerValueGenerationStrategy GetValueGenerationStrategy([NotNull] this IProperty property)
         {
-            var annotation = property[SqlServerAnnotationNames.ValueGenerationStrategy];
+            var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
             if (annotation != null)
             {
-                return (SqlServerValueGenerationStrategy)annotation;
-            }
-
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
-            if (sharedTablePrincipalPrimaryKeyProperty != null)
-            {
-                return sharedTablePrincipalPrimaryKeyProperty.GetValueGenerationStrategy()
-                    == SqlServerValueGenerationStrategy.IdentityColumn
-                        ? SqlServerValueGenerationStrategy.IdentityColumn
-                        : SqlServerValueGenerationStrategy.None;
+                return (SqlServerValueGenerationStrategy)annotation.Value;
             }
 
             if (property.ValueGenerated != ValueGenerated.OnAdd
+                || property.IsForeignKey()
                 || property.GetDefaultValue() != null
                 || property.GetDefaultValueSql() != null
                 || property.GetComputedColumnSql() != null)
@@ -229,6 +303,55 @@ namespace Microsoft.EntityFrameworkCore
                 return SqlServerValueGenerationStrategy.None;
             }
 
+            return GetDefaultValueGenerationStrategy(property);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
+        ///     </para>
+        ///     <para>
+        ///         If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
+        public static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
+            [NotNull] this IProperty property,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+            if (annotation != null)
+            {
+                return (SqlServerValueGenerationStrategy)annotation.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            if (sharedTableRootProperty != null)
+            {
+                return sharedTableRootProperty.GetValueGenerationStrategy(tableName, schema)
+                    == SqlServerValueGenerationStrategy.IdentityColumn
+                        ? SqlServerValueGenerationStrategy.IdentityColumn
+                        : SqlServerValueGenerationStrategy.None;
+            }
+
+            if (property.ValueGenerated != ValueGenerated.OnAdd
+                || property.IsForeignKey()
+                || property.GetDefaultValue(tableName, schema) != null
+                || property.GetDefaultValueSql(tableName, schema) != null
+                || property.GetComputedColumnSql(tableName, schema) != null)
+            {
+                return SqlServerValueGenerationStrategy.None;
+            }
+
+            return GetDefaultValueGenerationStrategy(property);
+        }
+
+        private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IProperty property)
+        {
             var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
 
             if (modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
@@ -262,12 +385,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="value"> The strategy to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetValueGenerationStrategy(
+        /// <returns> The configured value. </returns>
+        public static SqlServerValueGenerationStrategy? SetValueGenerationStrategy(
             [NotNull] this IConventionProperty property, SqlServerValueGenerationStrategy? value, bool fromDataAnnotation = false)
         {
             CheckValueGenerationStrategy(property, value);
 
             property.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation);
+
+            return value;
         }
 
         private static void CheckValueGenerationStrategy(IProperty property, SqlServerValueGenerationStrategy? value)
@@ -307,15 +433,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the property is compatible with any <see cref="SqlServerValueGenerationStrategy" />.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> <c>true</c> if compatible. </returns>
+        /// <returns> <see langword="true" /> if compatible. </returns>
         public static bool IsCompatibleWithValueGeneration([NotNull] IProperty property)
         {
             var type = property.ClrType;
 
             return (type.IsInteger()
                     || type == typeof(decimal))
-                && (property.FindTypeMapping()?.Converter
-                    ?? property.GetValueConverter())
+                && (property.GetValueConverter()
+                    ?? property.FindTypeMapping()?.Converter)
                 == null;
         }
     }

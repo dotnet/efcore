@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>
+    public class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IRelationalQueryingEnumerable
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
@@ -27,16 +28,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IReadOnlyList<ReaderColumn> _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
         private readonly Type _contextType;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+        private readonly bool _performIdentityResolution;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public QueryingEnumerable(
-            RelationalQueryContext relationalQueryContext,
-            RelationalCommandCache relationalCommandCache,
-            IReadOnlyList<string> columnNames,
-            IReadOnlyList<ReaderColumn> readerColumns,
-            Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
-            Type contextType,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            [NotNull] RelationalQueryContext relationalQueryContext,
+            [NotNull] RelationalCommandCache relationalCommandCache,
+            [NotNull] IReadOnlyList<string> columnNames,
+            [NotNull] IReadOnlyList<ReaderColumn> readerColumns,
+            [NotNull] Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
+            [NotNull] Type contextType,
+            bool performIdentityResolution)
         {
             _relationalQueryContext = relationalQueryContext;
             _relationalCommandCache = relationalCommandCache;
@@ -44,16 +52,70 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _readerColumns = readerColumns;
             _shaper = shaper;
             _contextType = contextType;
-            _logger = logger;
+            _queryLogger = relationalQueryContext.QueryLogger;
+            _performIdentityResolution = performIdentityResolution;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new AsyncEnumerator(this, cancellationToken);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IEnumerator<T> GetEnumerator() => new Enumerator(this);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public static int[] BuildIndexMap(IReadOnlyList<string> columnNames, DbDataReader dataReader)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DbCommand CreateDbCommand()
+            => _relationalCommandCache
+                .GetRelationalCommand(_relationalQueryContext.ParameterValues)
+                .CreateDbCommand(
+                    new RelationalCommandParameterObject(
+                        _relationalQueryContext.Connection,
+                        _relationalQueryContext.ParameterValues,
+                        null,
+                        null,
+                        null),
+                    Guid.Empty,
+                    (DbCommandMethod)(-1));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string ToQueryString()
+            => _relationalQueryContext.RelationalQueryStringFactory.Create(CreateDbCommand());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static int[] BuildIndexMap([CanBeNull] IReadOnlyList<string> columnNames, [NotNull] DbDataReader dataReader)
         {
             if (columnNames == null)
             {
@@ -87,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IReadOnlyList<ReaderColumn> _readerColumns;
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+            private readonly bool _performIdentityResolution;
 
             private RelationalDataReader _dataReader;
             private int[] _indexMap;
@@ -102,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _readerColumns = queryingEnumerable._readerColumns;
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
-                _logger = queryingEnumerable._logger;
+                _queryLogger = queryingEnumerable._queryLogger;
+                _performIdentityResolution = queryingEnumerable._performIdentityResolution;
             }
 
             public T Current { get; private set; }
@@ -163,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 catch (Exception exception)
                 {
-                    _logger.QueryIterationFailed(_contextType, exception);
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
 
                     throw;
                 }
@@ -186,6 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 _resultCoordinator = new ResultCoordinator();
 
+                _relationalQueryContext.InitializeStateManager(_performIdentityResolution);
+
                 return result;
             }
 
@@ -206,7 +272,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IReadOnlyList<ReaderColumn> _readerColumns;
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+            private readonly bool _performIdentityResolution;
             private readonly CancellationToken _cancellationToken;
 
             private RelationalDataReader _dataReader;
@@ -224,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _readerColumns = queryingEnumerable._readerColumns;
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
-                _logger = queryingEnumerable._logger;
+                _queryLogger = queryingEnumerable._queryLogger;
+                _performIdentityResolution = queryingEnumerable._performIdentityResolution;
                 _cancellationToken = cancellationToken;
             }
 
@@ -243,10 +311,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
                             }
 
-                            await _executionStrategy.ExecuteAsync(true, InitializeReaderAsync, null, _cancellationToken);
+                            await _executionStrategy.ExecuteAsync(true, InitializeReaderAsync, null, _cancellationToken)
+                                .ConfigureAwait(false);
                         }
 
-                        var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync(_cancellationToken);
+                        var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync(_cancellationToken).ConfigureAwait(false);
                         Current = default;
 
                         if (hasNext)
@@ -265,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     break;
                                 }
 
-                                if (!await _dataReader.ReadAsync(_cancellationToken))
+                                if (!await _dataReader.ReadAsync(_cancellationToken).ConfigureAwait(false))
                                 {
                                     _resultCoordinator.HasNext = false;
                                     // Enumeration has ended, materialize last element
@@ -284,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 catch (Exception exception)
                 {
-                    _logger.QueryIterationFailed(_contextType, exception);
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
 
                     throw;
                 }
@@ -292,8 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private async Task<bool> InitializeReaderAsync(DbContext _, bool result, CancellationToken cancellationToken)
             {
-                var relationalCommand = _relationalCommandCache.GetRelationalCommand(
-                    _relationalQueryContext.ParameterValues);
+                var relationalCommand = _relationalCommandCache.GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
                 _dataReader
                     = await relationalCommand.ExecuteReaderAsync(
@@ -303,11 +371,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             _readerColumns,
                             _relationalQueryContext.Context,
                             _relationalQueryContext.CommandLogger),
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
 
                 _indexMap = BuildIndexMap(_columnNames, _dataReader.DbDataReader);
 
                 _resultCoordinator = new ResultCoordinator();
+
+                _relationalQueryContext.InitializeStateManager(_performIdentityResolution);
 
                 return result;
             }

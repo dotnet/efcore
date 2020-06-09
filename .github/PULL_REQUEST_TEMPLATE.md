@@ -10,7 +10,7 @@ Please check if the PR fulfills these requirements
         Fixes #bugnumber
 - [ ] Tests for the changes have been added (for bug fixes / features)
 - [ ] Code meets the expectations our engineering guidelines.
-      https://github.com/aspnet/AspNetCore/wiki/Engineering-guidelines
+      https://github.com/dotnet/aspnetcore/wiki/Engineering-guidelines
 
 Review the guidelines for CONTRIBUTING.md for more details.
 -->

@@ -6,10 +6,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -191,6 +194,55 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
+        protected class Customer
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string PartitionId { get; set; }
+            public ICollection<Order> Orders { get; set; }
+        }
+
+        protected class Order
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty(nameof(Id));
+
+            public int Id { get; set; }
+            public string PartitionId { get; set; }
+            public Customer Customer { get; set; }
+
+            public OrderDetails OrderDetails { get; set; }
+
+            [NotMapped]
+            public virtual ICollection<Product> Products { get; set; }
+        }
+
+        [Owned]
+        protected class OrderDetails
+        {
+            public string ShippingAddress { get; set; }
+        }
+
+        protected class OrderProduct
+        {
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
+            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+
+            public int OrderId { get; set; }
+            public int ProductId { get; set; }
+            public virtual Order Order { get; set; }
+            public virtual Product Product { get; set; }
+        }
+
+        protected class Product
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty(nameof(Id));
+
+            public int Id { get; set; }
+
+            [NotMapped]
+            public virtual ICollection<Order> Orders { get; set; }
+        }
+
         protected ModelValidatorTestBase()
             => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
 
@@ -204,13 +256,35 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(expectedMessage, logEntry.Message);
         }
 
+        protected virtual void VerifyWarnings(string[] expectedMessages, IMutableModel model, LogLevel level = LogLevel.Warning)
+        {
+            Validate(model);
+            var logEntries = LoggerFactory.Log.Where(l => l.Level == level);
+            Assert.Equal(expectedMessages.Length, logEntries.Count());
+
+            int count = 0;
+            foreach (var logEntry in logEntries)
+            {
+                Assert.Equal(expectedMessages[count++], logEntry.Message);
+            }
+        }
+
         protected virtual void VerifyError(string expectedMessage, IMutableModel model)
         {
             var message = Assert.Throws<InvalidOperationException>(() => Validate(model)).Message;
             Assert.Equal(expectedMessage, message);
         }
 
-        protected virtual void Validate(IMutableModel model) => model.FinalizeModel();
+        protected virtual void VerifyLogDoesNotContain(string expectedMessage, IMutableModel model)
+        {
+            Validate(model);
+
+            var logEntries = LoggerFactory.Log.Where(l => l.Message.Contains(expectedMessage));
+
+            Assert.Empty(logEntries);
+        }
+
+        protected virtual IModel Validate(IMutableModel model) => model.FinalizeModel();
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {
@@ -220,7 +294,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 LoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                TestHelpers.LoggingDefinitions);
+                TestHelpers.LoggingDefinitions,
+                new NullDbContextLogger());
         }
 
         protected DiagnosticsLogger<DbLoggerCategory.Model> CreateModelLogger(bool sensitiveDataLoggingEnabled = false)
@@ -231,7 +306,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 LoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                TestHelpers.LoggingDefinitions);
+                TestHelpers.LoggingDefinitions,
+                new NullDbContextLogger());
         }
 
         protected virtual ModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)
@@ -243,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var conventionSet = new ConventionSet();
 
             var dependencies = CreateDependencies(sensitiveDataLoggingEnabled);
-            conventionSet.ModelFinalizedConventions.Add(new TypeMappingConvention(dependencies));
+            conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
             conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(dependencies));
 
             return new ModelBuilder(conventionSet);
@@ -254,5 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .With(CreateValidationLogger(sensitiveDataLoggingEnabled));
 
         protected virtual TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
+
+        protected virtual InternalModelBuilder CreateConventionlessInternalModelBuilder()
+            => (InternalModelBuilder)CreateConventionlessModelBuilder().GetInfrastructure();
     }
 }

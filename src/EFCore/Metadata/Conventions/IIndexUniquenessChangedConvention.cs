@@ -18,6 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessIndexUniquenessChanged(
             [NotNull] IConventionIndexBuilder indexBuilder,
-            [NotNull] IConventionContext<IConventionIndexBuilder> context);
+            [NotNull] IConventionContext<bool?> context);
     }
 }

@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexUniquenessChanged(
-            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            IConventionIndexBuilder indexBuilder, IConventionContext<bool?> context)
             => SetIndexFilter(indexBuilder);
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessPropertyNullabilityChanged(
             IConventionPropertyBuilder propertyBuilder,
-            IConventionContext<IConventionPropertyBuilder> context)
+            IConventionContext<bool?> context)
         {
             foreach (var index in propertyBuilder.Metadata.GetContainingIndexes())
             {
@@ -174,9 +174,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private string CreateIndexFilter(IIndex index)
         {
+            var table = index.DeclaringEntityType.GetTableName();
+            if (table == null)
+            {
+                return null;
+            }
+
+            var schema = index.DeclaringEntityType.GetSchema();
+
             var nullableColumns = index.Properties
-                .Where(property => property.IsColumnNullable())
-                .Select(property => property.GetColumnName())
+                .Where(property => property.IsColumnNullable(table, schema))
+                .Select(property => property.GetColumnName(table, schema))
                 .ToList();
 
             var builder = new StringBuilder();

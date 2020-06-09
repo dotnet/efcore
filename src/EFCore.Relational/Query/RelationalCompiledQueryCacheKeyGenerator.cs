@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query"> The query to get the cache key for. </param>
         /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
         /// <returns> The cache key. </returns>
-        protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
+        protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async) // Intentionally non-virtual
             => new RelationalCompiledQueryCacheKey(
                 base.GenerateCacheKeyCore(query, async),
                 RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions).UseRelationalNulls,
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </summary>
             /// <param name="compiledQueryCacheKey"> The non-relational cache key. </param>
             /// <param name="useRelationalNulls"> True to use relational null logic. </param>
-            /// <param name="shouldBuffer"> True if the query should be buffered. </param>
+            /// <param name="shouldBuffer"> <see langword="true"/> if the query should be buffered. </param>
             public RelationalCompiledQueryCacheKey(
                 CompiledQueryCacheKey compiledQueryCacheKey, bool useRelationalNulls, bool shouldBuffer)
             {
@@ -106,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     The object to compare this key to.
             /// </param>
             /// <returns>
-            ///     True if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query, otherwise false.
+            ///     <see langword="true"/> if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query,
+            ///     otherwise <see langword="false"/>.
             /// </returns>
             public override bool Equals(object obj)
                 => !(obj is null)

@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         been completed.
     ///     </para>
     /// </summary>
-    public class ServiceCollectionMap : IInfrastructure<InternalServiceCollectionMap>
+    public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMap>
     {
         private readonly InternalServiceCollectionMap _map;
 
@@ -507,8 +506,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => descriptor.ImplementationType
                 ?? descriptor.ImplementationInstance?.GetType()
                 // Generic arg on Func may be object, but this is the best we can do and matches logic in D.I. container
-                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
+                ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1];
 
-        InternalServiceCollectionMap IInfrastructure<InternalServiceCollectionMap>.Instance => _map;
+        IInternalServiceCollectionMap IInfrastructure<IInternalServiceCollectionMap>.Instance => _map;
     }
 }

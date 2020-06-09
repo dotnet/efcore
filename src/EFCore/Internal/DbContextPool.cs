@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,6 +11,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     if (!_contextPool.Return(Context))
                     {
                         ((IDbContextPoolable)Context).SetPool(null);
-                        await Context.DisposeAsync();
+                        await Context.DisposeAsync().ConfigureAwait(false);
                     }
 
                     _contextPool = null;
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 Interlocked.Decrement(ref _count);
 
-                Debug.Assert(_count >= 0);
+                Check.DebugAssert(_count >= 0, $"_count is {_count}");
 
                 ((IDbContextPoolable)context).Resurrect(_configurationSnapshot);
 
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             Interlocked.Decrement(ref _count);
 
-            Debug.Assert(_maxSize == 0 || _pool.Count <= _maxSize);
+            Check.DebugAssert(_maxSize == 0 || _pool.Count <= _maxSize, $"_maxSize is {_maxSize}");
 
             return false;
         }
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             while (_pool.TryDequeue(out var context))
             {
                 ((IDbContextPoolable)context).SetPool(null);
-                await context.DisposeAsync();
+                await context.DisposeAsync().ConfigureAwait(false);
             }
         }
     }

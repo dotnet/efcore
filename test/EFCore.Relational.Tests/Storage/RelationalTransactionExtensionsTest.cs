@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -36,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake"),
-                    new TestRelationalLoggingDefinitions()),
+                    new TestRelationalLoggingDefinitions(),
+                    new NullDbContextLogger()),
                 false);
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());

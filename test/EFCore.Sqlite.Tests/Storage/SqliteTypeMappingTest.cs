@@ -50,27 +50,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public void SQLite_type_mapping_works_even_when_using_non_SQLite_store_type()
         {
-            using (var connection = new SqliteConnection("DataSource=:memory:"))
+            using var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+
+            using (var context = new YouNoTinyContext(connection))
             {
-                connection.Open();
+                context.Database.EnsureCreated();
 
-                using (var context = new YouNoTinyContext(connection))
-                {
-                    context.Database.EnsureCreated();
-
-                    context.Add(
-                        new NoTiny { TinyState = TinyState.Two });
-                    context.SaveChanges();
-                }
-
-                using (var context = new YouNoTinyContext(connection))
-                {
-                    var tiny = context.NoTinnies.Single();
-                    Assert.Equal(TinyState.Two, tiny.TinyState);
-                }
-
-                connection.Close();
+                context.Add(
+                    new NoTiny { TinyState = TinyState.Two });
+                context.SaveChanges();
             }
+
+            using (var context = new YouNoTinyContext(connection))
+            {
+                var tiny = context.NoTinnies.Single();
+                Assert.Equal(TinyState.Two, tiny.TinyState);
+            }
+
+            connection.Close();
         }
 
         protected override DbCommand CreateTestCommand()

@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var collection = CurrentValue;
             if (collection != null)
             {
-                var targetType = Metadata.GetTargetType();
+                var targetType = Metadata.TargetEntityType;
                 var context = InternalEntry.StateManager.Context;
                 var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
                     && (string)context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true"
@@ -163,10 +163,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual InternalEntityEntry GetInternalTargetEntry([NotNull] object entity)
             => CurrentValue == null
                 || !((Navigation)Metadata).CollectionAccessor.Contains(InternalEntry.Entity, entity)
                     ? null
-                    : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.GetTargetType());
+                    : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
     }
 }

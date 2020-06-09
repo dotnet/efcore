@@ -20,30 +20,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(true, true)]
         public async Task Can_pass_no_params(bool async, bool cancellation)
         {
-            using (var context = new ThudContext())
-            {
-                var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
+            using var context = new ThudContext();
+            var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
 
-                if (async)
+            if (async)
+            {
+                if (cancellation)
                 {
-                    if (cancellation)
-                    {
-                        var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", cancellationToken);
-                    }
-                    else
-                    {
-                        await context.Database.ExecuteSqlRawAsync("<Some query>");
-                    }
+                    var cancellationToken = new CancellationToken();
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", cancellationToken);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlRaw("<Some query>");
+                    await context.Database.ExecuteSqlRawAsync("<Some query>");
                 }
-
-                Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(new List<object>(), commandBuilder.Parameters);
             }
+            else
+            {
+                context.Database.ExecuteSqlRaw("<Some query>");
+            }
+
+            Assert.Equal("<Some query>", commandBuilder.Sql);
+            Assert.Equal(new List<object>(), commandBuilder.Parameters);
         }
 
         [ConditionalTheory]
@@ -52,31 +50,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(true, true)]
         public async Task Can_pass_array_of_int_params_as_object(bool async, bool cancellation)
         {
-            using (var context = new ThudContext())
-            {
-                var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
+            using var context = new ThudContext();
+            var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
 
-                if (async)
+            if (async)
+            {
+                if (cancellation)
                 {
-                    if (cancellation)
-                    {
-                        var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1, 2 }, cancellationToken);
-                    }
-                    else
-                    {
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", 1, 2);
-                    }
+                    var cancellationToken = new CancellationToken();
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1, 2 }, cancellationToken);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlRaw("<Some query>", 1, 2);
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", 1, 2);
                 }
-
-                Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(
-                    new List<object> { 1, 2 }, commandBuilder.Parameters);
             }
+            else
+            {
+                context.Database.ExecuteSqlRaw("<Some query>", 1, 2);
+            }
+
+            Assert.Equal("<Some query>", commandBuilder.Sql);
+            Assert.Equal(
+                new List<object> { 1, 2 }, commandBuilder.Parameters);
         }
 
         [ConditionalTheory]
@@ -84,23 +80,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(true)]
         public async Task Can_pass_ints_as_params(bool async)
         {
-            using (var context = new ThudContext())
+            using var context = new ThudContext();
+            var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
+
+            if (async)
             {
-                var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
-
-                if (async)
-                {
-                    await context.Database.ExecuteSqlRawAsync("<Some query>", 1, 2);
-                }
-                else
-                {
-                    context.Database.ExecuteSqlRaw("<Some query>", 1, 2);
-                }
-
-                Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(
-                    new List<object> { 1, 2 }, commandBuilder.Parameters);
+                await context.Database.ExecuteSqlRawAsync("<Some query>", 1, 2);
             }
+            else
+            {
+                context.Database.ExecuteSqlRaw("<Some query>", 1, 2);
+            }
+
+            Assert.Equal("<Some query>", commandBuilder.Sql);
+            Assert.Equal(
+                new List<object> { 1, 2 }, commandBuilder.Parameters);
         }
 
         [ConditionalTheory]
@@ -109,31 +103,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(true, true)]
         public async Task Can_pass_mixed_array_of_params(bool async, bool cancellation)
         {
-            using (var context = new ThudContext())
-            {
-                var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
+            using var context = new ThudContext();
+            var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
 
-                if (async)
+            if (async)
+            {
+                if (cancellation)
                 {
-                    if (cancellation)
-                    {
-                        var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1, "Cheese" }, cancellationToken);
-                    }
-                    else
-                    {
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", 1, "Cheese");
-                    }
+                    var cancellationToken = new CancellationToken();
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1, "Cheese" }, cancellationToken);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlRaw("<Some query>", 1, "Cheese");
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", 1, "Cheese");
                 }
-
-                Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(
-                    new List<object> { 1, "Cheese" }, commandBuilder.Parameters);
             }
+            else
+            {
+                context.Database.ExecuteSqlRaw("<Some query>", 1, "Cheese");
+            }
+
+            Assert.Equal("<Some query>", commandBuilder.Sql);
+            Assert.Equal(
+                new List<object> { 1, "Cheese" }, commandBuilder.Parameters);
         }
 
         [ConditionalTheory]
@@ -142,34 +134,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(true, true)]
         public async Task Can_pass_list_of_int_params_as_object(bool async, bool cancellation)
         {
-            using (var context = new ThudContext())
-            {
-                var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
+            using var context = new ThudContext();
+            var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
 
-                if (async)
+            if (async)
+            {
+                if (cancellation)
                 {
-                    if (cancellation)
-                    {
-                        var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlRawAsync(
-                            "<Some query>", new List<object> { 1, 2 }, cancellationToken);
-                    }
-                    else
-                    {
-                        await context.Database.ExecuteSqlRawAsync(
-                            "<Some query>", new List<object> { 1, 2 });
-                    }
+                    var cancellationToken = new CancellationToken();
+                    await context.Database.ExecuteSqlRawAsync(
+                        "<Some query>", new List<object> { 1, 2 }, cancellationToken);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlRaw(
+                    await context.Database.ExecuteSqlRawAsync(
                         "<Some query>", new List<object> { 1, 2 });
                 }
-
-                Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(
-                    new List<object> { 1, 2 }, commandBuilder.Parameters);
             }
+            else
+            {
+                context.Database.ExecuteSqlRaw(
+                    "<Some query>", new List<object> { 1, 2 });
+            }
+
+            Assert.Equal("<Some query>", commandBuilder.Sql);
+            Assert.Equal(
+                new List<object> { 1, 2 }, commandBuilder.Parameters);
         }
 
         [ConditionalTheory]
@@ -178,34 +168,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(true, true)]
         public async Task Can_pass_mixed_list_of_params(bool async, bool cancellation)
         {
-            using (var context = new ThudContext())
-            {
-                var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
+            using var context = new ThudContext();
+            var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
 
-                if (async)
+            if (async)
+            {
+                if (cancellation)
                 {
-                    if (cancellation)
-                    {
-                        var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlRawAsync(
-                            "<Some query>", new List<object> { 1, "Pickle" }, cancellationToken);
-                    }
-                    else
-                    {
-                        await context.Database.ExecuteSqlRawAsync(
-                            "<Some query>", new List<object> { 1, "Pickle" });
-                    }
+                    var cancellationToken = new CancellationToken();
+                    await context.Database.ExecuteSqlRawAsync(
+                        "<Some query>", new List<object> { 1, "Pickle" }, cancellationToken);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlRaw(
+                    await context.Database.ExecuteSqlRawAsync(
                         "<Some query>", new List<object> { 1, "Pickle" });
                 }
-
-                Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(
-                    new List<object> { 1, "Pickle" }, commandBuilder.Parameters);
             }
+            else
+            {
+                context.Database.ExecuteSqlRaw(
+                    "<Some query>", new List<object> { 1, "Pickle" });
+            }
+
+            Assert.Equal("<Some query>", commandBuilder.Sql);
+            Assert.Equal(
+                new List<object> { 1, "Pickle" }, commandBuilder.Parameters);
         }
 
         [ConditionalTheory]
@@ -214,31 +202,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(true, true)]
         public async Task Can_pass_single_int_as_object(bool async, bool cancellation)
         {
-            using (var context = new ThudContext())
-            {
-                var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
+            using var context = new ThudContext();
+            var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
 
-                if (async)
+            if (async)
+            {
+                if (cancellation)
                 {
-                    if (cancellation)
-                    {
-                        var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1 }, cancellationToken);
-                    }
-                    else
-                    {
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", 1);
-                    }
+                    var cancellationToken = new CancellationToken();
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1 }, cancellationToken);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlRaw("<Some query>", 1);
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", 1);
                 }
-
-                Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(
-                    new List<object> { 1 }, commandBuilder.Parameters);
             }
+            else
+            {
+                context.Database.ExecuteSqlRaw("<Some query>", 1);
+            }
+
+            Assert.Equal("<Some query>", commandBuilder.Sql);
+            Assert.Equal(
+                new List<object> { 1 }, commandBuilder.Parameters);
         }
 
         [ConditionalTheory]
@@ -247,31 +233,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(true, true)]
         public async Task Can_pass_single_string(bool async, bool cancellation)
         {
-            using (var context = new ThudContext())
-            {
-                var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
+            using var context = new ThudContext();
+            var commandBuilder = (TestRawSqlCommandBuilder)context.GetService<IRawSqlCommandBuilder>();
 
-                if (async)
+            if (async)
+            {
+                if (cancellation)
                 {
-                    if (cancellation)
-                    {
-                        var cancellationToken = new CancellationToken();
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", new[] { "Branston" }, cancellationToken);
-                    }
-                    else
-                    {
-                        await context.Database.ExecuteSqlRawAsync("<Some query>", "Branston");
-                    }
+                    var cancellationToken = new CancellationToken();
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", new[] { "Branston" }, cancellationToken);
                 }
                 else
                 {
-                    context.Database.ExecuteSqlRaw("<Some query>", "Branston");
+                    await context.Database.ExecuteSqlRawAsync("<Some query>", "Branston");
                 }
-
-                Assert.Equal("<Some query>", commandBuilder.Sql);
-                Assert.Equal(
-                    new List<object> { "Branston" }, commandBuilder.Parameters);
             }
+            else
+            {
+                context.Database.ExecuteSqlRaw("<Some query>", "Branston");
+            }
+
+            Assert.Equal("<Some query>", commandBuilder.Sql);
+            Assert.Equal(
+                new List<object> { "Branston" }, commandBuilder.Parameters);
         }
 
         private class ThudContext : DbContext

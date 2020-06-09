@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public virtual bool IsValidId(string value)
             => Regex.IsMatch(
                 value,
-                string.Format(CultureInfo.InvariantCulture, "[0-9]{{{0}}}_.+", Format.Length),
+                string.Format(CultureInfo.InvariantCulture, "^[0-9]{{{0}}}_.+", Format.Length),
                 default,
                 TimeSpan.FromMilliseconds(1000.0));
 

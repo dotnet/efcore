@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public static class AbstractionsStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).Assembly);
 
         /// <summary>
         ///     The string argument '{argumentName}' cannot be empty.
@@ -35,6 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
             => string.Format(
                 GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
+        ///     The collection argument '{argumentName}' must not contain any empty elements.
+        /// </summary>
+        public static string CollectionArgumentHasEmptyElements([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("CollectionArgumentHasEmptyElements", nameof(argumentName)),
                 argumentName);
 
         private static string GetString(string name, params string[] formatterNames)

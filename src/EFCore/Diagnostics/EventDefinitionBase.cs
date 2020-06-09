@@ -14,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public abstract class EventDefinitionBase
     {
-        private readonly WarningBehavior _warningBehavior;
-
         /// <summary>
         ///     Creates an event definition instance.
         /// </summary>
@@ -48,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
 
                 var behavior = warningsConfiguration.GetBehavior(eventId);
-                _warningBehavior = behavior
+                WarningBehavior = behavior
                     ?? (level == LogLevel.Warning
                         && warningsConfiguration.DefaultBehavior == WarningBehavior.Throw
                             ? WarningBehavior.Throw
@@ -56,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
             else
             {
-                _warningBehavior = WarningBehavior.Log;
+                WarningBehavior = WarningBehavior.Log;
             }
 
             Level = level;
@@ -87,17 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 CoreStrings.WarningAsErrorTemplate(EventId.ToString(), message, EventIdCode));
 
         /// <summary>
-        ///     Gets the log behavior for this event. This determines whether it should be logged, thrown as an exception or ignored.
+        ///     The configured <see cref="WarningBehavior"/>.
         /// </summary>
-        /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
-        /// <param name="logger"> The logger to which the event would be logged. </param>
-        /// <returns> Whether the event should be logged, thrown as an exception or ignored. </returns>
-        public virtual WarningBehavior GetLogBehavior<TLoggerCategory>(
-            [NotNull] IDiagnosticsLogger<TLoggerCategory> logger)
-            where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
-            => _warningBehavior == WarningBehavior.Log
-                ? logger.Logger.IsEnabled(Level) ? WarningBehavior.Log : WarningBehavior.Ignore
-                : _warningBehavior;
+        public virtual WarningBehavior WarningBehavior { get;  }
 
         internal sealed class MessageExtractingLogger : ILogger
         {

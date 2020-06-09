@@ -32,26 +32,49 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         /// </summary>
         public static void ExecutingSqlQuery(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
-            CosmosSqlQuery cosmosSqlQuery)
+            [NotNull] CosmosSqlQuery cosmosSqlQuery)
         {
             var definition = new EventDefinition<string, string, string>(
                 diagnosticsLogger.Options,
-                CoreEventId.ProviderBaseId,
+                CosmosEventId.ExecutingSqlQuery,
                 LogLevel.Debug,
-                "CoreEventId.ProviderBaseId",
+                "CosmosEventId.ExecutingSqlQuery",
                 level => LoggerMessage.Define<string, string, string>(
                     level,
-                    CoreEventId.ProviderBaseId,
+                    CosmosEventId.ExecutingSqlQuery,
                     "Executing Sql Query [Parameters=[{parameters}]]{newLine}{commandText}"));
-
-            var warningBehavior = definition.GetLogBehavior(diagnosticsLogger);
 
             definition.Log(
                 diagnosticsLogger,
-                warningBehavior,
                 FormatParameters(cosmosSqlQuery.Parameters),
                 Environment.NewLine,
                 cosmosSqlQuery.Query);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static void ExecutingReadItem(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
+            [NotNull] string partitionKey,
+            [NotNull] string resourceId)
+        {
+            var definition = new EventDefinition<string>(
+                diagnosticsLogger.Options,
+                CosmosEventId.ExecutingReadItem,
+                LogLevel.Debug,
+                "CosmosEventId.ExecutingReadItem",
+                level => LoggerMessage.Define<string>(
+                    level,
+                    CosmosEventId.ExecutingReadItem,
+                    "Executing Read Item [Partition Key, Resource Id=[{parameters}]]"));
+
+            definition.Log(
+                diagnosticsLogger,
+                $"{partitionKey}, {resourceId}");
         }
 
         private static string FormatParameters(IReadOnlyList<SqlParameter> parameters)
@@ -95,19 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                     builder.Append(dateTimeOffsetValue.ToString("o"));
                     break;
                 case byte[] binaryValue:
-                    builder.Append("0x");
-
-                    for (var i = 0; i < binaryValue.Length; i++)
-                    {
-                        if (i > 31)
-                        {
-                            builder.Append("...");
-                            break;
-                        }
-
-                        builder.Append(binaryValue[i].ToString("X2", CultureInfo.InvariantCulture));
-                    }
-
+                    builder.AppendBytes(binaryValue);
                     break;
                 default:
                     builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));

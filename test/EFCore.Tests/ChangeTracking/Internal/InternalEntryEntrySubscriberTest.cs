@@ -428,8 +428,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entries[2], testListener.CollectionChanged.Skip(2).Single().Item1);
         }
 
-        [ConditionalFact]
-        public void Entries_are_unsubscribed_when_context_is_disposed()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Entries_are_unsubscribed_when_context_is_disposed_or_cleared(bool useClear)
         {
             var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddScoped<IChangeDetector, TestPropertyListener>(),
@@ -458,7 +460,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(2, testListener.Changing.Count);
             Assert.Equal(2, testListener.Changed.Count);
 
-            context.Dispose();
+            if (useClear)
+            {
+                context.ChangeTracker.Clear();
+            }
+            else
+            {
+                context.Dispose();
+            }
 
             entities[5].Name = "Carmack";
             Assert.Equal(2, testListener.Changing.Count);
@@ -526,8 +535,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public void KeyPropertyChanged(
-                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys,
-                IReadOnlyList<IForeignKey> containingForeignKeys,
+                InternalEntityEntry entry, IProperty property, IEnumerable<IKey> containingPrincipalKeys,
+                IEnumerable<IForeignKey> containingForeignKeys,
                 object oldValue, object newValue)
             {
             }

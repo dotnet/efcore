@@ -21,33 +21,29 @@ namespace Microsoft.EntityFrameworkCore
             AddEntities(serviceProvider);
             AddEntities(serviceProvider);
 
-            using (var context = new BronieContext(serviceProvider))
-            {
-                var pegasuses = context.Pegasuses.ToList();
+            using var context = new BronieContext(serviceProvider);
+            var pegasuses = context.Pegasuses.ToList();
 
-                for (var i = 0; i < 50; i++)
-                {
-                    Assert.True(pegasuses.All(p => p.Id > 0));
-                    Assert.Equal(2, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
-                    Assert.Equal(2, pegasuses.Count(p => p.Name == "Fluttershy " + i));
-                }
+            for (var i = 0; i < 50; i++)
+            {
+                Assert.True(pegasuses.All(p => p.Id > 0));
+                Assert.Equal(2, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+                Assert.Equal(2, pegasuses.Count(p => p.Name == "Fluttershy " + i));
             }
         }
 
         private static void AddEntities(IServiceProvider serviceProvider)
         {
-            using (var context = new BronieContext(serviceProvider))
+            using var context = new BronieContext(serviceProvider);
+            for (var i = 0; i < 50; i++)
             {
-                for (var i = 0; i < 50; i++)
-                {
-                    context.Add(
-                        new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(
-                        new Pegasus { Name = "Fluttershy " + i });
-                }
-
-                context.SaveChanges();
+                context.Add(
+                    new Pegasus { Name = "Rainbow Dash " + i });
+                context.Add(
+                    new Pegasus { Name = "Fluttershy " + i });
             }
+
+            context.SaveChanges();
         }
 
         [ConditionalFact]
@@ -60,33 +56,29 @@ namespace Microsoft.EntityFrameworkCore
             await AddEntitiesAsync(serviceProvider);
             await AddEntitiesAsync(serviceProvider);
 
-            using (var context = new BronieContext(serviceProvider))
-            {
-                var pegasuses = await context.Pegasuses.ToListAsync();
+            using var context = new BronieContext(serviceProvider);
+            var pegasuses = await context.Pegasuses.ToListAsync();
 
-                for (var i = 0; i < 50; i++)
-                {
-                    Assert.True(pegasuses.All(p => p.Id > 0));
-                    Assert.Equal(2, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
-                    Assert.Equal(2, pegasuses.Count(p => p.Name == "Fluttershy " + i));
-                }
+            for (var i = 0; i < 50; i++)
+            {
+                Assert.True(pegasuses.All(p => p.Id > 0));
+                Assert.Equal(2, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+                Assert.Equal(2, pegasuses.Count(p => p.Name == "Fluttershy " + i));
             }
         }
 
         private static async Task AddEntitiesAsync(IServiceProvider serviceProvider)
         {
-            using (var context = new BronieContext(serviceProvider))
+            using var context = new BronieContext(serviceProvider);
+            for (var i = 0; i < 50; i++)
             {
-                for (var i = 0; i < 50; i++)
-                {
-                    context.Add(
-                        new Pegasus { Name = "Rainbow Dash " + i });
-                    context.Add(
-                        new Pegasus { Name = "Fluttershy " + i });
-                }
-
-                await context.SaveChangesAsync();
+                context.Add(
+                    new Pegasus { Name = "Rainbow Dash " + i });
+                context.Add(
+                    new Pegasus { Name = "Fluttershy " + i });
             }
+
+            await context.SaveChangesAsync();
         }
 
         [ConditionalFact(Skip = "Issue #17672")]
@@ -112,16 +104,14 @@ namespace Microsoft.EntityFrameworkCore
                 await t;
             }
 
-            using (var context = new BronieContext(serviceProvider))
-            {
-                var pegasuses = await context.Pegasuses.ToListAsync();
+            using var context = new BronieContext(serviceProvider);
+            var pegasuses = await context.Pegasuses.ToListAsync();
 
-                for (var i = 0; i < 50; i++)
-                {
-                    Assert.True(pegasuses.All(p => p.Id > 0));
-                    Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
-                    Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Fluttershy " + i));
-                }
+            for (var i = 0; i < 50; i++)
+            {
+                Assert.True(pegasuses.All(p => p.Id > 0));
+                Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+                Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Fluttershy " + i));
             }
         }
 

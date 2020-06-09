@@ -229,7 +229,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
                 BaseReferenceOnBase = brob1,
                 ReferenceOnBase = rob1,
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { bcob11 },
-                CollectionOnBase = new List<CollectionOnBase> { cob11, cob12 }
+                CollectionOnBase = new List<CollectionOnBase> { cob11, cob12 },
+                OwnedReferenceOnBase = new OwnedEntity
+                {
+                    Name = "OROB1"
+                },
+                OwnedCollectionOnBase = new List<OwnedEntity>{
+                    new OwnedEntity
+                    {
+                        Id = 1,
+                        Name = "OCOB11"
+                    }, new OwnedEntity
+                    {
+                        Id = 2,
+                        Name = "OCOB12"
+                    }}
             };
 
             var baseEntity2 = new BaseInheritanceRelationshipEntity
@@ -237,12 +251,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
                 Name = "Base2",
                 BaseReferenceOnBase = drob2,
                 ReferenceOnBase = rob2,
-                CollectionOnBase = new List<CollectionOnBase> { cob21 }
+                CollectionOnBase = new List<CollectionOnBase> { cob21 },
+                OwnedReferenceOnBase = new OwnedEntity
+                {
+                    Name = "OROB2"
+                },
+                OwnedCollectionOnBase = new List<OwnedEntity>{
+                    new OwnedEntity
+                    {
+                        Id = 3,
+                        Name = "OCOB21"
+                    }}
             };
 
             var baseEntity3 = new BaseInheritanceRelationshipEntity
             {
-                Name = "Base3", BaseCollectionOnBase = new List<BaseCollectionOnBase> { dcob21 }
+                Name = "Base3",
+                BaseCollectionOnBase = new List<BaseCollectionOnBase> { dcob21 }
             };
 
             context.BaseEntities.AddRange(baseEntity1, baseEntity2, baseEntity3);
@@ -260,7 +285,35 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
                 ReferenceOnDerived = rod1,
                 BaseCollectionOnDerived = new List<BaseCollectionOnDerived> { bcod11 },
                 DerivedCollectionOnDerived = new List<DerivedCollectionOnDerived> { dcod11, dcod12 },
-                CollectionOnDerived = new List<CollectionOnDerived> { cod11 }
+                CollectionOnDerived = new List<CollectionOnDerived> { cod11 },
+                OwnedReferenceOnBase = new OwnedEntity
+                {
+                    Name = "OROB4"
+                },
+                OwnedCollectionOnBase = new List<OwnedEntity>{
+                    new OwnedEntity
+                    {
+                        Id = 4,
+                        Name = "OCOB41"
+                    }, new OwnedEntity
+                    {
+                        Id = 5,
+                        Name = "OCOB42"
+                    }},
+                OwnedReferenceOnDerived = new OwnedEntity
+                {
+                    Name = "OROD4"
+                },
+                OwnedCollectionOnDerived = new List<OwnedEntity>{
+                    new OwnedEntity
+                    {
+                        Id = 1,
+                        Name = "OCOD41"
+                    }, new OwnedEntity
+                    {
+                        Id = 2,
+                        Name = "OCOD42"
+                    }}
             };
 
             var derivedEntity2 = new DerivedInheritanceRelationshipEntity
@@ -272,7 +325,27 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
                 CollectionOnBase = new List<CollectionOnBase> { cob41 },
                 BaseReferenceOnDerived = drod2,
                 ReferenceOnDerived = rod2,
-                CollectionOnDerived = new List<CollectionOnDerived> { cod21, cod22 }
+                CollectionOnDerived = new List<CollectionOnDerived> { cod21, cod22 },
+                OwnedReferenceOnBase = new OwnedEntity
+                {
+                    Name = "OROB5"
+                },
+                OwnedCollectionOnBase = new List<OwnedEntity>{
+                    new OwnedEntity
+                    {
+                        Id = 6,
+                        Name = "OCOB51"
+                    }},
+                OwnedReferenceOnDerived = new OwnedEntity
+                {
+                    Name = "OROD5"
+                },
+                OwnedCollectionOnDerived = new List<OwnedEntity>{
+                    new OwnedEntity
+                    {
+                        Id = 3,
+                        Name = "OCOD51"
+                    }}
             };
 
             var derivedEntity3 = new DerivedInheritanceRelationshipEntity
@@ -305,6 +378,125 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
             principalEntity1.Reference = referencedEntity2;
 
             context.SaveChanges();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Owned<OwnedEntity>();
+            modelBuilder.Entity<NestedReferenceDerived>();
+            modelBuilder.Entity<NestedCollectionDerived>();
+            modelBuilder.Entity<DerivedReferenceOnBase>();
+            modelBuilder.Entity<DerivedCollectionOnBase>();
+            modelBuilder.Entity<DerivedReferenceOnDerived>();
+            modelBuilder.Entity<DerivedCollectionOnDerived>();
+
+            modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
+                .HasOne(e => e.DerivedSefReferenceOnBase)
+                .WithOne(e => e.BaseSelfReferenceOnDerived)
+                .HasForeignKey<DerivedInheritanceRelationshipEntity>(e => e.BaseId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
+                .HasOne(e => e.BaseReferenceOnBase)
+                .WithOne(e => e.BaseParent)
+                .HasForeignKey<BaseReferenceOnBase>(e => e.BaseParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
+                .HasOne(e => e.ReferenceOnBase)
+                .WithOne(e => e.Parent)
+                .HasForeignKey<ReferenceOnBase>(e => e.ParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
+                .HasMany(e => e.BaseCollectionOnBase)
+                .WithOne(e => e.BaseParent)
+                .HasForeignKey(e => e.BaseParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
+                .HasMany(e => e.CollectionOnBase)
+                .WithOne(e => e.Parent)
+                .HasForeignKey(e => e.ParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
+                .OwnsMany(e => e.OwnedCollectionOnBase)
+                .Property(e => e.Id).ValueGeneratedNever();
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasOne(e => e.DerivedReferenceOnDerived)
+                .WithOne()
+                .HasForeignKey<DerivedReferenceOnDerived>("DerivedInheritanceRelationshipEntityId")
+                .IsRequired(false);
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasOne(e => e.ReferenceOnDerived)
+                .WithOne(e => e.Parent)
+                .HasForeignKey<ReferenceOnDerived>(e => e.ParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasMany(e => e.BaseCollectionOnDerived)
+                .WithOne(e => e.BaseParent)
+                .HasForeignKey(e => e.ParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasMany(e => e.CollectionOnDerived)
+                .WithOne(e => e.Parent)
+                .HasForeignKey(e => e.ParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasMany(e => e.DerivedCollectionOnDerived)
+                .WithOne()
+                .HasForeignKey("DerivedInheritanceRelationshipEntityId")
+                .IsRequired(false);
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasOne(e => e.BaseReferenceOnDerived)
+                .WithOne(e => e.BaseParent)
+                .HasForeignKey<BaseReferenceOnDerived>(e => e.BaseParentId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .OwnsMany(e => e.OwnedCollectionOnDerived)
+                .Property(e => e.Id).ValueGeneratedNever();
+
+            modelBuilder.Entity<BaseReferenceOnBase>()
+                .HasOne(e => e.NestedReference)
+                .WithOne(e => e.ParentReference)
+                .HasForeignKey<NestedReferenceBase>(e => e.ParentReferenceId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseReferenceOnBase>()
+                .HasMany(e => e.NestedCollection)
+                .WithOne(e => e.ParentReference)
+                .HasForeignKey(e => e.ParentReferenceId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseCollectionOnBase>()
+                .HasOne(e => e.NestedReference)
+                .WithOne(e => e.ParentCollection)
+                .HasForeignKey<NestedReferenceBase>(e => e.ParentCollectionId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<BaseCollectionOnBase>()
+                .HasMany(e => e.NestedCollection)
+                .WithOne(e => e.ParentCollection)
+                .HasForeignKey(e => e.ParentCollectionId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<PrincipalEntity>()
+                .HasOne(e => e.Reference)
+                .WithMany()
+                .IsRequired(false);
+
+            modelBuilder.Entity<ReferencedEntity>()
+                .HasMany(e => e.Principals)
+                .WithOne()
+                .IsRequired(false);
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -175,12 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
         }
 
-        private Navigation RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
+        private Navigation RunConvention(InternalForeignKeyBuilder relationshipBuilder, Navigation navigation)
         {
-            var context = new ConventionContext<IConventionNavigation>(
+            var context = new ConventionContext<IConventionNavigationBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
-            CreateNotNullNavigationConvention().ProcessNavigationAdded(relationshipBuilder, navigation, context);
-            return context.ShouldStopProcessing() ? (Navigation)context.Result : navigation;
+            CreateNotNullNavigationConvention().ProcessNavigationAdded(navigation.Builder, context);
+            return context.ShouldStopProcessing() ? (Navigation)context.Result?.Metadata : navigation;
         }
 
         private NonNullableNavigationConvention CreateNotNullNavigationConvention()
@@ -226,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullDbContextLogger());
             return modelLogger;
         }
 

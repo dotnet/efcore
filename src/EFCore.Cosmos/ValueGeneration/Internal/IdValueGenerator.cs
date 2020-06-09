@@ -54,7 +54,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                     continue;
                 }
 
-                AppendString(builder, entry.Property(property.Name).CurrentValue);
+                var value = entry.Property(property.Name).CurrentValue;
+
+                var converter = property.GetTypeMapping().Converter;
+                if (converter != null)
+                {
+                    value = converter.ConvertToProvider(value);
+                }
+
+                AppendString(builder, value);
+
                 builder.Append("|");
             }
 
@@ -79,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
 
                     return;
                 default:
-                    builder.Append(propertyValue.ToString().Replace("|", "/|"));
+                    builder.Append(propertyValue == null ? "null" : propertyValue.ToString().Replace("|", "/|"));
                     return;
             }
         }

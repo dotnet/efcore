@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
     public static class CosmosStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).Assembly);
 
         /// <summary>
         ///     Cosmos-specific methods can only be used when the context is using the Cosmos provider.
@@ -33,6 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType1, discriminatorValue, entityType2, container);
 
         /// <summary>
+        ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties need to be strings or have a string converter.
+        /// </summary>
+        public static string ETagNonStringStoreType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+            => string.Format(
+                GetString("ETagNonStringStoreType", nameof(property), nameof(entityType), nameof(propertyType)),
+                property, entityType, propertyType);
+
+        /// <summary>
         ///     The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator property configured.
         /// </summary>
         public static string NoDiscriminatorProperty([CanBeNull] object entityType, [CanBeNull] object container)
@@ -47,6 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("NoDiscriminatorValue", nameof(entityType), nameof(container)),
                 entityType, container);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.
+        /// </summary>
+        public static string NonETagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("NonETagConcurrencyToken", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys.
@@ -95,6 +111,68 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("PartitionKeyStoreNameMismatch", nameof(property1), nameof(entityType1), nameof(storeName1), nameof(property2), nameof(entityType2), nameof(storeName2)),
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
+
+        /// <summary>
+        ///     Conflicts were detected for item with id '{itemId}'.
+        /// </summary>
+        public static string UpdateConflict([CanBeNull] object itemId)
+            => string.Format(
+                GetString("UpdateConflict", nameof(itemId)),
+                itemId);
+
+        /// <summary>
+        ///     Non-embedded IncludeExpression is not supported: {expression}
+        /// </summary>
+        public static string NonEmbeddedIncludeNotSupported([CanBeNull] object expression)
+            => string.Format(
+                GetString("NonEmbeddedIncludeNotSupported", nameof(expression)),
+                expression);
+
+        /// <summary>
+        ///     Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
+        /// </summary>
+        public static string NavigationPropertyIsNotAnEmbeddedEntity([CanBeNull] object entityType, [CanBeNull] object navigationName)
+            => string.Format(
+                GetString("NavigationPropertyIsNotAnEmbeddedEntity", nameof(entityType), nameof(navigationName)),
+                entityType, navigationName);
+
+        /// <summary>
+        ///     Offset is not supported without Limit.
+        /// </summary>
+        public static string OffsetRequiresLimit
+            => GetString("OffsetRequiresLimit");
+
+        /// <summary>
+        ///     Reverse is not supported without Limit or Offset.
+        /// </summary>
+        public static string ReverseRequiresOffsetOrLimit
+            => GetString("ReverseRequiresOffsetOrLimit");
+
+        /// <summary>
+        ///     Invalid id value. Specify a  string value that's not null or empty.
+        /// </summary>
+        public static string InvalidResourceId
+            => GetString("InvalidResourceId");
+
+        /// <summary>
+        ///     A ReadItem query was detected, but the partition key value is missing.
+        /// </summary>
+        public static string ParitionKeyMissing
+            => GetString("ParitionKeyMissing");
+
+        /// <summary>
+        ///     A ReadItem query was detected, but the id value is missing and cannot be generated.
+        /// </summary>
+        public static string ResourceIdMissing
+            => GetString("ResourceIdMissing");
+
+        /// <summary>
+        ///     Partition key specified in the WithPartitionKey call '{paritionKey1}' and the partition key specified in the Where predicate '{paritionKey2}' must be identical. Remove one of them .
+        /// </summary>
+        public static string PartitionKeyMismatch([CanBeNull] object paritionKey1, [CanBeNull] object paritionKey2)
+            => string.Format(
+                GetString("PartitionKeyMismatch", nameof(paritionKey1), nameof(paritionKey2)),
+                paritionKey1, paritionKey2);
 
         private static string GetString(string name, params string[] formatterNames)
         {

@@ -20,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         // auto-generated non-key (sequence)
         public int InternalNumber { get; set; }
 
+        public virtual byte[] Banner { get; set; }
+
+        public virtual byte[] Banner5 { get; set; }
+
         public virtual ICollection<Gear> Members { get; set; }
         public virtual ICollection<SquadMission> Missions { get; set; }
     }

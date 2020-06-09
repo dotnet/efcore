@@ -5,15 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SqlServerConvertTranslator : IMethodCallTranslator
     {
         private static readonly Dictionary<string, string> _typeMapping = new Dictionary<string, string>
         {
+            [nameof(Convert.ToBoolean)] = "bit",
             [nameof(Convert.ToByte)] = "tinyint",
             [nameof(Convert.ToDecimal)] = "decimal(18, 2)",
             [nameof(Convert.ToDouble)] = "float",
@@ -25,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private static readonly List<Type> _supportedTypes = new List<Type>
         {
+            typeof(bool),
             typeof(byte),
             typeof(DateTime),
             typeof(decimal),
@@ -46,17 +56,34 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerConvertTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public SqlServerConvertTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             return _supportedMethods.Contains(method)
                 ? _sqlExpressionFactory.Function(
                     "CONVERT",
                     new[] { _sqlExpressionFactory.Fragment(_typeMapping[method.Name]), arguments[0] },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { false, true },
                     method.ReturnType)
                 : null;
         }

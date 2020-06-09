@@ -1,10 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -74,7 +79,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(model, nameof(model));
             Check.NotNull(options, nameof(options));
 
-            var resultingFiles = new ScaffoldedModel();
+            if (options.ContextName == null)
+            {
+                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ContextName), nameof(options)), nameof(options));
+            }
+
+            if (options.ConnectionString == null)
+            {
+                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
+            }
+
+            if (options.ModelNamespace == null)
+            {
+                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ModelNamespace), nameof(options)), nameof(options));
+            }
 
             var generatedCode = CSharpDbContextGenerator.WriteCode(
                 model,
@@ -83,16 +101,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 options.ContextNamespace,
                 options.ModelNamespace,
                 options.UseDataAnnotations,
-                options.SuppressConnectionStringWarning);
+                options.SuppressConnectionStringWarning,
+                options.SuppressOnConfiguring);
 
             // output DbContext .cs file
             var dbContextFileName = options.ContextName + FileExtension;
-            resultingFiles.ContextFile = new ScaffoldedFile
+            var resultingFiles = new ScaffoldedModel
             {
-                Path = options.ContextDir != null
-                    ? Path.Combine(options.ContextDir, dbContextFileName)
-                    : dbContextFileName,
-                Code = generatedCode
+                ContextFile = new ScaffoldedFile
+                {
+                    Path = options.ContextDir != null
+                        ? Path.Combine(options.ContextDir, dbContextFileName)
+                        : dbContextFileName,
+                    Code = generatedCode
+                }
             };
 
             foreach (var entityType in model.GetEntityTypes())
@@ -107,5 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return resultingFiles;
         }
+
+        /// <summary>
+        /// The set of annotations ignored for the purposes of code generation for indexes.
+        /// </summary>
+        public static IReadOnlyList<string> IgnoredIndexAnnotations
+            => new List<string> { RelationalAnnotationNames.TableIndexMappings };
     }
 }

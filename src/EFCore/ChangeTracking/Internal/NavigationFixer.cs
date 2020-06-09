@@ -3,10 +3,10 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var foreignKey = navigation.ForeignKey;
             var stateManager = entry.StateManager;
-            var inverse = navigation.FindInverse();
-            var targetEntityType = navigation.GetTargetType();
+            var inverse = navigation.Inverse;
+            var targetEntityType = navigation.TargetEntityType;
 
             var oldTargetEntry = oldValue == null ? null : stateManager.TryGetEntry(oldValue, targetEntityType);
             if (oldTargetEntry?.EntityState == EntityState.Detached)
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _inFixup = true;
 
-                if (navigation.IsDependentToPrincipal())
+                if (navigation.IsOnDependent)
                 {
                     if (newValue != null)
                     {
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 // null out its FKs and navigation property. A.k.a. reference stealing.
                                 // However, if the FK has already been changed or the reference is already set to point
                                 // to something else, then don't change it.
-                                var victimDependentEntry = stateManager.GetDependents(newTargetEntry, foreignKey).FirstOrDefault();
+                                var victimDependentEntry = (InternalEntityEntry)stateManager.GetDependents(newTargetEntry, foreignKey).FirstOrDefault();
                                 if (victimDependentEntry != null
                                     && victimDependentEntry != entry)
                                 {
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else
                 {
-                    Debug.Assert(foreignKey.IsUnique);
+                    Check.DebugAssert(foreignKey.IsUnique, $"foreignKey {foreignKey} is not unique");
 
                     if (oldTargetEntry != null)
                     {
@@ -220,8 +220,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var foreignKey = navigation.ForeignKey;
             var stateManager = entry.StateManager;
-            var inverse = navigation.FindInverse();
-            var targetEntityType = navigation.GetTargetType();
+            var inverse = navigation.Inverse;
+            var targetEntityType = navigation.TargetEntityType;
 
             foreach (var oldValue in removed)
             {
@@ -309,8 +309,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void KeyPropertyChanged(
             InternalEntityEntry entry,
             IProperty property,
-            IReadOnlyList<IKey> containingPrincipalKeys,
-            IReadOnlyList<IForeignKey> containingForeignKeys,
+            IEnumerable<IKey> containingPrincipalKeys,
+            IEnumerable<IForeignKey> containingForeignKeys,
             object oldValue,
             object newValue)
         {
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 // However, if the FK has already been changed or the reference is already set to point
                                 // to something else, then don't change it.
                                 var targetDependentEntry
-                                    = stateManager.GetDependentsUsingRelationshipSnapshot(newPrincipalEntry, foreignKey).FirstOrDefault();
+                                    = (InternalEntityEntry)stateManager.GetDependentsUsingRelationshipSnapshot(newPrincipalEntry, foreignKey).FirstOrDefault();
 
                                 if (targetDependentEntry != null
                                     && targetDependentEntry != entry)
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     // Propagate principal key values into FKs
                     foreach (var foreignKey in key.GetReferencingForeignKeys())
                     {
-                        foreach (var dependentEntry in stateManager
+                        foreach (InternalEntityEntry dependentEntry in stateManager
                             .GetDependentsUsingRelationshipSnapshot(entry, foreignKey).ToList())
                         {
                             SetForeignKeyProperties(dependentEntry, entry, foreignKey, setModified: true, fromQuery: false);
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
 
                         // Fix up dependents that have been added by propagating through different foreign key
-                        foreach (var dependentEntry in stateManager.GetDependents(entry, foreignKey).ToList())
+                        foreach (InternalEntityEntry dependentEntry in stateManager.GetDependents(entry, foreignKey).ToList())
                         {
                             var principalToDependent = foreignKey.PrincipalToDependent;
                             if (principalToDependent != null)
@@ -554,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
 
                 var dependentEntries = stateManager.GetDependents(entry, foreignKey);
-                foreach (var dependentEntry in dependentEntries.ToList())
+                foreach (InternalEntityEntry dependentEntry in dependentEntries.ToList())
                 {
                     if (foreignKey.IsOwnership)
                     {
@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var dependents = stateManager.GetDependents(entry, foreignKey);
                     if (foreignKey.IsUnique)
                     {
-                        var dependentEntry = dependents.FirstOrDefault();
+                        var dependentEntry = (InternalEntityEntry)dependents.FirstOrDefault();
                         if (dependentEntry != null)
                         {
                             if ((!foreignKey.IsOwnership
@@ -624,11 +624,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                     else
                     {
-                        foreach (var dependentEntry in dependents)
+                        foreach (InternalEntityEntry dependentEntry in dependents)
                         {
-                            if (!foreignKey.IsOwnership
-                                || (dependentEntry.EntityState != EntityState.Deleted
-                                    && dependentEntry.EntityState != EntityState.Detached))
+                            if ((!foreignKey.IsOwnership
+                                    || (dependentEntry.EntityState != EntityState.Deleted
+                                        && dependentEntry.EntityState != EntityState.Detached))
+                                && (!fromQuery
+                                    || foreignKey.DependentToPrincipal == null
+                                    || dependentEntry.GetCurrentValue(foreignKey.DependentToPrincipal) == null))
                             {
                                 // Add to collection on principal indicated by FK and set inverse navigation
                                 AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
@@ -655,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             var navigationValue = entry[principalToDependent];
                             if (navigationValue != null)
                             {
-                                if (principalToDependent.IsCollection())
+                                if (principalToDependent.IsCollection)
                                 {
                                     var dependents = ((IEnumerable)navigationValue).Cast<object>().ToList();
                                     foreach (var dependentEntity in dependents)
@@ -676,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 }
                                 else
                                 {
-                                    var targetEntityType = principalToDependent.GetTargetType();
+                                    var targetEntityType = principalToDependent.TargetEntityType;
                                     var dependentEntry = stateManager.TryGetEntry(navigationValue, targetEntityType);
                                     if (dependentEntry == null
                                         || dependentEntry.EntityState == EntityState.Detached)
@@ -703,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var navigationValue = entry[dependentToPrincipal];
                         if (navigationValue != null)
                         {
-                            var targetEntityType = dependentToPrincipal.GetTargetType();
+                            var targetEntityType = dependentToPrincipal.TargetEntityType;
                             var principalEntry = stateManager.TryGetEntry(navigationValue, targetEntityType);
                             if (principalEntry == null
                                 || principalEntry.EntityState == EntityState.Detached)
@@ -737,9 +740,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var setModified = referencedEntry.EntityState != EntityState.Unchanged;
 
-                if (!navigation.IsDependentToPrincipal())
+                if (!navigation.IsOnDependent)
                 {
-                    if (navigation.IsCollection())
+                    if (navigation.IsCollection)
                     {
                         if (entry.CollectionContains(navigation, referencedEntry))
                         {
@@ -795,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var oldDependentEntry = oldDependent != null
                     && !ReferenceEquals(dependentEntry.Entity, oldDependent)
                         ? dependentEntry.StateManager.TryGetEntry(oldDependent, foreignKey.DeclaringEntityType)
-                        : dependentEntry.StateManager.GetDependentsUsingRelationshipSnapshot(principalEntry, foreignKey)
+                        : (InternalEntityEntry)dependentEntry.StateManager.GetDependentsUsingRelationshipSnapshot(principalEntry, foreignKey)
                             .FirstOrDefault();
 
                 if (oldDependentEntry != null
@@ -864,8 +867,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IProperty principalProperty,
             object dependentValue,
             object principalValue)
-            => (principalProperty.GetKeyValueComparer()
-                    ?? principalProperty.GetTypeMapping().KeyComparer)
+            => (principalProperty.GetKeyValueComparer())
                 ?.Equals(dependentValue, principalValue)
                 ?? StructuralComparisons.StructuralEqualityComparer.Equals(
                     dependentValue,
@@ -996,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntry value,
             bool fromQuery)
         {
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
                 AddToCollection(entry, navigation, value, fromQuery);
             }
@@ -1012,7 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntry value,
             bool fromQuery)
         {
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
                 RemoveFromCollection(entry, navigation, value);
             }

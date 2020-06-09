@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     <para>
     ///         Metadata about the shape of entities, the relationships between them, and how they map to
     ///         the database. A model is typically created by overriding the
-    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived
     ///         <see cref="DbContext" />.
     ///     </para>
     ///     <para>
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this model.
         /// </summary>
-        IConventionModelBuilder Builder { get; }
+        new IConventionModelBuilder Builder { get; }
 
         /// <summary>
         ///     <para>
@@ -48,6 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
         IConventionEntityType AddEntityType([NotNull] Type clrType, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Adds an entity type to the model.
+        /// </summary>
+        /// <param name="name"> The name of the entity to be added. </param>
+        /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The new entity type. </returns>
+        IConventionEntityType AddEntityType([NotNull] string name, [NotNull] Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
@@ -78,21 +87,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the entity with the given name. Returns <c>null</c> if no entity type with the given name is found
+        ///     Gets the entity with the given name. Returns <see langword="null" /> if no entity type with the given name is found
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
         new IConventionEntityType FindEntityType([NotNull] string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
-        ///     and the defining entity type. Returns <c>null</c> if no matching entity type is found.
+        ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <c>null</c> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
         IConventionEntityType FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
@@ -102,7 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="entityType"> The entity type to be removed. </param>
-        void RemoveEntityType([NotNull] IConventionEntityType entityType);
+        /// <returns> The removed entity type. </returns>
+        IConventionEntityType RemoveEntityType([NotNull] IConventionEntityType entityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -115,13 +125,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="typeName"> The name of the entity type to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void AddIgnored([NotNull] string typeName, bool fromDataAnnotation = false);
+        /// <returns> The name of the ignored entity type. </returns>
+        string AddIgnored([NotNull] string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the ignored entity type name.
         /// </summary>
         /// <param name="typeName"> The name of the ignored entity type to be removed. </param>
-        void RemoveIgnored([NotNull] string typeName);
+        /// <returns> The removed ignored type name. </returns>
+        string RemoveIgnored([NotNull] string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.
@@ -129,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="typeName"> The name of the entity type that could be ignored. </param>
         /// <returns>
         ///     The configuration source if the given entity type name is ignored,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string typeName);
     }

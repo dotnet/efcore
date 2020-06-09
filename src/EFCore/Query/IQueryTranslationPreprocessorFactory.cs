@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -17,6 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IQueryTranslationPreprocessorFactory
     {
-        QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext);
+        /// <summary>
+        ///     Creates a new <see cref="QueryTranslationPreprocessor"/> for given <see cref="QueryCompilationContext"/>.
+        /// </summary>
+        /// <param name="queryCompilationContext"> The query compilation context to use. </param>
+        /// <returns> The created visitor. </returns>
+        QueryTranslationPreprocessor Create([NotNull] QueryCompilationContext queryCompilationContext);
     }
 }

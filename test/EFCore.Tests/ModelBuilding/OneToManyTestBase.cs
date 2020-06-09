@@ -68,6 +68,71 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Finds_existing_navigations_and_uses_associated_FK_with_fields()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<OneToManyPrincipalWithField>(e =>
+                    {
+                        e.Property(p => p.Id);
+                        e.Property(p => p.AlternateKey);
+                        e.Property(p => p.Name);
+                        e.HasKey(p => p.Id);
+                    });
+                modelBuilder.Entity<DependentWithField>(e =>
+                    {
+                        e.Property(d => d.DependentWithFieldId);
+                        e.Property(d => d.OneToManyPrincipalId);
+                        e.Property(d => d.AnotherOneToManyPrincipalId);
+                        e.Ignore(d => d.ManyToManyPrincipals);
+                        e.Ignore(d => d.OneToOnePrincipal);
+                        e.HasKey(d => d.DependentWithFieldId);
+                    });
+
+                modelBuilder.Entity<DependentWithField>()
+                    .HasOne(d => d.OneToManyPrincipal)
+                    .WithMany(p => p.Dependents)
+                    .HasForeignKey(d => d.OneToManyPrincipalId);
+
+                var dependentType = model.FindEntityType(typeof(DependentWithField));
+                var principalType = model.FindEntityType(typeof(OneToManyPrincipalWithField));
+                var fk = dependentType.GetForeignKeys().Single();
+
+                var navToPrincipal = dependentType.FindNavigation("OneToManyPrincipal");
+                var navToDependent = principalType.FindNavigation("Dependents");
+
+                var principalKey = principalType.GetKeys().Single();
+                var dependentKey = dependentType.GetKeys().Single();
+
+                modelBuilder.Entity<DependentWithField>()
+                    .HasOne(d => d.OneToManyPrincipal)
+                    .WithMany(p => p.Dependents);
+
+                modelBuilder.FinalizeModel();
+
+                Assert.Same(fk, dependentType.GetForeignKeys().Single());
+                Assert.Equal(navToPrincipal.Name, dependentType.GetNavigations().Single().Name);
+                Assert.Same(navToDependent, principalType.GetNavigations().Single());
+                Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
+                Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
+                AssertEqual(
+                    new[] { "AlternateKey", principalKey.Properties.Single().Name, "Name" },
+                    principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(
+                    new[] { "AnotherOneToManyPrincipalId", fk.Properties.Single().Name, dependentKey.Properties.Single().Name },
+                    dependentType.GetProperties().Select(p => p.Name));
+                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Same(principalKey, principalType.GetKeys().Single());
+                Assert.Same(dependentKey, dependentType.GetKeys().Single());
+                Assert.Same(principalKey, principalType.FindPrimaryKey());
+                Assert.Same(dependentKey, dependentType.FindPrimaryKey());
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.Empty(principalType.GetIndexes());
+            }
+
+            [ConditionalFact]
             public virtual void Finds_existing_navigation_to_principal_and_uses_associated_FK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -408,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var dependentType = model.FindEntityType(typeof(Pickle));
                 var principalType = model.FindEntityType(typeof(BigMak));
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.Single().Name == "BurgerId");
-                fk.HasDependentToPrincipal((string)null);
+                fk.SetDependentToPrincipal((string)null);
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -1887,7 +1952,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var existingFk = navigation.ForeignKey;
                 Assert.Same(existingFk, principalType.GetNavigations().Single().ForeignKey);
                 Assert.Equal(nameof(ToastedBun.Whoopper), navigation.Name);
-                Assert.Equal(nameof(Whoopper.ToastedBun), navigation.FindInverse().Name);
+                Assert.Equal(nameof(Whoopper.ToastedBun), navigation.Inverse.Name);
                 Assert.Equal(existingFk.DeclaringEntityType == dependentType ? 0 : 1, principalType.GetForeignKeys().Count());
                 Assert.Equal(2, principalType.GetKeys().Count());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -1962,17 +2027,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Order>(
                     eb =>
                     {
-                        eb.HasKey(
-                            c => new { c.OrderId, c.CustomerId });
+                        eb.HasKey(c => new { c.OrderId, c.CustomerId });
                     });
 
-                modelBuilder.Entity<ProductCategory>(eb => { eb.HasKey(c => new { c.Id, c.Name }); });
+                modelBuilder.Ignore<ProductCategory>();
+                modelBuilder.Entity<Category>(eb => { eb.HasKey(c => new { c.Id, c.Name }); });
 
                 modelBuilder.Entity<Product>(
                     eb =>
                     {
+                        eb.Ignore(p => p.Categories);
                         eb.HasOne(p => p.Order).WithMany(o => o.Products).HasForeignKey("CommonId", "OrderId");
-                        eb.HasOne<ProductCategory>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
+                        eb.HasOne<Category>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
 
                         eb.HasIndex("Id", "OrderId").IsUnique();
                         eb.HasKey("Id", "CommonId");
@@ -1998,6 +2064,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Throws_on_existing_many_to_many()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Product>();
+                modelBuilder.Entity<Category>()
+                    .HasMany(o => o.Products).WithMany(c => c.Categories);
+
+                Assert.Equal(
+                    CoreStrings.ConflictingRelationshipNavigation(
+                        nameof(Category) + "." + nameof(Category.Products),
+                        nameof(Product),
+                        nameof(Category) + "." + nameof(Category.Products),
+                        nameof(Product)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<Category>()
+                            .HasMany(o => o.Products).WithOne()).Message);
+            }
+
+            [ConditionalFact]
             public virtual void Throws_on_existing_one_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();
@@ -2009,14 +2096,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ConflictingRelationshipNavigation(
-                        principalType.DisplayName(),
-                        nameof(Nob.Hobs),
-                        dependentType.DisplayName(),
-                        nameof(Hob.Nob),
-                        dependentType.DisplayName(),
-                        nameof(Hob.Nob),
-                        principalType.DisplayName(),
-                        nameof(Nob.Hob)),
+                        principalType.DisplayName() + "." + nameof(Nob.Hobs),
+                        dependentType.DisplayName() + "." + nameof(Hob.Nob),
+                        dependentType.DisplayName() + "." + nameof(Hob.Nob),
+                        principalType.DisplayName() + "." + nameof(Nob.Hob)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder.Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)).Message);
@@ -2603,7 +2686,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Creates_shadow_fk_configuring_using_ForeignKeyAttribute()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<PrincipalShadowFk>().HasMany(e => e.Dependends).WithOne(e => e.Principal);
+                modelBuilder.Entity<PrincipalShadowFk>().HasMany(e => e.Dependents).WithOne(e => e.Principal);
 
                 modelBuilder.FinalizeModel();
 
@@ -2671,6 +2754,94 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("ParentId", fk.Properties[0].Name);
 
                 modelBuilder.FinalizeModel();
+            }
+
+            [ConditionalFact]
+            public virtual void Navigation_properties_can_set_access_mode_using_expressions()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<NavDependent>()
+                    .HasOne(e => e.OneToManyPrincipal)
+                    .WithMany(e => e.Dependents);
+
+                modelBuilder.Entity<NavDependent>()
+                    .Navigation(e => e.OneToManyPrincipal)
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .Navigation(e => e.Dependents)
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipal));
+                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigation_properties_can_set_access_mode_using_navigation_names()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<NavDependent>()
+                    .HasOne<OneToManyNavPrincipal>("OneToManyPrincipal")
+                    .WithMany("Dependents");
+
+                modelBuilder.Entity<NavDependent>()
+                    .Navigation("OneToManyPrincipal")
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+                modelBuilder.Entity<OneToManyNavPrincipal>()
+                    .Navigation("Dependents")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipal));
+                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+
+                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependents").GetPropertyAccessMode());
+                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Attempt_to_configure_non_existent_Navigation_property_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<NavDependent>()
+                    .HasOne(e => e.OneToManyPrincipal)
+                    .WithMany(e => e.Dependents);
+
+                Assert.Equal(
+                    CoreStrings.CanOnlyConfigureExistingNavigations("NonExistent", "NavDependent"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<NavDependent>()
+                        .Navigation("NonExistent")
+                        .UsePropertyAccessMode(PropertyAccessMode.Property)
+                        ).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Attempt_to_configure_Navigation_property_which_is_actually_a_Property_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<NavDependent>()
+                    .HasOne(e => e.OneToManyPrincipal)
+                    .WithMany(e => e.Dependents);
+
+                Assert.Equal(
+                    CoreStrings.CanOnlyConfigureExistingNavigations("Name", "NavDependent"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<NavDependent>()
+                        .Navigation(e => e.Name)
+                        .UsePropertyAccessMode(PropertyAccessMode.Property)
+                        ).Message);
             }
 
             private static void AssertGraph(

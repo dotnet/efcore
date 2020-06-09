@@ -174,10 +174,14 @@
     <value>Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.</value>
     <comment>Debug SqliteEventId.UniqueConstraintFound string string</comment>
   </data>
-  <data name="ComputedColumnsNotSupported" xml:space="preserve">
-    <value>SQLite doesn't support computed columns. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
-  </data>
   <data name="OrderByNotSupported" xml:space="preserve">
     <value>SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.</value>
+  </data>
+  <data name="LogUnexpectedConnectionType" xml:space="preserve">
+    <value>A connection of an unexpected type ({type}) is being used. The SQL functions prefixed with 'ef_' could not be created automatically. Manually define them if you encounter errors while querying.</value>
+    <comment>Warning SqliteEventId.UnexpectedConnectionTypeWarning string</comment>
+  </data>
+  <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.</value>
   </data>
 </root>

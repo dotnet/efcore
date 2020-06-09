@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceCollectionBuilder(
-            InternalRelationshipBuilder builder,
-            ReferenceCollectionBuilder oldBuilder,
+            [NotNull] InternalForeignKeyBuilder builder,
+            [CanBeNull] ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
+                HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),
                 this,
                 foreignKeySet: true);
 
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
             [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
+                HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList()),
                 this,
                 principalKeySet: true);
 
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned <c>null</c>).
+        ///     be assigned <see langword="null" />).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -48,7 +49,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
                 else
                 {
-                    throw new ArgumentException($"Invalid template pattern '{template}'", nameof(template));
+                    throw new ArgumentException(Resources.InvalidTemplatePattern(template), nameof(template));
                 }
             }
 
@@ -56,7 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 && string.IsNullOrEmpty(ShortName)
                 && string.IsNullOrEmpty(SymbolName))
             {
-                throw new ArgumentException($"Invalid template pattern '{template}'", nameof(template));
+                throw new ArgumentException(Resources.InvalidTemplatePattern(template), nameof(template));
             }
         }
 

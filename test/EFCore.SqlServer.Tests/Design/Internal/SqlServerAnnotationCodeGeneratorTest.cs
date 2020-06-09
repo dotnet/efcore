@@ -11,10 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class SqlServerAnnotationCodeGeneratorTest
     {
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void GenerateFluentApi_IKey_works_when_clustered(bool obsolete)
+        [ConditionalFact]
+        public void GenerateFluentApi_IKey_works_when_clustered()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
             var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
@@ -23,17 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 x =>
                 {
                     x.Property<int>("Id");
-
-                    if (obsolete)
-                    {
-#pragma warning disable 618
-                        x.HasKey("Id").ForSqlServerIsClustered();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.HasKey("Id").IsClustered();
-                    }
+                    x.HasKey("Id").IsClustered();
                 });
             var key = modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
             var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
@@ -45,10 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(0, result.Arguments.Count);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void GenerateFluentApi_IKey_works_when_nonclustered(bool obsolete)
+        [ConditionalFact]
+        public void GenerateFluentApi_IKey_works_when_nonclustered()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
             var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
@@ -57,17 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 x =>
                 {
                     x.Property<int>("Id");
-
-                    if (obsolete)
-                    {
-#pragma warning disable 618
-                        x.HasKey("Id").ForSqlServerIsClustered(false);
-#pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.HasKey("Id").IsClustered(false);
-                    }
+                    x.HasKey("Id").IsClustered(false);
                 });
             var key = modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
             var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
@@ -80,10 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(false, result.Arguments[0]);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void GenerateFluentApi_IIndex_works_when_clustered(bool obsolete)
+        [ConditionalFact]
+        public void GenerateFluentApi_IIndex_works_when_clustered()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
             var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
@@ -93,16 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     x.Property<int>("Id");
                     x.Property<string>("Name");
-                    if (obsolete)
-                    {
-#pragma warning disable 618
-                        x.HasIndex("Name").ForSqlServerIsClustered();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.HasIndex("Name").IsClustered();
-                    }
+                    x.HasIndex("Name").IsClustered();
                 });
             var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
@@ -114,10 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(0, result.Arguments.Count);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void GenerateFluentApi_IIndex_works_when_nonclustered(bool obsolete)
+        [ConditionalFact]
+        public void GenerateFluentApi_IIndex_works_when_nonclustered()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
             var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
@@ -127,16 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     x.Property<int>("Id");
                     x.Property<string>("Name");
-                    if (obsolete)
-                    {
-#pragma warning disable 618
-                        x.HasIndex("Name").ForSqlServerIsClustered(false);
-#pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.HasIndex("Name").IsClustered(false);
-                    }
+                    x.HasIndex("Name").IsClustered(false);
                 });
             var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
@@ -149,10 +103,31 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(false, result.Arguments[0]);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void GenerateFluentApi_IIndex_works_with_includes(bool obsolete)
+        [ConditionalFact]
+        public void GenerateFluentApi_IIndex_works_with_fillfactor()
+        {
+            var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
+            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            modelBuilder.Entity(
+                "Post",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("Name");
+                    x.HasIndex("Name").HasFillFactor(90);
+                });
+
+            var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+            var annotation = index.FindAnnotation(SqlServerAnnotationNames.FillFactor); 
+            var result = generator.GenerateFluentApi(index, annotation);
+
+            Assert.Equal("HasFillFactor", result.Method);
+            Assert.Equal(1, result.Arguments.Count);
+            Assert.Equal(90, result.Arguments[0]);
+        }
+
+        [ConditionalFact]
+        public void GenerateFluentApi_IIndex_works_with_includes()
         {
             var generator = new SqlServerAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
             var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
@@ -163,16 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     x.Property<int>("Id");
                     x.Property<string>("FirstName");
                     x.Property<string>("LastName");
-                    if (obsolete)
-                    {
-#pragma warning disable 618
-                        x.HasIndex("LastName").ForSqlServerInclude("FirstName");
-#pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.HasIndex("LastName").IncludeProperties("FirstName");
-                    }
+                    x.HasIndex("LastName").IncludeProperties("FirstName");
                 });
             var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Include);

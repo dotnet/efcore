@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the table name based on the <see cref="DbSet{TEntity}" /> property name.
     /// </summary>
-    public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention
+    public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
     {
         private readonly IDictionary<Type, DbSetProperty> _sets;
 
@@ -49,22 +49,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityType oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
-            if (_sets != null)
-            {
-                var entityType = entityTypeBuilder.Metadata;
+            var entityType = entityTypeBuilder.Metadata;
 
-                if (oldBaseType == null
-                    && newBaseType != null)
-                {
-                    entityTypeBuilder.ToTable(null);
-                }
-                else if (oldBaseType != null
-                    && newBaseType == null
-                    && entityType.ClrType != null
-                    && _sets.ContainsKey(entityType.ClrType))
-                {
-                    entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
-                }
+            if (oldBaseType == null
+                && newBaseType != null)
+            {
+                entityTypeBuilder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+            }
+            else if (oldBaseType != null
+                && newBaseType == null
+                && entityType.ClrType != null
+                && _sets.ContainsKey(entityType.ClrType))
+            {
+                entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
             }
         }
 
@@ -83,6 +80,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && _sets.ContainsKey(entityType.ClrType))
             {
                 entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        {
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            {
+                if (entityType.GetTableName() != null
+                    && entityType.GetViewNameConfigurationSource() != null
+                    && _sets.ContainsKey(entityType.ClrType))
+                {
+                    // Undo the convention change if the entity type is mapped to a view
+                    entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+                }
             }
         }
     }

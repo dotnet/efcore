@@ -178,6 +178,11 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
             // Column is mapped as int rather than byte[]
         }
 
+        public override void Object_to_string_conversion()
+        {
+            // Return values are string which byte[] cannot read
+        }
+
         public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
             public override bool StrictEquality => true;

@@ -25,6 +25,9 @@ $versionErrorMessage = 'The Entity Framework Core Package Manager Console Tools 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Namespace
+    Specify to override the namespace for the migration.
+
 .LINK
     Remove-Migration
     Update-Database
@@ -35,7 +38,8 @@ function Add-Migration(
     $OutputDir,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Namespace)
 {
     WarnIfEF6 'Add-Migration'
     throw $UpdatePowerShell
@@ -171,11 +175,20 @@ function Remove-Migration(
 .PARAMETER Force
     Overwrite existing files.
 
+.PARAMETER NoOnConfiguring
+    Suppress generation of the DbContext.OnConfiguring() method.
+
 .PARAMETER Project
     The project to use.
 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Namespace
+    Specify to override the namespace for the generated entity types.
+
+.PARAMETER ContextNamespace
+    Specify to override the namespace for the DbContext class.
 
 .LINK
     about_EntityFrameworkCore
@@ -191,8 +204,11 @@ function Scaffold-DbContext(
     [switch] $DataAnnotations,
     [switch] $UseDatabaseNames,
     [switch] $Force,
+    [switch] $NoOnConfiguring,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Namespace,
+    $ContextNamespace)
 {
     throw $UpdatePowerShell
 }
@@ -282,6 +298,9 @@ function Script-Migration(
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
 
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -297,6 +316,7 @@ function Script-Migration(
 #>
 function Update-Database(
     $Migration,
+    $Connection,
     $Context,
     $Project,
     $StartupProject)

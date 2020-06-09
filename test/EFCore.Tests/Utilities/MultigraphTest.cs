@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -143,66 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Empty(graph.GetEdges(vertexTwo, vertexOne));
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Count());
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo }).Count());
-        }
-
-        [ConditionalFact]
-        public void AddEdge_throws_on_vertices_not_in_the_graph()
-        {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-
-            var edgeOne = new Edge { Id = 1 };
-
-            var graph = new Multigraph<Vertex, Edge>();
-            graph.AddVertex(vertexOne);
-
-            Assert.Equal(
-                CoreStrings.GraphDoesNotContainVertex(vertexTwo),
-                Assert.Throws<InvalidOperationException>(() => graph.AddEdge(vertexOne, vertexTwo, edgeOne)).Message);
-
-            Assert.Equal(
-                CoreStrings.GraphDoesNotContainVertex(vertexTwo),
-                Assert.Throws<InvalidOperationException>(() => graph.AddEdge(vertexTwo, vertexOne, edgeOne)).Message);
-        }
-
-        [ConditionalFact]
-        public void AddEdges_adds_multiple_edges()
-        {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-
-            var edgeOne = new Edge { Id = 1 };
-            var edgeTwo = new Edge { Id = 2 };
-            var edgeThree = new Edge { Id = 3 };
-
-            var graph = new Multigraph<Vertex, Edge>();
-            graph.AddVertices(new[] { vertexOne, vertexTwo });
-            graph.AddEdges(vertexOne, vertexTwo, new[] { edgeOne });
-            graph.AddEdges(vertexOne, vertexTwo, new[] { edgeTwo, edgeThree });
-
-            Assert.Empty(graph.GetEdges(vertexTwo, vertexOne));
-            Assert.Equal(3, graph.GetEdges(vertexOne, vertexTwo).Count());
-            Assert.Equal(3, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo, edgeThree }).Count());
-        }
-
-        [ConditionalFact]
-        public void AddEdges_throws_on_vertices_not_in_the_graph()
-        {
-            var vertexOne = new Vertex { Id = 1 };
-            var vertexTwo = new Vertex { Id = 2 };
-
-            var edgeOne = new Edge { Id = 1 };
-
-            var graph = new Multigraph<Vertex, Edge>();
-            graph.AddVertex(vertexOne);
-
-            Assert.Equal(
-                CoreStrings.GraphDoesNotContainVertex(vertexTwo),
-                Assert.Throws<InvalidOperationException>(() => graph.AddEdges(vertexOne, vertexTwo, new[] { edgeOne })).Message);
-
-            Assert.Equal(
-                CoreStrings.GraphDoesNotContainVertex(vertexTwo),
-                Assert.Throws<InvalidOperationException>(() => graph.AddEdges(vertexTwo, vertexOne, new[] { edgeOne })).Message);
         }
 
         [ConditionalFact]

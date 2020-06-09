@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -26,32 +25,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        /// <summary>
-        ///     Called after a navigation property that has an attribute is added to an entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the relationship. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc/>
         public override void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
+            IConventionNavigationBuilder navigationBuilder,
             RequiredAttribute attribute,
-            IConventionContext<IConventionNavigation> context)
+            IConventionContext<IConventionNavigationBuilder> context)
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-            Check.NotNull(navigation, nameof(navigation));
-            Check.NotNull(attribute, nameof(attribute));
-
-            if (navigation.IsCollection())
+            var navigation = navigationBuilder.Metadata;
+            var foreignKey = navigation.ForeignKey;
+            if (navigation.IsCollection)
             {
-                Dependencies.Logger.RequiredAttributeOnCollection(navigation.ForeignKey.DependentToPrincipal);
+                Dependencies.Logger.RequiredAttributeOnCollection(navigation);
                 return;
             }
 
-            if (!navigation.IsDependentToPrincipal())
+            var relationshipBuilder = foreignKey.Builder;
+            if (!navigation.IsOnDependent)
             {
-                var inverse = navigation.FindInverse();
+                var inverse = navigation.Inverse;
                 if (inverse != null)
                 {
                     var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse);
@@ -62,28 +53,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
+                if (foreignKey.GetPrincipalEndConfigurationSource() != null)
                 {
-                    Dependencies.Logger.RequiredAttributeOnDependent(navigation.ForeignKey.PrincipalToDependent);
+                    Dependencies.Logger.RequiredAttributeOnDependent(foreignKey.PrincipalToDependent);
                     return;
                 }
 
-                var newRelationshipBuilder = relationshipBuilder.HasEntityTypes(
-                    relationshipBuilder.Metadata.DeclaringEntityType,
-                    relationshipBuilder.Metadata.PrincipalEntityType);
+                relationshipBuilder = relationshipBuilder.HasEntityTypes(
+                    foreignKey.DeclaringEntityType,
+                    foreignKey.PrincipalEntityType);
 
-                if (newRelationshipBuilder == null)
+                if (relationshipBuilder == null)
                 {
                     return;
                 }
 
-                Dependencies.Logger.RequiredAttributeInverted(newRelationshipBuilder.Metadata.DependentToPrincipal);
-                relationshipBuilder = newRelationshipBuilder;
+                Dependencies.Logger.RequiredAttributeInverted(relationshipBuilder.Metadata.DependentToPrincipal);
             }
 
-            relationshipBuilder.IsRequired(true, fromDataAnnotation: true);
+            relationshipBuilder = relationshipBuilder.IsRequired(true, fromDataAnnotation: true);
+            if (relationshipBuilder == null)
+            {
+                return;
+            }
 
-            context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal);
+            context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal?.Builder);
         }
     }
 }

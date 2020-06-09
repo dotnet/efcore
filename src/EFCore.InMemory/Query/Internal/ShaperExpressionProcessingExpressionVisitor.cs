@@ -5,9 +5,16 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class ShaperExpressionProcessingExpressionVisitor : ExpressionVisitor
     {
         private readonly InMemoryQueryExpression _queryExpression;
@@ -17,6 +24,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
         private readonly List<Expression> _expressions = new List<Expression>();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public ShaperExpressionProcessingExpressionVisitor(
             [CanBeNull] InMemoryQueryExpression queryExpression, [NotNull] ParameterExpression valueBufferParameter)
         {
@@ -24,7 +37,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _valueBufferParameter = valueBufferParameter;
         }
 
-        public virtual Expression Inject(Expression expression)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Expression Inject([NotNull] Expression expression)
         {
             var result = Visit(expression);
             _expressions.Add(result);
@@ -39,8 +58,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 QueryCompilationContext.QueryContextParameter,
                 _valueBufferParameter);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
                 case EntityShaperExpression entityShaperExpression:

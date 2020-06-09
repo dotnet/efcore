@@ -127,6 +127,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_Precision()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.NotNull(builder.HasPrecision(1, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasPrecision(2, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(2, metadata.GetPrecision().Value);
+
+            Assert.Null(builder.HasPrecision(1, ConfigurationSource.Convention));
+            Assert.Equal(2, metadata.GetPrecision().Value);
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_existing_Precision_value_explicitly()
+        {
+            var metadata = CreateProperty();
+            metadata.SetPrecision(1);
+            var builder = metadata.Builder;
+
+            Assert.NotNull(builder.HasPrecision(1, ConfigurationSource.DataAnnotation));
+            Assert.Null(builder.HasPrecision(2, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(1, metadata.GetPrecision().Value);
+
+            Assert.NotNull(builder.HasPrecision(2, ConfigurationSource.Explicit));
+            Assert.Equal(2, metadata.GetPrecision().Value);
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_Scale()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.NotNull(builder.HasScale(1, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasScale(2, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(2, metadata.GetScale().Value);
+
+            Assert.Null(builder.HasScale(1, ConfigurationSource.Convention));
+            Assert.Equal(2, metadata.GetScale().Value);
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_existing_Scale_value_explicitly()
+        {
+            var metadata = CreateProperty();
+            metadata.SetScale(1);
+            var builder = metadata.Builder;
+
+            Assert.NotNull(builder.HasScale(1, ConfigurationSource.DataAnnotation));
+            Assert.Null(builder.HasScale(2, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(1, metadata.GetScale().Value);
+
+            Assert.NotNull(builder.HasScale(2, ConfigurationSource.Explicit));
+            Assert.Equal(2, metadata.GetScale().Value);
+        }
+
+        [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_CustomValueGenerator_factory()
         {
             var builder = CreateInternalPropertyBuilder();
@@ -251,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Can_only_override_lower_or_equal_source_unicode()
+        public void Can_only_override_lower_or_equal_source_IsUnicode()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
@@ -266,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Can_only_override_existing_unicode_value_explicitly()
+        public void Can_only_override_existing_IsUnicode_value_explicitly()
         {
             var metadata = CreateProperty();
             metadata.SetIsUnicode(true);
@@ -396,7 +458,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
+            var modelBuilder = (InternalModelBuilder)
+                InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }

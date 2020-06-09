@@ -35,10 +35,21 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="name"> The name of the key. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static KeyBuilder<TEntity> HasName<TEntity>(
+            [NotNull] this KeyBuilder<TEntity> keyBuilder,
+            [CanBeNull] string name)
+            => (KeyBuilder<TEntity>)HasName((KeyBuilder)keyBuilder, name);
+
+        /// <summary>
+        ///     Configures the name of the key constraint in the database when targeting a relational database.
+        /// </summary>
+        /// <param name="keyBuilder"> The builder for the key being configured. </param>
+        /// <param name="name"> The name of the key. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionKeyBuilder HasName(
             [NotNull] this IConventionKeyBuilder keyBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
@@ -58,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="name"> The name of the index. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the given name can be set for the key constraint. </returns>
+        /// <returns> <see langword="true" /> if the given name can be set for the key constraint. </returns>
         public static bool CanSetName(
             [NotNull] this IConventionKeyBuilder keyBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
             => keyBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);

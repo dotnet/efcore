@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class CollectionNavigationBuilder : IInfrastructure<InternalRelationshipBuilder>
+    public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKeyBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,15 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public CollectionNavigationBuilder(
             [NotNull] IMutableEntityType declaringEntityType,
             [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] string navigationName,
-            [NotNull] IMutableForeignKey foreignKey)
+            MemberIdentity navigation,
+            [CanBeNull] IMutableForeignKey foreignKey,
+            [CanBeNull] IMutableSkipNavigation skipNavigation)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
-            CollectionName = navigationName;
-            Builder = ((ForeignKey)foreignKey).Builder;
+            CollectionMember = navigation.MemberInfo;
+            CollectionName = navigation.Name;
+            Builder = ((ForeignKey)foreignKey)?.Builder;
+            SkipNavigation = skipNavigation;
         }
 
         /// <summary>
@@ -52,22 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public CollectionNavigationBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] MemberInfo navigationMemberInfo,
-            [NotNull] IMutableForeignKey foreignKey)
-        {
-            Check.NotNull(foreignKey, nameof(foreignKey));
+        protected virtual InternalForeignKeyBuilder Builder { get; private set; }
 
-            DeclaringEntityType = declaringEntityType;
-            RelatedEntityType = relatedEntityType;
-            CollectionMember = navigationMemberInfo;
-            CollectionName = navigationMemberInfo?.GetSimpleMemberName();
-            Builder = ((ForeignKey)foreignKey).Builder;
-        }
-
-        private InternalRelationshipBuilder Builder { get; }
+        private IMutableSkipNavigation SkipNavigation { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -114,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
+        IConventionForeignKeyBuilder IInfrastructure<IConventionForeignKeyBuilder>.Instance => Builder;
 
         /// <summary>
         ///     <para>
@@ -135,7 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => new ReferenceCollectionBuilder(
                 DeclaringEntityType,
                 RelatedEntityType,
-                WithOneBuilder(Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                WithOneBuilder(
+                    Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -144,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string navigationName)
+        protected virtual InternalForeignKeyBuilder WithOneBuilder([CanBeNull] string navigationName)
             => WithOneBuilder(MemberIdentity.Create(navigationName));
 
         /// <summary>
@@ -154,11 +143,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] MemberInfo navigationMemberInfo)
+        protected virtual InternalForeignKeyBuilder WithOneBuilder(
+            [CanBeNull] MemberInfo navigationMemberInfo)
             => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
 
-        private InternalRelationshipBuilder WithOneBuilder(MemberIdentity reference)
+        private InternalForeignKeyBuilder WithOneBuilder(MemberIdentity reference)
         {
+            if (SkipNavigation != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ConflictingRelationshipNavigation(
+                        SkipNavigation.DeclaringEntityType.DisplayName() + "." + SkipNavigation.Name,
+                        RelatedEntityType.DisplayName() + (reference.Name == null
+                                                        ? ""
+                                                        : "." + reference.Name),
+                        SkipNavigation.DeclaringEntityType.DisplayName() + "." + SkipNavigation.Name,
+                        SkipNavigation.TargetEntityType.DisplayName() + (SkipNavigation.Inverse == null
+                                                                        ? ""
+                                                                        : "." + SkipNavigation.Inverse.Name)));
+            }
+
             var foreignKey = Builder.Metadata;
             var referenceName = reference.Name;
             if (referenceName != null
@@ -166,16 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
                 && foreignKey.DependentToPrincipal.Name != referenceName)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.ConflictingRelationshipNavigation(
-                        foreignKey.PrincipalEntityType.DisplayName(),
-                        foreignKey.PrincipalToDependent.Name,
-                        foreignKey.DeclaringEntityType.DisplayName(),
-                        referenceName,
-                        foreignKey.PrincipalEntityType.DisplayName(),
-                        foreignKey.PrincipalToDependent.Name,
-                        foreignKey.DeclaringEntityType.DisplayName(),
-                        foreignKey.DependentToPrincipal.Name));
+                InternalForeignKeyBuilder.ThrowForConflictingNavigation(foreignKey, referenceName, newToPrincipal: true);
             }
 
             return reference.MemberInfo == null || CollectionMember == null
@@ -187,6 +182,134 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     reference.MemberInfo, CollectionMember,
                     (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType,
                     ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures this as a many-to-many relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationName">
+        ///     The name of the collection navigation property on the other end of this relationship.
+        /// </param>
+        /// <returns> An object to further configure the relationship. </returns>
+        public virtual CollectionCollectionBuilder WithMany([NotNull] string navigationName)
+        {
+            if (Builder != null
+                && Builder.Metadata.PrincipalToDependent == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.MissingInverseManyToManyNavigation(
+                        Builder.Metadata.PrincipalEntityType.DisplayName(),
+                        Builder.Metadata.DeclaringEntityType.DisplayName()));
+            }
+
+            var leftName = Builder?.Metadata.PrincipalToDependent.Name;
+            return new CollectionCollectionBuilder(
+                           RelatedEntityType,
+                           DeclaringEntityType,
+                           WithLeftManyNavigation(navigationName),
+                           WithRightManyNavigation(navigationName, leftName));
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual IMutableSkipNavigation WithLeftManyNavigation([NotNull] MemberInfo inverseMemberInfo)
+            => WithLeftManyNavigation(inverseMemberInfo.Name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual IMutableSkipNavigation WithLeftManyNavigation([NotNull] string inverseName)
+        {
+            Check.NotEmpty(inverseName, nameof(inverseName));
+
+            if (SkipNavigation != null)
+            {
+                return SkipNavigation;
+            }
+
+            var foreignKey = Builder.Metadata;
+            var navigationMember = foreignKey.PrincipalToDependent.CreateMemberIdentity();
+            if (foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit)
+            {
+                InternalForeignKeyBuilder.ThrowForConflictingNavigation(
+                    foreignKey, DeclaringEntityType, RelatedEntityType, navigationMember.Name, inverseName);
+            }
+
+            using (foreignKey.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            {
+                foreignKey.DeclaringEntityType.RemoveForeignKey(foreignKey);
+                Builder = null;
+                return ((EntityType)DeclaringEntityType).Builder.HasSkipNavigation(
+                    navigationMember,
+                    (EntityType)RelatedEntityType,
+                    ConfigurationSource.Explicit).Metadata;
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual IMutableSkipNavigation WithRightManyNavigation([NotNull] string navigationName, [NotNull] string inverseName)
+            => WithRightManyNavigation(MemberIdentity.Create(navigationName), inverseName);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual IMutableSkipNavigation WithRightManyNavigation([NotNull] MemberInfo navigationMemberInfo, [NotNull] string inverseName)
+            => WithRightManyNavigation(MemberIdentity.Create(navigationMemberInfo), inverseName);
+
+        private IMutableSkipNavigation WithRightManyNavigation(MemberIdentity navigationMember, [NotNull] string inverseName)
+        {
+            Check.DebugAssert(Builder == null, "Expected no associated foreign key at this point");
+
+            var navigationName = navigationMember.Name;
+            var conflictingNavigation = RelatedEntityType.FindNavigation(navigationName) as IConventionNavigation;
+            var foreignKey = (ForeignKey)conflictingNavigation?.ForeignKey;
+            if (conflictingNavigation?.GetConfigurationSource() == ConfigurationSource.Explicit)
+            {
+                InternalForeignKeyBuilder.ThrowForConflictingNavigation(
+                    foreignKey, DeclaringEntityType, RelatedEntityType, inverseName, navigationName);
+            }
+
+            using (((EntityType)RelatedEntityType).Model.ConventionDispatcher.DelayConventions())
+            {
+                if (conflictingNavigation != null)
+                {
+                    foreignKey.DeclaringEntityType.RemoveForeignKey(foreignKey);
+                }
+                else
+                {
+                    var skipNavigation = RelatedEntityType.FindSkipNavigation(navigationMember.Name);
+                    if (skipNavigation != null)
+                    {
+                        return skipNavigation;
+                    }
+                }
+
+                return ((EntityType)RelatedEntityType).Builder.HasSkipNavigation(
+                    navigationMember,
+                    (EntityType)DeclaringEntityType,
+                    ConfigurationSource.Explicit).Metadata;
+            }
         }
 
         #region Hidden System.Object members
@@ -202,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);

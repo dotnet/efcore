@@ -6,9 +6,9 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IIndexAddedConvention,
         IIndexRemovedConvention,
         IIndexUniquenessChangedConvention,
-        IModelFinalizedConvention
+        IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ForeignKeyIndexConvention" />.
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
@@ -75,10 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyPropertiesChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,
             IConventionKey oldPrincipalKey,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionContext<IReadOnlyList<IConventionProperty>> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))
@@ -132,11 +132,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Called after a key is removed from the entity type.
         /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="key"> The key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessKeyRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key, IConventionContext<IConventionKey> context)
         {
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyUniquenessChanged(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var index = foreignKey.DeclaringEntityType.FindIndex(foreignKey.Properties);
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexUniquenessChanged(
-            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            IConventionIndexBuilder indexBuilder, IConventionContext<bool?> context)
         {
             var index = indexBuilder.Metadata;
             if (index.IsUnique)
@@ -305,11 +305,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates an <see cref="IConventionIndex"/>.
         /// </summary>
+        /// <param name="properties"> The properties that constitute the index. </param>
+        /// <param name="unique"> Whether the index to create should be unique. </param>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <returns> The created index. </returns>
         protected virtual IConventionIndex CreateIndex(
             [NotNull] IReadOnlyList<IConventionProperty> properties, bool unique, [NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
         {
@@ -345,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="unique"> Whether the index to create should be unique. </param>
         /// <param name="coveringIndexProperties"> The properties of an existing index. </param>
         /// <param name="coveringIndexUnique"> Whether the existing index is unique. </param>
-        /// <returns> <c>true</c> if the existing index covers the given properties. </returns>
+        /// <returns> <see langword="true" /> if the existing index covers the given properties. </returns>
         protected virtual bool AreIndexedBy(
             [NotNull] IReadOnlyList<IConventionProperty> properties,
             bool unique,
@@ -357,15 +358,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static void RemoveIndex(IConventionIndex index)
             => index.DeclaringEntityType.Builder.HasNoIndex(index);
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             var definition = CoreResources.LogRedundantIndexRemoved(Dependencies.Logger);
-            if (definition.GetLogBehavior(Dependencies.Logger) == WarningBehavior.Ignore
+            if (!Dependencies.Logger.ShouldLog(definition)
                 && !Dependencies.Logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 return;

@@ -3,33 +3,74 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class ProjectionExpression : Expression, IPrintableExpression
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a projection in <see cref="SelectExpression"/>.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class ProjectionExpression : Expression, IPrintableExpression
     {
-        public ProjectionExpression(SqlExpression expression, string alias)
+        internal ProjectionExpression([NotNull] SqlExpression expression, [NotNull] string alias)
         {
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(alias, nameof(alias));
+
             Expression = expression;
             Alias = alias;
         }
 
-        public virtual string Alias { get; }
-        public virtual SqlExpression Expression { get; }
+        /// <summary>
+        ///     The alias assigned to this projection, if any.
+        /// </summary>
+        public string Alias { get; }
+        /// <summary>
+        ///     The SQL value which is being projected.
+        /// </summary>
+        public SqlExpression Expression { get; }
 
+        /// <inheritdoc />
         public override Type Type => Expression.Type;
+        /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update((SqlExpression)visitor.Visit(Expression));
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        public virtual ProjectionExpression Update(SqlExpression expression)
-            => expression != Expression
+            return Update((SqlExpression)visitor.Visit(Expression));
+        }
+
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="expression"> The <see cref="Expression"/> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        public ProjectionExpression Update([NotNull] SqlExpression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return expression != Expression
                 ? new ProjectionExpression(expression, Alias)
                 : this;
+        }
 
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        /// <inheritdoc />
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Visit(Expression);
             if (!string.Equals(string.Empty, Alias)
                 && !(Expression is ColumnExpression column
@@ -39,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
@@ -49,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => string.Equals(Alias, projectionExpression.Alias)
                 && Expression.Equals(projectionExpression.Expression);
 
+        /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Alias, Expression);
     }
 }

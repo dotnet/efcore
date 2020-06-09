@@ -21,43 +21,35 @@ namespace Microsoft.EntityFrameworkCore
 
             // TODO: [Name] shouldn't be selected multiple times and no joins are needed
             AssertSql(
-                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t0].[Name], [t0].[Operator_Discriminator], [t0].[Operator_Name], [t0].[LicenseType], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Description], [t5].[Engine_Discriminator], [t9].[Name], [t9].[Capacity], [t9].[FuelTank_Discriminator], [t9].[FuelType], [t9].[GrainGeometry]
+    @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t1].[Name], [t1].[Type], [t3].[Name], [t3].[Description], [t3].[Engine_Discriminator], [t7].[Name], [t7].[Capacity], [t7].[FuelTank_Discriminator], [t7].[FuelType], [t7].[GrainGeometry]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
-    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [t].[Name] AS [Name0]
+    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
     FROM [Vehicles] AS [v0]
-    INNER JOIN (
-        SELECT [v1].[Name], [v1].[Discriminator], [v1].[SeatingCapacity]
-        FROM [Vehicles] AS [v1]
-        WHERE [v1].[Discriminator] IN (N'Vehicle', N'PoweredVehicle')
-    ) AS [t] ON [v0].[Name] = [t].[Name]
-    WHERE [v0].[Operator_Discriminator] IN (N'Operator', N'LicensedOperator')
-) AS [t0] ON [v].[Name] = [t0].[Name]
+    INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
+    WHERE [v0].[Operator_Discriminator] IS NOT NULL
+) AS [t] ON [v].[Name] = [t].[Name]
 LEFT JOIN (
-    SELECT [v2].[Name], [v2].[Type], [t2].[Name] AS [Name0], [t2].[Name0] AS [Name00]
+    SELECT [v2].[Name], [v2].[Type], [t0].[Name] AS [Name0], [t0].[Name0] AS [Name00]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
-        SELECT [v3].[Name], [v3].[Operator_Discriminator], [v3].[Operator_Name], [v3].[LicenseType], [t1].[Name] AS [Name0]
+        SELECT [v3].[Name], [v3].[Operator_Discriminator], [v3].[Operator_Name], [v3].[LicenseType], [v4].[Name] AS [Name0]
         FROM [Vehicles] AS [v3]
-        INNER JOIN (
-            SELECT [v4].[Name], [v4].[Discriminator], [v4].[SeatingCapacity]
-            FROM [Vehicles] AS [v4]
-            WHERE [v4].[Discriminator] IN (N'Vehicle', N'PoweredVehicle')
-        ) AS [t1] ON [v3].[Name] = [t1].[Name]
-        WHERE [v3].[Operator_Discriminator] IN (N'Operator', N'LicensedOperator')
-    ) AS [t2] ON [v2].[Name] = [t2].[Name]
+        INNER JOIN [Vehicles] AS [v4] ON [v3].[Name] = [v4].[Name]
+        WHERE [v3].[Operator_Discriminator] IS NOT NULL
+    ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Type] IS NOT NULL
-) AS [t3] ON [t0].[Name] = [t3].[Name]
+) AS [t1] ON [t].[Name] = [t1].[Name]
 LEFT JOIN (
-    SELECT [v5].[Name], [v5].[Description], [v5].[Engine_Discriminator], [t4].[Name] AS [Name0]
+    SELECT [v5].[Name], [v5].[Description], [v5].[Engine_Discriminator], [t2].[Name] AS [Name0]
     FROM [Vehicles] AS [v5]
     INNER JOIN (
         SELECT [v6].[Name], [v6].[Discriminator], [v6].[SeatingCapacity]
         FROM [Vehicles] AS [v6]
         WHERE [v6].[Discriminator] = N'PoweredVehicle'
-    ) AS [t4] ON [v5].[Name] = [t4].[Name]
-    WHERE [v5].[Engine_Discriminator] IN (N'Engine', N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
-) AS [t5] ON [v].[Name] = [t5].[Name]
+    ) AS [t2] ON [v5].[Name] = [t2].[Name]
+    WHERE [v5].[Engine_Discriminator] IS NOT NULL
+) AS [t3] ON [v].[Name] = [t3].[Name]
 LEFT JOIN (
     SELECT [v7].[Name], [v7].[Capacity], [v7].[FuelTank_Discriminator], [v7].[FuelType], [v7].[GrainGeometry]
     FROM [Vehicles] AS [v7]
@@ -65,23 +57,22 @@ LEFT JOIN (
         SELECT [v8].[Name], [v8].[Discriminator], [v8].[SeatingCapacity]
         FROM [Vehicles] AS [v8]
         WHERE [v8].[Discriminator] = N'PoweredVehicle'
-    ) AS [t6] ON [v7].[Name] = [t6].[Name]
-    WHERE [v7].[FuelTank_Discriminator] IN (N'FuelTank', N'SolidFuelTank')
+    ) AS [t4] ON [v7].[Name] = [t4].[Name]
+    WHERE [v7].[FuelTank_Discriminator] IS NOT NULL
     UNION
     SELECT [v9].[Name], [v9].[Capacity], [v9].[FuelTank_Discriminator], [v9].[FuelType], [v9].[GrainGeometry]
     FROM [Vehicles] AS [v9]
     INNER JOIN (
-        SELECT [v10].[Name], [v10].[Description], [v10].[Engine_Discriminator], [t7].[Name] AS [Name0]
+        SELECT [v10].[Name], [v10].[Description], [v10].[Engine_Discriminator], [t5].[Name] AS [Name0]
         FROM [Vehicles] AS [v10]
         INNER JOIN (
             SELECT [v11].[Name], [v11].[Discriminator], [v11].[SeatingCapacity]
             FROM [Vehicles] AS [v11]
             WHERE [v11].[Discriminator] = N'PoweredVehicle'
-        ) AS [t7] ON [v10].[Name] = [t7].[Name]
+        ) AS [t5] ON [v10].[Name] = [t5].[Name]
         WHERE [v10].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
-    ) AS [t8] ON [v9].[Name] = [t8].[Name]
-) AS [t9] ON [t5].[Name] = [t9].[Name]
-WHERE [v].[Discriminator] IN (N'Vehicle', N'PoweredVehicle')
+    ) AS [t6] ON [v9].[Name] = [t6].[Name]
+) AS [t7] ON [t3].[Name] = [t7].[Name]
 ORDER BY [v].[Name]");
         }
 
@@ -92,12 +83,8 @@ ORDER BY [v].[Name]");
             AssertSql(
                 @"SELECT [v].[Name], [v].[Operator_Discriminator], [v].[Operator_Name], [v].[LicenseType]
 FROM [Vehicles] AS [v]
-INNER JOIN (
-    SELECT [v0].[Name], [v0].[Discriminator], [v0].[SeatingCapacity]
-    FROM [Vehicles] AS [v0]
-    WHERE [v0].[Discriminator] IN (N'Vehicle', N'PoweredVehicle')
-) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[Operator_Discriminator] IN (N'Operator', N'LicensedOperator')");
+INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]
+WHERE [v].[Operator_Discriminator] IS NOT NULL");
         }
 
         public override void Can_query_shared_nonhierarchy()
@@ -119,11 +106,7 @@ FROM (
         WHERE [v1].[Type] IS NOT NULL
     ) AS [t] ON [v0].[Name] = [t].[Name]
 ) AS [t0]
-INNER JOIN (
-    SELECT [v2].[Name], [v2].[Discriminator], [v2].[SeatingCapacity]
-    FROM [Vehicles] AS [v2]
-    WHERE [v2].[Discriminator] IN (N'Vehicle', N'PoweredVehicle')
-) AS [t1] ON [t0].[Name] = [t1].[Name]");
+INNER JOIN [Vehicles] AS [v2] ON [t0].[Name] = [v2].[Name]");
         }
 
         public override void Can_query_shared_nonhierarchy_with_nonshared_dependent()
@@ -141,11 +124,7 @@ FROM (
     FROM [Vehicles] AS [v0]
     INNER JOIN [OperatorDetails] AS [o] ON [v0].[Name] = [o].[VehicleName]
 ) AS [t]
-INNER JOIN (
-    SELECT [v1].[Name], [v1].[Discriminator], [v1].[SeatingCapacity]
-    FROM [Vehicles] AS [v1]
-    WHERE [v1].[Discriminator] IN (N'Vehicle', N'PoweredVehicle')
-) AS [t0] ON [t].[Name] = [t0].[Name]");
+INNER JOIN [Vehicles] AS [v1] ON [t].[Name] = [v1].[Name]");
         }
 
         public override void Can_query_shared_derived_hierarchy()
@@ -160,7 +139,7 @@ INNER JOIN (
     FROM [Vehicles] AS [v0]
     WHERE [v0].[Discriminator] = N'PoweredVehicle'
 ) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[FuelTank_Discriminator] IN (N'FuelTank', N'SolidFuelTank')
+WHERE [v].[FuelTank_Discriminator] IS NOT NULL
 UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelTank_Discriminator], [v1].[FuelType], [v1].[GrainGeometry]
 FROM [Vehicles] AS [v1]
