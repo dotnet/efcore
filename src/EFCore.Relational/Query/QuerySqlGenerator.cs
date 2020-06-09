@@ -798,10 +798,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     GenerateList(orderings, e => Visit(e));
                 }
             }
-            else if (selectExpression.Offset != null)
-            {
-                _relationalCommandBuilder.AppendLine().Append("ORDER BY (SELECT 1)");
-            }
         }
 
         /// <summary>
