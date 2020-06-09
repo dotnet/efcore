@@ -215,7 +215,6 @@ SELECT COUNT(*)
 FROM (
     SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
     FROM ""Customers"" AS ""c""
-    ORDER BY (SELECT 1)
     LIMIT -1 OFFSET @__p_0
 ) AS ""t""");
         }
