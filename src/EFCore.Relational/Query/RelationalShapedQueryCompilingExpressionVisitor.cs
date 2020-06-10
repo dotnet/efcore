@@ -30,7 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalDependencies = relationalDependencies;
 
             _contextType = queryCompilationContext.ContextType;
-            _logger = queryCompilationContext.Logger;
+            _logger = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue21016", out var isEnabled) && isEnabled
+                ? queryCompilationContext.Logger
+                : null;
             _tags = queryCompilationContext.Tags;
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
@@ -90,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(projectionColumns, typeof(IReadOnlyList<ReaderColumn>)),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(_logger));
+                Expression.Constant(_logger, typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)));
         }
     }
 }
