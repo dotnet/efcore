@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+    <AssemblyName>Microsoft.EntityFrameworkCore.SourceGenerators.Tests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore.SourceGenerators</RootNamespace>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.SourceGenerators\EFCore.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\EFCore.SourceGenerators.Tests.Models\EFCore.SourceGenerators.Tests.Models.csproj" />
+  </ItemGroup>
+  
+</Project>

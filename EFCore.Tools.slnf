@@ -2,13 +2,18 @@
   "solution": {
     "path": "All.sln",
     "projects": [
+      "src\\EFCore.Analyzers\\EFCore.Analyzers.csproj",
+      "src\\EFCore.Design\\EFCore.Design.csproj",
+      "src\\EFCore.SourceGenerators\\EFCore.SourceGenerators.csproj",
+      "src\\EFCore.Tools\\EFCore.Tools.csproj",
       "src\\dotnet-ef\\dotnet-ef.csproj",
       "src\\ef\\ef.csproj",
-      "src\\EFCore.Design\\EFCore.Design.csproj",      
-      "src\\EFCore.Tools\\EFCore.Tools.csproj",
+      "test\\EFCore.Analyzers.Tests\\EFCore.Analyzers.Test.csproj",
+      "test\\EFCore.Design.Tests\\EFCore.Design.Tests.csproj",
+      "test\\EFCore.SourceGenerators.Tests.Models\\EFCore.SourceGenerators.Tests.Models.csproj",
+      "test\\EFCore.SourceGenerators.Tests\\EFCore.SourceGenerators.Tests.csproj",
       "test\\dotnet-ef.Tests\\dotnet-ef.Tests.csproj",
-      "test\\ef.Tests\\ef.Tests.csproj",
-      "test\\EFCore.Design.Tests\\EFCore.Design.Tests.csproj"
+      "test\\ef.Tests\\ef.Tests.csproj"
     ]
   }
 }
