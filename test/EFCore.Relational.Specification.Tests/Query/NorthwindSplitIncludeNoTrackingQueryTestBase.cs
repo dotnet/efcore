@@ -19,14 +19,14 @@ using Xunit;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class NorthwindSplitIncludeQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+    public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture> : NorthwindIncludeNoTrackingQueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
         private static readonly MethodInfo _asSplitIncludeMethodInfo
             = typeof(RelationalQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethod(nameof(RelationalQueryableExtensions.AsSplitQuery));
 
-        protected NorthwindSplitIncludeQueryTestBase(TFixture fixture)
+        protected NorthwindSplitIncludeNoTrackingQueryTestBase(TFixture fixture)
             : base(fixture)
         {
         }
@@ -36,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
             if (async)
             {
-                Assert.NotNull(await context.Set<Customer>().Include(c => c.Orders).AsSplitQuery().FirstOrDefaultAsync());
+                Assert.NotNull(await context.Set<Customer>().Include(c => c.Orders).AsNoTracking().AsSplitQuery().FirstOrDefaultAsync());
                 Assert.NotNull(await context.Set<Product>().AsNoTracking().ToListAsync());
             }
             else
             {
-                Assert.NotNull(context.Set<Customer>().Include(c => c.Orders).AsSplitQuery().FirstOrDefault());
+                Assert.NotNull(context.Set<Customer>().Include(c => c.Orders).AsNoTracking().AsSplitQuery().FirstOrDefault());
                 Assert.NotNull(context.Set<Product>().AsNoTracking().ToList());
             }
         }
@@ -51,22 +51,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
             var orders = context.Set<Order>().Where(o => o.CustomerID == "ALFKI").ToList();
             Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            Assert.True(orders.All(o => o.Customer == null));
 
             var customer
                 = async
                     ? await context.Set<Customer>()
                         .Include(c => c.Orders)
                         .AsSplitQuery()
+                        .AsNoTracking()
                         .SingleAsync(c => c.CustomerID == "ALFKI")
                     : context.Set<Customer>()
                         .Include(c => c.Orders)
                         .AsSplitQuery()
+                        .AsNoTracking()
                         .Single(c => c.CustomerID == "ALFKI");
 
-            Assert.Equal(orders, customer.Orders, LegacyReferenceEqualityComparer.Instance);
+            Assert.NotEqual(orders, customer.Orders, LegacyReferenceEqualityComparer.Instance);
             Assert.Equal(6, customer.Orders.Count);
-            Assert.True(orders.All(o => ReferenceEquals(o.Customer, customer)));
-            Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
+            Assert.True(customer.Orders.All(e => ReferenceEquals(e.Customer, customer)));
+
+            Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            Assert.True(orders.All(o => o.Customer == null));
         }
 
         public override async Task Include_collection_principal_already_tracked(bool async)
@@ -80,16 +85,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? await context.Set<Customer>()
                         .Include(c => c.Orders)
                         .AsSplitQuery()
+                        .AsNoTracking()
                         .SingleAsync(c => c.CustomerID == "ALFKI")
                     : context.Set<Customer>()
                         .Include(c => c.Orders)
                         .AsSplitQuery()
+                        .AsNoTracking()
                         .Single(c => c.CustomerID == "ALFKI");
 
-            Assert.Same(customer1, customer2);
+            Assert.NotSame(customer1, customer2);
             Assert.Equal(6, customer2.Orders.Count);
             Assert.True(customer2.Orders.All(o => o.Customer != null));
-            Assert.Equal(7, context.ChangeTracker.Entries().Count());
+            Assert.True(customer2.Orders.All(o => ReferenceEquals(o.Customer, customer2)));
+
+            Assert.Single(context.ChangeTracker.Entries());
         }
 
         public override async Task Include_reference_dependent_already_tracked(bool async)
@@ -100,12 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var orders
                 = async
-                    ? await context.Set<Order>().Include(o => o.Customer).AsSplitQuery().Where(o => o.CustomerID == "ALFKI").ToListAsync()
-                    : context.Set<Order>().Include(o => o.Customer).AsSplitQuery().Where(o => o.CustomerID == "ALFKI").ToList();
+                    ? await context.Set<Order>().Include(o => o.Customer).AsNoTracking().AsSplitQuery().Where(o => o.CustomerID == "ALFKI").ToListAsync()
+                    : context.Set<Order>().Include(o => o.Customer).AsNoTracking().AsSplitQuery().Where(o => o.CustomerID == "ALFKI").ToList();
 
             Assert.Equal(6, orders.Count);
-            Assert.True(orders.All(o => ReferenceEquals(o.Customer, customer)));
-            Assert.Equal(7, context.ChangeTracker.Entries().Count());
+            Assert.True(orders.All(o => !ReferenceEquals(o.Customer, customer)));
+            Assert.True(orders.All(o => o.Customer != null));
+            Assert.Single(context.ChangeTracker.Entries());
         }
 
         public override async Task Include_collection_with_last_no_orderby(bool async)
@@ -116,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => AssertLast(
                         async,
                         ss => ss.Set<Customer>().Include(c => c.Orders),
-                        entryCount: 8))).Message.Replace("\r","").Replace("\n",""));
+                        entryCount: 8))).Message.Replace("\r", "").Replace("\n", ""));
         }
 
         [ConditionalTheory(Skip = "Collection Include on nested collection")]
