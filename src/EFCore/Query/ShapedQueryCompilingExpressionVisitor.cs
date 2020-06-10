@@ -194,9 +194,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            _constantVerifyingExpressionVisitor.Visit(expression);
+            VerifyNoClientConstant(expression);
 
             return _entityMaterializerInjectingExpressionVisitor.Inject(expression);
+        }
+
+        /// <summary>
+        ///     Verifies that the given shaper expression does not contain client side constant which could cause memory leak.
+        /// </summary>
+        /// <param name="expression"> An expression to verify. </param>
+        protected virtual void VerifyNoClientConstant([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            _constantVerifyingExpressionVisitor.Visit(expression);
         }
 
         private sealed class ConstantVerifyingExpressionVisitor : ExpressionVisitor

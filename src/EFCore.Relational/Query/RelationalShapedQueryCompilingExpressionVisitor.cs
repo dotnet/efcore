@@ -7,11 +7,9 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -59,86 +57,28 @@ namespace Microsoft.EntityFrameworkCore.Query
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             selectExpression.ApplyTags(_tags);
 
-            if (selectExpression.IsNonComposedFromSql())
-            {
-                var dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
-                var indexMapParameter = Expression.Parameter(typeof(int[]), "indexMap");
+            VerifyNoClientConstant(shapedQueryExpression.ShaperExpression);
+            var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
+            var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, nonComposedFromSql).ProcessShaper(
+                shapedQueryExpression.ShaperExpression, out var relationalCommandCache);
 
-                Expression shaper = Expression.Lambda(
-                        shapedQueryExpression.ShaperExpression,
-                        QueryCompilationContext.QueryContextParameter,
-                        dataReaderParameter,
-                        indexMapParameter);
-                shaper = InjectEntityMaterializers(shaper);
-
-                shaper = new RelationalProjectionBindingRemovingExpressionVisitor(
-                        selectExpression,
-                        dataReaderParameter,
-                        indexMapParameter,
-                        _detailedErrorsEnabled,
-                        QueryCompilationContext.IsBuffering)
-                    .Visit(shaper, out var projectionColumns);
-
-                var relationalCommandCache = new RelationalCommandCache(
-                    Dependencies.MemoryCache,
-                    RelationalDependencies.QuerySqlGeneratorFactory,
-                    RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                    selectExpression,
-                    projectionColumns,
-                    _useRelationalNulls);
-
-                var shaperLambda = (LambdaExpression)shaper;
-                var columnNames = selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToList();
-
-                return Expression.New(
-                    typeof(FromSqlQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+            return nonComposedFromSql
+                ? Expression.New(
+                    typeof(FromSqlQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors()[0],
                     Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                     Expression.Constant(relationalCommandCache),
-                    Expression.Constant(columnNames, typeof(IReadOnlyList<string>)),
-                    Expression.Constant(shaperLambda.Compile()),
+                    Expression.Constant(selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToList(),
+                        typeof(IReadOnlyList<string>)),
+                    Expression.Constant(shaper.Compile()),
                     Expression.Constant(_contextType),
-                    Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
-            }
-            else
-            {
-                var dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
-                var resultCoordinatorParameter = Expression.Parameter(typeof(ResultCoordinator), "resultCoordinator");
-
-                var shaper = new ShaperExpressionProcessingExpressionVisitor(
-                        selectExpression,
-                        dataReaderParameter,
-                        resultCoordinatorParameter)
-                    .Inject(shapedQueryExpression.ShaperExpression);
-                shaper = InjectEntityMaterializers(shaper);
-
-                shaper = new RelationalProjectionBindingRemovingExpressionVisitor(
-                        selectExpression,
-                        dataReaderParameter,
-                        indexMapParameter: null,
-                        _detailedErrorsEnabled,
-                        QueryCompilationContext.IsBuffering)
-                    .Visit(shaper, out var projectionColumns);
-                shaper = new CustomShaperCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, QueryCompilationContext.IsTracking)
-                    .Visit(shaper);
-
-                var relationalCommandCache = new RelationalCommandCache(
-                    Dependencies.MemoryCache,
-                    RelationalDependencies.QuerySqlGeneratorFactory,
-                    RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                    selectExpression,
-                    projectionColumns,
-                    _useRelationalNulls);
-
-                var shaperLambda = (LambdaExpression)shaper;
-
-                return Expression.New(
-                    typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                    Expression.Constant(base.QueryCompilationContext.PerformIdentityResolution))
+                : Expression.New(
+                    typeof(QueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors()[0],
                     Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                     Expression.Constant(relationalCommandCache),
-                    Expression.Constant(shaperLambda.Compile()),
+                    Expression.Constant(shaper.Compile()),
                     Expression.Constant(_contextType),
                     Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
-            }
         }
     }
 }
