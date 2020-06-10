@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly ParameterExpression _dataReaderParameter;
             private readonly ParameterExpression _resultContextParameter;
             private readonly ParameterExpression _resultCoordinatorParameter;
-            private readonly ParameterExpression _indexMapParameter;
 
             private readonly IDictionary<Expression, Expression> _mapping = new Dictionary<Expression, Expression>();
 
@@ -45,14 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             public ShaperExpressionProcessingExpressionVisitor(
                 SelectExpression selectExpression,
                 ParameterExpression dataReaderParameter,
-                ParameterExpression resultCoordinatorParameter,
-                ParameterExpression indexMapParameter)
+                ParameterExpression resultCoordinatorParameter)
             {
                 _selectExpression = selectExpression;
                 _dataReaderParameter = dataReaderParameter;
                 _resultContextParameter = Expression.Parameter(typeof(ResultContext), "resultContext");
                 _resultCoordinatorParameter = resultCoordinatorParameter;
-                _indexMapParameter = indexMapParameter;
             }
 
             private sealed class CollectionShaperFindingExpressionVisitor : ExpressionVisitor
@@ -115,12 +112,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _variables,
                         _expressions);
 
-                    var conditionalMaterializationExpressions = new List<Expression>();
-
-                    conditionalMaterializationExpressions.Add(
+                    var conditionalMaterializationExpressions = new List<Expression>
+                    {
                         Expression.IfThen(
                             Expression.Equal(_valuesArrayExpression, Expression.Constant(null, typeof(object[]))),
-                            initializationBlock));
+                            initializationBlock)
+                    };
 
                     conditionalMaterializationExpressions.AddRange(_collectionPopulatingExpressions);
 
@@ -145,20 +142,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             private LambdaExpression ConvertToLambda(Expression result)
-                => _indexMapParameter != null
-                    ? Expression.Lambda(
-                        result,
-                        QueryCompilationContext.QueryContextParameter,
-                        _dataReaderParameter,
-                        _resultContextParameter,
-                        _indexMapParameter,
-                        _resultCoordinatorParameter)
-                    : Expression.Lambda(
-                        result,
-                        QueryCompilationContext.QueryContextParameter,
-                        _dataReaderParameter,
-                        _resultContextParameter,
-                        _resultCoordinatorParameter);
+                => Expression.Lambda(
+                    result,
+                    QueryCompilationContext.QueryContextParameter,
+                    _dataReaderParameter,
+                    _resultContextParameter,
+                    _resultCoordinatorParameter);
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
@@ -239,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             relationalCollectionShaperExpression)
                         {
                             var innerShaper = new ShaperExpressionProcessingExpressionVisitor(
-                                    _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
+                                    _selectExpression, _dataReaderParameter, _resultCoordinatorParameter)
                                 .Inject(relationalCollectionShaperExpression.InnerShaper);
 
                             _collectionPopulatingExpressions.Add(
@@ -278,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         if (!_mapping.TryGetValue(key, out var accessor))
                         {
                             var innerShaper = new ShaperExpressionProcessingExpressionVisitor(
-                                    _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
+                                    _selectExpression, _dataReaderParameter, _resultCoordinatorParameter)
                                 .Inject(relationalCollectionShaperExpression.InnerShaper);
 
                             _collectionPopulatingExpressions.Add(
