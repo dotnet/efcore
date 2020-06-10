@@ -3,6 +3,7 @@
 
 using System;
 using System.Data;
+using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 using static SQLitePCL.raw;
@@ -110,6 +111,42 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
                     Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
                 }
+            }
+        }
+
+        [Fact]
+        public void Deferred_allows_parallel_reads()
+        {
+            const string connectionString = "Data Source=deferred.db";
+
+            try
+            {
+                using (var connection = new SqliteConnection(connectionString))
+                {
+                    connection.Open();
+                    connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (42);");
+                }
+
+                using (var connection1 = new SqliteConnection(connectionString))
+                using (var connection2 = new SqliteConnection(connectionString))
+                {
+                    connection1.Open();
+                    connection2.Open();
+
+                    using (connection1.BeginTransaction(deferred: true))
+                    using (connection2.BeginTransaction(deferred: true))
+                    {
+                        var value1 = connection1.ExecuteScalar<long>("SELECT * FROM Data;");
+                        var value2 = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+
+                        Assert.Equal(42, value1);
+                        Assert.Equal(42, value2);
+                    }
+                }
+            }
+            finally
+            {
+                File.Delete("deferred.db");
             }
         }
 

@@ -476,6 +476,24 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Begins a transaction on the connection.
         /// </summary>
+        /// <param name="deferred"><see langword="true"/> to defer the creation of the transaction.
+        /// This also causes transactions to upgrade from read transactions to write transactions as needed by their commands.</param>
+        /// <returns>The transaction.</returns>
+        /// <remarks>
+        ///     Warning, commands inside a deferred transaction can fail if they cause the
+        ///     transaction to be upgraded from a read transaction to a write transaction
+        ///     but the database is locked. The application will need to retry the entire
+        ///     transaction when this happens.
+        /// </remarks>
+        /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
+        public SqliteTransaction BeginTransaction(bool deferred)
+            => BeginTransaction(IsolationLevel.Unspecified, deferred);
+
+        /// <summary>
+        ///     Begins a transaction on the connection.
+        /// </summary>
         /// <param name="isolationLevel">The isolation level of the transaction.</param>
         /// <returns>The transaction.</returns>
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
@@ -490,6 +508,25 @@ namespace Microsoft.Data.Sqlite
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public new virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
+            => BeginTransaction(isolationLevel, deferred: isolationLevel == IsolationLevel.ReadUncommitted);
+
+        /// <summary>
+        ///     Begins a transaction on the connection.
+        /// </summary>
+        /// <param name="isolationLevel">The isolation level of the transaction.</param>
+        /// <param name="deferred"><see langword="true"/> to defer the creation of the transaction.
+        /// This also causes transactions to upgrade from read transactions to write transactions as needed by their commands.</param>
+        /// <returns>The transaction.</returns>
+        /// <remarks>
+        ///     Warning, commands inside a deferred transaction can fail if they cause the
+        ///     transaction to be upgraded from a read transaction to a write transaction
+        ///     but the database is locked. The application will need to retry the entire
+        ///     transaction when this happens.
+        /// </remarks>
+        /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
+        public SqliteTransaction BeginTransaction(IsolationLevel isolationLevel, bool deferred)
         {
             if (State != ConnectionState.Open)
             {
@@ -501,7 +538,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.ParallelTransactionsNotSupported);
             }
 
-            return Transaction = new SqliteTransaction(this, isolationLevel);
+            return Transaction = new SqliteTransaction(this, isolationLevel, deferred);
         }
 
         /// <summary>

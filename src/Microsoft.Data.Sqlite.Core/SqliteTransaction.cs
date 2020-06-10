@@ -19,10 +19,10 @@ namespace Microsoft.Data.Sqlite
         private readonly IsolationLevel _isolationLevel;
         private bool _completed;
 
-        internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel)
+        internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel, bool deferred)
         {
             if ((isolationLevel == IsolationLevel.ReadUncommitted
-                    && connection.ConnectionOptions.Cache != SqliteCacheMode.Shared)
+                    && ((connection.ConnectionOptions.Cache != SqliteCacheMode.Shared) || !deferred))
                 || isolationLevel == IsolationLevel.ReadCommitted
                 || isolationLevel == IsolationLevel.RepeatableRead)
             {
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             connection.ExecuteNonQuery(
-                IsolationLevel == IsolationLevel.Serializable
+                IsolationLevel == IsolationLevel.Serializable && !deferred
                     ? "BEGIN IMMEDIATE;"
                     : "BEGIN;");
             sqlite3_rollback_hook(connection.Handle, RollbackExternal, null);
