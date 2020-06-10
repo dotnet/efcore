@@ -2593,7 +2593,7 @@ WHERE ([t].[Note] <> N'Foo') OR [t].[Note] IS NULL");
             await base.Sum_with_optional_navigation_is_translated_to_sql(async);
 
             AssertSql(
-                @"SELECT SUM([g].[SquadId])
+                @"SELECT COALESCE(SUM([g].[SquadId]), 0)
 FROM [Gears] AS [g]
 LEFT JOIN [Tags] AS [t] ON ([g].[Nickname] = [t].[GearNickName]) AND ([g].[SquadId] = [t].[GearSquadId])
 WHERE ([t].[Note] <> N'Foo') OR [t].[Note] IS NULL");
@@ -5348,7 +5348,7 @@ GROUP BY [g].[Rank]");
             await base.GroupBy_Property_Include_Select_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([g].[SquadId])
+                @"SELECT COALESCE(SUM([g].[SquadId]), 0)
 FROM [Gears] AS [g]
 GROUP BY [g].[Rank]");
         }
@@ -6145,7 +6145,7 @@ ORDER BY [t].[FullName]");
             await base.Complex_GroupBy_after_set_operator(async);
 
             AssertSql(
-                @"SELECT [t].[Name], [t].[Count], SUM([t].[Count]) AS [Sum]
+                @"SELECT [t].[Name], [t].[Count], COALESCE(SUM([t].[Count]), 0) AS [Sum]
 FROM (
     SELECT [c].[Name], (
         SELECT COUNT(*)
@@ -6169,7 +6169,7 @@ GROUP BY [t].[Name], [t].[Count]");
             await base.Complex_GroupBy_after_set_operator_using_result_selector(async);
 
             AssertSql(
-                @"SELECT [t].[Name], [t].[Count], SUM([t].[Count]) AS [Sum]
+                @"SELECT [t].[Name], [t].[Count], COALESCE(SUM([t].[Count]), 0) AS [Sum]
 FROM (
     SELECT [c].[Name], (
         SELECT COUNT(*)

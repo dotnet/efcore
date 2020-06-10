@@ -151,7 +151,7 @@ WHERE EXISTS (
             await base.KeylesEntity_groupby(async);
 
             AssertSql(
-                @"SELECT [c].[City] AS [Key], COUNT(*) AS [Count], SUM(CAST(LEN([c].[Address]) AS int)) AS [Sum]
+                @"SELECT [c].[City] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST(LEN([c].[Address]) AS int)), 0) AS [Sum]
 FROM (
     SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
 ) AS [c]

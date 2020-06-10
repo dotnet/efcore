@@ -975,7 +975,7 @@ ORDER BY [l0].[Name], [l].[Id]");
             await base.Result_operator_nav_prop_reference_optional_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([l0].[Level1_Required_Id])
+                @"SELECT COALESCE(SUM([l0].[Level1_Required_Id]), 0)
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]");
         }
@@ -1035,10 +1035,10 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]");
             await base.Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty(async);
 
             AssertSql(
-                @"SELECT SUM(CASE
+                @"SELECT COALESCE(SUM(CASE
     WHEN [l0].[Id] IS NULL THEN 0
     ELSE [l0].[Level1_Required_Id]
-END)
+END), 0)
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]");
         }
@@ -4319,7 +4319,7 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id]");
             await base.Sum_with_selector_cast_using_as(async);
 
             AssertSql(
-                @"SELECT SUM([l].[Id])
+                @"SELECT COALESCE(SUM([l].[Id]), 0)
 FROM [LevelOne] AS [l]");
         }
 

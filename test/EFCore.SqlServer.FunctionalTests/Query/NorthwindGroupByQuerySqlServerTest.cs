@@ -90,7 +90,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_Select_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -100,7 +100,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_Select_Sum_Min_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -160,7 +160,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_Select_Key_Sum(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], SUM([o].[OrderID]) AS [Sum]
+                @"SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -170,7 +170,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_Select_Key_Sum_Min_Max_Avg(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -180,7 +180,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_Select_Sum_Min_Key_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID] AS [Key], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID] AS [Key], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -190,7 +190,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_Select_key_multiple_times_and_aggregate(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key1], SUM([o].[OrderID]) AS [Sum]
+                @"SELECT [o].[CustomerID] AS [Key1], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -212,10 +212,10 @@ GROUP BY [o].[CustomerID]");
             AssertSql(
                 @"SELECT [o].[OrderDate] AS [Key], CASE
     WHEN COUNT(*) = 0 THEN 1
-    ELSE SUM(CASE
+    ELSE COALESCE(SUM(CASE
         WHEN ([o].[OrderID] % 2) = 0 THEN 1
         ELSE 0
-    END) / COUNT(*)
+    END), 0) / COUNT(*)
 END AS [SomeValue]
 FROM [Orders] AS [o]
 GROUP BY [o].[OrderDate]");
@@ -229,7 +229,7 @@ GROUP BY [o].[OrderDate]");
                 @"SELECT CASE
     WHEN [o].[OrderDate] IS NULL THEN N'is null'
     ELSE N'is not null'
-END AS [Key], SUM([o].[OrderID]) AS [Sum]
+END AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[OrderDate]");
         }
@@ -289,7 +289,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_anonymous_Select_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -299,7 +299,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_anonymous_Select_Sum_Min_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -309,7 +309,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_anonymous_with_alias_Select_Key_Sum(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], SUM([o].[OrderID]) AS [Sum]
+                @"SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -369,7 +369,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Composite_Select_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -379,7 +379,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Composite_Select_Sum_Min_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -439,7 +439,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Composite_Select_Key_Sum(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID], [o].[EmployeeID], SUM([o].[OrderID]) AS [Sum]
+                @"SELECT [o].[CustomerID], [o].[EmployeeID], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -449,7 +449,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Composite_Select_Key_Sum_Min_Max_Avg(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID], [o].[EmployeeID], SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT [o].[CustomerID], [o].[EmployeeID], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -459,7 +459,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Composite_Select_Sum_Min_Key_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], [o].[EmployeeID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], [o].[EmployeeID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -469,7 +469,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Composite_Select_Sum_Min_Key_flattened_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], [o].[EmployeeID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], [o].[EmployeeID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -479,7 +479,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Dto_as_key_Select_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], [o].[CustomerID], [o].[EmployeeID]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], [o].[CustomerID], [o].[EmployeeID]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -489,7 +489,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Dto_as_element_selector_Select_Sum(async);
 
             AssertSql(
-                @"SELECT SUM(CAST([o].[EmployeeID] AS bigint)) AS [Sum], [o].[CustomerID] AS [Key]
+                @"SELECT COALESCE(SUM(CAST([o].[EmployeeID] AS bigint)), CAST(0 AS bigint)) AS [Sum], [o].[CustomerID] AS [Key]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -499,7 +499,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Composite_Select_Dto_Sum_Min_Key_flattened_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID] AS [CustomerId], [o].[EmployeeID] AS [EmployeeId], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID] AS [CustomerId], [o].[EmployeeID] AS [EmployeeId], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -509,7 +509,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Composite_Select_Sum_Min_part_Key_flattened_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], [o].[CustomerID], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID], [o].[EmployeeID]");
         }
@@ -519,7 +519,7 @@ GROUP BY [o].[CustomerID], [o].[EmployeeID]");
             await base.GroupBy_Constant_Select_Sum_Min_Key_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], 2 AS [Key], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], 2 AS [Key], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]");
         }
 
@@ -528,7 +528,7 @@ FROM [Orders] AS [o]");
             await base.GroupBy_Constant_with_element_selector_Select_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]");
         }
 
@@ -537,7 +537,7 @@ FROM [Orders] AS [o]");
             await base.GroupBy_Constant_with_element_selector_Select_Sum2(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]");
         }
 
@@ -546,7 +546,7 @@ FROM [Orders] AS [o]");
             await base.GroupBy_Constant_with_element_selector_Select_Sum3(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]");
         }
 
@@ -555,7 +555,7 @@ FROM [Orders] AS [o]");
             await base.GroupBy_after_predicate_Constant_Select_Sum_Min_Key_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], 2 AS [Random], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], 2 AS [Random], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] > 10500");
         }
@@ -565,7 +565,7 @@ WHERE [o].[OrderID] > 10500");
             await base.GroupBy_Constant_with_element_selector_Select_Sum_Min_Key_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], 2 AS [Key]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], 2 AS [Key]
 FROM [Orders] AS [o]");
         }
 
@@ -576,7 +576,7 @@ FROM [Orders] AS [o]");
             AssertSql(
                 @"@__a_0='2'
 
-SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], @__a_0 AS [Key], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], @__a_0 AS [Key], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]");
         }
 
@@ -585,7 +585,7 @@ FROM [Orders] AS [o]");
             await base.GroupBy_param_with_element_selector_Select_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]");
         }
 
@@ -594,7 +594,7 @@ FROM [Orders] AS [o]");
             await base.GroupBy_param_with_element_selector_Select_Sum2(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]");
         }
 
@@ -603,7 +603,7 @@ FROM [Orders] AS [o]");
             await base.GroupBy_param_with_element_selector_Select_Sum3(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]");
         }
 
@@ -614,7 +614,7 @@ FROM [Orders] AS [o]");
             AssertSql(
                 @"@__a_0='2'
 
-SELECT SUM([o].[OrderID]) AS [Sum], @__a_0 AS [Key]
+SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], @__a_0 AS [Key]
 FROM [Orders] AS [o]");
         }
 
@@ -684,7 +684,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_scalar_element_selector_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -694,7 +694,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_scalar_element_selector_Sum_Min_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -754,7 +754,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_anonymous_element_selector_Sum(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -764,7 +764,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_anonymous_element_selector_Sum_Min_Max_Avg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[EmployeeID]) AS [Min], MAX([o].[EmployeeID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[EmployeeID]) AS [Min], MAX([o].[EmployeeID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -774,7 +774,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_element_selector_complex_aggregate(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID] + 1)
+                @"SELECT COALESCE(SUM([o].[OrderID] + 1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -784,7 +784,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_element_selector_complex_aggregate2(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID] + 1)
+                @"SELECT COALESCE(SUM([o].[OrderID] + 1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -794,7 +794,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_element_selector_complex_aggregate3(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID] + 1)
+                @"SELECT COALESCE(SUM([o].[OrderID] + 1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -804,7 +804,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_element_selector_complex_aggregate4(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID] + 1)
+                @"SELECT COALESCE(SUM([o].[OrderID] + 1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -814,7 +814,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_empty_key_Aggregate(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]");
         }
 
@@ -823,7 +823,7 @@ FROM [Orders] AS [o]");
             await base.GroupBy_empty_key_Aggregate_Key(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]");
         }
 
@@ -832,7 +832,7 @@ FROM [Orders] AS [o]");
             await base.OrderBy_GroupBy_Aggregate(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -1114,7 +1114,7 @@ GROUP BY [t].[City]");
             await base.Select_anonymous_GroupBy_Aggregate(async);
 
             AssertSql(
-                @"SELECT MIN([o].[OrderDate]) AS [Min], MAX([o].[OrderDate]) AS [Max], SUM([o].[OrderID]) AS [Sum], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT MIN([o].[OrderDate]) AS [Min], MAX([o].[OrderDate]) AS [Max], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300
 GROUP BY [o].[CustomerID]");
@@ -1158,7 +1158,7 @@ ORDER BY COUNT(*), [o].[CustomerID]");
             await base.GroupBy_OrderBy_count_Select_sum(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], SUM([o].[OrderID]) AS [Sum]
+                @"SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 ORDER BY COUNT(*), [o].[CustomerID]");
@@ -1265,7 +1265,7 @@ HAVING COUNT(*) > 4");
             await base.GroupBy_filter_count_OrderBy_count_Select_sum(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], SUM([o].[OrderID]) AS [Sum]
+                @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], COALESCE(SUM([o].[OrderID]), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 HAVING COUNT(*) > 4
@@ -1391,7 +1391,7 @@ INNER JOIN (
             await base.GroupBy_with_result_selector(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID]) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0) AS [Sum], MIN([o].[OrderID]) AS [Min], MAX([o].[OrderID]) AS [Max], AVG(CAST([o].[OrderID] AS float)) AS [Avg]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -1401,7 +1401,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Sum_constant(async);
 
             AssertSql(
-                @"SELECT SUM(1)
+                @"SELECT COALESCE(SUM(1), 0)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -1411,7 +1411,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Sum_constant_cast(async);
 
             AssertSql(
-                @"SELECT SUM(CAST(1 AS bigint))
+                @"SELECT COALESCE(SUM(CAST(1 AS bigint)), CAST(0 AS bigint))
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -1630,7 +1630,7 @@ ORDER BY [o].[OrderID]");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT SUM([o].[OrderID]) AS [c]
+    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]");
@@ -1653,14 +1653,14 @@ ORDER BY [o].[CustomerID]");
             AssertSql(
                 @"SELECT MIN([t].[c])
 FROM (
-    SELECT SUM([o].[OrderID]) AS [c]
+    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]",
                 //
                 @"SELECT MAX([t].[c])
 FROM (
-    SELECT SUM([o].[OrderID]) AS [c]
+    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]");
@@ -1691,7 +1691,7 @@ END");
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING NOT (SUM([o].[OrderID]) >= 0)) THEN CAST(1 AS bit)
+        HAVING NOT (COALESCE(SUM([o].[OrderID]), 0) >= 0)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1752,7 +1752,7 @@ GROUP BY [t].[City]");
             await base.GroupBy_with_group_key_access_thru_navigation(async);
 
             AssertSql(
-                @"SELECT [o0].[CustomerID] AS [Key], SUM([o].[OrderID]) AS [Aggregate]
+                @"SELECT [o0].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 GROUP BY [o0].[CustomerID]");
@@ -1763,7 +1763,7 @@ GROUP BY [o0].[CustomerID]");
             await base.GroupBy_with_group_key_access_thru_nested_navigation(async);
 
             AssertSql(
-                @"SELECT [c].[Country] AS [Key], SUM([o].[OrderID]) AS [Aggregate]
+                @"SELECT [c].[Country] AS [Key], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -1809,7 +1809,7 @@ GROUP BY [c].[Country]");
             AssertSql(
                 @"@__p_0='80'
 
-SELECT SUM([t].[OrderID])
+SELECT COALESCE(SUM([t].[OrderID]), 0)
 FROM (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
@@ -1862,7 +1862,7 @@ GROUP BY DATEPART(day, [o].[OrderDate])");
             await base.GroupBy_with_cast_inside_grouping_aggregate(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], SUM(CAST([o].[OrderID] AS bigint)) AS [Sum]
+                @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint)) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -1904,7 +1904,7 @@ GROUP BY [o].[CustomerID]");
             await base.Group_by_with_arithmetic_operation_inside_aggregate(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID] AS [Key], SUM([o].[OrderID] + CAST(LEN([o].[CustomerID]) AS int)) AS [Sum]
+                @"SELECT [o].[CustomerID] AS [Key], COALESCE(SUM([o].[OrderID] + CAST(LEN([o].[CustomerID]) AS int)), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }

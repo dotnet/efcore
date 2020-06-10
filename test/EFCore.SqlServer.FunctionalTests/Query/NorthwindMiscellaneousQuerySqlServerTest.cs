@@ -4052,7 +4052,7 @@ FROM (
             AssertSql(
                 @"@__p_0='10'
 
-SELECT SUM([t].[OrderID])
+SELECT COALESCE(SUM([t].[OrderID]), 0)
 FROM (
     SELECT TOP(@__p_0) [o].[OrderID]
     FROM [Orders] AS [o]
@@ -4179,7 +4179,7 @@ FROM (
             AssertSql(
                 @"@__p_0='10'
 
-SELECT SUM([t].[OrderID])
+SELECT COALESCE(SUM([t].[OrderID]), 0)
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -4253,7 +4253,7 @@ FROM (
             await base.Select_distinct_sum(async);
 
             AssertSql(
-                @"SELECT SUM([t].[OrderID])
+                @"SELECT COALESCE(SUM([t].[OrderID]), 0)
 FROM (
     SELECT DISTINCT [o].[OrderID]
     FROM [Orders] AS [o]

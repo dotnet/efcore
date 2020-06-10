@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Sum);
         }
 
-        [ConditionalTheory(Skip = "Issue#12657")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_sum_plus_one(bool async)
         {

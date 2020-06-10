@@ -4519,7 +4519,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
                 var result = context.InventoryPools.Sum(p => (decimal)p.Quantity);
 
                 AssertSql(
-                    @"SELECT SUM(CAST([i].[Quantity] AS decimal(18,2)))
+                    @"SELECT COALESCE(SUM(CAST([i].[Quantity] AS decimal(18,2))), 0.0)
 FROM [InventoryPools] AS [i]");
             }
         }
