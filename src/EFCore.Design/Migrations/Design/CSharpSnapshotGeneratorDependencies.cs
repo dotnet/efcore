@@ -50,12 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [EntityFrameworkInternal]
         public CSharpSnapshotGeneratorDependencies(
             [NotNull] ICSharpHelper csharpHelper,
-            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
+            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource,
+            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
         {
             Check.NotNull(csharpHelper, nameof(csharpHelper));
 
             CSharpHelper = csharpHelper;
             RelationalTypeMappingSource = relationalTypeMappingSource;
+            AnnotationCodeGenerator = annotationCodeGenerator;
         }
 
         /// <summary>
@@ -69,12 +71,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public IRelationalTypeMappingSource RelationalTypeMappingSource { get; }
 
         /// <summary>
+        ///     The annotation code generator.
+        /// </summary>
+        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="csharpHelper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CSharpSnapshotGeneratorDependencies With([NotNull] ICSharpHelper csharpHelper)
-            => new CSharpSnapshotGeneratorDependencies(csharpHelper, RelationalTypeMappingSource);
+            => new CSharpSnapshotGeneratorDependencies(csharpHelper, RelationalTypeMappingSource, AnnotationCodeGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -82,6 +89,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="relationalTypeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CSharpSnapshotGeneratorDependencies With([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
-            => new CSharpSnapshotGeneratorDependencies(CSharpHelper, relationalTypeMappingSource);
+            => new CSharpSnapshotGeneratorDependencies(CSharpHelper, relationalTypeMappingSource, AnnotationCodeGenerator);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="annotationCodeGenerator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public CSharpSnapshotGeneratorDependencies With([NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
+            => new CSharpSnapshotGeneratorDependencies(CSharpHelper, RelationalTypeMappingSource, annotationCodeGenerator);
     }
 }

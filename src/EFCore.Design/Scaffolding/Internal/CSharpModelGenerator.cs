@@ -129,11 +129,5 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return resultingFiles;
         }
-
-        /// <summary>
-        /// The set of annotations ignored for the purposes of code generation for indexes.
-        /// </summary>
-        public static IReadOnlyList<string> IgnoredIndexAnnotations
-            => new List<string> { RelationalAnnotationNames.TableIndexMappings };
     }
 }

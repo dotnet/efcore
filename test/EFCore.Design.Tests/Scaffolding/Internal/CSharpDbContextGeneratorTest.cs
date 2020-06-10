@@ -422,7 +422,7 @@ namespace TestNamespace
                     .HasFilter(""Filter SQL"")
                     .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
-                entity.Property(e => e.Id).HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                entity.Property(e => e.Id).UseIdentityColumn();
             });
 
             OnModelCreatingPartial(modelBuilder);
@@ -503,7 +503,7 @@ namespace TestNamespace
                     .HasFilter(""Filter SQL"")
                     .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
-                entity.Property(e => e.Id).HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                entity.Property(e => e.Id).UseIdentityColumn();
             });
 
             OnModelCreatingPartial(modelBuilder);
