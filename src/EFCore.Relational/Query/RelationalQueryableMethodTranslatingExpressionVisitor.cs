@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -535,18 +536,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
             if (joinPredicate != null)
             {
-                var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                    resultSelector.Parameters[0].Type,
-                    resultSelector.Parameters[1].Type);
+                var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+                var outerShaperExpression = outerSelectExpression.AddInnerJoin(inner, joinPredicate, outer.ShaperExpression);
+                outer = outer.UpdateShaperExpression(outerShaperExpression);
 
-                ((SelectExpression)outer.QueryExpression).AddInnerJoin(
-                    (SelectExpression)inner.QueryExpression, joinPredicate, transparentIdentifierType);
-
-                return TranslateResultSelectorForJoin(
-                    outer,
-                    resultSelector,
-                    inner.ShaperExpression,
-                    transparentIdentifierType);
+                return TranslateTwoParameterSelector(outer, resultSelector);
             }
 
             return null;
@@ -567,18 +561,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
             if (joinPredicate != null)
             {
-                var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                    resultSelector.Parameters[0].Type,
-                    resultSelector.Parameters[1].Type);
+                var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+                inner = inner.UpdateShaperExpression(MarkShaperNullable(inner.ShaperExpression));
+                var outerShaperExpression = outerSelectExpression.AddLeftJoin(inner, joinPredicate, outer.ShaperExpression);
+                outer = outer.UpdateShaperExpression(outerShaperExpression);
 
-                ((SelectExpression)outer.QueryExpression).AddLeftJoin(
-                    (SelectExpression)inner.QueryExpression, joinPredicate, transparentIdentifierType);
-
-                return TranslateResultSelectorForJoin(
-                    outer,
-                    resultSelector,
-                    MarkShaperNullable(inner.ShaperExpression),
-                    transparentIdentifierType);
+                return TranslateTwoParameterSelector(outer, resultSelector);
             }
 
             return null;
@@ -880,28 +868,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var collectionSelectorBody = RemapLambdaBody(source, newCollectionSelector);
                 if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
                 {
-                    var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                        resultSelector.Parameters[0].Type,
-                        resultSelector.Parameters[1].Type);
+                    var innerSelectExpression = (SelectExpression)source.QueryExpression;
+                    var shaper = defaultIfEmpty
+                        ? innerSelectExpression.AddOuterApply(
+                            inner.UpdateShaperExpression(MarkShaperNullable(inner.ShaperExpression)),
+                            source.ShaperExpression)
+                        : innerSelectExpression.AddCrossApply(inner, source.ShaperExpression);
 
-                    var innerShaperExpression = inner.ShaperExpression;
-                    if (defaultIfEmpty)
-                    {
-                        ((SelectExpression)source.QueryExpression).AddOuterApply(
-                            (SelectExpression)inner.QueryExpression, transparentIdentifierType);
-                        innerShaperExpression = MarkShaperNullable(innerShaperExpression);
-                    }
-                    else
-                    {
-                        ((SelectExpression)source.QueryExpression).AddCrossApply(
-                            (SelectExpression)inner.QueryExpression, transparentIdentifierType);
-                    }
-
-                    return TranslateResultSelectorForJoin(
-                        source,
-                        resultSelector,
-                        innerShaperExpression,
-                        transparentIdentifierType);
+                    return TranslateTwoParameterSelector(source.UpdateShaperExpression(shaper), resultSelector);
                 }
             }
             else
@@ -917,18 +891,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
 
-                    var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                        resultSelector.Parameters[0].Type,
-                        resultSelector.Parameters[1].Type);
+                    var innerSelectExpression = (SelectExpression)source.QueryExpression;
+                    var shaper = innerSelectExpression.AddCrossJoin(inner, source.ShaperExpression);
 
-                    ((SelectExpression)source.QueryExpression).AddCrossJoin(
-                        (SelectExpression)inner.QueryExpression, transparentIdentifierType);
-
-                    return TranslateResultSelectorForJoin(
-                        source,
-                        resultSelector,
-                        inner.ShaperExpression,
-                        transparentIdentifierType);
+                    return TranslateTwoParameterSelector(source.UpdateShaperExpression(shaper), resultSelector);
                 }
             }
 
@@ -1358,7 +1324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             makeNullable);
 
                         var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey));
-                        _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate, null);
+                        _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate);
                         var leftJoinTable = ((LeftJoinExpression)_selectExpression.Tables.Last()).Table;
                         innerShaper = new RelationalEntityShaperExpression(
                             targetEntityType,
@@ -1414,6 +1380,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return propertyExpressions;
             }
         }
+
+        private ShapedQueryExpression TranslateTwoParameterSelector(ShapedQueryExpression source, LambdaExpression resultSelector)
+        {
+            var transparentIdentifierType = source.ShaperExpression.Type;
+            var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
+
+            Expression original1 = resultSelector.Parameters[0];
+            var replacement1 = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Outer");
+            Expression original2 = resultSelector.Parameters[1];
+            var replacement2 = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Inner");
+            var newResultSelector = Expression.Lambda(
+                new ReplacingExpressionVisitor(
+                    new[] { original1, original2 }, new[] { replacement1, replacement2 })
+                    .Visit(resultSelector.Body),
+                transparentIdentifierParameter);
+
+            return TranslateSelect(source, newResultSelector);
+        }
+
+        private static Expression AccessField(
+            Type transparentIdentifierType,
+            Expression targetExpression,
+            string fieldName)
+            => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName));
 
         private ShapedQueryExpression AggregateResultShaper(
             ShapedQueryExpression source, Expression projection, bool throwWhenEmpty, Type resultType)

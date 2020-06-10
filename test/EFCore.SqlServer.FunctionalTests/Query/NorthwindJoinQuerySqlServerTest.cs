@@ -513,6 +513,40 @@ LEFT JOIN (
 ORDER BY [t].[CustomerID]");
         }
 
+        public override async Task SelectMany_with_client_eval(bool async)
+        {
+            await base.SelectMany_with_client_eval(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[ContactName]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[ContactName]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]");
+        }
+
+        public override async Task SelectMany_with_client_eval_with_constructor(bool async)
+        {
+            await base.SelectMany_with_client_eval_with_constructor(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[City], [t0].[OrderID], [t0].[ProductID], [t0].[OrderID0], [t0].[OrderID1], [t0].[ProductID0]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [t].[OrderID], [t].[ProductID], [o].[OrderID] AS [OrderID0], [t].[OrderID] AS [OrderID1], [t].[ProductID] AS [ProductID0], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    INNER JOIN (
+        SELECT [o0].[OrderID], [o0].[ProductID]
+        FROM [Order Details] AS [o0]
+        WHERE [o0].[OrderID] < 11000
+    ) AS [t] ON [o].[OrderID] = [t].[OrderID]
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID], [t0].[OrderID0], [t0].[OrderID1], [t0].[ProductID0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
