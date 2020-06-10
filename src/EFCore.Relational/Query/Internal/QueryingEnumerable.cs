@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _readerColumns = readerColumns;
             _shaper = shaper;
             _contextType = contextType;
-            _logger = logger;
+            _logger = logger ?? relationalQueryContext.QueryLogger;
         }
 
         public virtual IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
