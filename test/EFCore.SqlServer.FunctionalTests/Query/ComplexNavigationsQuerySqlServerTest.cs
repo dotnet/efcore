@@ -4951,6 +4951,208 @@ OUTER APPLY (
 ORDER BY [l].[Id], [t].[Id], [t].[Id0], [t1].[Id], [t1].[Id0]");
         }
 
+        public override async Task Filtered_include_basic_Where_split(bool async)
+        {
+            await base.Filtered_include_basic_Where_split(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+ORDER BY [l].[Id]",
+                //
+                @"SELECT [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Optional_Self_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToMany_Required_Self_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [t].[OneToOne_Optional_Self2Id], [l].[Id]
+FROM [LevelOne] AS [l]
+INNER JOIN (
+    SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+    FROM [LevelTwo] AS [l0]
+    WHERE [l0].[Id] > 5
+) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id]");
+        }
+
+        public override async Task Filtered_include_OrderBy_split(bool async)
+        {
+            await base.Filtered_include_OrderBy_split(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+ORDER BY [l].[Id]",
+                //
+                @"SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l].[Id]
+FROM [LevelOne] AS [l]
+INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id], [l0].[Name]");
+        }
+
+        public override async Task Filtered_ThenInclude_OrderBy_split(bool async)
+        {
+            await base.Filtered_ThenInclude_OrderBy_split(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+ORDER BY [l].[Id]",
+                //
+                @"SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l].[Id]
+FROM [LevelOne] AS [l]
+INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id], [l0].[Id]",
+                //
+                @"SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l].[Id], [l0].[Id]
+FROM [LevelOne] AS [l]
+INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
+ORDER BY [l].[Id], [l0].[Id], [l1].[Name]");
+        }
+
+        public override async Task Filtered_include_ThenInclude_OrderBy_split(bool async)
+        {
+            await base.Filtered_include_ThenInclude_OrderBy_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_basic_OrderBy_Take_split(bool async)
+        {
+            await base.Filtered_include_basic_OrderBy_Take_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_basic_OrderBy_Skip_split(bool async)
+        {
+            await base.Filtered_include_basic_OrderBy_Skip_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_basic_OrderBy_Skip_Take_split(bool async)
+        {
+            await base.Filtered_include_basic_OrderBy_Skip_Take_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override void Filtered_include_Skip_without_OrderBy_split()
+        {
+            base.Filtered_include_Skip_without_OrderBy_split();
+
+            AssertSql(" ");
+        }
+
+        public override void Filtered_include_Take_without_OrderBy_split()
+        {
+            base.Filtered_include_Take_without_OrderBy_split();
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_on_ThenInclude_split(bool async)
+        {
+            await base.Filtered_include_on_ThenInclude_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_after_reference_navigation_split(bool async)
+        {
+            await base.Filtered_include_after_reference_navigation_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_after_different_filtered_include_different_level_split(bool async)
+        {
+            await base.Filtered_include_after_different_filtered_include_different_level_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_same_filter_set_on_same_navigation_twice_split(bool async)
+        {
+            await base.Filtered_include_same_filter_set_on_same_navigation_twice_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes_split(bool async)
+        {
+            await base.Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(bool async)
+        {
+            await base.Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_and_non_filtered_include_on_same_navigation1_split(bool async)
+        {
+            await base.Filtered_include_and_non_filtered_include_on_same_navigation1_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_and_non_filtered_include_on_same_navigation2_split(bool async)
+        {
+            await base.Filtered_include_and_non_filtered_include_on_same_navigation2_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation_split(bool async)
+        {
+            await base.Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_complex_three_level_with_middle_having_filter1_split(bool async)
+        {
+            await base.Filtered_include_complex_three_level_with_middle_having_filter1_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Filtered_include_complex_three_level_with_middle_having_filter2_split(bool async)
+        {
+            await base.Filtered_include_complex_three_level_with_middle_having_filter2_split(async);
+
+            AssertSql(" ");
+        }
+
+        public override void Filtered_include_variable_used_inside_filter_split()
+        {
+            base.Filtered_include_variable_used_inside_filter_split();
+
+            AssertSql(" ");
+        }
+
+        public override void Filtered_include_context_accessed_inside_filter_split()
+        {
+            base.Filtered_include_context_accessed_inside_filter_split();
+
+            AssertSql(" ");
+        }
+
+        public override void Filtered_include_context_accessed_inside_filter_correlated_split()
+        {
+            base.Filtered_include_context_accessed_inside_filter_correlated_split();
+
+            AssertSql(" ");
+        }
+
+        public override void Filtered_include_outer_parameter_used_inside_filter_split()
+        {
+            base.Filtered_include_outer_parameter_used_inside_filter_split();
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }
