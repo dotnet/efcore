@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
     {

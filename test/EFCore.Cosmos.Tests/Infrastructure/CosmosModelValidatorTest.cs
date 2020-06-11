@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -21,6 +20,74 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_on_valid_keyless_entity_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().HasPartitionKey(c => c.PartitionId).HasNoKey();
+
+            var model = Validate(modelBuilder.Model);
+
+            Assert.Empty(model.FindEntityType(typeof(Customer)).GetKeys());
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_missing_id_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id);
+                b.HasKey(o => o.Id);
+                b.Ignore(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.NoIdProperty(typeof(Order).Name), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_non_key_id_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id);
+                b.HasKey(o => o.Id);
+                b.Property<string>("id");
+                b.Ignore(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.NoIdKey(typeof(Order).Name, "id"), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_non_string_id_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id);
+                b.HasKey(o => o.Id);
+                b.Property<int>("id");
+                b.HasKey("id");
+                b.Ignore(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.IdNonStringStoreType("id", typeof(Order).Name, "int"), model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_on_valid_partition_keys()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -30,6 +97,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var model = modelBuilder.Model;
             Validate(model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_non_key_partition_key_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id);
+                b.Property<string>("id");
+                b.HasKey("id");
+                b.Property(o => o.PartitionId);
+                b.HasPartitionKey(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.NoPartitionKeyKey(typeof(Order).Name, nameof(Order.PartitionId), "id"), model);
         }
 
         [ConditionalFact]

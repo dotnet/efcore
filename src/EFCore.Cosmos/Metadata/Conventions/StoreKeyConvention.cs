@@ -84,9 +84,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (partitionKey != null)
                     {
                         var partitionKeyProperty = entityType.FindProperty(partitionKey);
-                        if (partitionKeyProperty != null)
+                        if (partitionKeyProperty == null)
                         {
-                            newKey = entityTypeBuilder.HasKey(new[] { idProperty, partitionKeyProperty })?.Metadata;
+                            newKey = entityTypeBuilder.HasKey(new[] { idProperty })?.Metadata;
+                        }
+                        else
+                        {
+                            if (entityType.FindKey(new[] { partitionKeyProperty, idProperty }) == null)
+                            {
+                                newKey = entityTypeBuilder.HasKey(new[] { idProperty, partitionKeyProperty })?.Metadata;
+                            }
+                            entityTypeBuilder.HasNoKey(new[] { idProperty });
                         }
                     }
                     else
@@ -115,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && !entityType.IsKeyless)
             {
                 var jObjectProperty = entityTypeBuilder.Property(typeof(JObject), JObjectPropertyName);
-                jObjectProperty.ToJsonProperty("");
-                jObjectProperty.ValueGenerated(ValueGenerated.OnAddOrUpdate);
+                jObjectProperty?.ToJsonProperty("");
+                jObjectProperty?.ValueGenerated(ValueGenerated.OnAddOrUpdate);
             }
             else
             {

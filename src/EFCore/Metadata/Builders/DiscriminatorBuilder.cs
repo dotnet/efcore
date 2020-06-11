@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     return null;
                 }
 
-                EntityTypeBuilder.Metadata.SetDiscriminatorValue(complete, configurationSource == ConfigurationSource.DataAnnotation);
+                EntityTypeBuilder.Metadata.SetDiscriminatorMappingComplete(complete, configurationSource == ConfigurationSource.DataAnnotation);
             }
 
             return this;
