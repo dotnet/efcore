@@ -38,8 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             indexBuilder.IsUnique(false, ConfigurationSource.Convention);
 
             RunConvention(entityBuilder);
-            RunConvention(propABuilder);
-            RunConvention(propBBuilder);
             RunConvention(modelBuilder);
 
             var index = entityBuilder.Metadata.GetIndexes().Single();
@@ -168,7 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void IndexAttribute_with_name_and_an_ignored_property_causes_error()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            modelBuilder.Entity<EntityIndexWithIgnoredProperty>();
+            var entityBuilder = modelBuilder.Entity<EntityIndexWithIgnoredProperty>();
+
 
             Assert.Equal(
                 CoreStrings.NamedIndexDefinedOnIgnoredProperty(
@@ -215,26 +214,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void IndexAttribute_index_replicated_to_derived_type_when_base_type_changes()
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            var baseEntityBuilder = modelBuilder.Entity(typeof(BaseEntityWithIndex));
-            var derivedEntityBuilder = modelBuilder.Entity<DerivedEntity>();
+            var grandparentEntityBuilder = modelBuilder.Entity(typeof(GrandparentEntityWithIndex));
+            var parentEntityBuilder = modelBuilder.Entity<ParentEntity>();
+            var childEntityBuilder = modelBuilder.Entity<ChildEntity>();
 
-            // Index is created on base type but not on derived type.
-            Assert.NotNull(derivedEntityBuilder.Metadata.BaseType);
-            Assert.Single(baseEntityBuilder.Metadata.GetDeclaredIndexes());
-            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
+            // Index is created on Grandparent type but not on Parent type.
+            // Child has its own index.
+            Assert.NotNull(parentEntityBuilder.Metadata.BaseType);
+            Assert.NotNull(childEntityBuilder.Metadata.BaseType);
+            Assert.Single(grandparentEntityBuilder.Metadata.GetDeclaredIndexes());
+            Assert.Empty(parentEntityBuilder.Metadata.GetDeclaredIndexes());
+            Assert.Single(childEntityBuilder.Metadata.GetDeclaredIndexes());
 
-            derivedEntityBuilder.HasBaseType((string)null);
+            parentEntityBuilder.HasBaseType((string)null);
 
-            // Now the Index is replicated on the derived type.
-            Assert.Null(derivedEntityBuilder.Metadata.BaseType);
+            Assert.Null(parentEntityBuilder.Metadata.BaseType);
+            Assert.NotNull(childEntityBuilder.Metadata.BaseType);
+
+            // The Index is replicated on the Parent type, but not on the Child.
             var index = (Metadata.Internal.Index)
-                Assert.Single(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
+                Assert.Single(parentEntityBuilder.Metadata.GetDeclaredIndexes());
             Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
-            Assert.Equal("IndexOnBaseGetsReplicatedToDerived", index.Name);
+            Assert.Equal("IndexOnGrandparentGetsReplicatedToParent", index.Name);
             Assert.False(index.IsUnique);
             Assert.Null(index.GetIsUniqueConfigurationSource());
             var indexProperty = Assert.Single(index.Properties);
             Assert.Equal("B", indexProperty.Name);
+
+            // The Child still has its own index even though
+            // the property is defined on the Grandparent type.
+            var childIndex = (Metadata.Internal.Index)
+                Assert.Single(childEntityBuilder.Metadata.GetDeclaredIndexes());
+            Assert.Equal(ConfigurationSource.DataAnnotation, childIndex.GetConfigurationSource());
+            Assert.Equal("IndexOnChildUnaffectedWhenParentBaseTypeRemoved", childIndex.Name);
+            Assert.True(childIndex.IsUnique);
+            Assert.Equal(ConfigurationSource.DataAnnotation, childIndex.GetIsUniqueConfigurationSource());
+            var childIndexProperty = Assert.Single(childIndex.Properties);
+            Assert.Equal("A", childIndexProperty.Name);
 
             // Check there are no errors.
             modelBuilder.Model.FinalizeModel();
@@ -249,6 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Empty(entityBuilder.Metadata.GetDeclaredIndexes());
 
             entityBuilder.Property<int>("Y");
+            modelBuilder.Model.FinalizeModel();
 
             var index = (Metadata.Internal.Index)
                 Assert.Single(entityBuilder.Metadata.GetDeclaredIndexes());
@@ -258,9 +275,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Collection(index.Properties,
                 prop0 => Assert.Equal("X", prop0.Name),
                 prop1 => Assert.Equal("Y", prop1.Name));
+        }
 
-            // Check there are no errors.
+        [ConditionalFact]
+        public void IndexAttribute_index_is_created_when_index_on_private_property()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(EntityWithIndexOnPrivateProperty));
             modelBuilder.Model.FinalizeModel();
+
+            var index = (Metadata.Internal.Index)
+                Assert.Single(entityBuilder.Metadata.GetDeclaredIndexes());
+
+            Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
+            Assert.Equal("IndexOnPrivateProperty", index.Name);
+            Assert.Collection(index.Properties,
+                prop0 => Assert.Equal("X", prop0.Name),
+                prop1 => Assert.Equal("Y", prop1.Name));
         }
 
         #endregion
@@ -271,14 +302,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
             CreateIndexAttributeConvention().ProcessEntityTypeAdded(entityTypeBuilder, context);
-        }
-
-        private void RunConvention(InternalPropertyBuilder propertyBuilder)
-        {
-            var context = new ConventionContext<IConventionPropertyBuilder>(
-                propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
-
-            CreateIndexAttributeConvention().ProcessPropertyAdded(propertyBuilder, context);
         }
 
         private void RunConvention(InternalModelBuilder modelBuilder)
@@ -392,18 +415,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public int B { get; set; }
         }
 
-        [Index(nameof(B), Name = "IndexOnBaseGetsReplicatedToDerived")]
-        private class BaseEntityWithIndex
+        [Index(nameof(B), Name = "IndexOnGrandparentGetsReplicatedToParent")]
+        private class GrandparentEntityWithIndex
         {
             public int Id { get; set; }
             public int A { get; set; }
             public int B { get; set; }
         }
 
-        private class DerivedEntity : BaseEntityWithIndex
+        private class ParentEntity : GrandparentEntityWithIndex
         {
             public int C { get; set; }
             public int D { get; set; }
+        }
+
+        [Index(nameof(A), Name = "IndexOnChildUnaffectedWhenParentBaseTypeRemoved", IsUnique = true)]
+        private class ChildEntity : ParentEntity
+        {
+            public int E { get; set; }
+            public int F { get; set; }
         }
 
         [Index(nameof(X), "Y", Name = "IndexOnShadowProperty")]
@@ -411,6 +441,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
             public int X { get; set; }
+        }
+
+        [Index(nameof(X), nameof(Y), Name = "IndexOnPrivateProperty")]
+        private class EntityWithIndexOnPrivateProperty
+        {
+            public int Id { get; set; }
+            public int X { get; set; }
+            private int Y { get; set; }
         }
     }
 }
