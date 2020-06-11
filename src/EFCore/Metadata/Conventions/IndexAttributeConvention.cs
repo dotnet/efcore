@@ -71,71 +71,66 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityType entityType,
             bool shouldThrow)
         {
-            if (entityType.ClrType != null)
+            if (entityType.ClrType == null)
             {
-                foreach (var indexAttribute in
-                    entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
+                return;
+            }
+
+            foreach (var indexAttribute in
+                entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
+            {
+                IConventionIndexBuilder indexBuilder = null;
+                if (!shouldThrow)
                 {
-                    IConventionIndexBuilder indexBuilder = null;
-                    if (!shouldThrow)
+                    var indexProperties = new List<IConventionProperty>();
+                    foreach (var propertyName in indexAttribute.PropertyNames)
                     {
-                        var indexProperties = new List<IConventionProperty>();
-                        foreach (var propertyName in indexAttribute.PropertyNames)
+                        var property = entityType.FindProperty(propertyName);
+                        if (property == null)
                         {
-                            // TODO Change this to the IsIgnored() which takes
-                            // fromDataAnnotation, when bug 21220 is fixed.
-                            if (entityType.IsIgnored(propertyName))
-                            {
-                                return;
-                            }
-
-                            var property = entityType.FindProperty(propertyName);
-                            if (property == null)
-                            {
-                                return;
-                            }
-
-                            indexProperties.Add(property);
+                            return;
                         }
 
+                        indexProperties.Add(property);
+                    }
+
+                    indexBuilder = indexAttribute.Name == null
+                        ? entityType.Builder.HasIndex(
+                            indexProperties, fromDataAnnotation: true)
+                        : entityType.Builder.HasIndex(
+                            indexProperties, indexAttribute.Name, fromDataAnnotation: true);
+                }
+                else
+                {
+                    // TODO See bug 21220 - we have to do this _before_ calling
+                    // HasIndex() because during the call to HasIndex()
+                    // IsIgnored (wrongly) returns false and we would end up
+                    // creating a property where we shouldn't.
+                    CheckIgnoredProperties(indexAttribute, entityType);
+
+                    try
+                    {
+                        // Using the HasIndex(propertyNames) overload gives us
+                        // a chance to create a missing property
+                        // e.g. if the CLR property existed but was non-public.
                         indexBuilder = indexAttribute.Name == null
-                           ? entityType.Builder.HasIndex(
-                               indexProperties, fromDataAnnotation: true)
-                           : entityType.Builder.HasIndex(
-                               indexProperties, indexAttribute.Name, fromDataAnnotation: true);
+                            ? entityType.Builder.HasIndex(
+                                indexAttribute.PropertyNames, fromDataAnnotation: true)
+                            : entityType.Builder.HasIndex(
+                                indexAttribute.PropertyNames, indexAttribute.Name, fromDataAnnotation: true);
                     }
-                    else
+                    catch(InvalidOperationException exception)
                     {
-                        // TODO See bug 21220 - we have to do this _before_ calling
-                        // HasIndex() because during the call to HasIndex()
-                        // IsIgnored (wrongly) returns false and we would end up
-                        // creating a property where we shouldn't.
-                        CheckIgnoredProperties(indexAttribute, entityType);
+                        CheckMissingProperties(indexAttribute, entityType, exception);
 
-                        try
-                        {
-                            // Using the HasIndex(propertyNames) overload gives us
-                            // a chance to create a missing property
-                            // e.g. if the CLR property existed but was non-public.
-                            indexBuilder = indexAttribute.Name == null
-                                ? entityType.Builder.HasIndex(
-                                    indexAttribute.PropertyNames, fromDataAnnotation: true)
-                                : entityType.Builder.HasIndex(
-                                    indexAttribute.PropertyNames, indexAttribute.Name, fromDataAnnotation: true);
-                        }
-                        catch(InvalidOperationException exception)
-                        {
-                            CheckMissingProperties(indexAttribute, entityType, exception);
-
-                            throw;
-                        }
+                        throw;
                     }
+                }
 
-                    if (indexBuilder != null
-                        && indexAttribute.GetIsUnique().HasValue)
-                    {
-                        indexBuilder.IsUnique(indexAttribute.GetIsUnique().Value, fromDataAnnotation: true);
-                    }
+                if (indexBuilder != null
+                    && indexAttribute.GetIsUnique().HasValue)
+                {
+                    indexBuilder.IsUnique(indexAttribute.GetIsUnique().Value, fromDataAnnotation: true);
                 }
             }
         }
