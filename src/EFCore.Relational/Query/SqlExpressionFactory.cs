@@ -846,7 +846,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var joinPredicate = GenerateJoinPredicate(selectExpression, foreignKey, table, skipInnerJoins, out var innerSelect);
 
-            selectExpression.AddInnerJoin(innerSelect, joinPredicate, null);
+            selectExpression.AddInnerJoin(innerSelect, joinPredicate);
         }
 
         private SqlExpression GenerateJoinPredicate(

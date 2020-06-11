@@ -548,11 +548,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerKeySelector,
                 transparentIdentifierType);
 
+#pragma warning disable CS0618 // Type or member is obsolete See issue#21200
             return TranslateResultSelectorForJoin(
                 outer,
                 resultSelector,
                 inner.ShaperExpression,
                 transparentIdentifierType);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         private (LambdaExpression OuterKeySelector, LambdaExpression InnerKeySelector) ProcessJoinKeySelector(
@@ -703,11 +705,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerKeySelector,
                 transparentIdentifierType);
 
+#pragma warning disable CS0618 // Type or member is obsolete See issue#21200
             return TranslateResultSelectorForJoin(
                 outer,
                 resultSelector,
                 MarkShaperNullable(inner.ShaperExpression),
                 transparentIdentifierType);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
@@ -961,11 +965,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 ((InMemoryQueryExpression)source.QueryExpression).AddSelectMany(
                     (InMemoryQueryExpression)inner.QueryExpression, transparentIdentifierType, defaultIfEmpty);
 
+#pragma warning disable CS0618 // Type or member is obsolete See issue#21200
                 return TranslateResultSelectorForJoin(
                     source,
                     resultSelector,
                     innerShaperExpression,
                     transparentIdentifierType);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             return null;
