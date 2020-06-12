@@ -38,6 +38,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class Post
@@ -98,6 +100,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class Post
@@ -152,6 +156,8 @@ namespace TestNamespace
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+#nullable disable
 
 namespace TestNamespace
 {
@@ -208,6 +214,8 @@ namespace TestNamespace
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+#nullable disable
 
 namespace TestNamespace
 {
@@ -275,6 +283,8 @@ namespace TestNamespace
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+#nullable disable
 
 namespace TestNamespace
 {
