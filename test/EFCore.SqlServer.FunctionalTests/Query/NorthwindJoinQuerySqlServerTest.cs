@@ -524,7 +524,40 @@ CROSS APPLY (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[ContactName]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-) AS [t]");
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'");
+        }
+
+        public override async Task SelectMany_with_client_eval_with_collection_shaper(bool async)
+        {
+            await base.SelectMany_with_client_eval_with_collection_shaper(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[ContactName], [c].[CustomerID], [t].[OrderID], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[ContactName]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+LEFT JOIN [Order Details] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+        }
+
+        public override async Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
+        {
+            await base.SelectMany_with_client_eval_with_collection_shaper_ignored(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[ContactName]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[ContactName]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
         public override async Task SelectMany_with_client_eval_with_constructor(bool async)
