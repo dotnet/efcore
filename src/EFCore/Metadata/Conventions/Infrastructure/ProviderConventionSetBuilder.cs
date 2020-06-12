@@ -210,7 +210,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             conventionSet.PropertyNullabilityChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
-            conventionSet.PropertyFieldChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyFieldChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PropertyFieldChangedConventions.Add(keyAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(concurrencyCheckAttributeConvention);

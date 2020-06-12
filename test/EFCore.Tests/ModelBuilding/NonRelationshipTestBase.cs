@@ -215,8 +215,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                Assert.Same(key, entity.GetKeys().Single());
-
                 var nameProperty = entity.FindPrimaryKey().Properties.Single();
                 Assert.Equal(Customer.NameProperty.Name, nameProperty.Name);
                 Assert.False(nameProperty.RequiresValueGenerator());
@@ -236,7 +234,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
                 Assert.Equal(
                     Customer.AlternateKeyProperty.Name,
                     entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
@@ -257,7 +254,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
                 Assert.Equal(
                     Customer.AlternateKeyProperty.Name + 1,
                     entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
@@ -276,7 +272,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = modelBuilder.Model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
                 Assert.Equal(
                     Customer.AlternateKeyProperty.Name,
                     entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
@@ -334,23 +329,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_add_multiple_properties()
-            {
-                var modelBuilder = CreateModelBuilder();
-                modelBuilder.Ignore<CustomerDetails>();
-
-                modelBuilder.Entity<Customer>(
-                    b =>
-                    {
-                        b.Property(e => e.Id);
-                        b.Property(e => e.Name);
-                        b.Property(e => e.AlternateKey);
-                    });
-
-                Assert.Equal(3, modelBuilder.Model.FindEntityType(typeof(Customer)).GetProperties().Count());
-            }
-
-            [ConditionalFact]
             public virtual void Properties_are_required_by_default_only_if_CLR_type_is_nullable()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -384,8 +362,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityType = (IEntityType)modelBuilder.Entity<Quarks>().Metadata;
 
-                Assert.Equal(3, entityType.GetProperties().Count());
-
                 modelBuilder.Entity<Quarks>(
                     b =>
                     {
@@ -398,7 +374,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Ignore("Shadow");
                     });
 
-                Assert.Equal(Customer.IdProperty.Name, entityType.GetProperties().Single().Name);
+                Assert.Contains(nameof(Quarks.Id), entityType.GetProperties().Select(p => p.Name));
+                Assert.DoesNotContain(nameof(Quarks.Up), entityType.GetProperties().Select(p => p.Name));
+                Assert.DoesNotContain(nameof(Quarks.Down), entityType.GetProperties().Select(p => p.Name));
             }
 
             [ConditionalFact]
@@ -1243,12 +1221,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_ignore_explicit_interface_implementation()
+            public virtual void Can_ignore_explicit_interface_implementation_property()
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<EntityBase>().Ignore(e => ((IEntityBase)e).Target);
 
-                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
+                Assert.DoesNotContain(nameof(IEntityBase.Target),
+                    modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Select(p => p.Name));
+
+                modelBuilder.Entity<EntityBase>().Property(e => ((IEntityBase)e).Target);
+
+                Assert.Contains(nameof(IEntityBase.Target),
+                    modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Select(p => p.Name));
             }
 
             [ConditionalFact]
@@ -1461,7 +1445,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                Assert.Single(modelBuilder.Model.FindEntityType(typeof(Gamma)).GetProperties());
+                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(Gamma)).GetProperties()
+                    .Where(p => p.Name == "PrivateProperty"));
             }
 
             [ConditionalFact]

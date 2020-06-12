@@ -4,11 +4,11 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     class CustomPartitionKeyIdValueGeneratorFactory : ValueGeneratorFactory
     {
-        public override EntityFrameworkCore.ValueGeneration.ValueGenerator Create(IProperty property)
+        public override ValueGenerator Create(IProperty property)
         {
             return new CustomPartitionKeyIdGenerator<string>();
         }

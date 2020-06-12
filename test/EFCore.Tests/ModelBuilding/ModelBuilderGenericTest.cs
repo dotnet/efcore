@@ -73,19 +73,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var property = modelBuilder.Model.FindEntityType(typeof(DoubleProperty)).GetProperty("Property");
                 Assert.EndsWith(typeof(IReplacable).Name + "." + nameof(IReplacable.Property), property.GetIdentifyingMemberInfo().Name);
             }
-
-            [ConditionalFact]
-            public virtual void Can_add_ignore_explicit_interface_implementation_property()
-            {
-                var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<EntityBase>().Ignore(e => ((IEntityBase)e).Target);
-
-                Assert.Empty(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
-
-                modelBuilder.Entity<EntityBase>().Property(e => ((IEntityBase)e).Target);
-
-                Assert.Single(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
-            }
         }
 
         public class GenericInheritance : InheritanceTestBase

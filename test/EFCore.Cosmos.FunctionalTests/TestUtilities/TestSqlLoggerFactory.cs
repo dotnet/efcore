@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestSqlLoggerFactory : ListLoggerFactory
     {

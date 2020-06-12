@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
 {
@@ -40,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         {
             base.Validate(model, logger);
 
+            ValidateKeys(model, logger);
             ValidateSharedContainerCompatibility(model, logger);
             ValidateOnlyETagConcurrencyToken(model, logger);
         }
@@ -96,25 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             IEntityType firstEntityType = null;
             foreach (var entityType in mappedTypes)
             {
+                Check.DebugAssert(entityType.IsDocumentRoot(), "Only document roots expected here.");
                 var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
                 if (partitionKeyPropertyName != null)
                 {
                     var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
-                    if (nextPartitionKeyProperty == null)
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.PartitionKeyMissingProperty(entityType.DisplayName(), partitionKeyPropertyName));
-                    }
-
-                    var keyType = nextPartitionKeyProperty.GetTypeMapping().Converter?.ProviderClrType
-                                  ?? nextPartitionKeyProperty.ClrType;
-                    if (keyType != typeof(string))
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.PartitionKeyNonStringStoreType(
-                                partitionKeyPropertyName, entityType.DisplayName(), keyType.ShortDisplayName()));
-                    }
-
                     if (partitionKey == null)
                     {
                         if (firstEntityType != null)
@@ -205,6 +195,73 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                                 CosmosStrings.ETagNonStringStoreType(
                                     property.Name, entityType.DisplayName(), etagType.ShortDisplayName()));
                         }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void ValidateKeys(
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var primaryKey = entityType.FindPrimaryKey();
+                if (primaryKey == null
+                    || !entityType.IsDocumentRoot())
+                {
+                    continue;
+                }
+
+                var idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+                if (idProperty == null)
+                {
+                    throw new InvalidOperationException(CosmosStrings.NoIdProperty(entityType.DisplayName()));
+                }
+
+                var idType = idProperty.GetTypeMapping().Converter?.ProviderClrType
+                    ?? idProperty.ClrType;
+                if (idType != typeof(string))
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.IdNonStringStoreType(
+                            idProperty.Name, entityType.DisplayName(), idType.ShortDisplayName()));
+                }
+
+                if (!idProperty.IsKey())
+                {
+                    throw new InvalidOperationException(CosmosStrings.NoIdKey(entityType.DisplayName(), idProperty.Name));
+                }
+
+                var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
+                if (partitionKeyPropertyName != null)
+                {
+                    var partitionKey = entityType.FindProperty(partitionKeyPropertyName);
+                    if (partitionKey == null)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.PartitionKeyMissingProperty(entityType.DisplayName(), partitionKeyPropertyName));
+                    }
+
+                    var partitionKeyType = partitionKey.GetTypeMapping().Converter?.ProviderClrType
+                        ?? partitionKey.ClrType;
+                    if (partitionKeyType != typeof(string))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.PartitionKeyNonStringStoreType(
+                                partitionKeyPropertyName, entityType.DisplayName(), partitionKeyType.ShortDisplayName()));
+                    }
+
+                    if (!partitionKey.GetContainingKeys().Any(k => k.Properties.Contains(idProperty)))
+                    {
+                        throw new InvalidOperationException(CosmosStrings.NoPartitionKeyKey(
+                            entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
                     }
                 }
             }

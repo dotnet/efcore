@@ -11,12 +11,11 @@ using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class CosmosTestStore : TestStore
     {
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         private static string CreateName(string name) => TestEnvironment.IsEmulator || name == "Northwind"
             ? name
-            : (name + _runId);
+            : name + _runId;
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
