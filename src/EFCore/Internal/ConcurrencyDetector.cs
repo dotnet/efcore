@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public class ConcurrencyDetector : IConcurrencyDetector
     {
-        private readonly IDisposable _disposer;
         private int _inCriticalSection;
         private static readonly AsyncLocal<bool> _threadHasLock = new AsyncLocal<bool>();
         private int _refCount;
@@ -37,15 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ConcurrencyDetector() => _disposer = new Disposer(this);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IDisposable EnterCriticalSection()
+        public virtual ConcurrencyDetectorCriticalSectionDisposer EnterCriticalSection()
         {
             if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
             {
@@ -60,10 +51,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
 
             _refCount++;
-            return _disposer;
+            return new ConcurrencyDetectorCriticalSectionDisposer(this);
         }
 
-        private void ExitCriticalSection()
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void ExitCriticalSection()
         {
             Check.DebugAssert(_inCriticalSection == 1, "Expected to be in a critical section");
 
@@ -72,16 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _threadHasLock.Value = false;
                 _inCriticalSection = 0;
             }
-        }
-
-        private readonly struct Disposer : IDisposable
-        {
-            private readonly ConcurrencyDetector _concurrencyDetector;
-
-            public Disposer(ConcurrencyDetector concurrencyDetector)
-                => _concurrencyDetector = concurrencyDetector;
-
-            public void Dispose() => _concurrencyDetector.ExitCriticalSection();
         }
     }
 }
