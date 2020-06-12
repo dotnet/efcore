@@ -60,12 +60,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeCollection));
             private static readonly MethodInfo _populateCollectionMethodInfo
                 = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateCollection));
+            private static readonly MethodInfo _initializeSplitCollectionMethodInfo
+                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeSplitCollection));
+            private static readonly MethodInfo _populateSplitCollectionMethodInfo
+                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitCollection));
+            private static readonly MethodInfo _populateSplitCollectionAsyncMethodInfo
+                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitCollectionAsync));
             private static readonly MethodInfo _taskAwaiterMethodInfo
                 = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(TaskAwaiter));
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
                 = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
 
             private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
+            private readonly ISet<string> _tags;
             private readonly bool _isTracking;
             private readonly bool _isAsync;
             private readonly bool _splitQuery;
@@ -103,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public ShaperProcessingExpressionVisitor(
                 RelationalShapedQueryCompilingExpressionVisitor parentVisitor,
                 SelectExpression selectExpression,
+                ISet<string> tags,
                 bool splitQuery,
                 bool indexMap)
             {
@@ -112,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _executionStrategyParameter = splitQuery ? Expression.Parameter(typeof(IExecutionStrategy), "executionStrategy") : null;
 
                 _selectExpression = selectExpression;
+                _tags = tags;
                 _dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
                 _resultContextParameter = Expression.Parameter(typeof(ResultContext), "resultContext");
                 _indexMapParameter = indexMap ? Expression.Parameter(typeof(int[]), "indexMap") : null;
@@ -125,6 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _isTracking = parentVisitor.QueryCompilationContext.IsTracking;
                 _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
                 _splitQuery = splitQuery;
+
+                _selectExpression.ApplyTags(_tags);
             }
 
             // For single query scenario
@@ -155,13 +166,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 RelationalShapedQueryCompilingExpressionVisitor parentVisitor,
                 ParameterExpression resultCoordinatorParameter,
                 ParameterExpression executionStrategyParameter,
-                SelectExpression selectExpression)
+                SelectExpression selectExpression,
+                ISet<string> tags)
             {
                 _parentVisitor = parentVisitor;
                 _resultCoordinatorParameter = resultCoordinatorParameter;
                 _executionStrategyParameter = executionStrategyParameter;
 
                 _selectExpression = selectExpression;
+                _tags = tags;
                 _dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
                 _resultContextParameter = Expression.Parameter(typeof(ResultContext), "resultContext");
                 if (parentVisitor.QueryCompilationContext.IsBuffering)
@@ -173,6 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _isTracking = parentVisitor.QueryCompilationContext.IsTracking;
                 _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
                 _splitQuery = true;
+
+                _selectExpression.ApplyTags(_tags);
             }
 
             public LambdaExpression ProcessShaper(
@@ -528,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             relationalSplitCollectionShaperExpression)
                         {
                             var innerProcessor = new ShaperProcessingExpressionVisitor(_parentVisitor, _resultCoordinatorParameter,
-                                _executionStrategyParameter, relationalSplitCollectionShaperExpression.SelectExpression);
+                                _executionStrategyParameter, relationalSplitCollectionShaperExpression.SelectExpression, _tags);
                             var innerShaper = innerProcessor.ProcessShaper(relationalSplitCollectionShaperExpression.InnerShaper,
                                     out var relationalCommandCache,
                                     out var relatedDataLoaders);
@@ -701,6 +716,85 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Constant(relationalCollectionShaperExpression.OuterIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
                                 Expression.Constant(relationalCollectionShaperExpression.SelfIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
                                 Expression.Constant(innerShaper.Compile())));
+
+                            _variableShaperMapping[key] = accessor;
+                        }
+
+                        return accessor;
+                    }
+
+                    case RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression:
+                    {
+                        var key = GenerateKey(relationalSplitCollectionShaperExpression);
+                        if (!_variableShaperMapping.TryGetValue(key, out var accessor))
+                        {
+                            var innerProcessor = new ShaperProcessingExpressionVisitor(_parentVisitor, _resultCoordinatorParameter,
+                            _executionStrategyParameter, relationalSplitCollectionShaperExpression.SelectExpression, _tags);
+                            var innerShaper = innerProcessor.ProcessShaper(relationalSplitCollectionShaperExpression.InnerShaper,
+                                    out var relationalCommandCache,
+                                    out var relatedDataLoaders);
+
+                            var collectionType = relationalSplitCollectionShaperExpression.Type;
+                            var elementType = collectionType.TryGetSequenceType();
+                            var relatedElementType = innerShaper.ReturnType;
+                            var navigation = relationalSplitCollectionShaperExpression.Navigation;
+
+                            _inline = true;
+
+                            var parentIdentifierLambda = Expression.Lambda(
+                                Visit(relationalSplitCollectionShaperExpression.ParentIdentifier),
+                                QueryCompilationContext.QueryContextParameter,
+                                _dataReaderParameter);
+
+                            _inline = false;
+
+                            innerProcessor._inline = true;
+
+                            var childIdentifierLambda = Expression.Lambda(
+                                innerProcessor.Visit(relationalSplitCollectionShaperExpression.ChildIdentifier),
+                                QueryCompilationContext.QueryContextParameter,
+                                innerProcessor._dataReaderParameter);
+
+                            innerProcessor._inline = false;
+
+                            var collectionIdConstant = Expression.Constant(relationalSplitCollectionShaperExpression.CollectionId);
+
+                            var collectionParameter = Expression.Parameter(collectionType);
+                            _variables.Add(collectionParameter);
+                            _expressions.Add(
+                                Expression.Assign(
+                                    collectionParameter,
+                                    Expression.Call(
+                                        _initializeSplitCollectionMethodInfo.MakeGenericMethod(elementType, collectionType),
+                                        collectionIdConstant,
+                                        QueryCompilationContext.QueryContextParameter,
+                                        _dataReaderParameter,
+                                        _resultCoordinatorParameter,
+                                        Expression.Constant(parentIdentifierLambda.Compile()),
+                                        Expression.Constant(navigation?.GetCollectionAccessor(), typeof(IClrCollectionAccessor)))));
+
+                            _valuesArrayInitializers.Add(collectionParameter);
+                            accessor = Expression.Convert(
+                                Expression.ArrayIndex(
+                                    _valuesArrayExpression,
+                                    Expression.Constant(_valuesArrayInitializers.Count - 1)),
+                                relationalSplitCollectionShaperExpression.Type);
+
+                            _collectionPopulatingExpressions.Add(Expression.Call(
+                                (_isAsync ? _populateSplitCollectionAsyncMethodInfo : _populateSplitCollectionMethodInfo)
+                                    .MakeGenericMethod(collectionType, elementType, relatedElementType),
+                                collectionIdConstant,
+                                Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+                                _executionStrategyParameter,
+                                _resultCoordinatorParameter,
+                                Expression.Constant(relationalCommandCache),
+                                Expression.Constant(childIdentifierLambda.Compile()),
+                                Expression.Constant(relationalSplitCollectionShaperExpression.IdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
+                                Expression.Constant(innerShaper.Compile()),
+                                Expression.Constant(relatedDataLoaders?.Compile(),
+                                    _isAsync
+                                        ? typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>)
+                                        : typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>))));
 
                             _variableShaperMapping[key] = accessor;
                         }
@@ -1288,7 +1382,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 cancellationToken)
                             .ConfigureAwait(false);
 
-
                         return result;
                     }
 
@@ -1465,6 +1558,173 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     collectionMaterializationContext.UpdateSelfIdentifier(null);
                 }
+            }
+
+            private static TCollection InitializeSplitCollection<TElement, TCollection>(
+                int collectionId,
+                QueryContext queryContext,
+                DbDataReader parentDataReader,
+                SplitQueryResultCoordinator resultCoordinator,
+                Func<QueryContext, DbDataReader, object[]> parentIdentifier,
+                IClrCollectionAccessor clrCollectionAccessor)
+                where TCollection : class, IEnumerable<TElement>
+            {
+                var collection = clrCollectionAccessor?.Create() ?? new List<TElement>();
+                var parentKey = parentIdentifier(queryContext, parentDataReader);
+                var splitQueryCollectionContext = new SplitQueryCollectionContext(null, collection, parentKey);
+
+                resultCoordinator.SetSplitQueryCollectionContext(collectionId, splitQueryCollectionContext);
+
+                return (TCollection)collection;
+            }
+
+            private static void PopulateSplitCollection<TCollection, TElement, TRelatedEntity>(
+                int collectionId,
+                RelationalQueryContext queryContext,
+                IExecutionStrategy executionStrategy,
+                SplitQueryResultCoordinator resultCoordinator,
+                RelationalCommandCache relationalCommandCache,
+                Func<QueryContext, DbDataReader, object[]> childIdentifier,
+                IReadOnlyList<ValueComparer> identifierValueComparers,
+                Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
+                Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator> relatedDataLoaders)
+               where TRelatedEntity : TElement
+               where TCollection : class, ICollection<TElement>
+            {
+                if (resultCoordinator.DataReaders.Count <= collectionId
+                    || resultCoordinator.DataReaders[collectionId] == null)
+                {
+                    // Execute and fetch data reader
+                    RelationalDataReader dataReader = null;
+                    executionStrategy.Execute(true, InitializeReader, null);
+
+                    bool InitializeReader(DbContext _, bool result)
+                    {
+                        var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
+
+                        dataReader
+                            = relationalCommand.ExecuteReader(
+                                new RelationalCommandParameterObject(
+                                    queryContext.Connection,
+                                    queryContext.ParameterValues,
+                                    relationalCommandCache.ReaderColumns,
+                                    queryContext.Context,
+                                    queryContext.CommandLogger));
+
+
+                        return result;
+                    }
+
+                    resultCoordinator.SetDataReader(collectionId, dataReader);
+                }
+
+                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId];
+                var dataReaderContext = resultCoordinator.DataReaders[collectionId];
+                var dbDataReader = dataReaderContext.DataReader.DbDataReader;
+                if (splitQueryCollectionContext.Collection is null)
+                {
+                    // nothing to materialize since no collection created
+                    return;
+                }
+
+                while (dataReaderContext.HasNext ?? dbDataReader.Read())
+                {
+                    if (!CompareIdentifiers(identifierValueComparers,
+                        splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
+                    {
+                        dataReaderContext.HasNext = true;
+
+                        return;
+                    }
+
+                    dataReaderContext.HasNext = null;
+                    splitQueryCollectionContext.ResultContext.Values = null;
+
+                    innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                    relatedDataLoaders?.Invoke(queryContext, executionStrategy, resultCoordinator);
+                    var relatedElement = innerShaper(
+                        queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                    ((TCollection)splitQueryCollectionContext.Collection).Add(relatedElement);
+                }
+
+                dataReaderContext.HasNext = false;
+            }
+
+            private static async Task PopulateSplitCollectionAsync<TCollection, TElement, TRelatedEntity>(
+                int collectionId,
+                RelationalQueryContext queryContext,
+                IExecutionStrategy executionStrategy,
+                SplitQueryResultCoordinator resultCoordinator,
+                RelationalCommandCache relationalCommandCache,
+                Func<QueryContext, DbDataReader, object[]> childIdentifier,
+                IReadOnlyList<ValueComparer> identifierValueComparers,
+                Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
+                Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task> relatedDataLoaders)
+               where TRelatedEntity : TElement
+               where TCollection : class, ICollection<TElement>
+            {
+                if (resultCoordinator.DataReaders.Count <= collectionId
+                    || resultCoordinator.DataReaders[collectionId] == null)
+                {
+                    // Execute and fetch data reader
+                    RelationalDataReader dataReader = null;
+                    await executionStrategy.ExecuteAsync(
+                        true, InitializeReaderAsync, null, queryContext.CancellationToken).ConfigureAwait(false);
+
+                    async Task<bool> InitializeReaderAsync(DbContext _, bool result, CancellationToken cancellationToken)
+                    {
+                        var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
+
+                        dataReader
+                            = await relationalCommand.ExecuteReaderAsync(
+                                new RelationalCommandParameterObject(
+                                    queryContext.Connection,
+                                    queryContext.ParameterValues,
+                                    relationalCommandCache.ReaderColumns,
+                                    queryContext.Context,
+                                    queryContext.CommandLogger),
+                                cancellationToken)
+                            .ConfigureAwait(false);
+
+                        return result;
+                    }
+
+                    resultCoordinator.SetDataReader(collectionId, dataReader);
+                }
+
+                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId];
+                var dataReaderContext = resultCoordinator.DataReaders[collectionId];
+                var dbDataReader = dataReaderContext.DataReader.DbDataReader;
+                if (splitQueryCollectionContext.Collection is null)
+                {
+                    // nothing to materialize since no collection created
+                    return;
+                }
+
+                while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
+                {
+                    if (!CompareIdentifiers(identifierValueComparers,
+                        splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
+                    {
+                        dataReaderContext.HasNext = true;
+
+                        return;
+                    }
+
+                    dataReaderContext.HasNext = null;
+                    splitQueryCollectionContext.ResultContext.Values = null;
+
+                    innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                    if (relatedDataLoaders != null)
+                    {
+                        await relatedDataLoaders(queryContext, executionStrategy, resultCoordinator).ConfigureAwait(false);
+                    }
+                    var relatedElement = innerShaper(
+                    queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                    ((TCollection)splitQueryCollectionContext.Collection).Add(relatedElement);
+                }
+
+                dataReaderContext.HasNext = false;
             }
 
             private static async Task TaskAwaiter(Task[] tasks)

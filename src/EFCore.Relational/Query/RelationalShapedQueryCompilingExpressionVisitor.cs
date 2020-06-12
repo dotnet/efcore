@@ -57,12 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-            selectExpression.ApplyTags(_tags);
 
             VerifyNoClientConstant(shapedQueryExpression.ShaperExpression);
             var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
             var splitQuery = ((RelationalQueryCompilationContext)QueryCompilationContext).IsSplitQuery;
-            var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, splitQuery, nonComposedFromSql).ProcessShaper(
+            var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
                 shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var relatedDataLoaders);
 
             if (nonComposedFromSql)

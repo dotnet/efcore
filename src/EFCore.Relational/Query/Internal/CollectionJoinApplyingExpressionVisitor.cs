@@ -53,15 +53,36 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     selectExpression.PushdownIntoSubquery();
                 }
 
-                var innerShaper = Visit(collectionShaperExpression.InnerShaper);
+                if (_splitQuery)
+                {
+                    var splitCollectionShaperExpression = (RelationalSplitCollectionShaperExpression)selectExpression.ApplyCollectionJoin(
+                        projectionBindingExpression.Index.Value,
+                        collectionId,
+                        collectionShaperExpression.InnerShaper,
+                        collectionShaperExpression.Navigation,
+                        collectionShaperExpression.ElementType,
+                        _splitQuery);
 
-                return selectExpression.ApplyCollectionJoin(
-                    projectionBindingExpression.Index.Value,
-                    collectionId,
-                    innerShaper,
-                    collectionShaperExpression.Navigation,
-                    collectionShaperExpression.ElementType,
-                    _splitQuery);
+                    var innerShaper = Visit(splitCollectionShaperExpression.InnerShaper);
+
+                    return splitCollectionShaperExpression.Update(
+                        splitCollectionShaperExpression.ParentIdentifier,
+                        splitCollectionShaperExpression.ChildIdentifier,
+                        splitCollectionShaperExpression.SelectExpression,
+                        innerShaper);
+                }
+                else
+                {
+                    var innerShaper = Visit(collectionShaperExpression.InnerShaper);
+
+                    return selectExpression.ApplyCollectionJoin(
+                        projectionBindingExpression.Index.Value,
+                        collectionId,
+                        innerShaper,
+                        collectionShaperExpression.Navigation,
+                        collectionShaperExpression.ElementType,
+                        _splitQuery);
+                }
             }
 
             return extensionExpression is ShapedQueryExpression shapedQueryExpression
