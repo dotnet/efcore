@@ -76,6 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _sb.AppendLine();
+            _sb.AppendLine("#nullable disable");
+
+            _sb.AppendLine();
             _sb.AppendLine($"namespace {@namespace}");
             _sb.AppendLine("{");
 
