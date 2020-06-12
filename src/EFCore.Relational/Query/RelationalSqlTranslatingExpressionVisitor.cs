@@ -713,13 +713,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return translation;
-
-            static Expression RemoveObjectConvert(Expression expression)
-                => expression is UnaryExpression unaryExpression
-                    && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
-                    && unaryExpression.Type == typeof(object)
-                    ? unaryExpression.Operand
-                    : expression;
         }
 
         /// <inheritdoc />
@@ -946,6 +939,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return expression;
         }
 
+        private static Expression RemoveObjectConvert(Expression expression)
+            => expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                && unaryExpression.Type == typeof(object)
+                    ? unaryExpression.Operand
+                    : expression;
+
         private static Expression ConvertObjectArrayEqualityComparison(BinaryExpression binaryExpression)
         {
             var leftExpressions = ((NewArrayExpression)binaryExpression.Left).Expressions;
@@ -969,13 +969,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return Expression.Equal(l, r);
                     })
                 .Aggregate((a, b) => Expression.AndAlso(a, b));
-
-            static Expression RemoveObjectConvert(Expression expression)
-                => expression is UnaryExpression unaryExpression
-                    && expression.Type == typeof(object)
-                    && expression.NodeType == ExpressionType.Convert
-                    ? unaryExpression.Operand
-                    : expression;
         }
 
         private static SqlConstantExpression GetConstantOrNull(Expression expression)
