@@ -980,9 +980,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
-            var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(name);
-            return !configurationSource.HasValue
-                || !configurationSource.Value.Overrides(ignoredConfigurationSource);
+            return configurationSource != ConfigurationSource.Explicit
+                && !configurationSource.OverridesStrictly(Metadata.FindIgnoredConfigurationSource(name));
         }
 
         /// <summary>
@@ -1088,7 +1087,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (derivedNavigation != null)
                     {
                         var foreignKey = derivedNavigation.ForeignKey;
-                        if (configurationSource != foreignKey.GetConfigurationSource())
+                        if (foreignKey.GetConfigurationSource() != derivedNavigation.GetConfigurationSource())
+                        {
+                            if (derivedNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
+                            {
+                                foreignKey.Builder.HasNavigation(
+                                    (MemberInfo)null, derivedNavigation.IsOnDependent, configurationSource);
+                            }
+                        }
+                        else if (foreignKey.GetConfigurationSource() != ConfigurationSource.Explicit)
                         {
                             foreignKey.DeclaringEntityType.Builder.HasNoRelationship(
                                 foreignKey, configurationSource);
@@ -1099,7 +1106,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var derivedProperty = derivedType.FindDeclaredProperty(name);
                         if (derivedProperty != null)
                         {
-                            derivedType.Builder.RemoveProperty(derivedProperty, configurationSource, canOverrideSameSource: false);
+                            derivedType.Builder.RemoveProperty(
+                                derivedProperty, configurationSource, canOverrideSameSource: configurationSource != ConfigurationSource.Explicit);
                         }
                         else
                         {
@@ -1115,7 +1123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
                                 }
 
-                                if (configurationSource.OverridesStrictly(skipNavigation.GetConfigurationSource()))
+                                if (configurationSource.Overrides(skipNavigation.GetConfigurationSource())
+                                    && skipNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
                                 {
                                     derivedType.RemoveSkipNavigation(skipNavigation);
                                 }
@@ -1124,7 +1133,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 var derivedServiceProperty = derivedType.FindDeclaredServiceProperty(name);
                                 if (derivedServiceProperty != null
-                                    && configurationSource.OverridesStrictly(derivedServiceProperty.GetConfigurationSource()))
+                                    && configurationSource.Overrides(derivedServiceProperty.GetConfigurationSource())
+                                    && derivedServiceProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
                                 {
                                     derivedType.RemoveServiceProperty(name);
                                 }
@@ -1157,7 +1167,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigation = Metadata.FindNavigation(name);
             if (navigation != null)
             {
-                var foreignKey = navigation.ForeignKey;
                 if (navigation.DeclaringEntityType != Metadata)
                 {
                     if (shouldThrow)
@@ -1170,16 +1179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return false;
                 }
 
-                var navigationConfigurationSource = navigation.GetConfigurationSource();
-                if (foreignKey.GetConfigurationSource() != navigationConfigurationSource)
-                {
-                    if (!configurationSource.Overrides(navigationConfigurationSource))
-                    {
-                        return false;
-                    }
-                }
-                else if (configurationSource != ConfigurationSource.Explicit
-                    && !configurationSource.OverridesStrictly(foreignKey.GetConfigurationSource()))
+                if (!configurationSource.Overrides(navigation.GetConfigurationSource()))
                 {
                     return false;
                 }
@@ -1202,7 +1202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     if (!property.DeclaringEntityType.Builder.CanRemoveProperty(
-                        property, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit))
+                        property, configurationSource, canOverrideSameSource: true))
                     {
                         return false;
                     }
@@ -1224,8 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return false;
                         }
 
-                        if (configurationSource != ConfigurationSource.Explicit
-                            && !configurationSource.OverridesStrictly(skipNavigation.GetConfigurationSource()))
+                        if (!configurationSource.Overrides(skipNavigation.GetConfigurationSource()))
                         {
                             return false;
                         }
@@ -1247,8 +1246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 return false;
                             }
 
-                            if (configurationSource != ConfigurationSource.Explicit
-                                && !configurationSource.OverridesStrictly(serviceProperty.GetConfigurationSource()))
+                            if (!configurationSource.Overrides(serviceProperty.GetConfigurationSource()))
                             {
                                 return false;
                             }
@@ -1690,8 +1688,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreach (var member in derivedMembers)
                 {
                     ConfigurationSource? baseConfigurationSource = null;
-                    if (!member.GetConfigurationSource().Overrides(
+                    if ((!member.GetConfigurationSource().OverridesStrictly(
                             baseEntityType.FindIgnoredConfigurationSource(member.Name))
+                            && member.GetConfigurationSource() != ConfigurationSource.Explicit)
                         || (baseMemberNames.TryGetValue(member.Name, out baseConfigurationSource)
                             && baseConfigurationSource.Overrides(member.GetConfigurationSource())
                             && !compatibleWithBaseMember(member)))

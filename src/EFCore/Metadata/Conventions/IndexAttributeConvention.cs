@@ -102,12 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
                 else
                 {
-                    // TODO See bug 21220 - we have to do this _before_ calling
-                    // HasIndex() because during the call to HasIndex()
-                    // IsIgnored (wrongly) returns false and we would end up
-                    // creating a property where we shouldn't.
-                    CheckIgnoredProperties(indexAttribute, entityType);
-
                     try
                     {
                         // Using the HasIndex(propertyNames) overload gives us
@@ -119,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             : entityType.Builder.HasIndex(
                                 indexAttribute.PropertyNames, indexAttribute.Name, fromDataAnnotation: true);
                     }
-                    catch(InvalidOperationException exception)
+                    catch (InvalidOperationException exception)
                     {
                         CheckMissingProperties(indexAttribute, entityType, exception);
 
@@ -127,10 +121,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                if (indexBuilder != null
-                    && indexAttribute.GetIsUnique().HasValue)
+                if (indexBuilder == null)
                 {
-                    indexBuilder.IsUnique(indexAttribute.GetIsUnique().Value, fromDataAnnotation: true);
+                    CheckIgnoredProperties(indexAttribute, entityType);
+                }
+                else
+                {
+                    var shouldBeUnique = indexAttribute.GetIsUnique();
+                    if (shouldBeUnique.HasValue)
+                    {
+                        indexBuilder.IsUnique(shouldBeUnique.Value, fromDataAnnotation: true);
+                    }
                 }
             }
         }
@@ -141,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var propertyName in indexAttribute.PropertyNames)
             {
-                if (entityType.IsIgnored(propertyName))
+                if (entityType.Builder.IsIgnored(propertyName, fromDataAnnotation: true))
                 {
                     if (indexAttribute.Name == null)
                     {
