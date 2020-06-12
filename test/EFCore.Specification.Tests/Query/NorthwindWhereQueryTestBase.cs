@@ -1794,7 +1794,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => (object)c.City == (object)"London"),
+                ss => ss.Set<Customer>().Where(c => (object)c.City == (object)(object)"London"),
                 entryCount: 6);
         }
 

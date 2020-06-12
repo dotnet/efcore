@@ -163,19 +163,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
             // Remove convert-to-object nodes if both sides have them, or if the other side is null constant
-            if (TryUnwrapConvertToObject(left, out var leftOperand))
+            if (TryUnwrapConvertToObject(left, out var leftOperand)
+                && TryUnwrapConvertToObject(right, out var rightOperand))
             {
-                if (TryUnwrapConvertToObject(right, out var rightOperand))
-                {
-                    left = leftOperand;
-                    right = rightOperand;
-                }
-                else if (right.IsNullConstantExpression())
-                {
-                    left = leftOperand;
-                }
+                left = leftOperand;
+                right = rightOperand;
             }
-            else if (TryUnwrapConvertToObject(right, out var rightOperand)
+            else if (TryUnwrapConvertToObject(left, out leftOperand)
+                && right.IsNullConstantExpression())
+            {
+                left = leftOperand;
+            }
+            else if (TryUnwrapConvertToObject(right, out rightOperand)
                 && left.IsNullConstantExpression())
             {
                 right = rightOperand;
@@ -250,10 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         || convertExpression.NodeType == ExpressionType.ConvertChecked)
                     && expression.Type == typeof(object))
                 {
-                    if (!TryUnwrapConvertToObject(convertExpression.Operand, out operand))
-                    {
-                        operand = convertExpression.Operand;
-                    }
+                    operand = convertExpression.Operand;
                     return true;
                 }
 
