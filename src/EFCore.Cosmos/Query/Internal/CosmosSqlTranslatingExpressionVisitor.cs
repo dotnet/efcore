@@ -212,35 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     sqlRight,
                     null);
 
-            static Expression TryRemoveImplicitConvert(Expression expression)
-            {
-                if (expression is UnaryExpression unaryExpression
-                    && (unaryExpression.NodeType == ExpressionType.Convert
-                        || unaryExpression.NodeType == ExpressionType.ConvertChecked))
-                {
-                    var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-                    if (innerType.IsEnum)
-                    {
-                        innerType = Enum.GetUnderlyingType(innerType);
-                    }
-
-                    var convertedType = unaryExpression.Type.UnwrapNullableType();
-
-                    if (innerType == convertedType
-                        || (convertedType == typeof(int)
-                            && (innerType == typeof(byte)
-                                || innerType == typeof(sbyte)
-                                || innerType == typeof(char)
-                                || innerType == typeof(short)
-                                || innerType == typeof(ushort))))
-                    {
-                        return TryRemoveImplicitConvert(unaryExpression.Operand);
-                    }
-                }
-
-                return expression;
-            }
-
             static bool TryUnwrapConvertToObject(Expression expression, out Expression operand)
             {
                 if (expression is UnaryExpression convertExpression
@@ -653,6 +624,35 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     => new EntityReferenceExpression(objectArrayProjectionExpression.InnerProjection),
                 _ => result
             };
+        }
+
+        private static Expression TryRemoveImplicitConvert(Expression expression)
+        {
+            if (expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+            {
+                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+                if (innerType.IsEnum)
+                {
+                    innerType = Enum.GetUnderlyingType(innerType);
+                }
+
+                var convertedType = unaryExpression.Type.UnwrapNullableType();
+
+                if (innerType == convertedType
+                    || (convertedType == typeof(int)
+                        && (innerType == typeof(byte)
+                            || innerType == typeof(sbyte)
+                            || innerType == typeof(char)
+                            || innerType == typeof(short)
+                            || innerType == typeof(ushort))))
+                {
+                    return TryRemoveImplicitConvert(unaryExpression.Operand);
+                }
+            }
+
+            return expression;
         }
 
         private bool TryRewriteContainsEntity(Expression source, Expression item, out Expression result)
