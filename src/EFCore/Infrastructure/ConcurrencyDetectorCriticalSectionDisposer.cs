@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -14,12 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private readonly IConcurrencyDetector _concurrencyDetector;
 
         /// <summary>
-        ///    Constructs a new <see cref="ConcurrencyDetectorCriticalSectionDisposer" />.
+        ///     Constructs a new <see cref="ConcurrencyDetectorCriticalSectionDisposer" />.
         /// </summary>
         /// <param name="concurrencyDetector">
         ///     The <see cref="IConcurrencyDetector" /> on which the critical section will be exited.
         /// </param>
-        public ConcurrencyDetectorCriticalSectionDisposer(IConcurrencyDetector concurrencyDetector)
+        public ConcurrencyDetectorCriticalSectionDisposer([NotNull] IConcurrencyDetector concurrencyDetector)
             => _concurrencyDetector = concurrencyDetector;
 
         /// <inheritdoc />

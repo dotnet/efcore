@@ -316,12 +316,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private class FakeConcurrencyDetector : IConcurrencyDetector
         {
-            public IDisposable EnterCriticalSection()
+            ConcurrencyDetectorCriticalSectionDisposer IConcurrencyDetector.EnterCriticalSection()
             {
                 throw new NotImplementedException();
             }
 
-            public Task<IDisposable> EnterCriticalSectionAsync(CancellationToken cancellationToken)
+            public void ExitCriticalSection()
             {
                 throw new NotImplementedException();
             }
