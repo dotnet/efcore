@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             ClearLog();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         protected override bool CanExecuteQueryString => true;
@@ -1530,7 +1530,7 @@ WHERE [c].[City] IS NULL");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CAST([c].[City] AS nvarchar(max)) = CAST(N'London' AS nvarchar(max))");
+WHERE [c].[City] = N'London'");
         }
 
         public override async Task Where_Is_on_same_type(bool async)
