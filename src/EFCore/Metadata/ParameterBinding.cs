@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] params IPropertyBase[] consumedProperties)
         {
             Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotNull(consumedProperties, nameof(parameterType));
+            Check.NotNull(consumedProperties, nameof(consumedProperties));
 
             ParameterType = parameterType;
             ConsumedProperties = consumedProperties;
