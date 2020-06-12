@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit;
 using Xunit.Abstractions;
+using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -88,6 +91,43 @@ FROM (
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
+        }
+
+        [ConditionalFact]
+        public virtual void Tag_on_split_include_query()
+        {
+            using var context = CreateContext();
+            var customer
+                = context.Set<Customer>()
+                    .Include(c => c.Orders)
+                    .OrderBy(c => c.CustomerID)
+                    .AsSplitQuery()
+                    .TagWith("Yanni")
+                    .First();
+
+            Assert.NotNull(customer);
+
+            AssertSql(
+                @"-- Yanni
+
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM (
+    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+ORDER BY [t].[CustomerID]",
+                //
+                @"-- Yanni
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
+FROM (
+    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID]");
         }
 
         public override void Tag_on_scalar_query()

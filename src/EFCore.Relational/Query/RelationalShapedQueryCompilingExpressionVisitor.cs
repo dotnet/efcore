@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -57,57 +57,54 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-            selectExpression.ApplyTags(_tags);
 
-            var dataReaderParameter = Expression.Parameter(typeof(DbDataReader), "dataReader");
-            var resultCoordinatorParameter = Expression.Parameter(typeof(ResultCoordinator), "resultCoordinator");
-            var indexMapParameter = Expression.Parameter(typeof(int[]), "indexMap");
+            VerifyNoClientConstant(shapedQueryExpression.ShaperExpression);
+            var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
+            var splitQuery = ((RelationalQueryCompilationContext)QueryCompilationContext).IsSplitQuery;
+            var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
+                shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var relatedDataLoaders);
 
-            var shaper = new ShaperExpressionProcessingExpressionVisitor(
-                    selectExpression,
-                    dataReaderParameter,
-                    resultCoordinatorParameter,
-                    indexMapParameter)
-                .Inject(shapedQueryExpression.ShaperExpression);
-
-            shaper = InjectEntityMaterializers(shaper);
-
-            var isNonComposedFromSql = selectExpression.IsNonComposedFromSql();
-            shaper = new RelationalProjectionBindingRemovingExpressionVisitor(
-                    selectExpression,
-                    dataReaderParameter,
-                    isNonComposedFromSql ? indexMapParameter : null,
-                    _detailedErrorsEnabled,
-                    QueryCompilationContext.IsBuffering)
-                .Visit(shaper, out var projectionColumns);
-
-            shaper = new CustomShaperCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, QueryCompilationContext.IsTracking)
-                .Visit(shaper);
-
-            IReadOnlyList<string> columnNames = null;
-            if (isNonComposedFromSql)
+            if (nonComposedFromSql)
             {
-                columnNames = selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToList();
+                return Expression.New(
+                    typeof(FromSqlQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors()[0],
+                    Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+                    Expression.Constant(relationalCommandCache),
+                    Expression.Constant(selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToList(),
+                        typeof(IReadOnlyList<string>)),
+                    Expression.Constant(shaper.Compile()),
+                    Expression.Constant(_contextType),
+                    Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
             }
 
-            var relationalCommandCache = new RelationalCommandCache(
-                Dependencies.MemoryCache,
-                RelationalDependencies.QuerySqlGeneratorFactory,
-                RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                _useRelationalNulls,
-                selectExpression);
+            if (splitQuery)
+            {
+                var relatedDataLoadersParameter = Expression.Constant(
+                    QueryCompilationContext.IsAsync ? null : relatedDataLoaders?.Compile(),
+                    typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>));
 
-            var shaperLambda = (LambdaExpression)shaper;
+                var relatedDataLoadersAsyncParameter = Expression.Constant(
+                    QueryCompilationContext.IsAsync ? relatedDataLoaders?.Compile() : null,
+                    typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>));
+
+                return Expression.New(
+                    typeof(SplitQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors().Single(),
+                    Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+                    Expression.Constant(relationalCommandCache),
+                    Expression.Constant(shaper.Compile()),
+                    relatedDataLoadersParameter,
+                    relatedDataLoadersAsyncParameter,
+                    Expression.Constant(_contextType),
+                    Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
+            }
 
             return Expression.New(
-                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
-                Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                Expression.Constant(relationalCommandCache),
-                Expression.Constant(columnNames, typeof(IReadOnlyList<string>)),
-                Expression.Constant(projectionColumns, typeof(IReadOnlyList<ReaderColumn>)),
-                Expression.Constant(shaperLambda.Compile()),
-                Expression.Constant(_contextType),
-                Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
+                    typeof(SingleQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors()[0],
+                    Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+                    Expression.Constant(relationalCommandCache),
+                    Expression.Constant(shaper.Compile()),
+                    Expression.Constant(_contextType),
+                    Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
         }
     }
 }

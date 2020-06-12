@@ -5059,6 +5059,47 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
+        public override async Task Projecting_collection_split(bool async)
+        {
+            await base.Projecting_collection_split(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]",
+                //
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projecting_collection_then_include_split(bool async)
+        {
+            await base.Projecting_collection_then_include_split(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]",
+                //
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [o].[OrderID]",
+                //
+                @"SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [c].[CustomerID], [o].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

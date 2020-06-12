@@ -37,14 +37,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IMemoryCache memoryCache,
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
-            bool useRelationalNulls,
-            [NotNull] SelectExpression selectExpression)
+            [NotNull] SelectExpression selectExpression,
+            [NotNull] IReadOnlyList<ReaderColumn> readerColumns,
+            bool useRelationalNulls)
         {
             _memoryCache = memoryCache;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _selectExpression = selectExpression;
+            ReaderColumns = readerColumns;
             _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(useRelationalNulls);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IReadOnlyList<ReaderColumn> ReaderColumns { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

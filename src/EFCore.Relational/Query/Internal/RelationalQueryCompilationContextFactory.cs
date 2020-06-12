@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -21,9 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class QueryCompilationContextFactory : IQueryCompilationContextFactory
+    public class RelationalQueryCompilationContextFactory : IQueryCompilationContextFactory
     {
         private readonly QueryCompilationContextDependencies _dependencies;
+        private readonly RelationalQueryCompilationContextDependencies _relationalDependencies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,11 +32,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public QueryCompilationContextFactory([NotNull] QueryCompilationContextDependencies dependencies)
+        public RelationalQueryCompilationContextFactory(
+            [NotNull] QueryCompilationContextDependencies dependencies,
+            [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
             _dependencies = dependencies;
+            _relationalDependencies = relationalDependencies;
         }
 
         /// <summary>
@@ -45,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QueryCompilationContext Create(bool async)
-            => new QueryCompilationContext(_dependencies, async);
+            => new RelationalQueryCompilationContext(_dependencies, _relationalDependencies, async);
     }
 }
+

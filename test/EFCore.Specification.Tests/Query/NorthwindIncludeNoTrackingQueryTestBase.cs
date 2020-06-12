@@ -189,7 +189,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.NotSame(customer1, customer2);
             Assert.Equal(6, customer2.Orders.Count);
             Assert.True(customer2.Orders.All(o => o.Customer != null));
-            Assert.True(customer2.Orders.All(o => !ReferenceEquals(o.Customer, customer1)));
             Assert.True(customer2.Orders.All(o => ReferenceEquals(o.Customer, customer2)));
 
             Assert.Single(context.ChangeTracker.Entries());

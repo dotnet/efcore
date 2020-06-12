@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             query = base.Process(query);
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
-            query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
+            query = new CollectionJoinApplyingExpressionVisitor(((RelationalQueryCompilationContext)QueryCompilationContext).IsSplitQuery).Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
             query = new CaseSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 

@@ -528,6 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> The shaper for inner source. </param>
         /// <param name="transparentIdentifierType"> The clr type of transparent identifier created from result. </param>
         /// <returns> The shaped query expression after translation of result selector. </returns>
+        [Obsolete("QueryExpressions should combine shapers to work in client eval scenarios.")]
         protected virtual ShapedQueryExpression TranslateResultSelectorForJoin(
             [NotNull] ShapedQueryExpression outer,
             [NotNull] LambdaExpression resultSelector,
@@ -557,6 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return TranslateSelect(outer, newResultSelector);
         }
 
+        [Obsolete]
         private Expression CombineShapers(
             Expression queryExpression,
             Expression outerShaper,
@@ -573,6 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
         }
 
+        [Obsolete]
         private sealed class MemberAccessShiftingExpressionVisitor : ExpressionVisitor
         {
             private readonly Expression _queryExpression;
@@ -597,6 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Obsolete]
         private static Expression AccessOuterTransparentField(
             Type transparentIdentifierType,
             Expression targetExpression)
@@ -606,6 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Expression.Field(targetExpression, fieldInfo);
         }
 
+        [Obsolete]
         private static Expression AccessInnerTransparentField(
             Type transparentIdentifierType,
             Expression targetExpression)
