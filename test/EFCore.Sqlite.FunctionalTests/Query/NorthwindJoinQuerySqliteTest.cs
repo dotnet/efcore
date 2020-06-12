@@ -18,5 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // CROSS APPLY is not supported
         public override Task SelectMany_with_client_eval(bool async) => Task.CompletedTask;
+        public override Task SelectMany_with_client_eval_with_collection_shaper(bool async) => Task.CompletedTask;
+        public override Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async) => Task.CompletedTask;
     }
 }

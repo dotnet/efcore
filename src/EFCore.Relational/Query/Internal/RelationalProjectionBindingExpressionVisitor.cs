@@ -291,6 +291,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     : null;
             }
 
+            if (extensionExpression is CollectionShaperExpression)
+            {
+                return _clientEval
+                    ? extensionExpression
+                    : null;
+            }
+
             throw new InvalidOperationException(
                 CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
         }

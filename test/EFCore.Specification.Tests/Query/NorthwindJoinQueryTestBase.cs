@@ -738,10 +738,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>()
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), CustomerProperty = c.ContactName })),
                 elementSorter: e => e.OrderProperty,
-                entryCount: 830);
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_client_eval_with_collection_shaper(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                    .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), o.OrderDetails, CustomerProperty = c.ContactName })),
+                elementSorter: e => e.OrderProperty,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.OrderProperty, a.OrderProperty);
+                    AssertEqual(e.CustomerProperty, a.CustomerProperty);
+                    AssertCollection(e.OrderDetails, a.OrderDetails);
+                },
+                entryCount: 227);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                    .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), o.OrderDetails, CustomerProperty = c.ContactName }))
+                    .Select(e => new { e.OrderProperty, e.CustomerProperty }),
+                elementSorter: e => e.OrderProperty,
+                entryCount: 63);
         }
 
         private static int ClientMethod(Order order) => order.OrderID;
