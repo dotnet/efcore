@@ -1905,9 +1905,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var expectedAdded = ignoredOnType == typeof(ExtraSpecialOrder)
                 || (addConfigurationSource.Overrides(ignoreConfigurationSource)
-                    && (ignoreConfigurationSource != ConfigurationSource.Explicit
-                        || ignoredOnType != typeof(SpecialOrder)
-                        || ignoredFirst));
+                    && (ignoreConfigurationSource != addConfigurationSource
+                        || (ignoreConfigurationSource == ConfigurationSource.Explicit
+                            && (ignoredFirst || ignoredOnType != typeof(SpecialOrder)))));
 
             var expectedIgnored = (ignoredOnType != typeof(SpecialOrder)
                     || !expectedAdded)
@@ -1962,12 +1962,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 Assert.True(unignoreMember(ignoredEntityTypeBuilder));
             }
-
-            Assert.Equal(expectedAdded, findMember(addedEntityTypeBuilder));
-            Assert.Equal(
-                expectedIgnored,
-                ignoredEntityTypeBuilder.Metadata.FindDeclaredIgnoredConfigurationSource(memberToIgnore)
-                == ignoreConfigurationSource);
+            else
+            {
+                Assert.Equal(expectedAdded, findMember(addedEntityTypeBuilder));
+                Assert.Equal(
+                    expectedIgnored,
+                    ignoredEntityTypeBuilder.Metadata.FindDeclaredIgnoredConfigurationSource(memberToIgnore)
+                    == ignoreConfigurationSource);
+            }
         }
 
         private void ConfigureOrdersHierarchy(InternalModelBuilder modelBuilder)

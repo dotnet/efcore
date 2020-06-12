@@ -125,11 +125,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] MemberInfo memberInfo, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Indicates whether the given member name is ignored for the current configuration source.
+        ///     Indicates whether the given member name is ignored for the given configuration source.
         /// </summary>
         /// <param name="memberName"> The name of the member that might be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given member name is ignored. </returns>
+        /// <returns>
+        ///     <see langword="false" /> if the entity type contains a member with the given name,
+        ///     the given member name hasn't been ignored or it was ignored using a lower configuration source;
+        ///     <see langword="true" /> otherwise.
+        /// </returns>
         bool IsIgnored([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -145,11 +149,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionEntityTypeBuilder Ignore([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns a value indicating whether the given member name can be ignored from the current configuration source.
+        ///     Returns a value indicating whether the given member name can be ignored from the given configuration source.
         /// </summary>
         /// <param name="memberName"> The member name to be removed from the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given member name can be ignored. </returns>
+        /// <returns>
+        ///     <see langword="false" /> if the entity type contains a member with the given name
+        ///     that was configured using a higher configuration source;
+        ///     <see langword="true" /> otherwise.
+        /// </returns>
         bool CanIgnore([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
