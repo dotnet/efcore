@@ -1592,7 +1592,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static string ClientMethod(Employee e)
             => e.FirstName + " reports to " + e.Manager.FirstName;
 
-
         private static T RoundtripThroughBclJson<T>(T collection, bool ignoreLoops, bool writeIndented, int maxDepth = 64)
         {
             Assert.False(ignoreLoops, "BCL doesn't support ignoring loops.");
@@ -1627,9 +1626,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : Newtonsoft.Json.Formatting.None
             };
 
-           var serializeObject = Newtonsoft.Json.JsonConvert.SerializeObject(collection, options);
+            var serializeObject = Newtonsoft.Json.JsonConvert.SerializeObject(collection, options);
 
-           return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(serializeObject);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(serializeObject);
         }
 
         private static void VerifyCustomer(NorthwindContext context, Customer customer, Dictionary<string, Customer> customersMap)
@@ -1736,7 +1735,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Issue#18672
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Multi_level_includes_are_applied_with_skip(bool async)        {
+        public virtual Task Multi_level_includes_are_applied_with_skip(bool async)
+        {
             return AssertFirst(
                 async,
                 ss => (from c in ss.Set<Customer>().Include(e => e.Orders).ThenInclude(e => e.OrderDetails)

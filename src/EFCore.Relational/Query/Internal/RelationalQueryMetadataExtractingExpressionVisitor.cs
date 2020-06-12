@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CosmosQueryMetadataExtractingExpressionVisitor : ExpressionVisitor
+    public class RelationalQueryMetadataExtractingExpressionVisitor : ExpressionVisitor
     {
-        private readonly CosmosQueryCompilationContext _cosmosQueryCompilationContext;
+        private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,10 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosQueryMetadataExtractingExpressionVisitor([NotNull] CosmosQueryCompilationContext cosmosQueryCompilationContext)
+        public RelationalQueryMetadataExtractingExpressionVisitor([NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext)
         {
-            Check.NotNull(cosmosQueryCompilationContext, nameof(cosmosQueryCompilationContext));
-            _cosmosQueryCompilationContext = cosmosQueryCompilationContext;
+            Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext));
+
+            _relationalQueryCompilationContext = relationalQueryCompilationContext;
         }
 
         /// <summary>
@@ -38,11 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == CosmosQueryableExtensions.WithPartitionKeyMethodInfo)
+                && methodCallExpression.Method.GetGenericMethodDefinition() == RelationalQueryableExtensions.AsSplitQueryMethodInfo)
             {
                 var innerQueryable = Visit(methodCallExpression.Arguments[0]);
 
-                _cosmosQueryCompilationContext.PartitionKeyFromExtension = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                _relationalQueryCompilationContext.IsSplitQuery = true;
 
                 return innerQueryable;
             }

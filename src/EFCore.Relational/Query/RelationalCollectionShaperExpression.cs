@@ -46,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalCollectionShaperExpression" /> class.
         /// </summary>

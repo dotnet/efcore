@@ -1051,7 +1051,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="elementType"> The type of the element in the collection. </param>
         /// <returns> A <see cref="CollectionShaperExpression"/> which represents shaping of this collection. </returns>
         public CollectionShaperExpression AddCollectionProjection(
-            [NotNull] ShapedQueryExpression shapedQueryExpression, [CanBeNull] INavigation navigation, [CanBeNull] Type elementType)
+            [NotNull] ShapedQueryExpression shapedQueryExpression,
+            [CanBeNull] INavigation navigation,
+            [CanBeNull] Type elementType)
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 
@@ -1073,89 +1075,113 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="innerShaper"> A shaper expression to use for shaping the elements of this collection. </param>
         /// <param name="navigation"> A navigation associated with this collection, if any. </param>
         /// <param name="elementType"> The type of the element in the collection. </param>
+        /// <param name="splitQuery"> A value indicating whether the collection query would be run with a different DbCommand. </param>
         /// <returns> An expression which represents shaping of this collection. </returns>
         public Expression ApplyCollectionJoin(
             int collectionIndex,
             int collectionId,
             [NotNull] Expression innerShaper,
             [CanBeNull] INavigation navigation,
-            [NotNull] Type elementType)
+            [NotNull] Type elementType,
+            bool splitQuery = false)
         {
             Check.NotNull(innerShaper, nameof(innerShaper));
             Check.NotNull(elementType, nameof(elementType));
 
             var innerSelectExpression = _pendingCollections[collectionIndex];
             _pendingCollections[collectionIndex] = null;
-            var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(_identifier);
-            var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier.Concat(_childIdentifiers));
-            innerSelectExpression.ApplyProjection();
 
-            var (selfIdentifier, selfIdentifierValueComparers) = innerSelectExpression.GetIdentifierAccessor(innerSelectExpression._identifier);
-
-            if (collectionIndex == 0)
+            if (splitQuery)
             {
-                foreach (var identifier in _identifier)
+                var parentIdentifier = GetIdentifierAccessor(_identifier).Item1;
+                innerSelectExpression.ApplyProjection();
+                var (childIdentifier, childIdentifierValueComparers) = innerSelectExpression
+                    .GetIdentifierAccessor(innerSelectExpression._identifier.Take(_identifier.Count));
+
+                for (var i = 0; i < _identifier.Count; i++)
                 {
-                    AppendOrdering(new OrderingExpression(identifier.Column, ascending: true));
+                    AppendOrdering(new OrderingExpression(_identifier[i].Column, ascending: true));
+                    innerSelectExpression.AppendOrdering(new OrderingExpression(innerSelectExpression._identifier[i].Column, ascending: true));
                 }
-            }
 
-            var joinPredicate = TryExtractJoinKey(innerSelectExpression);
-            var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
-                .ContainsOuterReference(innerSelectExpression);
-            if (containsOuterReference && joinPredicate != null)
+                return new RelationalSplitCollectionShaperExpression(
+                    collectionId, parentIdentifier, childIdentifier, childIdentifierValueComparers,
+                    innerSelectExpression, innerShaper, navigation, elementType);
+            }
+            else
             {
-                innerSelectExpression.ApplyPredicate(joinPredicate);
-                joinPredicate = null;
+
+                var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(_identifier);
+                var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier.Concat(_childIdentifiers));
+                innerSelectExpression.ApplyProjection();
+
+                var (selfIdentifier, selfIdentifierValueComparers) = innerSelectExpression.GetIdentifierAccessor(innerSelectExpression._identifier);
+
+                if (collectionIndex == 0)
+                {
+                    foreach (var identifier in _identifier)
+                    {
+                        AppendOrdering(new OrderingExpression(identifier.Column, ascending: true));
+                    }
+                }
+
+                var joinPredicate = TryExtractJoinKey(innerSelectExpression);
+                var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
+                    .ContainsOuterReference(innerSelectExpression);
+                if (containsOuterReference && joinPredicate != null)
+                {
+                    innerSelectExpression.ApplyPredicate(joinPredicate);
+                    joinPredicate = null;
+                }
+
+                if (innerSelectExpression.Offset != null
+                    || innerSelectExpression.Limit != null
+                    || innerSelectExpression.IsDistinct
+                    || innerSelectExpression.Predicate != null
+                    || innerSelectExpression.Tables.Count > 1
+                    || innerSelectExpression.GroupBy.Count > 0)
+                {
+                    var sqlRemappingVisitor = new SqlRemappingVisitor(
+                        innerSelectExpression.PushdownIntoSubquery(),
+                        (SelectExpression)innerSelectExpression.Tables[0]);
+                    joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
+                }
+
+                var joinExpression = joinPredicate == null
+                    ? (TableExpressionBase)new OuterApplyExpression(innerSelectExpression.Tables.Single())
+                    : new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
+                _tables.Add(joinExpression);
+
+                foreach (var ordering in innerSelectExpression.Orderings)
+                {
+                    AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
+                }
+
+                var innerProjectionCount = innerSelectExpression.Projection.Count;
+                var indexMap = new int[innerProjectionCount];
+                for (var i = 0; i < innerProjectionCount; i++)
+                {
+                    indexMap[i] = AddToProjection(MakeNullable(innerSelectExpression.Projection[i].Expression));
+                }
+
+                foreach (var identifier in innerSelectExpression._identifier.Concat(innerSelectExpression._childIdentifiers))
+                {
+                    var updatedColumn = identifier.Column.MakeNullable();
+                    _childIdentifiers.Add((updatedColumn, identifier.Comparer));
+                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
+                }
+
+                // Inner should not have pendingCollection since we apply them first.
+                // Shaper should not have CollectionShaperExpression as any collection would get converted to RelationalCollectionShaperExpression.
+                var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexMap, pendingCollectionOffset: 0);
+                innerShaper = shaperRemapper.Visit(innerShaper);
+                selfIdentifier = shaperRemapper.Visit(selfIdentifier);
+
+                return new RelationalCollectionShaperExpression(
+                    collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
+                    parentIdentifierValueComparers, outerIdentifierValueComparers, selfIdentifierValueComparers,
+                    innerShaper, navigation, elementType);
             }
-
-            if (innerSelectExpression.Offset != null
-                || innerSelectExpression.Limit != null
-                || innerSelectExpression.IsDistinct
-                || innerSelectExpression.Predicate != null
-                || innerSelectExpression.Tables.Count > 1
-                || innerSelectExpression.GroupBy.Count > 0)
-            {
-                var sqlRemappingVisitor = new SqlRemappingVisitor(
-                    innerSelectExpression.PushdownIntoSubquery(),
-                    (SelectExpression)innerSelectExpression.Tables[0]);
-                joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
-            }
-
-            var joinExpression = joinPredicate == null
-                ? (TableExpressionBase)new OuterApplyExpression(innerSelectExpression.Tables.Single())
-                : new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
-            _tables.Add(joinExpression);
-
-            foreach (var ordering in innerSelectExpression.Orderings)
-            {
-                AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
-            }
-
-            var innerProjectionCount = innerSelectExpression.Projection.Count;
-            var indexMap = new int[innerProjectionCount];
-            for (var i = 0; i < innerProjectionCount; i++)
-            {
-                indexMap[i] = AddToProjection(MakeNullable(innerSelectExpression.Projection[i].Expression));
-            }
-
-            foreach (var identifier in innerSelectExpression._identifier.Concat(innerSelectExpression._childIdentifiers))
-            {
-                var updatedColumn = identifier.Column.MakeNullable();
-                _childIdentifiers.Add((updatedColumn, identifier.Comparer));
-                AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
-            }
-
-            // Inner should not have pendingCollection since we apply them first.
-            // Shaper should not have CollectionShaperExpression as any collection would get converted to RelationalCollectionShaperExpression.
-            var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexMap, pendingCollectionOffset: 0);
-            innerShaper = shaperRemapper.Visit(innerShaper);
-            selfIdentifier = shaperRemapper.Visit(selfIdentifier);
-
-            return new RelationalCollectionShaperExpression(
-                collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
-                parentIdentifierValueComparers, outerIdentifierValueComparers, selfIdentifierValueComparers,
-                innerShaper, navigation, elementType);
         }
 
         private static SqlExpression MakeNullable(SqlExpression sqlExpression)
