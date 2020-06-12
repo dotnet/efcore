@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     A <see cref="IDisposable" /> returned by an <see cref="IConcurrencyDetector" />, which will exit the ongoing
     ///     critical section when disposed.
     /// </summary>
-    public class ConcurrencyDetectorCriticalSectionDisposer : IDisposable
+    public readonly struct ConcurrencyDetectorCriticalSectionDisposer : IDisposable
     {
         private readonly IConcurrencyDetector _concurrencyDetector;
 
