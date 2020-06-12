@@ -343,19 +343,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
             // Remove convert-to-object nodes if both sides have them, or if the other side is null constant
-            if (TryUnwrapConvertToObject(left, out var leftOperand)
-                && TryUnwrapConvertToObject(right, out var rightOperand))
+            var isLeftConvertToObject = TryUnwrapConvertToObject(left, out var leftOperand);
+            var isRightConvertToObject = TryUnwrapConvertToObject(right, out var rightOperand);
+            if (isLeftConvertToObject && isRightConvertToObject)
             {
                 left = leftOperand;
                 right = rightOperand;
             }
-            else if (TryUnwrapConvertToObject(left, out leftOperand)
-                && right.IsNullConstantExpression())
+            else if (isLeftConvertToObject && right.IsNullConstantExpression())
             {
                 left = leftOperand;
             }
-            else if (TryUnwrapConvertToObject(right, out rightOperand)
-                && left.IsNullConstantExpression())
+            else if (isRightConvertToObject && left.IsNullConstantExpression())
             {
                 right = rightOperand;
             }
