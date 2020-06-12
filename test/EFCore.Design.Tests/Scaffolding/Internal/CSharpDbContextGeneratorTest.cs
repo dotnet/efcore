@@ -28,6 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -82,6 +84,8 @@ namespace TestNamespace
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -132,6 +136,8 @@ namespace TestNamespace
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
 
 namespace TestNamespace
 {
@@ -377,6 +383,8 @@ namespace TestNamespace
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -458,6 +466,8 @@ namespace TestNamespace
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
 
 namespace TestNamespace
 {
