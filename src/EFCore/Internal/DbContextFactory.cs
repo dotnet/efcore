@@ -4,7 +4,6 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -17,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class DbContextFactory<TContext> : IDbContextFactory<TContext>
         where TContext : DbContext
     {
-        private readonly IServiceProvider _provider;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly DbContextOptions<TContext> _options;
+        private readonly Func<IServiceProvider, DbContextOptions<TContext>, TContext> _factory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,11 +26,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DbContextFactory([NotNull] IServiceProvider provider)
+        public DbContextFactory(
+            [NotNull] IServiceProvider serviceProvider,
+            [NotNull] DbContextOptions<TContext> options,
+            [NotNull] IDbContextFactorySource<TContext> factorySource)
         {
-            Check.NotNull(provider, nameof(provider));
+            Check.NotNull(serviceProvider, nameof(serviceProvider));
+            Check.NotNull(options, nameof(options));
+            Check.NotNull(factorySource, nameof(factorySource));
 
-            _provider = provider;
+            _serviceProvider = serviceProvider;
+            _options = options;
+            _factory = factorySource.Factory;
         }
 
         /// <summary>
@@ -39,6 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual TContext CreateDbContext()
-            => ActivatorUtilities.CreateInstance<TContext>(_provider);
+            => _factory(_serviceProvider, _options);
     }
 }

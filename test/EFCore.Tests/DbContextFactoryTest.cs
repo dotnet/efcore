@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_register_factories_for_multiple_contexts()
+        public void Can_register_factories_for_multiple_contexts_even_with_non_generic_options()
         {
             var serviceProvider = (IServiceProvider)new ServiceCollection()
                 .AddDbContextFactory<CroydeContext>(
@@ -333,15 +333,11 @@ namespace Microsoft.EntityFrameworkCore
                     b => b.UseInMemoryDatabase(nameof(ClovellyContext)))
                 .BuildServiceProvider(validateScopes: true);
 
-            Assert.Equal(
-                CoreStrings.NonGenericOptions(nameof(CroydeContext)),
-                Assert.Throws<InvalidOperationException>(
-                    ()
-                        =>
-                    {
-                        using var context1 = serviceProvider.GetService<IDbContextFactory<CroydeContext>>().CreateDbContext();
-                        using var context2 = serviceProvider.GetService<IDbContextFactory<ClovellyContext>>().CreateDbContext();
-                    }).Message);
+            using var context1 = serviceProvider.GetService<IDbContextFactory<CroydeContext>>().CreateDbContext();
+            using var context2 = serviceProvider.GetService<IDbContextFactory<ClovellyContext>>().CreateDbContext();
+
+            Assert.Equal(nameof(CroydeContext), GetStoreName(context1));
+            Assert.Equal(nameof(ClovellyContext), GetStoreName(context2));
         }
 
         private class ClovellyContext : DbContext
@@ -353,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Throws_for_multiple_non_generic_builders()
+        public void Can_register_factories_for_multiple_contexts()
         {
             var serviceProvider = (IServiceProvider)new ServiceCollection()
                 .AddDbContextFactory<WidemouthBayContext>(
