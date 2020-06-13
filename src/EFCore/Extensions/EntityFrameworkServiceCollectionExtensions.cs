@@ -801,6 +801,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             AddCoreServices<TContext>(serviceCollection, optionsAction, lifetime);
 
+            serviceCollection.AddSingleton<IDbContextFactorySource<TContext>, DbContextFactorySource<TContext>>();
+
             serviceCollection.TryAdd(
                 new ServiceDescriptor(
                     typeof(IDbContextFactory<TContext>),
