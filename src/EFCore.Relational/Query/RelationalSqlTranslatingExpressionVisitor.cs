@@ -11,6 +11,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -341,6 +342,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
+            // Remove convert-to-object nodes if both sides have them, or if the other side is null constant
+            var isLeftConvertToObject = TryUnwrapConvertToObject(left, out var leftOperand);
+            var isRightConvertToObject = TryUnwrapConvertToObject(right, out var rightOperand);
+            if (isLeftConvertToObject && isRightConvertToObject)
+            {
+                left = leftOperand;
+                right = rightOperand;
+            }
+            else if (isLeftConvertToObject && right.IsNullConstantExpression())
+            {
+                left = leftOperand;
+            }
+            else if (isRightConvertToObject && left.IsNullConstantExpression())
+            {
+                right = rightOperand;
+            }
+
             var visitedLeft = Visit(left);
             var visitedRight = Visit(right);
 
@@ -370,6 +388,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                         sqlLeft,
                         sqlRight,
                         null);
+
+            static bool TryUnwrapConvertToObject(Expression expression, out Expression operand)
+            {
+                if (expression is UnaryExpression convertExpression
+                    && (convertExpression.NodeType == ExpressionType.Convert
+                        || convertExpression.NodeType == ExpressionType.ConvertChecked)
+                    && expression.Type == typeof(object))
+                {
+                    operand = convertExpression.Operand;
+                    return true;
+                }
+
+                operand = null;
+                return false;
+            }
         }
 
         /// <inheritdoc />
@@ -680,13 +713,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return translation;
-
-            static Expression RemoveObjectConvert(Expression expression)
-                => expression is UnaryExpression unaryExpression
-                    && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
-                    && unaryExpression.Type == typeof(object)
-                    ? unaryExpression.Operand
-                    : expression;
         }
 
         /// <inheritdoc />
@@ -886,34 +912,39 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static Expression TryRemoveImplicitConvert(Expression expression)
         {
-            if (expression is UnaryExpression unaryExpression)
+            if (expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
-                if (unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+                if (innerType.IsEnum)
                 {
-                    var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-                    if (innerType.IsEnum)
-                    {
-                        innerType = Enum.GetUnderlyingType(innerType);
-                    }
+                    innerType = Enum.GetUnderlyingType(innerType);
+                }
 
-                    var convertedType = unaryExpression.Type.UnwrapNullableType();
+                var convertedType = expression.Type.UnwrapNullableType();
 
-                    if (innerType == convertedType
-                        || (convertedType == typeof(int)
-                            && (innerType == typeof(byte)
-                                || innerType == typeof(sbyte)
-                                || innerType == typeof(char)
-                                || innerType == typeof(short)
-                                || innerType == typeof(ushort))))
-                    {
-                        return TryRemoveImplicitConvert(unaryExpression.Operand);
-                    }
+                if (innerType == convertedType
+                    || (convertedType == typeof(int)
+                        && (innerType == typeof(byte)
+                            || innerType == typeof(sbyte)
+                            || innerType == typeof(char)
+                            || innerType == typeof(short)
+                            || innerType == typeof(ushort))))
+                {
+                    return TryRemoveImplicitConvert(unaryExpression.Operand);
                 }
             }
 
             return expression;
         }
+
+        private static Expression RemoveObjectConvert(Expression expression)
+            => expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                && unaryExpression.Type == typeof(object)
+                    ? unaryExpression.Operand
+                    : expression;
 
         private static Expression ConvertObjectArrayEqualityComparison(BinaryExpression binaryExpression)
         {
@@ -938,13 +969,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return Expression.Equal(l, r);
                     })
                 .Aggregate((a, b) => Expression.AndAlso(a, b));
-
-            static Expression RemoveObjectConvert(Expression expression)
-                => expression is UnaryExpression unaryExpression
-                    && expression.Type == typeof(object)
-                    && expression.NodeType == ExpressionType.Convert
-                    ? unaryExpression.Operand
-                    : expression;
         }
 
         private static SqlConstantExpression GetConstantOrNull(Expression expression)

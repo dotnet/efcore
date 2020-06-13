@@ -11,6 +11,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -161,6 +162,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
+            // Remove convert-to-object nodes if both sides have them, or if the other side is null constant
+            var isLeftConvertToObject = TryUnwrapConvertToObject(left, out var leftOperand);
+            var isRightConvertToObject = TryUnwrapConvertToObject(right, out var rightOperand);
+            if (isLeftConvertToObject && isRightConvertToObject)
+            {
+                left = leftOperand;
+                right = rightOperand;
+            }
+            else if (isLeftConvertToObject && right.IsNullConstantExpression())
+            {
+                left = leftOperand;
+            }
+            else if (isRightConvertToObject && left.IsNullConstantExpression())
+            {
+                right = rightOperand;
+            }
+
             var visitedLeft = Visit(left);
             var visitedRight = Visit(right);
 
@@ -193,6 +211,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     sqlLeft,
                     sqlRight,
                     null);
+
+            static bool TryUnwrapConvertToObject(Expression expression, out Expression operand)
+            {
+                if (expression is UnaryExpression convertExpression
+                    && (convertExpression.NodeType == ExpressionType.Convert
+                        || convertExpression.NodeType == ExpressionType.ConvertChecked)
+                    && expression.Type == typeof(object))
+                {
+                    operand = convertExpression.Operand;
+                    return true;
+                }
+
+                operand = null;
+                return false;
+            }
         }
 
         /// <summary>
