@@ -62,12 +62,13 @@ namespace Microsoft.EntityFrameworkCore
         private ChangeTracker _changeTracker;
 
         private IServiceScope _serviceScope;
-        private IDbContextPool _dbContextPool;
+        private DbContextLease _lease = DbContextLease.InactiveLease;
+        private DbContextPoolConfigurationSnapshot _configurationSnapshot;
         private bool _initializing;
         private bool _disposed;
 
         private readonly Guid _contextId = Guid.NewGuid();
-        private int _lease;
+        private int _leaseCount;
 
         /// <summary>
         ///     <para>
@@ -150,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         public virtual DbContextId ContextId
-            => new DbContextId(_contextId, _lease);
+            => new DbContextId(_contextId, _leaseCount);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -623,11 +624,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        void IDbContextPoolable.SetPool(IDbContextPool contextPool)
-        {
-            _dbContextPool = contextPool;
-            _lease = 1;
-        }
+        void IDbContextPoolable.ClearLease()
+            => _lease = DbContextLease.InactiveLease;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -636,39 +634,24 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        DbContextPoolConfigurationSnapshot IDbContextPoolable.SnapshotConfiguration()
-            => new DbContextPoolConfigurationSnapshot(
-                _changeTracker?.AutoDetectChangesEnabled,
-                _changeTracker?.QueryTrackingBehavior,
-                _database?.AutoTransactionsEnabled,
-                _changeTracker?.LazyLoadingEnabled,
-                _changeTracker?.CascadeDeleteTiming,
-                _changeTracker?.DeleteOrphansTiming);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
+        void IDbContextPoolable.SetLease(DbContextLease lease)
         {
+            _lease = lease;
             _disposed = false;
-            ++_lease;
+            ++_leaseCount;
 
-            if (configurationSnapshot.AutoDetectChangesEnabled != null)
+            if (_configurationSnapshot?.AutoDetectChangesEnabled != null)
             {
-                Check.DebugAssert(configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
-                Check.DebugAssert(configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
-                Check.DebugAssert(configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
-                Check.DebugAssert(configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
+                Check.DebugAssert(_configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
+                Check.DebugAssert(_configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
+                Check.DebugAssert(_configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
+                Check.DebugAssert(_configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
 
-                ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
-                ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;
-                ChangeTracker.LazyLoadingEnabled = configurationSnapshot.LazyLoadingEnabled.Value;
-                ChangeTracker.CascadeDeleteTiming = configurationSnapshot.CascadeDeleteTiming.Value;
-                ChangeTracker.DeleteOrphansTiming = configurationSnapshot.DeleteOrphansTiming.Value;
+                ChangeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled.Value;
+                ChangeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
+                ChangeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled.Value;
+                ChangeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming.Value;
+                ChangeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming.Value;
             }
             else
             {
@@ -678,10 +661,26 @@ namespace Microsoft.EntityFrameworkCore
             if (_database != null)
             {
                 _database.AutoTransactionsEnabled
-                    = configurationSnapshot.AutoTransactionsEnabled == null
-                    || configurationSnapshot.AutoTransactionsEnabled.Value;
+                    = _configurationSnapshot?.AutoTransactionsEnabled == null
+                    || _configurationSnapshot.AutoTransactionsEnabled.Value;
             }
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        void IDbContextPoolable.SnapshotConfiguration()
+            => _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
+                _changeTracker?.AutoDetectChangesEnabled,
+                _changeTracker?.QueryTrackingBehavior,
+                _database?.AutoTransactionsEnabled,
+                _changeTracker?.LazyLoadingEnabled,
+                _changeTracker?.CascadeDeleteTiming,
+                _changeTracker?.DeleteOrphansTiming);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -757,8 +756,15 @@ namespace Microsoft.EntityFrameworkCore
 
         private bool DisposeSync()
         {
-            if (_dbContextPool == null
-                && !_disposed)
+            if (_lease.IsActive)
+            {
+                if (_lease.ContextDisposed())
+                {
+                    _disposed = true;
+                    _lease = DbContextLease.InactiveLease;
+                }
+            }
+            else if (!_disposed)
             {
                 _dbContextDependencies?.InfrastructureLogger.ContextDisposed(this);
 

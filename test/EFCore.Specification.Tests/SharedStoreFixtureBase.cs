@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextPool _contextPool;
 
         private IDbContextPool ContextPool
-            => _contextPool ??= (IDbContextPool)ServiceProvider.GetRequiredService(typeof(DbContextPool<>).MakeGenericType(ContextType));
+            => _contextPool ??= (IDbContextPool)ServiceProvider
+                .GetRequiredService(typeof(IDbContextPool<>).MakeGenericType(ContextType));
 
         private ListLoggerFactory _listLoggerFactory;
 
@@ -61,16 +62,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public virtual TContext CreateContext()
-        {
-            if (UsePooling)
-            {
-                var context = (PoolableDbContext)ContextPool.Rent();
-                context.SetPool(ContextPool);
-                return (TContext)(object)context;
-            }
-
-            return (TContext)ServiceProvider.GetRequiredService(ContextType);
-        }
+            => UsePooling
+                ? (TContext)new DbContextLease(ContextPool, standalone: true).Context
+                : (TContext)ServiceProvider.GetRequiredService(ContextType);
 
         public DbContextOptions CreateOptions()
             => ConfigureOptions(ServiceProvider, new DbContextOptionsBuilder()).Options;
