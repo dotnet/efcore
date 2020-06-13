@@ -22,19 +22,20 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var builder = new StringBuilder();
             var entityType = entry.Metadata;
 
-            var pk = entityType.FindPrimaryKey();
+            var primaryKey = entityType.FindPrimaryKey();
             var discriminator = entityType.GetDiscriminatorValue();
             if (discriminator != null
-                && !pk.Properties.Contains(entityType.GetDiscriminatorProperty()))
+                && !primaryKey.Properties.Contains(entityType.GetDiscriminatorProperty()))
             {
                 AppendString(builder, discriminator);
                 builder.Append("-");
             }
 
-            var partitionKey = entityType.GetPartitionKeyPropertyName() ?? CosmosClientWrapper.DefaultPartitionKey;
-            foreach (var property in pk.Properties.Where(p => p.Name != StoreKeyConvention.IdPropertyName))
+            var partitionKey = entityType.GetPartitionKeyPropertyName();
+            foreach (var property in primaryKey.Properties)
             {
-                if (property.Name == partitionKey)
+                if (property.Name == partitionKey
+                    || property.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName)
                 {
                     continue;
                 }

@@ -8,6 +8,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -136,10 +137,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 context.Add(customer);
 
-                storeId = entry.Property<string>("id").CurrentValue;
+                storeId = entry.Property<string>(StoreKeyConvention.DefaultIdPropertyName).CurrentValue;
             }
 
-            Assert.NotNull(storeId);
+            Assert.Equal("Customer|42", storeId);
 
             using (var context = new CustomerContext(options))
             {
@@ -154,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 customer.Name = "Theon Greyjoy";
 
                 var entry = context.Entry(customer);
-                entry.Property<string>("id").CurrentValue = storeId;
+                entry.Property<string>(StoreKeyConvention.DefaultIdPropertyName).CurrentValue = storeId;
 
                 entry.State = EntityState.Modified;
 
@@ -172,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             using (var context = new CustomerContext(options))
             {
                 var entry = context.Entry(customer);
-                entry.Property<string>("id").CurrentValue = storeId;
+                entry.Property<string>(StoreKeyConvention.DefaultIdPropertyName).CurrentValue = storeId;
                 entry.State = EntityState.Deleted;
 
                 await context.SaveChangesAsync();
@@ -648,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Database.EnsureCreated();
 
                 var customerEntry = context.Entry(customer);
-                customerEntry.Property("id").CurrentValue = "42";
+                customerEntry.Property(StoreKeyConvention.DefaultIdPropertyName).CurrentValue = "42";
                 customerEntry.State = EntityState.Added;
 
                 context.SaveChanges();
@@ -797,7 +798,7 @@ OFFSET 0 LIMIT 1");
                     {
                         var valueGeneratorFactory = new CustomPartitionKeyIdValueGeneratorFactory();
 
-                        cb.Property("id")
+                        cb.Property(StoreKeyConvention.DefaultIdPropertyName)
                             .HasValueGenerator((p, e) => valueGeneratorFactory.Create(p));
 
                         cb.Property(c => c.Id);
@@ -823,7 +824,7 @@ OFFSET 0 LIMIT 1");
                     {
                         var valueGeneratorFactory = new CustomPartitionKeyIdValueGeneratorFactory();
 
-                        cb.Property("id").HasValueGenerator((Type)null);
+                        cb.Property(StoreKeyConvention.DefaultIdPropertyName).HasValueGenerator((Type)null);
 
                         cb.Property(c => c.Id);
                         cb.Property(c => c.PartitionKey).HasConversion<string>();

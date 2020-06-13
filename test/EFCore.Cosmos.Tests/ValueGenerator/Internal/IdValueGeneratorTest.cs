@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -46,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGenerator.Internal
 
             string Create<TEntity>(TEntity entity)
                 where TEntity : class, new()
-                => (string)CosmosTestHelpers.Instance.CreateInternalEntry(
-                    model, EntityState.Added, entity)[model.FindEntityType(typeof(TEntity)).FindProperty("id")];
+                => (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, entity)
+                    [model.FindEntityType(typeof(TEntity)).FindProperty(StoreKeyConvention.DefaultIdPropertyName)];
         }
 
         private class Blog

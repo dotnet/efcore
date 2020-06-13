@@ -181,6 +181,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_properties_mapped_to_same_property()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Order>(ob =>
+            {
+                ob.Property(o => o.Id).ToJsonProperty("Details");
+                ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(
+                CosmosStrings.JsonPropertyCollision(
+                    nameof(Order.PartitionId), nameof(Order.Id), typeof(Order).Name, "Details"), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_property_and_embedded_type_mapped_to_same_property()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Order>(ob =>
+            {
+                ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+                ob.OwnsOne(o => o.OrderDetails).ToJsonProperty("Details");
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(
+                CosmosStrings.JsonPropertyCollision(
+                    nameof(Order.OrderDetails), nameof(Order.PartitionId), typeof(Order).Name, "Details"), model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_missing_discriminator()
         {
             var modelBuilder = CreateConventionalModelBuilder();

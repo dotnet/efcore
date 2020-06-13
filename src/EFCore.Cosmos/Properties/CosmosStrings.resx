@@ -192,4 +192,7 @@
   <data name="NoPartitionKeyKey" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.</value>
   </data>
+  <data name="JsonPropertyCollision" xml:space="preserve">
+    <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
+  </data>
 </root>

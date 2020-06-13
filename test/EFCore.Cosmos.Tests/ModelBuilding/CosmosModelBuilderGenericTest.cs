@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -45,9 +46,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(new[] { nameof(Customer.Id), nameof(Customer.AlternateKey) },
                     entity.FindPrimaryKey().Properties.Select(p => p.Name));
-                Assert.Equal(new[] { "id", nameof(Customer.AlternateKey) },
+                Assert.Equal(new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
                     entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
-                Assert.Single(entity.FindProperty("id").GetContainingKeys());
+
+                var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName);
+                Assert.Single(idProperty.GetContainingKeys());
+                Assert.NotNull(idProperty.GetValueGeneratorFactory());
             }
 
             [ConditionalFact]
@@ -55,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<Customer>().HasKey("id");
+                modelBuilder.Entity<Customer>().HasKey(StoreKeyConvention.DefaultIdPropertyName);
                 modelBuilder.Entity<Customer>()
                     .Ignore(b => b.Details)
                     .Ignore(b => b.Orders)
@@ -66,18 +70,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { "id" },
+                Assert.Equal(new[] { StoreKeyConvention.DefaultIdPropertyName },
                     entity.FindPrimaryKey().Properties.Select(p => p.Name));
-                Assert.Equal(new[] { "id", nameof(Customer.AlternateKey) },
+                Assert.Equal(new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
                     entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
             }
 
             [ConditionalFact]
-            public virtual void No_alternate_key_is_created_if_primary_key_contains_id()
+            public virtual void No_id_property_created_if_another_property_mapped_to_id()
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<Customer>().HasKey("id");
+                modelBuilder.Entity<Customer>()
+                    .Property(c => c.Name)
+                    .ToJsonProperty(StoreKeyConvention.IdPropertyJsonName);
                 modelBuilder.Entity<Customer>()
                     .Ignore(b => b.Details)
                     .Ignore(b => b.Orders);
@@ -86,9 +92,62 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { "id" },
+                Assert.Null(entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName));
+                Assert.Single(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+
+                var idProperty = entity.GetDeclaredProperties()
+                    .Single(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+                Assert.Single(idProperty.GetContainingKeys());
+                Assert.NotNull(idProperty.GetValueGeneratorFactory());
+            }
+
+            [ConditionalFact]
+            public virtual void No_id_property_created_if_another_property_mapped_to_id_in_pk()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Customer>()
+                    .Property(c => c.Name)
+                    .ToJsonProperty(StoreKeyConvention.IdPropertyJsonName);
+                modelBuilder.Entity<Customer>()
+                    .Ignore(c => c.Details)
+                    .Ignore(c => c.Orders)
+                    .HasKey(c => c.Name);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+
+                Assert.Null(entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName));
+                Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+
+                var idProperty = entity.GetDeclaredProperties()
+                    .Single(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+                Assert.Single(idProperty.GetContainingKeys());
+                Assert.Null(idProperty.GetValueGeneratorFactory());
+            }
+
+            [ConditionalFact]
+            public virtual void No_alternate_key_is_created_if_primary_key_contains_id()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Customer>().HasKey(StoreKeyConvention.DefaultIdPropertyName);
+                modelBuilder.Entity<Customer>()
+                    .Ignore(b => b.Details)
+                    .Ignore(b => b.Orders);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+
+                Assert.Equal(new[] { StoreKeyConvention.DefaultIdPropertyName },
                     entity.FindPrimaryKey().Properties.Select(p => p.Name));
                 Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+
+                var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName);
+                Assert.Single(idProperty.GetContainingKeys());
+                Assert.Null(idProperty.GetValueGeneratorFactory());
             }
 
             [ConditionalFact]
@@ -96,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey), "id");
+                modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey), StoreKeyConvention.DefaultIdPropertyName);
                 modelBuilder.Entity<Customer>()
                     .Ignore(b => b.Details)
                     .Ignore(b => b.Orders)
@@ -107,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { nameof(Customer.AlternateKey), "id" },
+                Assert.Equal(new[] { nameof(Customer.AlternateKey), StoreKeyConvention.DefaultIdPropertyName },
                     entity.FindPrimaryKey().Properties.Select(p => p.Name));
                 Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
             }

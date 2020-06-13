@@ -27,5 +27,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             return builder;
         }
+
+        public static ModelBuilderTest.TestPropertyBuilder<TProperty> ToJsonProperty<TProperty>(
+            this ModelBuilderTest.TestPropertyBuilder<TProperty> builder, string name)
+        {
+            switch (builder)
+            {
+                case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
+                    genericBuilder.Instance.ToJsonProperty(name);
+                    break;
+                case IInfrastructure<PropertyBuilder> nonGenericBuilder:
+                    nonGenericBuilder.Instance.ToJsonProperty(name);
+                    break;
+            }
+
+            return builder;
+        }
     }
 }

@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private bool TryGetResourceId(out string resourceId)
                 {
                     var idProperty = _readItemExpression.EntityType.GetProperties()
-                        .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+                        .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
 
                     if (TryGetParameterValue(idProperty, out var value))
                     {

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -24,8 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     public class StoreKeyConvention :
         IEntityTypeAddedConvention,
+        IPropertyAnnotationChangedConvention,
         IForeignKeyOwnershipChangedConvention,
         IForeignKeyRemovedConvention,
+        IKeyAddedConvention,
+        IKeyRemovedConvention,
+        IEntityTypePrimaryKeyChangedConvention,
         IEntityTypeAnnotationChangedConvention,
         IEntityTypeBaseTypeChangedConvention
     {
@@ -36,7 +41,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public static readonly string IdPropertyName = "id";
+        public static readonly string IdPropertyJsonName = "id";
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static readonly string DefaultIdPropertyName = "__id";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-        private static void Process(IConventionEntityTypeBuilder entityTypeBuilder)
+        private static void ProcessIdProperty(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             IConventionKey newKey = null;
             IConventionProperty idProperty = null;
@@ -70,14 +84,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && entityType.IsDocumentRoot()
                 && !entityType.IsKeyless)
             {
-                idProperty = entityTypeBuilder.Property(typeof(string), IdPropertyName, setTypeConfigurationSource: false)
-                    ?.Metadata;
+                idProperty = entityType.FindDeclaredProperty(DefaultIdPropertyName)
+                    ?? entityType.GetDeclaredProperties().FirstOrDefault(p => p.GetJsonPropertyName() == IdPropertyJsonName)
+                    ?? entityTypeBuilder.Property(typeof(string), DefaultIdPropertyName, setTypeConfigurationSource: false)
+                        ?.ToJsonProperty(IdPropertyJsonName)?.Metadata;
 
                 if (idProperty != null)
                 {
                     if (idProperty.ClrType == typeof(string))
                     {
-                        idProperty.Builder.HasValueGenerator((_, __) => new IdValueGenerator());
+                        if (idProperty.IsPrimaryKey())
+                        {
+                            idProperty.Builder.HasValueGenerator((Type)null);
+                        }
+                        else
+                        {
+                            idProperty.Builder.HasValueGenerator((_, __) => new IdValueGenerator());
+                        }
                     }
 
                     var partitionKey = entityType.GetPartitionKeyPropertyName();
@@ -105,10 +128,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                idProperty = entityType.FindDeclaredProperty(IdPropertyName);
+                idProperty = entityType.FindDeclaredProperty(DefaultIdPropertyName);
             }
 
-            if (idProperty != null)
+            if (idProperty != null
+                && idProperty.GetContainingKeys().Count() > (newKey == null ? 0 : 1))
             {
                 foreach (var key in idProperty.GetContainingKeys().ToList())
                 {
@@ -118,7 +142,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
             }
+        }
 
+        private static void ProcessJObjectProperty(IConventionEntityTypeBuilder entityTypeBuilder)
+        {
+            var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType == null
                 && !entityType.IsKeyless)
             {
@@ -136,41 +164,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after an entity type is added to the model.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            Process(entityTypeBuilder);
+            ProcessIdProperty(entityTypeBuilder);
+            ProcessJObjectProperty(entityTypeBuilder);
         }
 
-        /// <summary>
-        ///     Called after the ownership value for a foreign key is changed.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessForeignKeyOwnershipChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<bool?> context)
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-            Check.NotNull(context, nameof(context));
-
-            Process(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
+            ProcessIdProperty(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
         }
 
-        /// <summary>
-        ///     Called after a foreign key is removed.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="foreignKey"> The removed foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessForeignKeyRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionForeignKey foreignKey,
@@ -178,18 +189,65 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (foreignKey.IsOwnership)
             {
-                Process(foreignKey.DeclaringEntityType.Builder);
+                ProcessIdProperty(foreignKey.DeclaringEntityType.Builder);
             }
         }
 
-        /// <summary>
-        ///     Called after an annotation is changed on an entity type.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="name"> The annotation name. </param>
-        /// <param name="annotation"> The new annotation. </param>
-        /// <param name="oldAnnotation"> The old annotation.  </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
+        public virtual void ProcessKeyAdded(
+            IConventionKeyBuilder keyBuilder,
+            IConventionContext<IConventionKeyBuilder> context)
+        {
+            var entityTypeBuilder = keyBuilder.Metadata.DeclaringEntityType.Builder;
+            if (entityTypeBuilder.Metadata.GetKeys().Count() == 1)
+            {
+                ProcessIdProperty(entityTypeBuilder);
+                ProcessJObjectProperty(entityTypeBuilder);
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey key,
+            IConventionContext<IConventionKey> context)
+        {
+            if (entityTypeBuilder.Metadata.IsKeyless)
+            {
+                ProcessIdProperty(entityTypeBuilder);
+                ProcessJObjectProperty(entityTypeBuilder);
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessEntityTypePrimaryKeyChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey newPrimaryKey,
+            IConventionKey previousPrimaryKey,
+            IConventionContext<IConventionKey> context)
+        {
+            if ((newPrimaryKey != null && newPrimaryKey.Properties.Any(p => p.GetJsonPropertyName() == IdPropertyJsonName))
+                || (previousPrimaryKey != null && previousPrimaryKey.Properties.Any(p => p.GetJsonPropertyName() == IdPropertyJsonName)))
+            {
+                ProcessIdProperty(entityTypeBuilder);
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessEntityTypeBaseTypeChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType newBaseType,
+            IConventionEntityType oldBaseType,
+            IConventionContext<IConventionEntityType> context)
+        {
+            if (entityTypeBuilder.Metadata.BaseType == newBaseType)
+            {
+                ProcessIdProperty(entityTypeBuilder);
+                ProcessJObjectProperty(entityTypeBuilder);
+            }
+        }
+
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeAnnotationChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
@@ -197,39 +255,56 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionAnnotation oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(context, nameof(context));
-
             if (name == CosmosAnnotationNames.ContainerName
-                || name == CosmosAnnotationNames.PartitionKeyName)
+                && (annotation?.Value == null
+                    || oldAnnotation?.Value == null))
             {
-                Process(entityTypeBuilder);
+                ProcessIdProperty(entityTypeBuilder);
+            }
+            else if (name == CosmosAnnotationNames.PartitionKeyName)
+            {
+                var oldName = (string)oldAnnotation?.Value;
+                if (oldName != null)
+                {
+                    var oldPartitionKeyProperty = entityTypeBuilder.Metadata.FindProperty(oldName);
+                    if (oldPartitionKeyProperty != null)
+                    {
+                        foreach (var key in oldPartitionKeyProperty.GetContainingKeys().ToList())
+                        {
+                            key.DeclaringEntityType.Builder.HasNoKey(key);
+                        }
+                    }
+                }
+
+                ProcessIdProperty(entityTypeBuilder);
             }
         }
 
-        /// <summary>
-        ///     Called after the base type of an entity type changes.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newBaseType"> The new base entity type. </param>
-        /// <param name="oldBaseType"> The old base entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessEntityTypeBaseTypeChanged(
-            IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
-            IConventionContext<IConventionEntityType> context)
+        /// <inheritdoc />
+        public virtual void ProcessPropertyAnnotationChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotNull(context, nameof(context));
-
-            if (entityTypeBuilder.Metadata.BaseType != newBaseType)
+            if (name == CosmosAnnotationNames.PropertyName
+                && (string)annotation?.Value == IdPropertyJsonName
+                && propertyBuilder.Metadata.Name != DefaultIdPropertyName)
             {
-                return;
-            }
+                var entityType = propertyBuilder.Metadata.DeclaringEntityType;
 
-            Process(entityTypeBuilder);
+                var idProperty = entityType.FindProperty(DefaultIdPropertyName);
+                if (idProperty != null)
+                {
+                    foreach (var key in idProperty.GetContainingKeys().ToList())
+                    {
+                        key.DeclaringEntityType.Builder.HasNoKey(key);
+                    }
+                }
+
+                ProcessIdProperty(entityType.Builder);
+            }
         }
     }
 }

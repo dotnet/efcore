@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         {
             base.Validate(model, logger);
 
+            ValidateDatabaseProperties(model, logger);
             ValidateKeys(model, logger);
             ValidateSharedContainerCompatibility(model, logger);
             ValidateOnlyETagConcurrencyToken(model, logger);
@@ -219,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                     continue;
                 }
 
-                var idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+                var idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
                 if (idProperty == null)
                 {
                     throw new InvalidOperationException(CosmosStrings.NoIdProperty(entityType.DisplayName()));
@@ -262,6 +263,59 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                     {
                         throw new InvalidOperationException(CosmosStrings.NoPartitionKeyKey(
                             entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void ValidateDatabaseProperties(
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var properties = new Dictionary<string, IPropertyBase>();
+                foreach (var property in entityType.GetProperties())
+                {
+                    var jsonName = property.GetJsonPropertyName();
+                    if (string.IsNullOrWhiteSpace(jsonName))
+                    {
+                        continue;
+                    }
+
+                    if (properties.TryGetValue(jsonName, out var otherProperty))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.JsonPropertyCollision(property.Name, otherProperty.Name, entityType.DisplayName(), jsonName));
+                    }
+                    else
+                    {
+                        properties[jsonName] = property;
+                    }
+                }
+
+                foreach (var navigation in entityType.GetNavigations())
+                {
+                    if (!navigation.IsEmbedded())
+                    {
+                        continue;
+                    }
+
+                    var jsonName = navigation.TargetEntityType.GetContainingPropertyName();
+                    if (properties.TryGetValue(jsonName, out var otherProperty))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.JsonPropertyCollision(navigation.Name, otherProperty.Name, entityType.DisplayName(), jsonName));
+                    }
+                    else
+                    {
+                        properties[jsonName] = navigation;
                     }
                 }
             }

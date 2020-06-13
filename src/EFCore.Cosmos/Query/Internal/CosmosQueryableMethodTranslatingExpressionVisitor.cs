@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             {
                                 var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey().Properties;
                                 var idProperty = entityType.GetProperties()
-                                    .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+                                    .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
 
                                 if (TryGetPartitionKeyProperty(entityType, out var partitionKeyProperty)
                                     && entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)

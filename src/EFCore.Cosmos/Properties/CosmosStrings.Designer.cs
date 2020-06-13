@@ -206,6 +206,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 GetString("NoPartitionKeyKey", nameof(entityType), nameof(partitionKey), nameof(idProperty)),
                 entityType, partitionKey, idProperty);
 
+        /// <summary>
+        ///     Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.
+        /// </summary>
+        public static string JsonPropertyCollision([CanBeNull] object property1, [CanBeNull] object property2, [CanBeNull] object entityType, [CanBeNull] object storeName)
+            => string.Format(
+                GetString("JsonPropertyCollision", nameof(property1), nameof(property2), nameof(entityType), nameof(storeName)),
+                property1, property2, entityType, storeName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -54,8 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, (DiscriminatorConvention)discriminatorConvention);
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
 
-            ReplaceConvention(conventionSet.PropertyAddedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
+            conventionSet.EntityTypePrimaryKeyChangedConventions.Add(storeKeyConvention);
 
+            conventionSet.KeyAddedConventions.Add(storeKeyConvention);
+
+            conventionSet.KeyRemovedConventions.Add(storeKeyConvention);
             ReplaceConvention(conventionSet.KeyRemovedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
 
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
@@ -74,6 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 
             conventionSet.EntityTypeAnnotationChangedConventions.Add(storeKeyConvention);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(keyDiscoveryConvention);
+
+            ReplaceConvention(conventionSet.PropertyAddedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
+
+            conventionSet.PropertyAnnotationChangedConventions.Add(storeKeyConvention);
 
             return conventionSet;
         }

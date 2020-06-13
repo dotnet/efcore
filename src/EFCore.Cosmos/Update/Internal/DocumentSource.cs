@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         {
             _collectionId = entityType.GetContainer();
             _database = database;
-            _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+            _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
             _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
         }
 
