@@ -22,10 +22,11 @@ namespace Microsoft.EntityFrameworkCore
         public TestStore TestStore { get; }
         protected virtual bool UsePooling => true;
 
-        private IDbContextPool _contextPool;
+        private IDbContextPool<TContext> _contextPool;
 
-        private IDbContextPool ContextPool
-            => _contextPool ??= (IDbContextPool)ServiceProvider.GetRequiredService(typeof(DbContextPool<>).MakeGenericType(ContextType));
+        private IDbContextPool<TContext> ContextPool
+            => _contextPool ??= (IDbContextPool<TContext>)ServiceProvider
+                .GetRequiredService(typeof(IDbContextPool<>).MakeGenericType(ContextType));
 
         private ListLoggerFactory _listLoggerFactory;
 
@@ -61,16 +62,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public virtual TContext CreateContext()
-        {
-            if (UsePooling)
-            {
-                var context = (PoolableDbContext)ContextPool.Rent();
-                context.SetPool(ContextPool);
-                return (TContext)(object)context;
-            }
-
-            return (TContext)ServiceProvider.GetRequiredService(ContextType);
-        }
+            => UsePooling
+                ? new StandaloneDbContextLease<TContext>(ContextPool).Context
+                : (TContext)ServiceProvider.GetRequiredService(ContextType);
 
         public DbContextOptions CreateOptions()
             => ConfigureOptions(ServiceProvider, new DbContextOptionsBuilder()).Options;

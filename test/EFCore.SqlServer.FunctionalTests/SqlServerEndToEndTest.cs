@@ -8,7 +8,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -20,6 +22,59 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
+        public class Your
+        {
+            public const string SqlServerConnectionString = @"Server=(local);Database=Test;ConnectRetryCount=0;User ID=sa;Password=PassW0rd!";
+        }
+
+        public class SomeDbContext : DbContext
+        {
+            public SomeDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Bustomer>();
+            }
+        }
+
+        [ConditionalFact]
+        public void Main()
+        {
+            var services = new ServiceCollection()
+                .AddDbContextPool<SomeDbContext>(
+                    b => b.UseSqlServer(Your.SqlServerConnectionString))
+                .BuildServiceProvider();
+
+            using (var scope = services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetService<SomeDbContext>();
+
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                context.AddRange(new Bustomer { ContactName = "Arthur" });
+
+                context.SaveChanges();
+            }
+
+            using (var scope = services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetService<SomeDbContext>();
+
+                var results = context.Set<Bustomer>().Where(c => c.ContactName.FirstOrDefault() == 'A').ToList();
+            }
+        }
+
+        public class Bustomer
+        {
+            public int Id { get; set; }
+
+            public string ContactName { get; set; }
+        }
+
         private const string DatabaseName = "SqlServerEndToEndTest";
 
         protected SqlServerFixture Fixture { get; }
