@@ -180,6 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 contexts.Add(
                     context,
                     FindContextFactory(context)
+                    ?? FindContextFromRuntimeDbContextFactory(appServices, context)
                     ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context)));
             }
 
@@ -188,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var types = _startupAssembly.GetConstructibleTypes()
                 .Concat(_assembly.GetConstructibleTypes())
                 .ToList();
+
             var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(
                     t => t.AsType())
                 .Concat(
@@ -195,6 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
                         .Where(t => t != null))
                 .Distinct();
+
             foreach (var context in contextTypes.Where(c => !contexts.ContainsKey(c)))
             {
                 _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
@@ -252,6 +255,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             info.Options = options.BuildOptionsFragment().Trim();
 
             return info;
+        }
+
+        private Func<DbContext> FindContextFromRuntimeDbContextFactory(IServiceProvider appServices, Type contextType)
+        {
+            var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType);
+            var service = appServices.GetService(factoryInterface);
+            return service == null
+                ? (Func<DbContext>)null
+                : () => (DbContext)factoryInterface
+                    .GetMethod(nameof(IDbContextFactory<DbContext>.CreateDbContext))
+                    ?.Invoke(service, null);
         }
 
         private Func<DbContext> FindContextFactory(Type contextType)
