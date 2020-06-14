@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private string _region;
         private ConnectionMode? _connectionMode;
         private string _databaseName;
+        private string _connectionString;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
         private DbContextOptionsExtensionInfo _info;
 
@@ -51,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _accountEndpoint = copyFrom._accountEndpoint;
             _accountKey = copyFrom._accountKey;
             _databaseName = copyFrom._databaseName;
+            _connectionString = copyFrom.ConnectionString;
             _executionStrategyFactory = copyFrom._executionStrategyFactory;
             _region = copyFrom._region;
             _connectionMode = copyFrom._connectionMode;
@@ -130,6 +132,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             var clone = Clone();
 
             clone._databaseName = database;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string ConnectionString => _connectionString;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithConnectionString([NotNull] string connectionString)
+        {
+            var clone = Clone();
+
+            clone._connectionString = connectionString;
 
             return clone;
         }
@@ -253,11 +278,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             {
                 if (_serviceProviderHash == null)
                 {
-                    var hashCode = Extension._accountEndpoint.GetHashCode();
-                    hashCode = (hashCode * 397) ^ Extension._accountKey.GetHashCode();
+                    int hashCode;
+                    if (!string.IsNullOrEmpty(Extension._connectionString))
+                    {
+                        hashCode = Extension._connectionString.GetHashCode();
+                    }
+                    else
+                    {
+                        hashCode = Extension._accountEndpoint.GetHashCode();
+                        hashCode = (hashCode * 397) ^ Extension._accountKey.GetHashCode();
+                    }
+
                     hashCode = (hashCode * 397) ^ (Extension._region?.GetHashCode() ?? 0);
                     hashCode = (hashCode * 397) ^ (Extension._connectionMode?.GetHashCode() ?? 0);
-
                     _serviceProviderHash = hashCode;
                 }
 
@@ -268,9 +301,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             {
                 Check.NotNull(debugInfo, nameof(debugInfo));
 
-                debugInfo["Cosmos:" + nameof(AccountEndpoint)] =
+                if (!string.IsNullOrEmpty(Extension._connectionString))
+                {
+                    debugInfo["Cosmos:" + nameof(ConnectionString)] = Extension._connectionString.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    debugInfo["Cosmos:" + nameof(AccountEndpoint)] =
                     Extension._accountEndpoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                debugInfo["Cosmos:" + nameof(AccountKey)] = Extension._accountKey.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                    debugInfo["Cosmos:" + nameof(AccountKey)] = Extension._accountKey.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                }
+
                 debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] =
                     (Extension._region?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
             }

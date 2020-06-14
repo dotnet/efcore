@@ -62,6 +62,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual string ConnectionString { get; private set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void Initialize(IDbContextOptions options)
         {
             var cosmosOptions = options.FindExtension<CosmosOptionsExtension>();
@@ -71,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                 AccountKey = cosmosOptions.AccountKey;
                 Region = cosmosOptions.Region;
                 ConnectionMode = cosmosOptions.ConnectionMode;
+                ConnectionString = cosmosOptions.ConnectionString;
             }
         }
 
@@ -85,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             var cosmosOptions = options.FindExtension<CosmosOptionsExtension>();
 
             if (cosmosOptions != null
-                && (AccountEndpoint != cosmosOptions.AccountEndpoint
+                && (ConnectionString != cosmosOptions.ConnectionString
+                    || AccountEndpoint != cosmosOptions.AccountEndpoint
                     || AccountKey != cosmosOptions.AccountKey
                     || Region != cosmosOptions.Region
                     || ConnectionMode != cosmosOptions.ConnectionMode))

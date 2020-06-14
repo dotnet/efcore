@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private readonly CosmosClientOptions _options;
         private readonly string _endpoint;
         private readonly string _key;
+        private readonly string _connectionString;
         private CosmosClient _client;
 
         /// <summary>
@@ -42,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             _endpoint = options.AccountEndpoint;
             _key = options.AccountKey;
+            _connectionString = options.ConnectionString;
             var configuration = new CosmosClientOptions
             {
                 ApplicationName = _userAgent, ConnectionMode = options.ConnectionMode ?? ConnectionMode.Direct
@@ -61,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosClient Client => _client ??= new CosmosClient(_endpoint, _key, _options);
+        public virtual CosmosClient Client => _client ??= string.IsNullOrEmpty(_connectionString)
+                    ? new CosmosClient(_endpoint, _key, _options)
+                    : new CosmosClient(_connectionString, _options);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

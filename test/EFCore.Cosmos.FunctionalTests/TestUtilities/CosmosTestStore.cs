@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
+            ConnectionString = TestEnvironment.ConnectionString;
             _configureCosmos = extensionConfiguration == null
                 ? (Action<CosmosDbContextOptionsBuilder>)(b => b.ApplyConfiguration())
                 : (b =>
@@ -68,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
+        public string ConnectionString { get; }
 
         protected override DbContext CreateDefaultContext() => new TestStoreContext(this);
 
