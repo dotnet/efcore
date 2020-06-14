@@ -168,6 +168,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
+        public void IsModified_tracks_state_of_owned_entity()
+        {
+            using var context = new FreezerContext();
+            var chunky = new Chunky { Chunk = new Chunk { Size = 1, Shape = "Sphere" }};
+            context.Add(chunky);
+
+            var reference = context.Entry(chunky).Member(nameof(Chunky.Chunk));
+
+            Assert.True(reference.IsModified);
+
+            context.SaveChanges();
+
+            Assert.False(reference.IsModified);
+
+            chunky.Chunk = new Chunk { Size = 2, Shape = "Cube" };
+            context.ChangeTracker.DetectChanges();
+
+            Assert.True(reference.IsModified);
+
+            context.SaveChanges();
+
+            Assert.False(reference.IsModified);
+        }
+
+        [ConditionalFact]
         public void IsModified_can_set_fk_to_modified_collection()
         {
             using var context = new FreezerContext();
@@ -196,6 +221,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.Equal(EntityState.Unchanged, context.Entry(chunky2).State);
         }
 
+        [Owned]
+        public class Chunk {
+            public int Size { get; set; }
+            public string Shape { get; set; }
+        }
+
         private class Chunky
         {
             public int Monkey { get; set; }
@@ -203,6 +234,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public int? GarciaId { get; set; }
             public Cherry Garcia { get; set; }
+
+            public Chunk Chunk { get; set; }
         }
 
         private class Cherry

@@ -240,7 +240,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
 
             return relatedEntry != null
-                && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
+                && (relatedEntry.EntityState == EntityState.Added
+                || relatedEntry.EntityState == EntityState.Deleted
+                || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
         }
 
         private void SetFkPropertiesModified(object relatedEntity, bool modified)
