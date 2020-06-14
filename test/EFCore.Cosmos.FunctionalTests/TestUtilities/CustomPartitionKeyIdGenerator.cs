@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             return (T)NextValue(entry);
         }
+
         protected override object NextValue(EntityEntry entry)
         {
             var builder = new StringBuilder();
