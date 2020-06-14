@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (anyNonPk
                     && !property.IsPrimaryKey())
                 {
-                    internalEntityEntry.SetPropertyModified(property, isModified: modified, acceptChanges: true);
+                    internalEntityEntry.SetPropertyModified(property, isModified: modified, acceptChanges: false);
                 }
             }
         }
