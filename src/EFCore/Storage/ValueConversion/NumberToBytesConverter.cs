@@ -120,6 +120,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 output = Expression.Convert(output, typeof(TNumber));
             }
 
+            output = Expression.Condition(
+                    Expression.Equal(Expression.Property(param, typeof(byte[]).GetProperty(nameof(Array.Length))), Expression.Constant(0)),
+                    Expression.Constant(default(TNumber), typeof(TNumber)),
+                    output);
+
             return Expression.Lambda<Func<byte[], TNumber>>(
                 Expression.Condition(
                     Expression.ReferenceEqual(param, Expression.Constant(null)),
