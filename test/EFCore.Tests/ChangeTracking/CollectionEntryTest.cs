@@ -429,10 +429,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             EntityState principalState, EntityState dependentState)
         {
             using var context = new FreezerContext();
-            var cherry = new Cherry();
+            var cherry = new Cherry { Id = 1 };
             var chunky1 = new Chunky { Id = 1, Garcia = cherry };
             var chunky2 = new Chunky { Id = 2, Garcia = cherry };
             cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
+
+            context.Attach(chunky1);
+            context.Attach(chunky2);
 
             context.Entry(cherry).State = principalState;
             context.Entry(chunky1).State = dependentState;
