@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -41,14 +40,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
                     .GetDeclaredMethod(nameof(MaterializeSingleResult));
 
-            private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
-                => ((ILazyLoader)(navigation
-                            .DeclaringEntityType
-                            .GetServiceProperties()
-                            .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
-                        ?.GetGetter().GetClrValue(entity))
-                    ?.SetLoaded(entity, navigation.Name);
-
             private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
                 QueryContext queryContext,
                 TEntity entity,
@@ -74,14 +65,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                     else
                     {
-                        SetIsLoadedNoTracking(includingEntity, navigation);
+                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, includingEntity);
                         if (relatedEntity != null)
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null
                                 && !inverseNavigation.IsCollection)
                             {
-                                SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
                             }
                         }
                     }
@@ -112,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                     else
                     {
-                        SetIsLoadedNoTracking(entity, navigation);
+                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, entity);
                     }
 
                     foreach (var valueBuffer in innerValueBuffers)
@@ -124,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
                             }
                         }
                     }
