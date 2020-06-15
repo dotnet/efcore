@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _byteToBytesConverter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(7, converter(new byte[] { 7 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
@@ -54,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _nullableByteToBytesConverter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal((byte?)7, converter(new byte[] { 7 }));
+            Assert.Null(converter(Array.Empty<byte>()));
             Assert.Null(converter(null));
         }
 
@@ -82,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(7777, converter(new byte[] { 30, 97 }));
             Assert.Equal(-7777, converter(new byte[] { 225, 159 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
@@ -104,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(77777777, converter(new byte[] { 4, 162, 203, 113 }));
             Assert.Equal(-77777777, converter(new byte[] { 251, 93, 52, 143 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
@@ -127,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(77777777, converter(new byte[] { 4, 162, 203, 113 }));
             Assert.Equal(-77777777, converter(new byte[] { 251, 93, 52, 143 }));
+            Assert.Null(converter(Array.Empty<byte>()));
             Assert.Null(converter(null));
         }
 
@@ -149,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(777777777777, converter(new byte[] { 0, 0, 0, 181, 23, 43, 12, 113 }));
             Assert.Equal(-777777777777, converter(new byte[] { 255, 255, 255, 74, 232, 212, 243, 143 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
@@ -171,6 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(7, converter(new byte[] { 7 }));
             Assert.Equal(-7, converter(new byte[] { 249 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
@@ -194,6 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal((sbyte?)7, converter(new byte[] { 7 }));
             Assert.Equal((sbyte?)-7, converter(new byte[] { 249 }));
+            Assert.Null(converter(Array.Empty<byte>()));
             Assert.Null(converter(null));
         }
 
@@ -214,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _ushortToBytesConverter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal(7777, converter(new byte[] { 30, 97 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
@@ -240,6 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _uintToBytesConverter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal((uint)77777777, converter(new byte[] { 4, 162, 203, 113 }));
+            Assert.Equal((uint)0, converter(Array.Empty<byte>()));
             Assert.Equal((uint)0, converter(null));
         }
 
@@ -261,6 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _nullableUintToBytesConverter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal((uint?)77777777, converter(new byte[] { 4, 162, 203, 113 }));
+            Assert.Null(converter(Array.Empty<byte>()));
             Assert.Null(converter(null));
         }
 
@@ -287,6 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _ulongToBytesConverter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal((ulong)777777777777, converter(new byte[] { 0, 0, 0, 181, 23, 43, 12, 113 }));
+            Assert.Equal((ulong)0, converter(Array.Empty<byte>()));
             Assert.Equal((ulong)0, converter(null));
         }
 
@@ -313,6 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _charToBytesConverter.ConvertFromProviderExpression.Compile();
 
             Assert.Equal('A', converter(new byte[] { 0, 65 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
@@ -473,6 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal((float)777.77, converter(new byte[] { 68, 66, 113, 72 }));
             Assert.Equal((float)-777.77, converter(new byte[] { 196, 66, 113, 72 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
@@ -495,6 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(7777777.77777, converter(new byte[] { 65, 93, 171, 124, 113, 198, 251, 210 }));
             Assert.Equal(-7777777.77777, converter(new byte[] { 193, 93, 171, 124, 113, 198, 251, 210 }));
+            Assert.Equal(0, converter(Array.Empty<byte>()));
             Assert.Equal(0, converter(null));
         }
 
