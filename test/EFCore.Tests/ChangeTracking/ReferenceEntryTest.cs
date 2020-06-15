@@ -428,16 +428,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             var reference = context.Entry(chunky).Reference(e => e.Baked);
 
-            Assert.False(reference.IsModified);
+            Assert.True(reference.IsModified);
 
             reference.IsModified = true;
 
-            Assert.False(reference.IsModified);
+            Assert.True(reference.IsModified);
             Assert.False(context.Entry(half).Property(e => e.MonkeyId).IsModified);
 
             reference.IsModified = false;
 
-            Assert.False(reference.IsModified);
+            Assert.True(reference.IsModified);
             Assert.False(context.Entry(half).Property(e => e.MonkeyId).IsModified);
             Assert.Equal(dependentState, context.Entry(half).State);
         }
