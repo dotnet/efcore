@@ -562,7 +562,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (joinPredicate != null)
             {
                 var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-                inner = inner.UpdateShaperExpression(MarkShaperNullable(inner.ShaperExpression));
                 var outerShaperExpression = outerSelectExpression.AddLeftJoin(inner, joinPredicate, outer.ShaperExpression);
                 outer = outer.UpdateShaperExpression(outerShaperExpression);
 
@@ -870,9 +869,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var innerSelectExpression = (SelectExpression)source.QueryExpression;
                     var shaper = defaultIfEmpty
-                        ? innerSelectExpression.AddOuterApply(
-                            inner.UpdateShaperExpression(MarkShaperNullable(inner.ShaperExpression)),
-                            source.ShaperExpression)
+                        ? innerSelectExpression.AddOuterApply(inner, source.ShaperExpression)
                         : innerSelectExpression.AddCrossApply(inner, source.ShaperExpression);
 
                     return TranslateTwoParameterSelector(source.UpdateShaperExpression(shaper), resultSelector);
