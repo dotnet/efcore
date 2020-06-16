@@ -5100,6 +5100,23 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
+        public override async Task Single_non_scalar_projection_after_skip_uses_join(bool async)
+        {
+            await base.Single_non_scalar_projection_after_skip_uses_join(async);
+
+            AssertSql(
+                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate]) AS [row]
+        FROM [Orders] AS [o]
+    ) AS [t]
+    WHERE (2 < [t].[row]) AND ([t].[row] <= 3)
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

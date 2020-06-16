@@ -56,30 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes(bool async) => null;
         public override Task Filtered_include_complex_three_level_with_middle_having_filter1(bool async) => null;
         public override Task Filtered_include_complex_three_level_with_middle_having_filter2(bool async) => null;
-        public override void Filtered_include_Skip_without_OrderBy_split() { }
-        public override void Filtered_include_Take_without_OrderBy_split() { }
-        public override Task Filtered_include_after_different_filtered_include_same_level_split(bool async) => null;
-        public override Task Filtered_include_after_different_filtered_include_different_level_split(bool async) => null;
-        public override Task Filtered_include_after_reference_navigation_split(bool async) => null;
-        public override Task Filtered_include_and_non_filtered_include_on_same_navigation1_split(bool async) => null;
-        public override Task Filtered_include_and_non_filtered_include_on_same_navigation2_split(bool async) => null;
-        public override Task Filtered_include_basic_OrderBy_Take_split(bool async) => null;
-        public override Task Filtered_include_basic_OrderBy_Skip_split(bool async) => null;
-        public override Task Filtered_include_basic_OrderBy_Skip_Take_split(bool async) => null;
-        public override void Filtered_include_context_accessed_inside_filter_split() { }
-        public override void Filtered_include_context_accessed_inside_filter_correlated_split() { }
-        public override Task Filtered_include_on_ThenInclude_split(bool async) => null;
-        public override void Filtered_include_outer_parameter_used_inside_filter_split() { }
-        public override void Filtered_include_variable_used_inside_filter_split() { }
-        public override void Filtered_include_is_considered_loaded_split() { }
+
         public override Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation_split(bool async) => null;
         public override Task Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(bool async) => null;
-        public override Task Filtered_include_same_filter_set_on_same_navigation_twice_split(bool async) => null;
         public override Task Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes_split(bool async) => null;
-        public override Task Filtered_include_complex_three_level_with_middle_having_filter1_split(bool async) => null;
-        public override Task Filtered_include_complex_three_level_with_middle_having_filter2_split(bool async) => null;
-        public override Task Filtered_include_OrderBy_split(bool async) => null;
-        public override Task Filtered_ThenInclude_OrderBy_split(bool async) => null;
-        public override Task Filtered_include_ThenInclude_OrderBy_split(bool async) => null;
     }
 }

@@ -4133,6 +4133,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         public override Task All_client_or_server_top_level(bool async)
             => base.All_client_or_server_top_level(async);
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Single_non_scalar_projection_after_skip_uses_join(bool async)
+        {
+            return base.Single_non_scalar_projection_after_skip_uses_join(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

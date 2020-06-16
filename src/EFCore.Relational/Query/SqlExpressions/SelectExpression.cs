@@ -1835,9 +1835,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (joinType == JoinType.CrossApply
                 || joinType == JoinType.OuterApply)
             {
-                // Doing for limit only since limit + offset may need sum
                 var limit = innerSelectExpression.Limit;
+                var offset = innerSelectExpression.Offset;
                 innerSelectExpression.Limit = null;
+                innerSelectExpression.Offset = null;
 
                 joinPredicate = TryExtractJoinKey(innerSelectExpression);
                 if (joinPredicate != null)
@@ -1851,10 +1852,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             innerSelectExpression.ApplyLimit(limit);
                         }
+                        if (offset != null)
+                        {
+                            innerSelectExpression.ApplyOffset(offset);
+                        }
                     }
                     else
                     {
-                        if (limit != null)
+                        if (limit != null || offset != null)
                         {
                             var partitions = new List<SqlExpression>();
                             GetPartitions(joinPredicate, partitions);
@@ -1864,19 +1869,44 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                     ? innerSelectExpression._identifier.Select(e => new OrderingExpression(e.Column, true))
                                     : new[] { new OrderingExpression(new SqlFragmentExpression("(SELECT 1)"), true) };
 
-                            var rowNumberExpression = new RowNumberExpression(partitions, orderings.ToList(), limit.TypeMapping);
+                            var rowNumberExpression = new RowNumberExpression(partitions, orderings.ToList(), (limit ?? offset).TypeMapping);
                             innerSelectExpression.ClearOrdering();
 
                             var projectionMappings = innerSelectExpression.PushdownIntoSubquery();
                             var subquery = (SelectExpression)innerSelectExpression.Tables[0];
 
-                            joinPredicate = new SqlRemappingVisitor(
-                                    projectionMappings, subquery)
-                                .Remap(joinPredicate);
+                            joinPredicate = new SqlRemappingVisitor(projectionMappings, subquery).Remap(joinPredicate);
 
                             var outerColumn = subquery.GenerateOuterColumn(rowNumberExpression, "row");
-                            var predicate = new SqlBinaryExpression(
-                                ExpressionType.LessThanOrEqual, outerColumn, limit, typeof(bool), joinPredicate.TypeMapping);
+                            SqlExpression offsetPredicate = null;
+                            SqlExpression limitPredicate = null;
+                            if (offset != null)
+                            {
+                                offsetPredicate = new SqlBinaryExpression(
+                                    ExpressionType.LessThan, offset, outerColumn, typeof(bool), joinPredicate.TypeMapping);
+                            }
+                            if (limit != null)
+                            {
+                                if (offset != null)
+                                {
+                                    limit = offset is SqlConstantExpression offsetConstant
+                                        && limit is SqlConstantExpression limitConstant
+                                        ? (SqlExpression)new SqlConstantExpression(
+                                            Constant((int)offsetConstant.Value + (int)limitConstant.Value),
+                                            limit.TypeMapping)
+                                        : new SqlBinaryExpression(ExpressionType.Add, offset, limit, limit.Type, limit.TypeMapping);
+                                }
+
+                                limitPredicate = new SqlBinaryExpression(
+                                    ExpressionType.LessThanOrEqual, outerColumn, limit, typeof(bool), joinPredicate.TypeMapping);
+                            }
+
+                            var predicate = offsetPredicate != null
+                                ? limitPredicate != null
+                                    ? new SqlBinaryExpression(
+                                        ExpressionType.AndAlso, offsetPredicate, limitPredicate, typeof(bool), joinPredicate.TypeMapping)
+                                    : offsetPredicate
+                                : limitPredicate;
                             innerSelectExpression.ApplyPredicate(predicate);
                         }
 
@@ -1888,6 +1918,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     if (limit != null)
                     {
                         innerSelectExpression.ApplyLimit(limit);
+                    }
+
+                    if (offset != null)
+                    {
+                        innerSelectExpression.ApplyOffset(offset);
                     }
                 }
             }
