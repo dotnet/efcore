@@ -152,12 +152,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private Expression RewriteSubqueryToSelectMany(Expression subquery)
             {
+                var collectionElementType = subquery.Type.TryGetSequenceType();
+                if (subquery.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
+                {
+                    subquery = Expression.Call(
+                        QueryableMethods.Skip.MakeGenericMethod(collectionElementType),
+                        subquery,
+                        Expression.Constant(0));
+                }
+
                 var newParameter = Expression.Parameter(_parameterExpression.Type);
                 subquery = ReplacingExpressionVisitor.Replace(_parameterExpression, newParameter, subquery);
 
                 // Collection selector body is IQueryable, we need to adjust the type to IEnumerable, to match the SelectMany signature
                 // therefore the delegate type is specified explicitly
-                var collectionElementType = subquery.Type.TryGetSequenceType();
                 var collectionSelectorLambdaType = typeof(Func<,>).MakeGenericType(
                     _sourceElementType,
                     typeof(IEnumerable<>).MakeGenericType(collectionElementType));

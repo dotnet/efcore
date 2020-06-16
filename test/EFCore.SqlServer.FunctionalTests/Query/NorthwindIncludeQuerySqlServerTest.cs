@@ -1218,6 +1218,24 @@ LEFT JOIN (
 ORDER BY [t0].[CustomerID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]");
         }
 
+        public override async Task Filtered_include_with_multiple_ordering(bool async)
+        {
+            await base.Filtered_include_with_multiple_ordering(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
+    OFFSET 1 ROWS
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderDate] DESC, [t].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

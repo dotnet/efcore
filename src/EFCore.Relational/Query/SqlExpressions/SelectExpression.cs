@@ -1124,13 +1124,85 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 var parentIdentifier = GetIdentifierAccessor(_identifier).Item1;
                 innerSelectExpression.ApplyProjection();
-                var (childIdentifier, childIdentifierValueComparers) = innerSelectExpression
-                    .GetIdentifierAccessor(innerSelectExpression._identifier.Take(_identifier.Count));
 
                 for (var i = 0; i < _identifier.Count; i++)
                 {
                     AppendOrdering(new OrderingExpression(_identifier[i].Column, ascending: true));
-                    innerSelectExpression.AppendOrdering(new OrderingExpression(innerSelectExpression._identifier[i].Column, ascending: true));
+                }
+
+                // Copy over ordering from previous collections
+                var innerOrderingExpressions = new List<OrderingExpression>();
+                foreach (var table in innerSelectExpression.Tables)
+                {
+                    if (table is InnerJoinExpression collectionJoinExpression
+                        && collectionJoinExpression.Table is SelectExpression collectionSelectExpression
+                        && collectionSelectExpression.Predicate != null
+                        && collectionSelectExpression.Tables.Count == 1
+                        && collectionSelectExpression.Tables[0] is SelectExpression rowNumberSubquery
+                        && rowNumberSubquery.Projection.Select(pe => pe.Expression)
+                            .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
+                    {
+                        foreach (var partition in rowNumberExpression.Partitions)
+                        {
+                            innerOrderingExpressions.Add(new OrderingExpression(
+                                collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(partition)),
+                                ascending: true));
+                        }
+
+                        foreach (var ordering in rowNumberExpression.Orderings)
+                        {
+                            innerOrderingExpressions.Add(new OrderingExpression(
+                                collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(ordering.Expression)),
+                                ordering.IsAscending));
+                        }
+                    }
+
+                    if (table is CrossApplyExpression collectionApplyExpression
+                        && collectionApplyExpression.Table is SelectExpression collectionSelectExpression2
+                        && collectionSelectExpression2.Orderings.Count > 0)
+                    {
+                        foreach (var ordering in collectionSelectExpression2.Orderings)
+                        {
+                            if (innerSelectExpression._identifier.Any(e => e.Column.Equals(ordering.Expression)))
+                            {
+                                continue;
+                            }
+
+                            innerOrderingExpressions.Add(new OrderingExpression(
+                                collectionSelectExpression2.GenerateOuterColumn(ordering.Expression),
+                                ordering.IsAscending));
+                        }
+                    }
+                }
+
+                var (childIdentifier, childIdentifierValueComparers) = innerSelectExpression
+                    .GetIdentifierAccessor(innerSelectExpression._identifier.Take(_identifier.Count));
+
+                var identifierIndex = 0;
+                var orderingIndex = 0;
+                for (var i = 0; i < Orderings.Count; i++)
+                {
+                    var outerOrdering = Orderings[i];
+                    if (outerOrdering.Expression.Equals(_identifier[identifierIndex].Column))
+                    {
+                        innerSelectExpression.AppendOrdering(new OrderingExpression(innerSelectExpression._identifier[identifierIndex].Column, ascending: true));
+                        identifierIndex++;
+                    }
+                    else
+                    {
+                        if (i < innerSelectExpression.Orderings.Count)
+                        {
+                            continue;
+                        }
+
+                        innerSelectExpression.AppendOrdering(innerOrderingExpressions[orderingIndex]);
+                        orderingIndex++;
+                    }
+                }
+
+                foreach (var orderingExpression in innerOrderingExpressions.Skip(orderingIndex))
+                {
+                    innerSelectExpression.AppendOrdering(orderingExpression);
                 }
 
                 return new RelationalSplitCollectionShaperExpression(

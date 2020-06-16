@@ -6,26 +6,26 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindSplitIncludeNoTrackingQuerySqlServerTest : NorthwindSplitIncludeNoTrackingQueryTestBase<NorthwindSplitIncludeNoTrackingQuerySqlServerTest.NorthwindQuerySqlServerMARSFixture>
+    public class NorthwindSplitIncludeNoTrackingQuerySqlServerTest : NorthwindSplitIncludeNoTrackingQueryTestBase<NorthwindSplitIncludeNoTrackingQuerySqlServerTest.NorthwindQuerySqlServerMarsEnabledFixture>
     {
         // ReSharper disable once UnusedParameter.Local
-        public NorthwindSplitIncludeNoTrackingQuerySqlServerTest(NorthwindQuerySqlServerMARSFixture fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindSplitIncludeNoTrackingQuerySqlServerTest(NorthwindQuerySqlServerMarsEnabledFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public class NorthwindQuerySqlServerMARSFixture : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
+        public class NorthwindQuerySqlServerMarsEnabledFixture : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerNorthwindMARSTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqlServerNorthwindMarsEnabledTestStoreFactory.Instance;
         }
 
-        private class SqlServerNorthwindMARSTestStoreFactory : SqlServerNorthwindTestStoreFactory
+        private class SqlServerNorthwindMarsEnabledTestStoreFactory : SqlServerNorthwindTestStoreFactory
         {
-            public static new SqlServerNorthwindMARSTestStoreFactory Instance { get; } = new SqlServerNorthwindMARSTestStoreFactory();
+            public static new SqlServerNorthwindMarsEnabledTestStoreFactory Instance { get; } = new SqlServerNorthwindMarsEnabledTestStoreFactory();
 
-            protected SqlServerNorthwindMARSTestStoreFactory()
+            protected SqlServerNorthwindMarsEnabledTestStoreFactory()
             {
             }
 
