@@ -5970,5 +5970,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "ALFKI", StringComparison.InvariantCulture))),
                 CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Single_non_scalar_projection_after_skip_uses_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderDate).Skip(2).FirstOrDefault()),
+                entryCount: 86);
+        }
     }
 }
