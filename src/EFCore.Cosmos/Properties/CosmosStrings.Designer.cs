@@ -214,6 +214,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 GetString("JsonPropertyCollision", nameof(property1), nameof(property2), nameof(entityType), nameof(storeName)),
                 property1, property2, entityType, storeName);
 
+        /// <summary>
+        ///     Both the connection string and account key or account endpoint were specified. Only specify one set of connection details.
+        /// </summary>
+        public static string ConnectionStringConflictingConfiguration
+            => GetString("ConnectionStringConflictingConfiguration");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

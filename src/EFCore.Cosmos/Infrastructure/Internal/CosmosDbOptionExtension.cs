@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -24,11 +26,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
     {
         private string _accountEndpoint;
         private string _accountKey;
+        private string _connectionString;
+        private string _databaseName;
         private string _region;
         private ConnectionMode? _connectionMode;
-        private string _databaseName;
-        private string _connectionString;
+        private bool? _limitToEndpoint;
+        private bool? _allowBulkExecution;
         private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
+        private IWebProxy _webProxy;
+        private TimeSpan? _requestTimeout;
+        private TimeSpan? _openTcpConnectionTimeout;
+        private TimeSpan? _idleTcpConnectionTimeout;
+        private PortReuseMode? _portReuseMode;
+        private bool? _enableTcpConnectionEndpointRediscovery;
+        private int? _gatewayModeMaxConnectionLimit;
+        private int? _maxTcpConnectionsPerEndpoint;
+        private int? _maxRequestsPerTcpConnection;
         private DbContextOptionsExtensionInfo _info;
 
         /// <summary>
@@ -52,10 +65,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _accountEndpoint = copyFrom._accountEndpoint;
             _accountKey = copyFrom._accountKey;
             _databaseName = copyFrom._databaseName;
-            _connectionString = copyFrom.ConnectionString;
-            _executionStrategyFactory = copyFrom._executionStrategyFactory;
+            _connectionString = copyFrom._connectionString;
             _region = copyFrom._region;
             _connectionMode = copyFrom._connectionMode;
+            _limitToEndpoint = copyFrom._limitToEndpoint;
+            _allowBulkExecution = copyFrom._allowBulkExecution;
+            _executionStrategyFactory = copyFrom._executionStrategyFactory;
+            _webProxy = copyFrom._webProxy;
+            _requestTimeout = copyFrom._requestTimeout;
+            _openTcpConnectionTimeout = copyFrom._openTcpConnectionTimeout;
+            _idleTcpConnectionTimeout = copyFrom._idleTcpConnectionTimeout;
+            _portReuseMode = copyFrom._portReuseMode;
+            _enableTcpConnectionEndpointRediscovery = copyFrom._enableTcpConnectionEndpointRediscovery;
+            _gatewayModeMaxConnectionLimit = copyFrom._gatewayModeMaxConnectionLimit;
+            _maxTcpConnectionsPerEndpoint = copyFrom._maxTcpConnectionsPerEndpoint;
+            _maxRequestsPerTcpConnection = copyFrom._maxRequestsPerTcpConnection;
         }
 
         /// <summary>
@@ -83,6 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// </summary>
         public virtual CosmosOptionsExtension WithAccountEndpoint([NotNull] string accountEndpoint)
         {
+            if (_connectionString != null)
+            {
+                throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
+            }
+
             var clone = Clone();
 
             clone._accountEndpoint = accountEndpoint;
@@ -106,9 +135,42 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// </summary>
         public virtual CosmosOptionsExtension WithAccountKey([NotNull] string accountKey)
         {
+            if (_connectionString != null)
+            {
+                throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
+            }
+
             var clone = Clone();
 
             clone._accountKey = accountKey;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string ConnectionString => _connectionString;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithConnectionString([NotNull] string connectionString)
+        {
+            if (_accountEndpoint != null || _accountKey != null)
+            {
+                throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
+            }
+
+            var clone = Clone();
+
+            clone._connectionString = connectionString;
 
             return clone;
         }
@@ -142,29 +204,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ConnectionString => _connectionString;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual CosmosOptionsExtension WithConnectionString([NotNull] string connectionString)
-        {
-            var clone = Clone();
-
-            clone._connectionString = connectionString;
-
-            return clone;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual string Region => _region;
 
         /// <summary>
@@ -178,6 +217,52 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             var clone = Clone();
 
             clone._region = region;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool? LimitToEndpoint => _limitToEndpoint;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithLimitToEndpoint(bool enable)
+        {
+            var clone = Clone();
+
+            clone._limitToEndpoint = enable;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool? AllowBulkExecution => _allowBulkExecution;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithAllowBulkExecution(bool enable)
+        {
+            var clone = Clone();
+
+            clone._allowBulkExecution = enable;
 
             return clone;
         }
@@ -206,6 +291,213 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             var clone = Clone();
 
             clone._connectionMode = connectionMode;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IWebProxy WebProxy => _webProxy;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithWebProxy([NotNull] IWebProxy proxy)
+        {
+            var clone = Clone();
+
+            clone._webProxy = proxy;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual TimeSpan? RequestTimeout => _requestTimeout;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithRequestTimeout(TimeSpan timeout)
+        {
+            var clone = Clone();
+
+            clone._requestTimeout = timeout;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual TimeSpan? OpenTcpConnectionTimeout => _openTcpConnectionTimeout;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithOpenTcpConnectionTimeout(TimeSpan timeout)
+        {
+            var clone = Clone();
+
+            clone._openTcpConnectionTimeout = timeout;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual TimeSpan? IdleTcpConnectionTimeout => _idleTcpConnectionTimeout;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithIdleTcpConnectionTimeout(TimeSpan timeout)
+        {
+            var clone = Clone();
+
+            clone._idleTcpConnectionTimeout = timeout;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual PortReuseMode? PortReuseMode => _portReuseMode;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithPortReuseMode(PortReuseMode portReuseMode)
+        {
+            var clone = Clone();
+
+            clone._portReuseMode = portReuseMode;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool? TcpConnectionEndpointRediscoveryEnabled => _enableTcpConnectionEndpointRediscovery;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithTcpConnectionEndpointRediscovery(bool enable)
+        {
+            var clone = Clone();
+
+            clone._enableTcpConnectionEndpointRediscovery = enable;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int? GatewayModeMaxConnectionLimit => _gatewayModeMaxConnectionLimit;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithGatewayModeMaxConnectionLimit(int connectionLimit)
+        {
+            var clone = Clone();
+
+            clone._gatewayModeMaxConnectionLimit = connectionLimit;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int? MaxTcpConnectionsPerEndpoint => _maxTcpConnectionsPerEndpoint;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithMaxTcpConnectionsPerEndpoint(int connectionLimit)
+        {
+            var clone = Clone();
+
+            clone._maxTcpConnectionsPerEndpoint = connectionLimit;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int? MaxRequestsPerTcpConnection => _maxRequestsPerTcpConnection;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithMaxRequestsPerTcpConnection(int requestLimit)
+        {
+            var clone = Clone();
+
+            clone._maxRequestsPerTcpConnection = requestLimit;
 
             return clone;
         }
@@ -278,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             {
                 if (_serviceProviderHash == null)
                 {
-                    int hashCode;
+                    long hashCode;
                     if (!string.IsNullOrEmpty(Extension._connectionString))
                     {
                         hashCode = Extension._connectionString.GetHashCode();
@@ -290,7 +582,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     }
 
                     hashCode = (hashCode * 397) ^ (Extension._region?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 397) ^ (Extension._connectionMode?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 3) ^ (Extension._connectionMode?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 3) ^ (Extension._limitToEndpoint?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 3) ^ (Extension._allowBulkExecution?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 397) ^ (Extension._webProxy?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 397) ^ (Extension._requestTimeout?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 397) ^ (Extension._openTcpConnectionTimeout?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 397) ^ (Extension._idleTcpConnectionTimeout?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 3) ^ (Extension._portReuseMode?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 3) ^ (Extension._enableTcpConnectionEndpointRediscovery?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 131) ^ (Extension._gatewayModeMaxConnectionLimit?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 397) ^ (Extension._maxTcpConnectionsPerEndpoint?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 131) ^ (Extension._maxRequestsPerTcpConnection?.GetHashCode() ?? 0);
                     _serviceProviderHash = hashCode;
                 }
 

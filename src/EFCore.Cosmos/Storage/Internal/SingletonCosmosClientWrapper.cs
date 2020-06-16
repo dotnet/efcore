@@ -46,12 +46,72 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _connectionString = options.ConnectionString;
             var configuration = new CosmosClientOptions
             {
-                ApplicationName = _userAgent, ConnectionMode = options.ConnectionMode ?? ConnectionMode.Direct
+                ApplicationName = _userAgent
             };
 
             if (options.Region != null)
             {
                 configuration.ApplicationRegion = options.Region;
+            }
+
+            if (options.LimitToEndpoint != null)
+            {
+                configuration.LimitToEndpoint = options.LimitToEndpoint.Value;
+            }
+
+            if (options.AllowBulkExecution != null)
+            {
+                configuration.AllowBulkExecution = options.AllowBulkExecution.Value;
+            }
+
+            if (options.ConnectionMode != null)
+            {
+                configuration.ConnectionMode = options.ConnectionMode.Value;
+            }
+
+            if (options.WebProxy != null)
+            {
+                configuration.WebProxy = options.WebProxy;
+            }
+
+            if (options.RequestTimeout != null)
+            {
+                configuration.RequestTimeout = options.RequestTimeout.Value;
+            }
+
+            if (options.OpenTcpConnectionTimeout != null)
+            {
+                configuration.OpenTcpConnectionTimeout = options.OpenTcpConnectionTimeout.Value;
+            }
+
+            if (options.IdleTcpConnectionTimeout != null)
+            {
+                configuration.IdleTcpConnectionTimeout = options.IdleTcpConnectionTimeout.Value;
+            }
+
+            if (options.PortReuseMode != null)
+            {
+                configuration.PortReuseMode = options.PortReuseMode.Value;
+            }
+
+            if (options.TcpConnectionEndpointRediscoveryEnabled != null)
+            {
+                configuration.EnableTcpConnectionEndpointRediscovery = options.TcpConnectionEndpointRediscoveryEnabled.Value;
+            }
+
+            if (options.GatewayModeMaxConnectionLimit != null)
+            {
+                configuration.GatewayModeMaxConnectionLimit = options.GatewayModeMaxConnectionLimit.Value;
+            }
+
+            if (options.MaxTcpConnectionsPerEndpoint != null)
+            {
+                configuration.MaxTcpConnectionsPerEndpoint = options.MaxTcpConnectionsPerEndpoint.Value;
+            }
+
+            if (options.MaxRequestsPerTcpConnection != null)
+            {
+                configuration.MaxRequestsPerTcpConnection = options.MaxRequestsPerTcpConnection.Value;
             }
 
             _options = configuration;

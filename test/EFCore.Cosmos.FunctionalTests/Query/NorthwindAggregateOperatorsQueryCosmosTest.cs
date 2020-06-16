@@ -582,10 +582,15 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""CENTC""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Count_with_no_predicate(bool async)
+        [ConditionalTheory]
+        public override async Task Count_with_no_predicate(bool async)
         {
-            return base.Count_with_no_predicate(async);
+            await base.Count_with_no_predicate(async);
+
+            AssertSql(
+                @"SELECT COUNT(1) AS c
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
         }
 
         [ConditionalTheory(Skip = "Issue#16146")]
