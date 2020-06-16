@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         public override void Configure(CommandLineApplication command)
         {
+            command.AllowArgumentSeparator = true;
+
             _assembly = command.Option("-a|--assembly <PATH>", Resources.AssemblyDescription);
             _startupAssembly = command.Option("-s|--startup-assembly <PATH>", Resources.StartupAssemblyDescription);
             _dataDir = command.Option("--data-dir <PATH>", Resources.DataDirDescription);
