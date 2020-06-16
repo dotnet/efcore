@@ -239,8 +239,6 @@ FROM (
 
         public override Task SelectMany_correlated_subquery_hard(bool async) => null;
 
-        public override Task AsQueryable_in_query_server_evals(bool async) => null;
-
         public override async Task Concat_string_int(bool async)
         {
             await base.Concat_string_int(async);

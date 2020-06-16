@@ -1185,7 +1185,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var outerOrdering = Orderings[i];
                     if (outerOrdering.Expression.Equals(_identifier[identifierIndex].Column))
                     {
-                        innerSelectExpression.AppendOrdering(new OrderingExpression(innerSelectExpression._identifier[identifierIndex].Column, ascending: true));
+                        innerSelectExpression.AppendOrdering(new OrderingExpression(
+                            innerSelectExpression._identifier[identifierIndex].Column, ascending: true));
                         identifierIndex++;
                     }
                     else
@@ -1211,53 +1212,28 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
             else
             {
-
-                var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(_identifier);
-                var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier.Concat(_childIdentifiers));
+                var parentIdentifierList = _identifier.Except(_childIdentifiers).ToList();
+                var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(parentIdentifierList);
+                var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier);
+                var innerClientEval = innerSelectExpression.Projection.Count > 0;
                 innerSelectExpression.ApplyProjection();
-
-                var (selfIdentifier, selfIdentifierValueComparers) = innerSelectExpression.GetIdentifierAccessor(innerSelectExpression._identifier);
 
                 if (collectionIndex == 0)
                 {
-                    foreach (var identifier in _identifier)
+                    foreach (var identifier in parentIdentifierList)
                     {
                         AppendOrdering(new OrderingExpression(identifier.Column, ascending: true));
                     }
                 }
 
-                var joinPredicate = TryExtractJoinKey(innerSelectExpression);
-                var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
-                    .ContainsOuterReference(innerSelectExpression);
-                if (containsOuterReference && joinPredicate != null)
-                {
-                    innerSelectExpression.ApplyPredicate(joinPredicate);
-                    joinPredicate = null;
-                }
-
-                if (innerSelectExpression.Offset != null
-                    || innerSelectExpression.Limit != null
-                    || innerSelectExpression.IsDistinct
-                    || innerSelectExpression.Predicate != null
-                    || innerSelectExpression.Tables.Count > 1
-                    || innerSelectExpression.GroupBy.Count > 0)
-                {
-                    var sqlRemappingVisitor = new SqlRemappingVisitor(
-                        innerSelectExpression.PushdownIntoSubquery(),
-                        (SelectExpression)innerSelectExpression.Tables[0]);
-                    joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
-                }
-
-                var joinExpression = joinPredicate == null
-                    ? (TableExpressionBase)new OuterApplyExpression(innerSelectExpression.Tables.Single())
-                    : new LeftJoinExpression(innerSelectExpression.Tables.Single(), joinPredicate);
-                _tables.Add(joinExpression);
+                AddJoin(JoinType.OuterApply, ref innerSelectExpression);
 
                 foreach (var ordering in innerSelectExpression.Orderings)
                 {
                     AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
                 }
 
+                var remapper = new ProjectionBindingExpressionRemappingExpressionVisitor(this);
                 var innerProjectionCount = innerSelectExpression.Projection.Count;
                 var indexMap = new int[innerProjectionCount];
                 for (var i = 0; i < innerProjectionCount; i++)
@@ -1265,23 +1241,56 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     indexMap[i] = AddToProjection(MakeNullable(innerSelectExpression.Projection[i].Expression));
                 }
 
-                foreach (var identifier in innerSelectExpression._identifier.Concat(innerSelectExpression._childIdentifiers))
+                if (innerClientEval)
+                {
+                    innerShaper = remapper.RemapIndex(innerShaper, indexMap, pendingCollectionOffset: 0);
+                }
+                else
+                {
+                    var mapping = new Dictionary<ProjectionMember, object>();
+                    foreach (var projection in innerSelectExpression._projectionMapping)
+                    {
+                        var value = ((ConstantExpression)projection.Value).Value;
+                        object mappedValue = null;
+                        if (value is int index)
+                        {
+                            mappedValue = indexMap[index];
+                        }
+                        else if (value is IDictionary<IProperty, int> entityIndexMap)
+                        {
+                            var newEntityIndexMap = new Dictionary<IProperty, int>();
+                            foreach (var item in entityIndexMap)
+                            {
+                                newEntityIndexMap[item.Key] = indexMap[item.Value];
+                            }
+                            mappedValue = newEntityIndexMap;
+                        }
+                        mapping[projection.Key] = mappedValue;
+                    }
+
+                    innerShaper = remapper.RemapProjectionMember(innerShaper, mapping, pendingCollectionOffset: 0);
+                }
+
+                innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
+
+                var (selfIdentifier, selfIdentifierValueComparers) = GetIdentifierAccessor(
+                    innerSelectExpression._identifier
+                    .Except(innerSelectExpression._childIdentifiers)
+                    .Select(e => (e.Column.MakeNullable(), e.Comparer)));
+
+                foreach (var identifier in innerSelectExpression._identifier)
                 {
                     var updatedColumn = identifier.Column.MakeNullable();
                     _childIdentifiers.Add((updatedColumn, identifier.Comparer));
                     AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
                 }
 
-                // Inner should not have pendingCollection since we apply them first.
-                // Shaper should not have CollectionShaperExpression as any collection would get converted to RelationalCollectionShaperExpression.
-                var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexMap, pendingCollectionOffset: 0);
-                innerShaper = shaperRemapper.Visit(innerShaper);
-                selfIdentifier = shaperRemapper.Visit(selfIdentifier);
-
-                return new RelationalCollectionShaperExpression(
+                var result = new RelationalCollectionShaperExpression(
                     collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
                     parentIdentifierValueComparers, outerIdentifierValueComparers, selfIdentifierValueComparers,
                     innerShaper, navigation, elementType);
+
+                return result;
             }
         }
 
@@ -1764,68 +1773,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 };
         }
 
-        private sealed class ShaperRemappingExpressionVisitor : ExpressionVisitor
-        {
-            private readonly SelectExpression _queryExpression;
-            private readonly SelectExpression _innerSelectExpression;
-            private readonly int[] _indexMap;
-            private readonly int _pendingCollectionOffset;
-
-            public ShaperRemappingExpressionVisitor(
-                SelectExpression queryExpression, SelectExpression innerSelectExpression, int[] indexMap, int pendingCollectionOffset)
-            {
-                _queryExpression = queryExpression;
-                _innerSelectExpression = innerSelectExpression;
-                _pendingCollectionOffset = pendingCollectionOffset;
-                _indexMap = indexMap;
-            }
-
-            protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                switch (extensionExpression)
-                {
-                    case ProjectionBindingExpression projectionBindingExpression:
-                        return new ProjectionBindingExpression(
-                            _queryExpression, _indexMap[(int)GetProjectionIndex(projectionBindingExpression)], projectionBindingExpression.Type);
-
-                    case EntityShaperExpression entityShaperExpression:
-                        var oldIndexMap = (IDictionary<IProperty, int>)GetProjectionIndex(
-                            (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
-                        var indexMap = new Dictionary<IProperty, int>();
-                        foreach (var keyValuePair in oldIndexMap)
-                        {
-                            indexMap[keyValuePair.Key] = _indexMap[keyValuePair.Value];
-                        }
-
-                        return new RelationalEntityShaperExpression(
-                            entityShaperExpression.EntityType,
-                            new ProjectionBindingExpression(_queryExpression, indexMap),
-                            nullable: true);
-
-                    case CollectionShaperExpression collectionShaperExpression:
-                        var collectionIndex = (int)GetProjectionIndex((ProjectionBindingExpression)collectionShaperExpression.Projection);
-
-                        return collectionShaperExpression.Update(
-                            new ProjectionBindingExpression(_queryExpression, collectionIndex + _pendingCollectionOffset, typeof(object)),
-                            collectionShaperExpression.InnerShaper);
-
-                    default:
-                        return base.VisitExtension(extensionExpression);
-                }
-            }
-
-            private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            {
-                return projectionBindingExpression.ProjectionMember != null
-                    ? ((ConstantExpression)_innerSelectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
-                    : (projectionBindingExpression.Index != null
-                        ? (object)projectionBindingExpression.Index
-                        : projectionBindingExpression.IndexMap);
-            }
-        }
-
         private void AddJoin(
             JoinType joinType,
             ref SelectExpression innerSelectExpression,
@@ -1848,6 +1795,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     if (containsOuterReference)
                     {
                         innerSelectExpression.ApplyPredicate(joinPredicate);
+                        joinPredicate = null;
                         if (limit != null)
                         {
                             innerSelectExpression.ApplyLimit(limit);

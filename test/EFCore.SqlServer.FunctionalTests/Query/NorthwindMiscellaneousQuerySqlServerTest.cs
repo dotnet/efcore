@@ -4731,15 +4731,18 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
             await base.AsQueryable_in_query_server_evals(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t].[OrderDate], [t].[OrderID]
+                @"SELECT [c].[CustomerID], [t0].[OrderDate], [t0].[OrderID]
 FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT TOP(1) [o].[OrderDate], [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND (DATEPART(year, [o].[OrderDate]) = 1998)
-    ORDER BY [o].[OrderID]
-) AS [t]
-ORDER BY [c].[CustomerID], [t].[OrderID]");
+LEFT JOIN (
+    SELECT [t].[OrderDate], [t].[OrderID], [t].[CustomerID]
+    FROM (
+        SELECT [o].[OrderDate], [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+        FROM [Orders] AS [o]
+        WHERE DATEPART(year, [o].[OrderDate]) = 1998
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+ORDER BY [c].[CustomerID], [t0].[OrderID]");
         }
 
         public override async Task Subquery_DefaultIfEmpty_Any(bool async)
