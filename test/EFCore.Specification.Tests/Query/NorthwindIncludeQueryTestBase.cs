@@ -1790,6 +1790,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 14);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_with_multiple_ordering(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                        .Include(c => c.Orders.OrderBy(o => o.OrderID).Skip(1).OrderByDescending(o => o.OrderDate)),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedFilteredInclude<Customer, Order>(c => c.Orders,
+                        includeFilter: os => os.OrderBy(o => o.OrderID).Skip(1).OrderByDescending(o => o.OrderDate))),
+                entryCount: 64);
+        }
+
         protected virtual void ClearLog()
         {
         }

@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.Where(l2 => l2.Id > 5))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_OrderBy_split(bool async)
         {
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.OrderBy(x => x.Name))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_ThenInclude_OrderBy_split(bool async)
         {
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.OrderBy(x => x.Name))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_ThenInclude_OrderBy_split(bool async)
         {
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.OrderByDescending(x => x.Name))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_basic_OrderBy_Take_split(bool async)
         {
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.OrderBy(x => x.Name).Take(3))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_basic_OrderBy_Skip_split(bool async)
         {
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.OrderBy(x => x.Name).Skip(1))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_basic_OrderBy_Skip_Take_split(bool async)
         {
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.OrderBy(x => x.Name).Skip(1).Take(3))));
         }
 
-        [ConditionalFact(Skip = "Issue#20892")]
+        [ConditionalFact]
         public virtual void Filtered_include_Skip_without_OrderBy_split()
         {
             using var ctx = CreateContext();
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var result = query.ToList();
         }
 
-        [ConditionalFact(Skip = "Issue#20892")]
+        [ConditionalFact]
         public virtual void Filtered_include_Take_without_OrderBy_split()
         {
             using var ctx = CreateContext();
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var result = query.ToList();
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_on_ThenInclude_split(bool async)
         {
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_after_reference_navigation_split(bool async)
         {
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_after_different_filtered_include_same_level_split(bool async)
         {
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_after_different_filtered_include_different_level_split(bool async)
         {
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Filtered_include_different_filter_set_on_same_navigation_twice_split(bool async)
         {
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .AsSplitQuery()))).Message;
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_same_filter_set_on_same_navigation_twice_split(bool async)
         {
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderByDescending(x => x.Id).Take(2))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes_split(bool async)
         {
@@ -271,15 +271,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Level2>(e => e.OneToOne_Required_FK2)));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(bool async)
         {
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>()
-                    .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)).ThenInclude(l2 => l2.OneToMany_Optional2)
-                    .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Required_FK2)
+                    .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2))
+                        .ThenInclude(l2 => l2.OneToMany_Optional2)
+                    .Include(l1 => l1.OneToMany_Optional1)
+                        .ThenInclude(l2 => l2.OneToOne_Required_FK2)
                     .AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
@@ -289,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Level2>(e => e.OneToOne_Required_FK2, "OneToMany_Optional1")));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_and_non_filtered_include_on_same_navigation1_split(bool async)
         {
@@ -305,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_and_non_filtered_include_on_same_navigation2_split(bool async)
         {
@@ -321,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation_split(bool async)
         {
@@ -342,15 +344,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                         includeFilter: x => x.Where(x => x.Id > 1))));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_complex_three_level_with_middle_having_filter1_split(bool async)
         {
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>()
-                    .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)).ThenInclude(l3 => l3.OneToMany_Optional3)
-                    .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)).ThenInclude(l3 => l3.OneToMany_Required3)
+                    .Include(l1 => l1.OneToMany_Optional1)
+                        .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1))
+                            .ThenInclude(l3 => l3.OneToMany_Optional3)
+                    .Include(l1 => l1.OneToMany_Optional1)
+                        .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1))
+                            .ThenInclude(l3 => l3.OneToMany_Required3)
                     .AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
@@ -362,15 +368,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Level3>(e => e.OneToMany_Required3, "OneToMany_Optional1.OneToMany_Optional2")));
         }
 
-        [ConditionalTheory(Skip = "Issue#20892")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_complex_three_level_with_middle_having_filter2_split(bool async)
         {
             return AssertQuery(
                 async,
                 ss => ss.Set<Level1>()
-                    .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)).ThenInclude(l3 => l3.OneToMany_Optional3)
-                    .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2).ThenInclude(l3 => l3.OneToMany_Required3)
+                    .Include(l1 => l1.OneToMany_Optional1)
+                        .ThenInclude(l2 => l2.OneToMany_Optional2.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)).
+                            ThenInclude(l3 => l3.OneToMany_Optional3)
+                    .Include(l1 => l1.OneToMany_Optional1)
+                        .ThenInclude(l2 => l2.OneToMany_Optional2)
+                            .ThenInclude(l3 => l3.OneToMany_Required3)
                     .AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<Level1>(e => e.OneToMany_Optional1),
@@ -382,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Level3>(e => e.OneToMany_Required3, "OneToMany_Optional1.OneToMany_Optional2")));
         }
 
-        [ConditionalFact(Skip = "Issue#20892")]
+        [ConditionalFact]
         public virtual void Filtered_include_variable_used_inside_filter_split()
         {
             using var ctx = CreateContext();
@@ -392,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var result = query.ToList();
         }
 
-        [ConditionalFact(Skip = "Issue#20892")]
+        [ConditionalFact]
         public virtual void Filtered_include_context_accessed_inside_filter_split()
         {
             using var ctx = CreateContext();
@@ -401,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var result = query.ToList();
         }
 
-        [ConditionalFact(Skip = "Issue#20892")]
+        [ConditionalFact]
         public virtual void Filtered_include_context_accessed_inside_filter_correlated_split()
         {
             using var ctx = CreateContext();
@@ -422,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(l1 => ss.Set<Level2>().Include(l2 => l2.OneToMany_Optional2.Where(x => x.Id != l2.Id))).AsSplitQuery()));
         }
 
-        [ConditionalFact(Skip = "Issue#20892")]
+        [ConditionalFact(Skip = "Issue#21234")]
         public virtual void Filtered_include_outer_parameter_used_inside_filter_split()
         {
             // TODO: needs #18191 for result verification
@@ -436,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var result = query.ToList();
         }
 
-        [ConditionalFact(Skip = "Issue#20892")]
+        [ConditionalFact]
         public virtual void Filtered_include_is_considered_loaded_split()
         {
             using var ctx = CreateContext();

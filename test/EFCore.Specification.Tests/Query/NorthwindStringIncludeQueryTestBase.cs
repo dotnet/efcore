@@ -120,6 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(7, context.ChangeTracker.Entries().Count());
         }
 
+        // Filtered include does not work for string based API.
+        public override Task Filtered_include_with_multiple_ordering(bool async) => Task.CompletedTask;
+
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         {
             serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
