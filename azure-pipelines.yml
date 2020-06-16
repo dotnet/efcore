@@ -175,7 +175,8 @@ stages:
                   artifactType: Container
                   parallel: true
 
-          - job: Helix
+          - job: Helix+
+            timeoutInMinutes: 180
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCorePublic-Pool
