@@ -163,7 +163,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <code>context.Database.ExecuteSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
+        ///     <code>
+        ///         var userSuppliedSearchTerm = ".NET";
+        ///         context.Database.ExecuteSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")
+        ///     </code>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
@@ -252,7 +255,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
-        ///     <code>context.Database.ExecuteSqlInterpolatedAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
+        ///     <code>
+        ///         var userSuppliedSearchTerm = ".NET";
+        ///         context.Database.ExecuteSqlInterpolatedAsync($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")
+        ///     </code>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
