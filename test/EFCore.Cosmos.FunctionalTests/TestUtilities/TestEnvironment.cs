@@ -25,9 +25,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             ? "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
             : Config["AuthToken"];
 
-        public static string ConnectionString { get; } = string.IsNullOrEmpty(Config["ConnectionString"])
-            ? "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
-            : Config["ConnectionString"];
+        public static string ConnectionString { get; } = $"AccountEndpoint={DefaultConnection};AccountKey={AuthToken}";
 
         public static bool IsEmulator { get; } = DefaultConnection.StartsWith("https://localhost:8081", StringComparison.Ordinal);
     }
