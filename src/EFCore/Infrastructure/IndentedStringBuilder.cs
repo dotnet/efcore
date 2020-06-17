@@ -56,12 +56,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        /// <para>
-        ///     Appends the current indent, the given string, and a new line to the string being built.
-        /// </para>
-        /// <para>
-        ///     If the given string itself contains a new line, the part of the string after that new line will not be indented.
-        /// </para>
+        ///     <para>
+        ///         Appends the current indent, the given string, and a new line to the string being built.
+        ///     </para>
+        ///     <para>
+        ///         If the given string itself contains a new line, the part of the string after that new line will not be indented.
+        ///     </para>
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
@@ -80,10 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        /// <para>
         ///     Separates the given string into lines, and then appends each line, prefixed
         ///     by the current indent and followed by a new line, to the string being built.
-        /// </para>
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <param name="skipFinalNewline"> If true, then the terminating new line is not added after the last line. </param>
