@@ -1493,10 +1493,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             _includePath.Clear();
 
-            AssertIncludeObject(expected, actual, expectedIncludes);
+            AssertIncludeObject(expected, actual, expectedIncludes, assertOrder: false);
         }
 
-        private void AssertIncludeObject(object expected, object actual, IEnumerable<IExpectedInclude> expectedIncludes)
+        private void AssertIncludeObject(object expected, object actual, IEnumerable<IExpectedInclude> expectedIncludes, bool assertOrder)
         {
             if (expected == null
                 && actual == null)
@@ -1512,7 +1512,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
             {
                 _assertIncludeCollectionMethodInfo.MakeGenericMethod(expectedType.GenericTypeArguments[0])
-                    .Invoke(this, new[] { expected, actual, expectedIncludes });
+                    .Invoke(this, new[] { expected, actual, expectedIncludes, assertOrder });
             }
             else
             {
@@ -1534,12 +1534,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private void AssertIncludeCollection<TElement>(
-            IEnumerable<TElement> expected, IEnumerable<TElement> actual, IEnumerable<IExpectedInclude> expectedIncludes)
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            IEnumerable<IExpectedInclude> expectedIncludes,
+            bool assertOrder)
         {
             var expectedList = expected.ToList();
             var actualList = actual.ToList();
 
-            if (_entitySorters.TryGetValue(typeof(TElement), out var sorter))
+            if (!assertOrder && _entitySorters.TryGetValue(typeof(TElement), out var sorter))
             {
                 var actualSorter = (Func<TElement, object>)sorter;
                 expectedList = expectedList.OrderBy(actualSorter).ToList();
@@ -1563,6 +1566,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             foreach (var expectedInclude in expectedIncludes.OfType<ExpectedInclude<TEntity>>().Where(i => i.NavigationPath == currentPath))
             {
                 var expectedIncludedNavigation = GetIncluded(expected, expectedInclude.IncludeMember);
+                var assertOrder = false;
                 if (expectedInclude.GetType().BaseType != typeof(object))
                 {
                     var includedType = expectedInclude.GetType().GetGenericArguments()[1];
@@ -1573,13 +1577,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         null,
                         new object[] { expectedIncludedNavigation, expectedInclude },
                         CultureInfo.CurrentCulture);
+
+                    assertOrder = (bool)expectedInclude.GetType()
+                        .GetProperty(nameof(ExpectedFilteredInclude<object, object>.AssertOrder))
+                        .GetValue(expectedInclude);
                 }
 
                 var actualIncludedNavigation = GetIncluded(actual, expectedInclude.IncludeMember);
 
                 _includePath.Add(expectedInclude.IncludeMember.Name);
 
-                AssertIncludeObject(expectedIncludedNavigation, actualIncludedNavigation, expectedIncludes);
+                AssertIncludeObject(expectedIncludedNavigation, actualIncludedNavigation, expectedIncludes, assertOrder);
 
                 _includePath.RemoveAt(_includePath.Count - 1);
             }

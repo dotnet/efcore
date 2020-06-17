@@ -1800,7 +1800,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(c => c.Orders.OrderBy(o => o.OrderID).Skip(1).OrderByDescending(o => o.OrderDate)),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Customer, Order>(c => c.Orders,
-                        includeFilter: os => os.OrderBy(o => o.OrderID).Skip(1).OrderByDescending(o => o.OrderDate))),
+                        includeFilter: os => os.OrderBy(o => o.OrderID).Skip(1).OrderByDescending(o => o.OrderDate),
+                        assertOrder: true)),
                 entryCount: 64);
         }
 

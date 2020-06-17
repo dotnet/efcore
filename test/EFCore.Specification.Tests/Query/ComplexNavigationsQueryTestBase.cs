@@ -5006,7 +5006,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.OrderBy(x => x.Name))));
+                        includeFilter: x => x.OrderBy(x => x.Name),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5021,7 +5022,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
                         "OneToMany_Optional1",
-                        includeFilter: x => x.OrderBy(x => x.Name))));
+                        includeFilter: x => x.OrderBy(x => x.Name),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5036,11 +5038,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.OrderBy(x => x.Name)),
+                        includeFilter: x => x.OrderBy(x => x.Name),
+                        assertOrder: true),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
                         "OneToMany_Optional1",
-                        includeFilter: x => x.OrderByDescending(x => x.Name))));
+                        includeFilter: x => x.OrderByDescending(x => x.Name),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5053,7 +5057,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.OrderBy(x => x.Name).Take(3))));
+                        includeFilter: x => x.OrderBy(x => x.Name).Take(3),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5066,7 +5071,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.OrderBy(x => x.Name).Skip(1))));
+                        includeFilter: x => x.OrderBy(x => x.Name).Skip(1),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5079,7 +5085,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.OrderBy(x => x.Name).Skip(1).Take(3))));
+                        includeFilter: x => x.OrderBy(x => x.Name).Skip(1).Take(3),
+                        assertOrder: true)));
         }
 
         [ConditionalFact]
@@ -5112,7 +5119,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
                         "OneToOne_Optional_FK1",
-                        x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))));
+                        x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5128,10 +5136,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
                         "OneToOne_Optional_FK1",
-                        x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3))));
+                        x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Skip(1).Take(3),
+                        assertOrder: true)));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "issue #21338")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_after_different_filtered_include_same_level(bool async)
         {
@@ -5143,10 +5152,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3)),
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3),
+                        assertOrder: true),
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Required1,
-                        includeFilter: x => x.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1))));
+                        includeFilter: x => x.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5161,11 +5172,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3)),
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Name).Take(3),
+                        assertOrder: true),
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Required2,
                         "OneToMany_Optional1",
-                        includeFilter: x => x.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1))));
+                        includeFilter: x => x.Where(x => x.Name != "Bar").OrderByDescending(x => x.Name).Skip(1),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5192,7 +5205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Bar")).ThenInclude(l2 => l2.OneToOne_Required_FK2)))).Message;
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "issue #21338")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_same_filter_set_on_same_navigation_twice(bool async)
         {
@@ -5204,7 +5217,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderByDescending(x => x.Id).Take(2))));
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderByDescending(x => x.Id).Take(2),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5219,7 +5233,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)),
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2),
+                        assertOrder: true),
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional2),
                     new ExpectedInclude<Level2>(e => e.OneToOne_Required_FK2)));
         }
@@ -5236,7 +5251,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2)),
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(2),
+                        assertOrder: true),
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional2, "OneToMany_Optional1"),
                     new ExpectedInclude<Level2>(e => e.OneToOne_Required_FK2, "OneToMany_Optional1")));
         }
@@ -5253,7 +5269,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))));
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5268,7 +5285,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3))));
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(3),
+                        assertOrder: true)));
         }
 
         [ConditionalTheory]
@@ -5283,7 +5301,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<Level1, Level2>(
                         e => e.OneToMany_Optional1,
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)),
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1),
+                        assertOrder: true),
                     new ExpectedInclude<Level2>(e => e.OneToOne_Optional_PK2, "OneToMany_Optional1"),
                     new ExpectedFilteredInclude<Level3, Level4>(
                         e => e.OneToMany_Optional3,
@@ -5305,7 +5324,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
                         "OneToMany_Optional1",
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)),
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1),
+                        assertOrder: true),
                     new ExpectedInclude<Level3>(e => e.OneToMany_Optional3, "OneToMany_Optional1.OneToMany_Optional2"),
                     new ExpectedInclude<Level3>(e => e.OneToMany_Required3, "OneToMany_Optional1.OneToMany_Optional2")));
         }
@@ -5324,7 +5344,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedFilteredInclude<Level2, Level3>(
                         e => e.OneToMany_Optional2,
                         "OneToMany_Optional1",
-                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1)),
+                        includeFilter: x => x.Where(x => x.Name != "Foo").OrderBy(x => x.Id).Take(1),
+                        assertOrder: true),
                     new ExpectedInclude<Level3>(e => e.OneToMany_Optional3, "OneToMany_Optional1.OneToMany_Optional2"),
                     new ExpectedInclude<Level3>(e => e.OneToMany_Required3, "OneToMany_Optional1.OneToMany_Optional2")));
         }
