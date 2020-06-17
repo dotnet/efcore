@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Linq;
 using JetBrains.Annotations;
@@ -325,7 +326,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 return null;
             }
 
-            var converter = property.GetTypeMapping().Converter;
+            var typeMapping = property.GetTypeMapping();
+            value = ConvertUnderlyingEnumValueToEnum(value, typeMapping.ClrType);
+
+            var converter = typeMapping.Converter;
             if (converter != null)
             {
                 value = converter.ConvertToProvider(value);
@@ -333,5 +337,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
             return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
         }
+
+        private static object ConvertUnderlyingEnumValueToEnum(object value, Type clrType)
+            => value?.GetType().IsInteger() == true && clrType.UnwrapNullableType().IsEnum
+            ? Enum.ToObject(clrType.UnwrapNullableType(), value)
+            : value;
     }
 }

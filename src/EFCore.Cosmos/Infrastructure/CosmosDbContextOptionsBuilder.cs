@@ -4,8 +4,8 @@
 using System;
 using System.ComponentModel;
 using System.Net;
+using Azure.Cosmos;
 using JetBrains.Annotations;
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -60,14 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithLimitToEndpoint(Check.NotNull(enable, nameof(enable))));
 
         /// <summary>
-        ///     Allows optimistic batching of requests to service. Setting this option might impact the latency of the operations.
-        ///     Hence this option is recommended for non-latency sensitive scenarios only.
-        /// </summary>
-        /// <param name="enable"> <see langword="true"/> to allow optimistic batching of requests to service. </param>
-        public virtual CosmosDbContextOptionsBuilder AllowBulkExecution(bool enable = true)
-            => WithOption(e => e.WithAllowBulkExecution(Check.NotNull(enable, nameof(enable))));
-
-        /// <summary>
         ///     Configures the context to use the provided connection mode.
         /// </summary>
         /// <param name="connectionMode"> Azure Cosmos DB connection mode. </param>
@@ -102,20 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="timeout"> Idle connection timeout. </param>
         public virtual CosmosDbContextOptionsBuilder IdleTcpConnectionTimeout(TimeSpan timeout)
             => WithOption(e => e.WithIdleTcpConnectionTimeout(Check.NotNull(timeout, nameof(timeout))));
-
-        /// <summary>
-        ///     Configures the client port reuse policy used by the transport stack.
-        /// </summary>
-        /// <param name="portReuseMode"> The client port reuse policy used by the transport stack. </param>
-        public virtual CosmosDbContextOptionsBuilder PortReuseMode(PortReuseMode portReuseMode)
-            => WithOption(e => e.WithPortReuseMode(Check.NotNull(portReuseMode, nameof(portReuseMode))));
-
-        /// <summary>
-        ///     Configures the context to enable address cache refresh on TCP connection reset notification.
-        /// </summary>
-        /// <param name="enabled"> <see langword="true"/> to enable address cache refresh on TCP connection reset notification. </param>
-        public virtual CosmosDbContextOptionsBuilder EnableTcpConnectionEndpointRediscovery(bool enabled = true)
-            => WithOption(e => e.WithTcpConnectionEndpointRediscovery(Check.NotNull(enabled, nameof(enabled))));
 
         /// <summary>
         ///     Configures the maximum number of concurrent connections allowed for the target service endpoint

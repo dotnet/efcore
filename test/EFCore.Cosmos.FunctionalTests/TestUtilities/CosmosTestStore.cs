@@ -5,7 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
+using System.Text.Json;
+using Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             if (await context.Database.EnsureCreatedAsync())
             {
                 var cosmosClient = context.GetService<CosmosClientWrapper>();
-                var serializer = new JsonSerializer();
+                var serializer = CosmosClientWrapper.Serializer;
                 using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
                 using var sr = new StreamReader(fs);
                 using var reader = new JsonTextReader(sr);
@@ -167,30 +168,24 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     var cosmosClient = context.Database.GetCosmosClient();
                     var database = cosmosClient.GetDatabase(Name);
                     var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
-                    while (containerIterator.HasMoreResults)
+                    await foreach (var containerProperties in containerIterator)
                     {
-                        foreach (var containerProperties in await containerIterator.ReadNextAsync())
+                        var container = database.GetContainer(containerProperties.Id);
+                        var partitionKey = containerProperties.PartitionKeyPath[1..];
+                        var itemIterator = container.GetItemQueryIterator<JObject>(
+                            new QueryDefinition("SELECT * FROM c"));
+
+                        var items = new List<(string Id, string PartitionKey)>();
+                        await foreach (var item in itemIterator)
                         {
-                            var container = database.GetContainer(containerProperties.Id);
-                            var partitionKey = containerProperties.PartitionKeyPath[1..];
-                            var itemIterator = container.GetItemQueryIterator<JObject>(
-                                new QueryDefinition("SELECT * FROM c"));
+                            items.Add((item["id"].ToString(), item[partitionKey]?.ToString()));
+                        }
 
-                            var items = new List<(string Id, string PartitionKey)>();
-                            while (itemIterator.HasMoreResults)
-                            {
-                                foreach (var item in await itemIterator.ReadNextAsync())
-                                {
-                                    items.Add((item["id"].ToString(), item[partitionKey]?.ToString()));
-                                }
-                            }
-
-                            foreach (var item in items)
-                            {
-                                await container.DeleteItemAsync<object>(
-                                    item.Id,
-                                    item.PartitionKey == null ? PartitionKey.None : new PartitionKey(item.PartitionKey));
-                            }
+                        foreach (var item in items)
+                        {
+                            await container.DeleteItemAsync<object>(
+                                item.Id,
+                                item.PartitionKey == null ? PartitionKey.None : new PartitionKey(item.PartitionKey));
                         }
                     }
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -1052,8 +1053,8 @@ OFFSET 0 LIMIT 1");
                 context.Add(customer);
 
                 Assert.StartsWith(
-                    "Response status code does not indicate success: NotFound (404); Substatus: 0",
-                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
+                    @"Message: {""Errors"":[""Resource Not Found""]}",
+                    (await Assert.ThrowsAsync<HttpException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
@@ -1061,8 +1062,8 @@ OFFSET 0 LIMIT 1");
                 context.Add(customer).State = EntityState.Modified;
 
                 Assert.StartsWith(
-                    "Response status code does not indicate success: NotFound (404); Substatus: 0",
-                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
+                    @"Message: {""Errors"":[""Resource Not Found""]}",
+                    (await Assert.ThrowsAsync<HttpException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
@@ -1070,15 +1071,15 @@ OFFSET 0 LIMIT 1");
                 context.Add(customer).State = EntityState.Deleted;
 
                 Assert.StartsWith(
-                    "Response status code does not indicate success: NotFound (404); Substatus: 0",
-                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
+                    @"Message: {""Errors"":[""Resource Not Found""]}",
+                    (await Assert.ThrowsAsync<HttpException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
             {
                 Assert.StartsWith(
-                    "Response status code does not indicate success: NotFound (404); Substatus: 0",
-                    (await Assert.ThrowsAsync<CosmosException>(() => context.Set<Customer>().SingleAsync())).Message);
+                    @"Message: {""Errors"":[""Resource Not Found""]}",
+                    (await Assert.ThrowsAsync<HttpException>(() => context.Set<Customer>().SingleAsync())).Message);
             }
         }
 

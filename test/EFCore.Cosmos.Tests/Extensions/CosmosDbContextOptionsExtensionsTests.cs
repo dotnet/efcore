@@ -3,7 +3,7 @@
 
 using System;
 using System.Net;
-using Microsoft.Azure.Cosmos;
+using Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Xunit;
 
@@ -88,20 +88,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_create_options_and_allow_bulk_execution()
-        {
-            var options = new DbContextOptionsBuilder().UseCosmos(
-                "serviceEndPoint",
-                "authKeyOrResourceToken",
-                "databaseName",
-                o => { o.AllowBulkExecution(); });
-
-            var extension = options.Options.FindExtension<CosmosOptionsExtension>();
-
-            Assert.True(extension.AllowBulkExecution);
-        }
-
-        [ConditionalFact]
         public void Can_create_options_with_web_proxy()
         {
             var webProxy = new WebProxy();
@@ -159,35 +145,6 @@ namespace Microsoft.EntityFrameworkCore
             var extension = options.Options.FindExtension<CosmosOptionsExtension>();
 
             Assert.Equal(timeout, extension.IdleTcpConnectionTimeout);
-        }
-
-        [ConditionalFact]
-        public void Can_create_options_with_port_reuse_mode()
-        {
-            var portReuseMode = PortReuseMode.ReuseUnicastPort;
-            var options = new DbContextOptionsBuilder().UseCosmos(
-                "serviceEndPoint",
-                "authKeyOrResourceToken",
-                "databaseName",
-                o => { o.PortReuseMode(portReuseMode); });
-
-            var extension = options.Options.FindExtension<CosmosOptionsExtension>();
-
-            Assert.Equal(portReuseMode, extension.PortReuseMode);
-        }
-
-        [ConditionalFact]
-        public void Can_create_options_with_tcp_connection_endpoint_rediscovery_enabled()
-        {
-            var options = new DbContextOptionsBuilder().UseCosmos(
-                "serviceEndPoint",
-                "authKeyOrResourceToken",
-                "databaseName",
-                o => { o.EnableTcpConnectionEndpointRediscovery(); });
-
-            var extension = options.Options.FindExtension<CosmosOptionsExtension>();
-
-            Assert.True(extension.TcpConnectionEndpointRediscoveryEnabled);
         }
 
         [ConditionalFact]

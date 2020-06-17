@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Azure.Cosmos;
 using JetBrains.Annotations;
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _connectionString = options.ConnectionString;
             var configuration = new CosmosClientOptions
             {
-                ApplicationName = _userAgent
+                ApplicationName = _userAgent,
+                Serializer = new JsonCosmosSerializer()
             };
 
             if (options.Region != null)
@@ -57,11 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             if (options.LimitToEndpoint != null)
             {
                 configuration.LimitToEndpoint = options.LimitToEndpoint.Value;
-            }
-
-            if (options.AllowBulkExecution != null)
-            {
-                configuration.AllowBulkExecution = options.AllowBulkExecution.Value;
             }
 
             if (options.ConnectionMode != null)
@@ -87,16 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             if (options.IdleTcpConnectionTimeout != null)
             {
                 configuration.IdleTcpConnectionTimeout = options.IdleTcpConnectionTimeout.Value;
-            }
-
-            if (options.PortReuseMode != null)
-            {
-                configuration.PortReuseMode = options.PortReuseMode.Value;
-            }
-
-            if (options.TcpConnectionEndpointRediscoveryEnabled != null)
-            {
-                configuration.EnableTcpConnectionEndpointRediscovery = options.TcpConnectionEndpointRediscoveryEnabled.Value;
             }
 
             if (options.GatewayModeMaxConnectionLimit != null)

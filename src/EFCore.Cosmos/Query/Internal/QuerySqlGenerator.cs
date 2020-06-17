@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.Json;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -363,6 +364,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
         {
+            if (value == null)
+            {
+                return null;
+            }
+
             value = ConvertUnderlyingEnumValueToEnum(value, typeMapping.ClrType);
 
             var converter = typeMapping.Converter;
@@ -371,18 +377,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 value = converter.ConvertToProvider(value);
             }
 
-            if (value == null)
-            {
-                return null;
-            }
-
             return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
         }
 
-        // Enum when compared to constant will always have value of integral type
-        // when enum would contain convert node. We remove the convert node but we also
-        // need to convert the integral value to enum value.
-        // This allows us to use converter on enum value or print enum value directly if supported by provider
         private object ConvertUnderlyingEnumValueToEnum(object value, Type clrType)
             => value?.GetType().IsInteger() == true && clrType.UnwrapNullableType().IsEnum
             ? Enum.ToObject(clrType.UnwrapNullableType(), value)

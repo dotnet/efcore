@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
+using Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
