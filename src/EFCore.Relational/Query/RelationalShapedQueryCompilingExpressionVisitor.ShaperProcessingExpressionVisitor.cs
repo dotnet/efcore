@@ -272,7 +272,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (_isAsync)
                         {
-                            var tasks = Expression.NewArrayInit(typeof(Task), _collectionPopulatingExpressions);
+                            var tasks = Expression.NewArrayInit(typeof(Func<Task>), _collectionPopulatingExpressions.Select(
+                                e => Expression.Lambda<Func<Task>>(e)));
                             relatedDataLoaders = Expression.Lambda<Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>>(
                                 Expression.Call(_taskAwaiterMethodInfo, tasks),
                                 QueryCompilationContext.QueryContextParameter,
@@ -1727,11 +1728,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 dataReaderContext.HasNext = false;
             }
 
-            private static async Task TaskAwaiter(Task[] tasks)
+            private static async Task TaskAwaiter(Func<Task>[] taskFactories)
             {
-                for (var i = 0; i < tasks.Length; i++)
+                for (var i = 0; i < taskFactories.Length; i++)
                 {
-                    await tasks[i].ConfigureAwait(false);
+                    await taskFactories[i]().ConfigureAwait(false);
                 }
             }
 
