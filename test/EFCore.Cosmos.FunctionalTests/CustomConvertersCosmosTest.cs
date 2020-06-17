@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             // Over the 2Mb document limit
         }
 
+        [ConditionalFact(Skip = "Issue #16919")]
+        public override void Can_query_and_update_with_converter_for_Type_when_GetType_can_load_it()
+        {
+        }
+
         [ConditionalTheory(Skip = "Issue #16919")]
         public override Task Can_filter_projection_with_inline_enum_variable(bool async)
         {

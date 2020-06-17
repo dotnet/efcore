@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -111,6 +112,56 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
             public string Name { get; set; }
             public SocialSecurityNumber? SSN { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_query_and_update_with_converter_for_Type_when_GetType_can_load_it()
+        {
+            using (var context = CreateContext())
+            {
+                context.AddRange(
+                    new EyeHazTypes { Scenario = "1: Me", Type = typeof(EyeHazTypes) },
+                    new EyeHazTypes { Scenario = "2: System type", Type = typeof(Random) },
+                    new EyeHazTypes { Scenario = "3: null" },
+                    new EyeHazTypes { Scenario = "4: External type", Type = typeof(RandomNumberGenerator) });
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var results = context.Set<EyeHazTypes>().OrderBy(p => p.Scenario).ToList();
+
+                Assert.Equal(4, results.Count);
+
+                Assert.Null(results[0].Type); // Comes back as null. See #20776
+                Assert.Same(typeof(Random), results[1].Type);
+                Assert.Null(results[2].Type);
+                Assert.Null(results[3].Type); // Comes back as null. See #20776
+
+                results[1].Type = typeof(string);
+                context.Remove(results[0]);
+                context.Add(new EyeHazTypes { Scenario = "5: Object", Type = typeof(object) });
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var results = context.Set<EyeHazTypes>().OrderBy(p => p.Scenario).ToList();
+
+                Assert.Same(typeof(string), results[0].Type);
+                Assert.Null(results[1].Type);
+                Assert.Null(results[2].Type); // Comes back as null. See #20776
+                Assert.Same(typeof(object), results[3].Type);
+            }
+        }
+
+        protected class EyeHazTypes
+        {
+            public int Id { get; set; }
+            public string Scenario { get; set; }
+            public Type Type { get; set; }
         }
 
         [ConditionalFact]
@@ -674,6 +725,11 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder
+                    .Entity<EyeHazTypes>()
+                    .Property(e => e.Type)
+                    .HasConversion(t => t.FullName, n => Type.GetType(n));
 
                 modelBuilder.Entity<Person>(
                     b =>
