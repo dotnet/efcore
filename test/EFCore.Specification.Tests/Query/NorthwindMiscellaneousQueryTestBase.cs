@@ -5912,7 +5912,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var query = context.Orders.Where(o => orderIds.Contains(o.OrderID))
                 .Select(o => o.Customer)
-                .PerformIdentityResolution();
+                .AsNoTrackingWithIdentityResolution();
 
             var result = async
                 ? await query.ToListAsync()
@@ -5934,7 +5934,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                          join o in context.Orders.Where(o => o.OrderID < 10500).Include(o => o.Customer)
                              on c.CustomerID equals o.CustomerID
                          select new { c, o })
-                        .PerformIdentityResolution();
+                        .AsNoTrackingWithIdentityResolution();
 
             var result = async
                 ? await query.ToListAsync()

@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async)
         {
             using var context = CreateContext();
-            var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress).PerformIdentityResolution();
+            var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress).AsNoTrackingWithIdentityResolution();
 
             var result = async
                 ? await query.ToListAsync()
@@ -771,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool async)
         {
             using var context = CreateContext();
-            var query = context.Set<OwnedPerson>().SelectMany(op => op.Orders).Include(o => o.Client).PerformIdentityResolution();
+            var query = context.Set<OwnedPerson>().SelectMany(op => op.Orders).Include(o => o.Client).AsNoTrackingWithIdentityResolution();
 
             var result = async
                 ? await query.ToListAsync()

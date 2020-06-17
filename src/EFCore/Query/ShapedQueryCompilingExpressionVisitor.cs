@@ -64,8 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _entityMaterializerInjectingExpressionVisitor =
                 new EntityMaterializerInjectingExpressionVisitor(
                     dependencies.EntityMaterializerSource,
-                    queryCompilationContext.IsTracking,
-                    queryCompilationContext.PerformIdentityResolution);
+                    queryCompilationContext.QueryTrackingBehavior);
 
             _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
 
@@ -315,25 +314,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                     nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ValueBuffer) });
 
             private readonly IEntityMaterializerSource _entityMaterializerSource;
-            private readonly bool _trackingQuery;
+            private readonly QueryTrackingBehavior _queryTrackingBehavior;
             private readonly bool _queryStateMananger;
             private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
             private int _currentEntityIndex;
 
             public EntityMaterializerInjectingExpressionVisitor(
                 IEntityMaterializerSource entityMaterializerSource,
-                bool trackingQuery,
-                bool performIdentityResolution)
+                QueryTrackingBehavior queryTrackingBehavior)
             {
                 _entityMaterializerSource = entityMaterializerSource;
-                _trackingQuery = trackingQuery;
-                _queryStateMananger = trackingQuery || performIdentityResolution;
+                _queryTrackingBehavior = queryTrackingBehavior;
+                _queryStateMananger = queryTrackingBehavior == QueryTrackingBehavior.TrackAll
+                    || queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             }
 
             public Expression Inject(Expression expression)
             {
                 var result = Visit(expression);
-                if (_trackingQuery)
+                if (_queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
                 {
                     foreach (var entityType in _visitedEntityTypes)
                     {

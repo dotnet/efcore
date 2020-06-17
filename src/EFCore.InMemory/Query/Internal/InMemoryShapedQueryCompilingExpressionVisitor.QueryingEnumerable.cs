@@ -29,21 +29,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly Func<QueryContext, ValueBuffer, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
-            private readonly bool _performIdentityResolution;
+            private readonly bool _standAloneStateManager;
 
             public QueryingEnumerable(
                 QueryContext queryContext,
                 IEnumerable<ValueBuffer> innerEnumerable,
                 Func<QueryContext, ValueBuffer, T> shaper,
                 Type contextType,
-                bool performIdentityResolution)
+                bool standAloneStateManager)
             {
                 _queryContext = queryContext;
                 _innerEnumerable = innerEnumerable;
                 _shaper = shaper;
                 _contextType = contextType;
                 _queryLogger = queryContext.QueryLogger;
-                _performIdentityResolution = performIdentityResolution;
+                _standAloneStateManager = standAloneStateManager;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 private readonly Func<QueryContext, ValueBuffer, T> _shaper;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
-                private readonly bool _performIdentityResolution;
+                private readonly bool _standAloneStateManager;
                 private readonly CancellationToken _cancellationToken;
 
                 public Enumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken = default)
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _shaper = queryingEnumerable._shaper;
                     _contextType = queryingEnumerable._contextType;
                     _queryLogger = queryingEnumerable._queryLogger;
-                    _performIdentityResolution = queryingEnumerable._performIdentityResolution;
+                    _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                     _cancellationToken = cancellationToken;
                 }
 
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     if (_enumerator == null)
                     {
                         _enumerator = _innerEnumerable.GetEnumerator();
-                        _queryContext.InitializeStateManager(_performIdentityResolution);
+                        _queryContext.InitializeStateManager(_standAloneStateManager);
                     }
 
                     var hasNext = _enumerator.MoveNext();

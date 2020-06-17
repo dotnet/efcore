@@ -125,21 +125,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             // We visit innerQueryable first so that we can get information in the same order operators are applied.
             var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
-            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.AsTrackingMethodInfo
-                || genericMethodDefinition == EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
+
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.AsTrackingMethodInfo)
             {
                 var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-                _queryCompilationContext.IsTracking
-                    = genericMethodDefinition == EntityFrameworkQueryableExtensions.AsTrackingMethodInfo;
+                _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
                 return visitedExpression;
             }
 
-            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.PerformIdentityResolutionMethodInfo)
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
             {
                 var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-                _queryCompilationContext.IsTracking = false;
-                _queryCompilationContext.PerformIdentityResolution = true;
+                _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+                return visitedExpression;
+            }
+
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolutionMethodInfo)
+            {
+                var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
 
                 return visitedExpression;
             }

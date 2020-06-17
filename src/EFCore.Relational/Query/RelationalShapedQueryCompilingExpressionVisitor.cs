@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         typeof(IReadOnlyList<string>)),
                     Expression.Constant(shaper.Compile()),
                     Expression.Constant(_contextType),
-                    Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
+                    Expression.Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
             }
 
             if (splitQuery)
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     relatedDataLoadersParameter,
                     relatedDataLoadersAsyncParameter,
                     Expression.Constant(_contextType),
-                    Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
+                    Expression.Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
             }
 
             return Expression.New(
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(relationalCommandCache),
                     Expression.Constant(shaper.Compile()),
                     Expression.Constant(_contextType),
-                    Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
+                    Expression.Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
         }
     }
 }

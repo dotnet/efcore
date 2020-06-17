@@ -304,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 NavigationExpansionExpression source)
                 : base(navigationExpandingExpressionVisitor, source)
             {
-                _allowCycles = navigationExpandingExpressionVisitor._queryCompilationContext.IsTracking
-                    || navigationExpandingExpressionVisitor._queryCompilationContext.PerformIdentityResolution;
+                _allowCycles = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll
+                    || navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public async virtual Task Include_references_then_include_collection(bool async)
+        public virtual async Task Include_references_then_include_collection(bool async)
         {
             await AssertQuery(
                 async,
@@ -870,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public async virtual Task Include_reference_alias_generation(bool async)
+        public virtual async Task Include_reference_alias_generation(bool async)
         {
             await AssertQuery(
                 async,
@@ -1802,6 +1802,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedFilteredInclude<Customer, Order>(c => c.Orders,
                         includeFilter: os => os.OrderBy(o => o.OrderID).Skip(1).OrderByDescending(o => o.OrderDate))),
                 entryCount: 64);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_with_cycle_does_not_throw_when_AsNoTrackingWithIdentityResolution(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => (from i in ss.Set<Order>().Include(o => o.Customer.Orders)
+                       where i.OrderID < 10800
+                       select i)
+                      .AsNoTrackingWithIdentityResolution());
         }
 
         protected virtual void ClearLog()
