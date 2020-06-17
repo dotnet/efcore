@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <param name="navigation"> The navigation property. </param>
-        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigation navigation)
+        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigationBase navigation)
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotNull(navigation, nameof(navigation));

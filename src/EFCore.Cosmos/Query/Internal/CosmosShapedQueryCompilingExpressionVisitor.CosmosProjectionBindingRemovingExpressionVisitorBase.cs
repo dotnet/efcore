@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private static readonly MethodInfo _jTokenToObjectMethodInfo
                 = typeof(JToken).GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 0);
-            
+
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
                 = typeof(IClrCollectionAccessor).GetTypeInfo()
                     .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
@@ -211,8 +211,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     var lambda = (LambdaExpression)methodCallExpression.Arguments[1];
                     if (lambda.Body is IncludeExpression includeExpression)
                     {
-                        if (includeExpression.Navigation.IsOnDependent
-                            || includeExpression.Navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
+                        if (!(includeExpression.Navigation is INavigation navigation)
+                            || navigation.IsOnDependent
+                            || navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                         {
                             throw new InvalidOperationException(CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Print()));
                         }
@@ -291,8 +292,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     case IncludeExpression includeExpression:
                     {
-                        if (includeExpression.Navigation.IsOnDependent
-                            || includeExpression.Navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
+                        if (!(includeExpression.Navigation is INavigation navigation)
+                            || navigation.IsOnDependent
+                            || navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                         {
                             throw new InvalidOperationException(CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Print()));
                         }
@@ -310,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Check.DebugAssert(jObjectBlock != null, "The first include must end up on a valid shaper block");
 
                         // These are the expressions added by JObjectInjectingExpressionVisitor
-                        var jObjectCondition = (ConditionalExpression)jObjectBlock.Expressions[jObjectBlock.Expressions.Count - 1];
+                        var jObjectCondition = (ConditionalExpression)jObjectBlock.Expressions[^1];
 
                         var shaperBlock = (BlockExpression)jObjectCondition.IfFalse;
                         shaperBlock = AddIncludes(shaperBlock);
@@ -336,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 var shaperExpressions = new List<Expression>(shaperBlock.Expressions);
-                var instanceVariable = shaperExpressions[shaperExpressions.Count - 1];
+                var instanceVariable = shaperExpressions[^1];
                 shaperExpressions.RemoveAt(shaperExpressions.Count - 1);
 
                 var includesToProcess = _pendingIncludes;
@@ -358,7 +360,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 BlockExpression shaperBlock,
                 Expression instanceVariable)
             {
-                var navigation = includeExpression.Navigation;
+                // Cosmos does not support Includes for ISkipNavigation
+                var navigation = (INavigation)includeExpression.Navigation;
                 var includeMethod = navigation.IsCollection ? _includeCollectionMethodInfo : _includeReferenceMethodInfo;
                 var includingClrType = navigation.DeclaringEntityType.ClrType;
                 var relatedEntityClrType = navigation.TargetEntityType.ClrType;
@@ -409,14 +412,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (entry == null)
                 {
                     var includingEntity = (TIncludingEntity)entity;
-                    SetIsLoadedNoTracking(includingEntity, navigation);
+                    navigation.SetIsLoadedWhenNoTracking(includingEntity);
                     if (relatedEntity != null)
                     {
                         fixup(includingEntity, relatedEntity);
                         if (inverseNavigation != null
                             && !inverseNavigation.IsCollection)
                         {
-                            SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                            inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                         }
                     }
                 }
@@ -452,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (entry == null)
                 {
                     var includingEntity = (TIncludingEntity)entity;
-                    SetIsLoadedNoTracking(includingEntity, navigation);
+                    navigation.SetIsLoadedWhenNoTracking(includingEntity);
 
                     if (relatedEntities != null)
                     {
@@ -461,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                                inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                             }
                         }
                     }
@@ -488,14 +491,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
                 }
             }
-
-            private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
-                => ((ILazyLoader)(navigation
-                            .DeclaringEntityType
-                            .GetServiceProperties()
-                            .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader)))
-                        ?.GetGetter().GetClrValue(entity))
-                    ?.SetLoaded(entity, navigation.Name);
 
             private static Delegate GenerateFixup(
                 Type entityType,
@@ -565,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private static readonly MethodInfo _populateCollectionMethodInfo
                 = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase).GetTypeInfo()
                     .GetDeclaredMethod(nameof(PopulateCollection));
-            
+
             private static TCollection PopulateCollection<TEntity, TCollection>(
                 IClrCollectionAccessor accessor,
                 IEnumerable<TEntity> entities)

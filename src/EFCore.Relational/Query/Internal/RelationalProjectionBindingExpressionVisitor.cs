@@ -239,67 +239,63 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-            if (extensionExpression is EntityShaperExpression entityShaperExpression)
+            switch (extensionExpression)
             {
-                // TODO: Make this easier to understand some day.
-                EntityProjectionExpression entityProjectionExpression;
-                if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
+
+                case EntityShaperExpression entityShaperExpression:
                 {
-                    VerifySelectExpression(projectionBindingExpression);
-                    // If projectionBinding is not mapped then SelectExpression has client projection
-                    // Hence force client eval
-                    if (projectionBindingExpression.ProjectionMember == null)
+                    // TODO: Make this easier to understand some day.
+                    EntityProjectionExpression entityProjectionExpression;
+                    if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                     {
-                        if (_clientEval)
+                        VerifySelectExpression(projectionBindingExpression);
+                        // If projectionBinding is not mapped then SelectExpression has client projection
+                        // Hence force client eval
+                        if (projectionBindingExpression.ProjectionMember == null)
                         {
-                            var indexMap = new Dictionary<IProperty, int>();
-                            foreach (var item in projectionBindingExpression.IndexMap)
+                            if (_clientEval)
                             {
-                                indexMap[item.Key] = _selectExpression.AddToProjection(_existingProjections[item.Value]);
+                                var indexMap = new Dictionary<IProperty, int>();
+                                foreach (var item in projectionBindingExpression.IndexMap)
+                                {
+                                    indexMap[item.Key] = _selectExpression.AddToProjection(_existingProjections[item.Value]);
+                                }
+
+                                return entityShaperExpression.Update(new ProjectionBindingExpression(_selectExpression, indexMap));
                             }
 
-                            return entityShaperExpression.Update(new ProjectionBindingExpression(_selectExpression, indexMap));
+                            return null;
                         }
 
-                        return null;
+                        entityProjectionExpression = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
+                            projectionBindingExpression.ProjectionMember);
+                    }
+                    else
+                    {
+                        entityProjectionExpression = (EntityProjectionExpression)entityShaperExpression.ValueBufferExpression;
                     }
 
-                    entityProjectionExpression = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
-                        projectionBindingExpression.ProjectionMember);
-                }
-                else
-                {
-                    entityProjectionExpression = (EntityProjectionExpression)entityShaperExpression.ValueBufferExpression;
-                }
+                    if (_clientEval)
+                    {
+                        return entityShaperExpression.Update(
+                            new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
+                    }
 
-                if (_clientEval)
-                {
+                    _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
+
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
 
-                _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
+                case IncludeExpression _:
+                    return _clientEval ? base.VisitExtension(extensionExpression) : null;
 
-                return entityShaperExpression.Update(
-                    new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                case CollectionShaperExpression _:
+                    return _clientEval ? extensionExpression : null;
+
+                default:
+                    throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
             }
-
-            if (extensionExpression is IncludeExpression includeExpression)
-            {
-                return _clientEval
-                    ? base.VisitExtension(includeExpression)
-                    : null;
-            }
-
-            if (extensionExpression is CollectionShaperExpression)
-            {
-                return _clientEval
-                    ? extensionExpression
-                    : null;
-            }
-
-            throw new InvalidOperationException(
-                CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
         }
 
         /// <summary>

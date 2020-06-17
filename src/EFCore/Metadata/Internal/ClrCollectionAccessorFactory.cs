@@ -48,16 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
-            => !navigation.IsCollection || navigation.IsShadowProperty() ? null : Create(navigation, navigation.TargetEntityType);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IClrCollectionAccessor Create([NotNull] ISkipNavigation navigation)
+        public virtual IClrCollectionAccessor Create([NotNull] INavigationBase navigation)
             => !navigation.IsCollection || navigation.IsShadowProperty() ? null : Create(navigation, navigation.TargetEntityType);
 
         private IClrCollectionAccessor Create(IPropertyBase navigation, IEntityType targetType)
@@ -125,25 +116,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [UsedImplicitly]
-        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigation navigation)
+        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigationBase navigation)
             where TEntity : class
             where TCollection : class, IEnumerable<TElement>
             where TElement : class
         {
-            Action<TEntity, TCollection> CreateSetterDelegate(
-                ParameterExpression parameterExpression,
-                MemberInfo memberInfo,
-                ParameterExpression valueParameter1)
-                => Expression.Lambda<Action<TEntity, TCollection>>(
-                    Expression.MakeMemberAccess(
-                        parameterExpression,
-                        memberInfo).Assign(
-                        Expression.Convert(
-                            valueParameter1,
-                            memberInfo.GetMemberType())),
-                    parameterExpression,
-                    valueParameter1).Compile();
-
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
@@ -230,6 +207,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 setterDelegateForMaterialization,
                 createAndSetDelegate,
                 createDelegate);
+
+            static Action<TEntity, TCollection> CreateSetterDelegate(
+                ParameterExpression parameterExpression,
+                MemberInfo memberInfo,
+                ParameterExpression valueParameter1)
+                => Expression.Lambda<Action<TEntity, TCollection>>(
+                    Expression.MakeMemberAccess(
+                        parameterExpression,
+                        memberInfo).Assign(
+                        Expression.Convert(
+                            valueParameter1,
+                            memberInfo.GetMemberType())),
+                    parameterExpression,
+                    valueParameter1).Compile();
         }
 
         private static bool IsObservableHashSet(Type type)

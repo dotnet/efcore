@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -115,6 +117,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         return ExpandNavigation(root, entityReference, navigation, convertedType != null);
                     }
+
+                    var skipNavigation = memberIdentity.MemberInfo != null
+                        ? entityType.FindSkipNavigation(memberIdentity.MemberInfo)
+                        : entityType.FindSkipNavigation(memberIdentity.Name);
+                    if (skipNavigation != null)
+                    {
+                        return ExpandSkipNavigation(root, entityReference, skipNavigation, convertedType != null);
+                    }
                 }
 
                 return null;
@@ -123,23 +133,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             protected Expression ExpandNavigation(
                 Expression root, EntityReference entityReference, INavigation navigation, bool derivedTypeConversion)
             {
-                if (entityReference.NavigationMap.TryGetValue(navigation, out var expansion))
-                {
-                    return expansion;
-                }
-
                 var targetType = navigation.TargetEntityType;
                 if (targetType.HasDefiningNavigation()
                     || targetType.IsOwned())
                 {
+                    if (entityReference.ForeignKeyExpansionMap.TryGetValue(
+                        (navigation.ForeignKey, navigation.IsOnDependent), out var ownedExpansion))
+                    {
+                        return ownedExpansion;
+                    }
+
                     var ownedEntityReference = new EntityReference(targetType);
                     ownedEntityReference.MarkAsOptional();
                     if (entityReference.IncludePaths.ContainsKey(navigation))
                     {
-                        ownedEntityReference.SetIncludePaths(entityReference.IncludePaths[navigation]);
+                        ownedEntityReference.IncludePaths.Merge(entityReference.IncludePaths[navigation]);
                     }
 
-                    var ownedExpansion = new OwnedNavigationReference(root, navigation, ownedEntityReference);
+                    ownedExpansion = new OwnedNavigationReference(root, navigation, ownedEntityReference);
                     if (navigation.IsCollection)
                     {
                         var elementType = ownedExpansion.Type.TryGetSequenceType();
@@ -150,16 +161,179 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return new MaterializeCollectionNavigationExpression(subquery, navigation);
                     }
 
-                    entityReference.NavigationMap[navigation] = ownedExpansion;
+                    entityReference.ForeignKeyExpansionMap[(navigation.ForeignKey, navigation.IsOnDependent)] = ownedExpansion;
                     return ownedExpansion;
                 }
 
+                var expansion = ExpandForeignKey(
+                    root, entityReference, navigation.ForeignKey, navigation.IsOnDependent, derivedTypeConversion);
+
+                return navigation.IsCollection
+                    ? new MaterializeCollectionNavigationExpression(expansion, navigation)
+                    : expansion;
+            }
+
+            protected Expression ExpandSkipNavigation(
+                Expression root, EntityReference entityReference, ISkipNavigation navigation, bool derivedTypeConversion)
+            {
+                var inverseNavigation = navigation.Inverse;
+                var includeTree = entityReference.IncludePaths.TryGetValue(navigation, out var tree)
+                    ? tree
+                    : null;
+
+                var primaryExpansion = ExpandForeignKey(
+                    root,
+                    entityReference,
+                    navigation.ForeignKey,
+                    navigation.IsOnDependent,
+                    derivedTypeConversion);
+                Expression secondaryExpansion;
+
+                if (navigation.ForeignKey.IsUnique
+                    || navigation.IsOnDependent)
+                {
+                    // First pseudo-navigation is a reference
+                    // ExpandFK handles both collection & reference navigation for second psuedo-navigation
+                    secondaryExpansion = ExpandForeignKey(
+                        primaryExpansion, UnwrapEntityReference(primaryExpansion), inverseNavigation.ForeignKey,
+                        !inverseNavigation.IsOnDependent, derivedTypeConversion: false);
+                }
+                else
+                {
+                    var secondaryForeignKey = inverseNavigation.ForeignKey;
+                    // First psuedo-navigation is a collection
+                    if (secondaryForeignKey.IsUnique
+                        || !inverseNavigation.IsOnDependent)
+                    {
+                        // Second psuedo-navigation is a reference
+                        var secondTargetType = navigation.TargetEntityType;
+                        var innerQueryable = new QueryRootExpression(secondTargetType);
+                        var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
+
+                        if (includeTree != null)
+                        {
+                            UnwrapEntityReference(innerSource.PendingSelector).IncludePaths.Merge(includeTree);
+                        }
+
+                        var sourceElementType = primaryExpansion.Type.GetSequenceType();
+                        var outerKeyparameter = Expression.Parameter(sourceElementType);
+                        var outerKey = outerKeyparameter.CreateKeyValuesExpression(
+                                !inverseNavigation.IsOnDependent
+                                    ? secondaryForeignKey.Properties
+                                    : secondaryForeignKey.PrincipalKey.Properties,
+                                makeNullable: true);
+                        var outerKeySelector = Expression.Lambda(outerKey, outerKeyparameter);
+
+                        var innerSourceElementType = innerSource.Type.GetSequenceType();
+                        var innerKeyParameter = Expression.Parameter(innerSourceElementType);
+                        var innerKey = innerKeyParameter.CreateKeyValuesExpression(
+                                !inverseNavigation.IsOnDependent
+                                    ? secondaryForeignKey.PrincipalKey.Properties
+                                    : secondaryForeignKey.Properties,
+                                makeNullable: true);
+                        var innerKeySelector = Expression.Lambda(innerKey, innerKeyParameter);
+
+                        var resultSelector = Expression.Lambda(innerKeyParameter, outerKeyparameter, innerKeyParameter);
+
+                        var innerJoin = !inverseNavigation.IsOnDependent && secondaryForeignKey.IsRequired;
+
+                        secondaryExpansion = Expression.Call(
+                            (innerJoin
+                                ? QueryableMethods.Join
+                                : QueryableExtensions.LeftJoinMethodInfo).MakeGenericMethod(
+                                    sourceElementType, innerSourceElementType,
+                                    outerKeySelector.ReturnType,
+                                    resultSelector.ReturnType),
+                                primaryExpansion,
+                                innerSource,
+                                Expression.Quote(outerKeySelector),
+                                Expression.Quote(innerKeySelector),
+                                Expression.Quote(resultSelector));
+                    }
+                    else
+                    {
+                        // Second psuedo-navigation is a collection
+                        var secondTargetType = navigation.TargetEntityType;
+                        var innerQueryable = new QueryRootExpression(secondTargetType);
+                        var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
+
+                        if (includeTree != null)
+                        {
+                            UnwrapEntityReference(innerSource.PendingSelector).IncludePaths.Merge(includeTree);
+                        }
+
+                        var sourceElementType = primaryExpansion.Type.GetSequenceType();
+                        var outersourceParameter = Expression.Parameter(sourceElementType);
+                        var outerKey = outersourceParameter.CreateKeyValuesExpression(
+                                !inverseNavigation.IsOnDependent
+                                    ? secondaryForeignKey.Properties
+                                    : secondaryForeignKey.PrincipalKey.Properties,
+                                makeNullable: true);
+
+                        var innerSourceElementType = innerSource.Type.GetSequenceType();
+                        var innerSourceParameter = Expression.Parameter(innerSourceElementType);
+                        var innerKey = innerSourceParameter.CreateKeyValuesExpression(
+                                !inverseNavigation.IsOnDependent
+                                    ? secondaryForeignKey.PrincipalKey.Properties
+                                    : secondaryForeignKey.Properties,
+                                makeNullable: true);
+
+                        // Selector body is IQueryable, we need to adjust the type to IEnumerable, to match the SelectMany signature
+                        // therefore the delegate type is specified explicitly
+                        var selectorLambdaType = typeof(Func<,>).MakeGenericType(
+                            sourceElementType,
+                            typeof(IEnumerable<>).MakeGenericType(innerSourceElementType));
+
+                        var selector = Expression.Lambda(
+                            selectorLambdaType,
+                            Expression.Call(
+                                QueryableMethods.Where.MakeGenericMethod(innerSourceElementType),
+                                innerSource,
+                                Expression.Quote(Expression.Lambda(Expression.Equal(outerKey, innerKey), innerSourceParameter))),
+                            outersourceParameter);
+
+                        secondaryExpansion = Expression.Call(
+                            QueryableMethods.SelectManyWithoutCollectionSelector.MakeGenericMethod(
+                                sourceElementType, innerSourceElementType),
+                                primaryExpansion,
+                                Expression.Quote(selector));
+                    }
+                }
+
+                return navigation.IsCollection
+                    ? new MaterializeCollectionNavigationExpression(secondaryExpansion, navigation)
+                    : secondaryExpansion;
+            }
+
+            private Expression ExpandForeignKey(
+                Expression root,
+                EntityReference entityReference,
+                IForeignKey foreignKey,
+                bool onDependent,
+                bool derivedTypeConversion)
+            {
+                if (entityReference.ForeignKeyExpansionMap.TryGetValue((foreignKey, onDependent), out var expansion))
+                {
+                    return expansion;
+                }
+
+                var collection = !foreignKey.IsUnique && !onDependent;
+                var targetType = onDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType;
+
+                Debug.Assert(!targetType.HasDefiningNavigation() && !targetType.IsOwned(), "Owned entity expanding foreign key.");
+
                 var innerQueryable = new QueryRootExpression(targetType);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
-                if (entityReference.IncludePaths.ContainsKey(navigation))
+
+                // We detect and copy over include for navigation being expanded automatically
+                var navigation = onDependent ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
+                var innerEntityReference = UnwrapEntityReference(innerSource.PendingSelector);
+                if (navigation != null
+                    && entityReference.IncludePaths.TryGetValue(navigation, out var includeTree))
                 {
-                    var innerEntityReference = (EntityReference)((NavigationTreeExpression)innerSource.PendingSelector).Value;
-                    innerEntityReference.SetIncludePaths(entityReference.IncludePaths[navigation]);
+                    {
+                        innerEntityReference.IncludePaths.Merge(includeTree);
+                    }
                 }
 
                 var innerSourceSequenceType = innerSource.Type.GetSequenceType();
@@ -171,9 +345,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // This is FirstOrDefault ending so we need to push down properties.
                     var temporaryParameter = Expression.Parameter(root.Type);
                     var temporaryKey = temporaryParameter.CreateKeyValuesExpression(
-                        navigation.IsOnDependent
-                            ? navigation.ForeignKey.Properties
-                            : navigation.ForeignKey.PrincipalKey.Properties,
+                        onDependent
+                            ? foreignKey.Properties
+                            : foreignKey.PrincipalKey.Properties,
                         makeNullable: true);
                     var newSelector = ReplacingExpressionVisitor.Replace(
                         temporaryParameter,
@@ -185,17 +359,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     outerKey = root.CreateKeyValuesExpression(
-                        navigation.IsOnDependent
-                            ? navigation.ForeignKey.Properties
-                            : navigation.ForeignKey.PrincipalKey.Properties,
-                        makeNullable: true);
+                        onDependent ? foreignKey.Properties : foreignKey.PrincipalKey.Properties, makeNullable: true);
                 }
 
                 var innerKey = innerParameter.CreateKeyValuesExpression(
-                    navigation.IsOnDependent
-                        ? navigation.ForeignKey.PrincipalKey.Properties
-                        : navigation.ForeignKey.Properties,
-                    makeNullable: true);
+                    onDependent ? foreignKey.PrincipalKey.Properties : foreignKey.Properties, makeNullable: true);
 
                 if (outerKey.Type != innerKey.Type)
                 {
@@ -210,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
-                if (navigation.IsCollection)
+                if (collection)
                 {
                     // This is intentionally deferred to be applied to innerSource.Source
                     // Since outerKey's reference could change if a reference navigation is expanded afterwards
@@ -227,14 +395,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
                         Expression.Equal(outerKey, innerKey));
 
-                    var subquery = Expression.Call(
+                    // Caller should take care of wrapping MaterializeCollectionNavigation
+                    return Expression.Call(
                         QueryableMethods.Where.MakeGenericMethod(innerSourceSequenceType),
                         innerSource,
                         Expression.Quote(
                             Expression.Lambda(
                                 predicateBody, innerParameter)));
-
-                    return new MaterializeCollectionNavigationExpression(subquery, navigation);
                 }
 
                 var outerKeySelector = _navigationExpandingExpressionVisitor.GenerateLambda(
@@ -259,12 +426,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var innerJoin = !entityReference.IsOptional
                     && !derivedTypeConversion
-                    && navigation.IsOnDependent
-                    && navigation.ForeignKey.IsRequired;
+                    && onDependent
+                    && foreignKey.IsRequired;
 
                 if (!innerJoin)
                 {
-                    var innerEntityReference = (EntityReference)((NavigationTreeExpression)innerSource.PendingSelector).Value;
                     innerEntityReference.MarkAsOptional();
                 }
 
@@ -279,11 +445,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             resultSelector.ReturnType),
                         _source.Source,
                         innerSource.Source,
-                        outerKeySelector,
-                        innerKeySelector,
-                        resultSelector));
+                        Expression.Quote(outerKeySelector),
+                        Expression.Quote(innerKeySelector),
+                        Expression.Quote(resultSelector)));
 
-                entityReference.NavigationMap[navigation] = innerSource.PendingSelector;
+                entityReference.ForeignKeyExpansionMap[(foreignKey, onDependent)] = innerSource.PendingSelector;
 
                 _source.UpdateCurrentTree(new NavigationTreeNode(_source.CurrentTree, innerSource.CurrentTree));
 
@@ -491,30 +657,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var convertedRoot = root;
                 foreach (var kvp in entityReference.IncludePaths)
                 {
-                    var navigation = kvp.Key;
+                    var navigationBase = kvp.Key;
                     var converted = false;
-                    if (entityReference.EntityType != navigation.DeclaringEntityType
-                        && entityReference.EntityType.IsAssignableFrom(navigation.DeclaringEntityType))
+                    if (entityReference.EntityType != navigationBase.DeclaringEntityType
+                        && entityReference.EntityType.IsAssignableFrom(navigationBase.DeclaringEntityType))
                     {
                         converted = true;
-                        convertedRoot = Expression.Convert(root, navigation.DeclaringEntityType.ClrType);
+                        convertedRoot = Expression.Convert(root, navigationBase.DeclaringEntityType.ClrType);
                     }
 
-                    var included = ExpandNavigation(convertedRoot, entityReference, navigation, converted);
-                    // Collection will expand it's includes when reducing the navigationExpansionExpression
-                    if (!navigation.IsCollection)
+                    var included = navigationBase switch
                     {
-                        var innerEntityReference = navigation.TargetEntityType.HasDefiningNavigation()
-                            || navigation.TargetEntityType.IsOwned()
-                                ? ((OwnedNavigationReference)included).EntityReference
-                                : (EntityReference)((NavigationTreeExpression)included).Value;
+                        INavigation navigation => ExpandNavigation(convertedRoot, entityReference, navigation, converted),
+                        ISkipNavigation skipNavigation => ExpandSkipNavigation(convertedRoot, entityReference, skipNavigation, converted),
+                        _ => throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType()))
+                    };
+
+                    // Collection will expand it's includes when reducing the navigationExpansionExpression
+                    if (!navigationBase.IsCollection)
+                    {
+                        var innerEntityReference = UnwrapEntityReference(included);
 
                         included = ExpandIncludesHelper(included, innerEntityReference);
                     }
 
                     if (included is MaterializeCollectionNavigationExpression materializeCollectionNavigation)
                     {
-                        var filterExpression = entityReference.IncludePaths[navigation].FilterExpression;
+                        var filterExpression = entityReference.IncludePaths[navigationBase].FilterExpression;
                         if (filterExpression != null)
                         {
                             var subquery = ReplacingExpressionVisitor.Replace(
@@ -526,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
 
-                    result = new IncludeExpression(result, included, navigation);
+                    result = new IncludeExpression(result, included, navigationBase);
                 }
 
                 return result;

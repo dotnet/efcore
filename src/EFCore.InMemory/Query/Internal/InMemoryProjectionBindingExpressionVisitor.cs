@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 : Expression.Convert(expression, convertTo);
 
         private CollectionShaperExpression AddCollectionProjection(
-            ShapedQueryExpression subquery, INavigation navigation, Type elementType)
+            ShapedQueryExpression subquery, INavigationBase navigation, Type elementType)
             => new CollectionShaperExpression(
                 new ProjectionBindingExpression(
                     _queryExpression,

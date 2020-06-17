@@ -2477,12 +2477,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidTypeConversationWithInclude");
 
         /// <summary>
-        ///     Invalid expression type stored in NavigationMap.
-        /// </summary>
-        public static string InvalidExpressionTypeStoredInNavigationMap
-            => GetString("InvalidExpressionTypeStoredInNavigationMap");
-
-        /// <summary>
         ///     The Include path '{navigationName}-&gt;{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries. Either use a tracking query or remove the cycle.
         /// </summary>
         public static string IncludeWithCycle([CanBeNull] object navigationName, [CanBeNull] object inverseNavigationName)
@@ -2523,7 +2517,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("OwnedEntitiesCannotBeTrackedWithoutTheirOwner");
 
         /// <summary>
-        ///     Calling {visitMethodName} is not allowed. Visit expression manually for relevant part.
+        ///     Calling '{visitMethodName}' is not allowed. Visit expression manually for relevant part.
         /// </summary>
         public static string VisitIsNotAllowed([CanBeNull] object visitMethodName)
             => string.Format(
@@ -2705,6 +2699,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnnamedIndexDefinedOnNonExistentProperty", nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
                 entityType, indexPropertyList, propertyName);
+
+        /// <summary>
+        ///     Unhandled 'INavigationBase' of type '{type}'.
+        /// </summary>
+        public static string UnhandledNavigationBase([CanBeNull] object type)
+            => string.Format(
+                GetString("UnhandledNavigationBase", nameof(type)),
+                type);
 
         private static string GetString(string name, params string[] formatterNames)
         {

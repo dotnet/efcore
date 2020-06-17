@@ -1317,9 +1317,6 @@
   <data name="InvalidTypeConversationWithInclude" xml:space="preserve">
     <value>Invalid type conversion when specifying include.</value>
   </data>
-  <data name="InvalidExpressionTypeStoredInNavigationMap" xml:space="preserve">
-    <value>Invalid expression type stored in NavigationMap.</value>
-  </data>
   <data name="IncludeWithCycle" xml:space="preserve">
     <value>The Include path '{navigationName}-&gt;{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries. Either use a tracking query or remove the cycle.</value>
   </data>
@@ -1339,7 +1336,7 @@
     <value>A tracking query projects owned entity without corresponding owner in result. Owned entities cannot be tracked without their owner. Either include the owner entity in the result or make query non-tracking using AsNoTracking().</value>
   </data>
   <data name="VisitIsNotAllowed" xml:space="preserve">
-    <value>Calling {visitMethodName} is not allowed. Visit expression manually for relevant part.</value>
+    <value>Calling '{visitMethodName}' is not allowed. Visit expression manually for relevant part.</value>
   </data>
   <data name="EntityProjectionExpressionCalledWithIncorrectInterface" xml:space="preserve">
     <value>Called EntityProjectionExpression.{methodName}() with incorrect {interfaceType}. EntityType:{entityType}, {entityValue}</value>
@@ -1420,5 +1417,8 @@
   </data>
   <data name="UnnamedIndexDefinedOnNonExistentProperty" xml:space="preserve">
     <value>An unnamed index on the entity type '{entityType}' specifies properties {indexPropertyList}. But no property with name '{propertyName}' exists on that entity type or any of its base types.</value>
+  </data>
+  <data name="UnhandledNavigationBase" xml:space="preserve">
+    <value>Unhandled 'INavigationBase' of type '{type}'.</value>
   </data>
 </root>
