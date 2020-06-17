@@ -35,21 +35,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
-            private readonly bool _performIdentityResolution;
+            private readonly bool _standAloneStateManager;
 
             public ReadItemQueryingEnumerable(
                 CosmosQueryContext cosmosQueryContext,
                 ReadItemExpression readItemExpression,
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
-                bool performIdentityResolution)
+                bool standAloneStateManager)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _readItemExpression = readItemExpression;
                 _shaper = shaper;
                 _contextType = contextType;
                 _queryLogger = _cosmosQueryContext.QueryLogger;
-                _performIdentityResolution = performIdentityResolution;
+                _standAloneStateManager = standAloneStateManager;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Func<CosmosQueryContext, JObject, T> _shaper;
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
-                private readonly bool _performIdentityResolution;
+                private readonly bool _standAloneStateManager;
                 private readonly CancellationToken _cancellationToken;
 
                 private JObject _item;
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _shaper = readItemEnumerable._shaper;
                     _contextType = readItemEnumerable._contextType;
                     _queryLogger = readItemEnumerable._queryLogger;
-                    _performIdentityResolution = readItemEnumerable._performIdentityResolution;
+                    _standAloneStateManager = readItemEnumerable._standAloneStateManager;
                     _cancellationToken = cancellationToken;
                 }
 
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     var hasNext = !(_item is null);
 
-                    _cosmosQueryContext.InitializeStateManager(_performIdentityResolution);
+                    _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
 
                     Current
                         = hasNext

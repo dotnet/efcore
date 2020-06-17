@@ -2699,8 +2699,8 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Returns a new query where the change tracker will not track any of the entities that are returned.
-        ///         If the entity instances are modified, this will not be detected by the change tracker and
+        ///         The change tracker will not track any of the entities that are returned from a LINQ query. If the
+        ///         entity instances are modified, this will not be detected by the change tracker and
         ///         <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database.
         ///     </para>
         ///     <para>
@@ -2708,6 +2708,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         up change tracking for each entity instance. You should not disable change tracking if you want to
         ///         manipulate entity instances and persist those changes to the database using
         ///         <see cref="DbContext.SaveChanges()" />.
+        ///     </para>
+        ///     <para>
+        ///         Identity resolution will not be performed. If an entity with a given key is in different result in the result set
+        ///         then they will be different instances.
         ///     </para>
         ///     <para>
         ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior" />.
@@ -2733,6 +2737,54 @@ namespace Microsoft.EntityFrameworkCore
                         Expression.Call(
                             instance: null,
                             method: AsNoTrackingMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            arguments: source.Expression))
+                    : source;
+        }
+
+        internal static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(AsNoTrackingWithIdentityResolution));
+
+        /// <summary>
+        ///     <para>
+        ///         The change tracker will not track any of the entities that are returned from a LINQ query. If the
+        ///         entity instances are modified, this will not be detected by the change tracker and
+        ///         <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database.
+        ///     </para>
+        ///     <para>
+        ///         Disabling change tracking is useful for read-only scenarios because it avoids the overhead of setting
+        ///         up change tracking for each entity instance. You should not disable change tracking if you want to
+        ///         manipulate entity instances and persist those changes to the database using
+        ///         <see cref="DbContext.SaveChanges()" />.
+        ///     </para>
+        ///     <para>
+        ///         Identity resolution will be performed to ensure that all occurrences of an entity with a given key
+        ///         in the result set are represented by the same entity instance.
+        ///     </para>
+        ///     <para>
+        ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior" />.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns>
+        ///     A new query where the result set will not be tracked by the context.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        ///     <paramref name="source"/> is <see langword="null" />.
+        /// </exception>
+        public static IQueryable<TEntity> AsNoTrackingWithIdentityResolution<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            instance: null,
+                            method: AsNoTrackingWithIdentityResolutionMethodInfo.MakeGenericMethod(typeof(TEntity)),
                             arguments: source.Expression))
                     : source;
         }
@@ -2812,47 +2864,6 @@ namespace Microsoft.EntityFrameworkCore
             => track == QueryTrackingBehavior.TrackAll
                 ? source.AsTracking()
                 : source.AsNoTracking();
-
-        internal static readonly MethodInfo PerformIdentityResolutionMethodInfo
-            = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(PerformIdentityResolution));
-
-        /// <summary>
-        ///     <para>
-        ///         Returns a new query where the change tracker will not track any of the entities that are return
-        ///         but query will perform identity resolution in results.
-        ///         If the entity instances are modified, this will not be detected by the change tracker and
-        ///         <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database.
-        ///     </para>
-        ///     <para>
-        ///         Perfoming identity resolution in no tracking query can be useful if creating several instances of same object is
-        ///         expensive than re-using same object. It should be kept in mind that in order to perform identity resolution,
-        ///         all previously created objects will be kept in memory which can lead to high memory usage.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
-        /// <param name="source"> The source query. </param>
-        /// <returns>
-        ///     A new query where the result set will not be tracked by the context.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null" />.
-        /// </exception>
-        public static IQueryable<TEntity> PerformIdentityResolution<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
-            where TEntity : class
-        {
-            Check.NotNull(source, nameof(source));
-
-            return
-                source.Provider is EntityQueryProvider
-                    ? source.Provider.CreateQuery<TEntity>(
-                        Expression.Call(
-                            instance: null,
-                            method: PerformIdentityResolutionMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                            arguments: source.Expression))
-                    : source;
-        }
 
         #endregion
 

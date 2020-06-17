@@ -211,17 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Single(context.ChangeTracker.Entries());
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => (from i in ss.Set<Order>().Include(o => o.Customer.Orders)
-                       where i.OrderID < 10800
-                       select i)
-                      .PerformIdentityResolution());
-        }
+        public override Task Include_with_cycle_does_not_throw_when_AsNoTrackingWithIdentityResolution(bool async) => Task.CompletedTask;
 
         protected override bool IgnoreEntryCount => true;
 

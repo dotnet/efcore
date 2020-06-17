@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Dependencies = dependencies;
             IsAsync = async;
-            IsTracking = dependencies.IsTracking;
+            QueryTrackingBehavior = dependencies.QueryTrackingBehavior;
             IsBuffering = dependencies.IsRetryingExecutionStrategy;
             Model = dependencies.Model;
             ContextOptions = dependencies.ContextOptions;
@@ -100,19 +100,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IDbContextOptions ContextOptions { get; }
 
         /// <summary>
-        ///     A value indicating whether it is tracking query.
+        ///     A value indicating <see cref="EntityFrameworkCore.QueryTrackingBehavior"/> of the query.
         /// </summary>
-        public virtual bool IsTracking { get; internal set; }
+        public virtual QueryTrackingBehavior QueryTrackingBehavior { get; internal set; }
 
         /// <summary>
-        ///     <para>
-        ///         A value indicating whether query should perform identity resolution for the entities returned in the results.
-        ///     </para>
-        ///     <para>
-        ///         This value is only set when <see cref="IsTracking"/> is to <see langword="false"/>.
-        ///     </para>
+        ///     A value indicating whether it is tracking query.
         /// </summary>
-        public virtual bool PerformIdentityResolution { get; internal set; }
+        [Obsolete("Use " + nameof(QueryTrackingBehavior) + " instead.")]
+        public virtual bool IsTracking => QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+
         /// <summary>
         ///     A value indicating whether the underlying server query needs to pre-buffer all data.
         /// </summary>

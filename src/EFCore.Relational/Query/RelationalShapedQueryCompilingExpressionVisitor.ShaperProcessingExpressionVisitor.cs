@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 _generateCommandCache = true;
                 _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
-                _isTracking = parentVisitor.QueryCompilationContext.IsTracking;
+                _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
                 _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
                 _splitQuery = splitQuery;
 
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _readerColumns = readerColumns;
                 _generateCommandCache = false;
                 _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
-                _isTracking = parentVisitor.QueryCompilationContext.IsTracking;
+                _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
                 _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
                 _splitQuery = false;
             }
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
                 _generateCommandCache = true;
                 _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
-                _isTracking = parentVisitor.QueryCompilationContext.IsTracking;
+                _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
                 _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
                 _splitQuery = true;
 
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Constant(outerIdentifierLambda.Compile()),
                                 Expression.Constant(navigation),
                                 Expression.Constant(navigation.GetCollectionAccessor()),
-                                Expression.Constant(_parentVisitor.QueryCompilationContext.IsTracking)));
+                                Expression.Constant(_isTracking)));
 
                             var relatedEntityType = innerShaper.ReturnType;
                             var inverseNavigation = navigation.Inverse;
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Constant(
                                     GenerateFixup(
                                         includingEntityType, relatedEntityType, navigation, inverseNavigation).Compile()),
-                                Expression.Constant(_parentVisitor.QueryCompilationContext.IsTracking)));
+                                Expression.Constant(_isTracking)));
                         }
                         else if (includeExpression.NavigationExpression is RelationalSplitCollectionShaperExpression
                             relationalSplitCollectionShaperExpression)
@@ -638,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Constant(
                                     GenerateFixup(
                                         includingType, relatedEntityType, navigation, inverseNavigation).Compile()),
-                                Expression.Constant(_parentVisitor.QueryCompilationContext.IsTracking));
+                                Expression.Constant(_isTracking));
 
                             _includeExpressions.Add(updatedExpression);
                         }

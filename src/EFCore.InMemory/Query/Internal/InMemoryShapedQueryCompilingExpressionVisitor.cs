@@ -80,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             shaper = new InMemoryProjectionBindingRemovingExpressionVisitor().Visit(shaper);
 
-            shaper = new CustomShaperCompilingExpressionVisitor(QueryCompilationContext.IsTracking).Visit(shaper);
+            shaper = new CustomShaperCompilingExpressionVisitor(
+                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll).Visit(shaper);
 
             var shaperLambda = (LambdaExpression)shaper;
 
@@ -90,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerEnumerable,
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
+                Expression.Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
         }
 
         private static readonly MethodInfo _tableMethodInfo

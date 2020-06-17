@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
-        private readonly bool _performIdentityResolution;
+        private readonly bool _standAloneStateManager;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,14 +39,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] RelationalCommandCache relationalCommandCache,
             [NotNull] Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
             [NotNull] Type contextType,
-            bool performIdentityResolution)
+            bool standAloneStateManager)
         {
             _relationalQueryContext = relationalQueryContext;
             _relationalCommandCache = relationalCommandCache;
             _shaper = shaper;
             _contextType = contextType;
             _queryLogger = relationalQueryContext.QueryLogger;
-            _performIdentityResolution = performIdentityResolution;
+            _standAloneStateManager = standAloneStateManager;
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
-            private readonly bool _performIdentityResolution;
+            private readonly bool _standAloneStateManager;
 
             private RelationalDataReader _dataReader;
             private SingleQueryResultCoordinator _resultCoordinator;
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
                 _queryLogger = queryingEnumerable._queryLogger;
-                _performIdentityResolution = queryingEnumerable._performIdentityResolution;
+                _standAloneStateManager = queryingEnumerable._standAloneStateManager;
             }
 
             public T Current { get; private set; }
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 _resultCoordinator = new SingleQueryResultCoordinator();
 
-                _relationalQueryContext.InitializeStateManager(_performIdentityResolution);
+                _relationalQueryContext.InitializeStateManager(_standAloneStateManager);
 
                 return result;
             }
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
-            private readonly bool _performIdentityResolution;
+            private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
 
             private RelationalDataReader _dataReader;
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
                 _queryLogger = queryingEnumerable._queryLogger;
-                _performIdentityResolution = queryingEnumerable._performIdentityResolution;
+                _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _cancellationToken = cancellationToken;
             }
 
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 _resultCoordinator = new SingleQueryResultCoordinator();
 
-                _relationalQueryContext.InitializeStateManager(_performIdentityResolution);
+                _relationalQueryContext.InitializeStateManager(_standAloneStateManager);
 
                 return result;
             }
