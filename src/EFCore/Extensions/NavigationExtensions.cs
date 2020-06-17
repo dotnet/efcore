@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation"> The navigation property to check. </param>
         /// <returns>
         ///     <see langword="true"/> if the given navigation property is the navigation property on the dependent entity
-        ///     type that points to the principal entity, otherwise <see langword="false"/>. 
+        ///     type that points to the principal entity, otherwise <see langword="false"/>.
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use INavigation.IsOnDependent")]
@@ -76,6 +77,33 @@ namespace Microsoft.EntityFrameworkCore
         [Obsolete("Use INavigation.IsEagerLoaded")]
         public static bool IsEagerLoaded([NotNull] this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsEagerLoaded;
+
+        /// <summary>
+        ///     <para>
+        ///         Calls <see cref="ILazyLoader.SetLoaded"/> for a <see cref="INavigation"/> to mark it as loaded
+        ///         when a no-tracking query has eagerly loaded this relationship.
+        ///     </para>
+        ///     <para>
+        ///         This method is not exposed as a normal extension method since it is typically used by database providers.
+        ///         It is generally not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigation"> The navigation loaded. </param>
+        /// <param name="entity"> The entity for which the navigation has been loaded. </param>
+        public static void SetIsLoadedWhenNoTracking([NotNull] INavigation navigation, [NotNull] object entity)
+        {
+            var serviceProperties = navigation
+                .DeclaringEntityType
+                .GetDerivedTypesInclusive()
+                .Where(t => t.ClrType.IsInstanceOfType(entity))
+                .SelectMany(e => e.GetServiceProperties())
+                .Where(p => p.ClrType == typeof(ILazyLoader));
+
+            foreach (var serviceProperty in serviceProperties)
+            {
+                ((ILazyLoader)serviceProperty.GetGetter().GetClrValue(entity))?.SetLoaded(entity, navigation.Name);
+            }
+        }
 
         /// <summary>
         ///     <para>

@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Children", "ParentProxy"),
+                                .GenerateMessage("Children", "MotherProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Children).Message);
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Single", "ParentProxy"),
+                                .GenerateMessage("Single", "MotherProxy"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Single).Message);
@@ -1913,7 +1913,7 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.DetachedLazyLoadingWarning.ToString(),
                     CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
-                        .GenerateMessage(nameof(Parent.Children), "ParentProxy"),
+                        .GenerateMessage(nameof(Parent.Children), "MotherProxy"),
                     "CoreEventId.DetachedLazyLoadingWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => parent.Children).Message);
@@ -1945,7 +1945,7 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.DetachedLazyLoadingWarning.ToString(),
                     CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
-                        .GenerateMessage(nameof(Parent.Single), "ParentProxy"),
+                        .GenerateMessage(nameof(Parent.Single), "MotherProxy"),
                     "CoreEventId.DetachedLazyLoadingWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => parent.Single).Message);
@@ -1978,7 +1978,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Lazy_load_reference_to_dependent_for_no_does_not_throw_if_populated()
+        public virtual void Lazy_load_reference_to_dependent_for_no_tracking_does_not_throw_if_populated()
         {
             using var context = CreateContext(lazyLoadingEnabled: true);
             var parent = context.Set<Parent>().Include(e => e.Single).AsNoTracking().Single();
@@ -2295,7 +2295,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class Parent
+        public abstract class Parent
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
@@ -2312,6 +2312,14 @@ namespace Microsoft.EntityFrameworkCore
             public virtual IEnumerable<ChildCompositeKey> ChildrenCompositeKey { get; set; }
             public virtual SingleCompositeKey SingleCompositeKey { get; set; }
             public virtual WithRecursiveProperty WithRecursiveProperty { get; set; }
+        }
+
+        public class Mother : Parent
+        {
+        }
+
+        public class Father : Parent
+        {
         }
 
         public class WithRecursiveProperty
@@ -2673,6 +2681,9 @@ namespace Microsoft.EntityFrameworkCore
                                 e => new { e.ParentAlternateId, e.ParentId });
                     });
 
+                modelBuilder.Entity<Mother>();
+                modelBuilder.Entity<Father>();
+
                 modelBuilder.Entity<Blog>(
                     e =>
                     {
@@ -2771,7 +2782,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Add(new Quest { Birthday = new DateTime(1973, 9, 3) });
 
                 context.Add(
-                    new Parent
+                    new Mother
                     {
                         Id = 707,
                         AlternateId = "Root",

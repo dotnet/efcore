@@ -37,7 +37,7 @@ WHERE [c].[ParentId] = @__p_0",
             Assert.Equal(
                 @"@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0",
                 Sql,
@@ -51,7 +51,7 @@ WHERE [p].[Id] = @__p_0",
             Assert.Equal(
                 @"@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0",
                 Sql,
@@ -79,7 +79,7 @@ WHERE [s].[ParentId] = @__p_0",
             Assert.Equal(
                 @"@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0",
                 Sql,
@@ -135,7 +135,7 @@ WHERE [c].[ParentId] = @__p_0",
             Assert.Equal(
                 @"@__p_0='787'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0",
                 Sql,
@@ -149,7 +149,7 @@ WHERE [p].[Id] = @__p_0",
             Assert.Equal(
                 @"@__p_0='787'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0",
                 Sql,
@@ -221,7 +221,7 @@ WHERE [s].[ParentId] = @__p_0",
             Assert.Equal(
                 @"@__p_0='Root' (Size = 450)
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[AlternateId] = @__p_0",
                 Sql,
@@ -235,7 +235,7 @@ WHERE [p].[AlternateId] = @__p_0",
             Assert.Equal(
                 @"@__p_0='Root' (Size = 450)
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[AlternateId] = @__p_0",
                 Sql,
@@ -291,7 +291,7 @@ WHERE [c].[ParentId] = @__p_0",
             Assert.Equal(
                 @"@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0",
                 Sql,
@@ -305,7 +305,7 @@ WHERE [p].[Id] = @__p_0",
             Assert.Equal(
                 @"@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0",
                 Sql,
@@ -363,7 +363,7 @@ WHERE ([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentId] = @__p_1)",
                 @"@__p_0='Root' (Size = 450)
 @__p_1='707'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)",
                 Sql,
@@ -378,7 +378,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)",
                 @"@__p_0='Root' (Size = 450)
 @__p_1='707'
 
-SELECT [p].[Id], [p].[AlternateId]
+SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)",
                 Sql,

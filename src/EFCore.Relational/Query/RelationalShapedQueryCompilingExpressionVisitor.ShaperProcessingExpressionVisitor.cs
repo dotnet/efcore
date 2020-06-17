@@ -1070,14 +1070,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        SetIsLoadedNoTracking(includingEntity, navigation);
+                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, includingEntity);
                         if (relatedEntity != null)
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null
                                 && !inverseNavigation.IsCollection)
                             {
-                                SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
                             }
                         }
                     }
@@ -1106,7 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        SetIsLoadedNoTracking(entity, navigation);
+                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, entity);
                     }
 
                     collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
@@ -1214,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fixup(entity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
                             }
                         }
                     }
@@ -1255,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        SetIsLoadedNoTracking(entity, navigation);
+                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, entity);
                     }
 
                     collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
@@ -1337,7 +1337,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fixup(entity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
                             }
                         }
                     }
@@ -1420,7 +1420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fixup(entity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
+                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
                             }
                         }
                     }
@@ -1735,14 +1735,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     await taskFactories[i]().ConfigureAwait(false);
                 }
             }
-
-            private static void SetIsLoadedNoTracking(object entity, INavigation navigation)
-                => ((ILazyLoader)navigation
-                            .DeclaringEntityType
-                            .GetServiceProperties()
-                            .FirstOrDefault(p => p.ClrType == typeof(ILazyLoader))
-                        ?.GetGetter().GetClrValue(entity))
-                    ?.SetLoaded(entity, navigation.Name);
 
             private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
             {

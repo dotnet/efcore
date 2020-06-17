@@ -411,6 +411,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Detaching entities is a slow process that may have side effects.
         ///         This method is much more efficient at clearing all tracked entities from the context.
         ///     </para>
+        ///     <para>
+        ///         Note that this method does not generate <see cref="StateChanged"/> events since entities are not individually detached.
+        ///     </para>
         /// </summary>
         public virtual void Clear()
             => StateManager.Clear();
