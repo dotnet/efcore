@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                     OnCountPropertyChanging();
 
-                    entry.SetEntityState(EntityState.Added);
+                    _context.Add(item);
 
                     _countChanges++;
 
@@ -299,10 +299,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                     OnCountPropertyChanging();
 
-                    entry.SetEntityState(
-                        entry.EntityState == EntityState.Added
-                            ? EntityState.Detached
-                            : EntityState.Deleted);
+                    _context.Remove(item);
 
                     _countChanges--;
 
@@ -459,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     Gets a value indicating whether the collection is a collection of System.Collections.IList objects.
-        ///     Always returns <see langword="false"/>. 
+        ///     Always returns <see langword="false"/>.
         /// </summary>
         bool IListSource.ContainsListCollection => false;
     }
