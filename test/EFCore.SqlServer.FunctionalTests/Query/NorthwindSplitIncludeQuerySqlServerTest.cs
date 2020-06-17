@@ -788,11 +788,8 @@ ORDER BY [t].[CustomerID], [c0].[CustomerID]");
         {
             await base.Include_duplicate_collection(async);
 
-            // Cannot verify SQL for async because the collection on same level can execute in any order.
-            if (!async)
-            {
-                AssertSql(
-                    @"@__p_0='2'
+            AssertSql(
+                @"@__p_0='2'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
@@ -807,8 +804,8 @@ CROSS JOIN (
     OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 ) AS [t0]
 ORDER BY [t].[CustomerID], [t0].[CustomerID]",
-                    //
-                    @"@__p_0='2'
+                //
+                @"@__p_0='2'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t0].[CustomerID]
 FROM (
@@ -824,8 +821,8 @@ CROSS JOIN (
 ) AS [t0]
 INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [t0].[CustomerID]",
-                    //
-                    @"@__p_0='2'
+                //
+                @"@__p_0='2'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t0].[CustomerID]
 FROM (
@@ -841,18 +838,14 @@ CROSS JOIN (
 ) AS [t0]
 INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [t0].[CustomerID]");
-            }
         }
 
         public override async Task Include_duplicate_collection_result_operator(bool async)
         {
             await base.Include_duplicate_collection_result_operator(async);
 
-            // Cannot verify SQL for async because the collection on same level can execute in any order.
-            if (!async)
-            {
-                AssertSql(
-                    @"@__p_1='1'
+            AssertSql(
+                @"@__p_1='1'
 @__p_0='2'
 
 SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region], [t1].[CustomerID0], [t1].[Address0], [t1].[City0], [t1].[CompanyName0], [t1].[ContactName0], [t1].[ContactTitle0], [t1].[Country0], [t1].[Fax0], [t1].[Phone0], [t1].[PostalCode0], [t1].[Region0]
@@ -872,8 +865,8 @@ FROM (
     ORDER BY [t].[CustomerID]
 ) AS [t1]
 ORDER BY [t1].[CustomerID], [t1].[CustomerID0]",
-                    //
-                    @"@__p_1='1'
+                //
+                @"@__p_1='1'
 @__p_0='2'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t1].[CustomerID], [t1].[CustomerID0]
@@ -894,8 +887,8 @@ FROM (
 ) AS [t1]
 INNER JOIN [Orders] AS [o] ON [t1].[CustomerID] = [o].[CustomerID]
 ORDER BY [t1].[CustomerID], [t1].[CustomerID0]",
-                    //
-                    @"@__p_1='1'
+                //
+                @"@__p_1='1'
 @__p_0='2'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t1].[CustomerID], [t1].[CustomerID0]
@@ -916,7 +909,6 @@ FROM (
 ) AS [t1]
 INNER JOIN [Orders] AS [o] ON [t1].[CustomerID0] = [o].[CustomerID]
 ORDER BY [t1].[CustomerID], [t1].[CustomerID0]");
-            }
         }
 
         public override async Task Include_collection_on_join_clause_with_order_by_and_filter(bool async)
