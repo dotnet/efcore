@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var fromExpression = (RootReferenceExpression)Visit(selectExpression.FromExpression);
             changed |= fromExpression != selectExpression.FromExpression;
 
-            var predicate = TryCompensateForBoolWithValueConverter(selectExpression.Predicate);
+            var predicate = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(selectExpression.Predicate));
             changed |= predicate != selectExpression.Predicate;
 
             var orderings = new List<OrderingExpression>();
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(sqlConditionalExpression, nameof(sqlConditionalExpression));
 
-            var test = TryCompensateForBoolWithValueConverter(sqlConditionalExpression.Test);
+            var test = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(sqlConditionalExpression.Test));
             var ifTrue = (SqlExpression)Visit(sqlConditionalExpression.IfTrue);
             var ifFalse = (SqlExpression)Visit(sqlConditionalExpression.IfFalse);
 
