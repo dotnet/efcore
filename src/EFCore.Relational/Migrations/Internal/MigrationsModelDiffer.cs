@@ -892,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 && source.IsFixedLength == target.IsFixedLength
                 && source.Collation == target.Collation
                 && source.Comment == target.Comment
-                && source.ComputedColumnIsStored == target.ComputedColumnIsStored
+                && source.IsStored == target.IsStored
                 && source.ComputedColumnSql == target.ComputedColumnSql
                 && Equals(source.DefaultValue, target.DefaultValue)
                 && source.DefaultValueSql == target.DefaultValueSql;
@@ -989,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || columnTypeChanged
                 || source.DefaultValueSql != target.DefaultValueSql
                 || source.ComputedColumnSql != target.ComputedColumnSql
-                || source.ComputedColumnIsStored != target.ComputedColumnIsStored
+                || source.IsStored != target.IsStored
                 || !Equals(source.DefaultValue, target.DefaultValue)
                 || source.Comment != target.Comment
                 || source.Collation != target.Collation
@@ -1101,7 +1101,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             columnOperation.DefaultValueSql = column.DefaultValueSql;
             columnOperation.ComputedColumnSql = column.ComputedColumnSql;
-            columnOperation.ComputedColumnIsStored = column.ComputedColumnIsStored;
+            columnOperation.IsStored = column.IsStored;
             columnOperation.Comment = column.Comment;
             columnOperation.Collation = column.Collation;
             columnOperation.AddAnnotations(migrationsAnnotations);

@@ -1354,12 +1354,12 @@ CREATE TABLE DefaultComputedValues (
                     var sumOfAAndB = columns.Single(c => c.Name == "SumOfAAndB");
                     Assert.Null(sumOfAAndB.DefaultValueSql);
                     Assert.Equal("([A]+[B])", sumOfAAndB.ComputedColumnSql);
-                    Assert.False(sumOfAAndB.ComputedColumnIsStored);
+                    Assert.False(sumOfAAndB.IsStored);
 
                     var sumOfAAndBPersisted = columns.Single(c => c.Name == "SumOfAAndBPersisted");
                     Assert.Null(sumOfAAndBPersisted.DefaultValueSql);
                     Assert.Equal("([A]+[B])", sumOfAAndBPersisted.ComputedColumnSql);
-                    Assert.True(sumOfAAndBPersisted.ComputedColumnIsStored);
+                    Assert.True(sumOfAAndBPersisted.IsStored);
                 },
                 "DROP TABLE DefaultComputedValues;");
         }

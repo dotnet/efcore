@@ -702,9 +702,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Whether the value of the computed column this property is mapped to is stored in the database,
         ///     or calculated when it is read.
         /// </returns>
-        public static bool? GetComputedColumnIsStored([NotNull] this IProperty property)
+        public static bool? GetIsStored([NotNull] this IProperty property)
         {
-            var annotation = property.FindAnnotation(RelationalAnnotationNames.ComputedColumnIsStored);
+            var annotation = property.FindAnnotation(RelationalAnnotationNames.IsStored);
             return annotation != null ? (bool?)annotation.Value : null;
         }
 
@@ -719,12 +719,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     Whether the value of the computed column this property is mapped to is stored in the database,
         ///     or calculated when it is read.
         /// </returns>
-        public static bool? GetComputedColumnIsStored(
+        public static bool? GetIsStored(
             [NotNull] this IProperty property,
             [NotNull] string tableName,
             [CanBeNull] string schema)
         {
-            var annotation = property.FindAnnotation(RelationalAnnotationNames.ComputedColumnIsStored);
+            var annotation = property.FindAnnotation(RelationalAnnotationNames.IsStored);
             if (annotation != null)
             {
                 return (bool?)annotation.Value;
@@ -733,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore
             var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
             if (sharedTableRootProperty != null)
             {
-                return GetComputedColumnIsStored(sharedTableRootProperty, tableName, schema);
+                return GetIsStored(sharedTableRootProperty, tableName, schema);
             }
 
             return null;
@@ -745,9 +745,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="value"> The value to set. </param>
-        public static void SetComputedColumnIsStored([NotNull] this IMutableProperty property, bool? value)
+        public static void SetIsStored([NotNull] this IMutableProperty property, bool? value)
             => property.SetOrRemoveAnnotation(
-                RelationalAnnotationNames.ComputedColumnIsStored,
+                RelationalAnnotationNames.IsStored,
                 value);
 
         /// <summary>
@@ -758,10 +758,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static bool? SetComputedColumnIsStored(
+        public static bool? SetIsStored(
             [NotNull] this IConventionProperty property, bool? value, bool fromDataAnnotation = false)
         {
-            property.SetOrRemoveAnnotation(RelationalAnnotationNames.ComputedColumnIsStored, value, fromDataAnnotation);
+            property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsStored, value, fromDataAnnotation);
 
             return value;
         }
@@ -771,8 +771,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the computed value SQL expression. </returns>
-        public static ConfigurationSource? GetComputedColumnIsStoredConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(RelationalAnnotationNames.ComputedColumnIsStored)?.GetConfigurationSource();
+        public static ConfigurationSource? GetIsStoredConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.IsStored)?.GetConfigurationSource();
 
         /// <summary>
         ///     Returns the object that is used as the default value for the column this property is mapped to.

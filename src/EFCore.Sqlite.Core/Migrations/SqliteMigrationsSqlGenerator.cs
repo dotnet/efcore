@@ -609,7 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(operation.ComputedColumnSql)
                 .Append(")");
 
-            if (operation.ComputedColumnIsStored == true)
+            if (operation.IsStored == true)
             {
                 builder.Append(" STORED");
             }

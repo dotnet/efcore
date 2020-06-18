@@ -5281,7 +5281,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 Assert.Null(c.DefaultValue);
                                 Assert.Null(c.DefaultValueSql);
                                 Assert.Null(c.ComputedColumnSql);
-                                Assert.Null(c.ComputedColumnIsStored);
+                                Assert.Null(c.IsStored);
                                 Assert.Null(c.Comment);
                                 Assert.Null(c.Collation);
                             },
@@ -5300,7 +5300,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 Assert.Null(c.DefaultValue);
                                 Assert.Null(c.DefaultValueSql);
                                 Assert.Null(c.ComputedColumnSql);
-                                Assert.Null(c.ComputedColumnIsStored);
+                                Assert.Null(c.IsStored);
                                 Assert.Null(c.Comment);
                                 Assert.Null(c.Collation);
                             });
@@ -5342,7 +5342,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 Assert.Null(c.DefaultValue);
                                 Assert.Null(c.DefaultValueSql);
                                 Assert.Null(c.ComputedColumnSql);
-                                Assert.Null(c.ComputedColumnIsStored);
+                                Assert.Null(c.IsStored);
                                 Assert.Null(c.Comment);
                                 Assert.Null(c.Collation);
                             });

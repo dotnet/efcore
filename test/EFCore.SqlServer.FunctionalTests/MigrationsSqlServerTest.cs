@@ -328,11 +328,11 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
                 @"ALTER TABLE [People] ADD [Sum] int NOT NULL DEFAULT (1 + 2);");
         }
 
-        public override async Task Add_column_with_computedSql(bool? computedColumnStored)
+        public override async Task Add_column_with_computedSql(bool? stored)
         {
-            await base.Add_column_with_computedSql(computedColumnStored);
+            await base.Add_column_with_computedSql(stored);
 
-            var computedColumnTypeSql = computedColumnStored == true ? " PERSISTED" : "";
+            var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
 
             AssertSql(
                 @$"ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};");
@@ -525,11 +525,11 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;
 CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]);");
         }
 
-        public override async Task Alter_column_make_computed(bool? computedColumnStored)
+        public override async Task Alter_column_make_computed(bool? stored)
         {
-            await base.Alter_column_make_computed(computedColumnStored);
+            await base.Alter_column_make_computed(stored);
 
-            var computedColumnTypeSql = computedColumnStored == true ? " PERSISTED" : "";
+            var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
 
             AssertSql(
                 $@"DECLARE @var0 sysname;

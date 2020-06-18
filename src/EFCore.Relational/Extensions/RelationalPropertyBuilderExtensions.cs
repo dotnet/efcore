@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (stored != null)
             {
-                propertyBuilder.Metadata.SetComputedColumnIsStored(stored);
+                propertyBuilder.Metadata.SetIsStored(stored);
             }
 
             return propertyBuilder;
@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore
                 return null;
             }
 
-            propertyBuilder.Metadata.SetComputedColumnIsStored(stored, fromDataAnnotation);
+            propertyBuilder.Metadata.SetIsStored(stored, fromDataAnnotation);
             return propertyBuilder;
         }
 
@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore
             bool? stored,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
-                RelationalAnnotationNames.ComputedColumnIsStored,
+                RelationalAnnotationNames.IsStored,
                 stored,
                 fromDataAnnotation);
 

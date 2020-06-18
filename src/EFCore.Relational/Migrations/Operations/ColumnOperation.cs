@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Whether the value of the computed column this property is mapped to is stored in the database, or calculated when
         ///     it is read.
         /// </summary>
-        public virtual bool? ComputedColumnIsStored { get; set; }
+        public virtual bool? IsStored { get; set; }
 
         /// <summary>
         ///     Comment for this column

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <param name="computedColumnIsStored"> Whether the value of the computed column is stored in the database or not. </param>
+        /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to be applied to the column. </param>
         /// <param name="collation"> A collation to be applied to the column. </param>
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
-            bool? computedColumnIsStored = null,
+            bool? stored = null,
             bool? fixedLength = null,
             [CanBeNull] string comment = null,
             [CanBeNull] string collation = null,
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
-                ComputedColumnIsStored = computedColumnIsStored,
+                IsStored = stored,
                 IsFixedLength = fixedLength,
                 Comment = comment,
                 Collation = collation,
