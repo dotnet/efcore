@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 CurrentTransaction?.Dispose();
                 ClearTransactions(clearAmbient: false);
-                OpenDbConnection(errorsExpected);
+                OpenInternal(errorsExpected);
                 wasOpened = true;
             }
 
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 ClearTransactions(clearAmbient: false);
-                await OpenDbConnectionAsync(errorsExpected, cancellationToken).ConfigureAwait(false);
+                await OpenInternalAsync(errorsExpected, cancellationToken).ConfigureAwait(false);
                 wasOpened = true;
             }
 
@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private void OpenDbConnection(bool errorsExpected)
+        private void OpenInternal(bool errorsExpected)
         {
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -712,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (!interceptionResult.IsSuppressed)
                 {
-                    DbConnection.Open();
+                    OpenDbConnection(errorsExpected);
                 }
 
                 Dependencies.ConnectionLogger.ConnectionOpened(this, startTime, stopwatch.Elapsed);
@@ -730,7 +730,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private async Task OpenDbConnectionAsync(bool errorsExpected, CancellationToken cancellationToken)
+        /// <summary>
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.Open"/> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        /// <param name="errorsExpected"> Indicates if the connection errors are expected and should be logged as debug message. </param>
+        protected virtual void OpenDbConnection(bool errorsExpected)
+            => DbConnection.Open();
+
+        private async Task OpenInternalAsync(bool errorsExpected, CancellationToken cancellationToken)
         {
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -743,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (!interceptionResult.IsSuppressed)
                 {
-                    await DbConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                    await OpenDbConnectionAsync(errorsExpected, cancellationToken).ConfigureAwait(false);
                 }
 
                 await Dependencies.ConnectionLogger.ConnectionOpenedAsync(this, startTime, stopwatch.Elapsed, cancellationToken)
@@ -768,6 +776,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _openedInternally = true;
             }
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.OpenAsync"/> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        /// <param name="errorsExpected"> Indicates if the connection errors are expected and should be logged as debug message. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        protected virtual Task OpenDbConnectionAsync(bool errorsExpected, CancellationToken cancellationToken)
+            => DbConnection.OpenAsync(cancellationToken);
 
         private void HandleAmbientTransactions()
         {

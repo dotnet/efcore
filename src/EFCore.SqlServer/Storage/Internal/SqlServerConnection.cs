@@ -45,6 +45,26 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        protected override void OpenDbConnection(bool errorsExpected)
+        {
+            // Note: Not needed for the Async overload: see https://github.com/dotnet/SqlClient/issues/615
+            if (errorsExpected
+                && DbConnection is SqlConnection sqlConnection)
+            {
+                sqlConnection.Open(SqlConnectionOverrides.OpenWithoutRetry);
+            }
+            else
+            {
+                DbConnection.Open();
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override DbConnection CreateDbConnection() => new SqlConnection(GetValidatedConnectionString());
 
         /// <summary>
