@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
         ///     Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException" />.
         /// </summary>
-        public static DbFunctions Functions { get; } = new DbFunctions();
+        public static DbFunctions Functions
+            => DbFunctions.Instance;
     }
 }
