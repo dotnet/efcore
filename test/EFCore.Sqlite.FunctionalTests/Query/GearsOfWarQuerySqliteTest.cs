@@ -78,10 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(bool async) => null;
 
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Project_collection_navigation_nested_with_take_composite_key(bool async)
-            => base.Project_collection_navigation_nested_with_take_composite_key(async);
-
         public override async Task Select_datetimeoffset_comparison_in_projection(bool async)
         {
             await base.Select_datetimeoffset_comparison_in_projection(async);
