@@ -532,69 +532,69 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <inheritdoc />
-        public virtual void CreateSavepoint(string savepointName)
+        public virtual void CreateSavepoint(string name)
         {
             if (CurrentTransaction == null)
             {
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            CurrentTransaction.CreateSavepoint(savepointName);
+            CurrentTransaction.CreateSavepoint(name);
         }
 
         /// <inheritdoc />
-        public virtual Task CreateSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual Task CreateSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             if (CurrentTransaction == null)
             {
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            return CurrentTransaction.CreateSavepointAsync(savepointName, cancellationToken);
+            return CurrentTransaction.CreateSavepointAsync(name, cancellationToken);
         }
 
         /// <inheritdoc />
-        public virtual void RollbackToSavepoint(string savepointName)
+        public virtual void RollbackToSavepoint(string name)
         {
             if (CurrentTransaction == null)
             {
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            CurrentTransaction.RollbackToSavepoint(savepointName);
+            CurrentTransaction.RollbackToSavepoint(name);
         }
 
         /// <inheritdoc />
-        public virtual Task RollbackToSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual Task RollbackToSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             if (CurrentTransaction == null)
             {
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            return CurrentTransaction.RollbackToSavepointAsync(savepointName, cancellationToken);
+            return CurrentTransaction.RollbackToSavepointAsync(name, cancellationToken);
         }
 
         /// <inheritdoc />
-        public virtual void ReleaseSavepoint(string savepointName)
+        public virtual void ReleaseSavepoint(string name)
         {
             if (CurrentTransaction == null)
             {
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            CurrentTransaction.ReleaseSavepoint(savepointName);
+            CurrentTransaction.ReleaseSavepoint(name);
         }
 
         /// <inheritdoc />
-        public virtual Task ReleaseSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             if (CurrentTransaction == null)
             {
                 throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
             }
 
-            return CurrentTransaction.ReleaseSavepointAsync(savepointName, cancellationToken);
+            return CurrentTransaction.ReleaseSavepointAsync(name, cancellationToken);
         }
 
         /// <inheritdoc />
