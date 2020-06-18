@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -12,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -169,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         public virtual bool CanSetTranslation(
             [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, ConfigurationSource configurationSource)
-            => ((Metadata.IsScalar && !Metadata.IsAggregate) || configurationSource == ConfigurationSource.Explicit)
+            => (Metadata.IsScalar && !Metadata.IsAggregate || configurationSource == ConfigurationSource.Explicit)
                 && (configurationSource.Overrides(Metadata.GetTranslationConfigurationSource())
                     || Metadata.Translation == translation);
 
@@ -193,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         IConventionDbFunction IConventionDbFunctionBuilder.Metadata
         {
-            [DebuggerStepThrough] get => Metadata;
+            [DebuggerStepThrough]
+            get => Metadata;
         }
 
         /// <inheritdoc />
