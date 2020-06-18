@@ -59,7 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to associate with the column. </param>
         /// <param name="collation"> A collation to apply to the column. </param>
@@ -69,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="scale">
         ///     The maximum number of decimal places that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
         /// </param>
+        /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
             [NotNull] string name,
@@ -82,12 +82,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
-            bool? stored = null,
             bool? fixedLength = null,
             [CanBeNull] string comment = null,
             [CanBeNull] string collation = null,
             int? precision = null,
-            int? scale = null)
+            int? scale = null,
+            bool? stored = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -106,12 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
-                IsStored = stored,
                 IsFixedLength = fixedLength,
                 Comment = comment,
                 Collation = collation,
                 Precision = precision,
                 Scale = scale,
+                IsStored = stored
             };
             Operations.Add(operation);
 
@@ -328,7 +328,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <param name="oldClrType">
         ///     The CLR type that the column was previously mapped to. Can be <see langword="null" />, in which case previous value is considered unknown.
         /// </param>
@@ -359,7 +358,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldComputedColumnSql">
         ///     The previous SQL expression used to compute the column value. Can be <see langword="null" />, in which case previous value is considered unknown.
         /// </param>
-        /// <param name="oldStored"> Whether the value of the previous computed column was stored in the database or not. </param>
         /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
         /// <param name="oldFixedLength"> Indicates whether or not the column was previously constrained to fixed-length data. </param>
         /// <param name="comment"> A comment to associate with the column. </param>
@@ -378,6 +376,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldScale">
         ///     The previous maximum number of decimal places that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
         /// </param>
+        /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
+        /// <param name="oldStored"> Whether the value of the previous computed column was stored in the database or not. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterColumnOperation> AlterColumn<T>(
             [NotNull] string name,
@@ -391,7 +391,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null,
-            bool? stored = null,
             [CanBeNull] Type oldClrType = null,
             [CanBeNull] string oldType = null,
             bool? oldUnicode = null,
@@ -401,7 +400,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] object oldDefaultValue = null,
             [CanBeNull] string oldDefaultValueSql = null,
             [CanBeNull] string oldComputedColumnSql = null,
-            bool? oldStored = null,
             bool? fixedLength = null,
             bool? oldFixedLength = null,
             [CanBeNull] string comment = null,
@@ -411,7 +409,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             int? precision = null,
             int? oldPrecision = null,
             int? scale = null,
-            int? oldScale = null)
+            int? oldScale = null,
+            bool? stored = null,
+            bool? oldStored = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -430,12 +430,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
-                IsStored = stored,
                 IsFixedLength = fixedLength,
                 Comment = comment,
                 Collation = collation,
                 Precision = precision,
                 Scale = scale,
+                IsStored = stored,
                 OldColumn = new ColumnOperation
                 {
                     ClrType = oldClrType ?? typeof(T),
@@ -447,12 +447,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValue = oldDefaultValue,
                     DefaultValueSql = oldDefaultValueSql,
                     ComputedColumnSql = oldComputedColumnSql,
-                    IsStored = oldStored,
                     IsFixedLength = oldFixedLength,
                     Comment = oldComment,
                     Collation = oldCollation,
                     Precision = oldPrecision,
-                    Scale = oldScale
+                    Scale = oldScale,
+                    IsStored = oldStored
                 }
             };
 
