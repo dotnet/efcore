@@ -359,6 +359,53 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Assert.Empty(await context.Set<Customer>().ToListAsync());
             }
         }
+
+        [ConditionalFact]
+        public async Task Can_add_update_delete_end_to_end_with_Guid_async()
+        {
+            var options = Fixture.CreateOptions();
+
+            var customer = new CustomerGuid { Id = Guid.NewGuid(), Name = "Theon", PartitionKey = 42 };
+
+            using (var context = new CustomerContextGuid(options))
+            {
+                await context.Database.EnsureCreatedAsync();
+
+                context.Add(customer);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContextGuid(options))
+            {
+                var customerFromStore = await context.Set<CustomerGuid>().SingleAsync();
+
+                Assert.Equal(customer.Id, customerFromStore.Id);
+                Assert.Equal("Theon", customerFromStore.Name);
+
+                customerFromStore.Name = "Theon Greyjoy";
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContextGuid(options))
+            {
+                var customerFromStore = await context.Set<CustomerGuid>().SingleAsync();
+
+                Assert.Equal(customer.Id, customerFromStore.Id);
+                Assert.Equal("Theon Greyjoy", customerFromStore.Name);
+
+                context.Remove(customerFromStore);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContextGuid(options))
+            {
+                Assert.Empty(await context.Set<CustomerGuid>().ToListAsync());
+            }
+        }
+
         private class Customer
         {
             public int Id { get; set; }
@@ -369,6 +416,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         private class Customer_WithResourceId
         {
             public string id { get; set; }
+            public string Name { get; set; }
+            public int PartitionKey { get; set; }
+        }
+
+        private class CustomerGuid
+        {
+            public Guid Id { get; set; }
             public string Name { get; set; }
             public int PartitionKey { get; set; }
         }
@@ -389,6 +443,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Customer>();
+            }
+        }
+
+        private class CustomerContextGuid : DbContext
+        {
+            public CustomerContextGuid(DbContextOptions dbContextOptions)
+                : base(dbContextOptions)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<CustomerGuid>(cb =>
+                {
+                    cb.Property(c => c.Id).HasConversion<string>().ToJsonProperty("id");
+                    cb.Property(c => c.PartitionKey).HasConversion<string>().ToJsonProperty("pk");
+                    cb.HasPartitionKey(c => c.PartitionKey);
+                });
             }
         }
 
@@ -777,11 +849,7 @@ OFFSET 0 LIMIT 1");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer_NoPartitionKey>(
-                    cb =>
-                    {
-
-                    });
+                modelBuilder.Entity<Customer_NoPartitionKey>();
             }
         }
 

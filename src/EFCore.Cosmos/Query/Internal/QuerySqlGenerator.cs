@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Text.Json;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -364,12 +363,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
         {
-            if (value == null)
+            if (value?.GetType().IsInteger() == true)
             {
-                return null;
+                var unwrappedType = typeMapping.ClrType.UnwrapNullableType();
+                value = unwrappedType.IsEnum
+                    ? Enum.ToObject(unwrappedType, value)
+                    : value;
             }
-
-            value = ConvertUnderlyingEnumValueToEnum(value, typeMapping.ClrType);
 
             var converter = typeMapping.Converter;
             if (converter != null)
@@ -377,13 +377,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 value = converter.ConvertToProvider(value);
             }
 
-            return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
+            return value == null
+                ? null
+                : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
         }
-
-        private object ConvertUnderlyingEnumValueToEnum(object value, Type clrType)
-            => value?.GetType().IsInteger() == true && clrType.UnwrapNullableType().IsEnum
-            ? Enum.ToObject(clrType.UnwrapNullableType(), value)
-            : value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
