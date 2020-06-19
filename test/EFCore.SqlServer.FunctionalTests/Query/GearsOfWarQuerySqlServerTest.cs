@@ -5896,7 +5896,7 @@ LEFT JOIN (
     WHERE [t0].[row] <= 50
 ) AS [t1] ON (([g].[Nickname] = [t1].[LeaderNickname]) OR ([g].[Nickname] IS NULL AND [t1].[LeaderNickname] IS NULL)) AND ([g].[SquadId] = [t1].[LeaderSquadId])
 WHERE [g].[Discriminator] = N'Officer'
-ORDER BY [t].[Id], [g].[Nickname], [g].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [t].[Id], [g].[Nickname], [g].[SquadId], [t1].[LeaderNickname], [t1].[LeaderSquadId], [t1].[Nickname], [t1].[SquadId]");
         }
 
         public override async Task Project_collection_navigation_nested_composite_key(bool async)

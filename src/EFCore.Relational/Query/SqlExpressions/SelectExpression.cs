@@ -1227,8 +1227,50 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
 
                 AddJoin(JoinType.OuterApply, ref innerSelectExpression);
+                var innerOrderingExpressions = new List<OrderingExpression>();
+                var joinedTable = innerSelectExpression.Tables.Single();
+                if (joinedTable is SelectExpression collectionSelectExpression
+                    && collectionSelectExpression.Predicate != null
+                    && collectionSelectExpression.Tables.Count == 1
+                    && collectionSelectExpression.Tables[0] is SelectExpression rowNumberSubquery
+                    && rowNumberSubquery.Projection.Select(pe => pe.Expression)
+                        .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
+                {
+                    foreach (var partition in rowNumberExpression.Partitions)
+                    {
+                        innerOrderingExpressions.Add(new OrderingExpression(
+                            collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(partition)),
+                            ascending: true));
+                    }
 
-                foreach (var ordering in innerSelectExpression.Orderings)
+                    foreach (var ordering in rowNumberExpression.Orderings)
+                    {
+                        innerOrderingExpressions.Add(new OrderingExpression(
+                            collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(ordering.Expression)),
+                            ordering.IsAscending));
+                    }
+                }
+                else if (joinedTable is SelectExpression collectionSelectExpression2
+                    && collectionSelectExpression2.Orderings.Count > 0)
+                {
+                    foreach (var ordering in collectionSelectExpression2.Orderings)
+                    {
+                        if (innerSelectExpression._identifier.Any(e => e.Column.Equals(ordering.Expression)))
+                        {
+                            continue;
+                        }
+
+                        innerOrderingExpressions.Add(new OrderingExpression(
+                            collectionSelectExpression2.GenerateOuterColumn(ordering.Expression),
+                            ordering.IsAscending));
+                    }
+                }
+                else
+                {
+                    innerOrderingExpressions.AddRange(innerSelectExpression.Orderings);
+                }
+
+                foreach (var ordering in innerOrderingExpressions)
                 {
                     AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
                 }

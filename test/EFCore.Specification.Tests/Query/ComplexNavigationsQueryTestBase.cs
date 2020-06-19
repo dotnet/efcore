@@ -5140,7 +5140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         assertOrder: true)));
         }
 
-        [ConditionalTheory(Skip = "issue #21338")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_after_different_filtered_include_same_level(bool async)
         {
@@ -5205,7 +5205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(l1 => l1.OneToMany_Optional1.Where(x => x.Name != "Bar")).ThenInclude(l2 => l2.OneToOne_Required_FK2)))).Message;
         }
 
-        [ConditionalTheory(Skip = "issue #21338")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filtered_include_same_filter_set_on_same_navigation_twice(bool async)
         {
