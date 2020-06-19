@@ -5977,7 +5977,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderDate).Skip(2).FirstOrDefault()),
+                ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderDate).ThenBy(o => o.OrderID).Skip(2).FirstOrDefault()),
                 entryCount: 86);
         }
     }
