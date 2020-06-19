@@ -187,12 +187,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("computedColumnSql: ")
                         .Append(Code.Literal(operation.ComputedColumnSql));
 
-                    if (operation.ComputedColumnIsStored != null)
+                    if (operation.IsStored != null)
                     {
                         builder
                             .AppendLine(",")
-                            .Append("computedColumnIsStored: ")
-                            .Append(Code.Literal(operation.ComputedColumnIsStored));
+                            .Append("stored: ")
+                            .Append(Code.Literal(operation.IsStored));
                     }
                 }
                 else if (operation.DefaultValue != null)
@@ -561,12 +561,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("computedColumnSql: ")
                         .Append(Code.Literal(operation.ComputedColumnSql));
 
-                    if (operation.ComputedColumnIsStored != null)
+                    if (operation.IsStored != null)
                     {
                         builder
                             .AppendLine(",")
-                            .Append("computedColumnIsStored: ")
-                            .Append(Code.Literal(operation.ComputedColumnIsStored));
+                            .Append("stored: ")
+                            .Append(Code.Literal(operation.IsStored));
                     }
                 }
                 else if (operation.DefaultValue != null)
@@ -670,12 +670,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("oldComputedColumnSql: ")
                         .Append(Code.Literal(operation.OldColumn.ComputedColumnSql));
 
-                    if (operation.ComputedColumnIsStored != null)
+                    if (operation.IsStored != null)
                     {
                         builder
                             .AppendLine(",")
-                            .Append("oldComputedColumnIsStored: ")
-                            .Append(Code.Literal(operation.OldColumn.ComputedColumnIsStored));
+                            .Append("oldStored: ")
+                            .Append(Code.Literal(operation.OldColumn.IsStored));
                     }
                 }
                 else if (operation.OldColumn.DefaultValue != null)
@@ -1177,11 +1177,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 .Append(", computedColumnSql: ")
                                 .Append(Code.Literal(column.ComputedColumnSql));
 
-                            if (column.ComputedColumnIsStored != null)
+                            if (column.IsStored != null)
                             {
                                 builder
-                                    .Append(", computedColumnIsStored: ")
-                                    .Append(Code.Literal(column.ComputedColumnIsStored));
+                                    .Append(", stored: ")
+                                    .Append(Code.Literal(column.IsStored));
                             }
                         }
                         else if (column.DefaultValue != null)

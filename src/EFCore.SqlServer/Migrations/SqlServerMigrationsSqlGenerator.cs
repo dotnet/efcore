@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValue = operation.DefaultValue,
                     DefaultValueSql = operation.DefaultValueSql,
                     ComputedColumnSql = operation.ComputedColumnSql,
-                    ComputedColumnIsStored = operation.ComputedColumnIsStored,
+                    IsStored = operation.IsStored,
                     IsFixedLength = operation.IsFixedLength
                 };
                 addColumnOperation.AddAnnotations(operation.GetAnnotations());
@@ -1414,7 +1414,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(" AS ")
                 .Append(operation.ComputedColumnSql);
 
-            if (operation.ComputedColumnIsStored == true)
+            if (operation.IsStored == true)
             {
                 builder.Append(" PERSISTED");
             }

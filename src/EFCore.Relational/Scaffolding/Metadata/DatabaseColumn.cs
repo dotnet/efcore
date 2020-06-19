@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         ///     Whether the value of the computed column this property is mapped to is stored in the database, or calculated when
         ///     it is read.
         /// </summary>
-        public virtual bool? ComputedColumnIsStored { get; set; }
+        public virtual bool? IsStored { get; set; }
 
         /// <summary>
         ///     The column comment, or <see langword="null" /> if none is set.

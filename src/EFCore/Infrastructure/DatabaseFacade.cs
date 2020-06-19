@@ -201,54 +201,54 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     was established to be rolled back, restoring the transaction state to what it was at the time of the
         ///     savepoint.
         /// </summary>
-        /// <param name="savepointName"> The name of the savepoint to be created. </param>
-        public virtual void CreateSavepoint([NotNull] string savepointName)
-            => Dependencies.TransactionManager.CreateSavepoint(savepointName);
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        public virtual void CreateSavepoint([NotNull] string name)
+            => Dependencies.TransactionManager.CreateSavepoint(name);
 
         /// <summary>
         ///     Creates a savepoint in the transaction. This allows all commands that are executed after the savepoint
         ///     was established to be rolled back, restoring the transaction state to what it was at the time of the
         ///     savepoint.
         /// </summary>
-        /// <param name="savepointName"> The name of the savepoint to be created. </param>
+        /// <param name="name"> The name of the savepoint to be created. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        public virtual Task CreateSavepointAsync([NotNull] string savepointName, CancellationToken cancellationToken = default)
-            => Dependencies.TransactionManager.CreateSavepointAsync(savepointName, cancellationToken);
+        public virtual Task CreateSavepointAsync([NotNull] string name, CancellationToken cancellationToken = default)
+            => Dependencies.TransactionManager.CreateSavepointAsync(name, cancellationToken);
 
         /// <summary>
         ///     Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
-        /// <param name="savepointName"> The name of the savepoint to roll back to. </param>
-        public virtual void RollbackToSavepoint([NotNull] string savepointName)
-            => Dependencies.TransactionManager.RollbackToSavepoint(savepointName);
+        /// <param name="name"> The name of the savepoint to roll back to. </param>
+        public virtual void RollbackToSavepoint([NotNull] string name)
+            => Dependencies.TransactionManager.RollbackToSavepoint(name);
 
         /// <summary>
         ///     Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
-        /// <param name="savepointName"> The name of the savepoint to roll back to. </param>
+        /// <param name="name"> The name of the savepoint to roll back to. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        public virtual Task RollbackToSavepointAsync([NotNull] string savepointName, CancellationToken cancellationToken = default)
-            => Dependencies.TransactionManager.RollbackToSavepointAsync(savepointName, cancellationToken);
+        public virtual Task RollbackToSavepointAsync([NotNull] string name, CancellationToken cancellationToken = default)
+            => Dependencies.TransactionManager.RollbackToSavepointAsync(name, cancellationToken);
 
         /// <summary>
         ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
         ///     reclaim some resources before the transaction ends.
         /// </summary>
-        /// <param name="savepointName"> The name of the savepoint to release. </param>
-        public virtual void ReleaseSavepoint([NotNull] string savepointName)
-            => Dependencies.TransactionManager.ReleaseSavepoint(savepointName);
+        /// <param name="name"> The name of the savepoint to release. </param>
+        public virtual void ReleaseSavepoint([NotNull] string name)
+            => Dependencies.TransactionManager.ReleaseSavepoint(name);
 
         /// <summary>
         ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
         ///     reclaim some resources before the transaction ends.
         /// </summary>
-        /// <param name="savepointName"> The name of the savepoint to release. </param>
+        /// <param name="name"> The name of the savepoint to release. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        public virtual Task ReleaseSavepointAsync([NotNull] string savepointName, CancellationToken cancellationToken = default)
-            => Dependencies.TransactionManager.ReleaseSavepointAsync(savepointName, cancellationToken);
+        public virtual Task ReleaseSavepointAsync([NotNull] string name, CancellationToken cancellationToken = default)
+            => Dependencies.TransactionManager.ReleaseSavepointAsync(name, cancellationToken);
 
         /// <summary>
         ///     Gets a value that indicates whether this <see cref="DatabaseFacade"/> instance supports

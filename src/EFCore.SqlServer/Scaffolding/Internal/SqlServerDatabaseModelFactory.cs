@@ -720,7 +720,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                         IsNullable = nullable,
                         DefaultValueSql = defaultValue,
                         ComputedColumnSql = computedValue,
-                        ComputedColumnIsStored = computedIsPersisted,
+                        IsStored = computedIsPersisted,
                         Comment = comment,
                         Collation = collation == databaseCollation ? null : collation,
                         ValueGenerated = isIdentity

@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns whether the value of the computed column this property is mapped to is stored in the database, or calculated when
         ///     it is read.
         /// </summary>
-        public virtual bool? ComputedColumnIsStored => PropertyMappings.First().Property.GetComputedColumnIsStored(Table.Name, Table.Schema);
+        public virtual bool? IsStored => PropertyMappings.First().Property.GetIsStored(Table.Name, Table.Schema);
 
         /// <summary>
         ///     Comment for this column

@@ -178,25 +178,25 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public void CreateSavepoint(string savepointName) => CreateSavepointCalls++;
+            public void CreateSavepoint(string name) => CreateSavepointCalls++;
 
-            public Task CreateSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+            public Task CreateSavepointAsync(string name, CancellationToken cancellationToken = default)
             {
                 CreateSavepointCalls++;
                 return Task.CompletedTask;
             }
 
-            public void RollbackToSavepoint(string savepointName) => RollbackSavepointCalls++;
+            public void RollbackToSavepoint(string name) => RollbackSavepointCalls++;
 
-            public Task RollbackToSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+            public Task RollbackToSavepointAsync(string name, CancellationToken cancellationToken = default)
             {
                 RollbackSavepointCalls++;
                 return Task.CompletedTask;
             }
 
-            public void ReleaseSavepoint(string savepointName) => ReleaseSavepointCalls++;
+            public void ReleaseSavepoint(string name) => ReleaseSavepointCalls++;
 
-            public Task ReleaseSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+            public Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
             {
                 ReleaseSavepointCalls++;
                 return Task.CompletedTask;

@@ -1414,16 +1414,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append("(")
                 .Append(Code.UnknownLiteral(sql.Value));
 
-            var isStored = annotations
-                .FirstOrDefault(a => a.Name == RelationalAnnotationNames.ComputedColumnIsStored);
+            var stored = annotations
+                .FirstOrDefault(a => a.Name == RelationalAnnotationNames.IsStored);
 
-            if (isStored != null)
+            if (stored != null)
             {
                 stringBuilder
                     .Append(", ")
-                    .Append(Code.UnknownLiteral(isStored.Value));
+                    .Append(Code.UnknownLiteral(stored.Value));
 
-                annotations.Remove(isStored);
+                annotations.Remove(stored);
             }
 
             stringBuilder.Append(")");

@@ -122,7 +122,7 @@ be found in the docs.";
         [InlineData(true)]
         [InlineData(false)]
         [InlineData(null)]
-        public virtual async Task Create_table_with_computed_column(bool? computedColumnStored)
+        public virtual async Task Create_table_with_computed_column(bool? stored)
         {
             await Test(
                 builder => { },
@@ -133,11 +133,11 @@ be found in the docs.";
                         e.Property<int>("X");
                         e.Property<int>("Y");
                         e.Property<string>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}",
-                            computedColumnStored);
+                            stored);
                     }),
                 model => { /* Scaffolding computed columns isn't supported in Sqlite */ });
 
-            var computedColumnTypeSql = computedColumnStored == true ? " STORED" : "";
+            var computedColumnTypeSql = stored == true ? " STORED" : "";
 
             AssertSql(
                 $@"CREATE TABLE ""People"" (
@@ -242,12 +242,12 @@ be found in the docs.";
             Assert.Contains("Cannot add a column with non-constant default", ex.Message);
         }
 
-        public override async Task Add_column_with_computedSql(bool? computedColumnStored)
+        public override async Task Add_column_with_computedSql(bool? stored)
         {
-            if (computedColumnStored == true)
+            if (stored == true)
             {
                 var ex = await Assert.ThrowsAsync<SqliteException>
-                    (() => base.Add_column_with_computedSql(computedColumnStored));
+                    (() => base.Add_column_with_computedSql(stored));
                 Assert.Contains("cannot add a STORED column", ex.Message);
                 return;
             }
@@ -262,7 +262,7 @@ be found in the docs.";
                     }),
                 builder => { },
                 builder => builder.Entity("People").Property<string>("Sum")
-                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", computedColumnStored),
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored),
                 model => { /* Scaffolding computed columns isn't supported in Sqlite */ });
 
             AssertSql(
@@ -341,9 +341,9 @@ be found in the docs.";
             => AssertNotSupportedAsync(
                 base.Alter_column_make_required_with_composite_index, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
-        public override Task Alter_column_make_computed(bool? computedColumnStored)
+        public override Task Alter_column_make_computed(bool? stored)
             => AssertNotSupportedAsync(
-                () => base.Alter_column_make_computed(computedColumnStored),
+                () => base.Alter_column_make_computed(stored),
                 SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
         public override Task Alter_column_change_computed()

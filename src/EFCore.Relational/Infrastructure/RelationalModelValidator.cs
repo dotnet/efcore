@@ -545,20 +545,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         currentComputedColumnSql));
             }
 
-            var currentComputedColumnIsStored = property.GetComputedColumnIsStored(tableName, schema);
-            var previousComputedColumnIsStored = duplicateProperty.GetComputedColumnIsStored(tableName, schema);
-            if (currentComputedColumnIsStored != previousComputedColumnIsStored)
+            var currentStored = property.GetIsStored(tableName, schema);
+            var previousStored = duplicateProperty.GetIsStored(tableName, schema);
+            if (currentStored != previousStored)
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.DuplicateColumnNameComputedIsStoredMismatch(
+                    RelationalStrings.DuplicateColumnNameIsStoredMismatch(
                         duplicateProperty.DeclaringEntityType.DisplayName(),
                         duplicateProperty.Name,
                         property.DeclaringEntityType.DisplayName(),
                         property.Name,
                         columnName,
                         Format(tableName, schema),
-                        previousComputedColumnIsStored,
-                        currentComputedColumnIsStored));
+                        previousStored,
+                        currentStored));
             }
 
             var currentDefaultValue = property.GetDefaultValue(tableName, schema);
