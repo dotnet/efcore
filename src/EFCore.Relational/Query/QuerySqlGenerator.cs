@@ -706,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 case ExpressionType.Not
-                    when sqlUnaryExpression.IsLogicalNot():
+                    when sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool):
                 {
                     _relationalCommandBuilder.Append("NOT (");
                     Visit(sqlUnaryExpression.Operand);

@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ProvideTranslationErrorDetails([NotNull] string details)
+        protected virtual void AddTranslationErrorDetails([NotNull] string details)
         {
             Check.NotNull(details, nameof(details));
 
@@ -872,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             }
 
-            ProvideTranslationErrorDetails(
+            AddTranslationErrorDetails(
                 CoreStrings.QueryUnableToTranslateMember(
                     member.Name,
                     entityReferenceExpression.EntityType.DisplayName()));

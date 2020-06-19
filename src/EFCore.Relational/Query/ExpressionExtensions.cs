@@ -21,16 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     public static class ExpressionExtensions
     {
         /// <summary>
-        ///     Checks if the given sql unary expression represents a logical NOT operation.
-        /// </summary>
-        /// <param name="sqlUnaryExpression"> A sql unary expression to check. </param>
-        /// <returns> A bool value indicating if the given expression represents a logical NOT operation. </returns>
-        public static bool IsLogicalNot([NotNull] this SqlUnaryExpression sqlUnaryExpression)
-            => sqlUnaryExpression.OperatorType == ExpressionType.Not
-                && (sqlUnaryExpression.Type == typeof(bool)
-                    || sqlUnaryExpression.Type == typeof(bool?));
-
-        /// <summary>
         ///     Infers type mapping from given <see cref="SqlExpression"/>s.
         /// </summary>
         /// <param name="expressions"> Expressions to search for to find the type mapping. </param>

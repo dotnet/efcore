@@ -1111,7 +1111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var translation = _sqlTranslator.Translate(expression);
             if (translation == null && _sqlTranslator.TranslationErrorDetails != null)
             {
-                ProvideTranslationErrorDetails(_sqlTranslator.TranslationErrorDetails);
+                AddTranslationErrorDetails(_sqlTranslator.TranslationErrorDetails);
             }
 
             return translation;

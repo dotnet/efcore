@@ -76,10 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual string TranslationErrorDetails { get; private set; }
 
         /// <summary>
-        ///     Provides detailed information about error encountered during translation.
+        ///     Adds detailed information about error encountered during translation.
         /// </summary>
-        /// <param name="details">Detailed information about error encountered during translation.</param>
-        protected virtual void ProvideTranslationErrorDetails([NotNull] string details)
+        /// <param name="details"> Detailed information about error encountered during translation. </param>
+        protected virtual void AddTranslationErrorDetails([NotNull] string details)
         {
             Check.NotNull(details, nameof(details));
 
@@ -702,11 +702,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (methodCallExpression.Method == _stringEqualsWithStringComparison
                     || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic)
                 {
-                    ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+                    AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
                 }
                 else
                 {
-                    ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateMethod(
+                    AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateMethod(
                         methodCallExpression.Method.Name,
                         methodCallExpression.Method.DeclaringType?.DisplayName()));
                 }
@@ -842,7 +842,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return BindProperty(entityReferenceExpression, property);
             }
 
-            ProvideTranslationErrorDetails(
+            AddTranslationErrorDetails(
                 CoreStrings.QueryUnableToTranslateMember(
                     member.Name,
                     entityReferenceExpression.EntityType.DisplayName()));
