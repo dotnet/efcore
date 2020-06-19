@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -3572,7 +3573,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
         }
 
-        [ConditionalTheory(Skip = "Issue#15312")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_collection_and_invalid_navigation_using_string_throws(bool async)
         {
@@ -3581,9 +3582,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     async,
                     ss => ss.Set<Gear>().Include("Reports.Foo")))).Message;
 
-            Assert.Equal(
-                CoreStrings.IncludeBadNavigation("Foo", "Gear"),
-                message);
+            Assert.Contains(CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("Reports.Foo", "Foo"), message);
         }
 
         [ConditionalTheory]

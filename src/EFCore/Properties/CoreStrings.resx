@@ -534,9 +534,6 @@
   <data name="AnnotationNotFound" xml:space="preserve">
     <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added.</value>
   </data>
-  <data name="IncludeBadNavigation" xml:space="preserve">
-    <value>The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.</value>
-  </data>
   <data name="LogQueryExecutionPlanned" xml:space="preserve">
     <value>{plan}</value>
     <comment>Debug CoreEventId.QueryExecutionPlanned string</comment>
@@ -907,9 +904,6 @@
   </data>
   <data name="NonComparableKeyTypes" xml:space="preserve">
     <value>Property '{entityType}.{property}' cannot be used as a key because it has type '{modelType}' and provider type '{providerType}' neither of which implement 'IComparable&lt;T&gt;', 'IComparable' or 'IStructuralComparable'. Make '{modelType}' implement one of these interfaces to use it as a key.</value>
-  </data>
-  <data name="IncludeNotSpecifiedDirectlyOnEntityType" xml:space="preserve">
-    <value>The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.</value>
   </data>
   <data name="LogPossibleUnintendedCollectionNavigationNullComparison" xml:space="preserve">
     <value>Collection navigations are only considered null if their parent entity is null. Use '.Any()' to check whether collection navigation '{navigationPath}' is empty.</value>
