@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -56,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 {
                     var context = InternalEntry.StateManager.Context;
                     if (context.ChangeTracker.AutoDetectChangesEnabled
-                        && (string)context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
+                        && (string)context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
                     {
                         context.GetDependencies().ChangeDetector.DetectChanges(target);
                     }

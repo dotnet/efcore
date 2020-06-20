@@ -264,41 +264,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
             _sb.Append("{");
 
-            var annotations = model.GetAnnotations().ToList();
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.ProductVersion);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.ChangeTrackingStrategy);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.OwnedTypes);
-            RemoveAnnotation(ref annotations, ChangeDetector.SkipDetectChangesAnnotation);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.MaxIdentifierLength);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.RelationalModel);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.CheckConstraints);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Sequences);
-            RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DatabaseName);
-            RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.EntityTypeErrors);
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(model.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
 
-            var annotationsToRemove = new List<IAnnotation>();
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(model, annotations);
+
+            annotations.Remove(CoreAnnotationNames.ProductVersion);
+            annotations.Remove(RelationalAnnotationNames.MaxIdentifierLength);
+            annotations.Remove(ScaffoldingAnnotationNames.DatabaseName);
+            annotations.Remove(ScaffoldingAnnotationNames.EntityTypeErrors);
 
             var lines = new List<string>();
 
-            foreach (var annotation in annotations)
-            {
-                if (annotation.Value == null
-                    || _annotationCodeGenerator.IsHandledByConvention(model, annotation))
-                {
-                    annotationsToRemove.Add(annotation);
-                }
-                else
-                {
-                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(model, annotation);
-                    if (methodCall != null)
-                    {
-                        lines.Add(_code.Fragment(methodCall));
-                        annotationsToRemove.Add(annotation);
-                    }
-                }
-            }
-
-            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+            lines.AddRange(
+                _annotationCodeGenerator.GenerateFluentApiCalls(model, annotations).Select(m => _code.Fragment(m))
+                    .Concat(GenerateAnnotations(annotations.Values)));
 
             if (lines.Count > 0)
             {
@@ -366,63 +347,46 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             GenerateKey(entityType.FindPrimaryKey(), entityType, useDataAnnotations);
 
-            var annotations = entityType.GetAnnotations().ToList();
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.ConstructorBinding);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableName);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Schema);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewName);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewSchema);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableMappings);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewMappings);
-            RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.DbSetName);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewDefinitionSql);
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(entityType.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(entityType, annotations);
+
+            annotations.Remove(RelationalAnnotationNames.TableName);
+            annotations.Remove(RelationalAnnotationNames.Schema);
+            annotations.Remove(RelationalAnnotationNames.ViewName);
+            annotations.Remove(RelationalAnnotationNames.ViewSchema);
+            annotations.Remove(ScaffoldingAnnotationNames.DbSetName);
+            annotations.Remove(RelationalAnnotationNames.ViewDefinitionSql);
+
+            if (useDataAnnotations)
+            {
+                // Strip out any annotations handled as attributes - these are already handled when generating
+                // the entity's properties
+                _ = _annotationCodeGenerator.GenerateDataAnnotationAttributes(entityType, annotations);
+            }
 
             if (!useDataAnnotations || entityType.GetViewName() != null)
             {
                 GenerateTableName(entityType);
             }
 
-            var annotationsToRemove = new List<IAnnotation>();
-            var lines = new List<string>();
-
-            foreach (var annotation in annotations)
-            {
-                if (annotation.Value == null
-                    || _annotationCodeGenerator.IsHandledByConvention(entityType, annotation))
-                {
-                    annotationsToRemove.Add(annotation);
-                }
-                else
-                {
-                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(entityType, annotation);
-                    if (methodCall != null)
-                    {
-                        lines.Add(_code.Fragment(methodCall));
-                        annotationsToRemove.Add(annotation);
-                    }
-                }
-            }
-
-            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
-
-            if (entityType.GetComment() != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalEntityTypeBuilderExtensions.HasComment)}" +
-                    $"({_code.Literal(entityType.GetComment())})");
-            }
+            var lines = new List<string>(
+                _annotationCodeGenerator.GenerateFluentApiCalls(entityType, annotations).Select(m => _code.Fragment(m))
+                    .Concat(GenerateAnnotations(annotations.Values)));
 
             AppendMultiLineFluentApi(entityType, lines);
 
             foreach (var index in entityType.GetIndexes())
             {
-                // If there are annotations that cannot be represented
-                // using an IndexAttribute then use fluent API even
+                // If there are annotations that cannot be represented using an IndexAttribute then use fluent API even
                 // if useDataAnnotations is true.
-                if (!useDataAnnotations
-                    || index.GetAnnotations().Any(
-                        a => !CSharpModelGenerator.IgnoredIndexAnnotations.Contains(a.Name)))
+                var indexAnnotations = _annotationCodeGenerator
+                    .FilterIgnoredAnnotations(index.GetAnnotations())
+                    .ToDictionary(a => a.Name, a => a);
+                _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(index, indexAnnotations);
+
+                if (!useDataAnnotations || indexAnnotations.Count > 0)
                 {
                     GenerateIndex(index);
                 }
@@ -481,11 +445,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return;
             }
 
-            var annotations = key.GetAnnotations().ToList();
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(key.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(key, annotations);
 
             var explicitName = key.GetName() != key.GetDefaultName();
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.UniqueConstraintMappings);
+            annotations.Remove(RelationalAnnotationNames.Name);
 
             if (key.Properties.Count == 1
                 && annotations.Count == 0)
@@ -515,27 +481,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({_code.Literal(key.GetName())})");
             }
 
-            var annotationsToRemove = new List<IAnnotation>();
-
-            foreach (var annotation in annotations)
-            {
-                if (annotation.Value == null
-                    || _annotationCodeGenerator.IsHandledByConvention(key, annotation))
-                {
-                    annotationsToRemove.Add(annotation);
-                }
-                else
-                {
-                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(key, annotation);
-                    if (methodCall != null)
-                    {
-                        lines.Add(_code.Fragment(methodCall));
-                        annotationsToRemove.Add(annotation);
-                    }
-                }
-            }
-
-            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+            lines.AddRange(
+                _annotationCodeGenerator.GenerateFluentApiCalls(key, annotations).Select(m => _code.Fragment(m))
+                    .Concat(GenerateAnnotations(annotations.Values)));
 
             AppendMultiLineFluentApi(key.DeclaringEntityType, lines);
         }
@@ -589,53 +537,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateIndex(IIndex index)
         {
-            var annotations = index.GetAnnotations().ToList();
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(index.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(index, annotations);
 
             var lines = new List<string> {
                 $".{nameof(EntityTypeBuilder.HasIndex)}" +
                 $"({_code.Lambda(index.Properties)}, " +
                 $"{_code.Literal(index.GetDatabaseName())})" };
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
-
-            foreach (var annotation in CSharpModelGenerator.IgnoredIndexAnnotations)
-            {
-                RemoveAnnotation(ref annotations, annotation);
-            }
+            annotations.Remove(RelationalAnnotationNames.Name);
 
             if (index.IsUnique)
             {
                 lines.Add($".{nameof(IndexBuilder.IsUnique)}()");
             }
 
-            if (index.GetFilter() != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalIndexBuilderExtensions.HasFilter)}" +
-                    $"({_code.Literal(index.GetFilter())})");
-                RemoveAnnotation(ref annotations, RelationalAnnotationNames.Filter);
-            }
-
-            var annotationsToRemove = new List<IAnnotation>();
-
-            foreach (var annotation in annotations)
-            {
-                if (annotation.Value == null
-                    || _annotationCodeGenerator.IsHandledByConvention(index, annotation))
-                {
-                    annotationsToRemove.Add(annotation);
-                }
-                else
-                {
-                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(index, annotation);
-                    if (methodCall != null)
-                    {
-                        lines.Add(_code.Fragment(methodCall));
-                        annotationsToRemove.Add(annotation);
-                    }
-                }
-            }
-
-            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+            lines.AddRange(
+                _annotationCodeGenerator.GenerateFluentApiCalls(index, annotations).Select(m => _code.Fragment(m))
+                    .Concat(GenerateAnnotations(annotations.Values)));
 
             AppendMultiLineFluentApi(index.DeclaringEntityType, lines);
         }
@@ -644,55 +564,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}(e => e.{property.Name})" };
 
-            var annotations = property.GetAnnotations().ToList();
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(property.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(property, annotations);
+            annotations.Remove(ScaffoldingAnnotationNames.ColumnOrdinal);
 
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLength);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.Precision);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.Scale);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
-            RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewColumnName);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnType);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Collation);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.IsStored);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.TableColumnMappings);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ViewColumnMappings);
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.RelationalOverrides);
-            RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.ColumnOrdinal);
-
-            if (!useDataAnnotations)
+            if (useDataAnnotations)
+            {
+                // Strip out any annotations handled as attributes - these are already handled when generating
+                // the entity's properties
+                _ = _annotationCodeGenerator.GenerateDataAnnotationAttributes(property, annotations);
+            }
+            else
             {
                 if (!property.IsNullable
                     && property.ClrType.IsNullableType()
                     && !property.IsPrimaryKey())
                 {
                     lines.Add($".{nameof(PropertyBuilder.IsRequired)}()");
-                }
-
-                var columnName = property.GetColumnName();
-
-                if (columnName != null
-                    && columnName != property.Name)
-                {
-                    lines.Add(
-                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}" +
-                        $"({_code.Literal(columnName)})");
-                }
-
-                var viewColumnName = property.GetViewColumnName();
-
-                if (viewColumnName != null
-                    && viewColumnName != columnName)
-                {
-                    lines.Add(
-                        $".{nameof(RelationalPropertyBuilderExtensions.HasViewColumnName)}" +
-                        $"({_code.Literal(columnName)})");
                 }
 
                 var columnType = property.GetConfiguredColumnType();
@@ -719,14 +609,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (precision != null && scale != null && scale != 0)
             {
                 lines.Add(
-                $".{nameof(PropertyBuilder.HasPrecision)}" +
-                $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+                    $".{nameof(PropertyBuilder.HasPrecision)}" +
+                    $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
             }
             else if (precision != null)
             {
                 lines.Add(
-                $".{nameof(PropertyBuilder.HasPrecision)}" +
-                $"({_code.Literal(precision.Value)})");
+                    $".{nameof(PropertyBuilder.HasPrecision)}" +
+                    $"({_code.Literal(precision.Value)})");
             }
 
             if (property.IsUnicode() != null)
@@ -736,48 +626,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({(property.IsUnicode() == false ? "false" : "")})");
             }
 
-            if (property.IsFixedLength() != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.IsFixedLength)}()");
-            }
-
             if (property.GetDefaultValue() != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" +
                     $"({_code.UnknownLiteral(property.GetDefaultValue())})");
-            }
-
-            if (property.GetDefaultValueSql() != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}" +
-                    $"({_code.Literal(property.GetDefaultValueSql())})");
-            }
-
-            if (property.GetComputedColumnSql() != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
-                    $"({_code.Literal(property.GetComputedColumnSql())}" +
-                    (property.GetIsStored() is bool stored
-                        ? $", stored: {_code.Literal(stored)})"
-                        : ")"));
-            }
-
-            if (property.GetComment() != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasComment)}" +
-                    $"({_code.Literal(property.GetComment())})");
-            }
-
-            if (property.GetCollation() != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.UseCollation)}" +
-                    $"({_code.Literal(property.GetCollation())})");
+                annotations.Remove(RelationalAnnotationNames.DefaultValue);
             }
 
             var valueGenerated = property.ValueGenerated;
@@ -805,27 +659,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add($".{nameof(PropertyBuilder.IsConcurrencyToken)}()");
             }
 
-            var annotationsToRemove = new List<IAnnotation>();
-
-            foreach (var annotation in annotations)
-            {
-                if (annotation.Value == null
-                    || _annotationCodeGenerator.IsHandledByConvention(property, annotation))
-                {
-                    annotationsToRemove.Add(annotation);
-                }
-                else
-                {
-                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(property, annotation);
-                    if (methodCall != null)
-                    {
-                        lines.Add(_code.Fragment(methodCall));
-                        annotationsToRemove.Add(annotation);
-                    }
-                }
-            }
-
-            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+            lines.AddRange(
+                _annotationCodeGenerator.GenerateFluentApiCalls(property, annotations).Select(m => _code.Fragment(m))
+                    .Concat(GenerateAnnotations(annotations.Values)));
 
             switch (lines.Count)
             {
@@ -842,9 +678,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void GenerateRelationship(IForeignKey foreignKey, bool useDataAnnotations)
         {
             var canUseDataAnnotations = true;
-            var annotations = foreignKey.GetAnnotations().ToList();
-
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ForeignKeyMappings);
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(foreignKey.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(foreignKey, annotations);
 
             var lines = new List<string>
             {
@@ -883,34 +720,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
             {
                 canUseDataAnnotations = false;
-                lines.Add(
-                    ".HasConstraintName" +
-                    $"({_code.Literal(foreignKey.GetConstraintName())})");
-                RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
-            var annotationsToRemove = new List<IAnnotation>();
-
-            foreach (var annotation in annotations)
-            {
-                if (annotation.Value == null
-                    || _annotationCodeGenerator.IsHandledByConvention(foreignKey, annotation))
-                {
-                    annotationsToRemove.Add(annotation);
-                }
-                else
-                {
-                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation);
-                    if (methodCall != null)
-                    {
-                        canUseDataAnnotations = false;
-                        lines.Add(_code.Fragment(methodCall));
-                        annotationsToRemove.Add(annotation);
-                    }
-                }
-            }
-
-            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+            lines.AddRange(
+                _annotationCodeGenerator.GenerateFluentApiCalls(foreignKey, annotations).Select(m => _code.Fragment(m))
+                    .Concat(GenerateAnnotations(annotations.Values)));
 
             if (!useDataAnnotations
                 || !canUseDataAnnotations)
@@ -983,14 +797,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine(";");
         }
 
-        private static void RemoveAnnotation(ref List<IAnnotation> annotations, string annotationName)
-            => annotations.Remove(annotations.SingleOrDefault(a => a.Name == annotationName));
-
         private IList<string> GenerateAnnotations(IEnumerable<IAnnotation> annotations)
-            => annotations.Select(GenerateAnnotation).ToList();
-
-        private string GenerateAnnotation(IAnnotation annotation)
-            => $".HasAnnotation({_code.Literal(annotation.Name)}, " +
-               $"{_code.UnknownLiteral(annotation.Value)})";
+            => annotations.Select(a =>
+                $".HasAnnotation({_code.Literal(a.Name)}, " + $"{_code.UnknownLiteral(a.Value)})").ToList();
     }
 }

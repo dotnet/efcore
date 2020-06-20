@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -70,6 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
+                new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
             var code = new CSharpHelper(sqlServerTypeMappingSource);
             var reporter = new TestOperationReporter();
             var migrationAssembly
@@ -103,7 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new[]
                         {
                             new CSharpMigrationsGenerator(
-                                new MigrationsCodeGeneratorDependencies(sqlServerTypeMappingSource),
+                                new MigrationsCodeGeneratorDependencies(
+                                    sqlServerTypeMappingSource,
+                                    sqlServerAnnotationCodeGenerator),
                                 new CSharpMigrationsGeneratorDependencies(
                                     code,
                                     new CSharpMigrationOperationGenerator(
@@ -111,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                             code)),
                                     new CSharpSnapshotGenerator(
                                         new CSharpSnapshotGeneratorDependencies(
-                                            code, sqlServerTypeMappingSource))))
+                                            code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
                         }),
                     historyRepository,
                     reporter,

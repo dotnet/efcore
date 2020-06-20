@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -219,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)_model[Internal.ChangeDetector.SkipDetectChangesAnnotation] != "true")
+            if ((string)_model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
             {
                 ChangeDetector.DetectChanges(StateManager);
             }
