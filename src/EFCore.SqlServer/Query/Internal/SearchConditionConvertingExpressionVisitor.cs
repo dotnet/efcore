@@ -75,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         // !(a != b) -> (a == b)
         private SqlExpression SimplifyNegatedBinary(SqlExpression sqlExpression)
             => sqlExpression is SqlUnaryExpression sqlUnaryExpression
-                && sqlUnaryExpression.IsLogicalNot()
+                && sqlUnaryExpression.OperatorType == ExpressionType.Not
+                && sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool)
                 && sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
                 && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual)
                 ? _sqlExpressionFactory.MakeBinary(
@@ -350,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             switch (sqlUnaryExpression.OperatorType)
             {
                 case ExpressionType.Not
-                    when sqlUnaryExpression.IsLogicalNot():
+                    when sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool):
                 {
                     _isSearchCondition = true;
                     resultCondition = true;

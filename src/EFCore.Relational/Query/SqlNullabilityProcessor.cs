@@ -1115,8 +1115,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var leftUnary = left as SqlUnaryExpression;
                 var rightUnary = right as SqlUnaryExpression;
 
-                var leftNegated = leftUnary?.IsLogicalNot() == true;
-                var rightNegated = rightUnary?.IsLogicalNot() == true;
+                var leftNegated = IsLogicalNot(leftUnary);
+                var rightNegated = IsLogicalNot(rightUnary);
 
                 if (leftNegated)
                 {
@@ -1152,8 +1152,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var leftUnary = left as SqlUnaryExpression;
             var rightUnary = right as SqlUnaryExpression;
 
-            var leftNegated = leftUnary?.IsLogicalNot() == true;
-            var rightNegated = rightUnary?.IsLogicalNot() == true;
+            var leftNegated = IsLogicalNot(leftUnary);
+            var rightNegated = IsLogicalNot(rightUnary);
 
             if (leftNegated)
             {
@@ -1607,6 +1607,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return sqlUnaryExpression;
         }
+
+        private static bool IsLogicalNot(SqlUnaryExpression sqlUnaryExpression)
+            => sqlUnaryExpression != null
+                && sqlUnaryExpression.OperatorType == ExpressionType.Not
+                && sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool);
 
         // ?a == ?b -> [(a == b) && (a != null && b != null)] || (a == null && b == null))
         //

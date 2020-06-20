@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ProvideTranslationErrorDetails([NotNull] string details)
+        protected virtual void AddTranslationErrorDetails([NotNull] string details)
         {
             Check.NotNull(details, nameof(details));
 
@@ -497,11 +497,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (methodCallExpression.Method == _stringEqualsWithStringComparison
                     || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic)
                 {
-                    ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+                    AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
                 }
                 else
                 {
-                    ProvideTranslationErrorDetails(CoreStrings.QueryUnableToTranslateMethod(
+                    AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateMethod(
                         methodCallExpression.Method.Name,
                         methodCallExpression.Method.DeclaringType?.DisplayName()));
                 }
@@ -611,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (result == null)
             {
-                ProvideTranslationErrorDetails(
+                AddTranslationErrorDetails(
                     CoreStrings.QueryUnableToTranslateMember(
                         member.Name,
                         entityReferenceExpression.EntityType.DisplayName()));

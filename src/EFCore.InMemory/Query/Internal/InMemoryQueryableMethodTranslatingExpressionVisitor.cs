@@ -1213,7 +1213,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var translation = _expressionTranslator.Translate(expression);
             if (translation == null && _expressionTranslator.TranslationErrorDetails != null)
             {
-                ProvideTranslationErrorDetails(_expressionTranslator.TranslationErrorDetails);
+                AddTranslationErrorDetails(_expressionTranslator.TranslationErrorDetails);
             }
 
             if (expression != null

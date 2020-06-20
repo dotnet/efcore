@@ -55,15 +55,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Additional information about errors encountered during translation.
+        ///     Detailed information about errors encountered during translation.
         /// </summary>
         public virtual string TranslationErrorDetails { get; private set; }
 
         /// <summary>
-        ///     Provides additional information about errors encountered during translation.
+        ///     Adds detailed information about errors encountered during translation.
         /// </summary>
-        /// <param name="details">Error encountered during translation</param>
-        protected virtual void ProvideTranslationErrorDetails([NotNull] string details)
+        /// <param name="details"> Error encountered during translation. </param>
+        protected virtual void AddTranslationErrorDetails([NotNull] string details)
         {
             Check.NotNull(details, nameof(details));
 
@@ -633,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var translation = (ShapedQueryExpression)subqueryVisitor.Visit(expression);
             if (translation == null && subqueryVisitor.TranslationErrorDetails != null)
             {
-                ProvideTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);
+                AddTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);
             }
 
             return translation;

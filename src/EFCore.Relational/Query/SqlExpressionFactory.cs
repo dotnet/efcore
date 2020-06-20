@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
                 case ExpressionType.Not
-                    when sqlUnaryExpression.IsLogicalNot():
+                    when sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool):
                 {
                     resultTypeMapping = _boolTypeMapping;
                     resultType = typeof(bool);
@@ -417,12 +417,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(operand, nameof(operand));
             Check.NotNull(type, nameof(type));
 
-            if (!SqlUnaryExpression.IsValidOperator(operatorType))
-            {
-                return null;
-            }
-
-            return (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping);
+            return !SqlUnaryExpression.IsValidOperator(operatorType)
+                ? null
+                : (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping);
         }
 
         /// <inheritdoc />
@@ -467,7 +464,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
+        [Obsolete("Use overload which takes IReadOnlyList instead of params")]
         public virtual CaseExpression Case(SqlExpression operand, params CaseWhenClause[] whenClauses)
+        {
+            Check.NotNull(operand, nameof(operand));
+            Check.NotNull(whenClauses, nameof(whenClauses));
+
+            return Case(operand, whenClauses, null);
+        }
+
+        /// <inheritdoc />
+        public virtual CaseExpression Case(SqlExpression operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult)
         {
             Check.NotNull(operand, nameof(operand));
             Check.NotNull(whenClauses, nameof(whenClauses));
@@ -479,9 +486,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ?? new[] { operand.Type }.Concat(whenClauses.Select(wc => wc.Test.Type))
                     .Where(t => t != typeof(object)).Select(t => _typeMappingSource.FindMapping(t)).FirstOrDefault();
 
-            var resultTypeMapping = whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
+            var resultTypeMapping = elseResult?.TypeMapping
+                ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
 
             operand = ApplyTypeMapping(operand, operandTypeMapping);
+            elseResult = ApplyTypeMapping(elseResult, resultTypeMapping);
 
             var typeMappedWhenClauses = new List<CaseWhenClause>();
             foreach (var caseWhenClause in whenClauses)
@@ -492,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
             }
 
-            return new CaseExpression(operand, typeMappedWhenClauses);
+            return new CaseExpression(operand, typeMappedWhenClauses, elseResult);
         }
 
         /// <inheritdoc />
