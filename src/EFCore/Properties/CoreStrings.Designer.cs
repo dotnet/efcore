@@ -787,14 +787,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 annotation);
 
         /// <summary>
-        ///     The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.
-        /// </summary>
-        public static string IncludeBadNavigation([CanBeNull] object property, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("IncludeBadNavigation", nameof(property), nameof(entityType)),
-                property, entityType);
-
-        /// <summary>
         ///     The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
         /// </summary>
         public static string CannotBeNullable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
@@ -1735,14 +1727,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, modelType, providerType);
 
         /// <summary>
-        ///     The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.
-        /// </summary>
-        public static string IncludeNotSpecifiedDirectlyOnEntityType([CanBeNull] object include, [CanBeNull] object invalidNavigation)
-            => string.Format(
-                GetString("IncludeNotSpecifiedDirectlyOnEntityType", nameof(include), nameof(invalidNavigation)),
-                include, invalidNavigation);
-
-        /// <summary>
         ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the previous owned entity entry first. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
         /// </summary>
         public static string IdentityConflictOwned([CanBeNull] object entityType, [CanBeNull] object keyProperties)
@@ -2609,10 +2593,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Translation of method '{declaringTypeName}.{methodName}' failed. If you are trying to map your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
         /// </summary>
-        public static string QueryUnableToTranslateMethod([CanBeNull] object methodName, [CanBeNull] object declaringTypeName)
+        public static string QueryUnableToTranslateMethod([CanBeNull] object declaringTypeName, [CanBeNull] object methodName)
             => string.Format(
-                GetString("QueryUnableToTranslateMethod", nameof(methodName), nameof(declaringTypeName)),
-                methodName, declaringTypeName);
+                GetString("QueryUnableToTranslateMethod", nameof(declaringTypeName), nameof(methodName)),
+                declaringTypeName, methodName);
 
         /// <summary>
         ///     Invalid {state} encountered.

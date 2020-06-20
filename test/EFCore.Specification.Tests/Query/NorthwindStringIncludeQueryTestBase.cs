@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -29,16 +30,39 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory(Skip = "issue #15312")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_non_existing_navigation(bool async)
         {
-            Assert.Equal(
-                CoreStrings.IncludeBadNavigation("ArcticMonkeys", nameof(Order)),
+            Assert.Contains(
+                CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage("ArcticMonkeys", "ArcticMonkeys"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
                         ss => ss.Set<Order>().Include("ArcticMonkeys")))).Message);
+        }
+
+        public override async Task Include_property(bool async)
+        {
+            Assert.Contains(
+                CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage("OrderDate", "OrderDate"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQuery(
+                        async,
+                        ss => ss.Set<Order>().Include(o => o.OrderDate)))).Message);
+        }
+
+        public override async Task Include_property_after_navigation(bool async)
+        {
+            Assert.Contains(
+                CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage("Customer.CustomerID", "CustomerID"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQuery(
+                        async,
+                        ss => ss.Set<Order>().Include(o => o.Customer.CustomerID)))).Message);
         }
 
         // Property expression cannot be converted to string include

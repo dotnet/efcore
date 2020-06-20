@@ -100,36 +100,36 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "issue #15312")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_property_after_navigation(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeBadNavigation("CustomerID", nameof(Customer)),
+                CoreStrings.InvalidLambdaExpressionInsideInclude,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
                         ss => ss.Set<Order>().Include(o => o.Customer.CustomerID)))).Message);
         }
 
-        [ConditionalTheory(Skip = "issue #15312")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_property(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeBadNavigation("OrderDate", nameof(Order)),
+                CoreStrings.InvalidLambdaExpressionInsideInclude,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
                         ss => ss.Set<Order>().Include(o => o.OrderDate)))).Message);
         }
 
-        [ConditionalTheory(Skip = "issue #15312")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_property_expression_invalid(bool async)
         {
             Assert.Equal(
-                CoreStrings.InvalidIncludeExpression(" "),
+                CoreStrings.InvalidIncludeExpression("new <>f__AnonymousType358`2(Customer = o.Customer, OrderDetails = o.OrderDetails)"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -153,12 +153,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 55);
         }
 
-        [ConditionalTheory(Skip = "issue#15312")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Then_include_property_expression_invalid(bool async)
         {
             Assert.Equal(
-                CoreStrings.InvalidIncludeExpression(" "),
+                CoreStrings.InvalidIncludeExpression("new <>f__AnonymousType358`2(Customer = o.Customer, OrderDetails = o.OrderDetails)"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
@@ -1303,12 +1303,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 921);
         }
 
-        [ConditionalTheory(Skip = "issue #15312")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_specified_on_non_entity_not_supported(bool async)
         {
             Assert.Equal(
-                CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(@"Include(""Item1.Orders"")", "Item1"),
+                CoreStrings.IncludeOnNonEntity,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
