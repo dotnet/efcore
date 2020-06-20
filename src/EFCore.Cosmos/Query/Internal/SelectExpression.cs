@@ -265,8 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             var currentAlias = baseAlias;
             var counter = 0;
-            while (string.Equals("value", currentAlias, StringComparison.OrdinalIgnoreCase)
-                || _projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
+            while (_projection.Any(pe => string.Equals(pe.Alias, currentAlias, StringComparison.OrdinalIgnoreCase)))
             {
                 currentAlias = $"{baseAlias}{counter++}";
             }

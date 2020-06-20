@@ -28,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 async,
                 ss => ss.Set<Order>().Select(o => new { Value = o.OrderID }),
-                e => (e.Value));
+                e => e.Value);
 
             AssertSql(
-                @"SELECT c[""OrderID""] AS Value0
+                @"SELECT VALUE {""Value"" : c[""OrderID""]}
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -41,7 +41,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Projection_when_arithmetic_expression_precedence(async);
 
             AssertSql(
-                @"SELECT (c[""OrderID""] / (c[""OrderID""] / 2)) AS A, ((c[""OrderID""] / c[""OrderID""]) / 2) AS B
+                @"SELECT VALUE {""A"" : (c[""OrderID""] / (c[""OrderID""] / 2)), ""B"" : ((c[""OrderID""] / c[""OrderID""]) / 2)}
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -51,7 +51,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Projection_when_arithmetic_expressions(async);
 
             AssertSql(
-                @"SELECT c[""OrderID""], (c[""OrderID""] * 2) AS Double, (c[""OrderID""] + 23) AS Add, (100000 - c[""OrderID""]) AS Sub, (c[""OrderID""] / (c[""OrderID""] / 2)) AS Divide, 42 AS Literal, c AS o
+                @"SELECT VALUE {""OrderID"" : c[""OrderID""], ""Double"" : (c[""OrderID""] * 2), ""Add"" : (c[""OrderID""] + 23), ""Sub"" : (100000 - c[""OrderID""]), ""Divide"" : (c[""OrderID""] / (c[""OrderID""] / 2)), ""Literal"" : 42, ""o"" : c}
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -220,7 +220,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_anonymous_bool_constant_true(async);
 
             AssertSql(
-                @"SELECT c[""CustomerID""], true AS ConstantTrue
+                @"SELECT VALUE {""CustomerID"" : c[""CustomerID""], ""ConstantTrue"" : true}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -240,7 +240,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_anonymous_conditional_expression(async);
 
             AssertSql(
-                @"SELECT c[""ProductID""], (c[""UnitsInStock""] > 0) AS IsAvailable
+                @"SELECT VALUE {""ProductID"" : c[""ProductID""], ""IsAvailable"" : (c[""UnitsInStock""] > 0)}
 FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
@@ -260,7 +260,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_constant_int(async);
 
             AssertSql(
-                @"SELECT 0 AS c
+                @"SELECT VALUE {""c"" : 0}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -270,7 +270,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_constant_null_string(async);
 
             AssertSql(
-                @"SELECT null AS c
+                @"SELECT VALUE {""c"" : null}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -282,7 +282,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"@__x_0='10'
 
-SELECT @__x_0 AS c
+SELECT VALUE {""c"" : @__x_0}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -487,7 +487,7 @@ ORDER BY c[""OrderID""]");
             await base.Select_non_matching_value_types_from_binary_expression_introduces_explicit_cast(async);
 
             AssertSql(
-                @"SELECT (c[""OrderID""] + c[""OrderID""]) AS c
+                @"SELECT VALUE {""c"" : (c[""OrderID""] + c[""OrderID""])}
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))
 ORDER BY c[""OrderID""]");
@@ -510,7 +510,7 @@ ORDER BY c[""OrderID""]");
             await base.Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast1(async);
 
             AssertSql(
-                @"SELECT -(c[""OrderID""]) AS c
+                @"SELECT VALUE {""c"" : -(c[""OrderID""])}
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))
 ORDER BY c[""OrderID""]");
@@ -576,7 +576,7 @@ ORDER BY c[""OrderID""]");
             await base.Select_conditional_with_null_comparison_in_test(async);
 
             AssertSql(
-                @"SELECT ((c[""CustomerID""] = null) ? true : (c[""OrderID""] < 100)) AS c
+                @"SELECT VALUE {""c"" : ((c[""CustomerID""] = null) ? true : (c[""OrderID""] < 100))}
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -830,7 +830,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Select_byte_constant(async);
 
             AssertSql(
-                @"SELECT ((c[""CustomerID""] = ""ALFKI"") ? 1 : 2) AS c
+                @"SELECT VALUE {""c"" : ((c[""CustomerID""] = ""ALFKI"") ? 1 : 2)}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -840,7 +840,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_short_constant(async);
 
             AssertSql(
-                @"SELECT ((c[""CustomerID""] = ""ALFKI"") ? 1 : 2) AS c
+                @"SELECT VALUE {""c"" : ((c[""CustomerID""] = ""ALFKI"") ? 1 : 2)}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -850,7 +850,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_bool_constant(async);
 
             AssertSql(
-                @"SELECT ((c[""CustomerID""] = ""ALFKI"") ? true : false) AS c
+                @"SELECT VALUE {""c"" : ((c[""CustomerID""] = ""ALFKI"") ? true : false)}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -870,7 +870,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await base.Anonymous_projection_with_repeated_property_being_ordered(async);
 
             AssertSql(
-                @"SELECT c[""CustomerID""] AS A
+                @"SELECT VALUE {""A"" : c[""CustomerID""]}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]");
@@ -1014,7 +1014,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Explicit_cast_in_arithmetic_operation_is_preserved(async);
 
             AssertSql(
-                @"SELECT c[""OrderID""], (c[""OrderID""] + 1000) AS c
+                @"SELECT VALUE {""OrderID"" : c[""OrderID""], ""c"" : (c[""OrderID""] + 1000)}
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
         }
@@ -1060,7 +1060,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
             await base.Coalesce_over_nullable_uint(async);
 
             AssertSql(
-                @"SELECT ((c[""EmployeeID""] != null) ? c[""EmployeeID""] : 0) AS c
+                @"SELECT VALUE {""c"" : ((c[""EmployeeID""] != null) ? c[""EmployeeID""] : 0)}
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
@@ -1108,7 +1108,7 @@ ORDER BY c[""EmployeeID""]");
             await base.Projection_custom_type_in_both_sides_of_ternary(async);
 
             AssertSql(
-                @"SELECT (c[""City""] = ""Seattle"") AS c
+                @"SELECT VALUE {""c"" : (c[""City""] = ""Seattle"")}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]");
