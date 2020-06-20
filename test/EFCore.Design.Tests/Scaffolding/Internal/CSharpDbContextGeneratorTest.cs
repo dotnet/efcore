@@ -247,20 +247,20 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
-        public void ModelInDiferentNamespaceDbContext_works()
+        public void ModelInDifferentNamespaceDbContext_works()
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
                 ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
             };
 
-            const string entityInAnoterNamespaceTypeName = "EntityInAnotherNamespace";
+            const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
 
             Test(
-                modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
+                modelBuilder => modelBuilder.Entity(entityInAnotherNamespaceTypeName)
                 , modelGenerationOptions
                 , code => Assert.Contains(string.Concat("using ", modelGenerationOptions.ModelNamespace, ";"), code.ContextFile.Code)
-                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnoterNamespaceTypeName)))
+                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnotherNamespaceTypeName)))
             );
         }
 
@@ -269,13 +269,13 @@ namespace TestNamespace
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions { ContextNamespace = "TestNamespace" };
 
-            const string entityInAnoterNamespaceTypeName = "EntityInAnotherNamespace";
+            const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
 
             Test(
-                modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
+                modelBuilder => modelBuilder.Entity(entityInAnotherNamespaceTypeName)
                 , modelGenerationOptions
                 , code => Assert.DoesNotContain(string.Concat("using ", modelGenerationOptions.ModelNamespace, ";"), code.ContextFile.Code)
-                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnoterNamespaceTypeName)))
+                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnotherNamespaceTypeName)))
             );
         }
 
@@ -422,7 +422,7 @@ namespace TestNamespace
                     .HasFilter(""Filter SQL"")
                     .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
-                entity.Property(e => e.Id).HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                entity.Property(e => e.Id).UseIdentityColumn();
             });
 
             OnModelCreatingPartial(modelBuilder);
@@ -503,7 +503,7 @@ namespace TestNamespace
                     .HasFilter(""Filter SQL"")
                     .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
-                entity.Property(e => e.Id).HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                entity.Property(e => e.Id).UseIdentityColumn();
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var targetType = Metadata.TargetEntityType;
                 var context = InternalEntry.StateManager.Context;
                 var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
-                    && (string)context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true"
+                    && (string)context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true"
                         ? context.GetDependencies().ChangeDetector
                         : null;
                 foreach (var entity in collection.OfType<object>().ToList())

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)_stateManager.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
+            if ((string)_stateManager.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
             {
                 _changeDetector.DetectChanges(_stateManager);
             }

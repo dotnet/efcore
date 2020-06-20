@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)Context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
+            if ((string)Context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
             {
                 Context.GetDependencies().ChangeDetector.DetectChanges(InternalEntry);
             }
