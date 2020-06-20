@@ -1916,7 +1916,7 @@ namespace Microsoft.EntityFrameworkCore
                         DateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                         TimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                         Single = -1.234F,
-                        Boolean = false,
+                        Boolean = true,
                         Byte = 255,
                         UnsignedInt16 = 1234,
                         UnsignedInt32 = 1234565789U,
@@ -1953,7 +1953,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => dt.DateTimeOffset);
                 AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TimeSpan);
                 AssertEqualIfMapped(entityType, -1.234F, () => dt.Single);
-                AssertEqualIfMapped(entityType, false, () => dt.Boolean);
+                AssertEqualIfMapped(entityType, true, () => dt.Boolean);
                 AssertEqualIfMapped(entityType, (byte)255, () => dt.Byte);
                 AssertEqualIfMapped(entityType, Enum64.SomeValue, () => dt.Enum64);
                 AssertEqualIfMapped(entityType, Enum32.SomeValue, () => dt.Enum32);

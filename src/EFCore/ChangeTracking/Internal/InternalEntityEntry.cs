@@ -563,6 +563,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 equals = ValuesEqualFunc(property);
             }
 
+            if (!PropertyHasDefaultValue(property))
+            {
+                return CurrentValueType.Normal;
+            }
+
             var defaultValue = property.ClrType.GetDefaultValue();
             var value = ReadPropertyValue(property);
             if (!equals(value, defaultValue))
