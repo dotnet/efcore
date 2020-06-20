@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IReadOnlyList<ValueComparer> identifierValueComparers,
             [NotNull] SelectExpression selectExpression,
             [NotNull] Expression innerShaper,
-            [CanBeNull] INavigation navigation,
+            [CanBeNull] INavigationBase navigation,
             [NotNull] Type elementType)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///    The navigation if associated with the collection.
         /// </summary>
-        public virtual INavigation Navigation { get; }
+        public virtual INavigationBase Navigation { get; }
         /// <summary>
         ///     The clr type of elements of the collection.
         /// </summary>

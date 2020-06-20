@@ -126,14 +126,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Include_property_expression_invalid(bool async)
+        public virtual Task Include_property_expression_invalid(bool async)
         {
-            Assert.Equal(
-                CoreStrings.InvalidIncludeExpression("new <>f__AnonymousType358`2(Customer = o.Customer, OrderDetails = o.OrderDetails)"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => AssertQuery(
-                        async,
-                        ss => ss.Set<Order>().Include(o => new { o.Customer, o.OrderDetails })))).Message);
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Order>().Include(o => new { o.Customer, o.OrderDetails })));
         }
 
         [ConditionalTheory]
@@ -155,16 +153,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Then_include_property_expression_invalid(bool async)
+        public virtual Task Then_include_property_expression_invalid(bool async)
         {
-            Assert.Equal(
-                CoreStrings.InvalidIncludeExpression("new <>f__AnonymousType358`2(Customer = o.Customer, OrderDetails = o.OrderDetails)"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => AssertQuery(
-                        async,
-                        ss => ss.Set<Customer>()
-                            .Include(o => o.Orders)
-                            .ThenInclude(o => new { o.Customer, o.OrderDetails })))).Message);
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>()
+                        .Include(o => o.Orders)
+                        .ThenInclude(o => new { o.Customer, o.OrderDetails })));
         }
 
         [ConditionalTheory]

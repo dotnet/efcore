@@ -1081,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <returns> A <see cref="CollectionShaperExpression"/> which represents shaping of this collection. </returns>
         public CollectionShaperExpression AddCollectionProjection(
             [NotNull] ShapedQueryExpression shapedQueryExpression,
-            [CanBeNull] INavigation navigation,
+            [CanBeNull] INavigationBase navigation,
             [CanBeNull] Type elementType)
         {
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
@@ -1110,7 +1110,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             int collectionIndex,
             int collectionId,
             [NotNull] Expression innerShaper,
-            [CanBeNull] INavigation navigation,
+            [CanBeNull] INavigationBase navigation,
             [NotNull] Type elementType,
             bool splitQuery = false)
         {

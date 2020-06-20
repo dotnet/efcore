@@ -534,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Constant(relationalCollectionShaperExpression.OuterIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
                                 Expression.Constant(relationalCollectionShaperExpression.SelfIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
                                 Expression.Constant(innerShaper.Compile()),
-                                Expression.Constant(inverseNavigation, typeof(INavigation)),
+                                Expression.Constant(inverseNavigation, typeof(INavigationBase)),
                                 Expression.Constant(
                                     GenerateFixup(
                                         includingEntityType, relatedEntityType, navigation, inverseNavigation).Compile()),
@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     _isAsync
                                         ? typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>)
                                         : typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>)),
-                                Expression.Constant(inverseNavigation, typeof(INavigation)),
+                                Expression.Constant(inverseNavigation, typeof(INavigationBase)),
                                 Expression.Constant(
                                     GenerateFixup(
                                         includingEntityType, relatedEntityType, navigation, inverseNavigation).Compile()),
@@ -634,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 entity,
                                 navigationExpression,
                                 Expression.Constant(navigation),
-                                Expression.Constant(inverseNavigation, typeof(INavigation)),
+                                Expression.Constant(inverseNavigation, typeof(INavigationBase)),
                                 Expression.Constant(
                                     GenerateFixup(
                                         includingType, relatedEntityType, navigation, inverseNavigation).Compile()),
@@ -841,8 +841,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             private static LambdaExpression GenerateFixup(
                 Type entityType,
                 Type relatedEntityType,
-                INavigation navigation,
-                INavigation inverseNavigation)
+                INavigationBase navigation,
+                INavigationBase inverseNavigation)
             {
                 var entityParameter = Expression.Parameter(entityType);
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
@@ -867,13 +867,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             private static Expression AssignReferenceNavigation(
                 ParameterExpression entity,
                 ParameterExpression relatedEntity,
-                INavigation navigation)
+                INavigationBase navigation)
                 => entity.MakeMemberAccess(navigation.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(relatedEntity);
 
             private static Expression AddToCollectionNavigation(
                 ParameterExpression entity,
                 ParameterExpression relatedEntity,
-                INavigation navigation)
+                INavigationBase navigation)
                 => Expression.Call(
                     Expression.Constant(navigation.GetCollectionAccessor()),
                     _collectionAccessorAddMethodInfo,
@@ -1051,8 +1051,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryContext queryContext,
                 TEntity entity,
                 TIncludedEntity relatedEntity,
-                INavigation navigation,
-                INavigation inverseNavigation,
+                INavigationBase navigation,
+                INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
                 where TIncludingEntity : TEntity
@@ -1070,14 +1070,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, includingEntity);
+                        navigation.SetIsLoadedWhenNoTracking(includingEntity);
                         if (relatedEntity != null)
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null
                                 && !inverseNavigation.IsCollection)
                             {
-                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
+                                inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                             }
                         }
                     }
@@ -1092,7 +1092,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 TParent entity,
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
-                INavigation navigation,
+                INavigationBase navigation,
                 IClrCollectionAccessor clrCollectionAccessor,
                 bool trackingQuery)
                 where TNavigationEntity : TParent
@@ -1106,7 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, entity);
+                        navigation.SetIsLoadedWhenNoTracking(entity);
                     }
 
                     collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
@@ -1132,7 +1132,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
                 IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
                 Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TIncludedEntity> innerShaper,
-                INavigation inverseNavigation,
+                INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
             {
@@ -1214,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fixup(entity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
+                                inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                             }
                         }
                     }
@@ -1241,7 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SplitQueryResultCoordinator resultCoordinator,
                 TParent entity,
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
-                INavigation navigation,
+                INavigationBase navigation,
                 IClrCollectionAccessor clrCollectionAccessor,
                 bool trackingQuery)
                 where TNavigationEntity : TParent
@@ -1255,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, entity);
+                        navigation.SetIsLoadedWhenNoTracking(entity);
                     }
 
                     collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
@@ -1278,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IReadOnlyList<ValueComparer> identifierValueComparers,
                 Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
                 Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator> relatedDataLoaders,
-                INavigation inverseNavigation,
+                INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
             {
@@ -1337,7 +1337,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fixup(entity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
+                                inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                             }
                         }
                     }
@@ -1356,7 +1356,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IReadOnlyList<ValueComparer> identifierValueComparers,
                 Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
                 Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task> relatedDataLoaders,
-                INavigation inverseNavigation,
+                INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
             {
@@ -1420,7 +1420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             fixup(entity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
+                                inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                             }
                         }
                     }

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IncludeExpression(
             [NotNull] Expression entityExpression,
             [NotNull] Expression navigationExpression,
-            [NotNull] INavigation navigation)
+            [NotNull] INavigationBase navigation)
         {
             Check.NotNull(entityExpression, nameof(entityExpression));
             Check.NotNull(navigationExpression, nameof(navigationExpression));
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The navigation associated with this include operation.
         /// </summary>
-        public virtual INavigation Navigation { get; }
+        public virtual INavigationBase Navigation { get; }
 
         /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;

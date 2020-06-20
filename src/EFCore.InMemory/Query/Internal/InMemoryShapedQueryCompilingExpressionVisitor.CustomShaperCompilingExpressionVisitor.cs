@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 QueryContext queryContext,
                 TEntity entity,
                 TIncludedEntity relatedEntity,
-                INavigation navigation,
-                INavigation inverseNavigation,
+                INavigationBase navigation,
+                INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
                 where TIncludingEntity : class, TEntity
@@ -65,14 +65,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                     else
                     {
-                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, includingEntity);
+                        navigation.SetIsLoadedWhenNoTracking(includingEntity);
                         if (relatedEntity != null)
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null
                                 && !inverseNavigation.IsCollection)
                             {
-                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
+                                inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                             }
                         }
                     }
@@ -84,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 IEnumerable<ValueBuffer> innerValueBuffers,
                 Func<QueryContext, ValueBuffer, TIncludedEntity> innerShaper,
                 TEntity entity,
-                INavigation navigation,
-                INavigation inverseNavigation,
+                INavigationBase navigation,
+                INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
                 where TIncludingEntity : class, TEntity
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                     else
                     {
-                        NavigationExtensions.SetIsLoadedWhenNoTracking(navigation, entity);
+                        navigation.SetIsLoadedWhenNoTracking(entity);
                     }
 
                     foreach (var valueBuffer in innerValueBuffers)
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null)
                             {
-                                NavigationExtensions.SetIsLoadedWhenNoTracking(inverseNavigation, relatedEntity);
+                                inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                             }
                         }
                     }
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             Expression.Constant(((LambdaExpression)Visit(collectionShaper.InnerShaper)).Compile()),
                             includeExpression.EntityExpression,
                             Expression.Constant(includeExpression.Navigation),
-                            Expression.Constant(inverseNavigation, typeof(INavigation)),
+                            Expression.Constant(inverseNavigation, typeof(INavigationBase)),
                             Expression.Constant(
                                 GenerateFixup(
                                     includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         includeExpression.EntityExpression,
                         includeExpression.NavigationExpression,
                         Expression.Constant(includeExpression.Navigation),
-                        Expression.Constant(inverseNavigation, typeof(INavigation)),
+                        Expression.Constant(inverseNavigation, typeof(INavigationBase)),
                         Expression.Constant(
                             GenerateFixup(
                                 includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
@@ -211,11 +211,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 if (extensionExpression is SingleResultShaperExpression singleResultShaperExpression)
                 {
+                    var innerShaper = (LambdaExpression)Visit(singleResultShaperExpression.InnerShaper);
+
                     return Expression.Call(
                         _materializeSingleResultMethodInfo.MakeGenericMethod(singleResultShaperExpression.Type),
                         QueryCompilationContext.QueryContextParameter,
                         singleResultShaperExpression.Projection,
-                        Expression.Constant(((LambdaExpression)Visit(singleResultShaperExpression.InnerShaper)).Compile()));
+                        Expression.Constant(innerShaper.Compile()));
                 }
 
                 return base.VisitExtension(extensionExpression);
@@ -224,8 +226,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private static LambdaExpression GenerateFixup(
                 Type entityType,
                 Type relatedEntityType,
-                INavigation navigation,
-                INavigation inverseNavigation)
+                INavigationBase navigation,
+                INavigationBase inverseNavigation)
             {
                 var entityParameter = Expression.Parameter(entityType);
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
@@ -250,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private static Expression AssignReferenceNavigation(
                 ParameterExpression entity,
                 ParameterExpression relatedEntity,
-                INavigation navigation)
+                INavigationBase navigation)
             {
                 return entity.MakeMemberAccess(navigation.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(relatedEntity);
             }
@@ -258,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private static Expression AddToCollectionNavigation(
                 ParameterExpression entity,
                 ParameterExpression relatedEntity,
-                INavigation navigation)
+                INavigationBase navigation)
                 => Expression.Call(
                     Expression.Constant(navigation.GetCollectionAccessor()),
                     _collectionAccessorAddMethodInfo,

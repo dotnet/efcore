@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public CollectionShaperExpression(
             [NotNull] Expression projection,
             [NotNull] Expression innerShaper,
-            [CanBeNull] INavigation navigation,
+            [CanBeNull] INavigationBase navigation,
             [CanBeNull] Type elementType)
         {
             Check.NotNull(projection, nameof(projection));
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///    The navigation if associated with the collection.
         /// </summary>
-        public virtual INavigation Navigation { get; }
+        public virtual INavigationBase Navigation { get; }
         /// <summary>
         ///     The clr type of elements of the collection.
         /// </summary>
