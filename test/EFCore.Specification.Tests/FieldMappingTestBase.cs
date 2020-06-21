@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class LoginSession
         {
-            private object _id = 0;
+            private object _id;
             private IUser2 _user;
             private object _users;
 

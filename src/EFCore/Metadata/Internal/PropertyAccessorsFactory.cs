@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -76,7 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (currentValueExpression.Type != typeof(TProperty))
                 {
-                    currentValueExpression = Expression.Convert(currentValueExpression, typeof(TProperty));
+                    currentValueExpression = Expression.Condition(
+                        currentValueExpression.MakeHasDefaultValue<TProperty>(propertyBase),
+                        Expression.Constant(default(TProperty), typeof(TProperty)),
+                        Expression.Convert(currentValueExpression, typeof(TProperty)));
                 }
             }
 
