@@ -533,6 +533,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
+        [ConditionalFact]
+        public virtual void ProductVersion_is_stored_in_snapshot()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var generator = CreateMigrationsGenerator();
+            var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", modelBuilder.Model);
+            Assert.Contains(@".HasAnnotation(""ProductVersion"",", code);
+
+            var modelFromSnapshot = BuildModelFromSnapshotSource(code);
+            Assert.Equal(ProductInfo.GetVersion(), modelFromSnapshot.GetProductVersion());
+        }
+
         #endregion
 
         #region EntityType
@@ -3970,36 +3982,16 @@ namespace RootNamespace
 
         protected void Test(IModel model, string expectedCode, Action<IModel, IModel> assert)
         {
-            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                new RelationalTypeMappingSourceDependencies(
-                    new IRelationalTypeMappingSourcePlugin[]
-                    {
-                        new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                    }));
-
-            var codeHelper = new CSharpHelper(
-                sqlServerTypeMappingSource);
-
-            var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
-                new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
-
-            var generator = new CSharpMigrationsGenerator(
-                new MigrationsCodeGeneratorDependencies(
-                    sqlServerTypeMappingSource,
-                    sqlServerAnnotationCodeGenerator),
-                new CSharpMigrationsGeneratorDependencies(
-                    codeHelper,
-                    new CSharpMigrationOperationGenerator(
-                        new CSharpMigrationOperationGeneratorDependencies(
-                            codeHelper)),
-                    new CSharpSnapshotGenerator(
-                        new CSharpSnapshotGeneratorDependencies(
-                            codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))));
-
+            var generator = CreateMigrationsGenerator();
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
             Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
 
+            var modelFromSnapshot = BuildModelFromSnapshotSource(code);
+            assert(modelFromSnapshot, model);
+        }
+
+        protected IModel BuildModelFromSnapshotSource(string code)
+        {
             var build = new BuildSource { Sources = { code } };
 
             foreach (var buildReference in GetReferences())
@@ -4027,9 +4019,7 @@ namespace RootNamespace
             var services = RelationalTestHelpers.Instance.CreateContextServices();
 
             var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IConventionSetBuilder>());
-            var modelFromSnapshot = processor.Process(builder.Model);
-
-            assert(modelFromSnapshot, model);
+            return processor.Process(builder.Model);
         }
 
         protected ModelBuilder CreateConventionalModelBuilder()
@@ -4046,6 +4036,38 @@ namespace RootNamespace
             using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             using var context = serviceScope.ServiceProvider.GetService<DbContext>();
             return new ModelBuilder(ConventionSet.CreateConventionSet(context));
+        }
+
+        protected CSharpMigrationsGenerator CreateMigrationsGenerator()
+        {
+            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                new RelationalTypeMappingSourceDependencies(
+                    new IRelationalTypeMappingSourcePlugin[]
+                    {
+                        new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
+                    }));
+
+            var codeHelper = new CSharpHelper(
+                sqlServerTypeMappingSource);
+
+            var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
+                new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
+
+            var generator = new CSharpMigrationsGenerator(
+                new MigrationsCodeGeneratorDependencies(
+                    sqlServerTypeMappingSource,
+                    sqlServerAnnotationCodeGenerator),
+                new CSharpMigrationsGeneratorDependencies(
+                    codeHelper,
+                    new CSharpMigrationOperationGenerator(
+                        new CSharpMigrationOperationGeneratorDependencies(
+                            codeHelper)),
+                    new CSharpSnapshotGenerator(
+                        new CSharpSnapshotGeneratorDependencies(
+                            codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))));
+
+            return generator;
         }
     }
 }

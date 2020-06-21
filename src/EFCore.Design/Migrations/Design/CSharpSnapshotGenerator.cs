@@ -55,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(model.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            if (annotations.Count > 0)
+            var productVersion = model.GetProductVersion();
+
+            if (annotations.Count > 0 || productVersion != null)
             {
                 stringBuilder.Append(builderName);
 
@@ -69,7 +71,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             .Append(Code.Fragment(methodCallCodeFragment));
                     }
 
-                    GenerateAnnotations(annotations.Values, stringBuilder);
+                    IEnumerable<IAnnotation> remainingAnnotations = annotations.Values;
+                    if (productVersion != null)
+                    {
+                        remainingAnnotations = remainingAnnotations.Append(
+                            new Annotation(CoreAnnotationNames.ProductVersion, productVersion));
+                    }
+                    GenerateAnnotations(remainingAnnotations, stringBuilder);
                 }
 
                 stringBuilder.AppendLine(";");
