@@ -2708,6 +2708,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("UnhandledNavigationBase", nameof(type)),
                 type);
 
+        /// <summary>
+        ///     Cannot create an association entity type using skip navigations '{leftEntityType}'.'{leftSkipNavName}' which targets entity type '{leftTargetEntityType}', and '{rightEntityType}'.'{rightSkipNavName}' which targets '{rightTargetEntityType}'. They should target one another.
+        /// </summary>
+        public static string InvalidSkipNavigationsForAssociationEntityType([CanBeNull] object leftEntityType, [CanBeNull] object leftSkipNavName, [CanBeNull] object leftTargetEntityType, [CanBeNull] object rightEntityType, [CanBeNull] object rightSkipNavName, [CanBeNull] object rightTargetEntityType)
+            => string.Format(
+                GetString("InvalidSkipNavigationsForAssociationEntityType", nameof(leftEntityType), nameof(leftSkipNavName), nameof(leftTargetEntityType), nameof(rightEntityType), nameof(rightSkipNavName), nameof(rightTargetEntityType)),
+                leftEntityType, leftSkipNavName, leftTargetEntityType, rightEntityType, rightSkipNavName, rightTargetEntityType);
+
+        /// <summary>
+        ///     Cannot create a foreign key for skip navigation '{declaringEntityType}'.'{skipNavName}' on association entity type '{associationEntityType}'. Ensure '{declaringEntityType}' has a primary key and is not ignored in the model.
+        /// </summary>
+        public static string UnableToCreateSkipNavigationForeignKeyOnAssociationEntityType([CanBeNull] object declaringEntityType, [CanBeNull] object skipNavName, [CanBeNull] object associationEntityType)
+            => string.Format(
+                GetString("UnableToCreateSkipNavigationForeignKeyOnAssociationEntityType", nameof(declaringEntityType), nameof(skipNavName), nameof(associationEntityType)),
+                declaringEntityType, skipNavName, associationEntityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

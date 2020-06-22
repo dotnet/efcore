@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
@@ -209,6 +210,190 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return entityTypeWithDefiningNavigation?.Builder;
+        }
+
+        private const string AssociationEntityNameTemplate = "Join_{0}_{1}";
+        private const string AssociationPropertyNameTemplate = "{0}_{1}";
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalEntityTypeBuilder AssociationEntity(
+            [NotNull] SkipNavigation leftSkipNavigation,
+            [NotNull] SkipNavigation rightSkipNavigation,
+            ConfigurationSource configurationSource)
+        {
+            Check.NotNull(leftSkipNavigation, nameof(leftSkipNavigation));
+            Check.NotNull(rightSkipNavigation, nameof(rightSkipNavigation));
+
+            var leftEntityType = leftSkipNavigation.DeclaringEntityType;
+            var rightEntityType = rightSkipNavigation.DeclaringEntityType;
+
+            if (leftSkipNavigation.TargetEntityType != rightEntityType
+                || rightSkipNavigation.TargetEntityType != leftEntityType)
+            {
+                if (configurationSource != ConfigurationSource.Explicit)
+                {
+                    return null;
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidSkipNavigationsForAssociationEntityType(
+                        leftEntityType.Name,
+                        leftSkipNavigation.Name,
+                        leftSkipNavigation.TargetEntityType.Name,
+                        rightEntityType.Name,
+                        rightSkipNavigation.Name,
+                        rightSkipNavigation.TargetEntityType.Name));
+            }
+
+            // create the association entity type
+            var otherIdentifiers = Metadata.GetEntityTypes().ToDictionary(et => et.Name, et => 0);
+            var associationEntityTypeName = Uniquifier.Uniquify(
+                string.Format(
+                    AssociationEntityNameTemplate,
+                    leftEntityType.ShortName(),
+                    rightEntityType.ShortName()),
+                otherIdentifiers,
+                int.MaxValue);
+            var associationEntityTypeBuilder = Metadata.AddEntityType(
+                    associationEntityTypeName,
+                    typeof(Dictionary<string, object>),
+                    configurationSource).Builder;
+            associationEntityTypeBuilder.HasAnnotation(
+                CoreAnnotationNames.IsAutomaticallyCreatedAssociationEntityType,
+                null,
+                configurationSource);
+
+            // Create left and right foreign keys from the outer entity types to
+            // the association entity type and configure the skip navigations.
+            // Roll back if any of this fails.
+            var leftForeignKey = CreateSkipNavigationForeignKey(
+                leftSkipNavigation, associationEntityTypeBuilder, configurationSource);
+            if (leftForeignKey == null)
+            {
+                HasNoEntityType(associationEntityTypeBuilder.Metadata, configurationSource);
+
+                if (configurationSource != ConfigurationSource.Explicit)
+                {
+                    return null;
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.UnableToCreateSkipNavigationForeignKeyOnAssociationEntityType(
+                        leftEntityType,
+                        leftSkipNavigation.Name,
+                        associationEntityTypeName));
+            }
+
+            var rightForeignKey = CreateSkipNavigationForeignKey(
+                rightSkipNavigation, associationEntityTypeBuilder, configurationSource);
+            if (rightForeignKey == null)
+            {
+                // Removing the association entity type will also remove
+                // the leftForeignKey created above.
+                HasNoEntityType(associationEntityTypeBuilder.Metadata, configurationSource);
+
+                if (configurationSource != ConfigurationSource.Explicit)
+                {
+                    return null;
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.UnableToCreateSkipNavigationForeignKeyOnAssociationEntityType(
+                        rightEntityType,
+                        rightSkipNavigation.Name,
+                        associationEntityTypeName));
+            }
+
+            leftSkipNavigation.SetForeignKey(leftForeignKey, configurationSource);
+            rightSkipNavigation.SetForeignKey(rightForeignKey, configurationSource);
+            leftSkipNavigation.Builder.HasInverse(rightSkipNavigation, configurationSource);
+
+            // Creating the primary key below also negates the need for an index on
+            // the properties of leftForeignKey - that index is automatically removed.
+            associationEntityTypeBuilder.PrimaryKey(
+                leftForeignKey.Properties.Concat(rightForeignKey.Properties).ToList(),
+                configurationSource);
+
+            return associationEntityTypeBuilder;
+        }
+
+        private static ForeignKey CreateSkipNavigationForeignKey(
+            SkipNavigation skipNav,
+            InternalEntityTypeBuilder associationEntityBuilder,
+            ConfigurationSource configurationSource)
+        {
+            var principalEntityType = skipNav.DeclaringEntityType;
+            var principalKey = principalEntityType.FindPrimaryKey();
+            if (principalKey == null)
+            {
+                return null;
+            }
+
+            var dependentEndForeignKeyPropertyNames = new List<string>();
+            var otherIdentifiers = associationEntityBuilder.Metadata
+                .GetDeclaredProperties().ToDictionary(p => p.Name, p => 0);
+            foreach (var property in principalKey.Properties)
+            {
+                var propertyName = Uniquifier.Uniquify(
+                    string.Format(
+                    AssociationPropertyNameTemplate,
+                    principalEntityType.ShortName(),
+                    property.Name),
+                    otherIdentifiers,
+                    int.MaxValue);
+                dependentEndForeignKeyPropertyNames.Add(propertyName);
+                otherIdentifiers.Add(propertyName, 0);
+            }
+
+            return associationEntityBuilder
+                .HasRelationship(
+                    principalEntityType.Name,
+                    dependentEndForeignKeyPropertyNames,
+                    principalKey,
+                    configurationSource)
+                .Metadata;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalModelBuilder RemoveAutomaticallyCreatedAssociationEntity(
+            [NotNull] EntityType associationEntityType,
+            bool removeSkipNavigations,
+            ConfigurationSource configurationSource)
+        {
+            Check.NotNull(associationEntityType, nameof(associationEntityType));
+
+            if (!associationEntityType.IsAutomaticallyCreatedAssociationEntityType)
+            {
+                return null;
+            }
+
+            Debug.Assert(associationEntityType.GetForeignKeys().Count() == 2,
+                "Automatically created association entity types should have exactly 2 foreign keys");
+            foreach (var fk in associationEntityType.GetForeignKeys())
+            {
+                var principalEntityType = fk.PrincipalEntityType;
+                var skipNavigation = principalEntityType
+                    .GetSkipNavigations().FirstOrDefault(sn => fk == sn.ForeignKey);
+                skipNavigation.SetForeignKey(null, configurationSource);
+                skipNavigation.SetInverse(null, configurationSource);
+
+                if (removeSkipNavigations
+                    && configurationSource.Overrides(skipNavigation.GetConfigurationSource()))
+                {
+                    principalEntityType.RemoveSkipNavigation(skipNavigation);
+                }
+            }
+
+            return HasNoEntityType(associationEntityType, configurationSource);
         }
 
         /// <summary>

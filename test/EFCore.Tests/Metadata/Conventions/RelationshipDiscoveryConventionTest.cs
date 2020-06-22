@@ -239,16 +239,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Many_to_many_bidirectional_is_not_discovered()
+        public void Many_to_many_bidirectional_is_discovered()
         {
-            var entityBuilder = CreateInternalEntityBuilder<ManyToManyFirst>();
+            var modelBuilder = CreateInternalModeBuilder();
+            var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
+            var manyToManySecond = modelBuilder.Entity(typeof(ManyToManySecond), ConfigurationSource.Convention);
 
-            Assert.Same(entityBuilder, RunConvention(entityBuilder));
-            Cleanup(entityBuilder.ModelBuilder);
+            manyToManyFirst.PrimaryKey(new[] { nameof(ManyToManyFirst.Id) }, ConfigurationSource.Convention);
+            manyToManySecond.PrimaryKey(new[] { nameof(ManyToManySecond.Id) }, ConfigurationSource.Convention);
 
-            Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
-            Assert.Empty(entityBuilder.Metadata.GetNavigations());
-            Assert.Single(entityBuilder.Metadata.Model.GetEntityTypes());
+            RunConvention(manyToManyFirst);
+
+            var joinEntityType = manyToManyFirst.Metadata.Model.GetEntityTypes()
+                .Single(et => et.IsAutomaticallyCreatedAssociationEntityType);
+
+            Assert.Equal("Join_ManyToManyFirst_ManyToManySecond", joinEntityType.Name);
+
+            var navigationOnManyToManyFirst = manyToManyFirst.Metadata.GetSkipNavigations().Single();
+            var navigationOnManyToManySecond = manyToManySecond.Metadata.GetSkipNavigations().Single();
+            Assert.Equal("ManyToManySeconds", navigationOnManyToManyFirst.Name);
+            Assert.Equal("ManyToManyFirsts", navigationOnManyToManySecond.Name);
+            Assert.Same(navigationOnManyToManyFirst.Inverse, navigationOnManyToManySecond);
+            Assert.Same(navigationOnManyToManySecond.Inverse, navigationOnManyToManyFirst);
+
+            var manyToManyFirstForeignKey = navigationOnManyToManyFirst.ForeignKey;
+            var manyToManySecondForeignKey = navigationOnManyToManySecond.ForeignKey;
+            Assert.NotNull(manyToManyFirstForeignKey);
+            Assert.NotNull(manyToManySecondForeignKey);
+            Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+            Assert.Equal(manyToManyFirstForeignKey.DeclaringEntityType, joinEntityType);
+            Assert.Equal(manyToManySecondForeignKey.DeclaringEntityType, joinEntityType);
+
+            var key = joinEntityType.FindPrimaryKey();
+            Assert.Equal(
+                new[] {
+                        nameof(ManyToManyFirst) + "_" + nameof(ManyToManyFirst.Id),
+                        nameof(ManyToManySecond) + "_" + nameof(ManyToManySecond.Id) },
+                key.Properties.Select(p => p.Name));
         }
 
         [ConditionalFact]
@@ -1128,7 +1155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
                 .With(CreateLogger());
 
-        private InternalEntityTypeBuilder CreateInternalEntityBuilder<T>(params Action<IConventionEntityTypeBuilder>[] onEntityAdded)
+        private InternalModelBuilder CreateInternalModeBuilder(params Action<IConventionEntityTypeBuilder>[] onEntityAdded)
         {
             var conventions = new ConventionSet();
             if (onEntityAdded != null)
@@ -1142,7 +1169,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 conventions.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
             }
 
-            var modelBuilder = new InternalModelBuilder(new Model(conventions));
+            return new InternalModelBuilder(new Model(conventions));
+        }
+
+        private InternalEntityTypeBuilder CreateInternalEntityBuilder<T>(params Action<IConventionEntityTypeBuilder>[] onEntityAdded)
+        {
+            var modelBuilder = CreateInternalModeBuilder(onEntityAdded);
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.DataAnnotation);
 
             return entityBuilder;

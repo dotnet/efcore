@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -123,7 +124,66 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Configures_association_type()
+            public virtual void Association_type_is_automatically_configured_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<AutomaticManyToManyA>();
+
+                var manyToManyA = model.FindEntityType(typeof(AutomaticManyToManyA));
+                var manyToManyB = model.FindEntityType(typeof(AutomaticManyToManyB));
+                var joinEntityType = model.GetEntityTypes()
+                    .Where(et => ((EntityType)et).IsAutomaticallyCreatedAssociationEntityType)
+                    .Single();
+                Assert.Equal("Join_AutomaticManyToManyB_AutomaticManyToManyA", joinEntityType.Name);
+
+                var navigationOnManyToManyA = manyToManyA.GetSkipNavigations().Single();
+                var navigationOnManyToManyB = manyToManyB.GetSkipNavigations().Single();
+                Assert.Equal("Bs", navigationOnManyToManyA.Name);
+                Assert.Equal("As", navigationOnManyToManyB.Name);
+                Assert.Same(navigationOnManyToManyA.Inverse, navigationOnManyToManyB);
+                Assert.Same(navigationOnManyToManyB.Inverse, navigationOnManyToManyA);
+
+                var manyToManyAForeignKey = navigationOnManyToManyA.ForeignKey;
+                var manyToManyBForeignKey = navigationOnManyToManyB.ForeignKey;
+                Assert.NotNull(manyToManyAForeignKey);
+                Assert.NotNull(manyToManyBForeignKey);
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+                Assert.Equal(manyToManyAForeignKey.DeclaringEntityType, joinEntityType);
+                Assert.Equal(manyToManyBForeignKey.DeclaringEntityType, joinEntityType);
+
+                var key = joinEntityType.FindPrimaryKey();
+                Assert.Equal(
+                    new[] {
+                        nameof(AutomaticManyToManyB) + "_" + nameof(AutomaticManyToManyB.Id),
+                        nameof(AutomaticManyToManyA) + "_" + nameof(AutomaticManyToManyA.Id) },
+                    key.Properties.Select(p => p.Name));
+
+                modelBuilder.FinalizeModel();
+            }
+
+            [ConditionalFact]
+            public virtual void Association_type_is_not_automatically_configured_when_navigations_are_ambiguous()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Hob>();
+
+                var hob = model.FindEntityType(typeof(Hob));
+                var nob = model.FindEntityType(typeof(Nob));
+                Assert.NotNull(hob);
+                Assert.NotNull(nob);
+                Assert.Empty(model.GetEntityTypes()
+                    .Where(et => ((EntityType)et).IsAutomaticallyCreatedAssociationEntityType));
+
+                Assert.Empty(hob.GetSkipNavigations());
+                Assert.Empty(nob.GetSkipNavigations());
+            }
+
+            [ConditionalFact]
+            public virtual void Can_configure_association_type_using_fluent_api()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -189,6 +249,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
+                // LAJ LAJ to check with Andriy
+                // make sure we do not set up the automatic many-to-many relationship
+                modelBuilder.Entity<Category>().Ignore(e => e.Products);
+
                 modelBuilder.Entity<Category>()
                     .HasMany(o => o.Products).WithOne();
 
@@ -208,6 +272,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
+
+                // LAJ LAJ to check with Andriy
+                // make sure we do not set up the automatic many-to-many relationship
+                modelBuilder.Entity<Category>().Ignore(e => e.Products);
 
                 modelBuilder.Entity<Category>()
                     .HasMany(o => o.Products).WithOne();

@@ -193,10 +193,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (Inverse?.AssociationEntityType != null
                 && Inverse.AssociationEntityType != AssociationEntityType)
             {
-                throw new InvalidOperationException(CoreStrings.SkipInverseMismatchedForeignKey(
-                   foreignKey.Properties.Format(),
-                   Name, AssociationEntityType.DisplayName(),
-                   Inverse.Name, Inverse.AssociationEntityType.DisplayName()));
+                if (!Inverse.AssociationEntityType.IsAutomaticallyCreatedAssociationEntityType)
+                {
+                    throw new InvalidOperationException(CoreStrings.SkipInverseMismatchedForeignKey(
+                       foreignKey.Properties.Format(),
+                       Name, AssociationEntityType.DisplayName(),
+                       Inverse.Name, Inverse.AssociationEntityType.DisplayName()));
+                }
+
+                // Have reset the foreign key of a skip navigation on one side of an
+                // automatically created association entity. That entity is only
+                // useful if both sides are configured - so remove that
+                // entity and set the Inverse skip navigation to have no foreign key.
+                // If the user wants to set the Inverse's foreign key to also point
+                // to the new association entity they will need to do that manually.
+                AssociationEntityType.Model.Builder.RemoveAutomaticallyCreatedAssociationEntity(
+                    AssociationEntityType, false, configurationSource);
+                Inverse.SetForeignKey(null, configurationSource);
             }
 
             return isChanging

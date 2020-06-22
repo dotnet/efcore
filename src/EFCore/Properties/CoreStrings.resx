@@ -1421,4 +1421,10 @@
   <data name="UnhandledNavigationBase" xml:space="preserve">
     <value>Unhandled 'INavigationBase' of type '{type}'.</value>
   </data>
+  <data name="InvalidSkipNavigationsForAssociationEntityType" xml:space="preserve">
+    <value>Cannot create an association entity type using skip navigations '{leftEntityType}'.'{leftSkipNavName}' which targets entity type '{leftTargetEntityType}', and '{rightEntityType}'.'{rightSkipNavName}' which targets '{rightTargetEntityType}'. They should target one another.</value>
+  </data>
+  <data name="UnableToCreateSkipNavigationForeignKeyOnAssociationEntityType" xml:space="preserve">
+    <value>Cannot create a foreign key for skip navigation '{declaringEntityType}'.'{skipNavName}' on association entity type '{associationEntityType}'. Ensure '{declaringEntityType}' has a primary key and is not ignored in the model.</value>
+  </data>
 </root>

@@ -94,6 +94,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
             [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
         {
+            var existingAssociationEntityType = (EntityType)
+                (LeftNavigation.ForeignKey?.DeclaringEntityType
+                    ?? RightNavigation.ForeignKey?.DeclaringEntityType);
+            if (existingAssociationEntityType != null)
+            {
+                ModelBuilder.RemoveAutomaticallyCreatedAssociationEntity(
+                    existingAssociationEntityType, false, ConfigurationSource.Explicit);
+            }
+
             var entityTypeBuilder = new EntityTypeBuilder(
                 ModelBuilder.Entity(joinEntity, ConfigurationSource.Explicit).Metadata);
 

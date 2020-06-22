@@ -122,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return (Metadata.DeclaringEntityType
                     == (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType))
                             && (Metadata.Inverse?.AssociationEntityType == null
+                                || Metadata.Inverse?.AssociationEntityType?.IsAutomaticallyCreatedAssociationEntityType == true
                                 || Metadata.Inverse.AssociationEntityType
                                 == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType));
         }

@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -50,6 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
             where TAssociationEntity : class
         {
+            var existingAssociationEntityType = (EntityType)
+                (LeftNavigation.ForeignKey?.DeclaringEntityType
+                    ?? RightNavigation.ForeignKey?.DeclaringEntityType);
+            if (existingAssociationEntityType != null)
+            {
+                ModelBuilder.RemoveAutomaticallyCreatedAssociationEntity(
+                    existingAssociationEntityType, false, ConfigurationSource.Explicit);
+            }
+
             var entityTypeBuilder = new EntityTypeBuilder<TAssociationEntity>(
                 ModelBuilder.Entity(typeof(TAssociationEntity), ConfigurationSource.Explicit).Metadata);
 

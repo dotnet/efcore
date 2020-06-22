@@ -80,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (propertyBase == null
                 || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource())
-                || propertyBase.IsIndexerProperty())
+                || propertyBase.IsIndexerProperty()
+                || (propertyBase.PropertyInfo == null && propertyBase.FieldInfo == null))
             {
                 return null;
             }

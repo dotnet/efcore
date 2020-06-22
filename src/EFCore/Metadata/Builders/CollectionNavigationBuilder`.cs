@@ -126,11 +126,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             var leftName = Builder?.Metadata.PrincipalToDependent.Name;
-            return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
-                           RelatedEntityType,
-                           DeclaringEntityType,
-                           WithLeftManyNavigation(navigationExpression.GetMemberAccess()),
-                           WithRightManyNavigation(navigationExpression.GetMemberAccess(), leftName));
+            var collectionCollectionBuilder =
+                new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
+                    RelatedEntityType,
+                    DeclaringEntityType,
+                    WithLeftManyNavigation(navigationExpression.GetMemberAccess()),
+                    WithRightManyNavigation(navigationExpression.GetMemberAccess(), leftName));
+
+            CreateAutomaticAssociationEntityType(
+                collectionCollectionBuilder.LeftNavigation,
+                collectionCollectionBuilder.RightNavigation);
+
+            return collectionCollectionBuilder;
         }
     }
 }

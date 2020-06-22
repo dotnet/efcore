@@ -71,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void RemoveNavigationlessForeignKeys(IConventionModelBuilder modelBuilder)
         {
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes()
+                .Where(e => !((EntityType)e).IsAutomaticallyCreatedAssociationEntityType))
             {
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
                 {
@@ -106,11 +107,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             public override IEnumerable<IConventionEntityType> GetOutgoingNeighbors(IConventionEntityType from)
                 => from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
-                    .Union(from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType));
+                    .Union(from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType))
+                    .Union(from.GetSkipNavigations().Where(sn => sn.ForeignKey != null).Select(sn => sn.ForeignKey.DeclaringEntityType))
+                    .Union(from.GetSkipNavigations().Where(sn => sn.TargetEntityType != null).Select(sn => sn.TargetEntityType));
 
             public override IEnumerable<IConventionEntityType> GetIncomingNeighbors(IConventionEntityType to)
                 => to.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
-                    .Union(to.GetReferencingForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType));
+                    .Union(to.GetReferencingForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType))
+                    .Union(to.GetSkipNavigations().Where(sn => sn.ForeignKey != null).Select(sn => sn.ForeignKey.DeclaringEntityType))
+                    .Union(to.GetSkipNavigations().Where(sn => sn.TargetEntityType != null).Select(sn => sn.TargetEntityType));
 
             public override void Clear()
             {

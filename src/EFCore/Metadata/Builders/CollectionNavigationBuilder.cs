@@ -205,11 +205,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             var leftName = Builder?.Metadata.PrincipalToDependent.Name;
-            return new CollectionCollectionBuilder(
-                           RelatedEntityType,
-                           DeclaringEntityType,
-                           WithLeftManyNavigation(navigationName),
-                           WithRightManyNavigation(navigationName, leftName));
+            var collectionCollectionBuilder =
+                new CollectionCollectionBuilder(
+                    RelatedEntityType,
+                    DeclaringEntityType,
+                    WithLeftManyNavigation(navigationName),
+                    WithRightManyNavigation(navigationName, leftName));
+
+            CreateAutomaticAssociationEntityType(
+                collectionCollectionBuilder.LeftNavigation,
+                collectionCollectionBuilder.RightNavigation);
+
+            return collectionCollectionBuilder;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual void CreateAutomaticAssociationEntityType(
+            [NotNull] IMutableSkipNavigation leftSkipNavigation,
+            [NotNull] IMutableSkipNavigation rightSkipNavigation)
+        {
+            Check.NotNull(leftSkipNavigation, nameof(leftSkipNavigation));
+            Check.NotNull(rightSkipNavigation, nameof(rightSkipNavigation));
+
+            if (leftSkipNavigation.ForeignKey != null
+                || rightSkipNavigation.ForeignKey != null)
+            {
+                // The association entity type has already been configured.
+                // Do not override. If the user wants to override they
+                // should do so by calling CollectionCollectionBuilder.UsingEntity.
+                return;
+            }
+
+            var model = (Model)leftSkipNavigation.DeclaringEntityType.Model;
+            model.Builder.AssociationEntity(
+                (SkipNavigation)leftSkipNavigation,
+                (SkipNavigation)rightSkipNavigation,
+                ConfigurationSource.Explicit);
         }
 
         /// <summary>
