@@ -1595,7 +1595,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 #if NETCOREAPP5_0
             var options = new JsonSerializerOptions
             {
-                ReferenceHandling = ReferenceHandling.Preserve,
+                ReferenceHandler = ReferenceHandler.Preserve,
                 WriteIndented = writeIndented,
                 MaxDepth = maxDepth
             };
