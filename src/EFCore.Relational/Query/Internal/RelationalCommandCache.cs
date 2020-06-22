@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
             finally
             {
-                _locks.TryRemove(compilationLock, out _);
+                _locks.TryRemove(cacheKey, out _);
             }
         }
 
