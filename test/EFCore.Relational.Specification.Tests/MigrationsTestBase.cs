@@ -19,8 +19,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
@@ -1424,7 +1422,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
             public int AnotherId { get; set; }
-            public string? Name { get; set; }
+            public string Name { get; set; }
             public int Age { get; set; }
         }
 
@@ -1445,14 +1443,14 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual Task Test(
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
             => Test(b => { }, buildSourceAction, buildTargetAction, asserter);
 
         protected virtual Task Test(
             Action<ModelBuilder> buildCommonAction,
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
         {
             // Build the source and target models. Add current/latest product version if one wasn't set.
             var sourceModelBuilder = CreateConventionlessModelBuilder();
@@ -1477,13 +1475,13 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual Task Test(
             Action<ModelBuilder> buildSourceAction,
             MigrationOperation operation,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
             => Test(buildSourceAction, new[] { operation }, asserter);
 
         protected virtual Task Test(
             Action<ModelBuilder> buildSourceAction,
             IReadOnlyList<MigrationOperation> operations,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
         {
             var sourceModelBuilder = CreateConventionlessModelBuilder();
             buildSourceAction(sourceModelBuilder);
@@ -1499,9 +1497,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual async Task Test(
             IModel sourceModel,
-            IModel? targetModel,
+            IModel targetModel,
             IReadOnlyList<MigrationOperation> operations,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
         {
             var context = CreateContext();
             var serviceProvider = ((IInfrastructure<IServiceProvider>)context).Instance;
