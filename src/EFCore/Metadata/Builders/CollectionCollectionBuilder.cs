@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -94,6 +95,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
             [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
         {
+            if (((Model)LeftEntityType.Model).IsShared(joinEntity))
+            {
+                //TODO #9914 - when the generic version of "please use the shared-type entity type version of this API"
+                // is available then update to use that.
+                throw new InvalidOperationException(
+                    CoreStrings.DoNotUseUsingEntityOnSharedClrType(joinEntity.GetType().Name));
+            }
+
+            var existingAssociationEntityType = (EntityType)
+                (LeftNavigation.ForeignKey?.DeclaringEntityType
+                    ?? RightNavigation.ForeignKey?.DeclaringEntityType);
+            if (existingAssociationEntityType != null)
+            {
+                ModelBuilder.RemoveAssociationEntityIfCreatedImplicitly(
+                    existingAssociationEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
+            }
+
             var entityTypeBuilder = new EntityTypeBuilder(
                 ModelBuilder.Entity(joinEntity, ConfigurationSource.Explicit).Metadata);
 

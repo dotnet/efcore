@@ -832,6 +832,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             string navigationName,
             EntityType relatedEntityType)
         {
+            // Note: delay setting ConfigurationSource of skip navigation (if it exists).
+            // We do not yet know whether this will be a HasMany().WithOne() or a
+            // HasMany().WithMany(). If the skip navigation was found by convention
+            // we want to be able to override it later.
             var skipNavigation = navigationName != null ? Builder.Metadata.FindSkipNavigation(navigationName) : null;
 
             InternalForeignKeyBuilder relationship = null;

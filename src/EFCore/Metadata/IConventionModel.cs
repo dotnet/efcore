@@ -136,6 +136,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string RemoveIgnored([NotNull] string typeName);
 
         /// <summary>
+        ///     Gets whether the CLR type is used by shared entities in the model.
+        /// </summary>
+        /// <param name="clrType"> The CLR type. </param>
+        /// <returns> Whether the CLR type is used by shared entities in the model. </returns>
+        bool IsShared([NotNull] Type clrType);
+
+        /// <summary>
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
         /// <param name="typeName"> The name of the entity type that could be ignored. </param>

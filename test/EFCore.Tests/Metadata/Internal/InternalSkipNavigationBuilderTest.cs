@@ -126,14 +126,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalSkipNavigationBuilder();
             IConventionSkipNavigation metadata = builder.Metadata;
 
-            var fk = (ForeignKey)metadata.DeclaringEntityType.Model.Builder.Entity(typeof(OrderProduct))
+            // the skip navigation is pointing to the automatically-generated association entity type
+            var originalFK = metadata.ForeignKey;
+            Assert.NotNull(originalFK);
+            Assert.Equal(ConfigurationSource.Convention, metadata.GetForeignKeyConfigurationSource());
+
+            var orderProductEntity = metadata.DeclaringEntityType.Model.Builder.Entity(typeof(OrderProduct));
+            var fk = (ForeignKey)orderProductEntity
                 .HasRelationship(metadata.DeclaringEntityType, nameof(OrderProduct.Order))
                 .IsUnique(false)
                 .Metadata;
 
-            Assert.Null(metadata.ForeignKey);
-            Assert.Null(metadata.GetForeignKeyConfigurationSource());
+            // skip navigation is unaffected by the FK created above
+            Assert.NotSame(fk, metadata.ForeignKey);
+            Assert.Same(originalFK, metadata.ForeignKey);
+            Assert.Equal(ConfigurationSource.Convention, metadata.GetForeignKeyConfigurationSource());
 
+            // now explicitly assign the skip navigation's ForeignKey
             Assert.True(builder.CanSetForeignKey(fk, ConfigurationSource.DataAnnotation));
             Assert.NotNull(builder.HasForeignKey(fk, ConfigurationSource.DataAnnotation));
 
@@ -161,16 +170,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalSkipNavigationBuilder();
             IConventionSkipNavigation metadata = builder.Metadata;
 
+            // the skip navigation is pointing to the automatically-generated
+            // association entity type and so is its inverse
             var inverse = (SkipNavigation)metadata.TargetEntityType.Builder.HasSkipNavigation(
                 Product.OrdersProperty,
                 metadata.DeclaringEntityType)
                 .Metadata;
 
-            Assert.Null(metadata.Inverse);
-            Assert.Null(metadata.GetInverseConfigurationSource());
-            Assert.Null(inverse.Inverse);
-            Assert.Null(inverse.GetInverseConfigurationSource());
+            Assert.NotNull(metadata.Inverse);
+            Assert.Equal(ConfigurationSource.Convention, metadata.GetInverseConfigurationSource());
+            Assert.NotNull(inverse.Inverse);
+            Assert.Equal(ConfigurationSource.Convention, inverse.GetInverseConfigurationSource());
 
+            // now explicitly assign the skip navigation's Inverse
             Assert.True(builder.CanSetInverse(inverse, ConfigurationSource.DataAnnotation));
             Assert.NotNull(builder.HasInverse(inverse, ConfigurationSource.DataAnnotation));
 

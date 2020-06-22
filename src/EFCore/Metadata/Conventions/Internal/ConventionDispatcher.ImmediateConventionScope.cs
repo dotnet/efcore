@@ -710,7 +710,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         if (navigationBuilder.Metadata.Builder == null)
                         {
-                            Check.DebugAssert(false, "null builder");
                             return null;
                         }
 

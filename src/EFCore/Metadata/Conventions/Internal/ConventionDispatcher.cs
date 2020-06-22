@@ -352,8 +352,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual IConventionSkipNavigation OnSkipNavigationInverseChanged(
             [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
-            [NotNull] IConventionSkipNavigation inverse,
-            [NotNull] IConventionSkipNavigation oldInverse)
+            [CanBeNull] IConventionSkipNavigation inverse,
+            [CanBeNull] IConventionSkipNavigation oldInverse)
             => _scope.OnSkipNavigationInverseChanged(navigationBuilder, inverse, oldInverse);
 
         /// <summary>

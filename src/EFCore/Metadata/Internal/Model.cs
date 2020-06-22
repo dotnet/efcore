@@ -35,6 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Model : ConventionAnnotatable, IMutableModel, IConventionModel
     {
+        /// <summary>
+        ///     The CLR type that is used for property bag entity types when no other type is specified.
+        /// </summary>
+        public static readonly Type DefaultPropertyBagType = typeof(Dictionary<string, object>);
+
         private readonly SortedDictionary<string, EntityType> _entityTypes
             = new SortedDictionary<string, EntityType>(StringComparer.Ordinal);
 
@@ -760,6 +765,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool IsShared([NotNull] Type type)
+            => _sharedEntityClrTypes.Contains(type);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual string RemoveIgnored([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -1181,5 +1195,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         string IConventionModel.AddIgnored(string name, bool fromDataAnnotation)
             => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        bool IConventionModel.IsShared(Type clrType) => IsShared(clrType);
     }
 }

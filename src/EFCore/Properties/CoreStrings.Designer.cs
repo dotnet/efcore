@@ -2716,6 +2716,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("PrincipalKeylessType", nameof(entityType), nameof(firstNavigationSpecification), nameof(secondNavigationSpecification)),
                 entityType, firstNavigationSpecification, secondNavigationSpecification);
 
+        /// <summary>
+        ///     Cannot use UsingEntity() passing type '{clrType}' because the model contains shared entity type(s) with same type. Use a type which uniquely defines an entity type.
+        /// </summary>
+        public static string DoNotUseUsingEntityOnSharedClrType([CanBeNull] object clrType)
+            => string.Format(
+                GetString("DoNotUseUsingEntityOnSharedClrType", nameof(clrType)),
+                clrType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
