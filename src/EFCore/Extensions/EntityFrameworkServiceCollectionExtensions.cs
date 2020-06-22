@@ -159,7 +159,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddDbContextPool<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
             [NotNull] Action<DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = 100)
             where TContext : DbContext
             => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
 
@@ -205,7 +205,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
             [NotNull] this IServiceCollection serviceCollection,
             [NotNull] Action<DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = 100)
             where TContextImplementation : DbContext, TContextService
             where TContextService : class
         {
@@ -263,7 +263,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddDbContextPool<TContext>(
             [NotNull] this IServiceCollection serviceCollection,
             [NotNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = 100)
             where TContext : DbContext
             => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
 
@@ -318,7 +318,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
             [NotNull] this IServiceCollection serviceCollection,
             [NotNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = 100)
             where TContextImplementation : DbContext, TContextService
             where TContextService : class
         {
