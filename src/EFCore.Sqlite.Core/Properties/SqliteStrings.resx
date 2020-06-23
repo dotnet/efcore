@@ -184,4 +184,7 @@
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.</value>
   </data>
+  <data name="AggregateOperationNotSupported" xml:space="preserve">
+    <value>SQLite cannot apply aggregate operator '{aggregateOperator}' on expression of type '{type}'. Convert the values to a supported type or use LINQ to Objects to aggregate the results.</value>
+  </data>
 </root>
