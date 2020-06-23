@@ -737,8 +737,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case ExpressionType.Negate:
                 {
-                    _relationalCommandBuilder.Append("-");
+                    _relationalCommandBuilder.Append("-(");
                     Visit(sqlUnaryExpression.Operand);
+                    _relationalCommandBuilder.Append(")");
                     break;
                 }
             }
