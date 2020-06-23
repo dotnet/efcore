@@ -78,6 +78,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(bool async) => null;
 
+        public override async Task Negate_binary_expression(bool async)
+        {
+            await base.Negate_binary_expression(async);
+
+            AssertSql(
+                @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE ""s"".""Id"" = -(""s"".""Id"" + ""s"".""Id"")");
+        }
+
         public override async Task Select_datetimeoffset_comparison_in_projection(bool async)
         {
             await base.Select_datetimeoffset_comparison_in_projection(async);
