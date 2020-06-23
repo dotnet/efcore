@@ -113,7 +113,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private RelationalDataReader _dataReader;
             private SingleQueryResultCoordinator _resultCoordinator;
-            private IExecutionStrategy _executionStrategy;
 
             public Enumerator(SingleQueryingEnumerable<T> queryingEnumerable)
             {
@@ -137,12 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            if (_executionStrategy == null)
-                            {
-                                _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
-                            }
-
-                            _executionStrategy.Execute(true, InitializeReader, null);
+                            _relationalQueryContext.ExecutionStrategyFactory.Create()
+                                .Execute(true, InitializeReader, null);
                         }
 
                         var hasNext = _resultCoordinator.HasNext ?? _dataReader.Read();
@@ -228,7 +223,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private RelationalDataReader _dataReader;
             private SingleQueryResultCoordinator _resultCoordinator;
-            private IExecutionStrategy _executionStrategy;
 
             public AsyncEnumerator(
                 SingleQueryingEnumerable<T> queryingEnumerable,
@@ -253,12 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            if (_executionStrategy == null)
-                            {
-                                _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
-                            }
-
-                            await _executionStrategy.ExecuteAsync(true, InitializeReaderAsync, null, _cancellationToken)
+                            await _relationalQueryContext.ExecutionStrategyFactory.Create()
+                                .ExecuteAsync(true, InitializeReaderAsync, null, _cancellationToken)
                                 .ConfigureAwait(false);
                         }
 

@@ -4567,7 +4567,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 3
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t0].[Id]");
         }
 
         public override async Task Filtered_include_basic_OrderBy_Skip(bool async)
@@ -4585,7 +4585,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE 1 < [t].[row]
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t0].[Id]");
         }
 
         public override async Task Filtered_include_basic_OrderBy_Skip_Take(bool async)
@@ -4603,7 +4603,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE (1 < [t].[row]) AND ([t].[row] <= 4)
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t0].[Id]");
         }
 
         public override void Filtered_include_Skip_without_OrderBy()
@@ -4621,7 +4621,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE 1 < [t].[row]
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
         }
 
         public override void Filtered_include_Take_without_OrderBy()
@@ -4639,7 +4639,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
         }
 
         public override async Task Filtered_include_on_ThenInclude(bool async)
@@ -4659,7 +4659,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE (1 < [t].[row]) AND ([t].[row] <= 4)
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Name], [t0].[Id]");
         }
 
         public override async Task Filtered_include_after_reference_navigation(bool async)
@@ -4679,7 +4679,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE (1 < [t].[row]) AND ([t].[row] <= 4)
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Name], [t0].[Id]");
         }
 
         public override async Task Filtered_include_after_different_filtered_include_same_level(bool async)
@@ -4707,7 +4707,7 @@ LEFT JOIN (
     ) AS [t1]
     WHERE 1 < [t1].[row]
 ) AS [t2] ON [l].[Id] = [t2].[OneToMany_Required_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id], [t2].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t0].[Id], [t2].[OneToMany_Required_Inverse2Id], [t2].[Name] DESC, [t2].[Id]");
         }
 
         public override async Task Filtered_include_after_different_filtered_include_different_level(bool async)
@@ -4735,7 +4735,7 @@ OUTER APPLY (
         WHERE 1 < [t0].[row]
     ) AS [t1] ON [t].[Id] = [t1].[OneToMany_Required_Inverse3Id]
 ) AS [t2]
-ORDER BY [l].[Id], [t2].[Name], [t2].[Id], [t2].[Id0]");
+ORDER BY [l].[Id], [t2].[Name], [t2].[Id], [t2].[OneToMany_Required_Inverse3Id], [t2].[Name0] DESC, [t2].[Id0]");
         }
 
         public override async Task Filtered_include_same_filter_set_on_same_navigation_twice(bool async)
@@ -4754,7 +4754,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 2
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id] DESC");
         }
 
         public override async Task Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes(bool async)
@@ -4815,7 +4815,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 3
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
         }
 
         public override async Task Filtered_include_and_non_filtered_include_on_same_navigation2(bool async)
@@ -4834,7 +4834,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 3
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
         }
 
         public override async Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation(bool async)
@@ -4930,7 +4930,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 3
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
         }
 
         public override void Filtered_include_context_accessed_inside_filter()
@@ -4954,7 +4954,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 3
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
         }
 
         public override void Filtered_include_context_accessed_inside_filter_correlated()
@@ -4976,7 +4976,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 3
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
         }
 
         public override void Filtered_include_outer_parameter_used_inside_filter()

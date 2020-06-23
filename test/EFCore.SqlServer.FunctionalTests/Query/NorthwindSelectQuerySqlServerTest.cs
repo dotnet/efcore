@@ -337,7 +337,7 @@ LEFT JOIN (
     WHERE [t].[row] <= 3
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [t0].[OrderID]");
+ORDER BY [c].[CustomerID], [t0].[CustomerID], [t0].[OrderID]");
         }
 
         public override void Select_nested_collection_multi_level2()
