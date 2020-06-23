@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 Assert.Equal("blah", owned.GetTableName());
-                Assert.Equal("foo", owned.GetSchema());
+                Assert.Null(owned.GetSchema());
             }
 
             [ConditionalFact]

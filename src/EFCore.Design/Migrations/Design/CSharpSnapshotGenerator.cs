@@ -88,10 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GenerateSequence(builderName, sequence, stringBuilder);
             }
 
-            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes().Where(et => !et.IsIgnoredByMigrations()).ToList()), stringBuilder);
+            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes()), stringBuilder);
         }
 
-        private static IReadOnlyList<IEntityType> Sort(IReadOnlyList<IEntityType> entityTypes)
+        private static IReadOnlyList<IEntityType> Sort(IEnumerable<IEntityType> entityTypes)
         {
             var entityTypeGraph = new Multigraph<IEntityType, int>();
             entityTypeGraph.AddVertices(entityTypes);
@@ -774,38 +774,75 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .ToDictionary(a => a.Name, a => a);
 
             var tableNameAnnotation = annotations.Find(RelationalAnnotationNames.TableName);
-            var schemaAnnotation = annotations.Find(RelationalAnnotationNames.Schema);
-
-            var nonDefaultName = false;
             if (tableNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
-                stringBuilder
-                    .AppendLine()
-                    .Append(builderName)
-                    .Append(".")
-                    .Append(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
-                    .Append("(")
-                    .Append(Code.Literal((string)tableNameAnnotation?.Value ?? entityType.GetTableName()));
-                if (tableNameAnnotation != null)
+                var tableName = (string)tableNameAnnotation?.Value ?? entityType.GetTableName();
+                if (tableName != null)
                 {
-                    annotations.Remove(tableNameAnnotation.Name);
+                    stringBuilder
+                        .AppendLine()
+                        .Append(builderName)
+                        .Append(".ToTable(")
+                        .Append(Code.Literal(tableName));
+                    if (tableNameAnnotation != null)
+                    {
+                        annotations.Remove(tableNameAnnotation.Name);
+                    }
+
+                    var schemaAnnotation = annotations.Find(RelationalAnnotationNames.Schema);
+                    if (schemaAnnotation?.Value != null)
+                    {
+                        stringBuilder
+                            .Append(", ")
+                            .Append(Code.Literal((string)schemaAnnotation.Value));
+                        annotations.Remove(schemaAnnotation.Name);
+                    }
+
+                    var isExcludedAnnotation = annotations.Find(RelationalAnnotationNames.IsTableExcludedFromMigrations);
+                    if (isExcludedAnnotation != null)
+                    {
+                        if (((bool?)isExcludedAnnotation.Value) == true)
+                        {
+                            stringBuilder
+                                .Append(", ")
+                                .Append(Code.Literal(true));
+                        }
+                        annotations.Remove(isExcludedAnnotation.Name);
+                    }
+
+                    stringBuilder.AppendLine(");");
                 }
-                nonDefaultName = true;
             }
 
-            if (schemaAnnotation?.Value != null)
+            var viewNameAnnotation = annotations.Find(RelationalAnnotationNames.ViewName);
+            if (viewNameAnnotation?.Value != null
+                || entityType.BaseType == null)
             {
-                stringBuilder
-                    .Append(",")
-                    .Append(Code.Literal((string)schemaAnnotation.Value));
-                annotations.Remove(schemaAnnotation.Name);
-                nonDefaultName = true;
-            }
+                var viewName = (string)viewNameAnnotation?.Value ?? entityType.GetViewName();
+                if (viewName != null)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(builderName)
+                        .Append(".ToView(")
+                        .Append(Code.Literal(viewName));
+                    if (viewNameAnnotation != null)
+                    {
+                        annotations.Remove(viewNameAnnotation.Name);
+                    }
 
-            if (nonDefaultName)
-            {
-                stringBuilder.AppendLine(");");
+                    var viewSchemaAnnotation = annotations.Find(RelationalAnnotationNames.ViewSchema);
+                    if (viewSchemaAnnotation?.Value != null)
+                    {
+                        stringBuilder
+                            .Append(", ")
+                            .Append(Code.Literal((string)viewSchemaAnnotation.Value));
+                        annotations.Remove(viewSchemaAnnotation.Name);
+                    }
+
+                    stringBuilder.AppendLine(");");
+                }
             }
 
             if ((discriminatorPropertyAnnotation?.Value

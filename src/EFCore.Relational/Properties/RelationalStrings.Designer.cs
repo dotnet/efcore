@@ -873,6 +873,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("IncompatibleTableDerivedRelationship", nameof(table), nameof(entityType), nameof(otherEntityType)),
                 table, entityType, otherEntityType);
 
+        /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and it excluded from migration on one entity type, but not the other. Exclude the table from migrations on all entity types mapped to the table.
+        /// </summary>
+        public static string IncompatibleTableExcludedMismatch([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+            => string.Format(
+                GetString("IncompatibleTableExcludedMismatch", nameof(table), nameof(entityType), nameof(otherEntityType)),
+                table, entityType, otherEntityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

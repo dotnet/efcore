@@ -268,7 +268,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             while (typesToValidate.Count > 0)
             {
                 var entityType = typesToValidate.Dequeue();
+                var key = entityType.FindPrimaryKey();
                 var comment = entityType.GetComment();
+                var isExcluded = entityType.IsTableExcludedFromMigrations();
                 var typesToValidateLeft = typesToValidate.Count;
                 var directlyConnectedTypes = unvalidatedTypes.Where(
                     unvalidatedType =>
@@ -277,7 +279,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var nextEntityType in directlyConnectedTypes)
                 {
-                    var key = entityType.FindPrimaryKey();
                     var otherKey = nextEntityType.FindPrimaryKey();
                     if (key?.GetName(tableName, schema) != otherKey?.GetName(tableName, schema))
                     {
@@ -310,6 +311,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     else
                     {
                         comment = nextComment;
+                    }
+
+                    if (isExcluded.Equals(!nextEntityType.IsTableExcludedFromMigrations()))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.IncompatibleTableExcludedMismatch(
+                                Format(tableName, schema),
+                                entityType.DisplayName(),
+                                nextEntityType.DisplayName()));
                     }
 
                     typesToValidate.Enqueue(nextEntityType);

@@ -139,6 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ViewDefinitionSql = Prefix + "ViewDefinitionSql";
 
         /// <summary>
+        ///     The name for the annotation determining whether the table is excluded from migrations.
+        /// </summary>
+        public const string IsTableExcludedFromMigrations = Prefix + "IsTableExcludedFromMigrations";
+
+        /// <summary>
         ///     The name for database model annotation.
         /// </summary>
         public const string RelationalModel = Prefix + "RelationalModel";

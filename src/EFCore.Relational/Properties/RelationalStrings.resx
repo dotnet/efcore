@@ -657,4 +657,7 @@
   <data name="IncompatibleTableDerivedRelationship" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}', there is a relationship between their primary keys in which '{entityType}' is the dependent and '{entityType}' has a base entity type mapped to a different table. Either map '{otherEntityType}' to a different table or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>
   </data>
+  <data name="IncompatibleTableExcludedMismatch" xml:space="preserve">
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and it excluded from migration on one entity type, but not the other. Exclude the table from migrations on all entity types mapped to the table.</value>
+  </data>
 </root>

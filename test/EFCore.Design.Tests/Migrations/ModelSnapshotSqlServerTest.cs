@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder =>
                 {
                     builder.Entity<DerivedEntity>()
-                        .ToTable("DerivedEntity");
+                        .ToTable("DerivedEntity", "foo");
                     builder.Entity<BaseEntity>();
                 },
                 AddBoilerPlate(
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
 
-                    b.ToTable(""DerivedEntity"");
+                    b.ToTable(""DerivedEntity"", ""foo"");
                 });"),
                 o =>
                 {
@@ -414,12 +414,71 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public void Views_are_ignored()
+        public virtual void Entities_are_stored_in_model_snapshot_for_TPT_with_one_excluded()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<DerivedEntity>()
+                        .ToTable("DerivedEntity", "foo", excludedFromMigrations: true);
+                    builder.Entity<BaseEntity>();
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""Discriminator"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""BaseEntity"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.ToTable(""DerivedEntity"", ""foo"", true);
+                });"),
+                o =>
+                {
+                    Assert.Equal(5, o.GetAnnotations().Count());
+
+                    Assert.Equal("DerivedEntity",
+                        o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity").GetTableName());
+                });
+        }
+
+        [ConditionalFact]
+        public void Views_are_stored_in_the_model_snapshot()
         {
             Test(
                 builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToView("EntityWithOneProperty"),
-                AddBoilerPlate(GetHeading(empty: true)),
-                o => Assert.Empty(o.GetEntityTypes()));
+
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.HasKey(""Id"");
+
+                    b.ToView(""EntityWithOneProperty"");
+                });"),
+                o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
         }
 
         [ConditionalFact]
@@ -577,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(4, o.GetEntityTypes().First().GetAnnotations().Count());
+                    Assert.Equal(5, o.GetEntityTypes().First().GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                 });
         }
