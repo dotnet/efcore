@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
@@ -698,7 +698,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE 2 < [t].[row]
 ) AS [t0] ON [e].[Id] = [t0].[LeftId]
-ORDER BY [e].[Id], [t0].[LeftId], [t0].[RightId], [t0].[Id]");
+ORDER BY [e].[Id], [t0].[LeftId], [t0].[Id], [t0].[RightId]");
         }
 
         public override async Task Filtered_include_skip_navigation_order_by_take(bool async)
@@ -717,7 +717,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 2
 ) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[TwoId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id]");
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[TwoId]");
         }
 
         public override async Task Filtered_include_skip_navigation_order_by_skip_take(bool async)
@@ -736,7 +736,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
 ) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[ThreeId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id]");
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[ThreeId]");
         }
 
         public override async Task Filtered_then_include_skip_navigation_where(bool async)
@@ -781,7 +781,7 @@ LEFT JOIN (
         WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
     ) AS [t0] ON (([e0].[Key1] = [t0].[CompositeId1]) AND ([e0].[Key2] = [t0].[CompositeId2])) AND ([e0].[Key3] = [t0].[CompositeId3])
 ) AS [t1] ON [e].[Id] = [t1].[RootId]
-ORDER BY [e].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[ThreeId], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30], [t1].[Id]");
+ORDER BY [e].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30], [t1].[Id], [t1].[ThreeId]");
         }
 
         public override async Task Filtered_include_skip_navigation_where_then_include_skip_navigation(bool async)
@@ -855,7 +855,7 @@ LEFT JOIN (
     ) AS [t0] ON [e0].[Id] = [t0].[TwoId]
     WHERE [e0].[Id] < 10
 ) AS [t1] ON [e].[Id] = [t1].[OneId]
-ORDER BY [e].[Id], [t1].[OneId], [t1].[TwoId], [t1].[Id], [t1].[TwoId0], [t1].[ThreeId], [t1].[Id0]");
+ORDER BY [e].[Id], [t1].[OneId], [t1].[TwoId], [t1].[Id], [t1].[TwoId0], [t1].[Id0], [t1].[ThreeId]");
         }
 
         public override async Task Filter_include_on_skip_navigation_combined(bool async)
@@ -908,7 +908,7 @@ LEFT JOIN (
     ) AS [t2] ON [e0].[Id] = [t2].[OneId]
     WHERE [e0].[Id] < 10
 ) AS [t3] ON [e].[Id] = [t3].[ThreeId]
-ORDER BY [e].[Id], [t3].[OneId], [t3].[ThreeId], [t3].[Id], [t3].[OneId0], [t3].[TwoId], [t3].[Id0], [t3].[BranchId], [t3].[OneId1], [t3].[Id1]");
+ORDER BY [e].[Id], [t3].[OneId], [t3].[ThreeId], [t3].[Id], [t3].[OneId0], [t3].[Id0], [t3].[TwoId], [t3].[BranchId], [t3].[OneId1], [t3].[Id1]");
         }
 
         public override async Task Filtered_include_on_skip_navigation_then_filtered_include_on_navigation(bool async)
