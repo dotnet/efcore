@@ -849,8 +849,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 else
                 {
                     AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateMethod(
-                        methodCallExpression.Method.Name,
-                        methodCallExpression.Method.DeclaringType?.DisplayName()));
+                        methodCallExpression.Method.DeclaringType?.DisplayName(),
+                        methodCallExpression.Method.Name));
                 }
             }
 
