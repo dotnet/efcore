@@ -70,15 +70,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             var dbFunction = model.FindDbFunction(method);
             if (dbFunction != null)
             {
-                return dbFunction.Translation?.Invoke(
-                        arguments.Select(e => _sqlExpressionFactory.ApplyDefaultTypeMapping(e)).ToList())
-                    ?? _sqlExpressionFactory.Function(
-                        dbFunction.Schema,
+                if (dbFunction.Translation != null)
+                {
+                    return dbFunction.Translation.Invoke(
+                        arguments.Select(e => _sqlExpressionFactory.ApplyDefaultTypeMapping(e)).ToList());
+                }
+
+                if (dbFunction.IsBuiltIn)
+                {
+                    return _sqlExpressionFactory.Function(
                         dbFunction.Name,
                         arguments,
                         nullable: true,
                         argumentsPropagateNullability: arguments.Select(a => false).ToList(),
                         method.ReturnType);
+                }
+
+                return _sqlExpressionFactory.Function(
+                    dbFunction.Schema,
+                    dbFunction.Name,
+                    arguments,
+                    nullable: true,
+                    argumentsPropagateNullability: arguments.Select(a => false).ToList(),
+                    method.ReturnType);
             }
 
             return _plugins.Concat(_translators)

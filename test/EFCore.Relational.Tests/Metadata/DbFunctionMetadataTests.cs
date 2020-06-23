@@ -595,6 +595,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void DbFunction_IsBuiltIn()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var methodA = typeof(OuterA.Inner).GetMethod(nameof(OuterA.Inner.Min));
+
+            var funcA = modelBuilder.HasDbFunction(methodA);
+
+            Assert.False(funcA.Metadata.IsBuiltIn);
+
+            funcA.IsBuiltIn();
+
+            Assert.True(funcA.Metadata.IsBuiltIn);
+        }
+
+        [ConditionalFact]
         public virtual void Set_empty_function_name_throws()
         {
             var modelBuilder = GetModelBuilder();
