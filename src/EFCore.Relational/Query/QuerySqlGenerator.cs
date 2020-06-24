@@ -737,9 +737,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case ExpressionType.Negate:
                 {
-                    _relationalCommandBuilder.Append("-(");
+                    _relationalCommandBuilder.Append("-");
+                    var requiresBrackets = RequiresBrackets(sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append("(");
+                    }
+
                     Visit(sqlUnaryExpression.Operand);
-                    _relationalCommandBuilder.Append(")");
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append(")");
+                    }
                     break;
                 }
             }
