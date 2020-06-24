@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncompleteMappingInheritanceSqliteFixture : InheritanceSqliteFixture
+    public class IncompleteMappingInheritanceQuerySqlServerFixture : InheritanceQuerySqlServerFixture
     {
         protected override bool IsDiscriminatorMappingComplete => false;
     }

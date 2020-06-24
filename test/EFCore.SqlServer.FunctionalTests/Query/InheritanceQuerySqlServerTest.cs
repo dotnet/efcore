@@ -10,10 +10,10 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceSqlServerTest : InheritanceRelationalTestBase<InheritanceSqlServerFixture>
+    public class InheritanceQuerySqlServerTest : InheritanceRelationalQueryTestBase<InheritanceQuerySqlServerFixture>
     {
 #pragma warning disable IDE0060 // Remove unused parameter
-        public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public InheritanceQuerySqlServerTest(InheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
 #pragma warning restore IDE0060 // Remove unused parameter
             : base(fixture)
         {

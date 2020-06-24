@@ -3,9 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersInheritanceSqliteTest : FiltersInheritanceTestBase<FiltersInheritanceSqliteFixture>
+    public class FiltersInheritanceQueryInMemoryTest : FiltersInheritanceQueryTestBase<FiltersInheritanceQueryInMemoryFixture>
     {
-        public FiltersInheritanceSqliteTest(FiltersInheritanceSqliteFixture fixture)
+        public FiltersInheritanceQueryInMemoryTest(FiltersInheritanceQueryInMemoryFixture fixture)
             : base(fixture)
         {
         }

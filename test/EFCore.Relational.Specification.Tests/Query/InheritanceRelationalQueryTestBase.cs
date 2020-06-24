@@ -10,10 +10,10 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceRelationalTestBase<TFixture> : InheritanceTestBase<TFixture>
-        where TFixture : InheritanceFixtureBase, new()
+    public abstract class InheritanceRelationalQueryTestBase<TFixture> : InheritanceQueryTestBase<TFixture>
+        where TFixture : InheritanceQueryRelationalFixture, new()
     {
-        protected InheritanceRelationalTestBase(TFixture fixture)
+        protected InheritanceRelationalQueryTestBase(TFixture fixture)
             : base(fixture)
         {
         }

@@ -1,17 +1,19 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncompleteMappingInheritanceInMemoryTest : InheritanceTestBase<IncompleteMappingInheritanceInMemoryFixture>
+    public class InheritanceQueryInMemoryTest : InheritanceQueryTestBase<InheritanceQueryInMemoryFixture>
     {
-        public IncompleteMappingInheritanceInMemoryTest(IncompleteMappingInheritanceInMemoryFixture fixture)
+        public InheritanceQueryInMemoryTest(InheritanceQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
         [ConditionalFact]
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 CoreStrings.TranslationFailed(
                     @"DbSet<Bird>()
-    .Select(b => InheritanceInMemoryFixture.MaterializeView(b))
+    .Select(b => InheritanceQueryInMemoryFixture.MaterializeView(b))
     .OrderBy(a => a.CountryId)"),
                 message,
                 ignoreLineEndingDifferences: true);

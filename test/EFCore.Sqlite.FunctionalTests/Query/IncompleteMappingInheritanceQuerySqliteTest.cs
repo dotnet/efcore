@@ -3,9 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncompleteMappingInheritanceSqliteTest : InheritanceTestBase<IncompleteMappingInheritanceSqliteFixture>
+    public class IncompleteMappingInheritanceQuerySqliteTest : InheritanceRelationalQueryTestBase<IncompleteMappingInheritanceQuerySqliteFixture>
     {
-        public IncompleteMappingInheritanceSqliteTest(IncompleteMappingInheritanceSqliteFixture fixture)
+        public IncompleteMappingInheritanceQuerySqliteTest(IncompleteMappingInheritanceQuerySqliteFixture fixture)
             : base(fixture)
         {
         }

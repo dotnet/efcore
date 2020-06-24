@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceInMemoryFixture : InheritanceFixtureBase
+    public class InheritanceQueryInMemoryFixture : InheritanceQueryFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 

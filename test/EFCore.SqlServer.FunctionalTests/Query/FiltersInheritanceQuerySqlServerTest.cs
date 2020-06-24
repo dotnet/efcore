@@ -5,9 +5,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersInheritanceSqlServerTest : FiltersInheritanceTestBase<FiltersInheritanceSqlServerFixture>
+    public class FiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<FiltersInheritanceQuerySqlServerFixture>
     {
-        public FiltersInheritanceSqlServerTest(FiltersInheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public FiltersInheritanceQuerySqlServerTest(FiltersInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
