@@ -95,8 +95,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
                 .Property(o => o.PartitionId).HasConversion<string>();
 
-            var model = modelBuilder.Model;
-            Validate(model);
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_PK_partition_key()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.HasKey(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            Validate(modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -115,8 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 b.Ignore(o => o.Products);
             });
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NoPartitionKeyKey(typeof(Order).Name, nameof(Order.PartitionId), "id"), model);
+            VerifyError(CosmosStrings.NoPartitionKeyKey(typeof(Order).Name, nameof(Order.PartitionId), "id"), modelBuilder.Model);
         }
 
         [ConditionalFact]

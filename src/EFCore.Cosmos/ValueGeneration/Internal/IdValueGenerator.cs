@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             var partitionKey = entityType.GetPartitionKeyPropertyName();
             foreach (var property in primaryKey.Properties)
             {
-                if (property.Name == partitionKey)
+                if (property.Name == partitionKey
+                    && primaryKey.Properties.Count > 1)
                 {
                     continue;
                 }
