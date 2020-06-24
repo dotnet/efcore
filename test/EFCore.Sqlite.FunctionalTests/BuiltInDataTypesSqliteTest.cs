@@ -868,30 +868,25 @@ namespace Microsoft.EntityFrameworkCore
                 .Where(e => e.PartitionId == 200)
                 .GroupBy(_ => true);
 
-            var ex = Assert.Throws<InvalidOperationException>(
-                () => query
-                    .Select(g => g.Min(e => e.TestNullableDecimal))
-                    .ToList());
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(decimal).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => query.Select(g => g.Min(e => e.TestNullableDecimal)).ToList()).Message);
 
-            AssertTranslationFailed(
-                () => query
-                    .Select(g => g.Min(e => e.TestNullableDecimal))
-                    .ToList());
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(DateTimeOffset).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => query.Select(g => g.Min(e => e.TestNullableDateTimeOffset)).ToList()).Message);
 
-            AssertTranslationFailed(
-                () => query
-                    .Select(g => g.Min(e => e.TestNullableDateTimeOffset))
-                    .ToList());
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(TimeSpan).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => query.Select(g => g.Min(e => e.TestNullableTimeSpan)).ToList()).Message);
 
-            AssertTranslationFailed(
-                () => query
-                    .Select(g => g.Min(e => e.TestNullableTimeSpan))
-                    .ToList());
-
-            AssertTranslationFailed(
-                () => query
-                    .Select(g => g.Min(e => e.TestNullableUnsignedInt64))
-                    .ToList());
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(ulong).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => query.Select(g => g.Min(e => e.TestNullableUnsignedInt64)).ToList()).Message);
         }
 
         [ConditionalFact]
@@ -926,25 +921,25 @@ namespace Microsoft.EntityFrameworkCore
                 .Where(e => e.PartitionId == 201)
                 .GroupBy(_ => true);
 
-            AssertTranslationFailed(
-                () => query
-                    .Select(g => g.Max(e => e.TestNullableDecimal))
-                    .ToList());
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(decimal).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => query.Select(g => g.Max(e => e.TestNullableDecimal)).ToList()).Message);
 
-            AssertTranslationFailed(
-                () => query
-                    .Select(g => g.Max(e => e.TestNullableDateTimeOffset))
-                    .ToList());
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(DateTimeOffset).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => query.Select(g => g.Max(e => e.TestNullableDateTimeOffset)).ToList()).Message);
 
-            AssertTranslationFailed(
-                () => query
-                    .Select(g => g.Max(e => e.TestNullableTimeSpan))
-                    .ToList());
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(TimeSpan).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => query.Select(g => g.Max(e => e.TestNullableTimeSpan)).ToList()).Message);
 
-            AssertTranslationFailed(
-                () => query
-                    .Select(g => g.Max(e => e.TestNullableUnsignedInt64))
-                    .ToList());
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(ulong).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => query.Select(g => g.Max(e => e.TestNullableUnsignedInt64)).ToList()).Message);
         }
 
         [ConditionalFact]
@@ -969,10 +964,12 @@ namespace Microsoft.EntityFrameworkCore
 
             context.SaveChanges();
 
-            AssertTranslationFailed(
-                () => context.Set<BuiltInNullableDataTypes>()
-                    .Where(e => e.PartitionId == 202)
-                    .Average(e => e.TestNullableDecimal));
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Average), typeof(decimal).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => context.Set<BuiltInNullableDataTypes>()
+                        .Where(e => e.PartitionId == 202)
+                        .Average(e => e.TestNullableDecimal)).Message);
         }
 
         [ConditionalFact]
@@ -997,10 +994,12 @@ namespace Microsoft.EntityFrameworkCore
 
             context.SaveChanges();
 
-            AssertTranslationFailed(
-                () => context.Set<BuiltInDataTypes>()
-                    .Where(e => e.PartitionId == 203)
-                    .Sum(e => e.TestDecimal));
+            Assert.Equal(
+                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), typeof(decimal).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(
+                    () => context.Set<BuiltInDataTypes>()
+                        .Where(e => e.PartitionId == 203)
+                        .Sum(e => e.TestDecimal)).Message);
         }
 
         [ConditionalFact]

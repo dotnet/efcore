@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
@@ -197,9 +199,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(expression, nameof(expression));
 
             var visitedExpression = base.TranslateAverage(expression);
-            if (GetProviderType(visitedExpression) == typeof(decimal))
+            var argumentType = GetProviderType(visitedExpression);
+            if (argumentType == typeof(decimal))
             {
-                return null;
+                throw new NotSupportedException(
+                    SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Average), argumentType.ShortDisplayName()));
             }
 
             return visitedExpression;
@@ -222,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 || argumentType == typeof(TimeSpan)
                 || argumentType == typeof(ulong))
             {
-                return null;
+                throw new NotSupportedException(
+                    SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), argumentType.ShortDisplayName()));
             }
 
             return visitedExpression;
@@ -251,7 +256,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 || argumentType == typeof(TimeSpan)
                 || argumentType == typeof(ulong))
             {
-                return null;
+                throw new NotSupportedException(
+                    SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), argumentType.ShortDisplayName()));
             }
 
             return visitedExpression;
@@ -268,9 +274,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(expression, nameof(expression));
 
             var visitedExpression = base.TranslateSum(expression);
-            if (GetProviderType(visitedExpression) == typeof(decimal))
+            var argumentType = GetProviderType(visitedExpression);
+            if (argumentType == typeof(decimal))
             {
-                return null;
+                throw new NotSupportedException(
+                    SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), argumentType.ShortDisplayName()));
             }
 
             return visitedExpression;
