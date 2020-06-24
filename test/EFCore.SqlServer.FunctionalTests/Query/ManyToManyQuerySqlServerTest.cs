@@ -1566,6 +1566,20 @@ INNER JOIN (
 ORDER BY [e].[Id], [t].[Id]");
         }
 
+        public override async Task Select_many_over_skip_navigation_where_non_equality(bool async)
+        {
+            await base.Select_many_over_skip_navigation_where_non_equality(async);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
+FROM [EntityOnes] AS [e]
+LEFT JOIN (
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId], [j].[TwoId]
+    FROM [JoinOneToTwo] AS [j]
+    INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+) AS [t] ON ([e].[Id] = [t].[OneId]) AND ([e].[Id] <> [t].[Id])");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

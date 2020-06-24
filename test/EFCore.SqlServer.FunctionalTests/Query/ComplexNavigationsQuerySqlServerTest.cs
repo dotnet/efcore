@@ -4407,11 +4407,7 @@ FROM [LevelOne] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
 INNER JOIN [LevelFour] AS [l2] ON [l1].[Id] = [l2].[Level3_Required_Id]
-OUTER APPLY (
-    SELECT [l3].[Id], [l3].[Date], [l3].[Name], [l3].[OneToMany_Optional_Self_Inverse1Id], [l3].[OneToMany_Required_Self_Inverse1Id], [l3].[OneToOne_Optional_Self1Id]
-    FROM [LevelOne] AS [l3]
-    WHERE ([l3].[Id] <= [l0].[Id]) AND (([l2].[Name] = [l3].[Name]) OR ([l2].[Name] IS NULL AND [l3].[Name] IS NULL))
-) AS [t]");
+LEFT JOIN [LevelOne] AS [l3] ON ([l0].[Id] >= [l3].[Id]) AND (([l2].[Name] = [l3].[Name]) OR ([l2].[Name] IS NULL AND [l3].[Name] IS NULL))");
         }
 
         public override async Task Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(bool async)

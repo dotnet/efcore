@@ -5971,6 +5971,44 @@ LEFT JOIN (
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]");
         }
 
+        public override async Task SelectMany_Where_DefaultIfEmpty_with_navigation_in_the_collection_selector_not_equal(bool async)
+        {
+            await base.SelectMany_Where_DefaultIfEmpty_with_navigation_in_the_collection_selector_not_equal(async);
+
+            AssertSql(
+                @"@__isAutomatic_0='True'
+
+SELECT [g].[Nickname], [g].[FullName], CASE
+    WHEN [t].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Collection]
+FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+    FROM [Weapons] AS [w]
+    WHERE [w].[IsAutomatic] <> @__isAutomatic_0
+) AS [t] ON [g].[FullName] = [t].[OwnerFullName]");
+        }
+
+        public override async Task SelectMany_Where_DefaultIfEmpty_with_navigation_in_the_collection_selector_order_comparison(bool async)
+        {
+            await base.SelectMany_Where_DefaultIfEmpty_with_navigation_in_the_collection_selector_order_comparison(async);
+
+            AssertSql(
+                @"@__prm_0='1'
+
+SELECT [g].[Nickname], [g].[FullName], CASE
+    WHEN [t].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Collection]
+FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+    FROM [Weapons] AS [w]
+    WHERE [w].[Id] > @__prm_0
+) AS [t] ON [g].[FullName] = [t].[OwnerFullName]");
+        }
+
         public override async Task Join_with_inner_being_a_subquery_projecting_single_property(bool async)
         {
             await base.Join_with_inner_being_a_subquery_projecting_single_property(async);
@@ -7046,6 +7084,101 @@ LEFT JOIN [Gears] AS [g] ON [w].[OwnerFullName] = [g].[FullName]
 LEFT JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
 GROUP BY [c].[Name], [c].[Location]
 ORDER BY [c].[Location]");
+        }
+
+        public override async Task SelectMany_predicate_with_non_equality_comparison_converted_to_inner_join(bool async)
+        {
+            await base.SelectMany_predicate_with_non_equality_comparison_converted_to_inner_join(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gears] AS [g]
+INNER JOIN [Weapons] AS [w] ON ([g].[FullName] <> [w].[OwnerFullName]) OR [w].[OwnerFullName] IS NULL
+ORDER BY [g].[Nickname], [w].[Id]");
+        }
+
+        public override async Task SelectMany_predicate_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(bool async)
+        {
+            await base.SelectMany_predicate_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gears] AS [g]
+LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] <> [w].[OwnerFullName]) OR [w].[OwnerFullName] IS NULL
+ORDER BY [g].[Nickname], [w].[Id]");
+        }
+
+        public override async Task SelectMany_predicate_after_navigation_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(bool async)
+        {
+            await base.SelectMany_predicate_after_navigation_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Id], [t].[AmmunitionType], [t].[IsAutomatic], [t].[Name], [t].[OwnerFullName], [t].[SynergyWithId]
+FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId], [w].[Id] AS [Id0]
+    FROM [Weapons] AS [w]
+    LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
+) AS [t] ON ([g].[FullName] <> [t].[OwnerFullName]) OR [t].[OwnerFullName] IS NULL
+ORDER BY [g].[Nickname], [t].[Id]");
+        }
+
+        public override async Task SelectMany_without_result_selector_and_non_equality_comparison_converted_to_join(bool async)
+        {
+            await base.SelectMany_without_result_selector_and_non_equality_comparison_converted_to_join(async);
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gears] AS [g]
+LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] <> [w].[OwnerFullName]) OR [w].[OwnerFullName] IS NULL");
+        }
+
+        public override async Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join(bool async)
+        {
+            await base.Filtered_collection_projection_with_order_comparison_predicate_converted_to_join(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gears] AS [g]
+LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] = [w].[OwnerFullName]) AND ([g].[SquadId] < [w].[Id])
+ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+        }
+
+        public override async Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join2(bool async)
+        {
+            await base.Filtered_collection_projection_with_order_comparison_predicate_converted_to_join2(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gears] AS [g]
+LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] = [w].[OwnerFullName]) AND ([g].[SquadId] <= [w].[Id])
+ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+        }
+
+        public override async Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join3(bool async)
+        {
+            await base.Filtered_collection_projection_with_order_comparison_predicate_converted_to_join3(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Gears] AS [g]
+LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] = [w].[OwnerFullName]) AND ([g].[SquadId] >= [w].[Id])
+ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+        }
+
+        public override async Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
+        {
+            await base.SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[Id], [t].[AmmunitionType], [t].[IsAutomatic], [t].[Name], [t].[OwnerFullName], [t].[SynergyWithId]
+FROM [Gears] AS [g]
+CROSS APPLY (
+    SELECT TOP(3) [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+    FROM [Weapons] AS [w]
+    WHERE ([w].[OwnerFullName] <> [g].[FullName]) OR [w].[OwnerFullName] IS NULL
+) AS [t]
+ORDER BY [g].[Nickname], [t].[Id]");
         }
 
         private void AssertSql(params string[] expected)

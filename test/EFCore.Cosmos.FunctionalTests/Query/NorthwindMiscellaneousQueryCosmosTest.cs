@@ -2651,6 +2651,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""Seattle""))");
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
+        {
+            return base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async);
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task OrderBy_skip_take(bool async)
         {

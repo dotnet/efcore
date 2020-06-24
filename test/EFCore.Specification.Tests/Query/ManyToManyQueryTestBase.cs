@@ -787,7 +787,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Replace("\r", "").Replace("\n", ""));
         }
 
-        // When adding include test here always add a split version in relational layer.
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_many_over_skip_navigation_where_non_equality(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from r in ss.Set<EntityOne>()
+                      from t in r.TwoSkip.Where(x => x.Id != r.Id).DefaultIfEmpty()
+                      select t);
+        }
+
+        // When adding include test here always add a tracking version and a split version in relational layer.
         // Keep this line at the bottom for next dev writing tests to see.
 
         protected ManyToManyContext CreateContext() => Fixture.CreateContext();

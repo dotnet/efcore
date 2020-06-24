@@ -6355,6 +6355,42 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_Where_DefaultIfEmpty_with_navigation_in_the_collection_selector_not_equal(bool async)
+        {
+            var isAutomatic = true;
+
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      from w in g.Weapons.Where(ww => ww.IsAutomatic != isAutomatic).DefaultIfEmpty()
+                      select new
+                      {
+                          g.Nickname,
+                          g.FullName,
+                          Collection = w != null
+                      });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_Where_DefaultIfEmpty_with_navigation_in_the_collection_selector_order_comparison(bool async)
+        {
+            var prm = 1;
+
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      from w in g.Weapons.Where(ww => ww.Id > prm).DefaultIfEmpty()
+                      select new
+                      {
+                          g.Nickname,
+                          g.FullName,
+                          Collection = w != null
+                      });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_inner_being_a_subquery_projecting_single_property(bool async)
         {
             return AssertQuery(
@@ -7612,6 +7648,124 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(x => new { x.Key.Name, x.Key.Location, Count = x.Count() })
                     .OrderBy(x => x.Location),
                 assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_predicate_with_non_equality_comparison_converted_to_inner_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      from w in ss.Set<Weapon>().Where(x => x.OwnerFullName != g.FullName)
+                      orderby g.Nickname, w.Id
+                      select new { g, w },
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g, a.g);
+                    AssertEqual(e.w, a.w);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_predicate_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      from w in ss.Set<Weapon>().Where(x => x.OwnerFullName != g.FullName).DefaultIfEmpty()
+                      orderby g.Nickname, w.Id
+                      select new { g, w },
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g, a.g);
+                    AssertEqual(e.w, a.w);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_predicate_after_navigation_with_non_equality_comparison_DefaultIfEmpty_converted_to_left_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      from w in ss.Set<Weapon>().Select(x => x.SynergyWith).Where(x => x.OwnerFullName != g.FullName).DefaultIfEmpty()
+                      orderby g.Nickname, w.Id
+                      select new { g, w },
+                ss => from g in ss.Set<Gear>()
+                      from w in ss.Set<Weapon>().Select(x => x.SynergyWith).Where(x => x.OwnerFullName != g.FullName).MaybeDefaultIfEmpty()
+                      orderby g.Nickname, w.MaybeScalar(xx => xx.Id)
+                      select new { g, w },
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g, a.g);
+                    AssertEqual(e.w, a.w);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_without_result_selector_and_non_equality_comparison_converted_to_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().SelectMany(g => ss.Set<Weapon>().Where(x => x.OwnerFullName != g.FullName).DefaultIfEmpty()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().OrderBy(g => g.Nickname).Select(g => g.Weapons.Where(x => x.Id > g.SquadId).ToList()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee.Id));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().OrderBy(g => g.Nickname).Select(g => g.Weapons.Where(x => x.Id >= g.SquadId).ToList()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee.Id));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join3(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().OrderBy(g => g.Nickname).Select(g => g.Weapons.Where(x => x.Id <= g.SquadId).ToList()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee.Id));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from g in ss.Set<Gear>()
+                      from w in ss.Set<Weapon>().Where(x => x.OwnerFullName != g.FullName).Take(3)
+                      orderby g.Nickname, w.Id
+                      select new { g, w },
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g, a.g);
+                    AssertEqual(e.w, a.w);
+                });
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

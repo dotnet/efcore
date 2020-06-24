@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Sqlite does not support Apply operations
 
         public override Task Skip_navigation_order_by_single_or_default(bool async) => Task.CompletedTask;
-
         public override Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(bool async) => Task.CompletedTask;
 
         [ConditionalTheory(Skip = "Issue#21541")]

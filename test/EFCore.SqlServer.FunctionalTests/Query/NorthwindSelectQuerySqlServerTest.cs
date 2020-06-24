@@ -1078,6 +1078,50 @@ OUTER APPLY (
 ) AS [t]");
         }
 
+        public override async Task SelectMany_correlated_with_outer_5(bool async)
+        {
+            await base.SelectMany_correlated_with_outer_5(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[City] AS [o]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [c].[City], [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] <> [o].[CustomerID]) OR [o].[CustomerID] IS NULL
+) AS [t]");
+        }
+
+        public override async Task SelectMany_correlated_with_outer_6(bool async)
+        {
+            await base.SelectMany_correlated_with_outer_6(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] <> [o].[CustomerID]) OR [o].[CustomerID] IS NULL
+    ORDER BY [c].[City], [o].[OrderID]
+) AS [t]");
+        }
+
+        public override async Task SelectMany_correlated_with_outer_7(bool async)
+        {
+            await base.SelectMany_correlated_with_outer_7(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
+    FROM [Orders] AS [o]
+    WHERE CAST(LEN([c].[CustomerID]) AS int) >= CAST(LEN([o].[CustomerID]) AS int)
+    ORDER BY [c].[City], [o].[OrderID]
+) AS [t]");
+        }
+
         public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
         {
             await base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(async);

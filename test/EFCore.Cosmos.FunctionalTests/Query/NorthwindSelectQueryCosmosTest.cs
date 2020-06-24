@@ -963,6 +963,24 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task SelectMany_correlated_with_outer_5(bool async)
+        {
+            return base.SelectMany_correlated_with_outer_5(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task SelectMany_correlated_with_outer_6(bool async)
+        {
+            return base.SelectMany_correlated_with_outer_6(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task SelectMany_correlated_with_outer_7(bool async)
+        {
+            return base.SelectMany_correlated_with_outer_7(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
         {
             return base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(async);

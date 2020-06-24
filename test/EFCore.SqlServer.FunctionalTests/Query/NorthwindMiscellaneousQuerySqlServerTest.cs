@@ -3362,6 +3362,33 @@ WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [o0].[OrderI
 ORDER BY [t0].[OrderID], [o0].[OrderDate]");
         }
 
+        public override async Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
+        {
+            await base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t0].[OrderID], [t1].[OrderDate]
+FROM [Customers] AS [c]
+CROSS JOIN (
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [empty]
+    LEFT JOIN (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [o].[OrderID] > 15000
+    ) AS [t] ON 1 = 1
+) AS [t0]
+OUTER APPLY (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] <= CAST(LEN([c].[CustomerID]) AS int)
+) AS [t1]
+WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [t1].[OrderID] IS NOT NULL)
+ORDER BY [t0].[OrderID], [t1].[OrderDate]");
+        }
+
         public override async Task OrderBy_skip_take(bool async)
         {
             await base.OrderBy_skip_take(async);

@@ -1377,6 +1377,62 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_correlated_with_outer_5(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>()
+                      from o in ss.Set<Order>().Where(o => c.CustomerID != o.CustomerID).Select(o => c.City).DefaultIfEmpty()
+                      select new { c, o },
+                elementSorter: e => (e.c.CustomerID, e.o),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    Assert.Equal(e.o, a.o);
+                },
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_correlated_with_outer_6(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>()
+                      from o in ss.Set<Order>().Where(o => c.CustomerID != o.CustomerID)
+                          .OrderBy(o => c.City).ThenBy(o => o.OrderID).Take(2).DefaultIfEmpty()
+                      select new { c, o },
+                elementSorter: e => (e.c.CustomerID, e.o?.OrderID),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    AssertEqual(e.o, a.o);
+                },
+                entryCount: 94);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_correlated_with_outer_7(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>()
+                      from o in ss.Set<Order>().Where(o => c.CustomerID.Length >= o.CustomerID.Length)
+                          .OrderBy(o => c.City).ThenBy(o => o.OrderID).Take(2).DefaultIfEmpty()
+                      select new { c, o },
+                elementSorter: e => (e.c.CustomerID, e.o?.OrderID),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    AssertEqual(e.o, a.o);
+                },
+                entryCount: 93);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
         {
             return AssertQuery(

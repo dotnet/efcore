@@ -77,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(bool async) => null;
 
         public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(bool async) => null;
+        public override Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async) => null;
 
         public override async Task Negate_on_binary_expression(bool async)
         {

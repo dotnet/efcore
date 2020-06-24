@@ -277,6 +277,10 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
         }
 
+
+        // Sqlite does not support Apply operations
+        public override Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async) => Task.CompletedTask;
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

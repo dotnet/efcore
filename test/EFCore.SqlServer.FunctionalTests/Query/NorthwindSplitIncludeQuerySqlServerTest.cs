@@ -930,6 +930,35 @@ WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY [c].[City], [c].[CustomerID], [o].[OrderID]");
         }
 
+        public override async Task Include_collection_with_outer_apply_with_filter_non_equality(bool async)
+        {
+            await base.Include_collection_with_outer_apply_with_filter_non_equality(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] <> [c].[CustomerID]) OR [o].[CustomerID] IS NULL
+    ORDER BY [c].[CustomerID]
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderID]",
+                //
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [t].[OrderID]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    FROM [Orders] AS [o]
+    WHERE ([o].[CustomerID] <> [c].[CustomerID]) OR [o].[CustomerID] IS NULL
+    ORDER BY [c].[CustomerID]
+) AS [t]
+INNER JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderID]");
+        }
+
         public override async Task Include_collection_on_additional_from_clause2(bool async)
         {
             await base.Include_collection_on_additional_from_clause2(async);

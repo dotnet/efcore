@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // Sqlite does not support cross/outer apply
-        public override Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async) => null;
         public override Task Filtered_include_after_different_filtered_include_different_level(bool async) => null;
         public override void Filtered_include_outer_parameter_used_inside_filter() { }
         public override Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation(bool async) => null;

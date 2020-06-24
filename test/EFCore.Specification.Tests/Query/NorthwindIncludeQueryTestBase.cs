@@ -468,6 +468,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_outer_apply_with_filter_non_equality(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>().Include(c => c.Orders)
+                      from o in ss.Set<Order>().Where(o => o.CustomerID != c.CustomerID)
+                           .OrderBy(o => c.CustomerID).Take(5).DefaultIfEmpty()
+                      where c.CustomerID.StartsWith("F")
+                      select c,
+                elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
+                entryCount: 71);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_on_join_clause_with_order_by_and_filter(bool async)
         {
             return AssertQuery(

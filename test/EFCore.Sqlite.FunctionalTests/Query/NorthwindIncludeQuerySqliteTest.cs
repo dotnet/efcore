@@ -21,5 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Include_collection_with_outer_apply_with_filter(bool async) => Task.CompletedTask;
 
         public override Task Filtered_include_with_multiple_ordering(bool async) => Task.CompletedTask;
+        public override Task Include_collection_with_outer_apply_with_filter_non_equality(bool async) => Task.CompletedTask;
     }
 }

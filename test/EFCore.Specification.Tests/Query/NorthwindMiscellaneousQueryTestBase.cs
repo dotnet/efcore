@@ -4150,6 +4150,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss =>
+                    (from c in ss.Set<Customer>().Where(c => c.City == "Seattle")
+                     from o1 in ss.Set<Order>().Where(o => o.OrderID > 15000).DefaultIfEmpty()
+                     from o2 in ss.Set<Order>().Where(o => o.OrderID <= c.CustomerID.Length).DefaultIfEmpty()
+                     where o1 != null && o2 != null
+                     orderby o1.OrderID, o2.OrderDate
+                     select new
+                     {
+                         c.CustomerID,
+                         o1.OrderID,
+                         o2.OrderDate
+                     }),
+                e => (e.CustomerID, e.OrderID));
+        }
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_skip_take(bool async)
         {
             return AssertQuery(

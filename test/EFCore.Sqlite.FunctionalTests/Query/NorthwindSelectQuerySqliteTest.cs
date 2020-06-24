@@ -144,6 +144,12 @@ FROM ""Orders"" AS ""o""");
 
         public override Task SelectMany_correlated_with_outer_4(bool async) => null;
 
+        public override Task SelectMany_correlated_with_outer_5(bool async) => null;
+
+        public override Task SelectMany_correlated_with_outer_6(bool async) => null;
+
+        public override Task SelectMany_correlated_with_outer_7(bool async) => null;
+
         public override Task SelectMany_whose_selector_references_outer_source(bool async) => null;
 
         [ConditionalTheory(Skip = "Issue#17324")]

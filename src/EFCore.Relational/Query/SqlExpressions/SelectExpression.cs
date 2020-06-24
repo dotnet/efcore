@@ -28,6 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed class SelectExpression : TableExpressionBase
     {
+        private static readonly Dictionary<ExpressionType, ExpressionType> _mirroredOperationMap = new Dictionary<ExpressionType, ExpressionType>
+        {
+            { ExpressionType.Equal, ExpressionType.Equal },
+            { ExpressionType.NotEqual, ExpressionType.NotEqual },
+            { ExpressionType.LessThan, ExpressionType.GreaterThan },
+            { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThanOrEqual },
+            { ExpressionType.GreaterThan, ExpressionType.LessThan },
+            { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThanOrEqual },
+        };
+
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
 
@@ -1566,14 +1576,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return (NewArrayInit(typeof(object), updatedExpressions), comparers);
         }
 
-        private SqlExpression TryExtractJoinKey(SelectExpression selectExpression)
+        private SqlExpression TryExtractJoinKey(SelectExpression selectExpression, bool allowNonEquality)
         {
             if (selectExpression.Limit == null
                 && selectExpression.Offset == null
                 && selectExpression.Predicate != null)
             {
                 var columnExpressions = new List<ColumnExpression>();
-                var joinPredicate = TryExtractJoinKey(selectExpression, selectExpression.Predicate, columnExpressions, out var predicate);
+                var joinPredicate = TryExtractJoinKey(
+                    selectExpression,
+                    selectExpression.Predicate,
+                    columnExpressions,
+                    allowNonEquality,
+                    out var predicate);
+
                 if (joinPredicate != null)
                 {
                     joinPredicate = RemoveRedundantNullChecks(joinPredicate, columnExpressions);
@@ -1591,11 +1607,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SelectExpression selectExpression,
             SqlExpression predicate,
             List<ColumnExpression> columnExpressions,
+            bool allowNonEquality,
             out SqlExpression updatedPredicate)
         {
             if (predicate is SqlBinaryExpression sqlBinaryExpression)
             {
-                var joinPredicate = ValidateKeyComparison(selectExpression, sqlBinaryExpression, columnExpressions);
+                var joinPredicate = ValidateKeyComparison(selectExpression, sqlBinaryExpression, columnExpressions, allowNonEquality);
                 if (joinPredicate != null)
                 {
                     updatedPredicate = null;
@@ -1606,9 +1623,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
                 {
                     var leftJoinKey = TryExtractJoinKey(
-                        selectExpression, sqlBinaryExpression.Left, columnExpressions, out var leftPredicate);
+                        selectExpression, sqlBinaryExpression.Left, columnExpressions, allowNonEquality, out var leftPredicate);
                     var rightJoinKey = TryExtractJoinKey(
-                        selectExpression, sqlBinaryExpression.Right, columnExpressions, out var rightPredicate);
+                        selectExpression, sqlBinaryExpression.Right, columnExpressions, allowNonEquality, out var rightPredicate);
 
                     updatedPredicate = CombineNonNullExpressions(leftPredicate, rightPredicate);
 
@@ -1629,9 +1646,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 : right;
 
         private SqlBinaryExpression ValidateKeyComparison(
-            SelectExpression inner, SqlBinaryExpression sqlBinaryExpression, List<ColumnExpression> columnExpressions)
+            SelectExpression inner,
+            SqlBinaryExpression sqlBinaryExpression,
+            List<ColumnExpression> columnExpressions,
+            bool allowNonEquality)
         {
-            if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
+            if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
+                || (allowNonEquality && 
+                    (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
+                    || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
+                    || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
+                    || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
+                    || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)))
             {
                 if (sqlBinaryExpression.Left is ColumnExpression leftColumn
                     && sqlBinaryExpression.Right is ColumnExpression rightColumn)
@@ -1649,9 +1675,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     {
                         columnExpressions.Add(rightColumn);
 
-                        return sqlBinaryExpression.Update(
+                        return new SqlBinaryExpression(
+                            _mirroredOperationMap[sqlBinaryExpression.OperatorType],
                             sqlBinaryExpression.Right,
-                            sqlBinaryExpression.Left);
+                            sqlBinaryExpression.Left,
+                            sqlBinaryExpression.Type,
+                            sqlBinaryExpression.TypeMapping);
                     }
                 }
             }
@@ -2024,7 +2053,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 innerSelectExpression.Limit = null;
                 innerSelectExpression.Offset = null;
 
-                joinPredicate = TryExtractJoinKey(innerSelectExpression);
+                joinPredicate = TryExtractJoinKey(innerSelectExpression, allowNonEquality: limit == null && offset == null);
                 if (joinPredicate != null)
                 {
                     var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)

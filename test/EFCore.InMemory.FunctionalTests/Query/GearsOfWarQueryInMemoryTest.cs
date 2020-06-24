@@ -70,5 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "issue #17386")]
         public override Task Client_eval_followed_by_set_operation_throws_meaningful_exception(bool async)
             => base.Client_eval_followed_by_set_operation_throws_meaningful_exception(async);
+
+        [ConditionalTheory(Skip = "issue #17537")]
+        public override Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
+            => base.SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(async);
     }
 }

@@ -1041,7 +1041,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return result;
                 }
 
-                if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
+                    || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
+                    || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
+                    || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
+                    || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
+                    || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)
                 {
                     return Visit(sqlBinaryExpression, allowOptimizedExpansion: true, out _);
                 }
