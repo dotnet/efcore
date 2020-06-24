@@ -58,6 +58,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool CanSetSchema([CanBeNull] string schema, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Sets the value indicating wheather the database function is built-in or not.
+        /// </summary>
+        /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionDbFunctionBuilder IsBuiltIn(bool builtIn, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given built-in can be set for the database function.
+        /// </summary>
+        /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the given schema can be set for the database function. </returns>
+        bool CanSetIsBuiltIn(bool builtIn, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Sets the store type of the function in the database.
         /// </summary>
         /// <param name="storeType"> The store type of the function in the database. </param>

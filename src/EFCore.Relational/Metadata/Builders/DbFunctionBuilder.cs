@@ -71,6 +71,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
+        ///     Marks whether the database function is built-in or not.
+        /// </summary>
+        /// <param name="builtIn"> The value indicating wheather the database function is built-in or not. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual DbFunctionBuilder IsBuiltIn(bool builtIn = true)
+        {
+            Builder.IsBuiltIn(builtIn, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
         ///     Sets the store type of the database function.
         /// </summary>
         /// <param name="storeType"> The store type of the function in the database. </param>

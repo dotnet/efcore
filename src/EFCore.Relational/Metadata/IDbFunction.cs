@@ -26,6 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Schema { get; }
 
         /// <summary>
+        ///     Gets the value indicating wheather the database function is built-in or not.
+        /// </summary>
+        bool IsBuiltIn { get; }
+
+        /// <summary>
         ///     Gets the name of the function in the model.
         /// </summary>
         string ModelName { get; }

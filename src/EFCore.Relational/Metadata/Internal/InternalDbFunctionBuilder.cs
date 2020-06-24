@@ -95,6 +95,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IConventionDbFunctionBuilder IsBuiltIn(bool builtIn, ConfigurationSource configurationSource)
+        {
+            if (CanSetIsBuiltIn(builtIn, configurationSource))
+            {
+                Metadata.SetIsBuiltIn(builtIn, configurationSource);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetIsBuiltIn(bool builtIn, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(Metadata.GetIsBuiltInConfigurationSource())
+                || Metadata.IsBuiltIn == builtIn;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IConventionDbFunctionBuilder HasStoreType([CanBeNull] string storeType, ConfigurationSource configurationSource)
         {
             if (CanSetStoreType(storeType, configurationSource))
@@ -217,6 +244,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         [DebuggerStepThrough]
         bool IConventionDbFunctionBuilder.CanSetSchema(string schema, bool fromDataAnnotation)
             => CanSetSchema(schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.IsBuiltIn(bool builtIn, bool fromDataAnnotation)
+            => IsBuiltIn(builtIn, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        bool IConventionDbFunctionBuilder.CanSetIsBuiltIn(bool builtIn, bool fromDataAnnotation)
+            => CanSetIsBuiltIn(builtIn, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]

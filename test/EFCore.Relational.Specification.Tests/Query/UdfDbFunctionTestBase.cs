@@ -94,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Fall
             }
 
+            [DbFunction(Name = "len", IsBuiltIn = true)]
             public static long MyCustomLengthStatic(string s) => throw new Exception();
             public static bool IsDateStatic(string date) => throw new Exception();
             public static int AddOneStatic(int num) => num + 1;
@@ -220,15 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetSqlFragmentStatic)))
                     .HasTranslation(args => new SqlFragmentExpression("'Two'"));
                 var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic));
-                modelBuilder.HasDbFunction(isDateMethodInfo)
-                    .HasTranslation(args => new SqlFunctionExpression(
-                        "IsDate", args, nullable: true, argumentsPropagateNullability: args.Select(a => true).ToList(), isDateMethodInfo.ReturnType, null));
-
-                var methodInfo = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthStatic));
-
-                modelBuilder.HasDbFunction(methodInfo)
-                    .HasTranslation(args => new SqlFunctionExpression(
-                        "len", args, nullable: true, argumentsPropagateNullability: args.Select(a => true).ToList(), methodInfo.ReturnType, null));
+                modelBuilder.HasDbFunction(isDateMethodInfo).HasName("IsDate").IsBuiltIn();
 
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), new[] { typeof(int), typeof(int) }));
 
@@ -244,27 +237,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateInstance)))
                     .HasName("GetReportingPeriodStartDate");
                 var isDateMethodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(IsDateInstance));
-                modelBuilder.HasDbFunction(isDateMethodInfo2)
-                    .HasTranslation(args => new SqlFunctionExpression(
-                        "IsDate",
-                        args,
-                        nullable: true,
-                        argumentsPropagateNullability: args.Select(a => true).ToList(),
-                        isDateMethodInfo2.ReturnType,
-                        null));
+                modelBuilder.HasDbFunction(isDateMethodInfo2).HasName("IsDate").IsBuiltIn();
 
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(DollarValueInstance))).HasName("DollarValue");
 
                 var methodInfo2 = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLengthInstance));
 
-                modelBuilder.HasDbFunction(methodInfo2)
-                    .HasTranslation(args => new SqlFunctionExpression(
-                        "len",
-                        args,
-                        nullable: true,
-                        argumentsPropagateNullability: args.Select(a => true).ToList(),
-                        methodInfo2.ReturnType,
-                        null));
+                modelBuilder.HasDbFunction(methodInfo2).HasName("len").IsBuiltIn();
 
                 modelBuilder.Entity<MultProductOrders>().ToTable("MultProductOrders").HasKey(mpo => mpo.OrderId);
 
