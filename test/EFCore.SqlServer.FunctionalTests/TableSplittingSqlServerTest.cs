@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
             // TODO: [Name] shouldn't be selected multiple times and no joins are needed
             AssertSql(
-    @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t1].[Name], [t1].[Type], [t3].[Name], [t3].[Description], [t3].[Engine_Discriminator], [t7].[Name], [t7].[Capacity], [t7].[FuelTank_Discriminator], [t7].[FuelType], [t7].[GrainGeometry]
+                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t1].[Name], [t1].[Type], [t3].[Name], [t3].[Description], [t3].[Engine_Discriminator], [t7].[Name], [t7].[Capacity], [t7].[FuelTank_Discriminator], [t7].[FuelType], [t7].[GrainGeometry]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
@@ -72,6 +72,7 @@ LEFT JOIN (
         ) AS [t5] ON [v10].[Name] = [t5].[Name]
         WHERE [v10].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
     ) AS [t6] ON [v9].[Name] = [t6].[Name]
+    WHERE [v9].[FuelTank_Discriminator] IS NOT NULL
 ) AS [t7] ON [t3].[Name] = [t7].[Name]
 ORDER BY [v].[Name]");
         }
@@ -152,7 +153,8 @@ INNER JOIN (
         WHERE [v3].[Discriminator] = N'PoweredVehicle'
     ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
-) AS [t1] ON [v1].[Name] = [t1].[Name]");
+) AS [t1] ON [v1].[Name] = [t1].[Name]
+WHERE [v1].[FuelTank_Discriminator] IS NOT NULL");
         }
 
         public override void Can_query_shared_derived_nonhierarchy()
@@ -180,7 +182,8 @@ INNER JOIN (
         WHERE [v3].[Discriminator] = N'PoweredVehicle'
     ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
-) AS [t1] ON [v1].[Name] = [t1].[Name]");
+) AS [t1] ON [v1].[Name] = [t1].[Name]
+WHERE [v1].[FuelType] IS NOT NULL OR [v1].[Capacity] IS NOT NULL");
         }
 
         public override void Can_query_shared_derived_nonhierarchy_all_required()
@@ -208,7 +211,8 @@ INNER JOIN (
         WHERE [v3].[Discriminator] = N'PoweredVehicle'
     ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
-) AS [t1] ON [v1].[Name] = [t1].[Name]");
+) AS [t1] ON [v1].[Name] = [t1].[Name]
+WHERE [v1].[FuelType] IS NOT NULL AND [v1].[Capacity] IS NOT NULL");
         }
 
         public override void Can_change_dependent_instance_non_derived()
