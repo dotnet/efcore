@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersInheritanceInMemoryFixture : InheritanceInMemoryFixture
+    public class FiltersInheritanceQuerySqliteFixture : InheritanceQuerySqliteFixture
     {
         protected override bool EnableFilters => true;
     }

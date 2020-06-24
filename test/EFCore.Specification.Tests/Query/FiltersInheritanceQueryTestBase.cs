@@ -11,10 +11,10 @@ using Xunit;
 // ReSharper disable ConvertMethodToExpressionBody
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class FiltersInheritanceTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : InheritanceFixtureBase, new()
+    public abstract class FiltersInheritanceQueryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : InheritanceQueryFixtureBase, new()
     {
-        protected FiltersInheritanceTestBase(TFixture fixture) => Fixture = fixture;
+        protected FiltersInheritanceQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 

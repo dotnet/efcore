@@ -14,10 +14,10 @@ using Xunit;
 // ReSharper disable StringEndsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : InheritanceFixtureBase, new()
+    public abstract class InheritanceQueryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : InheritanceQueryFixtureBase, new()
     {
-        protected InheritanceTestBase(TFixture fixture) => Fixture = fixture;
+        protected InheritanceQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 

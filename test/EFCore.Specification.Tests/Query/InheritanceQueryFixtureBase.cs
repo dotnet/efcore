@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceFixtureBase : SharedStoreFixtureBase<InheritanceContext>
+    public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>
     {
         protected override string StoreName { get; } = "InheritanceTest";
         protected virtual bool EnableFilters => false;
