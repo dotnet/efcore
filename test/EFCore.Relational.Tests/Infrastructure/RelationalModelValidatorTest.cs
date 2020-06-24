@@ -353,15 +353,60 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Passes_for_compatible_shared_table_inverted()
+        public virtual void Passes_for_compatible_excluded_shared_table_inverted()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
-            modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().ToTable("Table");
+            modelBuilder.Entity<A>().ToTable("Table", excludedFromMigrations: true);
+            modelBuilder.Entity<B>().ToTable("Table", excludedFromMigrations: true);
 
             Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_for_compatible_excluded_shared_table_owned()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<B>().OwnsOne(b => b.A);
+            modelBuilder.Entity<B>().ToTable("Table", excludedFromMigrations: true);
+
+            var model = Validate(modelBuilder.Model);
+
+            var b = model.FindEntityType(typeof(B));
+            Assert.Equal("Table", b.GetTableName());
+            Assert.True(b.IsTableExcludedFromMigrations());
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_for_compatible_excluded_table_derived()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().ToTable("Table", excludedFromMigrations: true);
+            modelBuilder.Entity<C>();
+
+            var model = Validate(modelBuilder.Model);
+
+            var c = model.FindEntityType(typeof(C));
+            Assert.Equal("Table", c.GetTableName());
+            Assert.True(c.IsTableExcludedFromMigrations());
+        }
+
+        [ConditionalFact]
+        public virtual void Detect_partially_excluded_shared_table()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table", excludedFromMigrations: true);
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(
+                RelationalStrings.IncompatibleTableExcludedMismatch(
+                    nameof(Table), nameof(A), nameof(B)),
+                modelBuilder.Model);
         }
 
         [ConditionalFact]

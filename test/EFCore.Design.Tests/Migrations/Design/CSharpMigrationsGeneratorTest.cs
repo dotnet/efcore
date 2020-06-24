@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         _nl
                         + "modelBuilder."
                         + nameof(RelationalEntityTypeBuilderExtensions.ToTable)
-                        + @"(""WithAnnotations"",""MySchema"");"
+                        + @"(""WithAnnotations"", ""MySchema"");"
                         + _nl)
                 },
                 {

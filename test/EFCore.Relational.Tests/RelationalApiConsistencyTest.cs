@@ -123,7 +123,8 @@ namespace Microsoft.EntityFrameworkCore
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
             {
                 typeof(IDbFunction).GetMethod("get_ReturnEntityType"),
-                typeof(RelationalPropertyExtensions).GetMethod(nameof(RelationalPropertyExtensions.FindOverrides))
+                typeof(RelationalPropertyExtensions).GetMethod(nameof(RelationalPropertyExtensions.FindOverrides)),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations))
             };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>

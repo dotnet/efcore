@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -101,8 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             databaseModel.Tables.Add((mappedTable, mappedSchema), table);
                         }
 
-                        table.IsExcludedFromMigrations = table.IsExcludedFromMigrations
-                            && entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql) != null;
+                        if (mappedType == entityType)
+                        {
+                            Check.DebugAssert(table.EntityTypeMappings.Count == 0
+                                || table.IsExcludedFromMigrations == entityType.IsTableExcludedFromMigrations(),
+                                "Table should be excluded on all entity types");
+
+                            table.IsExcludedFromMigrations = entityType.IsTableExcludedFromMigrations();
+                        }
 
                         var tableMapping = new TableMapping(entityType, table, includesDerivedTypes: true);
                         foreach (var property in mappedType.GetProperties())

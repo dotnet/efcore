@@ -594,37 +594,65 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.View).Cast<IConventionForeignKey>();
 
         /// <summary>
-        ///     Gets a value indicating whether the entity type is ignored by Migrations.
+        ///     Gets a value indicating whether the associated table is ignored by Migrations.
         /// </summary>
         /// <param name="entityType">The entity type.</param>
-        /// <returns>A value indicating whether the entity type is ignored by Migrations.</returns>
-        public static bool IsIgnoredByMigrations([NotNull] this IEntityType entityType)
+        /// <returns>A value indicating whether the associated table is ignored by Migrations.</returns>
+        public static bool IsTableExcludedFromMigrations([NotNull] this IEntityType entityType)
         {
-            if (entityType.BaseType != null
-                && entityType.BaseType.IsIgnoredByMigrations())
+            var excluded = (bool?)entityType[RelationalAnnotationNames.IsTableExcludedFromMigrations];
+            if (excluded != null)
             {
-                return true;
+                return excluded.Value;
             }
 
-            if (entityType.GetTableName() != null)
+            if (entityType.FindAnnotation(RelationalAnnotationNames.TableName) != null)
             {
                 return false;
             }
 
-            var viewDefinitionSql = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql);
-            if (viewDefinitionSql?.Value != null)
+            if (entityType.BaseType != null)
             {
-                return false;
+                return entityType.GetRootType().IsTableExcludedFromMigrations();
             }
 
             var ownership = entityType.FindOwnership();
             if (ownership != null
                 && ownership.IsUnique)
             {
-                return ownership.PrincipalEntityType.IsIgnoredByMigrations();
+                return ownership.PrincipalEntityType.IsTableExcludedFromMigrations();
             }
 
-            return true;
+            return false;
         }
+
+        /// <summary>
+        ///     Sets a value indicating whether the associated table is ignored by Migrations.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="excluded" > A value indicating whether the associated table is ignored by Migrations. </param>
+        public static void SetIsTableExcludedFromMigrations([NotNull] this IMutableEntityType entityType, bool? excluded)
+            => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.IsTableExcludedFromMigrations, excluded);
+
+        /// <summary>
+        ///     Sets a value indicating whether the associated table is ignored by Migrations.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="excluded"> A value indicating whether the associated table is ignored by Migrations. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsTableExcludedFromMigrations(
+            [NotNull] this IConventionEntityType entityType,  bool? excluded, bool fromDataAnnotation = false)
+            => (bool?)entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.IsTableExcludedFromMigrations, excluded, fromDataAnnotation)
+                ?.Value;
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations"/>.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations"/>. </returns>
+        public static ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(RelationalAnnotationNames.IsTableExcludedFromMigrations)
+                ?.GetConfigurationSource();
     }
 }
