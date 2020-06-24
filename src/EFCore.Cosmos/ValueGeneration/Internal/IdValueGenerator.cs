@@ -45,13 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                 builder.Append("|");
             }
 
-            var partitionKey = entityType.GetPartitionKeyPropertyName();
             foreach (var property in primaryKey.Properties)
             {
-                if (property.Name == partitionKey)
-                {
-                    continue;
-                }
 
                 var value = entry.Property(property.Name).CurrentValue;
 
@@ -66,7 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                 builder.Append("|");
             }
 
-            builder.Remove(builder.Length - 1, 1);
+            if (builder.Length > 1)
+            {
+                builder.Remove(builder.Length - 1, 1);
+            }
+            else
+            {
+                builder.Append("null");
+            }
 
             return builder.ToString();
         }
