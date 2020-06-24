@@ -5775,6 +5775,30 @@ WHERE [l0].[Id] IS NOT NULL
 GROUP BY [l].[Id], [l].[Date], [l].[Name], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l1].[Name]");
         }
 
+        public override async Task GroupBy_aggregate_where_required_relationship(bool async)
+        {
+            await base.GroupBy_aggregate_where_required_relationship(async);
+
+            AssertSql(
+                @"SELECT [l0].[Id] AS [Key], MAX([l].[Id]) AS [Max]
+FROM [LevelTwo] AS [l]
+INNER JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Required_Inverse2Id] = [l0].[Id]
+GROUP BY [l0].[Id]
+HAVING (MAX([l].[Id]) <> 2) OR MAX([l].[Id]) IS NULL");
+        }
+
+        public override async Task GroupBy_aggregate_where_required_relationship_2(bool async)
+        {
+            await base.GroupBy_aggregate_where_required_relationship_2(async);
+
+            AssertSql(
+                @"SELECT [l0].[Id] AS [Key], MAX([l].[Id]) AS [Max]
+FROM [LevelTwo] AS [l]
+INNER JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Required_Inverse2Id] = [l0].[Id]
+GROUP BY [l0].[Id]
+HAVING (MAX([l].[Id]) < 2) OR (MAX([l].[Id]) > 2)");
+        }
+
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

@@ -1886,6 +1886,50 @@ GROUP BY [c].[City]
 ORDER BY COUNT(*) DESC, [c].[City]");
         }
 
+        public override async Task GroupBy_let_orderby_projection_with_coalesce_operation(bool async)
+        {
+            await base.GroupBy_let_orderby_projection_with_coalesce_operation(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task GroupBy_Min_Where_optional_relationship(bool async)
+        {
+            await base.GroupBy_Min_Where_optional_relationship(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Key], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [c].[CustomerID]
+HAVING COUNT(*) <> 2");
+        }
+
+        public override async Task GroupBy_Min_Where_optional_relationship_2(bool async)
+        {
+            await base.GroupBy_Min_Where_optional_relationship_2(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Key], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [c].[CustomerID]
+HAVING (COUNT(*) < 2) OR (COUNT(*) > 2)");
+        }
+
+        public override async Task GroupBy_aggregate_over_a_subquery(bool async)
+        {
+            await base.GroupBy_aggregate_over_a_subquery(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], (
+    SELECT COUNT(*)
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Count]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
         public override async Task GroupBy_with_grouping_key_using_Like(bool async)
         {
             await base.GroupBy_with_grouping_key_using_Like(async);

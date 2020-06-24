@@ -2166,6 +2166,45 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Min_Where_optional_relationship(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => o.Customer.CustomerID)
+                    .Select(g => new { g.Key, Count = g.Count() })
+                    .Where(x => x.Count != 2));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Min_Where_optional_relationship_2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => o.Customer.CustomerID)
+                    .Select(g => new { g.Key, Count = g.Count() })
+                    .Where(x => x.Count < 2 || x.Count > 2));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_over_a_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => o.CustomerID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Count = (from c in ss.Set<Customer>() where c.CustomerID == g.Key select c).Count()
+                    }));
+        }
+
         #endregion
 
         #region GroupByWithoutAggregate

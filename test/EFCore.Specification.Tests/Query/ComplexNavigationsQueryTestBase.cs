@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -5491,6 +5492,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                     },
                     Aggregate = g.Sum(x => x.Name.Length)
                 }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_where_required_relationship(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level2>()
+                        .GroupBy(l2 => l2.OneToMany_Required_Inverse2.Id)
+                        .Select(g => new { g.Key, Max = g.Max(e => e.Id) })
+                        .Where(x => x.Max != 2));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_where_required_relationship_2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level2>()
+                        .GroupBy(l2 => l2.OneToMany_Required_Inverse2.Id)
+                        .Select(g => new { g.Key, Max = g.Max(e => e.Id) })
+                        .Where(x => x.Max < 2 || x.Max > 2));
         }
     }
 }
