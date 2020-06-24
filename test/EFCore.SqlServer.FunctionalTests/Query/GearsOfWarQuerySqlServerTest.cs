@@ -23,14 +23,34 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override bool CanExecuteQueryString => true;
 
-        public override async Task Negate_binary_expression(bool async)
+        public override async Task Negate_on_binary_expression(bool async)
         {
-            await base.Negate_binary_expression(async);
+            await base.Negate_on_binary_expression(async);
 
             AssertSql(
                 @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
 WHERE [s].[Id] = -([s].[Id] + [s].[Id])");
+        }
+
+        public override async Task Negate_on_column(bool async)
+        {
+            await base.Negate_on_column(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE [s].[Id] = -[s].[Id]");
+        }
+
+        public override async Task Negate_on_like_expression(bool async)
+        {
+            await base.Negate_on_like_expression(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE [s].[Name] IS NOT NULL AND NOT ([s].[Name] LIKE N'us%')");
         }
 
         public override async Task Entity_equality_empty(bool async)
