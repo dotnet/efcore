@@ -547,7 +547,7 @@
     <value>Cannot set custom translation on the DbFunction '{function}' since it is a table valued function.</value>
   </data>
   <data name="DbFunctionInvalidIQueryableReturnType" xml:space="preserve">
-    <value>The DbFunction '{function}' has an invalid return type '{type}'. Only functions that return IQueryable of entity type are supported.</value>
+    <value>The DbFunction '{function}' has an invalid return type '{type}'. Non-scalar functions must return IQueryable of a valid entity type.</value>
   </data>
   <data name="DbFunctionInvalidIQueryableOwnedReturnType" xml:space="preserve">
     <value>The DbFunction '{function}' has an invalid return type '{type}'. Owned entity types cannot be used as the return type of a DbFunction.</value>
@@ -663,5 +663,20 @@
   <data name="LogMultipleCollectionIncludeWarning" xml:space="preserve">
     <value>Compiling a query which loads related collections for more than one collection navigation property either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default EF Core will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call .ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.LogTooManyIncludesWarning))</value>
     <comment>Warning RelationalEventId.MultipleCollectionIncludeWarning</comment>
+  </data>
+  <data name="DbFunctionInvalidReturnEntityType" xml:space="preserve">
+    <value>The DbFunction '{function}' returns '{type}', but `{elementType}` is not a mapped entity type. Ensure that `{elementType}` is included in the model.</value>
+  </data>
+  <data name="InvalidMappedFunctionDerivedType" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' and it's derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.</value>
+  </data>
+  <data name="InvalidMappedFunctionUnmatchedReturn" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with return type '{returnType}'. Ensure that mapped function returns `IQueryable&lt;{clrType}&gt;`.</value>
+  </data>
+  <data name="InvalidMappedFunctionWithParameters" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with parameters {parameters}. Ensure that mapped function doesn't have any parameters.</value>
+  </data>
+  <data name="MappedFunctionNotFound" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.</value>
   </data>
 </root>

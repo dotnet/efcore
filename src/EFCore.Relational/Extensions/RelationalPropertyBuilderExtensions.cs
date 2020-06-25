@@ -253,6 +253,73 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Configures the column that the property maps to in a table-valued function in a relational database.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder HasFunctionColumnName(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            [CanBeNull] string name)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+            Check.NullButNotEmpty(name, nameof(name));
+
+            propertyBuilder.Metadata.SetFunctionColumnName(name);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the column that the property maps to in a table-valued function in a relational database.
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> HasFunctionColumnName<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string name)
+            => (PropertyBuilder<TProperty>)HasFunctionColumnName((PropertyBuilder)propertyBuilder, name);
+
+        /// <summary>
+        ///     Configures the column that the property maps to in a table-valued function in a relational database.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionPropertyBuilder HasFunctionColumnName(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
+        {
+            if (!propertyBuilder.CanSetFunctionColumnName(name, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            propertyBuilder.Metadata.SetViewColumnName(name, fromDataAnnotation);
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given table-valued function column can be set for the property.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="name"> The name of the column. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the property can be mapped to the given column. </returns>
+        public static bool CanSetFunctionColumnName(
+            [NotNull] this IConventionPropertyBuilder propertyBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
+            => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.FunctionColumnName, name, fromDataAnnotation);
+
+        /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>

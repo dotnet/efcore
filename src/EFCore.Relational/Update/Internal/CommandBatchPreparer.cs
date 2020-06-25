@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
                 var mappingCount = mappings.Count;
-                ModificationCommand mainCommand = null;
+                ModificationCommand firstCommand = null;
                 var relatedCommands = mappingCount > 1 ? new List<ModificationCommand>(mappingCount - 1) : null;
                 foreach (var mapping in mappings)
                 {
@@ -211,10 +211,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     command.AddEntry(entry, isMainEntry);
                     commands.Add(command);
 
-                    if (mapping.IsMainTableMapping)
+                    if (firstCommand == null)
                     {
-                        Check.DebugAssert(mainCommand == null, "mainCommand == null");
-                        mainCommand = command;
+                        Check.DebugAssert(firstCommand == null, "mainCommand == null");
+                        firstCommand = command;
                     }
                     else if (relatedCommands != null)
                     {
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     }
                 }
 
-                if (mainCommand == null)
+                if (firstCommand == null)
                 {
                     throw new InvalidOperationException(RelationalStrings.ReadonlyEntitySaved(entry.EntityType.DisplayName()));
                 }
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     foreach (var relatedCommand in relatedCommands)
                     {
-                        relatedCommand.Predecessor = mainCommand;
+                        relatedCommand.Predecessor = firstCommand;
                     }
                 }
             }

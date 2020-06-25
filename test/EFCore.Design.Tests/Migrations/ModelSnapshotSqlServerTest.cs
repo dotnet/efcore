@@ -481,6 +481,61 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
         }
 
+        private class TestKeylessType
+        {
+            public string Something { get; set; }
+        }
+
+        private static IQueryable<TestKeylessType> GetCountByYear(int id)
+            => throw new NotImplementedException();
+
+        [ConditionalFact]
+        public void TVF_types_are_stored_in_the_model_snapshot()
+        {
+            Test(
+                builder =>
+                    {
+                        builder.HasDbFunction(typeof(ModelSnapshotSqlServerTest).GetMethod(
+                          nameof(GetCountByYear),
+                          BindingFlags.NonPublic | BindingFlags.Static));
+
+                        builder.Entity<TestKeylessType>().HasNoKey();
+                    },
+
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestKeylessType"", b =>
+                {
+                    b.Property<string>(""Something"")
+                        .HasColumnType(""nvarchar(max)"");
+                });"),
+                o => Assert.Null(o.GetEntityTypes().Single().GetFunctionName()));
+        }
+
+        [ConditionalFact]
+        public void Entity_types_mapped_to_functions_are_stored_in_the_model_snapshot()
+        {
+            Test(
+                builder =>
+                    builder.Entity<TestKeylessType>(kb => {
+                        kb.Property(k => k.Something).HasFunctionColumnName("SomethingElse");
+                        kb.HasNoKey().ToFunction("GetCount");
+                    }),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestKeylessType"", b =>
+                {
+                    b.Property<string>(""Something"")
+                        .HasColumnType(""nvarchar(max)"")
+                        .HasFunctionColumnName(""SomethingElse"");
+
+                    b.ToFunction(""GetCount"");
+                });"),
+                o => Assert.Equal("GetCount", o.GetEntityTypes().Single().GetFunctionName()));
+        }
+
         [ConditionalFact]
         public virtual void Sequence_is_stored_in_snapshot_as_fluent_api()
         {

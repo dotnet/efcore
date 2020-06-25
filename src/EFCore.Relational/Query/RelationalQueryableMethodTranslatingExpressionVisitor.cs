@@ -103,15 +103,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var sqlArgument = TranslateExpression(arg);
                         if (sqlArgument == null)
                         {
-                            var methodCall = Expression.Call(
-                                Expression.Constant(null, function.MethodInfo.DeclaringType),
-                                function.MethodInfo,
-                                tableValuedFunctionQueryRootExpression.Arguments);
+                            string call;
+                            var methodInfo = function.DbFunctions.Last().MethodInfo;
+                            if (methodInfo != null)
+                            {
+                                var methodCall = Expression.Call(
+                                    Expression.Constant(null, methodInfo.DeclaringType),
+                                    methodInfo,
+                                    tableValuedFunctionQueryRootExpression.Arguments);
+
+                                call = methodCall.Print();
+                            }
+                            else
+                            {
+                                call = $"{function.DbFunctions.Last().Name}()";
+                            }
 
                             throw new InvalidOperationException(
                                 TranslationErrorDetails == null
-                                    ? CoreStrings.TranslationFailed(methodCall.Print())
-                                    : CoreStrings.TranslationFailedWithDetails(methodCall.Print(), TranslationErrorDetails));
+                                    ? CoreStrings.TranslationFailed(call)
+                                    : CoreStrings.TranslationFailedWithDetails(call, TranslationErrorDetails));
                         }
 
                         arguments.Add(sqlArgument);

@@ -16,12 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class TableValuedDbFunctionConventionTest
     {
         [ConditionalFact]
-        public void Configures_return_entity_as_not_mapped_keyless()
+        public void Configures_return_entity_as_not_mapped()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.HasDbFunction(typeof(TableValuedDbFunctionConventionTest).GetMethod(
                         nameof(GetKeylessEntities),
                         BindingFlags.NonPublic | BindingFlags.Static));
+
+            modelBuilder.Entity<KeylessEntity>().HasNoKey();
 
             var model = modelBuilder.FinalizeModel();
 
@@ -59,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
-                    nameof(GetKeylessEntities), typeof(IQueryable<KeylessEntity>).ShortDisplayName()),
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(System.Int32)",
+                    typeof(KeylessEntity).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
@@ -74,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
-                    nameof(GetKeylessEntities), typeof(IQueryable<KeylessEntity>).ShortDisplayName()),
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(System.Int32)",
+                    typeof(KeylessEntity).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
@@ -88,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableReturnType(
-                    nameof(GetScalars), typeof(IQueryable<int>).ShortDisplayName()),
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetScalars(System.Int32)",
+                    typeof(IQueryable<int>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 

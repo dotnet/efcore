@@ -253,6 +253,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
 
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
+
+                modelBuilder.Entity<OrderByYear>().HasNoKey();
+                modelBuilder.Entity<TopSellingProduct>().HasNoKey();
             }
         }
 

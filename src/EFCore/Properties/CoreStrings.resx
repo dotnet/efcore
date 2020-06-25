@@ -1421,4 +1421,7 @@
   <data name="UnhandledNavigationBase" xml:space="preserve">
     <value>Unhandled 'INavigationBase' of type '{type}'.</value>
   </data>
+  <data name="PrincipalKeylessType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be on the principal end of the relationship between '{firstNavigationSpecification}' and '{secondNavigationSpecification}'. The principal entity type must have a key.</value>
+  </data>
 </root>

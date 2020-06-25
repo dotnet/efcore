@@ -1306,16 +1306,31 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
+            modelBuilder.HasDbFunction(TestMethods.MethodCMi);
+
+            VerifyError(
+                RelationalStrings.DbFunctionInvalidReturnType(
+                    "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods.MethodC()",
+                    typeof(TestMethods).ShortDisplayName()),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Detects_function_with_unmapped_return_type()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+
             var methodInfo
-                = typeof(DbFunctionMetadataTests.TestMethods)
-                    .GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodD), Array.Empty<Type>());
+                = typeof(TestMethods)
+                    .GetRuntimeMethod(nameof(TestMethods.MethodA), Array.Empty<Type>());
 
             modelBuilder.HasDbFunction(methodInfo);
 
             VerifyError(
-                RelationalStrings.DbFunctionInvalidReturnType(
-                    methodInfo.DisplayName(),
-                    typeof(DbFunctionMetadataTests.TestMethods).ShortDisplayName()),
+                RelationalStrings.DbFunctionInvalidReturnEntityType(
+                    "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods.MethodA()",
+                    typeof(IQueryable<TestMethods>).ShortDisplayName(),
+                    typeof(TestMethods).ShortDisplayName()),
                 modelBuilder.Model);
         }
 
@@ -1324,18 +1339,139 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            var methodInfo
-                = typeof(DbFunctionMetadataTests.TestMethods)
-                    .GetRuntimeMethod(nameof(DbFunctionMetadataTests.TestMethods.MethodF),
-                        new[] { typeof(DbFunctionMetadataTests.MyBaseContext) });
-
-            modelBuilder.HasDbFunction(methodInfo);
+            modelBuilder.HasDbFunction(TestMethods.MethodDMi);
 
             VerifyError(
                 RelationalStrings.DbFunctionInvalidParameterType(
-                    "context",
-                    methodInfo.DisplayName(),
-                    typeof(DbFunctionMetadataTests.MyBaseContext).ShortDisplayName()),
+                    "methods",
+                    "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods.MethodD(Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods)",
+                    typeof(TestMethods).ShortDisplayName()),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Passes_for_valid_entity_type_mapped_to_function()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var methodInfo
+                = typeof(TestMethods)
+                    .GetRuntimeMethod(nameof(TestMethods.MethodA), Array.Empty<Type>());
+
+            var function = modelBuilder.HasDbFunction(methodInfo).Metadata;
+
+            modelBuilder.Entity<TestMethods>().HasNoKey().ToFunction(function.ModelName);
+
+            var model = Validate(modelBuilder.Model);
+
+            Assert.Single(model.GetEntityTypes());
+            Assert.Single(model.GetDbFunctions());
+        }
+
+        [ConditionalFact]
+        public void Detects_entity_type_mapped_to_non_existent_function()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<TestMethods>().HasNoKey().ToFunction("NonExistent");
+
+            modelBuilder.Model.RemoveDbFunction("NonExistent");
+
+            VerifyError(
+                RelationalStrings.MappedFunctionNotFound(nameof(TestMethods), "NonExistent"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Detects_entity_type_mapped_to_a_scalar_function()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var function = modelBuilder.HasDbFunction(TestMethods.MethodEMi).Metadata;
+
+            modelBuilder.Entity<TestMethods>().HasNoKey().ToFunction(function.ModelName);
+
+            VerifyError(
+                RelationalStrings.InvalidMappedFunctionUnmatchedReturn(
+                    nameof(TestMethods),
+                    "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods.MethodE()",
+                    "int",
+                    nameof(TestMethods)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Detects_entity_type_mapped_to_a_different_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var function = modelBuilder.HasDbFunction(TestMethods.MethodAMi).Metadata;
+
+            modelBuilder.Entity<Animal>().HasNoKey().ToFunction(function.ModelName);
+            modelBuilder.Entity<TestMethods>().HasNoKey();
+
+            VerifyError(
+                RelationalStrings.InvalidMappedFunctionUnmatchedReturn(
+                    nameof(Animal),
+                    "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods.MethodA()",
+                    typeof(IQueryable<TestMethods>).ShortDisplayName(),
+                    nameof(Animal)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Detects_entity_type_mapped_to_a_function_with_parameters()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var function = modelBuilder.HasDbFunction(TestMethods.MethodBMi).Metadata;
+
+            modelBuilder.Entity<TestMethods>().HasNoKey().ToFunction(function.ModelName);
+
+            VerifyError(
+                RelationalStrings.InvalidMappedFunctionWithParameters(
+                    nameof(TestMethods),
+                    "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods.MethodB(System.Int32)",
+                    "{'id'}"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Detects_multiple_entity_types_mapped_to_the_same_function()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var function = modelBuilder.HasDbFunction(TestMethods.MethodAMi).Metadata;
+
+            modelBuilder.Entity<DerivedTestMethods>(db =>
+            {
+                db.HasBaseType((string)null);
+                db.OwnsOne(d => d.SomeTestMethods).ToFunction(function.ModelName);
+                db.OwnsOne(d => d.OtherTestMethods).ToFunction(function.ModelName);
+            });
+
+            VerifyError(
+                RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
+                    "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods.MethodA()",
+                    nameof(TestMethods)),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public void Detects_derived_entity_type_mapped_to_a_function()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var function = modelBuilder.HasDbFunction(TestMethods.MethodAMi).Metadata;
+
+            modelBuilder.Entity<BaseTestMethods>().HasNoKey();
+            modelBuilder.Entity<TestMethods>().ToFunction(function.ModelName);
+
+            VerifyError(
+                RelationalStrings.InvalidMappedFunctionDerivedType(
+                    nameof(TestMethods),
+                    "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+TestMethods.MethodA()",
+                    nameof(BaseTestMethods)),
                 modelBuilder.Model);
         }
 
@@ -1573,6 +1709,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 : base(convertToProviderExpression, convertFromProviderExpression)
             {
             }
+        }
+
+        private class BaseTestMethods
+        {
+        }
+
+        private class DerivedTestMethods : TestMethods
+        {
+            public int Id { get; set; }
+            public TestMethods SomeTestMethods { get; set; }
+            public TestMethods OtherTestMethods { get; set; }
+        }
+
+        private class TestMethods : BaseTestMethods
+        {
+            public static readonly MethodInfo MethodAMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodA));
+            public static readonly MethodInfo MethodBMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodB));
+            public static readonly MethodInfo MethodCMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodC));
+            public static readonly MethodInfo MethodDMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodD));
+            public static readonly MethodInfo MethodEMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodE));
+
+            public static IQueryable<TestMethods> MethodA() => throw new NotImplementedException();
+            public static IQueryable<TestMethods> MethodB(int id) => throw new NotImplementedException();
+            public static TestMethods MethodC() => throw new NotImplementedException();
+            public static int MethodD(TestMethods methods) => throw new NotImplementedException();
+            public static int MethodE() => throw new NotImplementedException();
         }
 
         protected virtual ModelBuilder CreateModelBuilderWithoutConvention<T>(

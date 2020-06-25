@@ -1,14 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -16,9 +14,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class TableValuedFunctionToQueryRootConvertingExpressionVisitor : ExpressionVisitor
+    public class FunctionColumnMapping : Annotatable, IFunctionColumnMapping
     {
-        private readonly IModel _model;
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public FunctionColumnMapping(
+            [NotNull] IProperty property,
+            [NotNull] FunctionColumn column,
+            [NotNull] RelationalTypeMapping typeMapping,
+            [NotNull] FunctionMapping viewMapping)
+        {
+            Property = property;
+            Column = column;
+            TypeMapping = typeMapping;
+            FunctionMapping = viewMapping;
+        }
+
+        /// <inheritdoc/>
+        public virtual IProperty Property { get; }
+
+        /// <inheritdoc/>
+        public virtual IFunctionColumn Column { get; }
+
+        /// <inheritdoc/>
+        public virtual RelationalTypeMapping TypeMapping { get; }
+
+        /// <inheritdoc/>
+        public virtual IFunctionMapping FunctionMapping { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,31 +52,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TableValuedFunctionToQueryRootConvertingExpressionVisitor([NotNull] IModel model)
-        {
-            Check.NotNull(model, nameof(model));
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-            _model = model;
+        /// <inheritdoc/>
+        IColumnBase IColumnMappingBase.Column
+        {
+            [DebuggerStepThrough]
+            get => Column;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        /// <inheritdoc/>
+        ITableMappingBase IColumnMappingBase.TableMapping
         {
-            var function = _model.FindDbFunction(methodCallExpression.Method);
-
-            return function?.IsScalar == false
-                ? CreateTableValuedFunctionQueryRootExpression(function.StoreFunction, methodCallExpression.Arguments)
-                : base.VisitMethodCall(methodCallExpression);
+            [DebuggerStepThrough]
+            get => FunctionMapping;
         }
-
-        private Expression CreateTableValuedFunctionQueryRootExpression(
-            IStoreFunction function, IReadOnlyCollection<Expression> arguments)
-            // See issue #19970
-            => new TableValuedFunctionQueryRootExpression(function.EntityTypeMappings.Single().EntityType, function, arguments);
     }
 }

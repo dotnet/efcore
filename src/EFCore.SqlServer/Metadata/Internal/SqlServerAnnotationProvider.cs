@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         {
             var table = column.Table;
             var property = column.PropertyMappings.Where(m =>
-                m.TableMapping.IsMainEntityTypeMapping && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
+                m.TableMapping.IsSharedTablePrincipal && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
                 .Select(m => m.Property)
                 .FirstOrDefault(p => p.GetValueGenerationStrategy(table.Name, table.Schema) == SqlServerValueGenerationStrategy.IdentityColumn);
             if (property != null)
