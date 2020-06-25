@@ -8,7 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class TPTInheritanceQueryFixture : InheritanceQueryFixtureBase
     {
+        protected override string StoreName => "TPTInheritanceTest";
+
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+
+        protected override bool HasDiscriminator => false;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -20,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Daisy>().ToTable("Daisies");
             modelBuilder.Entity<Country>().Property(e => e.Id).ValueGeneratedNever();
 
-            modelBuilder.Entity<Animal>().ToTable("Plants");
-            modelBuilder.Entity<Bird>().ToTable("Roses");
-            modelBuilder.Entity<Eagle>().ToTable("Daisies");
-            modelBuilder.Entity<Kiwi>().ToTable("Daisies");
+            modelBuilder.Entity<Animal>().ToTable("Animals");
+            modelBuilder.Entity<Bird>().ToTable("Birds");
+            modelBuilder.Entity<Eagle>().ToTable("Eagle");
+            modelBuilder.Entity<Kiwi>().ToTable("Kiwi");
             modelBuilder.Entity<Animal>().Property(e => e.Species).HasMaxLength(100);
             modelBuilder.Entity<Eagle>().HasMany(e => e.Prey).WithOne().HasForeignKey(e => e.EagleId).IsRequired(false);
 
@@ -41,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // Keyless entities are mapped to TPH
             modelBuilder.Entity<AnimalQuery>().HasNoKey().ToQuery(
-                () => context.Set<AnimalQuery>().FromSqlRaw("SELECT * FROM Animal"));
+                () => context.Set<AnimalQuery>().FromSqlRaw("SELECT * FROM Animals"));
             modelBuilder.Entity<KiwiQuery>().HasDiscriminator().HasValue("Kiwi");
             modelBuilder.Entity<EagleQuery>().HasDiscriminator().HasValue("Eagle");
         }

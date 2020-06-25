@@ -791,91 +791,69 @@ namespace Microsoft.EntityFrameworkCore.Query
             return selectExpression;
         }
 
-        private void AddConditions(
-            SelectExpression selectExpression,
-            IEntityType entityType,
-            ITableBase table = null,
-            bool skipJoins = false)
+        private void AddSelfConditions(SelectExpression selectExpression, IEntityType entityType, ITableBase table = null)
         {
+            // Add conditions if TPH
+            var discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
             if (entityType.FindPrimaryKey() == null)
             {
-                AddDiscriminatorCondition(selectExpression, entityType);
+                return;
             }
-            else
+
+            // Add conditions if dependent sharing table with principal
+            table ??= entityType.GetViewOrTableMappings().SingleOrDefault()?.Table;
+            if (table != null
+                && table.GetRowInternalForeignKeys(entityType).Any()
+                && !discriminatorAdded)
             {
-                var tableMappings = entityType.GetViewOrTableMappings();
-                if (!tableMappings.Any())
-                {
-                    return;
-                }
+                AddOptionalDependentConditions(selectExpression, entityType, table);
+            }
+        }
 
-                table ??= tableMappings.Single().Table;
-                var discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
-
+        private void AddConditions(SelectExpression selectExpression, IEntityType entityType, ITableBase table = null)
+        {
+            AddSelfConditions(selectExpression, entityType, table);
+            // Add inner join to principal if table sharing
+            table ??= entityType.GetViewOrTableMappings().SingleOrDefault()?.Table;
+            if (table != null)
+            {
                 var linkingFks = table.GetRowInternalForeignKeys(entityType);
-                if (linkingFks.Any())
+                var first = true;
+                foreach (var foreignKey in linkingFks)
                 {
-                    if (!discriminatorAdded)
+                    if (first)
                     {
-                        AddOptionalDependentConditions(selectExpression, entityType, table);
+                        AddInnerJoin(selectExpression, foreignKey, table);
+                        first = false;
                     }
-
-                    if (!skipJoins)
+                    else
                     {
-                        var first = true;
-
-                        foreach (var foreignKey in linkingFks)
-                        {
-                            if (!(entityType.FindOwnership() == foreignKey
-                                && foreignKey.PrincipalEntityType.BaseType == null))
-                            {
-                                var otherSelectExpression = first
-                                    ? selectExpression
-                                    : new SelectExpression(entityType);
-
-                                AddInnerJoin(otherSelectExpression, foreignKey, table, skipInnerJoins: false);
-
-                                if (first)
-                                {
-                                    first = false;
-                                }
-                                else
-                                {
-                                    selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
-                                }
-                            }
-                        }
+                        var dependentSelectExpression = new SelectExpression(entityType);
+                        AddSelfConditions(dependentSelectExpression, entityType, table);
+                        AddInnerJoin(dependentSelectExpression, foreignKey, table);
+                        selectExpression.ApplyUnion(dependentSelectExpression, distinct: true);
                     }
                 }
             }
         }
 
-        private void AddInnerJoin(
-            SelectExpression selectExpression, IForeignKey foreignKey, ITableBase table, bool skipInnerJoins)
-        {
-            var joinPredicate = GenerateJoinPredicate(selectExpression, foreignKey, table, skipInnerJoins, out var innerSelect);
-
-            selectExpression.AddInnerJoin(innerSelect, joinPredicate);
-        }
-
-        private SqlExpression GenerateJoinPredicate(
-            SelectExpression selectExpression,
-            IForeignKey foreignKey,
-            ITableBase table,
-            bool skipInnerJoins,
-            out SelectExpression innerSelect)
+        private void AddInnerJoin(SelectExpression selectExpression, IForeignKey foreignKey, ITableBase table)
         {
             var outerEntityProjection = GetMappedEntityProjectionExpression(selectExpression);
             var outerIsPrincipal = foreignKey.PrincipalEntityType.IsAssignableFrom(outerEntityProjection.EntityType);
 
-            innerSelect = outerIsPrincipal
+            var innerSelect = outerIsPrincipal
                 ? new SelectExpression(foreignKey.DeclaringEntityType)
                 : new SelectExpression(foreignKey.PrincipalEntityType);
-            AddConditions(
-                innerSelect,
-                outerIsPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType,
-                table,
-                skipInnerJoins);
+
+            if (outerIsPrincipal)
+            {
+                AddSelfConditions(innerSelect, foreignKey.DeclaringEntityType, table);
+            }
+            else
+            {
+                AddConditions(innerSelect, foreignKey.PrincipalEntityType, table);
+            }
 
             var innerEntityProjection = GetMappedEntityProjectionExpression(innerSelect);
 
@@ -884,42 +862,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             var innerKey = (outerIsPrincipal ? foreignKey.Properties : foreignKey.PrincipalKey.Properties)
                 .Select(p => innerEntityProjection.BindProperty(p));
 
-            return outerKey.Zip<SqlExpression, SqlExpression, SqlExpression>(innerKey, Equal)
-                .Aggregate(AndAlso);
+            var joinPredicate = outerKey.Zip(innerKey, Equal).Aggregate(AndAlso);
+
+            selectExpression.AddInnerJoin(innerSelect, joinPredicate);
         }
 
         private bool AddDiscriminatorCondition(SelectExpression selectExpression, IEntityType entityType)
         {
-            if (entityType.GetRootType().GetIsDiscriminatorMappingComplete()
-                && entityType.GetAllBaseTypesInclusiveAscending()
-                    .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e)))
+            var discriminatorProperty = entityType.GetDiscriminatorProperty();
+            if (discriminatorProperty == null
+                || (entityType.GetRootType().GetIsDiscriminatorMappingComplete()
+                    && entityType.GetAllBaseTypesInclusiveAscending()
+                        .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e))))
             {
                 return false;
             }
 
-            SqlExpression predicate;
+            var discriminatorColumn = GetMappedEntityProjectionExpression(selectExpression).BindProperty(discriminatorProperty);
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-            if (concreteEntityTypes.Count == 1)
-            {
-                var concreteEntityType = concreteEntityTypes[0];
-                if (concreteEntityType.BaseType == null)
-                {
-                    return false;
-                }
-
-                var discriminatorColumn = GetMappedEntityProjectionExpression(selectExpression)
-                    .BindProperty(concreteEntityType.GetDiscriminatorProperty());
-
-                predicate = Equal(discriminatorColumn, Constant(concreteEntityType.GetDiscriminatorValue()));
-            }
-            else
-            {
-                var discriminatorColumn = GetMappedEntityProjectionExpression(selectExpression)
-                    .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
-
-                predicate = In(
-                    discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false);
-            }
+            var predicate = concreteEntityTypes.Count == 1
+                ? (SqlExpression)Equal(discriminatorColumn, Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                : In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false);
 
             selectExpression.ApplyPredicate(predicate);
 
@@ -977,6 +940,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     selectExpression.ApplyPredicate(predicate);
 
+                    // If there is no non-nullable property then we also need to add optional dependents which are acting as principal for
+                    // other dependents.
                     foreach (var referencingFk in entityType.GetReferencingForeignKeys())
                     {
                         var otherSelectExpression = new SelectExpression(entityType);
@@ -984,8 +949,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var sameTable = table.GetRowInternalForeignKeys(referencingFk.DeclaringEntityType).Any();
                         AddInnerJoin(
                             otherSelectExpression, referencingFk,
-                            sameTable ? table : null,
-                            skipInnerJoins: sameTable);
+                            sameTable ? table : null);
+
                         selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
                     }
                 }
