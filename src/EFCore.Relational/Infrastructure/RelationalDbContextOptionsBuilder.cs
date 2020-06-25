@@ -99,6 +99,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => (TExtension)e.WithUseRelationalNulls(useRelationalNulls));
 
         /// <summary>
+        ///     Configures the <see cref="QuerySplittingBehavior"/> to use when loading related collections in a query.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual TBuilder UseQuerySplittingBehavior(QuerySplittingBehavior querySplittingBehavior)
+            => WithOption(e => (TExtension)e.WithUseQuerySplittingBehavior(querySplittingBehavior));
+
+        /// <summary>
         ///     Configures the context to use the provided <see cref="IExecutionStrategy" />.
         /// </summary>
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>

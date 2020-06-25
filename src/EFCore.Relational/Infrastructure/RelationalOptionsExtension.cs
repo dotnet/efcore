@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private int? _maxBatchSize;
         private int? _minBatchSize;
         private bool _useRelationalNulls;
+        private QuerySplittingBehavior? _querySplittingBehavior;
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
         private string _migrationsHistoryTableSchema;
@@ -60,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _maxBatchSize = copyFrom._maxBatchSize;
             _minBatchSize = copyFrom._minBatchSize;
             _useRelationalNulls = copyFrom._useRelationalNulls;
+            _querySplittingBehavior = copyFrom._querySplittingBehavior;
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
             _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
@@ -221,6 +223,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._useRelationalNulls = useRelationalNulls;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     The <see cref="QuerySplittingBehavior"/> to use when loading related collections in a query.
+        /// </summary>
+        public virtual QuerySplittingBehavior? QuerySplittingBehavior => _querySplittingBehavior;
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
+        /// <param name="querySplittingBehavior"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual RelationalOptionsExtension WithUseQuerySplittingBehavior(QuerySplittingBehavior querySplittingBehavior)
+        {
+            var clone = Clone();
+
+            clone._querySplittingBehavior = querySplittingBehavior;
 
             return clone;
         }
@@ -415,6 +437,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if (Extension._useRelationalNulls)
                         {
                             builder.Append("UseRelationalNulls ");
+                        }
+
+                        if (Extension._querySplittingBehavior != null)
+                        {
+                            builder.Append("QuerySplittingBehavior=").Append(Extension._querySplittingBehavior).Append(' ');
                         }
 
                         if (Extension._migrationsAssembly != null)

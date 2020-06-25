@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -16,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class CollectionJoinApplyingExpressionVisitor : ExpressionVisitor
     {
         private readonly bool _splitQuery;
+        private readonly bool _userConfiguredBehavior;
         private int _collectionId;
 
         /// <summary>
@@ -24,9 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CollectionJoinApplyingExpressionVisitor(bool splitQuery)
+        public CollectionJoinApplyingExpressionVisitor([NotNull] RelationalQueryCompilationContext queryCompilationContext)
         {
-            _splitQuery = splitQuery;
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+
+            _splitQuery = queryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery;
+            _userConfiguredBehavior = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).QuerySplittingBehavior.HasValue;
         }
 
         /// <summary>

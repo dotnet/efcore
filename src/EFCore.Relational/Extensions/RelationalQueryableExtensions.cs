@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -160,10 +161,49 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Returns a new query in which the collections in the query results will be loaded through separate database queries.
+        ///         Returns a new query which is configured to load the collections in the query results in a single database query.
         ///     </para>
         ///     <para>
-        ///         This strategy fetches all the data from the server through separate database queries before generating any results.
+        ///         This behavior generally guarantees result consistency in the face of concurrent updates
+        ///         (but details may vary based on the database and transaction isolation level in use).
+        ///         However, this can cause performance issues when the query loads multiple related collections.
+        ///     </para>
+        ///     <para>
+        ///         The default query splitting behavior for queries can be controlled by
+        ///         <see cref="RelationalDbContextOptionsBuilder{TBuilder, TExtension}.UseQuerySplittingBehavior(QuerySplittingBehavior)" />.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns> A new query where collections will be loaded through single database query. </returns>
+        public static IQueryable<TEntity> AsSingleQuery<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+
+            return source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(AsSingleQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
+                : source;
+        }
+
+        internal static readonly MethodInfo AsSingleQueryMethodInfo
+            = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSingleQuery));
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a new query which is configured to load the collections in the query results through separate database queries.
+        ///     </para>
+        ///     <para>
+        ///         This behavior can significantly improve performance when the query loads multiple collections.
+        ///         However, since separate queries are used, this can result in inconsistent results when concurrent updates occur.
+        ///         Serializable or snapshot transactions can be used to mitigate this
+        ///         and achieve consistency with split queries, but that may bring other performance costs and behavioral difference.
+        ///     </para>
+        ///     <para>
+        ///         The default query splitting behavior for queries can be controlled by
+        ///         <see cref="RelationalDbContextOptionsBuilder{TBuilder, TExtension}.UseQuerySplittingBehavior(QuerySplittingBehavior)" />.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>

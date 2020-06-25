@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -32,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
             RelationalDependencies = relationalDependencies;
+            QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior
+                ?? QuerySplittingBehavior.SingleQuery;
         }
 
         /// <summary>
@@ -40,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual RelationalQueryCompilationContextDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     A value indicating if the query should load collections using separate database queries.
+        ///     A value indicating the <see cref="EntityFrameworkCore.QuerySplittingBehavior"/> of the query.
         /// </summary>
-        public virtual bool IsSplitQuery { get; internal set; }
+        public virtual QuerySplittingBehavior QuerySplittingBehavior { get; internal set; }
     }
 }

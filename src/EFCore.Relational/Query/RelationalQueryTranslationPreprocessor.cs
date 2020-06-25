@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             query = base.Process(query);
 
-            return _relationalQueryCompilationContext.IsSplitQuery
+            return _relationalQueryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery
                 ? new SplitIncludeRewritingExpressionVisitor().Visit(query)
                 : query;
         }
