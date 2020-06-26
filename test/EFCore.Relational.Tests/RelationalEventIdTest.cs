@@ -146,7 +146,6 @@ namespace Microsoft.EntityFrameworkCore
             public Guid ConnectionId => Guid.NewGuid();
             public int? CommandTimeout { get; set; }
             public Task<bool> CloseAsync() => throw new NotImplementedException();
-            public bool IsMultipleActiveResultSetsEnabled => throw new NotImplementedException();
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
             public SemaphoreSlim Semaphore => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
