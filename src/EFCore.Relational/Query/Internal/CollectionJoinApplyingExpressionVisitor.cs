@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -18,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class CollectionJoinApplyingExpressionVisitor : ExpressionVisitor
     {
         private readonly bool _splitQuery;
-        private readonly bool _userConfiguredBehavior;
+        private readonly bool _noConfiguredBehavior;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private int _collectionId;
 
         /// <summary>
@@ -32,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             _splitQuery = queryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery;
-            _userConfiguredBehavior = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).QuerySplittingBehavior.HasValue;
+            _noConfiguredBehavior = queryCompilationContext.QuerySplittingBehavior == null;
+            _logger = queryCompilationContext.Logger;
         }
 
         /// <summary>
@@ -48,6 +51,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
             {
                 var collectionId = _collectionId++;
+
+                if (_noConfiguredBehavior
+                    && _collectionId == 2)
+                {
+                    _logger.MultipleCollectionIncludeWarning();
+                }
+
                 var projectionBindingExpression = (ProjectionBindingExpression)collectionShaperExpression.Projection;
                 var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
                 // Do pushdown beforehand so it updates all pending collections first

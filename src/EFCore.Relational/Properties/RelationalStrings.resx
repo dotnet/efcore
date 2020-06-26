@@ -660,4 +660,8 @@
   <data name="IncompatibleTableExcludedMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and it excluded from migration on one entity type, but not the other. Exclude the table from migrations on all entity types mapped to the table.</value>
   </data>
+  <data name="LogMultipleCollectionIncludeWarning" xml:space="preserve">
+    <value>Compiling a query which loads related collections for more than one collection navigation property either via 'Include' or through projection but no 'QuerySplittingBehavior' has been configured. By default EF Core will use 'QuerySplittingBehavior.SingleQuery' which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call .ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.LogTooManyIncludesWarning))</value>
+    <comment>Warning RelationalEventId.MultipleCollectionIncludeWarning</comment>
+  </data>
 </root>
