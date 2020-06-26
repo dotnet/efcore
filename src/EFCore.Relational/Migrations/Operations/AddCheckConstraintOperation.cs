@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for creating a new check constraint.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} ADD CONSTRAINT {Name} CHECK")]
-    public class CreateCheckConstraintOperation : MigrationOperation
+    public class AddCheckConstraintOperation : MigrationOperation
     {
         /// <summary>
         ///     The name of the check constraint.

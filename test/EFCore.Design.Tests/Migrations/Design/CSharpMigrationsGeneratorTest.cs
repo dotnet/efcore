@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Name = "C2",
                         Table = "T1",
                         ClrType = typeof(Database),
-                        OldColumn = new ColumnOperation { ClrType = typeof(Property) }
+                        OldColumn = new AddColumnOperation { ClrType = typeof(Property) }
                     },
                     new AddColumnOperation
                     {

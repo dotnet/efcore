@@ -328,7 +328,7 @@ be found in the docs.";
 
         [ConditionalFact]
         public override Task Add_column_with_check_constraint()
-            => AssertNotSupportedAsync(base.Add_column_with_check_constraint, SqliteStrings.InvalidMigrationOperation("CreateCheckConstraintOperation"));
+            => AssertNotSupportedAsync(base.Add_column_with_check_constraint, SqliteStrings.InvalidMigrationOperation("AddCheckConstraintOperation"));
 
         public override Task Alter_column_make_required()
             => AssertNotSupportedAsync(base.Alter_column_make_required, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
@@ -456,7 +456,7 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
 
         public override Task Add_check_constraint_with_name()
             => AssertNotSupportedAsync(
-                base.Add_check_constraint_with_name, SqliteStrings.InvalidMigrationOperation("CreateCheckConstraintOperation"));
+                base.Add_check_constraint_with_name, SqliteStrings.InvalidMigrationOperation("AddCheckConstraintOperation"));
 
         public override Task Alter_check_constraint()
             => AssertNotSupportedAsync(

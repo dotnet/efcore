@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             typeof(AddForeignKeyOperation),
             typeof(CreateIndexOperation),
-            typeof(CreateCheckConstraintOperation)
+            typeof(AddCheckConstraintOperation)
         };
 
         private IUpdateAdapter _sourceUpdateAdapter;
@@ -662,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Cast<AddUniqueConstraintOperation>());
             createTableOperation.CheckConstraints.AddRange(
                 target.CheckConstraints.SelectMany(c => Add(c, diffContext))
-                    .Cast<CreateCheckConstraintOperation>());
+                    .Cast<AddCheckConstraintOperation>());
 
             diffContext.AddCreate(target, createTableOperation);
 
@@ -1395,20 +1395,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] ITableIndex target,
             [NotNull] DiffContext diffContext)
         {
-            var targetTable = target.Table;
-
-            var operation = new CreateIndexOperation
-            {
-                Name = target.Name,
-                Schema = targetTable.Schema,
-                Table = targetTable.Name,
-                Columns = target.Columns.Select(c => c.Name).ToArray(),
-                IsUnique = target.IsUnique,
-                Filter = target.Filter
-            };
-            operation.AddAnnotations(target.GetAnnotations());
-
-            yield return operation;
+            yield return CreateIndexOperation.For(target);
         }
 
         /// <summary>
@@ -1477,7 +1464,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var targetEntityType = target.EntityType;
 
-            var operation = new CreateCheckConstraintOperation
+            var operation = new AddCheckConstraintOperation
             {
                 Name = target.Name,
                 Sql = target.Sql,
@@ -2127,7 +2114,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var dataOperations = GetDataOperations(forSource: true, changedTableMappings, entriesWithRemovedMappings, diffContext)
                 .Concat(GetDataOperations(forSource: false, changedTableMappings, entriesWithRemovedMappings, diffContext));
 
-            foreach(var operation in dataOperations)
+            foreach (var operation in dataOperations)
             {
                 yield return operation;
             }

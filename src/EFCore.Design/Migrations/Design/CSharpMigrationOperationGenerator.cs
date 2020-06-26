@@ -422,16 +422,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="CreateCheckConstraintOperation" />.
+        ///     Generates code for an <see cref="AddCheckConstraintOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
-        protected virtual void Generate([NotNull] CreateCheckConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate([NotNull] AddCheckConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".CreateCheckConstraint(");
+            builder.AppendLine(".AddCheckConstraint(");
 
             using (builder.Indent())
             {

@@ -2582,7 +2582,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     Assert.Equal(1, operations.Count);
 
-                    var operation = Assert.IsType<CreateCheckConstraintOperation>(operations[0]);
+                    var operation = Assert.IsType<AddCheckConstraintOperation>(operations[0]);
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Flamingo", operation.Table);
                     Assert.Equal("CK_Flamingo_AlternateId", operation.Name);
@@ -2653,7 +2653,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Pelican", dropOperation.Table);
                     Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
 
-                    var createOperation = Assert.IsType<CreateCheckConstraintOperation>(operations[1]);
+                    var createOperation = Assert.IsType<AddCheckConstraintOperation>(operations[1]);
                     Assert.Equal("dbo", createOperation.Schema);
                     Assert.Equal("Pelican", createOperation.Table);
                     Assert.Equal("CK_Flamingo", createOperation.Name);
@@ -2692,7 +2692,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Rook", dropOperation.Table);
                     Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
 
-                    var createOperation = Assert.IsType<CreateCheckConstraintOperation>(operations[1]);
+                    var createOperation = Assert.IsType<AddCheckConstraintOperation>(operations[1]);
                     Assert.Equal("dbo", createOperation.Schema);
                     Assert.Equal("Rook", createOperation.Table);
                     Assert.Equal("CK_Flamingo_AlternateId", createOperation.Name);

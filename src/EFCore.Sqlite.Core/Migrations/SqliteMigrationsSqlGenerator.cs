@@ -239,21 +239,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
             dropOperation.AddAnnotations(index.GetAnnotations());
 
-            var createOperation = new CreateIndexOperation
-            {
-                IsUnique = index.IsUnique,
-                Name = operation.NewName,
-                Schema = operation.Schema,
-                Table = operation.Table,
-                Columns = index.Columns.Select(p => p.Name).ToArray(),
-                Filter = index.Filter
-            };
-            createOperation.AddAnnotations(index.GetAnnotations());
-
             Generate(dropOperation, model, builder, terminate: false);
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
-            Generate(createOperation, model, builder);
+            Generate(CreateIndexOperation.For(index), model, builder);
         }
 
         /// <summary>
@@ -509,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
-        protected override void Generate(CreateCheckConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
+        protected override void Generate(AddCheckConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 

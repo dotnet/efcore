@@ -15,9 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     An operation representing the database as it was before being altered.
         /// </summary>
-        public virtual DatabaseOperation OldDatabase { get; } = new DatabaseOperation();
+        public virtual DatabaseOperation OldDatabase { get; } = new CreateDatabaseOperation();
 
         /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldDatabase;
+        
+        private sealed class CreateDatabaseOperation : DatabaseOperation
+        {
+        }
     }
 }

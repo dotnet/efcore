@@ -214,7 +214,7 @@ ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
                     ClrType = typeof(string),
                     MaxLength = 30,
                     IsNullable = true,
-                    OldColumn = new ColumnOperation()
+                    OldColumn = new AddColumnOperation()
                 });
 
             AssertSql(
@@ -247,7 +247,7 @@ ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
                     ClrType = typeof(string),
                     MaxLength = 30,
                     IsNullable = true,
-                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true }
+                    OldColumn = new AddColumnOperation { ClrType = typeof(string), IsNullable = true }
                 },
                 new CreateIndexOperation
                 {
@@ -281,7 +281,7 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
                     Name = "Id",
                     ClrType = typeof(long),
                     [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
-                    OldColumn = new ColumnOperation
+                    OldColumn = new AddColumnOperation
                     {
                         ClrType = typeof(int),
                         [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
@@ -311,7 +311,7 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
                         Name = "Id",
                         ClrType = typeof(int),
                         [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
-                        OldColumn = new ColumnOperation { ClrType = typeof(int) }
+                        OldColumn = new AddColumnOperation { ClrType = typeof(int) }
                     }));
 
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
@@ -328,7 +328,7 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
                         Table = "Person",
                         Name = "Id",
                         ClrType = typeof(int),
-                        OldColumn = new ColumnOperation
+                        OldColumn = new AddColumnOperation
                         {
                             ClrType = typeof(int),
                             [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn
