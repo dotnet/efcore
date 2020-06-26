@@ -19,6 +19,8 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -7217,27 +7219,27 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
             var result = context.Set<ClassA>().Include("SubB").ToList();
         }
 
-        public class BaseClass
+        private class BaseClass
         {
             public string Id { get; set; }
         }
 
-        public class ClassA : BaseClass
+        private class ClassA : BaseClass
         {
             public SubA SubA { get; set; }
         }
 
-        public class ClassB : BaseClass
+        private class ClassB : BaseClass
         {
             public SubB SubB { get; set; }
         }
 
-        public class SubA
+        private class SubA
         {
             public int Id { get; set; }
         }
 
-        public class SubB
+        private class SubB
         {
             public int Id { get; set; }
         }
@@ -7273,6 +7275,108 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
                 modelBuilder.Entity<ClassA>().HasBaseType<BaseClass>().HasOne(x => x.SubA).WithMany();
                 modelBuilder.Entity<ClassB>().HasBaseType<BaseClass>().HasOne(x => x.SubB).WithMany();
             }
+        }
+
+        #endregion
+
+        #region Issue21355
+
+        [ConditionalFact]
+        public virtual void Can_use_default_split_query()
+        {
+            var (serviceProvider, options) = CreateOptions21355();
+            using var context = new BugContext21355(options);
+            var testSqlLoggerFactory = (TestSqlLoggerFactory)serviceProvider.GetRequiredService<ILoggerFactory>();
+            testSqlLoggerFactory.Clear();
+
+            var result = context.Parents.Include(p => p.Children).ToList();
+
+            Assert.Equal(
+                @"SELECT [p].[Id]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                testSqlLoggerFactory.SqlStatements[0],
+                ignoreLineEndingDifferences: true);
+
+            Assert.Equal(
+                @"SELECT [c].[Id], [c].[ParentId], [p].[Id]
+FROM [Parents] AS [p]
+INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+ORDER BY [p].[Id]",
+                testSqlLoggerFactory.SqlStatements[1],
+                ignoreLineEndingDifferences: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_override_default_split_query()
+        {
+            var (serviceProvider, options) = CreateOptions21355();
+            using var context = new BugContext21355(options);
+            var testSqlLoggerFactory = (TestSqlLoggerFactory)serviceProvider.GetRequiredService<ILoggerFactory>();
+            testSqlLoggerFactory.Clear();
+
+            var result = context.Parents.Include(p => p.Children).AsSingleQuery().ToList();
+
+            Assert.Equal(
+                @"SELECT [p].[Id], [c].[Id], [c].[ParentId]
+FROM [Parents] AS [p]
+LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+ORDER BY [p].[Id], [c].[Id]",
+                testSqlLoggerFactory.SqlStatements[0],
+                ignoreLineEndingDifferences: true);
+        }
+
+        private class Parent21355
+        {
+            public string Id { get; set; }
+            public List<Child21355> Children { get; set; }
+        }
+
+        private class Child21355
+        {
+            public int Id { get; set; }
+            public string ParentId { get; set; }
+            public Parent21355 Parent { get; set; }
+        }
+
+        private (ServiceProvider, DbContextOptions) CreateOptions21355()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: true);
+            var serviceProvider = new ServiceCollection().AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory()).BuildServiceProvider();
+
+            var optionsBuilder = Fixture.AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+                .EnableDetailedErrors()
+                .EnableServiceProviderCaching(false)
+                .UseApplicationServiceProvider(serviceProvider);
+
+            new SqlServerDbContextOptionsBuilder(optionsBuilder).UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+
+            var context = new BugContext21355(optionsBuilder.Options);
+            if (context.Database.EnsureCreatedResiliently())
+            {
+                context.Add(new Parent21355
+                {
+                    Id = "Parent1",
+                    Children = new List<Child21355>
+                {
+                    new Child21355(),
+                    new Child21355()
+                }
+                });
+                context.SaveChanges();
+            }
+
+            return (serviceProvider, optionsBuilder.Options);
+        }
+
+        private class BugContext21355 : DbContext
+        {
+            public BugContext21355(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Parent21355> Parents { get; set; }
         }
 
         #endregion

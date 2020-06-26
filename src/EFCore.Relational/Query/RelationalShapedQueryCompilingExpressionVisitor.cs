@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             VerifyNoClientConstant(shapedQueryExpression.ShaperExpression);
             var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
-            var splitQuery = ((RelationalQueryCompilationContext)QueryCompilationContext).IsSplitQuery;
+            var splitQuery = ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery;
             var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
                 shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var relatedDataLoaders);
 

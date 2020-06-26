@@ -43,7 +43,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var innerQueryable = Visit(methodCallExpression.Arguments[0]);
 
-                _relationalQueryCompilationContext.IsSplitQuery = true;
+                _relationalQueryCompilationContext.QuerySplittingBehavior = QuerySplittingBehavior.SplitQuery;
+
+                return innerQueryable;
+            }
+
+            if (methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition() == RelationalQueryableExtensions.AsSingleQueryMethodInfo)
+            {
+                var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+
+                _relationalQueryCompilationContext.QuerySplittingBehavior = QuerySplittingBehavior.SingleQuery;
 
                 return innerQueryable;
             }
