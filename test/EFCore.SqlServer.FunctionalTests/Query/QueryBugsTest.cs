@@ -14,8 +14,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
@@ -7282,54 +7284,194 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
         #region Issue21355
 
         [ConditionalFact]
-        public virtual void Can_use_default_split_query()
+        public virtual void Can_configure_SingleQuery_at_context_level()
         {
-            var (serviceProvider, options) = CreateOptions21355();
+            var (options, testSqlLoggerFactory) = CreateOptions21355(QuerySplittingBehavior.SingleQuery);
             using var context = new BugContext21355(options);
-            var testSqlLoggerFactory = (TestSqlLoggerFactory)serviceProvider.GetRequiredService<ILoggerFactory>();
-            testSqlLoggerFactory.Clear();
 
-            var result = context.Parents.Include(p => p.Children).ToList();
+            var result = context.Parents.Include(p => p.Children1).ToList();
 
-            Assert.Equal(
-                @"SELECT [p].[Id]
+            testSqlLoggerFactory.AssertBaseline(
+                new[]
+                {
+                    @"SELECT [p].[Id], [c].[Id], [c].[ParentId]
 FROM [Parents] AS [p]
-ORDER BY [p].[Id]",
-                testSqlLoggerFactory.SqlStatements[0],
-                ignoreLineEndingDifferences: true);
-
-            Assert.Equal(
-                @"SELECT [c].[Id], [c].[ParentId], [p].[Id]
-FROM [Parents] AS [p]
-INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
-ORDER BY [p].[Id]",
-                testSqlLoggerFactory.SqlStatements[1],
-                ignoreLineEndingDifferences: true);
+LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+ORDER BY [p].[Id], [c].[Id]"
+                });
         }
 
         [ConditionalFact]
-        public virtual void Can_override_default_split_query()
+        public virtual void Can_configure_SplitQuery_at_context_level()
         {
-            var (serviceProvider, options) = CreateOptions21355();
+            var (options, testSqlLoggerFactory) = CreateOptions21355(QuerySplittingBehavior.SplitQuery);
             using var context = new BugContext21355(options);
-            var testSqlLoggerFactory = (TestSqlLoggerFactory)serviceProvider.GetRequiredService<ILoggerFactory>();
-            testSqlLoggerFactory.Clear();
 
-            var result = context.Parents.Include(p => p.Children).AsSingleQuery().ToList();
+            var result = context.Parents.Include(p => p.Children1).ToList();
 
-            Assert.Equal(
-                @"SELECT [p].[Id], [c].[Id], [c].[ParentId]
+            testSqlLoggerFactory.AssertBaseline(
+                new[]
+                {
+                    @"SELECT [p].[Id]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                    //
+                    @"SELECT [c].[Id], [c].[ParentId], [p].[Id]
+FROM [Parents] AS [p]
+INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+ORDER BY [p].[Id]"
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Can_override_context_level_SingleQuery_with_AsSplitQuery()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(QuerySplittingBehavior.SingleQuery);
+            using var context = new BugContext21355(options);
+
+            var result = context.Parents.Include(p => p.Children1).AsSplitQuery().ToList();
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[]
+                {
+                    @"SELECT [p].[Id]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                    //
+                    @"SELECT [c].[Id], [c].[ParentId], [p].[Id]
+FROM [Parents] AS [p]
+INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+ORDER BY [p].[Id]"
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Can_override_context_level_SplitQuery_with_AsSingleQuery()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(QuerySplittingBehavior.SplitQuery);
+            using var context = new BugContext21355(options);
+
+            var result = context.Parents.Include(p => p.Children1).AsSingleQuery().ToList();
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[]
+                {
+                    @"SELECT [p].[Id], [c].[Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
-ORDER BY [p].[Id], [c].[Id]",
-                testSqlLoggerFactory.SqlStatements[0],
-                ignoreLineEndingDifferences: true);
+ORDER BY [p].[Id], [c].[Id]"
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Unconfigured_query_splitting_behavior_throws_a_warning()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+
+            Assert.Contains(
+                RelationalResources.LogMultipleCollectionIncludeWarning(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList()).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Context_configured_single_query_splitting_behavior_does_not_throw_warning()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(QuerySplittingBehavior.SingleQuery);
+            using var context = new BugContext21355(options);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList();
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[]
+                {
+                    @"SELECT [p].[Id], [c].[Id], [c].[ParentId], [a].[Id], [a].[ParentId]
+FROM [Parents] AS [p]
+LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+LEFT JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
+ORDER BY [p].[Id], [c].[Id], [a].[Id]"
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Context_configured_split_query_splitting_behavior_does_not_throw_warning()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(QuerySplittingBehavior.SplitQuery);
+            using var context = new BugContext21355(options);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList();
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[]
+                {
+                    @"SELECT [p].[Id]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                    //
+                    @"SELECT [c].[Id], [c].[ParentId], [p].[Id]
+FROM [Parents] AS [p]
+INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+ORDER BY [p].[Id]",
+                    //
+                    @"SELECT [a].[Id], [a].[ParentId], [p].[Id]
+FROM [Parents] AS [p]
+INNER JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
+ORDER BY [p].[Id]"
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Using_AsSingleQuery_withouth_context_configuration_does_not_throw_warning()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSingleQuery().ToList();
+
+            testSqlLoggerFactory.AssertBaseline(
+                new[]
+                {
+                    @"SELECT [p].[Id], [c].[Id], [c].[ParentId], [a].[Id], [a].[ParentId]
+FROM [Parents] AS [p]
+LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+LEFT JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
+ORDER BY [p].[Id], [c].[Id], [a].[Id]"
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Using_AsSplitQuery_withouth_context_configuration_does_not_throw_warning()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
+
+            testSqlLoggerFactory.AssertBaseline(
+                            new[]
+                            {
+                    @"SELECT [p].[Id]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                    //
+                    @"SELECT [c].[Id], [c].[ParentId], [p].[Id]
+FROM [Parents] AS [p]
+INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
+ORDER BY [p].[Id]",
+                    //
+                    @"SELECT [a].[Id], [a].[ParentId], [p].[Id]
+FROM [Parents] AS [p]
+INNER JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
+ORDER BY [p].[Id]"
+                            });
         }
 
         private class Parent21355
         {
             public string Id { get; set; }
-            public List<Child21355> Children { get; set; }
+            public List<Child21355> Children1 { get; set; }
+            public List<AnotherChild21355> Children2 { get; set; }
         }
 
         private class Child21355
@@ -7339,17 +7481,28 @@ ORDER BY [p].[Id], [c].[Id]",
             public Parent21355 Parent { get; set; }
         }
 
-        private (ServiceProvider, DbContextOptions) CreateOptions21355()
+        private class AnotherChild21355
+        {
+            public int Id { get; set; }
+            public string ParentId { get; set; }
+            public Parent21355 Parent { get; set; }
+        }
+
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions21355(QuerySplittingBehavior? querySplittingBehavior)
         {
             var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: true);
-            var serviceProvider = new ServiceCollection().AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory()).BuildServiceProvider();
+            var testSqlLoggerFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection().AddSingleton<ILoggerFactory>(testSqlLoggerFactory).BuildServiceProvider();
 
-            var optionsBuilder = Fixture.AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+            var optionsBuilder = Fixture.AddOptions(new DbContextOptionsBuilder().UseSqlServer(testStore.ConnectionString))
                 .EnableDetailedErrors()
                 .EnableServiceProviderCaching(false)
                 .UseApplicationServiceProvider(serviceProvider);
 
-            new SqlServerDbContextOptionsBuilder(optionsBuilder).UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            if (querySplittingBehavior.HasValue)
+            {
+                new SqlServerDbContextOptionsBuilder(optionsBuilder).UseQuerySplittingBehavior(querySplittingBehavior.Value);
+            }
 
             var context = new BugContext21355(optionsBuilder.Options);
             if (context.Database.EnsureCreatedResiliently())
@@ -7357,7 +7510,7 @@ ORDER BY [p].[Id], [c].[Id]",
                 context.Add(new Parent21355
                 {
                     Id = "Parent1",
-                    Children = new List<Child21355>
+                    Children1 = new List<Child21355>
                 {
                     new Child21355(),
                     new Child21355()
@@ -7366,7 +7519,9 @@ ORDER BY [p].[Id], [c].[Id]",
                 context.SaveChanges();
             }
 
-            return (serviceProvider, optionsBuilder.Options);
+            testSqlLoggerFactory.Clear();
+
+            return (optionsBuilder.Options, testSqlLoggerFactory);
         }
 
         private class BugContext21355 : DbContext

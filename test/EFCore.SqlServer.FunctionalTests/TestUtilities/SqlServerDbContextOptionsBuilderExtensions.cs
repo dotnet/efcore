@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 optionsBuilder.MaxBatchSize(maxBatch.Value);
             }
 
+            optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+
             optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
 
             optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);

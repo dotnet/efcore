@@ -33,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
             RelationalDependencies = relationalDependencies;
-            QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior
-                ?? QuerySplittingBehavior.SingleQuery;
+            QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior;
         }
 
         /// <summary>
@@ -43,8 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual RelationalQueryCompilationContextDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     A value indicating the <see cref="EntityFrameworkCore.QuerySplittingBehavior"/> of the query.
+        ///     A value indicating the <see cref="EntityFrameworkCore.QuerySplittingBehavior"/> configured for the query.
+        ///     If no value has been configured then <see cref="QuerySplittingBehavior.SingleQuery"/> will be used.
         /// </summary>
-        public virtual QuerySplittingBehavior QuerySplittingBehavior { get; internal set; }
+        public virtual QuerySplittingBehavior? QuerySplittingBehavior { get; internal set; }
     }
 }

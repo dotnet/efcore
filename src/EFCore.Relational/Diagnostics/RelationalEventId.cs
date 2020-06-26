@@ -77,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             QueryPossibleUnintendedUseOfEqualsWarning,
             QueryPossibleExceptionWithAggregateOperatorWarning,
             ValueConversionSqlLiteralWarning, // This warning has been removed.
+            MultipleCollectionIncludeWarning,
 
             // Model validation events
             ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
@@ -610,6 +611,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning =
             MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A query is loading multiple related collections without configuring a <see cref="QuerySplittingBehavior"/>.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MultipleCollectionIncludeWarning = MakeQueryId(Id.MultipleCollectionIncludeWarning);
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);

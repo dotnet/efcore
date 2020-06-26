@@ -4184,6 +4184,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.MultipleCollectionIncludeWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        public static void MultipleCollectionIncludeWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+        {
+            var definition = RelationalResources.LogMultipleCollectionIncludeWarning(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new EventData(
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage());
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ModelValidationKeyDefaultValueWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
