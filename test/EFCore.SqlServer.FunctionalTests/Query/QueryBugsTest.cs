@@ -4172,7 +4172,7 @@ FROM [Prices] AS [p]");
                 AssertSql(
                     @"SELECT [r].[Id], [r].[MyTime]
 FROM [ReproEntity] AS [r]
-WHERE [r].[MyTime] IN ('2018-10-07T00:00:00')");
+WHERE [r].[MyTime] = '2018-10-07T00:00:00'");
             }
         }
 
@@ -4238,7 +4238,7 @@ WHERE [r].[MyTime] IN ('2018-10-07T00:00:00')");
 SELECT [t].[Id], [t].[Type]
 FROM [Todos] AS [t]
 WHERE CASE
-    WHEN [t].[Type] IN (0) THEN @__key_2
+    WHEN [t].[Type] = 0 THEN @__key_2
     ELSE @__key_2
 END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed5989cc7')");
             }

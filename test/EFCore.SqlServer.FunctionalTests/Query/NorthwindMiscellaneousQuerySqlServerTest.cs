@@ -1545,7 +1545,7 @@ WHERE ([c].[City] = N'London') OR ([e].[City] = N'London')");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ([c].[City] = N'London') OR ([c].[City] = N'Berlin')");
+WHERE [c].[City] IN (N'London', N'Berlin')");
         }
 
         public override async Task Where_select_many_or3(bool async)
@@ -1556,7 +1556,7 @@ WHERE ([c].[City] = N'London') OR ([c].[City] = N'Berlin')");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE (([c].[City] = N'London') OR ([c].[City] = N'Berlin')) OR ([c].[City] = N'Seattle')");
+WHERE [c].[City] IN (N'London', N'Berlin', N'Seattle')");
         }
 
         public override async Task Where_select_many_or4(bool async)
@@ -1567,7 +1567,7 @@ WHERE (([c].[City] = N'London') OR ([c].[City] = N'Berlin')) OR ([c].[City] = N'
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ((([c].[City] = N'London') OR ([c].[City] = N'Berlin')) OR ([c].[City] = N'Seattle')) OR ([c].[City] = N'Lisboa')");
+WHERE [c].[City] IN (N'London', N'Berlin', N'Seattle', N'Lisboa')");
         }
 
         public override async Task Where_select_many_or_with_parameter(bool async)
@@ -3621,7 +3621,7 @@ WHERE CONVERT(date, [o].[OrderDate]) IN ('1996-07-04T00:00:00.000', '1996-07-16T
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(date, [o].[OrderDate]) IN ('1996-07-04T00:00:00.000')");
+WHERE CONVERT(date, [o].[OrderDate]) = '1996-07-04T00:00:00.000'");
         }
 
         public override async Task Contains_with_subquery_involving_join_binds_to_correct_table(bool async)
@@ -3896,7 +3896,7 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE ([c].[CustomerID] <> N'VAFFE') AND ([c].[CustomerID] <> N'DRACD')
+    WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
     ORDER BY [c].[City], [c].[CustomerID]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
@@ -5049,7 +5049,7 @@ WHERE [c].[CustomerID] = @__entity_equality_p_0_CustomerID");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI')");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task MemberInitExpression_NewExpression_is_funcletized_even_when_bindings_are_not_evaluatable(bool async)

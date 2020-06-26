@@ -2281,7 +2281,7 @@ LEFT JOIN (
     FROM [Weapons] AS [w]
     WHERE ([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
-WHERE ([c].[Name] = N'Ephyra') OR ([c].[Name] = N'Hanover')
+WHERE [c].[Name] IN (N'Ephyra', N'Hanover')
 ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t].[Id]");
         }
 
@@ -3200,7 +3200,7 @@ ORDER BY [g].[Nickname], [t].[Nickname]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
-WHERE ([g].[SquadId] < 2) AND ([c].[Name] IN (N'Ephyra') OR [c].[Name] IS NULL)");
+WHERE ([g].[SquadId] < 2) AND (([c].[Name] = N'Ephyra') OR [c].[Name] IS NULL)");
         }
 
         public override async Task Optional_navigation_with_collection_composite_key(bool async)
@@ -4647,7 +4647,7 @@ INNER JOIN (
     SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
     FROM [Tags] AS [t]
     LEFT JOIN [Gears] AS [g0] ON ([t].[GearNickName] = [g0].[Nickname]) AND ([t].[GearSquadId] = [g0].[SquadId])
-    WHERE ([t].[Note] = N'Cole''s Tag') OR ([t].[Note] = N'Dom''s Tag')
+    WHERE [t].[Note] IN (N'Cole''s Tag', N'Dom''s Tag')
 ) AS [t0] ON ([g].[Nickname] = [t0].[Nickname]) AND ([g].[SquadId] = [t0].[SquadId])");
         }
 
@@ -5870,7 +5870,7 @@ WHERE (
 
 SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND ([m].[Timeline] < @__end_1)) AND [m].[Timeline] IN ('1902-01-02T10:00:00.1234567+01:30')");
+WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND ([m].[Timeline] < @__end_1)) AND ([m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30')");
         }
 
         public override async Task Navigation_inside_interpolated_string_expanded(bool async)
@@ -7000,7 +7000,7 @@ ORDER BY [g].[Nickname]");
                 @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] IN (1) OR [w0].[AmmunitionType] IS NULL)");
+WHERE [w0].[Id] IS NOT NULL AND (([w0].[AmmunitionType] = 1) OR [w0].[AmmunitionType] IS NULL)");
         }
 
         [ConditionalTheory]

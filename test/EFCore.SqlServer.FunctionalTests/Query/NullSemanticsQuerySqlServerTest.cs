@@ -713,7 +713,7 @@ INNER JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB]");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
+WHERE ([e].[NullableStringA] = N'Foo') OR [e].[NullableStringA] IS NULL");
         }
 
         public override async Task Contains_with_local_array_closure_false_with_null(bool async)
@@ -723,7 +723,7 @@ WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] NOT IN (N'Foo') AND [e].[NullableStringA] IS NOT NULL");
+WHERE ([e].[NullableStringA] <> N'Foo') AND [e].[NullableStringA] IS NOT NULL");
         }
 
         public override async Task Contains_with_local_nullable_array_closure_negated(bool async)
@@ -733,7 +733,7 @@ WHERE [e].[NullableStringA] NOT IN (N'Foo') AND [e].[NullableStringA] IS NOT NUL
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] NOT IN (N'Foo') OR [e].[NullableStringA] IS NULL");
+WHERE ([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL");
         }
 
         public override async Task Contains_with_local_array_closure_with_multiple_nulls(bool async)
@@ -743,7 +743,7 @@ WHERE [e].[NullableStringA] NOT IN (N'Foo') OR [e].[NullableStringA] IS NULL");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
+WHERE ([e].[NullableStringA] = N'Foo') OR [e].[NullableStringA] IS NULL");
         }
 
         public override async Task Where_multiple_ors_with_null(bool async)
@@ -753,7 +753,7 @@ WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = N'Foo') OR ([e].[NullableStringA] = N'Blah')) OR [e].[NullableStringA] IS NULL");
+WHERE [e].[NullableStringA] IN (N'Foo', N'Blah') OR [e].[NullableStringA] IS NULL");
         }
 
         public override async Task Where_multiple_ands_with_null(bool async)
@@ -763,7 +763,7 @@ WHERE (([e].[NullableStringA] = N'Foo') OR ([e].[NullableStringA] = N'Blah')) OR
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND (([e].[NullableStringA] <> N'Blah') OR [e].[NullableStringA] IS NULL)) AND [e].[NullableStringA] IS NOT NULL");
+WHERE [e].[NullableStringA] NOT IN (N'Foo', N'Blah') AND [e].[NullableStringA] IS NOT NULL");
         }
 
         public override async Task Where_multiple_ors_with_nullable_parameter(bool async)
@@ -1032,7 +1032,7 @@ WHERE 0 = 1");
             AssertSql(
                 @"SELECT [e].[NullableStringA]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] IN (NULL)");
+WHERE [e].[NullableStringA] = NULL");
         }
 
         public override async Task Where_nullable_bool(bool async)

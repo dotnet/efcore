@@ -90,7 +90,7 @@ WHERE 0 = 1",
                 //
                 @"SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE [l].[Tenant] IN (1)",
+WHERE [l].[Tenant] = 1",
                 //
                 @"SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
