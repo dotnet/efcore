@@ -8,10 +8,10 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindSplitIncludeQuerySqlServerTest : NorthwindSplitIncludeQueryTestBase<NorthwindSplitIncludeQuerySqlServerTest.NorthwindQuerySqlServerMarsEnabledFixture>
+    public class NorthwindSplitIncludeQuerySqlServerTest : NorthwindSplitIncludeQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
-        public NorthwindSplitIncludeQuerySqlServerTest(NorthwindQuerySqlServerMarsEnabledFixture fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindSplitIncludeQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -1715,22 +1715,5 @@ ORDER BY [c].[CustomerID], [t0].[OrderDate] DESC");
 
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
-
-        public class NorthwindQuerySqlServerMarsEnabledFixture : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
-        {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerNorthwindMarsEnabledTestStoreFactory.Instance;
-        }
-
-        private class SqlServerNorthwindMarsEnabledTestStoreFactory : SqlServerNorthwindTestStoreFactory
-        {
-            public static new SqlServerNorthwindMarsEnabledTestStoreFactory Instance { get; } = new SqlServerNorthwindMarsEnabledTestStoreFactory();
-
-            protected SqlServerNorthwindMarsEnabledTestStoreFactory()
-            {
-            }
-
-            public override TestStore GetOrCreate(string storeName)
-                => SqlServerTestStore.GetOrCreate(Name, "Northwind.sql", multipleActiveResultSets: true);
-        }
     }
 }

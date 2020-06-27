@@ -370,7 +370,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public Task<bool> CloseAsync() => Task.FromResult(true);
 
-            public bool IsMultipleActiveResultSetsEnabled { get; }
             public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
 
             public Task<IDbContextTransaction> BeginTransactionAsync(
