@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -216,52 +216,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
-        {
-            var ignoredAnnotations = new List<string>
-            {
-                CoreAnnotationNames.NavigationCandidates,
-                CoreAnnotationNames.AmbiguousNavigations,
-                CoreAnnotationNames.InverseNavigations,
-                ChangeDetector.SkipDetectChangesAnnotation,
-                CoreAnnotationNames.OwnedTypes,
-                CoreAnnotationNames.ChangeTrackingStrategy,
-                CoreAnnotationNames.BeforeSaveBehavior,
-                CoreAnnotationNames.AfterSaveBehavior,
-                CoreAnnotationNames.TypeMapping,
-                CoreAnnotationNames.ValueComparer,
-#pragma warning disable 618
-                CoreAnnotationNames.KeyValueComparer,
-                CoreAnnotationNames.StructuralValueComparer,
-#pragma warning restore 618
-                CoreAnnotationNames.ConstructorBinding,
-                CoreAnnotationNames.NavigationAccessMode,
-                CoreAnnotationNames.PropertyAccessMode,
-                CoreAnnotationNames.ProviderClrType,
-                CoreAnnotationNames.ValueConverter,
-                CoreAnnotationNames.ValueGeneratorFactory,
-                CoreAnnotationNames.DefiningQuery,
-                CoreAnnotationNames.QueryFilter,
-                RelationalAnnotationNames.RelationalModel,
-                RelationalAnnotationNames.CheckConstraints,
-                RelationalAnnotationNames.Sequences,
-                RelationalAnnotationNames.DbFunctions,
-                RelationalAnnotationNames.TableMappings,
-                RelationalAnnotationNames.TableColumnMappings,
-                RelationalAnnotationNames.ViewMappings,
-                RelationalAnnotationNames.ViewColumnMappings,
-                RelationalAnnotationNames.ForeignKeyMappings,
-                RelationalAnnotationNames.TableIndexMappings,
-                RelationalAnnotationNames.UniqueConstraintMappings
-            };
-
-            return items.SelectMany(
-                i => i.GetAnnotations().Select(
-                        a => new { Annotatable = i, Annotation = a })
-                    .Where(
-                        a => a.Annotation.Value != null
-                             && !ignoredAnnotations.Contains(a.Annotation.Name))
-                    .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
-        }
+            => items.SelectMany(
+                    i => Dependencies.AnnotationCodeGenerator.FilterIgnoredAnnotations(i.GetAnnotations())
+                        .Select(a => new { Annotatable = i, Annotation = a })
+                .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
 
         private ValueConverter FindValueConverter(IProperty property)
             => (property.FindTypeMapping()
@@ -269,8 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private Type GetProviderType(IAnnotatable annotatable, Type valueType)
             => annotatable is IProperty property
-               && valueType.UnwrapNullableType() == property.ClrType.UnwrapNullableType()
-                ? FindValueConverter(property)?.ProviderClrType ?? valueType
-                : valueType;
+                && valueType.UnwrapNullableType() == property.ClrType.UnwrapNullableType()
+                    ? FindValueConverter(property)?.ProviderClrType ?? valueType
+                    : valueType;
     }
 }

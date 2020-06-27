@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <value>
-        ///     True if all the related entities are loaded or the IsLoaded has been explicitly set to true.
+        ///     <see langword="true"/> if all the related entities are loaded or the IsLoaded has been explicitly set to true.
         /// </value>
         public virtual bool IsLoaded
         {
@@ -240,7 +240,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
 
             return relatedEntry != null
-                && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
+                && (relatedEntry.EntityState == EntityState.Added
+                || relatedEntry.EntityState == EntityState.Deleted
+                || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
         }
 
         private void SetFkPropertiesModified(object relatedEntity, bool modified)
@@ -260,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (anyNonPk
                     && !property.IsPrimaryKey())
                 {
-                    internalEntityEntry.SetPropertyModified(property, isModified: modified, acceptChanges: true);
+                    internalEntityEntry.SetPropertyModified(property, isModified: modified, acceptChanges: false);
                 }
             }
         }

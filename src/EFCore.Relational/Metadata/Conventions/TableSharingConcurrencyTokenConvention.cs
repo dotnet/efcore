@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -20,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
     {
+        private const string ConcurrencyPropertyPrefix = "_TableSharingConcurrencyTokenConvention_";
+
         /// <summary>
         ///     Creates a new instance of <see cref="TableSharingConcurrencyTokenConvention" />.
         /// </summary>
@@ -36,8 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Parameter object containing service dependencies.
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
-
-        public static readonly string ConcurrencyPropertyPrefix = "_TableSharingConcurrencyTokenConvention_";
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         foundMappedProperty = foundMappedProperty
                             || entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties())
-                                .Any(p => p.GetColumnName() == concurrencyColumnName);
+                                .Any(p => p.GetColumnName(table.Table, table.Schema) == concurrencyColumnName);
 
                         if (!foundMappedProperty)
                         {
@@ -108,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 !exampleProperty.IsNullable).Builder;
                         concurrencyShadowPropertyBuilder
                             .HasColumnName(concurrencyColumnName)
+                            .HasColumnType(exampleProperty.GetColumnType())
                             ?.IsConcurrencyToken(true)
                             ?.ValueGenerated(exampleProperty.ValueGenerated);
 #pragma warning restore EF1001 // Internal EF Core API usage.
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue; // unmapped entityType
                 }
 
-                var table = (tableName, entityType.GetSchema());
+                var table = (Name: tableName, Schema: entityType.GetSchema());
 
                 if (!tableToEntityTypes.TryGetValue(table, out var mappedTypes))
                 {
@@ -142,8 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    if (property.IsConcurrencyToken
-                        && (property.ValueGenerated & ValueGenerated.OnUpdate) != 0)
+                    if (property.IsConcurrencyToken)
                     {
                         if (!concurrencyColumnsToProperties.TryGetValue(table, out var columnToProperties))
                         {
@@ -151,7 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             concurrencyColumnsToProperties[table] = columnToProperties;
                         }
 
-                        var columnName = property.GetColumnName();
+                        var columnName = property.GetColumnName(tableName, table.Schema);
+                        if (columnName == null)
+                        {
+                            continue;
+                        }
+
                         if (!columnToProperties.TryGetValue(columnName, out var properties))
                         {
                             properties = new List<IConventionProperty>();

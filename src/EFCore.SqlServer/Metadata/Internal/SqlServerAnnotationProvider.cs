@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
                 yield return new Annotation(SqlServerAnnotationNames.EditionOptions, options.ToString());
             }
 
-            if (model.Tables.Any(t => t.IsMigratable && (t[SqlServerAnnotationNames.MemoryOptimized] as bool? == true)))
+            if (model.Tables.Any(t => !t.IsExcludedFromMigrations && (t[SqlServerAnnotationNames.MemoryOptimized] as bool? == true)))
             {
                 yield return new Annotation(
                     SqlServerAnnotationNames.MemoryOptimized,
@@ -115,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             // Model validation ensures that these facets are the same on all mapped keys
             var key = constraint.MappedKeys.First();
 
-            var isClustered = key.IsClustered();
+            var table = constraint.Table;
+            var isClustered = key.IsClustered(table.Name, table.Schema);
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -135,7 +136,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             // Model validation ensures that these facets are the same on all mapped indexes
             var modelIndex = index.MappedIndexes.First();
 
-            var isClustered = modelIndex.IsClustered();
+            var table = index.Table;
+            var isClustered = modelIndex.IsClustered(table.Name, table.Schema);
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -147,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             if (includeProperties != null)
             {
                 var includeColumns = (IReadOnlyList<string>)includeProperties
-                    .Select(p => modelIndex.DeclaringEntityType.FindProperty(p).GetColumnName())
+                    .Select(p => modelIndex.DeclaringEntityType.FindProperty(p).GetColumnName(table.Name, table.Schema))
                     .ToArray();
 
                 yield return new Annotation(
@@ -180,12 +182,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IColumn column)
         {
-            var property = column.PropertyMappings.Select(m => m.Property)
-                .FirstOrDefault(p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn);
+            var table = column.Table;
+            var property = column.PropertyMappings.Where(m =>
+                m.TableMapping.IsMainEntityTypeMapping && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
+                .Select(m => m.Property)
+                .FirstOrDefault(p => p.GetValueGenerationStrategy(table.Name, table.Schema) == SqlServerValueGenerationStrategy.IdentityColumn);
             if (property != null)
             {
-                var seed = property.GetIdentitySeed();
-                var increment = property.GetIdentityIncrement();
+                var seed = property.GetIdentitySeed(table.Name, table.Schema);
+                var increment = property.GetIdentityIncrement(table.Name, table.Schema);
 
                 yield return new Annotation(
                     SqlServerAnnotationNames.Identity,

@@ -9,12 +9,16 @@ using Microsoft.EntityFrameworkCore.Query;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
+    ///     The methods on this class are accessed via <see cref="EF.Functions" />.
+    /// </summary>
     public static class RelationalDbFunctionsExtensions
     {
         /// <summary>
         ///     <para>
         ///         Explicitly specifies a collation to be used in a LINQ query. Can be used to generate fragments such as
-        ///         <code>WHERE customer.name COLLATE 'de_DE' = 'John Doe'</code>.
+        ///         <c>WHERE customer.name COLLATE 'de_DE' = 'John Doe'</c>.
         ///     </para>
         ///     <para>
         ///         The available collations and their names vary across databases, consult your database's documentation for more

@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         /// <inheritdoc />
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

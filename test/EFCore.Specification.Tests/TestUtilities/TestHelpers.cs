@@ -184,33 +184,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return entry;
         }
 
-        public static int AssertResults<T>(
-            IList<T> expected,
-            IList<T> actual,
-            bool assertOrder,
-            Action<IList<T>, IList<T>> asserter = null)
+        private static int AssertResults<T>(IList<T> expected, IList<T> actual)
         {
             Assert.Equal(expected.Count, actual.Count);
 
-            if (asserter != null)
+            foreach (var expectedItem in expected)
             {
-                asserter(expected, actual);
-            }
-            else
-            {
-                if (assertOrder)
-                {
-                    Assert.Equal(expected, actual);
-                }
-                else
-                {
-                    foreach (var expectedItem in expected)
-                    {
-                        Assert.True(
-                            actual.Contains(expectedItem),
-                            $"\r\nExpected item: [{expectedItem}] not found in results: [{string.Join(", ", actual.Take(10))}]...");
-                    }
-                }
+                Assert.True(
+                    actual.Contains(expectedItem),
+                    $"\r\nExpected item: [{expectedItem}] not found in results: [{string.Join(", ", actual.Take(10))}]...");
             }
 
             return actual.Count;
@@ -226,18 +208,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(expected.Count, actual.Count);
 
             if (elementSorter == null
-                && !verifyOrdered)
+                && !verifyOrdered
+                && expected.Count > 1 // If there is only 1 element then sorting is not necessary
+                && expected.FirstOrDefault(e => e != null) is T nonNullElement
+                    && nonNullElement.GetType().GetInterface(nameof(IComparable)) == null)
             {
-                if (ShouldPerformUnsortedVerification(expected))
+                if (elementAsserter != null)
                 {
-                    if (elementAsserter != null)
-                    {
-                        throw new InvalidOperationException(
-                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
-                    }
-
-                    return AssertResults(expected, actual, assertOrder: false);
+                    throw new InvalidOperationException(
+                        "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                 }
+
+                return AssertResults(expected, actual);
             }
 
             elementSorter ??= (e => e);
@@ -254,97 +236,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             return actual.Count;
-        }
-
-        public static int AssertResults<T>(
-            IList<T> expected,
-            IList<T> actual,
-            Func<T, T> elementSorter,
-            Action<T, T> elementAsserter,
-            bool verifyOrdered)
-        {
-            Assert.Equal(expected.Count, actual.Count);
-
-            if (elementSorter == null
-                && !verifyOrdered)
-            {
-                if (ShouldPerformUnsortedVerification(expected))
-                {
-                    if (elementAsserter != null)
-                    {
-                        throw new InvalidOperationException(
-                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
-                    }
-
-                    return AssertResults(expected, actual, assertOrder: false);
-                }
-            }
-
-            elementAsserter ??= Assert.Equal;
-            if (!verifyOrdered)
-            {
-                expected = expected.OrderBy(elementSorter).ToList();
-                actual = actual.OrderBy(elementSorter).ToList();
-            }
-
-            for (var i = 0; i < expected.Count; i++)
-            {
-                elementAsserter(expected[i], actual[i]);
-            }
-
-            return actual.Count;
-        }
-
-        public static int AssertResultsNullable<T>(
-            IList<T?> expected,
-            IList<T?> actual,
-            Func<T?, T?> elementSorter,
-            Action<T?, T?> elementAsserter,
-            bool verifyOrdered)
-            where T : struct
-        {
-            Assert.Equal(expected.Count, actual.Count);
-
-            if (elementSorter == null
-                && !verifyOrdered)
-            {
-                if (ShouldPerformUnsortedVerification(expected))
-                {
-                    if (elementAsserter != null)
-                    {
-                        throw new InvalidOperationException(
-                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
-                    }
-
-                    return AssertResults(expected, actual, assertOrder: false);
-                }
-            }
-
-            elementAsserter ??= Assert.Equal;
-            if (!verifyOrdered)
-            {
-                expected = expected.OrderBy(elementSorter).ToList();
-                actual = actual.OrderBy(elementSorter).ToList();
-            }
-
-            for (var i = 0; i < expected.Count; i++)
-            {
-                elementAsserter(expected[i], actual[i]);
-            }
-
-            return actual.Count;
-        }
-
-        private static bool ShouldPerformUnsortedVerification<T>(IList<T> expected)
-        {
-            if (expected.Count > 1)
-            {
-                var nonNullElement = expected.FirstOrDefault(e => e != null);
-
-                return nonNullElement != null && nonNullElement.GetType().GetInterface(nameof(IComparable)) == null;
-            }
-
-            return false;
         }
 
         public static void ExecuteWithStrategyInTransaction<TContext>(

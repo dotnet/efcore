@@ -859,9 +859,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 baseTypeBuilder.HasDiscriminator<string>("Discriminator").IsComplete(false);
                 Assert.False(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
+                Assert.True(derivedTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
 
                 derivedTypeBuilder.HasDiscriminator<string>("Discriminator").IsComplete(true);
-                Assert.True(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
+                Assert.False(baseTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
+                Assert.True(derivedTypeBuilder.Metadata.GetIsDiscriminatorMappingComplete());
             }
 
             protected class L

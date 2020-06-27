@@ -12,9 +12,5 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseView : DatabaseTable
     {
-        public DatabaseView([NotNull] DatabaseModel database, [NotNull] string name)
-            : base(database, name)
-        {
-        }
     }
 }

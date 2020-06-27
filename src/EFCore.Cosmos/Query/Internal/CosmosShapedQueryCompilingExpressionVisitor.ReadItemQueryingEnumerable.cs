@@ -34,23 +34,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly ReadItemExpression _readItemExpression;
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-            private readonly bool _performIdentityResolution;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+            private readonly bool _standAloneStateManager;
 
             public ReadItemQueryingEnumerable(
                 CosmosQueryContext cosmosQueryContext,
                 ReadItemExpression readItemExpression,
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-                bool performIdentityResolution)
+                bool standAloneStateManager)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _readItemExpression = readItemExpression;
                 _shaper = shaper;
                 _contextType = contextType;
-                _logger = logger;
-                _performIdentityResolution = performIdentityResolution;
+                _queryLogger = _cosmosQueryContext.QueryLogger;
+                _standAloneStateManager = standAloneStateManager;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -71,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly ReadItemExpression _readItemExpression;
                 private readonly Func<CosmosQueryContext, JObject, T> _shaper;
                 private readonly Type _contextType;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-                private readonly bool _performIdentityResolution;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+                private readonly bool _standAloneStateManager;
                 private readonly CancellationToken _cancellationToken;
 
                 private JObject _item;
@@ -84,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _readItemExpression = readItemEnumerable._readItemExpression;
                     _shaper = readItemEnumerable._shaper;
                     _contextType = readItemEnumerable._contextType;
-                    _logger = readItemEnumerable._logger;
-                    _performIdentityResolution = readItemEnumerable._performIdentityResolution;
+                    _queryLogger = readItemEnumerable._queryLogger;
+                    _standAloneStateManager = readItemEnumerable._standAloneStateManager;
                     _cancellationToken = cancellationToken;
                 }
 
@@ -124,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
@@ -153,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                     _readItemExpression.Container,
                                     partitionKey,
                                     resourceId,
-                                    _cancellationToken);
+                                    _cancellationToken)
+                                    .ConfigureAwait(false);
 
                                 return ShapeResult();
                             }
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     var hasNext = !(_item is null);
 
-                    _cosmosQueryContext.InitializeStateManager(_performIdentityResolution);
+                    _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
 
                     Current
                         = hasNext
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private bool TryGetResourceId(out string resourceId)
                 {
                     var idProperty = _readItemExpression.EntityType.GetProperties()
-                        .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+                        .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
 
                     if (TryGetParameterValue(idProperty, out var value))
                     {

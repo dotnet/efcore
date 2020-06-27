@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateOperatorsQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateOperatorsQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindAggregateOperatorsQuerySqlServerTest(
             NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -16,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ClearLog();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected override bool CanExecuteQueryString => true;
 
         public override void Select_All()
         {
@@ -36,7 +38,7 @@ END");
             await base.Sum_with_no_arg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]");
         }
 
@@ -45,7 +47,7 @@ FROM [Orders] AS [o]");
             await base.Sum_with_binary_expression(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID] * 2)
+                @"SELECT COALESCE(SUM([o].[OrderID] * 2), 0)
 FROM [Orders] AS [o]");
         }
 
@@ -54,7 +56,7 @@ FROM [Orders] AS [o]");
             await base.Sum_with_arg(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]");
         }
 
@@ -63,7 +65,7 @@ FROM [Orders] AS [o]");
             await base.Sum_with_arg_expression(async);
 
             AssertSql(
-                @"SELECT SUM([o].[OrderID] + [o].[OrderID])
+                @"SELECT COALESCE(SUM([o].[OrderID] + [o].[OrderID]), 0)
 FROM [Orders] AS [o]");
         }
 
@@ -72,7 +74,7 @@ FROM [Orders] AS [o]");
             await base.Sum_with_division_on_decimal(async);
 
             AssertSql(
-                @"SELECT SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09)
+                @"SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09), 0.0)
 FROM [Order Details] AS [o]");
         }
 
@@ -81,7 +83,7 @@ FROM [Order Details] AS [o]");
             await base.Sum_with_division_on_decimal_no_significant_digits(async);
 
             AssertSql(
-                @"SELECT SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0)
+                @"SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0), 0.0)
 FROM [Order Details] AS [o]");
         }
 
@@ -90,7 +92,7 @@ FROM [Order Details] AS [o]");
             await base.Sum_with_coalesce(async);
 
             AssertSql(
-                @"SELECT SUM(COALESCE([p].[UnitPrice], 0.0))
+                @"SELECT COALESCE(SUM(COALESCE([p].[UnitPrice], 0.0)), 0.0)
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40");
         }
@@ -129,7 +131,7 @@ FROM [Customers] AS [c]");
             await base.Sum_on_float_column(async);
 
             AssertSql(
-                @"SELECT CAST(SUM([o].[Discount]) AS real)
+                @"SELECT CAST(COALESCE(SUM([o].[Discount]), 0.0E0) AS real)
 FROM [Order Details] AS [o]
 WHERE [o].[ProductID] = 1");
         }
@@ -140,7 +142,7 @@ WHERE [o].[ProductID] = 1");
 
             AssertSql(
                 @"SELECT [o0].[OrderID], (
-    SELECT CAST(SUM([o].[Discount]) AS real)
+    SELECT CAST(COALESCE(SUM([o].[Discount]), 0.0E0) AS real)
     FROM [Order Details] AS [o]
     WHERE [o0].[OrderID] = [o].[OrderID]) AS [Sum]
 FROM [Orders] AS [o0]
@@ -1279,12 +1281,12 @@ WHERE ([o].[ProductID] = 42) AND EXISTS (
     WHERE ([o0].[OrderID] > 42) AND (([o0].[OrderID] = [o].[OrderID]) AND ([o0].[ProductID] = [o].[ProductID])))");
         }
 
-        public override async Task String_FirstOrDefault_in_projection_does_client_eval(bool async)
+        public override async Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
         {
-            await base.String_FirstOrDefault_in_projection_does_client_eval(async);
+            await base.String_FirstOrDefault_in_projection_does_not_do_client_eval(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID]
+                @"SELECT SUBSTRING([c].[CustomerID], 1, 1)
 FROM [Customers] AS [c]");
         }
 
@@ -1293,7 +1295,7 @@ FROM [Customers] AS [c]");
             await base.Project_constant_Sum(async);
 
             AssertSql(
-                @"SELECT SUM(1)
+                @"SELECT COALESCE(SUM(1), 0)
 FROM [Employees] AS [e]");
         }
 
@@ -1451,7 +1453,7 @@ WHERE ([c].[CustomerID] LIKE N'F%') AND ((
             await base.Sum_over_explicit_cast_over_column(async);
 
             AssertSql(
-                @"SELECT SUM(CAST([o].[OrderID] AS bigint))
+                @"SELECT COALESCE(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint))
 FROM [Orders] AS [o]");
         }
 

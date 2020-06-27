@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class GearsOfWarQuerySqliteTest : GearsOfWarQueryTestBase<GearsOfWarQuerySqliteFixture>
+    public class GearsOfWarQuerySqliteTest : GearsOfWarQueryRelationalTestBase<GearsOfWarQuerySqliteFixture>
     {
         public GearsOfWarQuerySqliteTest(GearsOfWarQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -77,10 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(bool async) => null;
 
         public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(bool async) => null;
-
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Project_collection_navigation_nested_with_take_composite_key(bool async)
-            => base.Project_collection_navigation_nested_with_take_composite_key(async);
 
         public override async Task Select_datetimeoffset_comparison_in_projection(bool async)
         {

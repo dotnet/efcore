@@ -9,13 +9,22 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         Extension methods for <see cref="Expression" /> types.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public static class ExpressionExtensions
     {
-        public static bool IsLogicalNot([NotNull] this SqlUnaryExpression sqlUnaryExpression)
-            => sqlUnaryExpression.OperatorType == ExpressionType.Not
-                && (sqlUnaryExpression.Type == typeof(bool)
-                    || sqlUnaryExpression.Type == typeof(bool?));
-
+        /// <summary>
+        ///     Infers type mapping from given <see cref="SqlExpression"/>s.
+        /// </summary>
+        /// <param name="expressions"> Expressions to search for to find the type mapping. </param>
+        /// <returns> A relational type mapping inferred from the expressions. </returns>
         public static RelationalTypeMapping InferTypeMapping([NotNull] params SqlExpression[] expressions)
         {
             Check.NotNull(expressions, nameof(expressions));

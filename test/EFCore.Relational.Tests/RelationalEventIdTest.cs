@@ -40,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = new Property(
                 "A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
+            var index = new Metadata.Internal.Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
@@ -65,7 +66,9 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(IMigrationsAssembly), () => new FakeMigrationsAssembly() },
                 { typeof(MethodCallExpression), () => Expression.Call(constantExpression, typeof(object).GetMethod("ToString")) },
                 { typeof(Expression), () => constantExpression },
+                { typeof(IEntityType), () => entityType },
                 { typeof(IProperty), () => property },
+                { typeof(IIndex), () => index },
                 { typeof(TypeInfo), () => typeof(object).GetTypeInfo() },
                 { typeof(Type), () => typeof(object) },
                 { typeof(ValueConverter), () => new BoolToZeroOneConverter<int>() },
@@ -143,7 +146,6 @@ namespace Microsoft.EntityFrameworkCore
             public Guid ConnectionId => Guid.NewGuid();
             public int? CommandTimeout { get; set; }
             public Task<bool> CloseAsync() => throw new NotImplementedException();
-            public bool IsMultipleActiveResultSetsEnabled => throw new NotImplementedException();
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
             public SemaphoreSlim Semaphore => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
@@ -172,8 +174,14 @@ namespace Microsoft.EntityFrameworkCore
 
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
 
+            public IDbContextTransaction UseTransaction(DbTransaction transaction, Guid transactionId) =>
+                throw new NotImplementedException();
+
             public Task<IDbContextTransaction> UseTransactionAsync(
                 DbTransaction transaction, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
+            public Task<IDbContextTransaction> UseTransactionAsync(
+                DbTransaction transaction, Guid transactionId, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
             public ValueTask DisposeAsync() => throw new NotImplementedException();
         }

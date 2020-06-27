@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -16,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -164,6 +166,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public TProperty Property { get; set; }
         }
 
+        [Index(nameof(FirstName), nameof(LastName))]
+        private class EntityWithIndexAttribute
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
+        [Index(nameof(FirstName), nameof(LastName), Name = "NamedIndex")]
+        private class EntityWithNamedIndexAttribute
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
+        [Index(nameof(FirstName), nameof(LastName), IsUnique = true)]
+        private class EntityWithUniqueIndexAttribute
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
         public class TestOwner
         {
             public int Id { get; set; }
@@ -254,15 +280,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 AddBoilerPlate(
                     @"
             modelBuilder
+                .UseIdentityColumns()
                 .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
                 .HasAnnotation(""SqlServer:DatabaseMaxSize"", ""100 MB"")
                 .HasAnnotation(""SqlServer:PerformanceLevelSql"", ""'S0'"")
-                .HasAnnotation(""SqlServer:ServiceTierSql"", ""'basic'"")
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
+                .HasAnnotation(""SqlServer:ServiceTierSql"", ""'basic'"");"),
                 o =>
                 {
-                    Assert.Equal(7, o.GetAnnotations().Count());
+                    Assert.Equal(9, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                 });
         }
@@ -280,12 +306,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     @"
             modelBuilder
                 .HasDefaultSchema(""DefaultSchema"")
+                .UseIdentityColumns()
                 .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
-                .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);"),
                 o =>
                 {
-                    Assert.Equal(5, o.GetAnnotations().Count());
+                    Assert.Equal(7, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                     Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                 });
@@ -308,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -320,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -342,12 +368,117 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public void Views_are_ignored()
+        public virtual void Entities_are_stored_in_model_snapshot_for_TPT()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<DerivedEntity>()
+                        .ToTable("DerivedEntity", "foo");
+                    builder.Entity<BaseEntity>();
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""Discriminator"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""BaseEntity"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.ToTable(""DerivedEntity"", ""foo"");
+                });"),
+                o =>
+                {
+                    Assert.Equal(5, o.GetAnnotations().Count());
+
+                    Assert.Equal("DerivedEntity",
+                        o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity").GetTableName());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Entities_are_stored_in_model_snapshot_for_TPT_with_one_excluded()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<DerivedEntity>()
+                        .ToTable("DerivedEntity", "foo", excludedFromMigrations: true);
+                    builder.Entity<BaseEntity>();
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""Discriminator"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""BaseEntity"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.ToTable(""DerivedEntity"", ""foo"", true);
+                });"),
+                o =>
+                {
+                    Assert.Equal(5, o.GetAnnotations().Count());
+
+                    Assert.Equal("DerivedEntity",
+                        o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity").GetTableName());
+                });
+        }
+
+        [ConditionalFact]
+        public void Views_are_stored_in_the_model_snapshot()
         {
             Test(
                 builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToView("EntityWithOneProperty"),
-                AddBoilerPlate(GetHeading(empty: true)),
-                o => Assert.Empty(o.GetEntityTypes()));
+
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.HasKey(""Id"");
+
+                    b.ToView(""EntityWithOneProperty"");
+                });"),
+                o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
         }
 
         [ConditionalFact]
@@ -374,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .IsCyclic();"),
                 o =>
                 {
-                    Assert.Equal(4, o.GetAnnotations().Count());
+                    Assert.Equal(6, o.GetAnnotations().Count());
                 });
         }
 
@@ -396,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -409,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(5, o.GetAnnotations().Count());
                 });
         }
 
@@ -420,7 +551,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder =>
                 {
                     builder.Entity<DerivedEntity>()
-                        .HasBaseType<BaseEntity>()
                         .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
                     builder.Entity<BaseEntity>();
                 },
@@ -432,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -458,8 +588,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(5, o.GetAnnotations().Count());
                 });
+        }
+
+        [ConditionalFact]
+        public virtual void ProductVersion_is_stored_in_snapshot()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var generator = CreateMigrationsGenerator();
+            var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", modelBuilder.Model);
+            Assert.Contains(@".HasAnnotation(""ProductVersion"",", code);
+
+            var modelFromSnapshot = BuildModelFromSnapshotSource(code);
+            Assert.Equal(ProductInfo.GetVersion(), modelFromSnapshot.GetProductVersion());
         }
 
         #endregion
@@ -483,17 +625,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithOneProperty"");
 
-                    b.HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+                    b
+                        .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
                 });"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetEntityTypes().First().GetAnnotations().Count());
+                    Assert.Equal(5, o.GetEntityTypes().First().GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                 });
         }
@@ -515,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -583,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -643,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -741,7 +884,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -779,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -815,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -856,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -868,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -991,7 +1134,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<Guid>(""Property"")
                         .HasColumnType(""uniqueidentifier"");
@@ -1028,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<long>(""Day"")
                         .HasColumnType(""bigint"");
@@ -1038,8 +1181,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""EntityWithEnumType"");
 
                     b.HasDiscriminator<long>(""Day"");
-
-                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });"),
                 model => Assert.Equal(typeof(long), model.GetEntityTypes().First().GetDiscriminatorProperty().ClrType));
         }
@@ -1062,7 +1203,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Day"")
                         .IsRequired()
@@ -1073,8 +1214,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""EntityWithEnumType"");
 
                     b.HasDiscriminator<string>(""Day"");
-
-                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(N'Sun', N'Mon', N'Tue', N'Wed', N'Thu', N'Fri', N'Sat')"");
                 });"),
                 model =>
                 {
@@ -1134,7 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"")
                         .HasName(""PK_Custom"");
@@ -1165,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.Property<int>(""AlternateId"")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .UseIdentityColumn();
 
                             b1.Property<string>(""EntityWithStringKeyId"")
                                 .HasColumnType(""nvarchar(450)"");
@@ -1208,7 +1347,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.Property<int>(""Id"")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .UseIdentityColumn();
 
                             b1.Property<int?>(""EntityWithOnePropertyId"")
                                 .HasColumnType(""int"");
@@ -1311,7 +1450,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -1325,7 +1464,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.Property<int>(""OrderId"")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .UseIdentityColumn();
 
                             b1.HasKey(""OrderId"");
 
@@ -1339,7 +1478,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                     b2.Property<int>(""OrderDetailsOrderId"")
                                         .ValueGeneratedOnAdd()
                                         .HasColumnType(""int"")
-                                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                        .UseIdentityColumn();
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
@@ -1358,7 +1497,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.Property<int>(""OrderId"")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .UseIdentityColumn();
 
                             b1.HasKey(""OrderId"");
 
@@ -1372,7 +1511,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                     b2.Property<int>(""OrderDetailsOrderId"")
                                         .ValueGeneratedOnAdd()
                                         .HasColumnType(""int"")
-                                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                        .UseIdentityColumn();
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
@@ -1391,7 +1530,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b1.Property<int>(""OrderId"")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .UseIdentityColumn();
 
                             b1.HasKey(""OrderId"");
 
@@ -1405,7 +1544,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                     b2.Property<int>(""OrderInfoOrderId"")
                                         .ValueGeneratedOnAdd()
                                         .HasColumnType(""int"")
-                                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                        .UseIdentityColumn();
 
                                     b2.Property<string>(""City"")
                                         .HasColumnType(""nvarchar(max)"");
@@ -1454,7 +1593,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 modelBuilder =>
                 {
                     modelBuilder.Entity<TestOwner>()
-                        .OwnsMany(o => o.OwnedEntities);
+                        .OwnsMany(
+                            o => o.OwnedEntities,
+                            ownee => ownee.HasCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)"));
+
                 },
                 @"// <auto-generated />
 using Microsoft.EntityFrameworkCore;
@@ -1471,15 +1613,15 @@ namespace RootNamespace
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                .UseIdentityColumns()
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwner"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -1496,7 +1638,7 @@ namespace RootNamespace
                             b1.Property<int>(""Id"")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"")
-                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                                .UseIdentityColumn();
 
                             b1.Property<int>(""TestEnum"")
                                 .HasColumnType(""int"");
@@ -1505,7 +1647,7 @@ namespace RootNamespace
 
                             b1.ToTable(""TestOwnee"");
 
-                            b1.HasCheckConstraint(""CK_TestOwnee_TestEnum_Enum_Constraint"", ""[TestEnum] IN(0, 1, 2)"");
+                            b1.HasCheckConstraint(""CK_TestOwnee_TestEnum_Enum_Constraint"", ""[TestEnum] IN (0, 1, 2)"");
 
                             b1.WithOwner()
                                 .HasForeignKey(""TestOwnerId"");
@@ -1573,8 +1715,8 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn()
+                        .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
                     b.HasKey(""Id"");
 
@@ -1601,7 +1743,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -1624,7 +1766,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Name"")
                         .IsRequired()
@@ -1654,7 +1796,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAdd()
@@ -1681,11 +1823,11 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Name"")
-                        .HasColumnType(""nvarchar(100)"")
-                        .HasMaxLength(100);
+                        .HasMaxLength(100)
+                        .HasColumnType(""nvarchar(100)"");
 
                     b.HasKey(""Id"");
 
@@ -1707,11 +1849,11 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Name"")
-                        .HasColumnType(""varchar(max)"")
-                        .IsUnicode(false);
+                        .IsUnicode(false)
+                        .HasColumnType(""varchar(max)"");
 
                     b.HasKey(""Id"");
 
@@ -1733,12 +1875,12 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Name"")
+                        .HasMaxLength(100)
                         .HasColumnType(""nchar(100)"")
-                        .IsFixedLength(true)
-                        .HasMaxLength(100);
+                        .IsFixedLength(true);
 
                     b.HasKey(""Id"");
 
@@ -1767,12 +1909,12 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Name"")
-                        .HasColumnType(""varchar(100)"")
                         .HasMaxLength(100)
                         .IsUnicode(false)
+                        .HasColumnType(""varchar(100)"")
                         .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
                     b.HasKey(""Id"");
@@ -1805,7 +1947,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .IsConcurrencyToken()
@@ -1835,11 +1977,11 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
-                        .HasColumnName(""CName"")
-                        .HasColumnType(""int"");
+                        .HasColumnType(""int"")
+                        .HasColumnName(""CName"");
 
                     b.HasKey(""Id"");
 
@@ -1865,7 +2007,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""CType"");
@@ -1894,7 +2036,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAdd()
@@ -1925,7 +2067,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAdd()
@@ -1956,7 +2098,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAddOrUpdate()
@@ -1983,7 +2125,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<long>(""Day"")
                         .ValueGeneratedOnAdd()
@@ -1993,8 +2135,6 @@ namespace RootNamespace
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
-
-                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });"),
                 o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
         }
@@ -2019,7 +2159,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Day"")
                         .IsRequired()
@@ -2030,8 +2170,6 @@ namespace RootNamespace
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
-
-                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(N'Sun', N'Mon', N'Tue', N'Wed', N'Thu', N'Fri', N'Sat')"");
 
                     b.HasData(
                         new
@@ -2062,7 +2200,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<long?>(""Day"")
                         .HasColumnType(""bigint"");
@@ -2088,7 +2226,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<long>(""Day"")
                         .HasColumnType(""bigint"");
@@ -2096,8 +2234,6 @@ namespace RootNamespace
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
-
-                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });", usingSystem: true),
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
         }
@@ -2115,7 +2251,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Day"")
                         .HasColumnType(""nvarchar(max)"");
@@ -2145,11 +2281,11 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
-                        .HasColumnName(""CName"")
                         .HasColumnType(""int"")
+                        .HasColumnName(""CName"")
                         .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
                     b.HasKey(""Id"");
@@ -2192,14 +2328,14 @@ namespace RootNamespace
                 AddBoilerPlate(
                     @"
             modelBuilder
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                .UseIdentityColumns();
 
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -2234,7 +2370,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2267,7 +2403,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2301,7 +2437,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2325,7 +2461,7 @@ namespace RootNamespace
 
         #endregion
 
-        #region HasIndex
+        #region Index
 
         [ConditionalFact]
         public virtual void Index_annotations_are_stored_in_snapshot()
@@ -2345,7 +2481,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2377,7 +2513,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2393,12 +2529,14 @@ namespace RootNamespace
         }
 
         [ConditionalFact]
-        public virtual void Index_name_annotation_is_stored_in_snapshot_as_fluent_api()
+        public virtual void Index_database_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
                 builder =>
                 {
-                    builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId).HasName("IndexName");
+                    builder.Entity<EntityWithTwoProperties>()
+                        .HasIndex(t => t.AlternateId)
+                            .HasDatabaseName("IndexName");
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
@@ -2409,7 +2547,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2417,11 +2555,16 @@ namespace RootNamespace
                     b.HasKey(""Id"");
 
                     b.HasIndex(""AlternateId"")
-                        .HasName(""IndexName"");
+                        .HasDatabaseName(""IndexName"");
 
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
-                o => Assert.Equal("IndexName", o.GetEntityTypes().First().GetIndexes().First()["Relational:Name"]));
+                o =>
+                {
+                    var index = o.GetEntityTypes().First().GetIndexes().First();
+                    Assert.Null(index.Name);
+                    Assert.Equal("IndexName", index.GetDatabaseName());
+                });
         }
 
         [ConditionalFact]
@@ -2442,7 +2585,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2465,7 +2608,7 @@ namespace RootNamespace
             Test(
                 builder =>
                 {
-                    builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId).HasName("IndexName")
+                    builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId, "IndexName")
                         .HasAnnotation("AnnotationName", "AnnotationValue");
                     builder.Ignore<EntityWithOneProperty>();
                 },
@@ -2477,15 +2620,14 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
 
                     b.HasKey(""Id"");
 
-                    b.HasIndex(""AlternateId"")
-                        .HasName(""IndexName"")
+                    b.HasIndex(new[] { ""AlternateId"" }, ""IndexName"")
                         .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
                     b.ToTable(""EntityWithTwoProperties"");
@@ -2493,9 +2635,10 @@ namespace RootNamespace
                 o =>
                 {
                     var index = o.GetEntityTypes().First().GetIndexes().First();
-                    Assert.Equal(3, index.GetAnnotations().Count());
+                    Assert.Equal("IndexName", index.Name);
+                    Assert.Equal(2, index.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
-                    Assert.Equal("IndexName", index["Relational:Name"]);
+                    Assert.Null(index["RelationalAnnotationNames.Name"]);
                 });
         }
 
@@ -2519,7 +2662,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
@@ -2533,7 +2676,147 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
-                model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetName().Length));
+                model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName().Length));
+        }
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_causes_column_to_have_key_or_index_column_length()
+        {
+            Test(
+                builder => builder.Entity<EntityWithIndexAttribute>(),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithIndexAttribute"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""FirstName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.Property<string>(""LastName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(""FirstName"", ""LastName"");
+
+                    b.ToTable(""EntityWithIndexAttribute"");
+                });"),
+                model =>
+                    Assert.Collection(
+                        model.GetEntityTypes().First().GetIndexes().First().Properties,
+                        p0 =>
+                            {
+                                Assert.Equal("FirstName", p0.Name);
+                                Assert.Equal("nvarchar(450)", p0.GetColumnType());
+                            },
+                        p1 =>
+                            {
+                                Assert.Equal("LastName", p1.Name);
+                                Assert.Equal("nvarchar(450)", p1.GetColumnType());
+                            }
+                    ));
+        }
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_name_is_stored_in_snapshot()
+        {
+            Test(
+                builder => builder.Entity<EntityWithNamedIndexAttribute>(),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithNamedIndexAttribute"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""FirstName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.Property<string>(""LastName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(new[] { ""FirstName"", ""LastName"" }, ""NamedIndex"");
+
+                    b.ToTable(""EntityWithNamedIndexAttribute"");
+                });"),
+                model =>
+                    {
+                        var index = model.GetEntityTypes().First().GetIndexes().First();
+                        Assert.Equal("NamedIndex", index.Name);
+                        Assert.Collection(
+                            index.Properties,
+                            p0 =>
+                            {
+                                Assert.Equal("FirstName", p0.Name);
+                                Assert.Equal("nvarchar(450)", p0.GetColumnType());
+                            },
+                            p1 =>
+                            {
+                                Assert.Equal("LastName", p1.Name);
+                                Assert.Equal("nvarchar(450)", p1.GetColumnType());
+                            }
+                        );
+                    });
+        }
+
+
+        [ConditionalFact]
+        public virtual void IndexAttribute_IsUnique_is_stored_in_snapshot()
+        {
+            Test(
+                builder => builder.Entity<EntityWithUniqueIndexAttribute>(),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithUniqueIndexAttribute"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""FirstName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.Property<string>(""LastName"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(""FirstName"", ""LastName"")
+                        .IsUnique()
+                        .HasFilter(""[FirstName] IS NOT NULL AND [LastName] IS NOT NULL"");
+
+                    b.ToTable(""EntityWithUniqueIndexAttribute"");
+                });"),
+                model =>
+                {
+                    var index = model.GetEntityTypes().First().GetIndexes().First();
+                    Assert.True(index.IsUnique);
+                    Assert.Collection(
+                        index.Properties,
+                        p0 =>
+                        {
+                            Assert.Equal("FirstName", p0.Name);
+                            Assert.Equal("nvarchar(450)", p0.GetColumnType());
+                        },
+                        p1 =>
+                        {
+                            Assert.Equal("LastName", p1.Name);
+                            Assert.Equal("nvarchar(450)", p1.GetColumnType());
+                        }
+                    );
+                });
         }
 
         #endregion
@@ -2560,7 +2843,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -2572,7 +2855,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2629,7 +2912,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Name"")
                         .IsRequired()
@@ -2683,7 +2966,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(450)"");
@@ -2734,7 +3017,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2785,7 +3068,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2839,7 +3122,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<Guid>(""Property"")
                         .HasColumnType(""uniqueidentifier"");
@@ -2883,7 +3166,7 @@ namespace RootNamespace
                     var originalIndex = originalChild.FindIndex(originalChild.FindProperty("Property"));
                     var index = child.FindIndex(child.FindProperty("Property"));
 
-                    Assert.Equal(originalIndex.GetName(), index.GetName());
+                    Assert.Equal(originalIndex.GetDatabaseName(), index.GetDatabaseName());
                 });
         }
 
@@ -2907,7 +3190,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -2919,7 +3202,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2966,7 +3249,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -2978,7 +3261,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -3028,7 +3311,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -3051,7 +3334,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.HasKey(""Id"");
 
@@ -3104,7 +3387,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -3162,7 +3445,7 @@ namespace RootNamespace
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -3354,15 +3637,15 @@ namespace RootNamespace
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                .UseIdentityColumns()
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithManyProperties"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<bool>(""Boolean"")
                         .HasColumnType(""bit"");
@@ -3491,22 +3774,6 @@ namespace RootNamespace
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithManyProperties"");
-
-                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum16_Enum_Constraint"", ""[Enum16] IN(CAST(1 AS smallint))"");
-
-                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum32_Enum_Constraint"", ""[Enum32] IN(1)"");
-
-                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum64_Enum_Constraint"", ""[Enum64] IN(CAST(1 AS bigint))"");
-
-                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum8_Enum_Constraint"", ""[Enum8] IN(CAST(1 AS tinyint))"");
-
-                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumS8_Enum_Constraint"", ""[EnumS8] IN(CAST(-128 AS smallint))"");
-
-                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU16_Enum_Constraint"", ""[EnumU16] IN(65535)"");
-
-                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU32_Enum_Constraint"", ""[EnumU32] IN(CAST(4294967295 AS bigint))"");
-
-                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU64_Enum_Constraint"", ""[EnumU64] IN(1234567890123456789.0)"");
 
                     b.HasData(
                         new
@@ -3715,8 +3982,8 @@ namespace RootNamespace
 
         protected virtual string GetHeading(bool empty = false) => @"
             modelBuilder
-                .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"
+                .UseIdentityColumns()
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);"
             + (empty
                 ? null
                 : @"
@@ -3774,30 +4041,16 @@ namespace RootNamespace
 
         protected void Test(IModel model, string expectedCode, Action<IModel, IModel> assert)
         {
-            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                new RelationalTypeMappingSourceDependencies(
-                    new IRelationalTypeMappingSourcePlugin[]
-                    {
-                        new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                    }));
-            var codeHelper = new CSharpHelper(
-                sqlServerTypeMappingSource);
-
-            var generator = new CSharpMigrationsGenerator(
-                new MigrationsCodeGeneratorDependencies(sqlServerTypeMappingSource),
-                new CSharpMigrationsGeneratorDependencies(
-                    codeHelper,
-                    new CSharpMigrationOperationGenerator(
-                        new CSharpMigrationOperationGeneratorDependencies(
-                            codeHelper)),
-                    new CSharpSnapshotGenerator(
-                        new CSharpSnapshotGeneratorDependencies(
-                            codeHelper, sqlServerTypeMappingSource))));
-
+            var generator = CreateMigrationsGenerator();
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
             Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
 
+            var modelFromSnapshot = BuildModelFromSnapshotSource(code);
+            assert(modelFromSnapshot, model);
+        }
+
+        protected IModel BuildModelFromSnapshotSource(string code)
+        {
             var build = new BuildSource { Sources = { code } };
 
             foreach (var buildReference in GetReferences())
@@ -3825,9 +4078,7 @@ namespace RootNamespace
             var services = RelationalTestHelpers.Instance.CreateContextServices();
 
             var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IConventionSetBuilder>());
-            var modelFromSnapshot = processor.Process(builder.Model);
-
-            assert(modelFromSnapshot, model);
+            return processor.Process(builder.Model);
         }
 
         protected ModelBuilder CreateConventionalModelBuilder()
@@ -3844,6 +4095,38 @@ namespace RootNamespace
             using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             using var context = serviceScope.ServiceProvider.GetService<DbContext>();
             return new ModelBuilder(ConventionSet.CreateConventionSet(context));
+        }
+
+        protected CSharpMigrationsGenerator CreateMigrationsGenerator()
+        {
+            var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                new RelationalTypeMappingSourceDependencies(
+                    new IRelationalTypeMappingSourcePlugin[]
+                    {
+                        new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
+                    }));
+
+            var codeHelper = new CSharpHelper(
+                sqlServerTypeMappingSource);
+
+            var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
+                new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
+
+            var generator = new CSharpMigrationsGenerator(
+                new MigrationsCodeGeneratorDependencies(
+                    sqlServerTypeMappingSource,
+                    sqlServerAnnotationCodeGenerator),
+                new CSharpMigrationsGeneratorDependencies(
+                    codeHelper,
+                    new CSharpMigrationOperationGenerator(
+                        new CSharpMigrationOperationGeneratorDependencies(
+                            codeHelper)),
+                    new CSharpSnapshotGenerator(
+                        new CSharpSnapshotGeneratorDependencies(
+                            codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))));
+
+            return generator;
         }
     }
 }

@@ -37,7 +37,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.NotNull(customers);
             Assert.StartsWith(
-                "queryContext => new QueryingEnumerable<Customer>(",
+                "queryContext => new SingleQueryingEnumerable<Customer>(",
+                Fixture.TestSqlLoggerFactory.Log[0].Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Queryable_simple_split()
+        {
+            using var context = CreateContext();
+            var customers
+                = context.Set<Customer>().AsSplitQuery()
+                    .ToList();
+
+            Assert.NotNull(customers);
+            Assert.StartsWith(
+                "queryContext => new SplitQueryingEnumerable<Customer>(",
                 Fixture.TestSqlLoggerFactory.Log[0].Message);
         }
 

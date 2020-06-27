@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual int Length => _stringBuilder.Length;
 
         /// <summary>
-        ///     Appends an indent and then the given string to the string being built.
+        ///     Appends the current indent and then the given string to the string being built.
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
@@ -56,7 +56,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Appends an indent, the given string, and a new line to the string being built.
+        ///     <para>
+        ///         Appends the current indent, the given string, and a new line to the string being built.
+        ///     </para>
+        ///     <para>
+        ///         If the given string itself contains a new line, the part of the string after that new line will not be indented.
+        ///     </para>
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
@@ -75,10 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Appends all the lines in the given string, prefixed by the current indent.
+        ///     Separates the given string into lines, and then appends each line, prefixed
+        ///     by the current indent and followed by a new line, to the string being built.
         /// </summary>
         /// <param name="value"> The string to append. </param>
-        /// <param name="skipFinalNewline"> If true, then a terminating new line is not added. </param>
+        /// <param name="skipFinalNewline"> If true, then the terminating new line is not added after the last line. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
         public virtual IndentedStringBuilder AppendLines([NotNull] string value, bool skipFinalNewline = false)
         {

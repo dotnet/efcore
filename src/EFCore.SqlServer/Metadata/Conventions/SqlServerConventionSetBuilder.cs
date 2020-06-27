@@ -89,8 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
             conventionSet.ModelFinalizingConventions.Add(valueGenerationStrategyConvention);
-            conventionSet.ModelFinalizingConventions.Add(new SqlServerEnumConvention(Dependencies));
             ReplaceConvention(conventionSet.ModelFinalizingConventions, storeGenerationConvention);
+            ReplaceConvention(conventionSet.ModelFinalizingConventions,
+                (SharedTableConvention)new SqlServerSharedTableConvention(Dependencies, RelationalDependencies));
+            conventionSet.ModelFinalizingConventions.Add(new SqlServerDbFunctionConvention(Dependencies, RelationalDependencies));
 
             return conventionSet;
         }

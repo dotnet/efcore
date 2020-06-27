@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the entity type is mapped to a memory-optimized table.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        /// <returns> <c>true</c> if the entity type is mapped to a memory-optimized table. </returns>
+        /// <returns> <see langword="true" /> if the entity type is mapped to a memory-optimized table. </returns>
         public static bool IsMemoryOptimized([NotNull] this IEntityType entityType)
             => entityType[SqlServerAnnotationNames.MemoryOptimized] as bool? ?? false;
 

@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void Default_index_name_is_based_on_index_column_names()
+        public void Default_index_database_name_is_based_on_index_column_names()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -405,29 +405,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
-            Assert.Equal("IX_Customer_Id", index.GetName());
+            Assert.Equal("IX_Customer_Id", index.GetDatabaseName());
 
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
                 .HasColumnName("Eendax");
 
-            Assert.Equal("IX_Customer_Eendax", index.GetName());
+            Assert.Equal("IX_Customer_Eendax", index.GetDatabaseName());
         }
 
         [ConditionalFact]
-        public void Can_set_index_name()
+        public void Can_set_index_database_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
                 .HasIndex(e => e.Id)
-                .HasName("Eeeendeeex");
+                .HasDatabaseName("Eeeendeeex");
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
-            Assert.Equal("Eeeendeeex", index.GetName());
+            Assert.Equal("Eeeendeeex", index.GetDatabaseName());
         }
 
         [ConditionalFact]

@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
-    ///     Converts <c>TModel</c> to and from <c>TProvider</c> using simple casts from one type
+    ///     Converts <typeparamref name="TModel"/> to and from <typeparamref name="TProvider"/> using simple casts from one type
     ///     to the other.
     /// </summary>
     public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>

@@ -55,6 +55,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
+        ///     Detailed information about errors encountered during translation.
+        /// </summary>
+        public virtual string TranslationErrorDetails { get; private set; }
+
+        /// <summary>
+        ///     Adds detailed information about errors encountered during translation.
+        /// </summary>
+        /// <param name="details"> Error encountered during translation. </param>
+        protected virtual void AddTranslationErrorDetails([NotNull] string details)
+        {
+            Check.NotNull(details, nameof(details));
+
+            if (TranslationErrorDetails == null)
+            {
+                TranslationErrorDetails = details;
+            }
+            else
+            {
+                TranslationErrorDetails += Environment.NewLine + details;
+            }
+        }
+
+        /// <summary>
         ///     The query compilation context object for current compilation.
         /// </summary>
         protected virtual QueryCompilationContext QueryCompilationContext { get; }
@@ -79,7 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ShapedQueryExpression CheckTranslated(ShapedQueryExpression translated)
             {
-                return translated ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+                return translated ?? throw new InvalidOperationException(
+                    TranslationErrorDetails == null
+                        ? CoreStrings.TranslationFailed(methodCallExpression.Print())
+                        : CoreStrings.TranslationFailedWithDetails(
+                            methodCallExpression.Print(),
+                            TranslationErrorDetails));
             }
 
             var method = methodCallExpression.Method;
@@ -500,6 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> The shaper for inner source. </param>
         /// <param name="transparentIdentifierType"> The clr type of transparent identifier created from result. </param>
         /// <returns> The shaped query expression after translation of result selector. </returns>
+        [Obsolete("QueryExpressions should combine shapers to work in client eval scenarios.")]
         protected virtual ShapedQueryExpression TranslateResultSelectorForJoin(
             [NotNull] ShapedQueryExpression outer,
             [NotNull] LambdaExpression resultSelector,
@@ -529,6 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return TranslateSelect(outer, newResultSelector);
         }
 
+        [Obsolete]
         private Expression CombineShapers(
             Expression queryExpression,
             Expression outerShaper,
@@ -545,6 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
         }
 
+        [Obsolete]
         private sealed class MemberAccessShiftingExpressionVisitor : ExpressionVisitor
         {
             private readonly Expression _queryExpression;
@@ -569,6 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Obsolete]
         private static Expression AccessOuterTransparentField(
             Type transparentIdentifierType,
             Expression targetExpression)
@@ -578,6 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Expression.Field(targetExpression, fieldInfo);
         }
 
+        [Obsolete]
         private static Expression AccessInnerTransparentField(
             Type transparentIdentifierType,
             Expression targetExpression)
@@ -596,7 +629,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            return (ShapedQueryExpression)CreateSubqueryVisitor().Visit(expression);
+            var subqueryVisitor = CreateSubqueryVisitor();
+            var translation = (ShapedQueryExpression)subqueryVisitor.Visit(expression);
+            if (translation == null && subqueryVisitor.TranslationErrorDetails != null)
+            {
+                AddTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);
+            }
+
+            return translation;
         }
 
         /// <summary>

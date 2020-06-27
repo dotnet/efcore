@@ -79,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
             public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IIndex FindIndex(string name) => throw new NotImplementedException();
             public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => throw new NotImplementedException();
             public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
@@ -1511,7 +1512,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void AddIndex_throws_if_duplicate()
+        public void AddIndex_throws_if_duplicate_properties()
         {
             var model = CreateModel();
             var entityType = model.AddEntityType(typeof(Customer));
@@ -1521,10 +1522,101 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateIndex(
-                    "{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).Name,
+                    "{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}",
+                    typeof(Customer).Name,
                     typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType.AddIndex(new[] { property1, property2 })).Message);
+        }
+
+        [ConditionalFact]
+        public void AddIndex_throws_if_duplicate_name()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+            entityType.AddIndex(new[] { property1 }, "NamedIndex");
+
+            Assert.Equal(
+                CoreStrings.DuplicateNamedIndex(
+                    "NamedIndex",
+                    "{'" + Customer.NameProperty.Name + "'}",
+                    typeof(Customer).Name,
+                    typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.AddIndex(new[] { property2 }, "NamedIndex")).Message);
+        }
+
+        [ConditionalFact]
+        public void Can_add_multiple_named_indexes_on_the_same_properties()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+
+            entityType.AddIndex(new[] { property1, property2 }, "Index1");
+            entityType.AddIndex(new[] { property1, property2 }, "Index2");
+        }
+
+        [ConditionalFact]
+        public void RemoveIndex_throws_if_incorrect_properties()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+            entityType.AddIndex(new[] { property1, property2 });
+
+            var anotherIndex = new Index(
+                new List<Property> { (Property)property2 },
+                (EntityType)entityType,
+                ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.IndexWrongType(
+                    "{'" + Customer.NameProperty.Name + "'}",
+                    typeof(Customer).Name,
+                    typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.RemoveIndex(anotherIndex)).Message);
+        }
+
+        [ConditionalFact]
+        public void RemoveIndex_throws_if_incorrect_name()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
+            entityType.AddIndex(new[] { property1 }, "NamedIndex");
+
+            var anotherIndex = new Index(
+                new List<Property> { (Property)property1 },
+                "NonExistentIndex",
+                (EntityType)entityType,
+                ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.NamedIndexWrongType("NonExistentIndex", typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.RemoveIndex(anotherIndex)).Message);
+        }
+
+        [ConditionalFact]
+        public void Can_remove_named_index_by_name()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            entityType.AddIndex(new[] { property1 }, "NamedIndex");
+            Assert.Single(entityType.GetIndexes());
+
+            var index = ((EntityType)entityType).RemoveIndex("NamedIndex");
+
+            Assert.Equal("NamedIndex", index.Name);
+            Assert.Empty(entityType.GetIndexes());
         }
 
         [ConditionalFact]
@@ -2264,6 +2356,104 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 modelBuilder.Entity<Level1>().HasDiscriminator<string>("Z");
             }
+        }
+
+        [ConditionalFact]
+        public void Indexes_for_owned_collection_types_are_calculated_correctly()
+        {
+            using var context = new SideBySide();
+            var model = context.Model;
+
+            var parent = model.FindEntityType(typeof(Parent1Entity));
+            var indexes = GetIndexes(parent.GetPropertiesAndNavigations());
+            Assert.Equal(2, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, -1, 0, 0, 0), indexes[nameof(Parent1Entity.Id)]);
+            Assert.Equal((0, -1, -1, -1, 1), indexes[nameof(Parent1Entity.Children)]);
+
+            indexes = GetIndexes(model.FindEntityType(typeof(ChildEntity), nameof(Parent1Entity.Children), parent).GetProperties());
+            Assert.Equal(3, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, 0, 0, 0, 0), indexes[nameof(Parent1Entity) + "Id"]);
+            Assert.Equal((1, 1, 1, 1, 1), indexes["Id"]);
+            Assert.Equal((2, -1, 2, -1, -1), indexes[nameof(ChildEntity.Name)]);
+
+            parent = model.FindEntityType(typeof(Parent2Entity));
+            indexes = GetIndexes(parent.GetPropertiesAndNavigations());
+            Assert.Equal(2, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, -1, 0, 0, 0), indexes[nameof(Parent2Entity.Id)]);
+            Assert.Equal((0, -1, -1, -1, 1), indexes[nameof(Parent2Entity.Children)]);
+
+            indexes = GetIndexes(model.FindEntityType(typeof(ChildEntity), nameof(Parent2Entity.Children), parent).GetProperties());
+            Assert.Equal(3, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, 0, 0, 0, 0), indexes[nameof(Parent2Entity) + "Id"]);
+            Assert.Equal((1, 1, 1, 1, 1), indexes["Id"]);
+            Assert.Equal((2, -1, 2, -1, -1), indexes[nameof(ChildEntity.Name)]);
+
+            parent = model.FindEntityType(typeof(Parent3Entity));
+            indexes = GetIndexes(parent.GetPropertiesAndNavigations());
+            Assert.Equal(2, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, -1, 0, 0, 0), indexes[nameof(Parent3Entity.Id)]);
+            Assert.Equal((0, -1, -1, -1, 1), indexes[nameof(Parent3Entity.Children)]);
+
+            indexes = GetIndexes(model.FindEntityType(typeof(ChildEntity), nameof(Parent3Entity.Children), parent).GetProperties());
+            Assert.Equal(3, indexes.Count);
+            // Order: Index, Shadow, Original, StoreGenerated, Relationship
+            Assert.Equal((0, 0, 0, 0, 0), indexes[nameof(Parent3Entity) + "Id"]);
+            Assert.Equal((1, 1, 1, 1, 1), indexes["Id"]);
+            Assert.Equal((2, -1, 2, -1, -1), indexes[nameof(ChildEntity.Name)]);
+
+            Dictionary<string, (int, int, int, int, int)> GetIndexes(IEnumerable<IPropertyBase> properties)
+                => properties.ToDictionary(
+                    p => p.Name,
+                    p =>
+                        (p.GetIndex(),
+                            p.GetShadowIndex(),
+                            p.GetOriginalValueIndex(),
+                            p.GetStoreGeneratedIndex(),
+                            p.GetRelationshipIndex()
+                        ));
+        }
+
+        private class SideBySide : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Parent1Entity>().OwnsMany(e => e.Children);
+                modelBuilder.Entity<Parent2Entity>().OwnsMany(e => e.Children);
+                modelBuilder.Entity<Parent3Entity>().OwnsMany(e => e.Children);
+            }
+        }
+
+        private class Parent1Entity
+        {
+            public Guid Id { get; set; }
+            public ICollection<ChildEntity> Children { get; set; }
+        }
+
+        private class Parent2Entity
+        {
+            public Guid Id { get; set; }
+            public ICollection<ChildEntity> Children { get; set; }
+        }
+
+        private class Parent3Entity
+        {
+            public Guid Id { get; set; }
+            public ICollection<ChildEntity> Children { get; set; }
+        }
+
+        private class ChildEntity
+        {
+            public string Name { get; set; }
         }
 
         [ConditionalFact]

@@ -6,8 +6,10 @@ using System.Collections;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -59,20 +61,24 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
-        ///         LINQ operators - <code>context.Blogs.FromSqlRaw("SELECT * FROM dbo.Blogs").OrderBy(b => b.Name)</code>.
+        ///         LINQ operators: <c>context.Blogs.FromSqlRaw("SELECT * FROM dbo.Blogs").OrderBy(b => b.Name)</c>.
         ///     </para>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Blogs.FromSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
-        ///         You can also consider using <see cref="FromSqlInterpolated{TEntity}" /> to use interpolated string syntax to create parameters.
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///     </para>
+        ///     <code>context.Blogs.FromSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>
+        ///     <para>
+        ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
+        ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
+        ///         consider using <see cref="FromSqlInterpolated{TEntity}"/> to create parameters.
         ///     </para>
         ///     <para>
         ///         This overload also accepts DbParameter instances as parameter values. This allows you to use named
-        ///         parameters in the SQL query string -
-        ///         <code>context.Blogs.FromSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({@searchTerm})", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>
+        ///         parameters in the SQL query string:
         ///     </para>
+        ///     <code>context.Blogs.FromSqlRaw("SELECT * FROM [dbo].[SearchBlogs]({@searchTerm})", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source">
@@ -84,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSqlRaw<TEntity>(
             [NotNull] this DbSet<TEntity> source,
-            [NotNull] [NotParameterized] string sql,
+            [NotNull][NotParameterized] string sql,
             [NotNull] params object[] parameters)
             where TEntity : class
         {
@@ -106,14 +112,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
-        ///         LINQ operators - <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM dbo.Blogs").OrderBy(b => b.Name)</code>.
+        ///         LINQ operators:
         ///     </para>
+        ///     <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM dbo.Blogs").OrderBy(b => b.Name)</code>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include interpolated parameter place holders in the SQL query string. Any interpolated parameter values
-        ///         you supply will automatically be converted to a DbParameter -
-        ///         <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>.
+        ///         you supply will automatically be converted to a DbParameter:
         ///     </para>
+        ///     <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM [dbo].[SearchBlogs]({userSuppliedSearchTerm})")</code>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the elements of <paramref name="source" />. </typeparam>
         /// <param name="source">
@@ -123,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
         public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
             [NotNull] this DbSet<TEntity> source,
-            [NotNull] [NotParameterized] FormattableString sql)
+            [NotNull][NotParameterized] FormattableString sql)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -151,5 +158,70 @@ namespace Microsoft.EntityFrameworkCore
                 sql,
                 Expression.Constant(arguments));
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a new query which is configured to load the collections in the query results in a single database query.
+        ///     </para>
+        ///     <para>
+        ///         This behavior generally guarantees result consistency in the face of concurrent updates
+        ///         (but details may vary based on the database and transaction isolation level in use).
+        ///         However, this can cause performance issues when the query loads multiple related collections.
+        ///     </para>
+        ///     <para>
+        ///         The default query splitting behavior for queries can be controlled by
+        ///         <see cref="RelationalDbContextOptionsBuilder{TBuilder, TExtension}.UseQuerySplittingBehavior(QuerySplittingBehavior)" />.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns> A new query where collections will be loaded through single database query. </returns>
+        public static IQueryable<TEntity> AsSingleQuery<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+
+            return source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(AsSingleQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
+                : source;
+        }
+
+        internal static readonly MethodInfo AsSingleQueryMethodInfo
+            = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSingleQuery));
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a new query which is configured to load the collections in the query results through separate database queries.
+        ///     </para>
+        ///     <para>
+        ///         This behavior can significantly improve performance when the query loads multiple collections.
+        ///         However, since separate queries are used, this can result in inconsistent results when concurrent updates occur.
+        ///         Serializable or snapshot transactions can be used to mitigate this
+        ///         and achieve consistency with split queries, but that may bring other performance costs and behavioral difference.
+        ///     </para>
+        ///     <para>
+        ///         The default query splitting behavior for queries can be controlled by
+        ///         <see cref="RelationalDbContextOptionsBuilder{TBuilder, TExtension}.UseQuerySplittingBehavior(QuerySplittingBehavior)" />.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns> A new query where collections will be loaded through separate database queries. </returns>
+        public static IQueryable<TEntity> AsSplitQuery<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+
+            return source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<TEntity>(
+                    Expression.Call(AsSplitQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
+                : source;
+        }
+
+        internal static readonly MethodInfo AsSplitQueryMethodInfo
+            = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery));
     }
 }

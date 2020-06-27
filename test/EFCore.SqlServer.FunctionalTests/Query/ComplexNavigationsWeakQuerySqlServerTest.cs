@@ -119,10 +119,10 @@ FROM (
             await base.Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty(async);
 
             AssertSql(
-                @"SELECT SUM(CASE
+                @"SELECT COALESCE(SUM(CASE
     WHEN [t].[Id0] IS NULL THEN 0
     ELSE [t].[Level1_Required_Id]
-END)
+END), 0)
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[Date], [l0].[Name], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[Id] AS [Id0]

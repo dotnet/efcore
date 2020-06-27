@@ -9,12 +9,13 @@ namespace Microsoft.EntityFrameworkCore
     ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
     ///     The methods on this class are accessed via <see cref="EF.Functions" />.
     /// </summary>
-    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed class DbFunctions
     {
-        internal DbFunctions()
+        private DbFunctions()
         {
         }
+
+        internal static DbFunctions Instance { get; } = new DbFunctions();
 
         #region Hidden System.Object members
 
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => base.Equals(obj);
 

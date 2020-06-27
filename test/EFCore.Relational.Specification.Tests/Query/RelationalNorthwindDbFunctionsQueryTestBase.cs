@@ -9,13 +9,18 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class RelationalNorthwindDbFunctionsQueryTestBase<TFixture> : NorthwindDbFunctionsQueryTestBase<TFixture>
+    public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : NorthwindDbFunctionsQueryTestBase<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
-        public RelationalNorthwindDbFunctionsQueryTestBase(TFixture fixture)
+        public NorthwindDbFunctionsQueryRelationalTestBase(TFixture fixture)
             : base(fixture)
         {
         }
+
+        protected virtual bool CanExecuteQueryString => false;
+
+        protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
+            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

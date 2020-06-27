@@ -401,8 +401,8 @@ namespace Microsoft.EntityFrameworkCore
                 throw new NotImplementedException();
 
             public void KeyPropertyChanged(
-                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys,
-                IReadOnlyList<IForeignKey> containingForeignKeys, object oldValue, object newValue) => throw new NotImplementedException();
+                InternalEntityEntry entry, IProperty property, IEnumerable<IKey> containingPrincipalKeys,
+                IEnumerable<IForeignKey> containingForeignKeys, object oldValue, object newValue) => throw new NotImplementedException();
 
             public void TrackedFromQuery(InternalEntityEntry entry) =>
                 throw new NotImplementedException();

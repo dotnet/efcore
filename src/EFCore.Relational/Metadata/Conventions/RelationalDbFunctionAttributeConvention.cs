@@ -87,6 +87,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     dbFunctionBuilder.HasSchema(dbFunctionAttribute.Schema, fromDataAnnotation: true);
                 }
+
+                if (dbFunctionAttribute.IsBuiltIn)
+                {
+                    dbFunctionBuilder.IsBuiltIn(dbFunctionAttribute.IsBuiltIn, fromDataAnnotation: true);
+                }
             }
         }
     }

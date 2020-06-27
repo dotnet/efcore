@@ -74,8 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 var xEntityType = xEntry.EntityType;
                 var yEntityType = yEntry.EntityType;
-                var xKey = xEntry.EntityType.FindPrimaryKey();
-                var yKey = xKey;
                 if (xEntityType != yEntityType)
                 {
                     result = StringComparer.Ordinal.Compare(xEntityType.Name, yEntityType.Name);
@@ -89,10 +87,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     {
                         return result;
                     }
-
-                    yKey = yEntry.EntityType.FindPrimaryKey();
                 }
 
+                var xKey = xEntry.EntityType.FindPrimaryKey();
                 for (var i = 0; i < xKey.Properties.Count; i++)
                 {
                     var xKeyProperty = xKey.Properties[i];

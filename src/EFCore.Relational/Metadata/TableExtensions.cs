@@ -47,9 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder.Append(table.Name);
 
-            if (!table.IsMigratable)
+            if (table.IsExcludedFromMigrations)
             {
-                builder.Append(" NonMigratable");
+                builder.Append(" ExcludedFromMigrations");
             }
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)

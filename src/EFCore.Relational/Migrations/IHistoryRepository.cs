@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Checks whether or not the history table exists.
         /// </summary>
-        /// <returns> <c>True</c> if the table already exists, <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the table already exists, <see langword="false" /> otherwise. </returns>
         bool Exists();
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     <c>True</c> if the table already exists, <c>false</c> otherwise.
+        ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 

@@ -261,7 +261,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 try
                 {
                     Suspended = true;
-                    var result = await operation(Dependencies.CurrentContext.Context, state, cancellationToken);
+                    var result = await operation(Dependencies.CurrentContext.Context, state, cancellationToken)
+                        .ConfigureAwait(false);
                     Suspended = false;
                     return result;
                 }
@@ -271,7 +272,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (verifySucceeded != null
                         && CallOnWrappedException(ex, ShouldVerifySuccessOn))
                     {
-                        var result = await ExecuteImplementationAsync(verifySucceeded, null, state, cancellationToken);
+                        var result = await ExecuteImplementationAsync(verifySucceeded, null, state, cancellationToken)
+                            .ConfigureAwait(false);
                         if (result.IsSuccessful)
                         {
                             return result.Result;
@@ -295,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     OnRetry();
 
-                    await Task.Delay(delay.Value, cancellationToken);
+                    await Task.Delay(delay.Value, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
@@ -336,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="lastException"> The exception thrown during the last execution attempt. </param>
         /// <returns>
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
-        ///     <c>null</c> otherwise
+        ///     <see langword="null" /> otherwise
         /// </returns>
         protected virtual TimeSpan? GetNextDelay([NotNull] Exception lastException)
         {
@@ -361,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="exception"> The exception object to be verified. </param>
         /// <returns>
-        ///     <c>true</c> if the specified exception could be thrown after a successful execution, otherwise <c>false</c>.
+        ///     <see langword="true" /> if the specified exception could be thrown after a successful execution, otherwise <see langword="false" />.
         /// </returns>
         protected internal virtual bool ShouldVerifySuccessOn([NotNull] Exception exception)
             => ShouldRetryOn(exception);
@@ -371,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="exception"> The exception object to be verified. </param>
         /// <returns>
-        ///     <c>true</c> if the specified exception is considered as transient, otherwise <c>false</c>.
+        ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
         protected internal abstract bool ShouldRetryOn([NotNull] Exception exception);
 

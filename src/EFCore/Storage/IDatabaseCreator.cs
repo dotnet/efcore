@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         the model for this context.
         ///     </para>
         /// </summary>
-        /// <returns> True if the database is deleted, false if it did not exist. </returns>
+        /// <returns> <see langword="true"/> if the database is deleted, <see langword="false"/> if it did not exist. </returns>
         bool EnsureDeleted();
 
         /// <summary>
@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted,
-        ///     false if it did not exist.
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/> if the database is deleted,
+        ///     <see langword="false"/> if it did not exist.
         /// </returns>
         Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default);
 
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     exist then the database and all its schema are created. If the database exists, then no effort is made
         ///     to ensure it is compatible with the model for this context.
         /// </summary>
-        /// <returns> True if the database is created, false if it already existed. </returns>
+        /// <returns> <see langword="true"/> if the database is created, <see langword="false"/> if it already existed. </returns>
         bool EnsureCreated();
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created,
-        ///     false if it already existed.
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/> if the database is created,
+        ///     <see langword="false"/> if it already existed.
         /// </returns>
         Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default);
 
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
         /// </summary>
-        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         bool CanConnect();
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         Task<bool> CanConnectAsync(CancellationToken cancellationToken = default);
     }
 }

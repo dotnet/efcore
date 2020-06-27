@@ -17,14 +17,38 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the key is clustered.
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <returns> <c>true</c> if the key is clustered. </returns>
+        /// <returns> <see langword="true" /> if the key is clustered. </returns>
         public static bool? IsClustered([NotNull] this IKey key)
-            => (bool?)key[SqlServerAnnotationNames.Clustered] ?? GetDefaultIsClustered(key);
+            => (bool?)key[SqlServerAnnotationNames.Clustered];
 
-        private static bool? GetDefaultIsClustered(IKey key)
+        /// <summary>
+        ///     Returns a value indicating whether the key is clustered.
+        /// </summary>
+        /// <param name="key"> The key. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> <see langword="true" /> if the key is clustered. </returns>
+        public static bool? IsClustered(
+            [NotNull] this IKey key,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
         {
-            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedRootPrimaryKeyProperty();
-            return sharedTablePrincipalPrimaryKeyProperty?.FindContainingPrimaryKey().IsClustered();
+            var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
+            if (annotation != null)
+            {
+                return (bool?)annotation.Value;
+            }
+
+            return GetDefaultIsClustered(key, tableName, schema);
+        }
+
+        private static bool? GetDefaultIsClustered(
+            [NotNull] IKey key,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            var sharedTableRootKey = key.FindSharedTableRootKey(tableName, schema);
+            return sharedTableRootKey?.IsClustered(tableName, schema);
         }
 
         /// <summary>

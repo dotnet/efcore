@@ -173,6 +173,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_filter_on_owned_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var queryFilter = (Expression<Func<ReferencedEntity, bool>>)(_ => true);
+            modelBuilder.Entity<SampleEntity>()
+                .OwnsOne(
+                    s => s.ReferencedEntity, eb =>
+                    {
+                        eb.OwnedEntityType.SetQueryFilter(queryFilter);
+                    });
+
+            VerifyError(CoreStrings.BadFilterOwnedType(queryFilter, nameof(ReferencedEntity)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_defining_query_on_keyed_entity_type()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -1298,6 +1313,46 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var model = modelBuilder.Model;
             VerifyError(CoreStrings.DuplicateDiscriminatorValue(typeof(C).Name, 1, typeof(A).Name), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Required_navigation_with_query_filter_on_one_side_issues_a_warning()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired();
+            modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
+
+            var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+                CreateValidationLogger()).GenerateMessage(nameof(Customer), nameof(Order));
+
+            VerifyWarning(message, modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_with_query_filter_on_one_side_doesnt_issue_a_warning()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired(false);
+            modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
+
+            var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+                CreateValidationLogger()).GenerateMessage(nameof(Customer), nameof(Order));
+
+            VerifyLogDoesNotContain(message, modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Required_navigation_with_query_filter_on_both_sides_doesnt_issue_a_warning()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired();
+            modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
+            modelBuilder.Entity<Order>().HasQueryFilter(x => x.Customer.Id > 5);
+
+            var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+                CreateValidationLogger()).GenerateMessage(nameof(Customer), nameof(Order));
+
+            VerifyLogDoesNotContain(message, modelBuilder.Model);
         }
 
         // INotify interfaces not really implemented; just marking the classes to test metadata construction

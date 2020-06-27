@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Table { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The table schema that contains the check constraint, or <c>null</c> if the default schema should be used.
+        ///     The table schema that contains the check constraint, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The logical sql expression used in a CHECK constraint and returns TRUE or FALSE.
-        ///     Sql used with CHECK constraints cannot reference another table
+        ///     SQL used with CHECK constraints cannot reference another table
         ///     but can reference other columns in the same table for the same row.
         ///     The expression cannot reference an alias data type.
         /// </summary>

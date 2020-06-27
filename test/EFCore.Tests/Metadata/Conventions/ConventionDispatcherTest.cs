@@ -2812,6 +2812,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
+        private class IndexNameChangedConvention : IIndexNameChangedConvention
+        {
+            private readonly bool _terminate;
+            public readonly List<string> Calls = new List<string>();
+
+            public IndexNameChangedConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public void ProcessIndexNameChanged(
+                IConventionIndexBuilder indexBuilder, IConventionContext<string> context)
+            {
+                Assert.NotNull(indexBuilder.Metadata.Builder);
+
+                Calls.Add(indexBuilder.Metadata.Name);
+
+                if (_terminate)
+                {
+                    context.StopProcessing();
+                }
+            }
+        }
+
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(false, true)]

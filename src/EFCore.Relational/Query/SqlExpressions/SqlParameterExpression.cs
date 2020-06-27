@@ -14,11 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         An expression that represents a parameter in a SQL tree.
     ///     </para>
     ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
+    ///         This is a simple wrapper around a <see cref="ParameterExpression"/> in the SQL tree.
+    ///         Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
+    ///         application or provider, then please file an issue at https://github.com/dotnet/efcore.
     ///     </para>
     /// </summary>
-    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed class SqlParameterExpression : SqlExpression
     {
         private readonly ParameterExpression _parameterExpression;
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override void Print(ExpressionPrinter expressionPrinter)
+        protected override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

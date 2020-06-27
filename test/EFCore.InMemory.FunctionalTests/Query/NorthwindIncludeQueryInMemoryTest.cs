@@ -1,23 +1,25 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindIncludeQueryInMemoryTest : NorthwindIncludeQueryTestBase<IncludeInMemoryFixture>
+    public class NorthwindIncludeQueryInMemoryTest : NorthwindIncludeQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
-        public NorthwindIncludeQueryInMemoryTest(IncludeInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindIncludeQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]
-        public override void Include_collection_with_last_no_orderby(bool useString)
+        public override Task Include_collection_with_last_no_orderby(bool async)
         {
-            base.Include_collection_with_last_no_orderby(useString);
+            return base.Include_collection_with_last_no_orderby(async);
         }
     }
 }

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Tries to load the mod_spatialite extension into the specified connection.
         /// </summary>
         /// <param name="connection"> The connection. </param>
-        /// <returns> true if the extension was loaded; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the extension was loaded; otherwise, <see langword="false"/>. </returns>
         public static bool TryLoad([NotNull] DbConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
@@ -127,7 +127,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (hasDependencyContext)
             {
                 var candidateAssets = new Dictionary<(string, string), int>();
-                var rid = RuntimeEnvironment.GetRuntimeIdentifier();
+#if NET5 || NET50 || NETCOREAPP5_0
+#error Update to use RuntimeEnvironment.RuntimeIdentifier instead
+#endif
+                var rid = AppContext.GetData("RUNTIME_IDENTIFIER") as string
+                    ?? RuntimeEnvironment.GetRuntimeIdentifier();
                 var rids = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks.ToList()
                     ?? new List<string>();
                 rids.Insert(0, rid);

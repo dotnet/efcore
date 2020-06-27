@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindSelectQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ClearLog();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected override bool CanExecuteQueryString => true;
 
         public override async Task Projection_when_arithmetic_expression_precedence(bool async)
         {
@@ -323,15 +325,19 @@ ORDER BY [o].[OrderID]");
             base.Select_nested_collection_multi_level();
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t].[OrderDate], [t].[OrderID]
+                @"SELECT [c].[CustomerID], [t0].[OrderDate], [t0].[OrderID]
 FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT TOP(3) [o].[OrderDate], [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)
-) AS [t]
+LEFT JOIN (
+    SELECT [t].[OrderDate], [t].[OrderID], [t].[CustomerID]
+    FROM (
+        SELECT [o].[OrderDate], [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+        FROM [Orders] AS [o]
+        WHERE [o].[OrderID] < 10500
+    ) AS [t]
+    WHERE [t].[row] <= 3
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [t].[OrderID]");
+ORDER BY [c].[CustomerID], [t0].[CustomerID], [t0].[OrderID]");
         }
 
         public override void Select_nested_collection_multi_level2()
@@ -1022,7 +1028,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[City] AS [o]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [c].[City], [o].[OrderID], [o].[CustomerID]
+    SELECT [c].[City], [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1051,7 +1057,7 @@ CROSS APPLY (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[City] AS [o]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [c].[City], [o].[OrderID], [o].[CustomerID]
+    SELECT [c].[City], [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1216,7 +1222,7 @@ WHERE [o].[OrderID] = 10243");
                 @"SELECT [t].[OrderDate], [t].[City] AS [CustomerCity]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [o].[OrderDate], [c].[City], [o].[OrderID], [o].[CustomerID]
+    SELECT [o].[OrderDate], [c].[City], [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");

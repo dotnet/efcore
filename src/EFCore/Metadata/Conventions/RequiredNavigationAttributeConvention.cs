@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var foreignKey = navigation.ForeignKey;
             if (navigation.IsCollection)
             {
-                Dependencies.Logger.RequiredAttributeOnCollection(foreignKey.DependentToPrincipal);
+                Dependencies.Logger.RequiredAttributeOnCollection(navigation);
                 return;
             }
 

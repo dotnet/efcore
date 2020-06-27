@@ -61,6 +61,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource? GetSchemaConfigurationSource();
 
         /// <summary>
+        ///     Sets the value indicating wheather the database function is built-in or not.
+        /// </summary>
+        /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        bool SetIsBuiltIn(bool builtIn, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Gets the configuration source for <see cref="IDbFunction.IsBuiltIn" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IDbFunction.IsBuiltIn" />. </returns>
+        ConfigurationSource? GetIsBuiltInConfigurationSource();
+
+        /// <summary>
         ///     Sets the store type of the function in the database.
         /// </summary>
         /// <param name="storeType"> The store type of the function in the database. </param>

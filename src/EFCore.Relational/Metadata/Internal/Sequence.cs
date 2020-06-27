@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -24,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private readonly IModel _model;
 
-        private readonly string _name;
         private readonly string _schema;
         private long? _startValue;
         private int? _incrementBy;
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NullButNotEmpty(schema, nameof(schema));
 
             _model = model;
-            _name = name;
+            Name = name;
             _schema = schema;
             _configurationSource = configurationSource;
             Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _configurationSource = ConfigurationSource.Explicit;
 
             var data = SequenceData.Deserialize((string)model[annotationName]);
-            _name = data.Name;
+            Name = data.Name;
             _schema = data.Schema;
             _startValue = data.StartValue;
             _incrementBy = data.IncrementBy;
@@ -193,6 +193,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public static Sequence SetName(
+            [NotNull] IMutableModel model, [NotNull] Sequence sequence, [NotNull] string name)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(sequence, nameof(sequence));
+            Check.NotEmpty(name, nameof(name));
+
+            var sequences = (SortedDictionary<(string, string), Sequence>)model[RelationalAnnotationNames.Sequences];
+            var tuple = (sequence.Name, sequence.Schema);
+            if (sequences == null
+                || !sequences.ContainsKey(tuple))
+            {
+                return null;
+            }
+
+            sequences.Remove(tuple);
+
+            sequence.Name = name;
+
+            sequences.Add((name, sequence.Schema), sequence);
+
+            return sequence;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static Sequence RemoveSequence([NotNull] IMutableModel model, [NotNull] string name, [CanBeNull] string schema)
         {
             var sequences = (SortedDictionary<(string, string), Sequence>)model[RelationalAnnotationNames.Sequences];
@@ -230,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Name => _name;
+        public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

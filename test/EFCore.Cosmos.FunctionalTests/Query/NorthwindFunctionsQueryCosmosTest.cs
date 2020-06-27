@@ -128,6 +128,26 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], c[""ContactName""]))");
         }
 
+        [ConditionalTheory(Skip = "Issue #16919")]
+        public override async Task String_FirstOrDefault_MethodCall(bool async)
+        {
+            await base.String_FirstOrDefault_MethodCall(async);
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (LEFT(c[""ContactName""], 1) = ""A""))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #16919")]
+        public override async Task String_LastOrDefault_MethodCall(bool async)
+        {
+            await base.String_LastOrDefault_MethodCall(async);
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (RIGHT(c[""ContactName""], 1) = ""s""))");
+        }
+
         public override async Task String_Contains_MethodCall(bool async)
         {
             await base.String_Contains_MethodCall(async);
@@ -618,6 +638,18 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Convert_ToBoolean(bool async)
+        {
+            await base.Convert_ToBoolean(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Convert_ToByte(bool async)

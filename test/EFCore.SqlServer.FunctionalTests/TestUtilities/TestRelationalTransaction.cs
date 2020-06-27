@@ -82,5 +82,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             await base.CommitAsync(cancellationToken);
         }
+
+        public override bool AreSavepointsSupported => false;
     }
 }

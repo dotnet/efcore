@@ -294,7 +294,7 @@ namespace Microsoft.Data.Sqlite
         ///     Determines whether the specified key is used by the connection string.
         /// </summary>
         /// <param name="keyword">The key to look for.</param>
-        /// <returns>true if it is use; otherwise, false.</returns>
+        /// <returns> <see langword="true"/> if it is used; otherwise, <see langword="false"/>. </returns>
         public override bool ContainsKey(string keyword)
             => _keywords.ContainsKey(keyword);
 
@@ -302,7 +302,7 @@ namespace Microsoft.Data.Sqlite
         ///     Removes the specified key and its value from the connection string.
         /// </summary>
         /// <param name="keyword">The key to remove.</param>
-        /// <returns>true if the key was used; otherwise, false.</returns>
+        /// <returns> <see langword="true"/> if the key was used; otherwise, <see langword="false"/>. </returns>
         public override bool Remove(string keyword)
         {
             if (!_keywords.TryGetValue(keyword, out var index)
@@ -320,7 +320,7 @@ namespace Microsoft.Data.Sqlite
         ///     Determines whether the specified key should be serialized into the connection string.
         /// </summary>
         /// <param name="keyword">The key to check.</param>
-        /// <returns>true if it should be serialized; otherwise, false.</returns>
+        /// <returns><see langword="true"/> if it should be serialized; otherwise, <see langword="false"/>. </returns>
         public override bool ShouldSerialize(string keyword)
             => _keywords.TryGetValue(keyword, out var index) && base.ShouldSerialize(_validKeywords[(int)index]);
 
@@ -329,7 +329,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="keyword">The key.</param>
         /// <param name="value">The value.</param>
-        /// <returns>true if the key was used; otherwise, false.</returns>
+        /// <returns><see langword="true"/> if the key was used; otherwise, <see langword="false"/>. </returns>
         public override bool TryGetValue(string keyword, out object value)
         {
             if (!_keywords.TryGetValue(keyword, out var index))

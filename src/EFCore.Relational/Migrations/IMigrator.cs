@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     migration that exists in the <see cref="IMigrationsAssembly" />.
         /// </summary>
         /// <param name="targetMigration">
-        ///     The target migration to migrate the database to, or <c>null</c> to migrate to the latest.
+        ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
         void Migrate([CanBeNull] string targetMigration = null);
 
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     migration that exists in the <see cref="IMigrationsAssembly" />.
         /// </summary>
         /// <param name="targetMigration">
-        ///     The target migration to migrate the database to, or <c>null</c> to migrate to the latest.
+        ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A task that represents the asynchronous operation </returns>
@@ -49,13 +49,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     ending at specified migrations.
         /// </summary>
         /// <param name="fromMigration">
-        ///     The migration to start from, or <c>null</c> to start from the empty database.
+        ///     The migration to start from, or <see langword="null" /> to start from the empty database.
         /// </param>
         /// <param name="toMigration">
-        ///     The target migration to migrate the database to, or <c>null</c> to migrate to the latest.
+        ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
         /// <param name="idempotent">
-        ///     If <c>true</c>, then idempotent scripts will be generated, otherwise
+        ///     If <see langword="true" />, then idempotent scripts will be generated, otherwise
         ///     scripts will be generated that assume none of the migrations in the range specified have
         ///     already been applied to the database.
         /// </param>

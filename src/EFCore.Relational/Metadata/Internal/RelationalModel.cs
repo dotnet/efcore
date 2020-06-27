@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -76,146 +77,240 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var entityType in model.GetEntityTypes())
             {
                 var tableName = entityType.GetTableName();
-                var viewName = entityType.GetViewName();
                 if (tableName != null)
                 {
                     var schema = entityType.GetSchema();
-                    if (!databaseModel.Tables.TryGetValue((tableName, schema), out var table))
+                    TableMapping lastMapping = null;
+                    var mappedType = entityType;
+                    SortedSet<TableMapping> tableMappings = null;
+                    while (mappedType != null)
                     {
-                        table = new Table(tableName, schema, databaseModel);
-                        databaseModel.Tables.Add((tableName, schema), table);
-                    }
+                        var mappedTable = mappedType.GetTableName();
+                        var mappedSchema = mappedType.GetSchema();
 
-                    table.IsMigratable = table.IsMigratable
-                        || entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) == null;
-
-                    var tableMapping = new TableMapping(entityType, table, includesDerivedTypes: true);
-                    foreach (var property in entityType.GetDeclaredProperties())
-                    {
-                        var typeMapping = property.FindRelationalTypeMapping();
-                        var columnName = property.GetColumnName();
-                        var column = (Column)table.FindColumn(columnName);
-                        if (column == null)
+                        if (mappedTable == null
+                            || (mappedTable == tableName
+                                && mappedSchema == schema
+                                && mappedType != entityType))
                         {
-                            column = new Column(columnName, property.GetColumnType() ?? typeMapping?.StoreType, table);
-                            column.IsNullable = property.IsColumnNullable();
-                            table.Columns.Add(columnName, column);
-                        }
-                        else if (!property.IsColumnNullable())
-                        {
-                            column.IsNullable = false;
+                            break;
                         }
 
-                        var columnMapping = new ColumnMapping(property, column, typeMapping, tableMapping);
-                        tableMapping.ColumnMappings.Add(columnMapping);
-                        column.PropertyMappings.Add(columnMapping);
-
-                        var columnMappings = property[RelationalAnnotationNames.TableColumnMappings] as SortedSet<ColumnMapping>;
-                        if (columnMappings == null)
+                        if (!databaseModel.Tables.TryGetValue((mappedTable, mappedSchema), out var table))
                         {
-                            columnMappings = new SortedSet<ColumnMapping>(ColumnMappingBaseComparer.Instance);
-                            property.SetAnnotation(RelationalAnnotationNames.TableColumnMappings, columnMappings);
+                            table = new Table(mappedTable, mappedSchema, databaseModel);
+                            databaseModel.Tables.Add((mappedTable, mappedSchema), table);
                         }
 
-                        columnMappings.Add(columnMapping);
+                        if (mappedType == entityType)
+                        {
+                            Check.DebugAssert(table.EntityTypeMappings.Count == 0
+                                || table.IsExcludedFromMigrations == entityType.IsTableExcludedFromMigrations(),
+                                "Table should be excluded on all entity types");
+
+                            table.IsExcludedFromMigrations = entityType.IsTableExcludedFromMigrations();
+                        }
+
+                        var tableMapping = new TableMapping(entityType, table, includesDerivedTypes: true);
+                        foreach (var property in mappedType.GetProperties())
+                        {
+                            var columnName = property.GetColumnName(mappedTable, mappedSchema);
+                            if (columnName == null)
+                            {
+                                continue;
+                            }
+
+                            var typeMapping = property.FindRelationalTypeMapping(mappedTable, mappedSchema);
+                            var column = (Column)table.FindColumn(columnName);
+                            if (column == null)
+                            {
+                                column = new Column(columnName, property.GetColumnType(mappedTable, mappedSchema)
+                                    ?? typeMapping?.StoreType, table);
+                                column.IsNullable = property.IsColumnNullable(mappedTable, mappedSchema);
+                                table.Columns.Add(columnName, column);
+                            }
+                            else if (!property.IsColumnNullable(mappedTable, mappedSchema))
+                            {
+                                column.IsNullable = false;
+                            }
+
+                            var columnMapping = new ColumnMapping(property, column, typeMapping, tableMapping);
+                            tableMapping.ColumnMappings.Add(columnMapping);
+                            column.PropertyMappings.Add(columnMapping);
+
+                            var columnMappings = property[RelationalAnnotationNames.TableColumnMappings] as SortedSet<ColumnMapping>;
+                            if (columnMappings == null)
+                            {
+                                columnMappings = new SortedSet<ColumnMapping>(ColumnMappingBaseComparer.Instance);
+                                property.SetAnnotation(RelationalAnnotationNames.TableColumnMappings, columnMappings);
+                            }
+
+                            columnMappings.Add(columnMapping);
+                        }
+
+                        mappedType = mappedType.BaseType;
+                        if (lastMapping != null
+                            && tableMapping.ColumnMappings.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        tableMappings = entityType[RelationalAnnotationNames.TableMappings] as SortedSet<TableMapping>;
+                        if (tableMappings == null)
+                        {
+                            tableMappings = new SortedSet<TableMapping>(TableMappingBaseComparer.EntityTypeInstance);
+                            entityType.SetAnnotation(RelationalAnnotationNames.TableMappings, tableMappings);
+                        }
+
+                        tableMappings.Add(tableMapping);
+                        table.EntityTypeMappings.Add(tableMapping);
+
+                        lastMapping = tableMapping;
                     }
 
-                    var tableMappings = entityType[RelationalAnnotationNames.TableMappings] as SortedSet<TableMapping>;
-                    if (tableMappings == null)
-                    {
-                        tableMappings = new SortedSet<TableMapping>(TableMappingBaseComparer.Instance);
-                        entityType.SetAnnotation(RelationalAnnotationNames.TableMappings, tableMappings);
-                    }
-
-                    tableMappings.Add(tableMapping);
-                    table.EntityTypeMappings.Add(tableMapping);
+                    // Re-add the mapping to update the order
+                    tableMappings.Remove(lastMapping);
+                    lastMapping.IsMainTableMapping = true;
+                    tableMappings.Add(lastMapping);
                 }
 
+                var viewName = entityType.GetViewName();
                 if (viewName != null)
                 {
                     var schema = entityType.GetViewSchema();
-                    if (!databaseModel.Views.TryGetValue((viewName, schema), out var view))
+                    ViewMapping lastMapping = null;
+                    SortedSet<ViewMapping> viewMappings = null;
+                    var mappedType = entityType;
+                    while (mappedType != null)
                     {
-                        view = new View(viewName, schema, databaseModel);
-                        databaseModel.Views.Add((viewName, schema), view);
-                    }
+                        var mappedViewName = mappedType.GetViewName();
+                        var mappedSchema = mappedType.GetViewSchema();
 
-                    var viewMapping = new ViewMapping(entityType, view, includesDerivedTypes: true);
-                    foreach (var property in entityType.GetDeclaredProperties())
-                    {
-                        var typeMapping = property.FindRelationalTypeMapping();
-                        var columnName = property.GetViewColumnName();
-                        var column = (ViewColumn)view.FindColumn(columnName);
-                        if (column == null)
+                        if (mappedViewName == null
+                            || (mappedViewName == viewName
+                                && mappedSchema == schema
+                                && mappedType != entityType))
                         {
-                            column = new ViewColumn(columnName, property.GetColumnType() ?? typeMapping.StoreType, view);
-                            column.IsNullable = property.IsViewColumnNullable();
-                            view.Columns.Add(columnName, column);
-                        }
-                        else if (!property.IsViewColumnNullable())
-                        {
-                            column.IsNullable = false;
+                            break;
                         }
 
-                        var columnMapping = new ViewColumnMapping(property, column, typeMapping, viewMapping);
-                        viewMapping.ColumnMappings.Add(columnMapping);
-                        column.PropertyMappings.Add(columnMapping);
-
-                        var columnMappings = property[RelationalAnnotationNames.ViewColumnMappings] as SortedSet<ViewColumnMapping>;
-                        if (columnMappings == null)
+                        if (!databaseModel.Views.TryGetValue((mappedViewName, mappedSchema), out var view))
                         {
-                            columnMappings = new SortedSet<ViewColumnMapping>(ColumnMappingBaseComparer.Instance);
-                            property.SetAnnotation(RelationalAnnotationNames.ViewColumnMappings, columnMappings);
+                            view = new View(mappedViewName, mappedSchema, databaseModel);
+                            databaseModel.Views.Add((mappedViewName, mappedSchema), view);
                         }
 
-                        columnMappings.Add(columnMapping);
+                        var viewMapping = new ViewMapping(entityType, view, includesDerivedTypes: true);
+                        foreach (var property in mappedType.GetProperties())
+                        {
+                            var columnName = property.GetViewColumnName(mappedViewName, mappedSchema);
+                            if (columnName == null)
+                            {
+                                continue;
+                            }
+
+                            var typeMapping = property.FindRelationalTypeMapping();
+                            var column = (ViewColumn)view.FindColumn(columnName);
+                            if (column == null)
+                            {
+                                column = new ViewColumn(columnName, property.GetColumnType(mappedViewName, mappedSchema)
+                                    ?? typeMapping.StoreType, view);
+                                column.IsNullable = property.IsViewColumnNullable(mappedViewName, mappedSchema);
+                                view.Columns.Add(columnName, column);
+                            }
+                            else if (!property.IsViewColumnNullable(mappedViewName, mappedSchema))
+                            {
+                                column.IsNullable = false;
+                            }
+
+                            var columnMapping = new ViewColumnMapping(property, column, typeMapping, viewMapping);
+                            viewMapping.ColumnMappings.Add(columnMapping);
+                            column.PropertyMappings.Add(columnMapping);
+
+                            var columnMappings = property[RelationalAnnotationNames.ViewColumnMappings] as SortedSet<ViewColumnMapping>;
+                            if (columnMappings == null)
+                            {
+                                columnMappings = new SortedSet<ViewColumnMapping>(ColumnMappingBaseComparer.Instance);
+                                property.SetAnnotation(RelationalAnnotationNames.ViewColumnMappings, columnMappings);
+                            }
+
+                            columnMappings.Add(columnMapping);
+                        }
+
+                        mappedType = mappedType.BaseType;
+                        if (lastMapping != null
+                            && viewMapping.ColumnMappings.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        viewMappings = entityType[RelationalAnnotationNames.ViewMappings] as SortedSet<ViewMapping>;
+                        if (viewMappings == null)
+                        {
+                            viewMappings = new SortedSet<ViewMapping>(TableMappingBaseComparer.EntityTypeInstance);
+                            entityType.SetAnnotation(RelationalAnnotationNames.ViewMappings, viewMappings);
+                        }
+
+                        viewMappings.Add(viewMapping);
+                        view.EntityTypeMappings.Add(viewMapping);
+
+                        lastMapping = viewMapping;
                     }
 
-                    var tableMappings = entityType[RelationalAnnotationNames.ViewMappings] as SortedSet<ViewMapping>;
-                    if (tableMappings == null)
-                    {
-                        tableMappings = new SortedSet<ViewMapping>(TableMappingBaseComparer.Instance);
-                        entityType.SetAnnotation(RelationalAnnotationNames.ViewMappings, tableMappings);
-                    }
-
-                    tableMappings.Add(viewMapping);
-                    view.EntityTypeMappings.Add(viewMapping);
+                    // Re-add the mapping to update the order
+                    viewMappings.Remove(lastMapping);
+                    lastMapping.IsMainTableMapping = true;
+                    viewMappings.Add(lastMapping);
                 }
             }
 
             foreach (var table in databaseModel.Tables.Values)
             {
+                PopulateRowInternalForeignKeys(table);
+                PopulateConstraints(table);
+
                 if (relationalAnnotationProvider != null)
                 {
                     foreach (var column in table.Columns.Values)
                     {
                         column.AddAnnotations(relationalAnnotationProvider.For(column));
                     }
-                }
 
-                PopulateInternalForeignKeys(table);
-                PopulateConstraints(table, relationalAnnotationProvider);
+                    foreach (var constraint in table.UniqueConstraints.Values)
+                    {
+                        constraint.AddAnnotations(relationalAnnotationProvider.For(constraint));
+                    }
 
-                if (relationalAnnotationProvider != null)
-                {
+                    foreach (var index in table.Indexes.Values)
+                    {
+                        index.AddAnnotations(relationalAnnotationProvider.For(index));
+                    }
+
+                    foreach (var constraint in table.ForeignKeyConstraints.Values)
+                    {
+                        constraint.AddAnnotations(relationalAnnotationProvider.For(constraint));
+                    }
+
+                    foreach (CheckConstraint checkConstraint in ((ITable)table).CheckConstraints)
+                    {
+                        checkConstraint.AddAnnotations(relationalAnnotationProvider.For(checkConstraint));
+                    }
+
                     table.AddAnnotations(relationalAnnotationProvider.For(table));
                 }
             }
 
             foreach (var view in databaseModel.Views.Values)
             {
+                PopulateRowInternalForeignKeys(view);
+
                 if (relationalAnnotationProvider != null)
                 {
                     foreach (var viewColumn in view.Columns.Values)
                     {
                         viewColumn.AddAnnotations(relationalAnnotationProvider.For(viewColumn));
                     }
-                }
 
-                PopulateInternalForeignKeys(view);
-
-                if (relationalAnnotationProvider != null)
-                {
                     view.AddAnnotations(relationalAnnotationProvider.For(view));
                 }
             }
@@ -233,23 +328,104 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return model;
         }
 
-        private static void PopulateConstraints(Table table, IRelationalAnnotationProvider relationalAnnotationProvider)
+        private static void PopulateConstraints(Table table)
         {
             foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
             {
                 var entityType = (IConventionEntityType)entityTypeMapping.EntityType;
                 foreach (var foreignKey in entityType.GetForeignKeys())
                 {
-                    var principalMappings = foreignKey.PrincipalEntityType.GetTableMappings();
-                    if (principalMappings == null)
+                    foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings())
                     {
-                        continue;
-                    }
+                        if (!principalMapping.IncludesDerivedTypes
+                            && foreignKey.PrincipalEntityType.GetDirectlyDerivedTypes().Any())
+                        {
+                            // Derived principal entity types are mapped to different tables, so the constraint is not enforceable
+                            break;
+                        }
 
-                    var name = foreignKey.GetConstraintName();
-                    var foreignKeyConstraints = foreignKey[RelationalAnnotationNames.ForeignKeyMappings] as SortedSet<ForeignKeyConstraint>;
-                    if (table.ForeignKeyConstraints.TryGetValue(name, out var constraint))
-                    {
+                        var principalTable = (Table)principalMapping.Table;
+                        var name = foreignKey.GetConstraintName(table.Name, table.Schema, principalTable.Name, principalTable.Schema);
+                        if (name == null)
+                        {
+                            continue;
+                        }
+
+                        var foreignKeyConstraints = foreignKey[RelationalAnnotationNames.ForeignKeyMappings] as SortedSet<ForeignKeyConstraint>;
+                        if (table.ForeignKeyConstraints.TryGetValue(name, out var constraint))
+                        {
+                            if (foreignKeyConstraints == null)
+                            {
+                                foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
+                                foreignKey.SetOrRemoveAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);
+                            }
+
+                            foreignKeyConstraints.Add(constraint);
+
+                            constraint.MappedForeignKeys.Add(foreignKey);
+                            break;
+                        }
+
+                        var principalColumns = new Column[foreignKey.Properties.Count];
+                        for (var i = 0; i < principalColumns.Length; i++)
+                        {
+                            var property = foreignKey.PrincipalKey.Properties[i];
+                            foreach (var columnMapping in property.GetTableColumnMappings())
+                            {
+                                if (columnMapping.TableMapping.Table == principalTable)
+                                {
+                                    principalColumns[i] = (Column)columnMapping.Column;
+                                    break;
+                                }
+                            }
+
+                            if (principalColumns[i] == null)
+                            {
+                                principalColumns = null;
+                                break;
+                            }
+                        }
+
+                        if (principalColumns == null)
+                        {
+                            continue;
+                        }
+
+                        var columns = new Column[foreignKey.Properties.Count];
+                        for (var i = 0; i < columns.Length; i++)
+                        {
+                            var property = foreignKey.Properties[i];
+                            foreach (var columnMapping in property.GetTableColumnMappings())
+                            {
+                                if (columnMapping.TableMapping.Table == table)
+                                {
+                                    columns[i] = (Column)columnMapping.Column;
+                                    break;
+                                }
+                            }
+
+                            if (columns[i] == null)
+                            {
+                                columns = null;
+                                break;
+                            }
+                        }
+
+                        if (columns == null)
+                        {
+                            break;
+                        }
+
+                        if (columns.SequenceEqual(principalColumns))
+                        {
+                            // Principal and dependent properties are mapped to the same columns so the constraint is redundant
+                            continue;
+                        }
+
+                        constraint = new ForeignKeyConstraint(name, table, principalTable, columns, principalColumns,
+                            ToReferentialAction(foreignKey.DeleteBehavior));
+                        constraint.MappedForeignKeys.Add(foreignKey);
+
                         if (foreignKeyConstraints == null)
                         {
                             foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
@@ -257,94 +433,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         foreignKeyConstraints.Add(constraint);
-
-                        constraint.MappedForeignKeys.Add(foreignKey);
-                        continue;
+                        table.ForeignKeyConstraints.Add(name, constraint);
+                        break;
                     }
-
-                    var principalColumns = new Column[foreignKey.Properties.Count];
-                    Table principalTable = null;
-                    for (var i = 0; i < principalColumns.Length; i++)
-                    {
-                        var property = foreignKey.PrincipalKey.Properties[i];
-                        foreach (var columnMapping in property.GetTableColumnMappings())
-                        {
-                            if (principalColumns[i] != null
-                                && principalColumns[i] != columnMapping.Column)
-                            {
-                                // Principal property is mapped to multiple columns, so the constraint is not enforceable
-                                principalColumns[i] = null;
-                                break;
-                            }
-
-                            principalColumns[i] = (Column)columnMapping.Column;
-                        }
-
-                        if (principalColumns[i] == null)
-                        {
-                            principalColumns = null;
-                            break;
-                        }
-
-                        if (principalTable == null)
-                        {
-                            principalTable = (Table)principalColumns[i].Table;
-                        }
-                        else if (principalTable != principalColumns[i].Table)
-                        {
-                            // Principal properties are mapped to several tables, so the constraint is not enforceable
-                            principalColumns = null;
-                        }
-                    }
-
-                    if (principalColumns == null)
-                    {
-                        continue;
-                    }
-
-                    var columns = new Column[foreignKey.Properties.Count];
-                    for (var i = 0; i < columns.Length; i++)
-                    {
-                        var property = foreignKey.Properties[i];
-                        foreach (var columnMapping in property.GetTableColumnMappings())
-                        {
-                            if (columnMapping.TableMapping.Table == table)
-                            {
-                                columns[i] = (Column)columnMapping.Column;
-                                break;
-                            }
-                        }
-
-                        if (columns[i] == null)
-                        {
-                            columns = null;
-                            break;
-                        }
-                    }
-
-                    if (columns == null
-                        || columns.SequenceEqual(principalColumns))
-                    {
-                        continue;
-                    }
-
-                    constraint = new ForeignKeyConstraint(
-                        name, table, principalTable, columns, principalColumns, ToReferentialAction(foreignKey.DeleteBehavior));
-                    constraint.MappedForeignKeys.Add(foreignKey);
-
-                    if (foreignKeyConstraints == null)
-                    {
-                        foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
-                        foreignKey.SetOrRemoveAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);
-                    }
-
-                    foreignKeyConstraints.Add(constraint);
-                    table.ForeignKeyConstraints.Add(name, constraint);
                 }
 
                 foreach (var key in entityType.GetKeys())
                 {
-                    var name = key.GetName();
+                    var name = key.GetName(table.Name, table.Schema);
                     var constraint = table.FindUniqueConstraint(name);
                     if (constraint == null)
                     {
@@ -373,8 +469,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             continue;
                         }
 
-                        constraint = new UniqueConstraint(name, table, columns, key.IsPrimaryKey());
-                        if (constraint.IsPrimaryKey)
+                        constraint = new UniqueConstraint(name, table, columns);
+                        if (key.IsPrimaryKey())
                         {
                             table.PrimaryKey = constraint;
                         }
@@ -394,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var index in entityType.GetIndexes())
                 {
-                    var name = index.GetName();
+                    var name = index.GetDatabaseName(table.Name, table.Schema);
                     if (!table.Indexes.TryGetValue(name, out var tableIndex))
                     {
                         var columns = new Column[index.Properties.Count];
@@ -422,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             continue;
                         }
 
-                        tableIndex = new TableIndex(name, table, columns, index.GetFilter(), index.IsUnique);
+                        tableIndex = new TableIndex(name, table, columns, index.GetFilter(table.Name, table.Schema), index.IsUnique);
 
                         table.Indexes.Add(name, tableIndex);
                     }
@@ -437,45 +533,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     tableIndex.MappedIndexes.Add(index);
                 }
             }
-
-            if (relationalAnnotationProvider != null)
-            {
-                foreach (var constraint in table.UniqueConstraints.Values)
-                {
-                    constraint.AddAnnotations(relationalAnnotationProvider.For(constraint));
-                }
-
-                foreach (var index in table.Indexes.Values)
-                {
-                    index.AddAnnotations(relationalAnnotationProvider.For(index));
-                }
-
-                foreach (var constraint in table.ForeignKeyConstraints.Values)
-                {
-                    constraint.AddAnnotations(relationalAnnotationProvider.For(constraint));
-                }
-
-                foreach (CheckConstraint checkConstraint in ((ITable)table).CheckConstraints)
-                {
-                    checkConstraint.AddAnnotations(relationalAnnotationProvider.For(checkConstraint));
-                }
-            }
         }
 
-        private static void PopulateInternalForeignKeys(TableBase table)
+        private static void PopulateRowInternalForeignKeys(TableBase table)
         {
             SortedDictionary<IEntityType, IEnumerable<IForeignKey>> internalForeignKeyMap = null;
             SortedDictionary<IEntityType, IEnumerable<IForeignKey>> referencingInternalForeignKeyMap = null;
-            foreach (var entityTypeMapping in ((ITableBase)table).EntityTypeMappings)
+            TableMappingBase mainMapping = null;
+            foreach (TableMappingBase entityTypeMapping in ((ITableBase)table).EntityTypeMappings)
             {
                 var entityType = entityTypeMapping.EntityType;
                 var primaryKey = entityType.FindPrimaryKey();
                 if (primaryKey == null)
                 {
+                    if (mainMapping == null
+                        || entityTypeMapping.EntityType.IsAssignableFrom(mainMapping.EntityType))
+                    {
+                        mainMapping = entityTypeMapping;
+                    }
+
                     continue;
                 }
 
-                SortedSet<IForeignKey> internalForeignKeys = null;
+                SortedSet<IForeignKey> rowInternalForeignKeys = null;
                 foreach (var foreignKey in entityType.FindForeignKeys(primaryKey.Properties))
                 {
                     if (foreignKey.IsUnique
@@ -484,11 +564,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && !foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                         && ((ITableBase)table).EntityTypeMappings.Any(m => m.EntityType == foreignKey.PrincipalEntityType))
                     {
-                        if (internalForeignKeys == null)
+                        if (rowInternalForeignKeys == null)
                         {
-                            internalForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
+                            rowInternalForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
                         }
-                        internalForeignKeys.Add(foreignKey);
+                        rowInternalForeignKeys.Add(foreignKey);
 
                         if (referencingInternalForeignKeyMap == null)
                         {
@@ -506,29 +586,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                if (internalForeignKeys != null)
+                if (rowInternalForeignKeys != null)
                 {
                     if (internalForeignKeyMap == null)
                     {
                         internalForeignKeyMap =
                             new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
-                        table.InternalForeignKeys = internalForeignKeyMap;
+                        table.RowInternalForeignKeys = internalForeignKeyMap;
                     }
 
-                    internalForeignKeyMap[entityType] = internalForeignKeys;
+                    internalForeignKeyMap[entityType] = rowInternalForeignKeys;
                 }
 
-                if (internalForeignKeys == null
-                    && ((ITableBase)table).EntityTypeMappings.Any(m => !m.EntityType.IsAssignableFrom(entityType)
-                        && !entityType.IsAssignableFrom(m.EntityType)))
+                if (rowInternalForeignKeys == null)
                 {
-                    table.IsSplit = true;
+                    if (((ITableBase)table).EntityTypeMappings.Any(m =>
+                        !m.EntityType.IsAssignableFrom(entityType)
+                        && !entityType.IsAssignableFrom(m.EntityType)))
+                    {
+                        table.IsShared = true;
+                    }
+
+                    if (mainMapping == null
+                        || entityTypeMapping.EntityType.IsAssignableFrom(mainMapping.EntityType))
+                    {
+                        mainMapping = entityTypeMapping;
+                    }
                 }
+            }
+
+            // Re-add the mapping to update the order
+            if (mainMapping is TableMapping mainTableMapping)
+            {
+                ((Table)mainMapping.Table).EntityTypeMappings.Remove(mainTableMapping);
+                mainMapping.IsMainEntityTypeMapping = true;
+                ((Table)mainMapping.Table).EntityTypeMappings.Add(mainTableMapping);
+            }
+            else
+            {
+                ((View)mainMapping.Table).EntityTypeMappings.Remove((ViewMapping)mainMapping);
+                mainMapping.IsMainEntityTypeMapping = true;
+                ((View)mainMapping.Table).EntityTypeMappings.Add((ViewMapping)mainMapping);
             }
 
             if (referencingInternalForeignKeyMap != null)
             {
-                table.ReferencingInternalForeignKeys = referencingInternalForeignKeyMap;
+                table.ReferencingRowInternalForeignKeys = referencingInternalForeignKeyMap;
             }
         }
 

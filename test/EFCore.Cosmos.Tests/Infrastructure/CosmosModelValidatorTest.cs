@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -21,6 +20,74 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_on_valid_keyless_entity_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().HasPartitionKey(c => c.PartitionId).HasNoKey();
+
+            var model = Validate(modelBuilder.Model);
+
+            Assert.Empty(model.FindEntityType(typeof(Customer)).GetKeys());
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_missing_id_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id);
+                b.HasKey(o => o.Id);
+                b.Ignore(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.NoIdProperty(typeof(Order).Name), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_non_key_id_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id);
+                b.HasKey(o => o.Id);
+                b.Property<string>("id");
+                b.Ignore(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.NoIdKey(typeof(Order).Name, "id"), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_non_string_id_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id);
+                b.HasKey(o => o.Id);
+                b.Property<int>("id");
+                b.HasKey("id");
+                b.Ignore(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.IdNonStringStoreType("id", typeof(Order).Name, "int"), model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_on_valid_partition_keys()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -28,8 +95,41 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
                 .Property(o => o.PartitionId).HasConversion<string>();
 
-            var model = modelBuilder.Model;
-            Validate(model);
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_PK_partition_key()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.HasKey(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_non_key_partition_key_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id);
+                b.Property<string>("id");
+                b.HasKey("id");
+                b.Property(o => o.PartitionId);
+                b.HasPartitionKey(o => o.PartitionId);
+                b.Ignore(o => o.Customer);
+                b.Ignore(o => o.OrderDetails);
+                b.Ignore(o => o.Products);
+            });
+
+            VerifyError(CosmosStrings.NoPartitionKeyKey(typeof(Order).Name, nameof(Order.PartitionId), "id"), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -91,6 +191,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 CosmosStrings.PartitionKeyNonStringStoreType(
                     nameof(Customer.PartitionId), typeof(Order).Name, "int"), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_properties_mapped_to_same_property()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Order>(ob =>
+            {
+                ob.Property(o => o.Id).ToJsonProperty("Details");
+                ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(
+                CosmosStrings.JsonPropertyCollision(
+                    nameof(Order.PartitionId), nameof(Order.Id), typeof(Order).Name, "Details"), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_property_and_embedded_type_mapped_to_same_property()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Order>(ob =>
+            {
+                ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+                ob.OwnsOne(o => o.OrderDetails).ToJsonProperty("Details");
+            });
+
+            var model = modelBuilder.Model;
+            VerifyError(
+                CosmosStrings.JsonPropertyCollision(
+                    nameof(Order.OrderDetails), nameof(Order.PartitionId), typeof(Order).Name, "Details"), model);
         }
 
         [ConditionalFact]

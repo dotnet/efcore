@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -64,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.ColumnType,
                 RelationalAnnotationNames.TableColumnMappings,
                 RelationalAnnotationNames.ViewColumnMappings,
+                RelationalAnnotationNames.RelationalOverrides,
                 RelationalAnnotationNames.DefaultValueSql,
                 RelationalAnnotationNames.ComputedColumnSql,
                 RelationalAnnotationNames.DefaultValue,
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         _nl
                         + "modelBuilder."
                         + nameof(RelationalEntityTypeBuilderExtensions.ToTable)
-                        + @"(""WithAnnotations"",""MySchema"");"
+                        + @"(""WithAnnotations"", ""MySchema"");"
                         + _nl)
                 },
                 {
@@ -116,8 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     RelationalAnnotationNames.Comment, ("My Comment",
                         _toTable
                         + _nl
-                        + "modelBuilder.HasComment"
-                        + @"(""My Comment"");"
+                        + "modelBuilder"
+                        + _nl
+                        + @"    .HasComment(""My Comment"");"
                         + _nl)
                 }
             };
@@ -170,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             // Note that other tests should be added to check code is generated correctly
             var forProperty = new Dictionary<string, (object, string)>
             {
-                { CoreAnnotationNames.MaxLength, (256, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasMaxLength)}(256)") },
-                { CoreAnnotationNames.Precision, (4, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasPrecision)}(4)") },
-                { CoreAnnotationNames.Unicode, (false, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false)") },
+                { CoreAnnotationNames.MaxLength, (256, $@"{_nl}.{nameof(PropertyBuilder.HasMaxLength)}(256){columnMapping}") },
+                { CoreAnnotationNames.Precision, (4, $@"{_nl}.{nameof(PropertyBuilder.HasPrecision)}(4){columnMapping}") },
+                { CoreAnnotationNames.Unicode, (false, $@"{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false){columnMapping}") },
                 {
                     CoreAnnotationNames.ValueConverter, (new ValueConverter<int, long>(v => v, v => (int)v),
                         $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_long_mapping"")")
@@ -183,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 {
                     RelationalAnnotationNames.ColumnName,
-                    ("MyColumn", $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}(""MyColumn""){columnMapping}")
+                    ("MyColumn", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}(""MyColumn"")")
                 },
                 {
                     RelationalAnnotationNames.ColumnType,
@@ -237,11 +240,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
+            var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
+                new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
+
             var codeHelper = new CSharpHelper(
                 sqlServerTypeMappingSource);
 
             var generator = new TestCSharpSnapshotGenerator(
-                new CSharpSnapshotGeneratorDependencies(codeHelper, sqlServerTypeMappingSource));
+                new CSharpSnapshotGeneratorDependencies(codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator));
 
             var coreAnnotations = typeof(CoreAnnotationNames).GetFields().Where(f => f.FieldType == typeof(string)).ToList();
 
@@ -326,8 +332,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var codeHelper = new CSharpHelper(
                 sqlServerTypeMappingSource);
 
+            var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
+                new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
+
             var generator = new CSharpMigrationsGenerator(
-                new MigrationsCodeGeneratorDependencies(sqlServerTypeMappingSource),
+                new MigrationsCodeGeneratorDependencies(
+                    sqlServerTypeMappingSource,
+                    sqlServerAnnotationCodeGenerator),
                 new CSharpMigrationsGeneratorDependencies(
                     codeHelper,
                     new CSharpMigrationOperationGenerator(
@@ -335,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             codeHelper)),
                     new CSharpSnapshotGenerator(
                         new CSharpSnapshotGeneratorDependencies(
-                            codeHelper, sqlServerTypeMappingSource))));
+                            codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))));
 
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
@@ -377,8 +388,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 
+            var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
+                new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
+
             var generator = new TestCSharpSnapshotGenerator(
-                new CSharpSnapshotGeneratorDependencies(codeHelper, sqlServerTypeMappingSource));
+                new CSharpSnapshotGeneratorDependencies(
+                    codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator));
 
             var sb = new IndentedStringBuilder();
 

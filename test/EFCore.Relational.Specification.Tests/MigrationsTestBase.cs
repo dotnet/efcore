@@ -19,8 +19,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
@@ -349,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         [InlineData(false)]
         [InlineData(null)]
-        public virtual Task Add_column_with_computedSql(bool? computedColumnStored)
+        public virtual Task Add_column_with_computedSql(bool? stored)
             => Test(
                 builder => builder.Entity(
                     "People", e =>
@@ -360,15 +358,15 @@ namespace Microsoft.EntityFrameworkCore
                     }),
                 builder => { },
                 builder => builder.Entity("People").Property<string>("Sum")
-                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", computedColumnStored),
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
                     var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
                     Assert.Contains("X", sumColumn.ComputedColumnSql);
                     Assert.Contains("Y", sumColumn.ComputedColumnSql);
-                    if (computedColumnStored != null)
-                        Assert.Equal(computedColumnStored, sumColumn.ComputedColumnIsStored);
+                    if (stored != null)
+                        Assert.Equal(stored, sumColumn.IsStored);
                 });
 
         // TODO: Check this out
@@ -531,6 +529,22 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
         [ConditionalFact]
+        public virtual Task Add_column_with_check_constraint()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("DriverLicense");
+                        e.HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 0");
+                    }),
+                model =>
+                {
+                    // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
+                });
+
+        [ConditionalFact]
         public virtual Task Alter_column_change_type()
             => Test(
                 builder => builder.Entity("People").Property<int>("Id"),
@@ -610,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         [InlineData(false)]
         [InlineData(null)]
-        public virtual Task Alter_column_make_computed(bool? computedColumnStored)
+        public virtual Task Alter_column_make_computed(bool? stored)
             => Test(
                 builder => builder.Entity(
                     "People", e =>
@@ -621,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore
                     }),
                 builder => builder.Entity("People").Property<int>("Sum"),
                 builder => builder.Entity("People").Property<int>("Sum")
-                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", computedColumnStored),
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
@@ -629,8 +643,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Contains("X", sumColumn.ComputedColumnSql);
                     Assert.Contains("Y", sumColumn.ComputedColumnSql);
                     Assert.Contains("+", sumColumn.ComputedColumnSql);
-                    if (computedColumnStored != null)
-                        Assert.Equal(computedColumnStored, sumColumn.ComputedColumnIsStored);
+                    if (stored != null)
+                        Assert.Equal(stored, sumColumn.IsStored);
                 });
 
         [ConditionalFact]
@@ -674,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var table = Assert.Single(model.Tables);
                         var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
-                        Assert.True(sumColumn.ComputedColumnIsStored);
+                        Assert.True(sumColumn.IsStored);
                     });
 
         [ConditionalFact]
@@ -878,8 +892,8 @@ namespace Microsoft.EntityFrameworkCore
                         e.Property<int>("Id");
                         e.Property<string>("FirstName");
                     }),
-                builder => builder.Entity("People").HasIndex("FirstName").HasName("Foo"),
-                builder => builder.Entity("People").HasIndex("FirstName").HasName("foo"),
+                builder => builder.Entity("People").HasIndex(new[] { "FirstName" }, "Foo"),
+                builder => builder.Entity("People").HasIndex(new[] { "FirstName" }, "foo"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
@@ -1113,6 +1127,22 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
                 });
+
+            [ConditionalFact]
+            public virtual Task Alter_check_constraint()
+                => Test(
+                    builder => builder.Entity(
+                        "People", e =>
+                        {
+                            e.Property<int>("Id");
+                            e.Property<int>("DriverLicense");
+                        }),
+                    builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
+                    builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 1"),
+                    model =>
+                    {
+                        // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
+                    });
 
         [ConditionalFact]
         public virtual Task Drop_check_constraint()
@@ -1392,7 +1422,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
             public int AnotherId { get; set; }
-            public string? Name { get; set; }
+            public string Name { get; set; }
             public int Age { get; set; }
         }
 
@@ -1413,14 +1443,14 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual Task Test(
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
             => Test(b => { }, buildSourceAction, buildTargetAction, asserter);
 
         protected virtual Task Test(
             Action<ModelBuilder> buildCommonAction,
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetAction,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
         {
             // Build the source and target models. Add current/latest product version if one wasn't set.
             var sourceModelBuilder = CreateConventionlessModelBuilder();
@@ -1445,13 +1475,13 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual Task Test(
             Action<ModelBuilder> buildSourceAction,
             MigrationOperation operation,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
             => Test(buildSourceAction, new[] { operation }, asserter);
 
         protected virtual Task Test(
             Action<ModelBuilder> buildSourceAction,
             IReadOnlyList<MigrationOperation> operations,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
         {
             var sourceModelBuilder = CreateConventionlessModelBuilder();
             buildSourceAction(sourceModelBuilder);
@@ -1467,9 +1497,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual async Task Test(
             IModel sourceModel,
-            IModel? targetModel,
+            IModel targetModel,
             IReadOnlyList<MigrationOperation> operations,
-            Action<DatabaseModel>? asserter)
+            Action<DatabaseModel> asserter)
         {
             var context = CreateContext();
             var serviceProvider = ((IInfrastructure<IServiceProvider>)context).Instance;

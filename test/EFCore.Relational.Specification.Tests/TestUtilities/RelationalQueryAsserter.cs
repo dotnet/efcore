@@ -2,26 +2,25 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class RelationalQueryAsserter<TContext> : QueryAsserter<TContext>
-        where TContext : DbContext
+    public class RelationalQueryAsserter : QueryAsserter
     {
         private readonly bool _canExecuteQueryString;
 
         public RelationalQueryAsserter(
-            Func<TContext> contextCreator,
-            ISetSource expectedData,
-            Dictionary<Type, object> entitySorters,
-            Dictionary<Type, object> entityAsserters,
-            bool canExecuteQueryString,
-            ExpectedQueryRewritingVisitor expectedQueryRewritingVisitor = null)
-            : base(contextCreator, expectedData, entitySorters, entityAsserters, expectedQueryRewritingVisitor)
+            IQueryFixtureBase queryFixture,
+            Func<Expression, Expression> rewriteExpectedQueryExpression,
+            Func<Expression, Expression> rewriteServerQueryExpression,
+            bool ignoreEntryCount = false,
+            bool canExecuteQueryString = false)
+            : base(queryFixture, rewriteExpectedQueryExpression, rewriteServerQueryExpression, ignoreEntryCount)
         {
             _canExecuteQueryString = canExecuteQueryString;
         }
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var count = ExecuteReader(command);
 
             // There may be more rows returned than entity instances created, but there
-            // should never vbe fewer.
+            // should never be fewer.
             Assert.True(count >= expectedCount);
 
             return (command.Connection, command.Transaction, command.CommandTimeout, count);

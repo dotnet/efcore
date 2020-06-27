@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual RelationalModel Model { get; }
 
         /// <inheritdoc/>
-        public virtual bool IsSplit { get; set; }
+        public virtual bool IsShared { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>> InternalForeignKeys { get; [param: NotNull] set; }
+        public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>> RowInternalForeignKeys { get; [param: NotNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>> ReferencingInternalForeignKeys { get; [param: NotNull] set; }
+        public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>> ReferencingRowInternalForeignKeys { get; [param: NotNull] set; }
 
         /// <inheritdoc/>
         IEnumerable<ITableMappingBase> ITableBase.EntityTypeMappings => throw new NotImplementedException();
@@ -75,16 +75,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IColumnBase ITableBase.FindColumn(string name) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetInternalForeignKeys(IEntityType entityType)
-            => InternalForeignKeys != null
-                && InternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
+        IEnumerable<IForeignKey> ITableBase.GetRowInternalForeignKeys(IEntityType entityType)
+            => RowInternalForeignKeys != null
+                && RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
                 : null;
 
         /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetReferencingInternalForeignKeys(IEntityType entityType)
-            => ReferencingInternalForeignKeys != null
-                && ReferencingInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
+        IEnumerable<IForeignKey> ITableBase.GetReferencingRowInternalForeignKeys(IEntityType entityType)
+            => ReferencingRowInternalForeignKeys != null
+                && ReferencingRowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
                 : null;
     }

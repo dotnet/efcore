@@ -606,6 +606,42 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(e => e.Id).ToList();
         }
 
+        [ConditionalFact]
+        public virtual void Where_contains_on_parameter_array_with_relational_null_semantics()
+        {
+            using var context = CreateContext(useRelationalNulls: true);
+            var names = new[] { "Foo", "Bar" };
+            var result = context.Entities1
+                .Where(e => names.Contains(e.NullableStringA))
+                .Select(e => e.NullableStringA).ToList();
+
+            Assert.True(result.All(r => r == "Foo" || r == "Bar"));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_contains_on_parameter_empty_array_with_relational_null_semantics()
+        {
+            using var context = CreateContext(useRelationalNulls: true);
+            var names = new string[0];
+            var result = context.Entities1
+                .Where(e => names.Contains(e.NullableStringA))
+                .Select(e => e.NullableStringA).ToList();
+
+            Assert.Equal(0, result.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_contains_on_parameter_array_with_just_null_with_relational_null_semantics()
+        {
+            using var context = CreateContext(useRelationalNulls: true);
+            var names = new string[] { null };
+            var result = context.Entities1
+                .Where(e => names.Contains(e.NullableStringA))
+                .Select(e => e.NullableStringA).ToList();
+
+            Assert.Equal(0, result.Count);
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_nullable_bool(bool async)
@@ -1245,6 +1281,67 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<NullSemanticsEntity1>().Where(e => !ss.Set<NullSemanticsEntity2>().Where(x => false).Select(x => x.NullableIntA).Contains(e.NullableIntA)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nullable_string_FirstOrDefault_compared_to_nullable_string_LastOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.FirstOrDefault() == e.NullableStringB.LastOrDefault()),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.MaybeScalar(x => x.FirstOrDefault())
+                    == e.NullableStringB.MaybeScalar(x => x.LastOrDefault())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Null_semantics_applied_to_CompareTo_equality(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.CompareTo(e.NullableStringB) == 0),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == e.NullableStringB));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableStringA.CompareTo(e.NullableStringB)),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == e.NullableStringB));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.CompareTo(e.NullableStringB) != 0),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 != e.NullableStringA.CompareTo(e.NullableStringB)),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Nested_CompareTo_optimized(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0) == 0),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == e.NullableStringB));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0)),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA == e.NullableStringB));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0) != 0),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 != e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0)),
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
         }
 
         private string NormalizeDelimitersInRawString(string sql)

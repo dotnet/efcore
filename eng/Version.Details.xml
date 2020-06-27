@@ -1,63 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="5.0.0-preview.3.20214.6" Pinned="true">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="5.0.0-preview.7.20321.2">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>b03778465800e6d8a534b2fb79656a9f9ba7e245</Sha>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="5.0.0-preview.3.20215.2" Pinned="true">
-      <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>eac9c2f0ecf095ba3a0e4232c0526c15cd11eac4</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0-preview.3.20215.2" Pinned="true">
-      <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>eac9c2f0ecf095ba3a0e4232c0526c15cd11eac4</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="5.0.0-preview.3.20215.2" Pinned="true">
-      <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>eac9c2f0ecf095ba3a0e4232c0526c15cd11eac4</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="5.0.0-preview.3.20215.2" Pinned="true">
-      <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>eac9c2f0ecf095ba3a0e4232c0526c15cd11eac4</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="5.0.0-preview.3.20215.2" Pinned="true">
-      <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>eac9c2f0ecf095ba3a0e4232c0526c15cd11eac4</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="5.0.0-preview.3-runtime.20214.6" Pinned="true">
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0-preview.7.20321.2">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>b03778465800e6d8a534b2fb79656a9f9ba7e245</Sha>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="5.0.0-preview.3.20215.2" Pinned="true">
-      <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>eac9c2f0ecf095ba3a0e4232c0526c15cd11eac4</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="5.0.0-preview.3.20215.2" Pinned="true">
-      <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>eac9c2f0ecf095ba3a0e4232c0526c15cd11eac4</Sha>
-    </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="5.0.0-preview.3.20214.6" Pinned="true">
+    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0-preview.7.20321.2">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>b03778465800e6d8a534b2fb79656a9f9ba7e245</Sha>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
     </Dependency>
-    <Dependency Name="System.ComponentModel.Annotations" Version="5.0.0-preview.3.20214.6" Pinned="true">
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="5.0.0-preview.7.20321.2">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>b03778465800e6d8a534b2fb79656a9f9ba7e245</Sha>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="5.0.0-preview.3.20214.6" Pinned="true">
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="5.0.0-preview.7.20321.2">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>b03778465800e6d8a534b2fb79656a9f9ba7e245</Sha>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="5.0.0-preview.7.20321.2">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="5.0.0-preview.7.20321.2">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="5.0.0-preview.7.20321.2">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
+    </Dependency>
+    <Dependency Name="Microsoft.Extensions.Logging" Version="5.0.0-preview.7.20321.2">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
+    </Dependency>
+    <Dependency Name="System.Collections.Immutable" Version="5.0.0-preview.7.20321.2">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
+    </Dependency>
+    <Dependency Name="System.ComponentModel.Annotations" Version="5.0.0-preview.7.20321.2">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
+    </Dependency>
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="5.0.0-preview.7.20321.2">
+      <Uri>https://github.com/dotnet/runtime</Uri>
+      <Sha>1f4d0db2339c37d75723d063827fd2a4c6e2ecef</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="5.0.0-beta.20228.4">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="5.0.0-beta.20316.1">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>590a102630c7efc7ca6f652f7c6c47dee4c4086c</Sha>
+      <Sha>71b580038fb704df63e03c6b7ae7d2c6a4fdd71d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="5.0.0-beta.20228.4">
+    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="5.0.0-beta.20316.1">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>590a102630c7efc7ca6f652f7c6c47dee4c4086c</Sha>
+      <Sha>71b580038fb704df63e03c6b7ae7d2c6a4fdd71d</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>

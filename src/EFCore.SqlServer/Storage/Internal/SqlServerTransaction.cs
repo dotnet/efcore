@@ -17,10 +17,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerTransaction : RelationalTransaction, IDbContextTransaction
+    public class SqlServerTransaction : RelationalTransaction
     {
-        private readonly DbTransaction _dbTransaction;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,45 +32,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
             : base(connection, transaction, transactionId, logger, transactionOwned)
-            => _dbTransaction = transaction;
-
-        /// <inheritdoc />
-        public virtual void Save(string savepointName)
         {
-            using var command = Connection.DbConnection.CreateCommand();
-            command.Transaction = _dbTransaction;
-            command.CommandText = "SAVE TRANSACTION " + savepointName;
-            command.ExecuteNonQuery();
         }
 
         /// <inheritdoc />
-        public virtual async Task SaveAsync(string savepointName, CancellationToken cancellationToken = default)
-        {
-            using var command = Connection.DbConnection.CreateCommand();
-            command.Transaction = _dbTransaction;
-            command.CommandText = "SAVE TRANSACTION " + savepointName;
-            await command.ExecuteNonQueryAsync(cancellationToken);
-        }
+        protected override string GetCreateSavepointSql(string name) => "SAVE TRANSACTION " + name;
 
         /// <inheritdoc />
-        public virtual void Rollback(string savepointName)
-        {
-            using var command = Connection.DbConnection.CreateCommand();
-            command.Transaction = _dbTransaction;
-            command.CommandText = "ROLLBACK TRANSACTION " + savepointName;
-            command.ExecuteNonQuery();
-        }
+        protected override string GetRollbackToSavepointSql(string name) => "ROLLBACK TRANSACTION " + name;
 
         /// <inheritdoc />
-        public virtual async Task RollbackAsync(string savepointName, CancellationToken cancellationToken = default)
-        {
-            using var command = Connection.DbConnection.CreateCommand();
-            command.Transaction = _dbTransaction;
-            command.CommandText = "ROLLBACK TRANSACTION " + savepointName;
-            await command.ExecuteNonQueryAsync(cancellationToken);
-        }
+        public override void ReleaseSavepoint(string name) {}
 
         /// <inheritdoc />
-        public virtual bool AreSavepointsSupported => true;
+        public override Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 }

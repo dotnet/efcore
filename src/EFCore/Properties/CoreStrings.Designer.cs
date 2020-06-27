@@ -41,6 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
+        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+        /// </summary>
+        public static string TranslationFailedWithDetails([CanBeNull] object expression, [CanBeNull] object details)
+            => string.Format(
+                GetString("TranslationFailedWithDetails", nameof(expression), nameof(details)),
+                expression, details);
+
+        /// <summary>
         ///     Processing of the LINQ expression '{expression}' by '{visitor}' failed. This may indicate either a bug or a limitation in EF Core. See https://go.microsoft.com/fwlink/?linkid=2101433 for more detailed information.
         /// </summary>
         public static string QueryFailed([CanBeNull] object expression, [CanBeNull] object visitor)
@@ -87,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The properties expression '{expression}' is not valid. The expression should represent a simple property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
+        [Obsolete]
         public static string InvalidPropertiesExpression([CanBeNull] object expression)
             => string.Format(
                 GetString("InvalidPropertiesExpression", nameof(expression)),
@@ -95,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The expression '{expression}' is not a valid property expression. The expression should represent a simple property access: 't =&gt; t.MyProperty'.
         /// </summary>
+        [Obsolete]
         public static string InvalidPropertyExpression([CanBeNull] object expression)
             => string.Format(
                 GetString("InvalidPropertyExpression", nameof(expression)),
@@ -585,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, serviceType, entityType, duplicateName, duplicateEntityType);
 
         /// <summary>
-        ///     The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.
+        ///     The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added in shadow state.
         /// </summary>
         public static string NoClrNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
@@ -713,12 +723,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKey, entityType, duplicateEntityType, key, principalType);
 
         /// <summary>
-        ///     The index {index} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.
+        ///     The index {indexProperties} cannot be added to the entity type '{entityType}' because an index on the same properties already exists on entity type '{duplicateEntityType}'.
         /// </summary>
-        public static string DuplicateIndex([CanBeNull] object index, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+        public static string DuplicateIndex([CanBeNull] object indexProperties, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
             => string.Format(
-                GetString("DuplicateIndex", nameof(index), nameof(entityType), nameof(duplicateEntityType)),
-                index, entityType, duplicateEntityType);
+                GetString("DuplicateIndex", nameof(indexProperties), nameof(entityType), nameof(duplicateEntityType)),
+                indexProperties, entityType, duplicateEntityType);
+
+        /// <summary>
+        ///     The index named '{indexName}' defined on properties {indexProperties} cannot be added to the entity type '{entityType}' because an index with the same name already exists on entity type '{duplicateEntityType}'.
+        /// </summary>
+        public static string DuplicateNamedIndex([CanBeNull] object indexName, [CanBeNull] object indexProperties, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+            => string.Format(
+                GetString("DuplicateNamedIndex", nameof(indexName), nameof(indexProperties), nameof(entityType), nameof(duplicateEntityType)),
+                indexName, indexProperties, entityType, duplicateEntityType);
 
         /// <summary>
         ///     The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.
@@ -767,14 +785,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("AnnotationNotFound", nameof(annotation)),
                 annotation);
-
-        /// <summary>
-        ///     The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.
-        /// </summary>
-        public static string IncludeBadNavigation([CanBeNull] object property, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("IncludeBadNavigation", nameof(property), nameof(entityType)),
-                property, entityType);
 
         /// <summary>
         ///     The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
@@ -1669,6 +1679,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
+        ///     The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the entity that is not owned.
+        /// </summary>
+        public static string BadFilterOwnedType([CanBeNull] object filter, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("BadFilterOwnedType", nameof(filter), nameof(entityType)),
+                filter, entityType);
+
+        /// <summary>
         ///     The entity type '{entityType}' cannot use 'ToQuery' to create a defining query because it also defines a primary key. Defining queries can only be used to back entity types without keys.
         /// </summary>
         public static string DefiningQueryWithKey([CanBeNull] object entityType)
@@ -1707,14 +1725,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NonComparableKeyTypes", nameof(entityType), nameof(property), nameof(modelType), nameof(providerType)),
                 entityType, property, modelType, providerType);
-
-        /// <summary>
-        ///     The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.
-        /// </summary>
-        public static string IncludeNotSpecifiedDirectlyOnEntityType([CanBeNull] object include, [CanBeNull] object invalidNavigation)
-            => string.Format(
-                GetString("IncludeNotSpecifiedDirectlyOnEntityType", nameof(include), nameof(invalidNavigation)),
-                include, invalidNavigation);
 
         /// <summary>
         ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the previous owned entity entry first. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
@@ -2129,12 +2139,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKey, key, principalType, entityType, otherEntityType);
 
         /// <summary>
-        ///     The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
+        ///     The index {indexProperties} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
         /// </summary>
-        public static string IndexWrongType([CanBeNull] object index, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+        public static string IndexWrongType([CanBeNull] object indexProperties, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
             => string.Format(
-                GetString("IndexWrongType", nameof(index), nameof(entityType), nameof(otherEntityType)),
-                index, entityType, otherEntityType);
+                GetString("IndexWrongType", nameof(indexProperties), nameof(entityType), nameof(otherEntityType)),
+                indexProperties, entityType, otherEntityType);
+
+        /// <summary>
+        ///     The index with name {indexName} cannot be removed from the entity type '{entityType}' because no such index exists on that entity type.
+        /// </summary>
+        public static string NamedIndexWrongType([CanBeNull] object indexName, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NamedIndexWrongType", nameof(indexName), nameof(entityType)),
+                indexName, entityType);
 
         /// <summary>
         ///     The key {key} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
@@ -2459,12 +2477,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InvalidTypeConversationWithInclude");
 
         /// <summary>
-        ///     Invalid expression type stored in NavigationMap.
-        /// </summary>
-        public static string InvalidExpressionTypeStoredInNavigationMap
-            => GetString("InvalidExpressionTypeStoredInNavigationMap");
-
-        /// <summary>
         ///     The Include path '{navigationName}-&gt;{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries. Either use a tracking query or remove the cycle.
         /// </summary>
         public static string IncludeWithCycle([CanBeNull] object navigationName, [CanBeNull] object inverseNavigationName)
@@ -2505,7 +2517,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("OwnedEntitiesCannotBeTrackedWithoutTheirOwner");
 
         /// <summary>
-        ///     Calling {visitMethodName} is not allowed. Visit expression manually for relevant part.
+        ///     Calling '{visitMethodName}' is not allowed. Visit expression manually for relevant part.
         /// </summary>
         public static string VisitIsNotAllowed([CanBeNull] object visitMethodName)
             => string.Format(
@@ -2557,6 +2569,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("QueryUnableToTranslateEFProperty", nameof(expression)),
                 expression);
+
+        /// <summary>
+        ///     Translation of member '{member}' on entity type '{entityType}' failed. Possibly the specified member is not mapped.
+        /// </summary>
+        public static string QueryUnableToTranslateMember([CanBeNull] object member, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("QueryUnableToTranslateMember", nameof(member), nameof(entityType)),
+                member, entityType);
+
+        /// <summary>
+        ///     Translation of 'string.Equals' method which takes 'StringComparison' argument is not supported. See https://go.microsoft.com/fwlink/?linkid=2129535 for more information.
+        /// </summary>
+        public static string QueryUnableToTranslateStringEqualsWithStringComparison
+            => GetString("QueryUnableToTranslateStringEqualsWithStringComparison");
+
+        /// <summary>
+        ///     Translation of method '{declaringTypeName}.{methodName}' failed. If you are trying to map your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+        /// </summary>
+        public static string QueryUnableToTranslateMethod([CanBeNull] object declaringTypeName, [CanBeNull] object methodName)
+            => string.Format(
+                GetString("QueryUnableToTranslateMethod", nameof(declaringTypeName), nameof(methodName)),
+                declaringTypeName, methodName);
 
         /// <summary>
         ///     Invalid {state} encountered.
@@ -2633,6 +2667,46 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string QueryContextAlreadyInitializedStateManager
             => GetString("QueryContextAlreadyInitializedStateManager");
+
+        /// <summary>
+        ///     The index named '{indexName}' on the entity type '{entityType}' with properties {indexPropertyList} is invalid. The property '{propertyName}' has been marked NotMapped or Ignore(). An index cannot use such properties.
+        /// </summary>
+        public static string NamedIndexDefinedOnIgnoredProperty([CanBeNull] object indexName, [CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
+            => string.Format(
+                GetString("NamedIndexDefinedOnIgnoredProperty", nameof(indexName), nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
+                indexName, entityType, indexPropertyList, propertyName);
+
+        /// <summary>
+        ///     The unnamed index on the entity type '{entityType}' with properties {indexPropertyList} is invalid. The property '{propertyName}' has been marked NotMapped or Ignore(). An index cannot use such properties.
+        /// </summary>
+        public static string UnnamedIndexDefinedOnIgnoredProperty([CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
+            => string.Format(
+                GetString("UnnamedIndexDefinedOnIgnoredProperty", nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
+                entityType, indexPropertyList, propertyName);
+
+        /// <summary>
+        ///     An index named '{indexName}' on the entity type '{entityType}' specifies properties {indexPropertyList}. But no property with name '{propertyName}' exists on that entity type or any of its base types.
+        /// </summary>
+        public static string NamedIndexDefinedOnNonExistentProperty([CanBeNull] object indexName, [CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
+            => string.Format(
+                GetString("NamedIndexDefinedOnNonExistentProperty", nameof(indexName), nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
+                indexName, entityType, indexPropertyList, propertyName);
+
+        /// <summary>
+        ///     An unnamed index on the entity type '{entityType}' specifies properties {indexPropertyList}. But no property with name '{propertyName}' exists on that entity type or any of its base types.
+        /// </summary>
+        public static string UnnamedIndexDefinedOnNonExistentProperty([CanBeNull] object entityType, [CanBeNull] object indexPropertyList, [CanBeNull] object propertyName)
+            => string.Format(
+                GetString("UnnamedIndexDefinedOnNonExistentProperty", nameof(entityType), nameof(indexPropertyList), nameof(propertyName)),
+                entityType, indexPropertyList, propertyName);
+
+        /// <summary>
+        ///     Unhandled 'INavigationBase' of type '{type}'.
+        /// </summary>
+        public static string UnhandledNavigationBase([CanBeNull] object type)
+            => string.Format(
+                GetString("UnhandledNavigationBase", nameof(type)),
+                type);
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -4215,6 +4289,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.ConflictingKeylessAndKeyAttributesWarning,
                             _resourceManager.GetString("LogConflictingKeylessAndKeyAttributes"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Entity '{principalEntityType}' has global query filter defined and is a required end of a relationship with the entity '{declaringEntityType}'. This may lead to unexpected results when the required entity is filtered out. Either use optional navigation or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+        /// </summary>
+        public static EventDefinition<string, string> LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
+                            _resourceManager.GetString("LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction"))));
             }
 
             return (EventDefinition<string, string>)definition;

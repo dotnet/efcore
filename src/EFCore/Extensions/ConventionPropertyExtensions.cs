@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     if the given property is part of a foreign key.
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
-        /// <returns> The first associated principal property, or <c>null</c> if none exists. </returns>
+        /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
         public static IConventionProperty FindFirstPrincipal([NotNull] this IConventionProperty property)
             => (IConventionProperty)((IProperty)property).FindFirstPrincipal();
 
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get primary key for. </param>
         /// <returns>
-        ///     The primary that use this property, or null if it is not part of the primary key.
+        ///     The primary that use this property, or <see langword="null"/> if it is not part of the primary key.
         /// </returns>
         public static IConventionKey FindContainingPrimaryKey([NotNull] this IConventionProperty property)
             => (IConventionKey)((IProperty)property).FindContainingPrimaryKey();
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to set the value for. </param>
         /// <param name="unicode">
-        ///     <c>true</c> if the property accepts Unicode characters, <c>false</c> if it does not, <c>null</c> to clear the setting.
+        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not, <see langword="null" /> to clear the setting.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="beforeSaveBehavior">
         ///     A value indicating whether this property can be modified before the entity is
-        ///     saved to the database. <c>null</c> to reset to default.
+        ///     saved to the database. <see langword="null" /> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="afterSaveBehavior">
         ///     Sets a value indicating whether this property can be modified after the entity is
-        ///     saved to the database. <c>null</c> to reset to default.
+        ///     saved to the database. <see langword="null" /> to reset to default.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
@@ -243,16 +243,16 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Sets the factory to use for generating values for this property, or <c>null</c> to clear any previously set factory.
+        ///         Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
         ///     </para>
         ///     <para>
-        ///         Setting <c>null</c> does not disable value generation for this property, it just clears any generator explicitly
+        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
         ///         configured for this property. The database provider may still have a value generator for the property type.
         ///     </para>
         /// </summary>
         /// <param name="property"> The property to set the value generator for. </param>
         /// <param name="valueGeneratorFactory">
-        ///     A factory that will be used to create the value generator, or <c>null</c> to
+        ///     A factory that will be used to create the value generator, or <see langword="null" /> to
         ///     clear any previously set factory.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the custom <see cref="ValueConverter" /> for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="converter"> The converter, or <c>null</c> to remove any previously set converter. </param>
+        /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static ValueConverter SetValueConverter(
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the type that the property value will be converted to before being sent to the database provider.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="providerClrType"> The type to use, or <c>null</c> to remove any previously set type. </param>
+        /// <param name="providerClrType"> The type to use, or <see langword="null" /> to remove any previously set type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static Type SetProviderClrType(
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the custom <see cref="ValueComparer" /> for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static ValueComparer SetValueComparer(
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the custom <see cref="ValueComparer" /> for this property when performing key comparisons.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the custom <see cref="ValueComparer" /> for structural copies for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static ValueComparer SetStructuralValueComparer(

@@ -206,7 +206,8 @@ namespace Microsoft.Data.Sqlite
         ///     Releases any resources used by the connection and closes it.
         /// </summary>
         /// <param name="disposing">
-        ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
+        ///     <see langword="true"/> to release managed and unmanaged resources;
+        ///     <see langword="false"/> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
@@ -342,7 +343,11 @@ namespace Microsoft.Data.Sqlite
                         }
                     }
 
-                    throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
+                    if (sqlite3_libversion_number() < 3028000 ||
+                        sqlite3_stmt_isexplain(stmt) == 0)
+                    {
+                        throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
+                    }
                 }
 
                 yield return stmt;
@@ -417,7 +422,7 @@ namespace Microsoft.Data.Sqlite
         protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(
             CommandBehavior behavior,
             CancellationToken cancellationToken)
-            => await ExecuteReaderAsync(behavior, cancellationToken);
+            => await ExecuteReaderAsync(behavior, cancellationToken).ConfigureAwait(false);
 
         /// <summary>
         ///     Executes the <see cref="CommandText" /> against the database.

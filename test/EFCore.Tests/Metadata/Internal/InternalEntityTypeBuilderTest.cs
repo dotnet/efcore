@@ -624,6 +624,123 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Index_returns_same_instance_if_asked_for_twice()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Same(
+                indexBuilder,
+                entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.Explicit));
+        }
+
+        [ConditionalFact]
+        public void Named_index_returns_same_instance_for_clr_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, "TestIndex", ConfigurationSource.Explicit);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Same(
+                indexBuilder,
+                entityBuilder.HasIndex(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "TestIndex", ConfigurationSource.DataAnnotation));
+        }
+
+        [ConditionalFact]
+        public void Named_index_returns_same_instance_for_property_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "TestIndex", ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Same(
+                indexBuilder, entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, "TestIndex", ConfigurationSource.Explicit));
+        }
+
+        [ConditionalFact]
+        public void Named_index_returns_same_instance_if_asked_for_twice()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "TestIndex", ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Same(
+                indexBuilder,
+                entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, "TestIndex", ConfigurationSource.Explicit));
+        }
+
+        [ConditionalFact]
+        public void Named_index_throws_if_try_to_create_a_new_different_index_with_same_name_on_same_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var indexBuilder = entityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "NamedIndex", ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Equal(
+                CoreStrings.DuplicateNamedIndex("NamedIndex", "{'CustomerId', 'Id'}", typeof(Order).Name, typeof(Order).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityBuilder
+                        .HasIndex(new[] { Order.CustomerIdProperty, Order.IdProperty }, "NamedIndex", ConfigurationSource.Explicit)).Message);
+        }
+
+        [ConditionalFact]
+        public void Named_index_throws_if_try_to_create_a_new_different_index_with_same_name_on_derived_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var baseEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention);
+
+            var indexBuilder = baseEntityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "NamedIndex", ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Equal(
+                CoreStrings.DuplicateNamedIndex("NamedIndex", "{'CustomerId', 'Id'}", typeof(SpecialOrder).Name, typeof(Order).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => derivedEntityBuilder.HasIndex(
+                        new[] { Order.CustomerIdProperty, Order.IdProperty }, "NamedIndex", ConfigurationSource.Explicit)).Message);
+        }
+
+        [ConditionalFact]
+        public void Named_index_throws_if_try_to_create_a_new_different_index_with_same_name_on_base_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var baseEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention);
+
+            var indexBuilder = derivedEntityBuilder.HasIndex(
+                new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, "NamedIndex", ConfigurationSource.Convention);
+
+            Assert.NotNull(indexBuilder);
+            Assert.Equal(
+                CoreStrings.DuplicateNamedIndex("NamedIndex", "{'CustomerId', 'Id'}", typeof(Order).Name, typeof(SpecialOrder).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => baseEntityBuilder.HasIndex(
+                        new[] { Order.CustomerIdProperty, Order.IdProperty }, "NamedIndex", ConfigurationSource.Explicit)).Message);
+        }
+
+        [ConditionalFact]
         public void Can_promote_index_to_base()
         {
             var modelBuilder = CreateModelBuilder();
@@ -636,6 +753,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var indexBuilder = entityBuilder.HasIndex(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention);
             Assert.Same(indexBuilder.Metadata.Properties.Single(), entityBuilder.Metadata.FindProperty(Order.IdProperty.Name));
             Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex(indexBuilder.Metadata.Properties.Single()));
+            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
+        }
+
+        [ConditionalFact]
+        public void Can_promote_named_index_to_base()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention);
+            derivedEntityBuilder.HasIndex(new[] { Order.IdProperty.Name }, "IndexToPromote", ConfigurationSource.DataAnnotation);
+
+            var indexBuilder = entityBuilder.HasIndex(new[] { Order.IdProperty.Name }, "IndexToPromote", ConfigurationSource.Convention);
+            Assert.Same(indexBuilder.Metadata.Properties.Single(), entityBuilder.Metadata.FindProperty(Order.IdProperty.Name));
+            Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex(indexBuilder.Metadata.Name));
             Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
         }
 
@@ -653,6 +786,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var indexBuilder = entityBuilder.HasIndex(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention);
             Assert.Same(indexBuilder.Metadata.Properties.Single(), entityBuilder.Metadata.FindProperty(Order.IdProperty.Name));
             Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex(indexBuilder.Metadata.Properties.Single()));
+            Assert.True(indexBuilder.Metadata.IsUnique);
+            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
+        }
+
+        [ConditionalFact]
+        public void Can_promote_named_index_to_base_with_facets()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention);
+            derivedEntityBuilder.HasIndex(new[] { Order.IdProperty.Name }, "IndexToPromote", ConfigurationSource.DataAnnotation)
+                .IsUnique(true, ConfigurationSource.Convention);
+
+            var indexBuilder = entityBuilder.HasIndex(new[] { Order.IdProperty.Name }, "IndexToPromote", ConfigurationSource.Convention);
+            Assert.Same(indexBuilder.Metadata.Properties.Single(), entityBuilder.Metadata.FindProperty(Order.IdProperty.Name));
+            Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex(indexBuilder.Metadata.Name));
             Assert.True(indexBuilder.Metadata.IsUnique);
             Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
         }
@@ -1754,9 +1905,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var expectedAdded = ignoredOnType == typeof(ExtraSpecialOrder)
                 || (addConfigurationSource.Overrides(ignoreConfigurationSource)
-                    && (ignoreConfigurationSource != ConfigurationSource.Explicit
-                        || ignoredOnType != typeof(SpecialOrder)
-                        || ignoredFirst));
+                    && (ignoreConfigurationSource != addConfigurationSource
+                        || (ignoreConfigurationSource == ConfigurationSource.Explicit
+                            && (ignoredFirst || ignoredOnType != typeof(SpecialOrder)))));
 
             var expectedIgnored = (ignoredOnType != typeof(SpecialOrder)
                     || !expectedAdded)
@@ -1811,12 +1962,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 Assert.True(unignoreMember(ignoredEntityTypeBuilder));
             }
-
-            Assert.Equal(expectedAdded, findMember(addedEntityTypeBuilder));
-            Assert.Equal(
-                expectedIgnored,
-                ignoredEntityTypeBuilder.Metadata.FindDeclaredIgnoredConfigurationSource(memberToIgnore)
-                == ignoreConfigurationSource);
+            else
+            {
+                Assert.Equal(expectedAdded, findMember(addedEntityTypeBuilder));
+                Assert.Equal(
+                    expectedIgnored,
+                    ignoredEntityTypeBuilder.Metadata.FindDeclaredIgnoredConfigurationSource(memberToIgnore)
+                    == ignoreConfigurationSource);
+            }
         }
 
         private void ConfigureOrdersHierarchy(InternalModelBuilder modelBuilder)

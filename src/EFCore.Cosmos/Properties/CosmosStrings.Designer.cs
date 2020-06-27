@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, property);
 
         /// <summary>
-        ///     The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys.
+        ///     The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys. Configure a partition key on '{entityType}'.
         /// </summary>
         public static string NoPartitionKey([CanBeNull] object entityType, [CanBeNull] object container)
             => string.Format(
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ReverseRequiresOffsetOrLimit");
 
         /// <summary>
-        ///     Invalid id value. Specify a  string value that's not null or empty.
+        ///     Invalid 'id' value. Supply a string value that's not null or empty.
         /// </summary>
         public static string InvalidResourceId
             => GetString("InvalidResourceId");
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ParitionKeyMissing");
 
         /// <summary>
-        ///     A ReadItem query was detected, but the id value is missing and cannot be generated.
+        ///     A ReadItem query was detected, but the 'id' value is missing and cannot be generated.
         /// </summary>
         public static string ResourceIdMissing
             => GetString("ResourceIdMissing");
@@ -173,6 +173,52 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("PartitionKeyMismatch", nameof(paritionKey1), nameof(paritionKey2)),
                 paritionKey1, paritionKey2);
+
+        /// <summary>
+        ///     The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties need to be strings or have a string converter.
+        /// </summary>
+        public static string IdNonStringStoreType([CanBeNull] object idProperty, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+            => string.Format(
+                GetString("IdNonStringStoreType", nameof(idProperty), nameof(entityType), nameof(propertyType)),
+                idProperty, entityType, propertyType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.
+        /// </summary>
+        public static string NoIdKey([CanBeNull] object entityType, [CanBeNull] object idProperty)
+            => string.Format(
+                GetString("NoIdKey", nameof(entityType), nameof(idProperty)),
+                entityType, idProperty);
+
+        /// <summary>
+        ///     The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped as 'id'.
+        /// </summary>
+        public static string NoIdProperty([CanBeNull] object entityType)
+            => string.Format(
+                GetString("NoIdProperty", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.
+        /// </summary>
+        public static string NoPartitionKeyKey([CanBeNull] object entityType, [CanBeNull] object partitionKey, [CanBeNull] object idProperty)
+            => string.Format(
+                GetString("NoPartitionKeyKey", nameof(entityType), nameof(partitionKey), nameof(idProperty)),
+                entityType, partitionKey, idProperty);
+
+        /// <summary>
+        ///     Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.
+        /// </summary>
+        public static string JsonPropertyCollision([CanBeNull] object property1, [CanBeNull] object property2, [CanBeNull] object entityType, [CanBeNull] object storeName)
+            => string.Format(
+                GetString("JsonPropertyCollision", nameof(property1), nameof(property2), nameof(entityType), nameof(storeName)),
+                property1, property2, entityType, storeName);
+
+        /// <summary>
+        ///     Both the connection string and account key or account endpoint were specified. Only specify one set of connection details.
+        /// </summary>
+        public static string ConnectionStringConflictingConfiguration
+            => GetString("ConnectionStringConflictingConfiguration");
 
         private static string GetString(string name, params string[] formatterNames)
         {

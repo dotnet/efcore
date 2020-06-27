@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<CustomerView>());
+                ss => ss.Set<CustomerQuery>());
         }
 
         [ConditionalTheory]
@@ -40,14 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<CustomerView>().Where(c => c.City == "London"));
+                ss => ss.Set<CustomerQuery>().Where(c => c.City == "London"));
         }
 
         [ConditionalFact]
         public virtual void KeylessEntity_by_database_view()
         {
             using var context = CreateContext();
-            var results = context.Set<ProductQuery>().ToArray();
+            var results = context.Set<ProductView>().ToArray();
 
             Assert.Equal(69, results.Length);
         }
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using var context = CreateContext();
             var results
-                = context.Set<CustomerQuery>()
+                = context.Set<CustomerQueryWithQueryFilter>()
                     .Where(cq => cq.OrderCount > 0)
                     .ToArray();
 
@@ -181,10 +181,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<CustomerView>()
+                ss => ss.Set<CustomerQuery>()
                     .GroupBy(cv => cv.City)
                     .Select(g => new { g.Key, Count = g.Count(), Sum = g.Sum(e => e.Address.Length) }),
                 elementSorter: e => (e.Key, e.Count, e.Sum));
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_mapped_to_view_on_right_side_of_join()
+        {
+            using var context = CreateContext();
+
+            var results = (from o in context.Set<Order>()
+                           join pv in context.Set<ProductView>() on o.CustomerID equals pv.CategoryName into grouping
+                           from pv in grouping.DefaultIfEmpty()
+                           select new { Order = o, ProductView = pv }).ToList();
+
+            Assert.Equal(830, results.Count);
         }
     }
 }

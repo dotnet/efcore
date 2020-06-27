@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the base type of this entity type in an inheritance hierarchy.
         /// </summary>
-        /// <param name="name"> The name of the base type or <c>null</c> to indicate no base type. </param>
+        /// <param name="name"> The name of the base type or <see langword="null" /> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder HasBaseType([CanBeNull] string name)
             => new EntityTypeBuilder(Builder.HasBaseType(name, ConfigurationSource.Explicit).Metadata);
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the base type of this entity type in an inheritance hierarchy.
         /// </summary>
-        /// <param name="entityType"> The base type or <c>null</c> to indicate no base type. </param>
+        /// <param name="entityType"> The base type or <see langword="null" /> to indicate no base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder HasBaseType([CanBeNull] Type entityType)
             => new EntityTypeBuilder(Builder.HasBaseType(entityType, ConfigurationSource.Explicit).Metadata);
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
-        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex" /> to specify uniqueness
+        ///     properties. This will force the properties to be read-only. Use <see cref="M:HasIndex" /> to specify uniqueness
         ///     in the model that does not force properties to be read-only.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the key. </param>
@@ -258,14 +258,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures an index on the specified properties. If there is an existing index on the given
-        ///     set of properties, then the existing index will be returned for configuration.
+        ///     Configures an unnamed index on the specified properties.
+        ///     If there is an existing unnamed index on the given
+        ///     list of properties, then the existing index will be
+        ///     returned for configuration.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
             => new IndexBuilder(
                 Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     Configures an index on the specified properties and with the given name.
+        ///     If there is an existing index on the given list of properties and with
+        ///     the given name, then the existing index will be returned for configuration.
+        /// </summary>
+        /// <param name="propertyNames"> The names of the properties that make up the index. </param>
+        /// <param name="name"> The name to assign to the index. </param>
+        /// <returns> An object that can be used to configure the index. </returns>
+        public virtual IndexBuilder HasIndex(
+            [NotNull] string[] propertyNames,
+            [NotNull] string name)
+            => new IndexBuilder(
+                Builder.HasIndex(
+                    Check.NotEmpty(propertyNames, nameof(propertyNames)),
+                    Check.NotEmpty(name, nameof(name)),
+                    ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -980,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);

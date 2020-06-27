@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            modelBuilder.HasAnnotation(ChangeDetector.SkipDetectChangesAnnotation, "true");
+            modelBuilder.HasAnnotation(CoreAnnotationNames.SkipDetectChangesAnnotation, "true");
         }
     }
 }

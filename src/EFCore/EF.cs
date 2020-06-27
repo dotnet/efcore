@@ -25,10 +25,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     property in other scenarios.
         /// </summary>
         /// <example>
-        ///     The following code performs a filter using the a LastUpdated shadow state property.
+        ///     <para>
+        ///         The following code performs a filter using the a LastUpdated shadow state property.
+        ///     </para>
         ///     <code>
-        ///         var blogs = context.Blogs
-        ///             .Where(b =&gt; EF.Property&lt;DateTime&gt;(b, "LastUpdated") > DateTime.Now.AddDays(-5))
+        /// var blogs = context.Blogs
+        ///     .Where(b =&gt; EF.Property&lt;DateTime&gt;(b, "LastUpdated") > DateTime.Now.AddDays(-5));
         ///     </code>
         /// </example>
         /// <typeparam name="TProperty"> The type of the property being referenced. </typeparam>
@@ -44,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
         ///     Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException" />.
         /// </summary>
-        public static DbFunctions Functions { get; } = new DbFunctions();
+        public static DbFunctions Functions
+            => DbFunctions.Instance;
     }
 }

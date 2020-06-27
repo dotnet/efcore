@@ -89,30 +89,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override void ValidateCompatible(IProperty property, IProperty duplicateProperty, string columnName, string tableName)
+        protected override void ValidateCompatible(
+            IProperty property,
+            IProperty duplicateProperty,
+            string columnName,
+            string tableName,
+            string schema,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateCompatible(property, duplicateProperty, columnName, tableName);
+            base.ValidateCompatible(property, duplicateProperty, columnName, tableName, schema, logger);
 
-            var propertySrid = property.GetSrid();
-            var duplicatePropertySrid = duplicateProperty.GetSrid();
+            var propertySrid = property.GetSrid(tableName, schema);
+            var duplicatePropertySrid = duplicateProperty.GetSrid(tableName, schema);
             if (propertySrid != duplicatePropertySrid)
             {
                 throw new InvalidOperationException(
                     SqliteStrings.DuplicateColumnNameSridMismatch(
-                        duplicateProperty.DeclaringEntityType.DisplayName(),
-                        duplicateProperty.Name,
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        columnName,
-                        tableName));
-            }
-
-            var propertyDimension = property.GetGeometricDimension();
-            var duplicatePropertyDimension = duplicateProperty.GetGeometricDimension();
-            if (propertyDimension != duplicatePropertyDimension)
-            {
-                throw new InvalidOperationException(
-                    SqliteStrings.DuplicateColumnNameDimensionMismatch(
                         duplicateProperty.DeclaringEntityType.DisplayName(),
                         duplicateProperty.Name,
                         property.DeclaringEntityType.DisplayName(),

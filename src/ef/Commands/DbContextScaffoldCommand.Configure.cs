@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption _json;
         private CommandOption _namespace;
         private CommandOption _contextNamespace;
+        private CommandOption _suppressOnConfiguring;
+        private CommandOption _noPluralize;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -40,6 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _json = Json.ConfigureOption(command);
             _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.NamespaceDescription);
             _contextNamespace = command.Option("--context-namespace <NAMESPACE>", Resources.ContextNamespaceDescription);
+            _suppressOnConfiguring = command.Option("--no-onconfiguring", Resources.SuppressOnConfiguringDescription);
+            _noPluralize = command.Option("--no-pluralize", Resources.NoPluralizeDescription);
 
             base.Configure(command);
         }

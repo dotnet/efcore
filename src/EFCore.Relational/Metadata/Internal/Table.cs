@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<TableMapping> EntityTypeMappings { get; } = new SortedSet<TableMapping>(TableMappingBaseComparer.Instance);
+        public virtual SortedSet<TableMapping> EntityTypeMappings { get; } = new SortedSet<TableMapping>(
+            TableMappingBaseComparer.TableInstance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = new SortedDictionary<string, TableIndex>();
 
         /// <inheritdoc/>
-        public virtual bool IsMigratable { get; set; }
+        public virtual bool IsExcludedFromMigrations { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -146,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc/>
-        IUniqueConstraint ITable.PrimaryKey
+        IPrimaryKeyConstraint ITable.PrimaryKey
         {
             [DebuggerStepThrough]
             get => PrimaryKey;
@@ -170,16 +171,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IColumnBase ITableBase.FindColumn(string name) => FindColumn(name);
 
         /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetInternalForeignKeys(IEntityType entityType)
-            => InternalForeignKeys != null
-                && InternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
+        IEnumerable<IForeignKey> ITableBase.GetRowInternalForeignKeys(IEntityType entityType)
+            => RowInternalForeignKeys != null
+                && RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
                 : Enumerable.Empty<IForeignKey>();
 
         /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetReferencingInternalForeignKeys(IEntityType entityType)
-            => ReferencingInternalForeignKeys != null
-                && ReferencingInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
+        IEnumerable<IForeignKey> ITableBase.GetReferencingRowInternalForeignKeys(IEntityType entityType)
+            => ReferencingRowInternalForeignKeys != null
+                && ReferencingRowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
                 : Enumerable.Empty<IForeignKey>();
     }

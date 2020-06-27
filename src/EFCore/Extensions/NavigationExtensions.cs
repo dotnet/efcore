@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -24,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="navigation"> The navigation property to check. </param>
         /// <returns>
-        ///     True if the given navigation property is the navigation property on the dependent entity
-        ///     type that points to the principal entity, otherwise false.
+        ///     <see langword="true"/> if the given navigation property is the navigation property on the dependent entity
+        ///     type that points to the principal entity, otherwise <see langword="false"/>.
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use INavigation.IsOnDependent")]
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="navigation"> The navigation property to check. </param>
         /// <returns>
-        ///     True if this is a collection property, false if it is a reference property.
+        ///     <see langword="true"/> if this is a collection property, false if it is a reference property.
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use INavigation.IsCollection")]

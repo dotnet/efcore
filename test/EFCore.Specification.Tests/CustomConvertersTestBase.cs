@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
@@ -482,6 +483,52 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
+        {
+            using var context = CreateContext();
+            var query1 = context.Set<Blog>().Where(b => b.IsVisible == true).ToList();
+            var query2 = context.Set<Blog>().Where(b => b.IsVisible != true).ToList();
+
+            var result1 = Assert.Single(query1);
+            Assert.Equal("http://blog.com", result1.Url);
+
+            var result2 = Assert.Single(query2);
+            Assert.Equal("http://rssblog.com", result2.Url);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var result = context.Set<Blog>().Select(b => b.IsVisible).ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Contains(true, result);
+            Assert.Contains(false, result);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_conditional_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => (b.IsVisible ? "Foo" : "Bar") == "Foo").ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
+        }
+
+        [ConditionalFact(Skip = "Issue #21142")]
+        public virtual void Select_conditional_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var result = context.Set<Blog>().Select(b => b.IsVisible ? "Foo" : "Bar").ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Contains("Foo", result);
+            Assert.Contains("Bar", result);
+        }
+
+        [ConditionalFact]
         public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
         {
             using var context = CreateContext();
@@ -569,8 +616,8 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Collection_property_as_scalar_Any()
         {
             using var context = CreateContext();
-            Assert.Equal(
-                @"The LINQ expression 'DbSet<CollectionScalar>()    .Where(c => c.Tags        .Any())' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+            Assert.Contains(
+                @"Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
@@ -581,7 +628,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Equal(
-                @"The LINQ expression 'DbSet<CollectionScalar>()    .Where(c => c.Tags.Count == 2)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                CoreStrings.TranslationFailed(
+                    @"DbSet<CollectionScalar>()    .Where(c => c.Tags.Count == 2)"),
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionScalar>().Where(e => e.Tags.Count == 2).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
@@ -598,8 +646,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             var sameRole = Roles.Seller;
-            Assert.Equal(
-                @"The LINQ expression 'DbSet<CollectionEnum>()    .Where(c => c.Roles.Contains(__sameRole_0))' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+            Assert.Contains(
+                @"Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));

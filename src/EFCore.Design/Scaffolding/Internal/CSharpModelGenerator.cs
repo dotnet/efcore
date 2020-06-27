@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -100,16 +101,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 options.ContextNamespace,
                 options.ModelNamespace,
                 options.UseDataAnnotations,
-                options.SuppressConnectionStringWarning);
+                options.SuppressConnectionStringWarning,
+                options.SuppressOnConfiguring);
 
             // output DbContext .cs file
             var dbContextFileName = options.ContextName + FileExtension;
-            var resultingFiles = new ScaffoldedModel(
-                new ScaffoldedFile(
-                    options.ContextDir != null
+            var resultingFiles = new ScaffoldedModel
+            {
+                ContextFile = new ScaffoldedFile
+                {
+                    Path = options.ContextDir != null
                         ? Path.Combine(options.ContextDir, dbContextFileName)
                         : dbContextFileName,
-                    generatedCode));
+                    Code = generatedCode
+                }
+            };
 
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -118,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;
                 resultingFiles.AdditionalFiles.Add(
-                    new ScaffoldedFile(entityTypeFileName, generatedCode));
+                    new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
             }
 
             return resultingFiles;

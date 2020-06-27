@@ -112,7 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool MayBeStoreGenerated([NotNull] this IProperty property)
         {
-            if (property.ValueGenerated != ValueGenerated.Never)
+            if (property.ValueGenerated != ValueGenerated.Never
+                || property.IsConcurrencyToken)
             {
                 return true;
             }

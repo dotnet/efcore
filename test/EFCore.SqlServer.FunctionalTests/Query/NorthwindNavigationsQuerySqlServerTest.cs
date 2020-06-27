@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindNavigationsQuerySqlServerTest : NorthwindNavigationsQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindNavigationsQuerySqlServerTest : NorthwindNavigationsQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindNavigationsQuerySqlServerTest(
             NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             fixture.TestSqlLoggerFactory.Clear();
         }
+
+        protected override bool CanExecuteQueryString => true;
 
         public override async Task Select_Where_Navigation(bool async)
         {
@@ -35,7 +37,7 @@ WHERE [c].[City] = N'Seattle'");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE CHARINDEX(N'Sea', [c].[City]) > 0");
+WHERE [c].[City] LIKE N'%Sea%'");
         }
 
         public override async Task Select_Where_Navigation_Deep(bool async)
@@ -290,7 +292,7 @@ WHERE ([c].[City] = N'Seattle') AND (([c].[Phone] <> N'555 555 5555') OR [c].[Ph
 
             AssertSql(
                 @"SELECT (
-    SELECT SUM(CAST([o].[Quantity] AS int))
+    SELECT COALESCE(SUM(CAST([o].[Quantity] AS int)), 0)
     FROM [Order Details] AS [o]
     WHERE [o1].[OrderID] = [o].[OrderID]) + (
     SELECT COUNT(*)
@@ -623,7 +625,7 @@ WHERE [o3].[CustomerID] IS NOT NULL AND ([o3].[CustomerID] LIKE N'A%')");
 
             AssertSql(
                 @"SELECT (
-    SELECT SUM([o].[OrderID])
+    SELECT COALESCE(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Sum]
 FROM [Customers] AS [c]");
@@ -634,7 +636,11 @@ FROM [Customers] AS [c]");
             await base.Collection_select_nav_prop_sum_plus_one(async);
 
             AssertSql(
-                "");
+                @"SELECT (
+    SELECT COALESCE(SUM([o].[OrderID]), 0)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) + 1 AS [Sum]
+FROM [Customers] AS [c]");
         }
 
         public override async Task Collection_where_nav_prop_sum(bool async)
@@ -645,7 +651,7 @@ FROM [Customers] AS [c]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
-    SELECT SUM([o].[OrderID])
+    SELECT COALESCE(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) > 1000");
         }

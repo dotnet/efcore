@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class SpatialQuerySqlServerGeographyTest : SpatialQueryTestBase<SpatialQuerySqlServerGeographyFixture>
+    public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeographyFixture>
     {
         public SpatialQuerySqlServerGeographyTest(SpatialQuerySqlServerGeographyFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected override bool CanExecuteQueryString => true;
 
         // TODO: Remove after NetTopologySuite/NetTopologySuite#233
         protected override bool AssertDistances
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.SimpleSelect(async);
 
             AssertSql(
-                @"SELECT [p].[Id], [p].[Geometry], [p].[Point]
+                @"SELECT [p].[Id], [p].[Geometry], [p].[Point], [p].[PointM], [p].[PointZ], [p].[PointZM]
 FROM [PointEntity] AS [p]");
         }
 

@@ -343,6 +343,12 @@
     <value>Specify to override the namespace for the migration.</value>
   </data>
   <data name="RemainingArguments" xml:space="preserve">
-    <value>Remaining arguments: '{remainingArguments}'.</value>
+    <value>Remaining arguments: {remainingArguments}.</value>
+  </data>
+  <data name="SuppressOnConfiguringDescription" xml:space="preserve">
+    <value>Suppress generation of the DbContext.OnConfiguring() method.</value>
+  </data>
+  <data name="NoPluralizeDescription" xml:space="preserve">
+    <value>Don't use the pluralizer.</value>
   </data>
 </root>

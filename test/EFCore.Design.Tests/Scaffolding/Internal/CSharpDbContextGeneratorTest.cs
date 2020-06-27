@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
 
 namespace TestNamespace
 {
@@ -81,6 +84,8 @@ namespace TestNamespace
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -117,6 +122,50 @@ namespace TestNamespace
                     Assert.Empty(code.AdditionalFiles);
                 },
                 model => Assert.Empty(model.GetEntityTypes()));
+        }
+
+        [ConditionalFact]
+        public void SuppressOnConfiguring_works()
+        {
+            Test(
+                modelBuilder => { },
+                new ModelCodeGenerationOptions { SuppressOnConfiguring = true },
+                code =>
+                {
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile.Code,
+                        ignoreLineEndingDifferences: true);
+
+                    Assert.Empty(code.AdditionalFiles);
+                });
         }
 
         [ConditionalFact]
@@ -194,24 +243,24 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code => Assert.Contains(".ToView(\"Vista\")", code.ContextFile.Code),
                 model => Assert.NotNull(
-                    model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinition)));
+                    model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql)));
         }
 
         [ConditionalFact]
-        public void ModelInDiferentNamespaceDbContext_works()
+        public void ModelInDifferentNamespaceDbContext_works()
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
                 ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
             };
 
-            const string entityInAnoterNamespaceTypeName = "EntityInAnotherNamespace";
+            const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
 
             Test(
-                modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
+                modelBuilder => modelBuilder.Entity(entityInAnotherNamespaceTypeName)
                 , modelGenerationOptions
                 , code => Assert.Contains(string.Concat("using ", modelGenerationOptions.ModelNamespace, ";"), code.ContextFile.Code)
-                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnoterNamespaceTypeName)))
+                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnotherNamespaceTypeName)))
             );
         }
 
@@ -220,13 +269,13 @@ namespace TestNamespace
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions { ContextNamespace = "TestNamespace" };
 
-            const string entityInAnoterNamespaceTypeName = "EntityInAnotherNamespace";
+            const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
 
             Test(
-                modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
+                modelBuilder => modelBuilder.Entity(entityInAnotherNamespaceTypeName)
                 , modelGenerationOptions
                 , code => Assert.DoesNotContain(string.Concat("using ", modelGenerationOptions.ModelNamespace, ";"), code.ContextFile.Code)
-                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnoterNamespaceTypeName)))
+                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnotherNamespaceTypeName)))
             );
         }
 
@@ -303,6 +352,172 @@ namespace TestNamespace
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.Equal("Some Collation", entity.GetProperty("UseCollation").GetCollation());
                 });
+        }
+
+
+        [ConditionalFact]
+        public void Entity_with_indexes_and_use_data_annotations_false_always_generates_fluent_API()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithIndexes",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("A");
+                            x.Property<int>("B");
+                            x.Property<int>("C");
+                            x.HasKey("Id");
+                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                                .IsUnique();
+                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
+                                .HasFilter("Filter SQL")
+                                .HasAnnotation("AnnotationName", "AnnotationValue");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EntityWithIndexes>(entity =>
+            {
+                entity.HasIndex(x => new { x.A, x.B }, ""IndexOnAAndB"")
+                    .IsUnique();
+
+                entity.HasIndex(x => new { x.B, x.C }, ""IndexOnBAndC"")
+                    .HasFilter(""Filter SQL"")
+                    .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+                entity.Property(e => e.Id).UseIdentityColumn();
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile.Code,
+                        ignoreLineEndingDifferences: true);
+                },
+                model =>
+                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
+        }
+
+        [ConditionalFact]
+        public void Entity_with_indexes_and_use_data_annotations_true_generates_fluent_API_only_for_indexes_with_annotations()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithIndexes",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("A");
+                            x.Property<int>("B");
+                            x.Property<int>("C");
+                            x.HasKey("Id");
+                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                                .IsUnique();
+                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
+                                .HasFilter("Filter SQL")
+                                .HasAnnotation("AnnotationName", "AnnotationValue");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EntityWithIndexes>(entity =>
+            {
+                entity.HasIndex(x => new { x.B, x.C }, ""IndexOnBAndC"")
+                    .HasFilter(""Filter SQL"")
+                    .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+                entity.Property(e => e.Id).UseIdentityColumn();
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile.Code,
+                        ignoreLineEndingDifferences: true);
+                },
+                model =>
+                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
         }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin

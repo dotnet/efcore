@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using NetTopologySuite.Geometries;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -54,20 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 SqliteStrings.DuplicateColumnNameSridMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder.Model);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_dimension()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>();
-
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasGeometricDimension(Ordinates.M).Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasGeometricDimension(Ordinates.Z).Metadata);
-
-            VerifyError(
-                SqliteStrings.DuplicateColumnNameDimensionMismatch(
                     nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder.Model);
         }
 

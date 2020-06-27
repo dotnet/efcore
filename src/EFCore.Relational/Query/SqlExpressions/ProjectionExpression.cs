@@ -13,11 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         An expression that represents a projection in <see cref="SelectExpression"/>.
     ///     </para>
     ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
+    ///         This is a simple wrapper around a <see cref="SqlExpression"/> and an alias.
+    ///         Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
+    ///         application or provider, then please file an issue at https://github.com/dotnet/efcore.
     ///     </para>
     /// </summary>
-    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed class ProjectionExpression : Expression, IPrintableExpression
     {
         internal ProjectionExpression([NotNull] SqlExpression expression, [NotNull] string alias)
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         public override Type Type => Expression.Type;
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public override ExpressionType NodeType => ExpressionType.Extension;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public void Print(ExpressionPrinter expressionPrinter)
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Generates SQL that will obtain the next value in the given sequence.
         /// </summary>
         /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema"> The schema that contains the sequence, or <c>null</c> to use the default schema. </param>
+        /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <returns> The SQL. </returns>
         string GenerateNextSequenceValueOperation([NotNull] string name, [CanBeNull] string schema);
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="commandStringBuilder"> The builder to which the SQL fragment should be appended. </param>
         /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema"> The schema that contains the sequence, or <c>null</c> to use the default schema. </param>
+        /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         void AppendNextSequenceValueOperation(
             [NotNull] StringBuilder commandStringBuilder, [NotNull] string name, [CanBeNull] string schema);
 

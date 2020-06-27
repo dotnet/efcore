@@ -510,6 +510,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_FirstOrDefault_and_LastOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
+                {
+                    first = (char?)e.FirstName.FirstOrDefault(),
+                    last = (char?)e.FirstName.LastOrDefault()
+                }),
+                ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
+                {
+                    first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()),
+                    last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
+
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.first, a.first);
+                    AssertEqual(e.last, a.last);
+                });
+        }
+
         protected FunkyDataContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
@@ -518,12 +543,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public abstract class FunkyDataQueryFixtureBase : SharedStoreFixtureBase<FunkyDataContext>, IQueryFixtureBase
         {
-            public FunkyDataQueryFixtureBase()
-            {
-                var entitySorters = new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
+            public Func<DbContext> GetContextCreator() => () => CreateContext();
+
+            public ISetSource GetExpectedData() => new FunkyDataData();
+
+            public IReadOnlyDictionary<Type, object> GetEntitySorters()
+                => new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
                     .ToDictionary(e => e.Key, e => (object)e.Value);
 
-                var entityAsserters = new Dictionary<Type, Action<object, object>>
+            public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+                => new Dictionary<Type, Action<object, object>>
                 {
                     {
                         typeof(FunkyCustomer), (e, a) =>
@@ -543,21 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-                QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
-            }
-
-            protected virtual QueryAsserter<FunkyDataContext> CreateQueryAsserter(
-                Dictionary<Type, object> entitySorters,
-                Dictionary<Type, object> entityAsserters)
-                => new QueryAsserter<FunkyDataContext>(
-                    CreateContext,
-                    new FunkyDataData(),
-                    entitySorters,
-                    entityAsserters);
-
             protected override string StoreName { get; } = "FunkyDataQueryTest";
-
-            public QueryAsserterBase QueryAsserter { get; set; }
 
             public override FunkyDataContext CreateContext()
             {

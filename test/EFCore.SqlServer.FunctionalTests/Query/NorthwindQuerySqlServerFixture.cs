@@ -12,8 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override ITestStoreFactory TestStoreFactory => SqlServerNorthwindTestStoreFactory.Instance;
 
-        protected override bool CanExecuteQueryString => true;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);

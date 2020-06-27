@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public int Compare(IReadOnlyList<IColumn> x, IReadOnlyList<IColumn> y)
         {
             var result = x.Count - y.Count;
-
             if (result != 0)
             {
                 return result;

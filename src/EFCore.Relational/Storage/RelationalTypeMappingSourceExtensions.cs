@@ -119,16 +119,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="typeMappingSource"> The type mapping source. </param>
         /// <param name="type"> The CLR type. </param>
         /// <param name="storeTypeName"> The database type name. </param>
-        /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
+        /// <param name="keyOrIndex"> If <see langword="true" />, then a special mapping for a key or index may be returned. </param>
         /// <param name="unicode">
-        ///     Specify <c>true</c> for Unicode mapping, <c>false</c> for Ansi mapping or <c>null</c> for the default.
+        ///     Specify <see langword="true" /> for Unicode mapping, <see langword="false" /> for Ansi mapping or <see langword="null" /> for the default.
         /// </param>
-        /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
-        /// <param name="rowVersion"> Specifies a row-version, or <c>null</c> for default. </param>
-        /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>
-        /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
-        /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="rowVersion"> Specifies a row-version, or <see langword="null" /> for default. </param>
+        /// <param name="fixedLength"> Specifies a fixed length mapping, or <see langword="null" /> for default. </param>
+        /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMappingSource typeMappingSource,
             [NotNull] Type type,

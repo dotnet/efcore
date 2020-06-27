@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual IDbContextOptionsExtension Extension { get; }
 
         /// <summary>
-        ///     True if the extension is a database provider; false otherwise.
+        ///     <see langword="true"/> if the extension is a database provider; <see langword="false"/> otherwise.
         /// </summary>
         public abstract bool IsDatabaseProvider { get; }
 

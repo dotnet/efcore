@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the foreign key.
         /// </summary>
         /// <param name="foreignKey">
-        ///     The foreign key. Passing <c>null</c> will result in there being no foreign key associated.
+        ///     The foreign key. Passing <see langword="null" /> will result in there being no foreign key associated.
         /// </param>
         void SetForeignKey([CanBeNull] IMutableForeignKey foreignKey);
 
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the inverse skip navigation.
         /// </summary>
         /// <param name="inverse">
-        ///     The inverse skip navigation. Passing <c>null</c> will result in there being no inverse navigation property defined.
+        ///     The inverse skip navigation. Passing <see langword="null" /> will result in there being no inverse navigation property defined.
         /// </param>
         [DebuggerStepThrough]
         IMutableSkipNavigation SetInverse([CanBeNull] IMutableSkipNavigation inverse);

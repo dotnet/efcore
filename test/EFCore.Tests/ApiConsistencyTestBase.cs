@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -395,11 +396,11 @@ namespace Microsoft.EntityFrameworkCore
 
                 var parameterIndex = method.IsStatic ? 1 : 0;
                 var parameters = method.GetParameters();
-                var firstParameter = parameters.Length > parameterIndex ? parameters[parameterIndex] : null;
-                if (firstParameter.ParameterType != canSetMethod.GetParameters()[parameterIndex].ParameterType)
+                if (parameters.Length > parameterIndex
+                    && parameters[parameterIndex].ParameterType != canSetMethod.GetParameters()[parameterIndex].ParameterType)
                 {
                     return $"{declaringType.Name}.{canSetMethod.Name}({Format(canSetMethod.GetParameters())})" +
-                        $" expected to have the first parameter of type {firstParameter.ParameterType.ShortDisplayName()}";
+                        $" expected to have the first parameter of type {parameters[parameterIndex].ParameterType.ShortDisplayName()}";
                 }
             }
 
@@ -524,6 +525,9 @@ namespace Microsoft.EntityFrameworkCore
                 && conventionMethod.ReturnType != firstParameter.ParameterType
                 && (firstParameter.ParameterType != typeof(Type) || conventionMethod.ReturnType != typeof(string))
                 && (firstParameter.ParameterType != typeof(string) || conventionMethod.ReturnType != typeof(FieldInfo))
+                && (parameters.Length <= parameterIndex + 2
+                    || (conventionMethod.ReturnType != parameters[parameterIndex + 1].ParameterType
+                        && !typeof(ITuple).IsAssignableFrom(conventionMethod.ReturnType)))
                 && !Fixture.ConventionMetadataTypes.ContainsKey(conventionMethod.ReturnType))
             {
                 return $"{conventionMethod.DeclaringType.ShortDisplayName()}.{name}({Format(parameters)}) expected to have an IConvention or " +
@@ -914,9 +918,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     typeof(ProviderConventionSetBuilderDependencies).GetProperty(nameof(ProviderConventionSetBuilderDependencies.ContextType)),
                     typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
+                    typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.QueryTrackingBehavior)),
+#pragma warning disable CS0618 // Type or member is obsolete
                     typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.IsTracking)),
+#pragma warning restore CS0618 // Type or member is obsolete
                     typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager)),
+#pragma warning disable CS0618 // Type or member is obsolete
                     typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.QueryProvider))
+#pragma warning restore CS0618 // Type or member is obsolete
                 };
 
 

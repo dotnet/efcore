@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1548,17 +1549,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Contains_over_keyless_entity_throws()
         {
             using var context = CreateContext();
-            Assert.Throws<InvalidOperationException>(() => context.CustomerQueries.Contains(new CustomerView()));
+            Assert.Throws<InvalidOperationException>(() => context.CustomerQueries.Contains(new CustomerQuery()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
         {
-            return AssertContains(
+            return AssertSingleResult(
                 async,
-                ss => ss.Set<Order>().Where(o => o.CustomerID == "VINET"),
-                null);
+                ss => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Contains(null),
+                ss => ss.Set<Order>().Where(o => o.CustomerID == "VINET").ContainsAsync(null, default));
         }
 
         [ConditionalTheory]
@@ -1641,7 +1642,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_FirstOrDefault_in_projection_does_client_eval(bool async)
+        public virtual Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
         {
             return AssertQueryScalar(
                 async,
@@ -1887,6 +1888,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertCount(
                 async,
                 ss => ss.Set<Order>().Select(o => new { Id = CodeFormat(o.OrderID) }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertAverage(
+                async,
+                ss => ss.Set<Order>(),
+                selector: c => c.ShipVia),
+                CoreStrings.QueryUnableToTranslateMember(nameof(Order.ShipVia), nameof(Order)));
         }
 
         private static string CodeFormat(int str) => str.ToString();

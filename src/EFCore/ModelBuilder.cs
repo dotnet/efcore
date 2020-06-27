@@ -58,6 +58,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        [Obsolete]
+        public ModelBuilder([NotNull] IMutableModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            _builder = ((Model)model).Builder;
+        }
+
+        /// <summary>
         ///     The model being configured.
         /// </summary>
         public virtual IMutableModel Model => Builder.Metadata;
@@ -387,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => base.Equals(obj);
 

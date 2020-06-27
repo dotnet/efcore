@@ -291,7 +291,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(createTableOperation.Columns.First(o => o.Name == "AltId").DefaultValue);
                     Assert.NotNull(createTableOperation.PrimaryKey);
                     Assert.Single(createTableOperation.UniqueConstraints);
-                    Assert.Single(createTableOperation.CheckConstraints);
+                    var checkConstraint = createTableOperation.CheckConstraints.Single();
+                    Assert.Equal("SomeCheckConstraint", checkConstraint.Name);
+                    Assert.Equal("[Id] > 10", checkConstraint.Sql);
                     Assert.Single(createTableOperation.ForeignKeys);
 
                     Assert.IsType<CreateIndexOperation>(upOps[2]);
@@ -1006,6 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Can_split_entity_in_two_using_shared_table_with_seed_data()
         {
             Execute(
+                _ => { },
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -1048,7 +1051,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 new { Id = 42, BoneId = "2" });
                         });
                 },
-                operations => Assert.Equal(0, operations.Count));
+                upOps => Assert.Equal(0, upOps.Count),
+                downOps => Assert.Equal(0, downOps.Count));
         }
 
         [ConditionalFact]
@@ -1743,6 +1747,66 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Id", operation.NewName);
                 },
                 skipSourceConventions: true);
+        }
+
+        [ConditionalFact]
+        public void Rename_column_in_TPT_with_table_sharing_and_seed_data()
+        {
+            Execute(
+                common => {
+                    common.Entity(
+                     "Order",
+                     x =>
+                     {
+                         x.ToTable("Order");
+                         x.Property<int>("Id");
+                     });
+                    common.Entity(
+                     "DetailedOrder",
+                     x =>
+                     {
+                         x.ToTable("DetailedOrder");
+                         x.HasBaseType("Order");
+                         x.Property<string>("Description").HasColumnName("Description");
+                         x.HasData(new { Id = 42, Description = "Order 1" });
+                     });
+                    common.Entity(
+                     "OrderDetails",
+                     x =>
+                     {
+                         x.ToTable("DetailedOrder");
+                         x.Property<int>("Id");
+                         x.Property<string>("Description").HasColumnName("Description");
+                         x.Property<DateTime>("OrderDate");
+                         x.HasOne("DetailedOrder", null).WithOne().HasForeignKey("OrderDetails", "Id");
+                         x.HasData(new { Id = 42, Description = "Order 1", OrderDate = DateTime.MinValue });
+                     });
+                },
+                _ => { },
+                target => {
+                    target.Entity(
+                         "DetailedOrder",
+                         x =>
+                         {
+                             x.Property<string>("Description").HasColumnName("OrderDescription");
+                         });
+                    target.Entity(
+                         "OrderDetails",
+                         x =>
+                         {
+                             x.Property<string>("Description").HasColumnName("OrderDescription");
+                         });
+                    },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Null(operation.Schema);
+                    Assert.Equal("DetailedOrder", operation.Table);
+                    Assert.Equal("Description", operation.Name);
+                    Assert.Equal("OrderDescription", operation.NewName);
+                });
         }
 
         private class Crab
@@ -3422,7 +3486,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Donkey", "dbo");
                         x.Property<int>("Id");
                         x.Property<int>("Value");
-                        x.HasIndex("Value").HasName("IX_dbo.Donkey_Value");
+                        x.HasIndex(new[] { "Value" }, "IX_dbo.Donkey_Value");
                     }),
                 operations =>
                 {
@@ -3458,7 +3522,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.Property<int>("Value");
                         x.Property<int>("MuleValue");
-                        x.HasIndex("MuleValue").HasName("IX_Muel_Value");
+                        x.HasIndex(new[] { "MuleValue" },"IX_Muel_Value");
                     }),
                 operations =>
                 {
@@ -4354,7 +4418,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id").HasName("PK_Gnat");
                         x.Property<string>("Name");
-                        x.HasIndex("Name").HasName("IX_Gnat_Name");
+                        x.HasIndex(new[] { "Name" }, "IX_Gnat_Name");
                     }),
                 operations =>
                 {
@@ -4412,7 +4476,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id").HasName("PK_Cricket");
                         x.Property<string>("Name");
-                        x.HasIndex("Name").HasName("IX_Cricket_Name");
+                        x.HasIndex("Name").HasDatabaseName("IX_Cricket_Name");
                     }),
                 operations =>
                 {
@@ -4508,7 +4572,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.HasKey("Id").HasName("PK_Zonkey");
                             x.Property<int>("ParentId");
                             x.HasOne("Zebra").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Zonkey_Zebra_ParentId");
-                            x.HasIndex("ParentId").HasName("IX_Zonkey_ParentId");
+                            x.HasIndex("ParentId").HasDatabaseName("IX_Zonkey_ParentId");
                         });
                 },
                 operations =>
@@ -4603,49 +4667,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.True(operation.Columns.First(c => c.Name == "Value").IsNullable);
                 });
-        }
-
-        [ConditionalFact]
-        public void Create_table_with_seed_data()
-        {
-            Execute(
-                _ => { },
-                _ => { },
-                target => target.Entity(
-                    "Zebra",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
-                        x.HasData(
-                            new { Id = 42, Name = "equal" });
-                    }),
-                upOps => Assert.Collection(
-                    upOps,
-                    o =>
-                    {
-                        var operation = Assert.IsType<CreateTableOperation>(o);
-                        Assert.Null(operation.Schema);
-                        Assert.Equal("Zebra", operation.Name);
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Null(m.Schema);
-                        Assert.Equal("Zebra", m.Table);
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(42, v),
-                            v => Assert.Equal("equal", v));
-                    }),
-                downOps => Assert.Collection(
-                    downOps,
-                    o =>
-                    {
-                        var operation = Assert.IsType<DropTableOperation>(o);
-                        Assert.Null(operation.Schema);
-                        Assert.Equal("Zebra", operation.Name);
-                    }));
         }
 
         [ConditionalFact]
@@ -4809,7 +4830,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.HasBaseType("Animal");
                             x.Property<string>("Name");
-                            x.HasIndex("Name").HasName("IX_Animal_Pike_Name");
+                            x.HasIndex("Name").HasDatabaseName("IX_Animal_Pike_Name");
                         });
                 },
                 operations =>
@@ -5017,6 +5038,49 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Create_table_with_seed_data()
+        {
+            Execute(
+                _ => { },
+                _ => { },
+                target => target.Entity(
+                    "Zebra",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.HasData(
+                            new { Id = 42, Name = "equal" });
+                    }),
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateTableOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("Zebra", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("Zebra", operation.Table);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(42, v),
+                            v => Assert.Equal("equal", v));
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropTableOperation>(o);
+                        Assert.Null(operation.Schema);
+                        Assert.Equal("Zebra", operation.Name);
+                    }));
+        }
+
+        [ConditionalFact]
         public void Add_subtype_with_shared_column_with_seed_data()
         {
             Execute(
@@ -5061,6 +5125,572 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         AssertMultidimensionalArray(
                             m.KeyValues,
                             v => Assert.Equal(43, v));
+                    }));
+        }
+
+        [ConditionalFact]
+        public void Change_TPH_to_TPT_with_FKs_and_seed_data()
+        {
+            Execute(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Animal", x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int?>("MouseId");
+
+                        x.HasOne("Mouse").WithMany().HasForeignKey("MouseId");
+                    });
+                    modelBuilder.Entity(
+                        "Cat", x =>
+                        {
+                            x.HasBaseType("Animal");
+                            x.Property<int?>("PreyId").HasColumnName("PreyId");
+
+                            x.HasOne("Animal").WithMany().HasForeignKey("PreyId");
+                            x.HasData(
+                                new { Id = 11, MouseId = 31 });
+                        });
+                    modelBuilder.Entity(
+                        "Dog", x =>
+                        {
+                            x.HasBaseType("Animal");
+                            x.Property<int?>("PreyId").HasColumnName("PreyId");
+
+                            x.HasOne("Animal").WithMany().HasForeignKey("PreyId");
+                            x.HasData(
+                                new { Id = 21, PreyId = 31 });
+                        });
+                    modelBuilder.Entity(
+                        "Mouse", x =>
+                        {
+                            x.HasBaseType("Animal");
+
+                            x.HasData(
+                                new { Id = 31 });
+                        });
+                },
+                source => {
+                    source.Entity(
+                        "Cat", x =>
+                        {
+                            x.HasData(
+                                new { Id = 12, MouseId = 32 },
+                                new { Id = 13 });
+                        });
+                    source.Entity(
+                        "Dog", x =>
+                        {
+                            x.HasData(
+                                new { Id = 22, PreyId = 32 });
+                        });
+                    source.Entity(
+                        "Mouse", x =>
+                        {
+                            x.HasData(
+                                new { Id = 32 });
+                        });
+                    source.Entity(
+                        "UnrelatedDog", x =>
+                        {
+                            x.ToTable("Dogs");
+                            x.Property<int>("Id");
+                            x.Property<int?>("PreyId");
+                        });
+                },
+                target =>
+                {
+                    target.Entity(
+                        "Cat", x =>
+                        {
+                            x.ToTable("Cats");
+                            x.HasData(
+                                new { Id = 12 },
+                                new { Id = 13, MouseId = 32 });
+                        });
+                    target.Entity(
+                        "Dog", x =>
+                        {
+                            x.ToTable("Dogs");
+                            x.HasData(
+                                new { Id = 22, PreyId = 33 },
+                                new { Id = 23 });
+                        });
+                    target.Entity(
+                        "Mouse", x =>
+                        {
+                            x.ToTable("Mice");
+                            x.HasData(
+                                new { Id = 33 });
+                        });
+                },
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Animal_PreyId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropIndexOperation>(o);
+                        Assert.Equal("IX_Animal_PreyId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(32, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropColumnOperation>(o);
+                        Assert.Equal("Discriminator", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropColumnOperation>(o);
+                        Assert.Equal("PreyId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateTableOperation>(o);
+                        Assert.Equal("Cats", operation.Name);
+                        Assert.Collection(operation.Columns,
+                            c =>
+                            {
+                                Assert.Equal("Id", c.Name);
+                                Assert.Equal("default_int_mapping", c.ColumnType);
+                                Assert.Equal("Cats", c.Table);
+                                Assert.False(c.IsNullable);
+                                Assert.False(c.IsRowVersion);
+                                Assert.Null(c.IsUnicode);
+                                Assert.Null(c.IsFixedLength);
+                                Assert.Null(c.MaxLength);
+                                Assert.Null(c.Precision);
+                                Assert.Null(c.Scale);
+                                Assert.Null(c.DefaultValue);
+                                Assert.Null(c.DefaultValueSql);
+                                Assert.Null(c.ComputedColumnSql);
+                                Assert.Null(c.IsStored);
+                                Assert.Null(c.Comment);
+                                Assert.Null(c.Collation);
+                            },
+                            c =>
+                            {
+                                Assert.Equal("PreyId", c.Name);
+                                Assert.Equal("default_int_mapping", c.ColumnType);
+                                Assert.Equal("Cats", c.Table);
+                                Assert.True(c.IsNullable);
+                                Assert.False(c.IsRowVersion);
+                                Assert.Null(c.IsUnicode);
+                                Assert.Null(c.IsFixedLength);
+                                Assert.Null(c.MaxLength);
+                                Assert.Null(c.Precision);
+                                Assert.Null(c.Scale);
+                                Assert.Null(c.DefaultValue);
+                                Assert.Null(c.DefaultValueSql);
+                                Assert.Null(c.ComputedColumnSql);
+                                Assert.Null(c.IsStored);
+                                Assert.Null(c.Comment);
+                                Assert.Null(c.Collation);
+                            });
+
+                        var pk = operation.PrimaryKey;
+                        Assert.Equal("PK_Cats", pk.Name);
+                        Assert.Equal("Cats", pk.Table);
+                        Assert.Equal(new[] { "Id" }, pk.Columns);
+
+                        var fk = operation.ForeignKeys.Single();
+                        Assert.Equal("FK_Cats_Animal_PreyId", fk.Name);
+                        Assert.Equal("Cats", fk.Table);
+                        Assert.Equal("Animal", fk.PrincipalTable);
+                        Assert.Equal(new[] { "PreyId" }, fk.Columns);
+                        Assert.Equal(new[] { "Id" }, fk.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, fk.OnDelete);
+
+                        Assert.Empty(operation.UniqueConstraints);
+                        Assert.Null(operation.Comment);
+                        Assert.Empty(operation.CheckConstraints);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateTableOperation>(o);
+                        Assert.Equal("Mice", operation.Name);
+                        Assert.Collection(operation.Columns,
+                            c =>
+                            {
+                                Assert.Equal("Id", c.Name);
+                                Assert.Equal("default_int_mapping", c.ColumnType);
+                                Assert.Equal("Mice", c.Table);
+                                Assert.False(c.IsNullable);
+                                Assert.False(c.IsRowVersion);
+                                Assert.Null(c.IsUnicode);
+                                Assert.Null(c.IsFixedLength);
+                                Assert.Null(c.MaxLength);
+                                Assert.Null(c.Precision);
+                                Assert.Null(c.Scale);
+                                Assert.Null(c.DefaultValue);
+                                Assert.Null(c.DefaultValueSql);
+                                Assert.Null(c.ComputedColumnSql);
+                                Assert.Null(c.IsStored);
+                                Assert.Null(c.Comment);
+                                Assert.Null(c.Collation);
+                            });
+
+                        var pk = operation.PrimaryKey;
+                        Assert.Equal("PK_Mice", pk.Name);
+                        Assert.Equal("Mice", pk.Table);
+                        Assert.Equal(new[] { "Id" }, pk.Columns);
+
+                        Assert.Empty(operation.ForeignKeys);
+                        Assert.Empty(operation.UniqueConstraints);
+                        Assert.Null(operation.Comment);
+                        Assert.Empty(operation.CheckConstraints);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(12, v));
+
+                        Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(13, v));
+
+                        Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(32, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(23, v),
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(33, v),
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation> (o);
+                        Assert.Equal("Dogs", operation.Table);
+
+                        Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(21, v),
+                            v => Assert.Equal(31, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Dogs", operation.Table);
+                        Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(23, v),
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Mice", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.Columns);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(33, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Dogs", operation.Table);
+
+                        Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(22, v),
+                            v => Assert.Equal(33, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateIndexOperation>(o);
+                        Assert.Equal("IX_Dogs_PreyId", operation.Name);
+                        Assert.Equal("Dogs", operation.Table);
+                        Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateIndexOperation>(o);
+                        Assert.Equal("IX_Cats_PreyId", operation.Name);
+                        Assert.Equal("Cats", operation.Table);
+                        Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                        Assert.Equal("FK_Dogs_Animal_PreyId", operation.Name);
+                        Assert.Equal("Dogs", operation.Table);
+                        Assert.Equal("Animal", operation.PrincipalTable);
+                        Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                        Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, operation.OnDelete);
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                        Assert.Equal("FK_Dogs_Animal_PreyId", operation.Name);
+                        Assert.Equal("Dogs", operation.Table);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropTableOperation>(o);
+                        Assert.Equal("Cats", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropTableOperation>(o);
+                        Assert.Equal("Mice", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropIndexOperation>(o);
+                        Assert.Equal("IX_Dogs_PreyId", operation.Name);
+                        Assert.Equal("Dogs", operation.Table);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(23, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Dogs", operation.Table);
+
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(21, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Dogs", operation.Table);
+
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(22, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Dogs", operation.Table);
+
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(23, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DeleteDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(33, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddColumnOperation>(o);
+                        Assert.Equal("Discriminator", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(typeof(string), operation.ClrType);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddColumnOperation>(o);
+                        Assert.Equal("PreyId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(typeof(int), operation.ClrType);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(11, v));
+
+                        Assert.Equal(new[] { "Discriminator" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal("Cat", v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(13, v));
+
+                        Assert.Equal(new[] { "Discriminator", "MouseId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal("Cat", v),
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(21, v));
+
+                        Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal("Dog", v),
+                            v => Assert.Equal(31, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(31, v));
+
+                        Assert.Equal(new[] { "Discriminator" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal("Mouse", v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id", "Discriminator", "MouseId" }, operation.Columns);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(32, v),
+                            v => Assert.Equal("Mouse", v),
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(12, v));
+
+                        Assert.Equal(new[] { "Discriminator", "MouseId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal("Cat", v),
+                            v => Assert.Equal(32, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<UpdateDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                        Assert.Null(operation.KeyColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.KeyValues,
+                            v => Assert.Equal(22, v));
+
+                        Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal("Dog", v),
+                            v => Assert.Equal(32, v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateIndexOperation>(o);
+                        Assert.Equal("IX_Animal_PreyId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Animal_PreyId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal("Animal", operation.PrincipalTable);
+                        Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                        Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, operation.OnDelete);
                     }));
         }
 
@@ -5130,14 +5760,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                         {
                             x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
-                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                         });
                     target.Entity(
                         "EndangeredAnimal",
                         x =>
                         {
                             x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
-                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                         });
                 },
                 operations =>
@@ -5172,7 +5802,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                         {
                             x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
-                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                         });
                 },
                 source => { },
@@ -5184,7 +5814,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x =>
                         {
                             x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
-                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                         });
                 },
                 operations => Assert.Equal(0, operations.Count));
@@ -5475,7 +6105,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id").HasName("PK_Table");
                             x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                            x.HasIndex("ForeignId").HasDatabaseName("IX_Table_ForeignId");
                             x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
                         }),
                 operations =>
@@ -5516,7 +6146,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id").HasName("PK_Table");
                             x.Property<int>("ForeignId").HasColumnName("RenamedForeignId");
-                            x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                            x.HasIndex("ForeignId").HasDatabaseName("IX_Table_ForeignId");
                             x.HasOne("ReferencedTable").WithMany().HasForeignKey("ForeignId");
                         }),
                 operations =>
@@ -6100,7 +6730,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id").HasName("PK_Table");
                             x.Property<int>("ForeignId");
-                            x.HasIndex("ForeignId").HasName("IX_Table_ForeignId");
+                            x.HasIndex("ForeignId").HasDatabaseName("IX_Table_ForeignId");
                         }),
                 operations =>
                 {
@@ -8574,7 +9204,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => throw new NotImplementedException();
 
         [ConditionalFact]
-        public void Model_differ_does_not_detect_queryable_function_result_type()
+        public void Model_differ_does_not_detect_table_valued_function_result_type()
         {
             Execute(
                 _ => { },

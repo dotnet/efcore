@@ -117,7 +117,8 @@ namespace Microsoft.Data.Sqlite
         ///     Releases any resources used by the transaction and rolls it back.
         /// </summary>
         /// <param name="disposing">
-        ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
+        ///     <see langword="true"/> to release managed and unmanaged resources;
+        ///     <see langword="false"/> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {

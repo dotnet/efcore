@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="methodCallExpression"> The method-call expression for <see cref="EF.Property{TProperty}" /> </param>
         /// <param name="entityExpression"> The extracted entity access expression. </param>
         /// <param name="propertyName"> The accessed property name. </param>
-        /// <returns> True if the method-call was for <see cref="EF.Property{TProperty}" />; false otherwise. </returns>
+        /// <returns> <see langword="true"/> if the method-call was for <see cref="EF.Property{TProperty}" />; <see langword="false"/> otherwise. </returns>
         public static bool TryGetEFPropertyArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
             out Expression entityExpression,
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to use. </param>
         /// <param name="entityExpression"> The extracted entity access expression. </param>
         /// <param name="propertyName"> The accessed property name. </param>
-        /// <returns> True if the method-call was for indexer; false otherwise. </returns>
+        /// <returns> <see langword="true"/> if the method-call was for indexer; <see langword="false"/> otherwise. </returns>
         public static bool TryGetIndexerArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
             [NotNull] IModel model,

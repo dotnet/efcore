@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -61,40 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     });
             }
 
+            var hasDefaultValueExpression = readExpression.MakeHasDefaultValue<TValue>(propertyBase);
+
             if (readExpression.Type != typeof(TValue))
             {
-                readExpression = Expression.Convert(readExpression, typeof(TValue));
-            }
-
-            Expression hasDefaultValueExpression;
-
-            if (!readExpression.Type.IsValueType)
-            {
-                hasDefaultValueExpression
-                    = Expression.ReferenceEqual(
-                        readExpression,
-                        Expression.Constant(null, readExpression.Type));
-            }
-            else if (readExpression.Type.IsGenericType
-                && readExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                hasDefaultValueExpression
-                    = Expression.Not(
-                        Expression.Call(
-                            readExpression,
-                            readExpression.Type.GetMethod("get_HasValue")));
-            }
-            else
-            {
-                var property = propertyBase as IProperty;
-                var comparer = property?.GetValueComparer()
-                    ?? ValueComparer.CreateDefault(typeof(TValue), favorStructuralComparisons: false);
-
-                hasDefaultValueExpression = comparer.ExtractEqualsBody(
-                    comparer.Type != typeof(TValue)
-                        ? Expression.Convert(readExpression, comparer.Type)
-                        : readExpression,
-                    Expression.Default(comparer.Type));
+                readExpression = Expression.Condition(
+                    hasDefaultValueExpression,
+                    Expression.Constant(default(TValue), typeof(TValue)),
+                    Expression.Convert(readExpression, typeof(TValue)));
             }
 
             return new ClrPropertyGetter<TEntity, TValue>(

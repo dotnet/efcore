@@ -375,7 +375,8 @@ namespace Microsoft.Data.Sqlite
         ///     Releases any resources used by the connection and closes it.
         /// </summary>
         /// <param name="disposing">
-        ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
+        ///     <see langword="true"/> to release managed and unmanaged resources;
+        ///     <see langword="false"/> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
@@ -514,7 +515,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Enables extension loading on the connection.
         /// </summary>
-        /// <param name="enable">true to enable; false to disable.</param>
+        /// <param name="enable"> <see langword="true"/> to enable; <see langword="false"/> to disable. </param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/extensions">Extensions</seealso>
         public virtual void EnableExtensions(bool enable = true)
         {

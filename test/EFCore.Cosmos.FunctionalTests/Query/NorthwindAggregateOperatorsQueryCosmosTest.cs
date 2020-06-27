@@ -14,7 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public NorthwindAggregateOperatorsQueryCosmosTest(
             NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture,
+#pragma warning disable IDE0060 // Remove unused parameter
             ITestOutputHelper testOutputHelper)
+#pragma warning restore IDE0060 // Remove unused parameter
             : base(fixture)
         {
             ClearLog();
@@ -580,10 +582,15 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""CENTC""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Count_with_no_predicate(bool async)
+        [ConditionalTheory]
+        public override async Task Count_with_no_predicate(bool async)
         {
-            return base.Count_with_no_predicate(async);
+            await base.Count_with_no_predicate(async);
+
+            AssertSql(
+                @"SELECT COUNT(1) AS c
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
         }
 
         [ConditionalTheory(Skip = "Issue#16146")]
@@ -1372,12 +1379,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI""
             return base.Contains_over_entityType_with_null_should_rewrite_to_false(async);
         }
 
-        public override async Task String_FirstOrDefault_in_projection_does_client_eval(bool async)
+        public override async Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
         {
-            await base.String_FirstOrDefault_in_projection_does_client_eval(async);
+            await base.String_FirstOrDefault_in_projection_does_not_do_client_eval(async);
 
             AssertSql(
-                @"SELECT c[""CustomerID""]
+                @"SELECT LEFT(c[""CustomerID""], 1) AS c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -1598,6 +1605,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override Task Min_after_default_if_empty_does_not_throw(bool isAsync)
         {
             return base.Min_after_default_if_empty_does_not_throw(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#20677")]
+        public override Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
+        {
+            return base.Average_with_unmapped_property_access_throws_meaningful_exception(async);
         }
 
         private void AssertSql(params string[] expected)

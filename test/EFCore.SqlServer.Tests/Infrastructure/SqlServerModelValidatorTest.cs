@@ -231,8 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var model = Validate(modelBuilder.Model);
 
-            Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Cat)).GetDeclaredIndexes().Single().GetName());
-            Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Dog)).GetDeclaredIndexes().Single().GetName());
+            Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Cat)).GetDeclaredIndexes().Single().GetDatabaseName());
+            Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Dog)).GetDeclaredIndexes().Single().GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -240,8 +240,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasName("IX_Animal_Name");
-            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsClustered().HasName("IX_Animal_Name");
+            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
+            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsClustered().HasDatabaseName("IX_Animal_Name");
 
             VerifyError(
                 SqlServerStrings.DuplicateIndexClusteredMismatch(
@@ -256,8 +256,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasName("IX_Animal_Name");
-            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsCreatedOnline().HasName("IX_Animal_Name");
+            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
+            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsCreatedOnline().HasDatabaseName("IX_Animal_Name");
 
             VerifyError(
                 SqlServerStrings.DuplicateIndexOnlineMismatch(
@@ -272,15 +272,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasName("IX_Animal_Name");
-            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IncludeProperties(nameof(Dog.Identity)).HasName("IX_Animal_Name");
+            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
+            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").IncludeProperties(nameof(Dog.Identity));
 
             VerifyError(
                 SqlServerStrings.DuplicateIndexIncludedMismatch(
                     "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
                     "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
                     nameof(Animal), "IX_Animal_Name",
-                    "{'Identity'}", "{}"),
+                    "{'Dog_Identity'}", "{}"),
                 modelBuilder.Model);
         }
 

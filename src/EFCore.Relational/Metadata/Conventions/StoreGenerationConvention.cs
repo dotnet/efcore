@@ -91,9 +91,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
+                var tableName = entityType.GetTableName();
+                if (tableName == null)
+                {
+                    continue;
+                }
+
+                var schema = entityType.GetSchema();
                 foreach (var declaredProperty in entityType.GetDeclaredProperties())
                 {
-                    Validate(declaredProperty);
+                    Validate(declaredProperty, tableName, schema);
                 }
             }
         }
@@ -102,25 +109,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Throws if there is conflicting store generation configuration for this property.
         /// </summary>
         /// <param name="property"> The property to check. </param>
-        protected virtual void Validate([NotNull] IConventionProperty property)
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        protected virtual void Validate(
+            [NotNull] IConventionProperty property,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
         {
-            if (property.GetDefaultValue() != null)
+            if (property.GetDefaultValue(tableName, schema) != null)
             {
-                if (property.GetDefaultValueSql() != null)
+                if (property.GetDefaultValueSql(tableName, schema) != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration("DefaultValue", property.Name, "DefaultValueSql"));
                 }
 
-                if (property.GetComputedColumnSql() != null)
+                if (property.GetComputedColumnSql(tableName, schema) != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration("DefaultValue", property.Name, "ComputedColumnSql"));
                 }
             }
-            else if (property.GetDefaultValueSql() != null)
+            else if (property.GetDefaultValueSql(tableName, schema) != null)
             {
-                if (property.GetComputedColumnSql() != null)
+                if (property.GetComputedColumnSql(tableName, schema) != null)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration("DefaultValueSql", property.Name, "ComputedColumnSql"));

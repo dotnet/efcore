@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.FunctionOnClient(nameof(DbFunctionsExtensions.Like)),
                 Assert.Throws<InvalidOperationException>(
-                    () => new DbFunctions().Like("abc", "abc")).Message);
+                    () => EF.Functions.Like("abc", "abc")).Message);
         }
     }
 }

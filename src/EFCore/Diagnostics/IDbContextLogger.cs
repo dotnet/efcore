@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventId"> The ID of the event. </param>
         /// <param name="logLevel"> The level of the event. </param>
-        /// <returns> Returns true if the event should be logged; false if it should be filtered out. </returns>
+        /// <returns> Returns <see langword="true"/> if the event should be logged; <see langword="false"/> if it should be filtered out. </returns>
         bool ShouldLog(EventId eventId, LogLevel logLevel);
     }
 }

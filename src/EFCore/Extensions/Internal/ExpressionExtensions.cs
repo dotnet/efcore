@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -27,9 +28,35 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsNullConstantExpression([NotNull] this Expression expression)
-            => RemoveConvert(expression) is ConstantExpression constantExpression
-                && constantExpression.Value == null;
+        public static Expression MakeHasDefaultValue<TProperty>(
+            [NotNull] this Expression currentValueExpression, [NotNull] IPropertyBase propertyBase)
+        {
+            if (!currentValueExpression.Type.IsValueType)
+            {
+                return Expression.ReferenceEqual(
+                    currentValueExpression,
+                    Expression.Constant(null, currentValueExpression.Type));
+            }
+
+            if (currentValueExpression.Type.IsGenericType
+                && currentValueExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                return Expression.Not(
+                    Expression.Call(
+                        currentValueExpression,
+                        currentValueExpression.Type.GetMethod("get_HasValue")));
+            }
+
+            var property = propertyBase as IProperty;
+            var comparer = property?.GetValueComparer()
+                ?? ValueComparer.CreateDefault(typeof(TProperty), favorStructuralComparisons: false);
+
+            return comparer.ExtractEqualsBody(
+                comparer.Type != typeof(TProperty)
+                    ? Expression.Convert(currentValueExpression, comparer.Type)
+                    : currentValueExpression,
+                Expression.Default(comparer.Type));
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

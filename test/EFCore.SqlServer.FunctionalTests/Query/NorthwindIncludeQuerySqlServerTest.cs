@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindIncludeQuerySqlServerTest : NorthwindIncludeQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindIncludeQuerySqlServerTest : NorthwindIncludeQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
         public NorthwindIncludeQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -17,9 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override void Include_list(bool useString)
+        protected override bool CanExecuteQueryString => true;
+
+        public override async Task Include_list(bool async)
         {
-            base.Include_list(useString);
+            await base.Include_list(async);
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock], [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[OrderID0], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
@@ -32,9 +34,9 @@ LEFT JOIN (
 ORDER BY [p].[ProductID], [t].[OrderID], [t].[ProductID], [t].[OrderID0]");
         }
 
-        public override void Include_reference(bool useString)
+        public override async Task Include_reference(bool async)
         {
-            base.Include_reference(useString);
+            await base.Include_reference(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -42,9 +44,9 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override void Include_when_result_operator(bool useString)
+        public override async Task Include_when_result_operator(bool async)
         {
-            base.Include_when_result_operator(useString);
+            await base.Include_when_result_operator(async);
 
             AssertSql(
                 @"SELECT CASE
@@ -55,9 +57,9 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
 END");
         }
 
-        public override void Include_collection(bool useString)
+        public override async Task Include_collection(bool async)
         {
-            base.Include_collection(useString);
+            await base.Include_collection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -66,9 +68,9 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_with_last(bool useString)
+        public override async Task Include_collection_with_last(bool async)
         {
-            base.Include_collection_with_last(useString);
+            await base.Include_collection_with_last(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -81,9 +83,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CompanyName] DESC, [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_skip_no_order_by(bool useString)
+        public override async Task Include_collection_skip_no_order_by(bool async)
         {
-            base.Include_collection_skip_no_order_by(useString);
+            await base.Include_collection_skip_no_order_by(async);
 
             AssertSql(
                 @"@__p_0='10'
@@ -99,9 +101,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_take_no_order_by(bool useString)
+        public override async Task Include_collection_take_no_order_by(bool async)
         {
-            base.Include_collection_take_no_order_by(useString);
+            await base.Include_collection_take_no_order_by(async);
 
             AssertSql(
                 @"@__p_0='10'
@@ -115,9 +117,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_skip_take_no_order_by(bool useString)
+        public override async Task Include_collection_skip_take_no_order_by(bool async)
         {
-            base.Include_collection_skip_take_no_order_by(useString);
+            await base.Include_collection_skip_take_no_order_by(async);
 
             AssertSql(
                 @"@__p_0='10'
@@ -134,9 +136,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_reference_and_collection(bool useString)
+        public override async Task Include_reference_and_collection(bool async)
         {
-            base.Include_reference_and_collection(useString);
+            await base.Include_reference_and_collection(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
@@ -146,9 +148,9 @@ LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ORDER BY [o].[OrderID], [c].[CustomerID], [o0].[OrderID], [o0].[ProductID]");
         }
 
-        public override void Include_references_multi_level(bool useString)
+        public override async Task Include_references_multi_level(bool async)
         {
-            base.Include_references_multi_level(useString);
+            await base.Include_references_multi_level(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -157,9 +159,9 @@ INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override void Include_multiple_references_multi_level(bool useString)
+        public override async Task Include_multiple_references_multi_level(bool async)
         {
-            base.Include_multiple_references_multi_level(useString);
+            await base.Include_multiple_references_multi_level(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -169,9 +171,9 @@ LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]");
         }
 
-        public override void Include_multiple_references_multi_level_reverse(bool useString)
+        public override async Task Include_multiple_references_multi_level_reverse(bool async)
         {
-            base.Include_multiple_references_multi_level_reverse(useString);
+            await base.Include_multiple_references_multi_level_reverse(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -181,9 +183,9 @@ INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override void Include_references_and_collection_multi_level(bool useString)
+        public override async Task Include_references_and_collection_multi_level(bool async)
         {
-            base.Include_references_and_collection_multi_level(useString);
+            await base.Include_references_and_collection_multi_level(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
@@ -194,9 +196,9 @@ LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID], [o1].[OrderID]");
         }
 
-        public override void Include_multi_level_reference_and_collection_predicate(bool useString)
+        public override async Task Include_multi_level_reference_and_collection_predicate(bool async)
         {
-            base.Include_multi_level_reference_and_collection_predicate(useString);
+            await base.Include_multi_level_reference_and_collection_predicate(async);
 
             AssertSql(
                 @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[CustomerID0], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -210,9 +212,9 @@ LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID0] = [o0].[CustomerID]
 ORDER BY [t].[OrderID], [t].[CustomerID0], [o0].[OrderID]");
         }
 
-        public override void Include_multi_level_collection_and_then_include_reference_predicate(bool useString)
+        public override async Task Include_multi_level_collection_and_then_include_reference_predicate(bool async)
         {
-            base.Include_multi_level_collection_and_then_include_reference_predicate(useString);
+            await base.Include_multi_level_collection_and_then_include_reference_predicate(async);
 
             AssertSql(
                 @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice], [t0].[ProductID0], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice0], [t0].[UnitsInStock]
@@ -229,9 +231,9 @@ LEFT JOIN (
 ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[ProductID], [t0].[ProductID0]");
         }
 
-        public override void Include_collection_alias_generation(bool useString)
+        public override async Task Include_collection_alias_generation(bool async)
         {
-            base.Include_collection_alias_generation(useString);
+            await base.Include_collection_alias_generation(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
@@ -240,9 +242,9 @@ LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
-        public override void Include_collection_order_by_collection_column(bool useString)
+        public override async Task Include_collection_order_by_collection_column(bool async)
         {
-            base.Include_collection_order_by_collection_column(useString);
+            await base.Include_collection_order_by_collection_column(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -264,9 +266,9 @@ LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
 ORDER BY [t].[c] DESC, [t].[CustomerID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_order_by_key(bool useString)
+        public override async Task Include_collection_order_by_key(bool async)
         {
-            base.Include_collection_order_by_key(useString);
+            await base.Include_collection_order_by_key(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -275,20 +277,20 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_order_by_non_key(bool useString)
+        public override async Task Include_collection_order_by_non_key(bool async)
         {
-            base.Include_collection_order_by_non_key(useString);
+            await base.Include_collection_order_by_non_key(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[City], [c].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[PostalCode], [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_order_by_non_key_with_take(bool useString)
+        public override async Task Include_collection_order_by_non_key_with_take(bool async)
         {
-            base.Include_collection_order_by_non_key_with_take(useString);
+            await base.Include_collection_order_by_non_key_with_take(async);
 
             AssertSql(
                 @"@__p_0='10'
@@ -303,9 +305,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[ContactTitle], [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_order_by_non_key_with_skip(bool useString)
+        public override async Task Include_collection_order_by_non_key_with_skip(bool async)
         {
-            base.Include_collection_order_by_non_key_with_skip(useString);
+            await base.Include_collection_order_by_non_key_with_skip(async);
 
             AssertSql(
                 @"@__p_0='10'
@@ -321,9 +323,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[ContactTitle], [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_order_by_non_key_with_first_or_default(bool useString)
+        public override async Task Include_collection_order_by_non_key_with_first_or_default(bool async)
         {
-            base.Include_collection_order_by_non_key_with_first_or_default(useString);
+            await base.Include_collection_order_by_non_key_with_first_or_default(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -336,9 +338,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CompanyName] DESC, [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_order_by_subquery(bool useString)
+        public override async Task Include_collection_order_by_subquery(bool async)
         {
-            base.Include_collection_order_by_subquery(useString);
+            await base.Include_collection_order_by_subquery(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -360,20 +362,9 @@ LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_as_no_tracking(bool useString)
+        public override async Task Include_collection_principal_already_tracked(bool async)
         {
-            base.Include_collection_as_no_tracking(useString);
-
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID], [o].[OrderID]");
-        }
-
-        public override void Include_collection_principal_already_tracked(bool useString)
-        {
-            base.Include_collection_principal_already_tracked(useString);
+            await base.Include_collection_principal_already_tracked(async);
 
             AssertSql(
                 @"SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -390,28 +381,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_principal_already_tracked_as_no_tracking(bool useString)
+        public override async Task Include_collection_with_filter(bool async)
         {
-            base.Include_collection_principal_already_tracked_as_no_tracking(useString);
-
-            AssertSql(
-                @"SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'",
-                //
-                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM (
-    SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-) AS [t]
-LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
-        }
-
-        public override void Include_collection_with_filter(bool useString)
-        {
-            base.Include_collection_with_filter(useString);
+            await base.Include_collection_with_filter(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -421,9 +393,9 @@ WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_with_filter_reordered(bool useString)
+        public override async Task Include_collection_with_filter_reordered(bool async)
         {
-            base.Include_collection_with_filter_reordered(useString);
+            await base.Include_collection_with_filter_reordered(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -433,9 +405,9 @@ WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_then_include_collection(bool useString)
+        public override async Task Include_collection_then_include_collection(bool async)
         {
-            base.Include_collection_then_include_collection(useString);
+            await base.Include_collection_then_include_collection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[OrderID0], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice]
@@ -448,9 +420,9 @@ LEFT JOIN (
 ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0], [t].[ProductID]");
         }
 
-        public override void Include_collection_then_include_collection_then_include_reference(bool useString)
+        public override async Task Include_collection_then_include_collection_then_include_reference(bool async)
         {
-            base.Include_collection_then_include_collection_then_include_reference(useString);
+            await base.Include_collection_then_include_collection_then_include_reference(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice], [t0].[ProductID0], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice0], [t0].[UnitsInStock]
@@ -467,18 +439,18 @@ LEFT JOIN (
 ORDER BY [c].[CustomerID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[ProductID0]");
         }
 
-        public override void Include_collection_when_projection(bool useString)
+        public override async Task Include_collection_when_projection(bool async)
         {
-            base.Include_collection_when_projection(useString);
+            await base.Include_collection_when_projection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]");
         }
 
-        public override void Include_collection_with_join_clause_with_filter(bool useString)
+        public override async Task Include_collection_with_join_clause_with_filter(bool async)
         {
-            base.Include_collection_with_join_clause_with_filter(useString);
+            await base.Include_collection_with_join_clause_with_filter(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -489,9 +461,9 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_with_left_join_clause_with_filter(bool useString)
+        public override async Task Include_collection_with_left_join_clause_with_filter(bool async)
         {
-            base.Include_collection_with_left_join_clause_with_filter(useString);
+            await base.Include_collection_with_left_join_clause_with_filter(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -502,9 +474,9 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_with_cross_join_clause_with_filter(bool useString)
+        public override async Task Include_collection_with_cross_join_clause_with_filter(bool async)
         {
-            base.Include_collection_with_cross_join_clause_with_filter(useString);
+            await base.Include_collection_with_cross_join_clause_with_filter(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -519,9 +491,9 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_with_cross_apply_with_filter(bool useString)
+        public override async Task Include_collection_with_cross_apply_with_filter(bool async)
         {
-            base.Include_collection_with_cross_apply_with_filter(useString);
+            await base.Include_collection_with_cross_apply_with_filter(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -537,9 +509,9 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_with_outer_apply_with_filter(bool useString)
+        public override async Task Include_collection_with_outer_apply_with_filter(bool async)
         {
-            base.Include_collection_with_outer_apply_with_filter(useString);
+            await base.Include_collection_with_outer_apply_with_filter(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -555,9 +527,9 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_on_additional_from_clause_with_filter(bool useString)
+        public override async Task Include_collection_on_additional_from_clause_with_filter(bool async)
         {
-            base.Include_collection_on_additional_from_clause_with_filter(useString);
+            await base.Include_collection_on_additional_from_clause_with_filter(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -571,9 +543,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID], [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_on_additional_from_clause(bool useString)
+        public override async Task Include_collection_on_additional_from_clause(bool async)
         {
-            base.Include_collection_on_additional_from_clause(useString);
+            await base.Include_collection_on_additional_from_clause(async);
 
             AssertSql(
                 @"@__p_0='5'
@@ -589,9 +561,9 @@ LEFT JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [c0].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_duplicate_collection(bool useString)
+        public override async Task Include_duplicate_collection(bool async)
         {
-            base.Include_duplicate_collection(useString);
+            await base.Include_duplicate_collection(async);
 
             AssertSql(
                 @"@__p_0='2'
@@ -613,9 +585,9 @@ LEFT JOIN [Orders] AS [o0] ON [t0].[CustomerID] = [o0].[CustomerID]
 ORDER BY [t].[CustomerID], [t0].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
-        public override void Include_duplicate_collection_result_operator(bool useString)
+        public override async Task Include_duplicate_collection_result_operator(bool async)
         {
-            base.Include_duplicate_collection_result_operator(useString);
+            await base.Include_duplicate_collection_result_operator(async);
 
             AssertSql(
                 @"@__p_1='1'
@@ -642,9 +614,9 @@ LEFT JOIN [Orders] AS [o0] ON [t1].[CustomerID0] = [o0].[CustomerID]
 ORDER BY [t1].[CustomerID], [t1].[CustomerID0], [o].[OrderID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_on_join_clause_with_order_by_and_filter(bool useString)
+        public override async Task Include_collection_on_join_clause_with_order_by_and_filter(bool async)
         {
-            base.Include_collection_on_join_clause_with_order_by_and_filter(useString);
+            await base.Include_collection_on_join_clause_with_order_by_and_filter(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -655,9 +627,9 @@ WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY [c].[City], [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
-        public override void Include_collection_on_additional_from_clause2(bool useString)
+        public override async Task Include_collection_on_additional_from_clause2(bool async)
         {
-            base.Include_collection_on_additional_from_clause2(useString);
+            await base.Include_collection_on_additional_from_clause2(async);
 
             AssertSql(
                 @"@__p_0='5'
@@ -672,9 +644,9 @@ CROSS JOIN [Customers] AS [c0]
 ORDER BY [t].[CustomerID]");
         }
 
-        public override void Include_where_skip_take_projection(bool useString)
+        public override async Task Include_where_skip_take_projection(bool async)
         {
-            base.Include_where_skip_take_projection(useString);
+            await base.Include_where_skip_take_projection(async);
 
             AssertSql(
                 @"@__p_0='1'
@@ -692,9 +664,9 @@ INNER JOIN [Orders] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
 ORDER BY [t].[OrderID], [t].[ProductID]");
         }
 
-        public override void Include_duplicate_collection_result_operator2(bool useString)
+        public override async Task Include_duplicate_collection_result_operator2(bool async)
         {
-            base.Include_duplicate_collection_result_operator2(useString);
+            await base.Include_duplicate_collection_result_operator2(async);
 
             AssertSql(
                 @"@__p_1='1'
@@ -720,9 +692,9 @@ LEFT JOIN [Orders] AS [o] ON [t1].[CustomerID] = [o].[CustomerID]
 ORDER BY [t1].[CustomerID], [t1].[CustomerID0], [o].[OrderID]");
         }
 
-        public override void Include_multiple_references(bool useString)
+        public override async Task Include_multiple_references(bool async)
         {
-            base.Include_multiple_references(useString);
+            await base.Include_multiple_references(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
@@ -731,9 +703,9 @@ INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]");
         }
 
-        public override void Include_reference_alias_generation(bool useString)
+        public override async Task Include_reference_alias_generation(bool async)
         {
-            base.Include_reference_alias_generation(useString);
+            await base.Include_reference_alias_generation(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -741,9 +713,9 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]");
         }
 
-        public override void Include_duplicate_reference(bool useString)
+        public override async Task Include_duplicate_reference(bool async)
         {
-            base.Include_duplicate_reference(useString);
+            await base.Include_duplicate_reference(async);
 
             AssertSql(
                 @"@__p_0='2'
@@ -765,9 +737,9 @@ LEFT JOIN [Customers] AS [c0] ON [t0].[CustomerID] = [c0].[CustomerID]
 ORDER BY [t].[CustomerID], [t].[OrderID]");
         }
 
-        public override void Include_duplicate_reference2(bool useString)
+        public override async Task Include_duplicate_reference2(bool async)
         {
-            base.Include_duplicate_reference2(useString);
+            await base.Include_duplicate_reference2(async);
 
             AssertSql(
                 @"@__p_0='2'
@@ -788,9 +760,9 @@ LEFT JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]
 ORDER BY [t].[OrderID]");
         }
 
-        public override void Include_duplicate_reference3(bool useString)
+        public override async Task Include_duplicate_reference3(bool async)
         {
-            base.Include_duplicate_reference3(useString);
+            await base.Include_duplicate_reference3(async);
 
             AssertSql(
                 @"@__p_0='2'
@@ -811,18 +783,18 @@ LEFT JOIN [Customers] AS [c] ON [t0].[CustomerID] = [c].[CustomerID]
 ORDER BY [t].[OrderID]");
         }
 
-        public override void Include_reference_when_projection(bool useString)
+        public override async Task Include_reference_when_projection(bool async)
         {
-            base.Include_reference_when_projection(useString);
+            await base.Include_reference_when_projection(async);
 
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]");
         }
 
-        public override void Include_reference_with_filter_reordered(bool useString)
+        public override async Task Include_reference_with_filter_reordered(bool async)
         {
-            base.Include_reference_with_filter_reordered(useString);
+            await base.Include_reference_with_filter_reordered(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -831,9 +803,9 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
-        public override void Include_reference_with_filter(bool useString)
+        public override async Task Include_reference_with_filter(bool async)
         {
-            base.Include_reference_with_filter(useString);
+            await base.Include_reference_with_filter(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -842,9 +814,9 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
-        public override void Include_collection_dependent_already_tracked_as_no_tracking(bool useString)
+        public override async Task Include_collection_dependent_already_tracked(bool async)
         {
-            base.Include_collection_dependent_already_tracked_as_no_tracking(useString);
+            await base.Include_collection_dependent_already_tracked(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -861,69 +833,24 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_dependent_already_tracked(bool useString)
+        public override async Task Include_reference_dependent_already_tracked(bool async)
         {
-            base.Include_collection_dependent_already_tracked(useString);
+            await base.Include_reference_dependent_already_tracked(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI'",
-                //
-                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM (
-    SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-) AS [t]
-LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
-        }
-
-        public override void Include_reference_dependent_already_tracked(bool useString)
-        {
-            base.Include_reference_dependent_already_tracked(useString);
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI'",
+                @"SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
-        public override void Include_reference_as_no_tracking(bool useString)
+        public override async Task Include_with_complex_projection(bool async)
         {
-            base.Include_reference_as_no_tracking(useString);
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
-        }
-
-        public override void Include_collection_as_no_tracking2(bool useString)
-        {
-            base.Include_collection_as_no_tracking2(useString);
-
-            AssertSql(
-                @"@__p_0='5'
-
-SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-    FROM [Customers] AS [c]
-    ORDER BY [c].[CustomerID]
-) AS [t]
-LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
-        }
-
-        public override void Include_with_complex_projection(bool useString)
-        {
-            base.Include_with_complex_projection(useString);
+            await base.Include_with_complex_projection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id]
@@ -931,9 +858,9 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override void Include_with_complex_projection_does_not_change_ordering_of_projection(bool useString)
+        public override async Task Include_with_complex_projection_does_not_change_ordering_of_projection(bool async)
         {
-            base.Include_with_complex_projection_does_not_change_ordering_of_projection(useString);
+            await base.Include_with_complex_projection_does_not_change_ordering_of_projection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], (
@@ -948,9 +875,9 @@ WHERE ([c].[ContactTitle] = N'Owner') AND ((
 ORDER BY [c].[CustomerID]");
         }
 
-        public override void Include_with_take(bool useString)
+        public override async Task Include_with_take(bool async)
         {
-            base.Include_with_take(useString);
+            await base.Include_with_take(async);
 
             AssertSql(
                 @"@__p_0='10'
@@ -959,15 +886,15 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    ORDER BY [c].[City] DESC
+    ORDER BY [c].[ContactName] DESC
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[City] DESC, [t].[CustomerID], [o].[OrderID]");
+ORDER BY [t].[ContactName] DESC, [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_with_skip(bool useString)
+        public override async Task Include_with_skip(bool async)
         {
-            base.Include_with_skip(useString);
+            await base.Include_with_skip(async);
 
             AssertSql(
                 @"@__p_0='80'
@@ -983,9 +910,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[ContactName], [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_with_multiple_conditional_order_by(bool useString)
+        public override async Task Include_collection_with_multiple_conditional_order_by(bool async)
         {
-            base.Include_collection_with_multiple_conditional_order_by(useString);
+            await base.Include_collection_with_multiple_conditional_order_by(async);
 
             AssertSql(
                 @"@__p_0='5'
@@ -1013,9 +940,9 @@ LEFT JOIN [Order Details] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
 ORDER BY [t].[c], [t].[c0], [t].[OrderID], [t].[CustomerID0], [o0].[OrderID], [o0].[ProductID]");
         }
 
-        public override void Then_include_collection_order_by_collection_column(bool useString)
+        public override async Task Then_include_collection_order_by_collection_column(bool async)
         {
-            base.Then_include_collection_order_by_collection_column(useString);
+            await base.Then_include_collection_order_by_collection_column(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice]
@@ -1041,9 +968,9 @@ LEFT JOIN (
 ORDER BY [t].[c] DESC, [t].[CustomerID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]");
         }
 
-        public override void Include_collection_with_conditional_order_by(bool useString)
+        public override async Task Include_collection_with_conditional_order_by(bool async)
         {
-            base.Include_collection_with_conditional_order_by(useString);
+            await base.Include_collection_with_conditional_order_by(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1055,9 +982,9 @@ ORDER BY CASE
 END, [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_reference_distinct_is_server_evaluated(bool useString)
+        public override async Task Include_reference_distinct_is_server_evaluated(bool async)
         {
-            base.Include_reference_distinct_is_server_evaluated(useString);
+            await base.Include_reference_distinct_is_server_evaluated(async);
 
             AssertSql(
                 @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1069,9 +996,9 @@ FROM (
 LEFT JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]");
         }
 
-        public override void Include_collection_distinct_is_server_evaluated(bool useString)
+        public override async Task Include_collection_distinct_is_server_evaluated(bool async)
         {
-            base.Include_collection_distinct_is_server_evaluated(useString);
+            await base.Include_collection_distinct_is_server_evaluated(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1084,9 +1011,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_OrderBy_object(bool useString)
+        public override async Task Include_collection_OrderBy_object(bool async)
         {
-            base.Include_collection_OrderBy_object(useString);
+            await base.Include_collection_OrderBy_object(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
@@ -1096,9 +1023,9 @@ WHERE [o].[OrderID] < 10250
 ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
         }
 
-        public override void Include_collection_OrderBy_empty_list_contains(bool useString)
+        public override async Task Include_collection_OrderBy_empty_list_contains(bool async)
         {
-            base.Include_collection_OrderBy_empty_list_contains(useString);
+            await base.Include_collection_OrderBy_empty_list_contains(async);
 
             AssertSql(
                 @"@__p_1='1'
@@ -1123,9 +1050,9 @@ INNER JOIN (
 ORDER BY [t].[c], [t].[CustomerID]");
         }
 
-        public override void Include_collection_OrderBy_empty_list_does_not_contains(bool useString)
+        public override async Task Include_collection_OrderBy_empty_list_does_not_contains(bool async)
         {
-            base.Include_collection_OrderBy_empty_list_does_not_contains(useString);
+            await base.Include_collection_OrderBy_empty_list_does_not_contains(async);
 
             AssertSql(
                 @"@__p_1='1'
@@ -1150,9 +1077,9 @@ INNER JOIN (
 ORDER BY [t].[c], [t].[CustomerID]");
         }
 
-        public override void Include_collection_OrderBy_list_contains(bool useString)
+        public override async Task Include_collection_OrderBy_list_contains(bool async)
         {
-            base.Include_collection_OrderBy_list_contains(useString);
+            await base.Include_collection_OrderBy_list_contains(async);
 
             AssertSql(
                 @"@__p_1='1'
@@ -1175,9 +1102,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override void Include_collection_OrderBy_list_does_not_contains(bool useString)
+        public override async Task Include_collection_OrderBy_list_does_not_contains(bool async)
         {
-            base.Include_collection_OrderBy_list_does_not_contains(useString);
+            await base.Include_collection_OrderBy_list_does_not_contains(async);
 
             AssertSql(
                 @"@__p_1='1'
@@ -1200,10 +1127,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(
-            bool useString, bool async)
+        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(bool async)
         {
-            await base.Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(useString, async);
+            await base.Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(async);
 
             AssertSql(
                 @"SELECT CASE
@@ -1216,9 +1142,9 @@ WHERE ([e].[EmployeeID] = 1) OR ([e].[EmployeeID] = 2)
 ORDER BY [e].[EmployeeID]");
         }
 
-        public override async Task Multi_level_includes_are_applied_with_skip(bool useString, bool async)
+        public override async Task Multi_level_includes_are_applied_with_skip(bool async)
         {
-            await base.Multi_level_includes_are_applied_with_skip(useString, async);
+            await base.Multi_level_includes_are_applied_with_skip(async);
 
             AssertSql(
                 @"@__p_0='1'
@@ -1239,9 +1165,9 @@ LEFT JOIN (
 ORDER BY [t].[CustomerID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]");
         }
 
-        public override async Task Multi_level_includes_are_applied_with_take(bool useString, bool async)
+        public override async Task Multi_level_includes_are_applied_with_take(bool async)
         {
-            await base.Multi_level_includes_are_applied_with_take(useString, async);
+            await base.Multi_level_includes_are_applied_with_take(async);
 
             AssertSql(
                 @"@__p_0='1'
@@ -1265,9 +1191,9 @@ LEFT JOIN (
 ORDER BY [t0].[CustomerID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]");
         }
 
-        public override async Task Multi_level_includes_are_applied_with_skip_take(bool useString, bool async)
+        public override async Task Multi_level_includes_are_applied_with_skip_take(bool async)
         {
-            await base.Multi_level_includes_are_applied_with_skip_take(useString, async);
+            await base.Multi_level_includes_are_applied_with_skip_take(async);
 
             AssertSql(
     @"@__p_0='1'
@@ -1290,6 +1216,27 @@ LEFT JOIN (
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t1] ON [t0].[CustomerID] = [t1].[CustomerID]
 ORDER BY [t0].[CustomerID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]");
+        }
+
+        public override async Task Filtered_include_with_multiple_ordering(bool async)
+        {
+            await base.Filtered_include_with_multiple_ordering(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderID]
+        OFFSET 1 ROWS
+    ) AS [t]
+) AS [t0]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t0].[OrderDate] DESC, [t0].[OrderID]");
         }
 
         private void AssertSql(params string[] expected)

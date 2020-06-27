@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates a cache key.
         /// </summary>
         /// <param name="query"> The query to generate a cache key for. </param>
-        /// <param name="async"> True if the query will be executed asynchronously. </param>
+        /// <param name="async"> <see langword="true"/> if the query will be executed asynchronously. </param>
         /// <returns> An object representing a query cache key. </returns>
         object GenerateCacheKey([NotNull] Expression query, bool async);
     }

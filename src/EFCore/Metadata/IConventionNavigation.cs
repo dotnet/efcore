@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the inverse navigation.
         /// </summary>
         /// <param name="inverseName">
-        ///     The name of the inverse navigation property. Passing <c>null</c> will result in there being
+        ///     The name of the inverse navigation property. Passing <see langword="null" /> will result in there being
         ///     no inverse navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the inverse navigation.
         /// </summary>
         /// <param name="inverse">
-        ///     The name of the inverse navigation property. Passing <c>null</c> will result in there being
+        ///     The name of the inverse navigation property. Passing <see langword="null" /> will result in there being
         ///     no inverse navigation property defined.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

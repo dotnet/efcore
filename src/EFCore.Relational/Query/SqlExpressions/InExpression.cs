@@ -29,15 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
         /// <param name="subquery"> A subquery in which item is searched. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        [Obsolete("Use overload which passes negated argument after subquery argument.")]
         public InExpression(
             [NotNull] SqlExpression item,
             bool negated,
             [NotNull] SelectExpression subquery,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            : this(item, negated, null, subquery, typeMapping)
+            : this(Check.NotNull(item, nameof(item)), null, Check.NotNull(subquery, nameof(subquery)), negated, typeMapping)
         {
-            Check.NotNull(item, nameof(item));
-            Check.NotNull(subquery, nameof(subquery));
         }
 
         /// <summary>
@@ -47,26 +46,56 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
         /// <param name="values"> A list of values in which item is searched. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        [Obsolete("Use overload which passes negated argument after values argument.")]
         public InExpression(
             [NotNull] SqlExpression item,
             bool negated,
             [NotNull] SqlExpression values,
             [CanBeNull] RelationalTypeMapping typeMapping)
-            : this(item, negated, values, null, typeMapping)
+            : this(Check.NotNull(item, nameof(item)), Check.NotNull(values, nameof(values)), null, negated, typeMapping)
         {
-            Check.NotNull(item, nameof(item));
-            Check.NotNull(values, nameof(values));
+        }
+
+        /// <summary>
+        ///     Creates a new instance of the <see cref="InExpression" /> class.
+        /// </summary>
+        /// <param name="item"> An item to look into values. </param>
+        /// <param name="subquery"> A subquery in which item is searched. </param>
+        /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        public InExpression(
+            [NotNull] SqlExpression item,
+            [NotNull] SelectExpression subquery,
+            bool negated,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(Check.NotNull(item, nameof(item)), null, Check.NotNull(subquery, nameof(subquery)), negated, typeMapping)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of the <see cref="InExpression" /> class.
+        /// </summary>
+        /// <param name="item"> An item to look into values. </param>
+        /// <param name="values"> A list of values in which item is searched. </param>
+        /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        public InExpression(
+            [NotNull] SqlExpression item,
+            [NotNull] SqlExpression values,
+            bool negated,
+            [CanBeNull] RelationalTypeMapping typeMapping)
+            : this(Check.NotNull(item, nameof(item)), Check.NotNull(values, nameof(values)), null, negated, typeMapping)
+        {
         }
 
         private InExpression(
-            SqlExpression item, bool negated, SqlExpression values, SelectExpression subquery,
-            RelationalTypeMapping typeMapping)
+            SqlExpression item, SqlExpression values, SelectExpression subquery, bool negated, RelationalTypeMapping typeMapping)
             : base(typeof(bool), typeMapping)
         {
             Item = item;
-            IsNegated = negated;
             Subquery = subquery;
             Values = values;
+            IsNegated = negated;
         }
 
         /// <summary>
@@ -102,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Negates this expression by changing presence/absence state indicated by <see cref="IsNegated"/>.
         /// </summary>
         /// <returns> An expression which is negated form of this expression. </returns>
-        public virtual InExpression Negate() => new InExpression(Item, !IsNegated, Values, Subquery, TypeMapping);
+        public virtual InExpression Negate() => new InExpression(Item,  Values, Subquery, !IsNegated, TypeMapping);
 
         /// <summary>
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
@@ -124,12 +153,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return item != Item || subquery != Subquery || values != Values
-                ? new InExpression(item, IsNegated, values, subquery, TypeMapping)
+                ? new InExpression(item, values, subquery, IsNegated, TypeMapping)
                 : this;
         }
 
         /// <inheritdoc />
-        public override void Print(ExpressionPrinter expressionPrinter)
+        protected override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

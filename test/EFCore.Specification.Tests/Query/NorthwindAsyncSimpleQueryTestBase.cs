@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Query_backed_by_database_view()
         {
             using var context = CreateContext();
-            var results = await context.Set<ProductQuery>().ToArrayAsync();
+            var results = await context.Set<ProductView>().ToArrayAsync();
 
             Assert.Equal(69, results.Length);
         }

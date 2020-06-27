@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class SpatialQuerySqlServerGeometryTest : SpatialQueryTestBase<SpatialQuerySqlServerGeometryFixture>
+    public class SpatialQuerySqlServerGeometryTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeometryFixture>
     {
         public SpatialQuerySqlServerGeometryTest(SpatialQuerySqlServerGeometryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -19,12 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        protected override bool CanExecuteQueryString => true;
+
         public override async Task SimpleSelect(bool async)
         {
             await base.SimpleSelect(async);
 
             AssertSql(
-                @"SELECT [p].[Id], [p].[Geometry], [p].[Point]
+                @"SELECT [p].[Id], [p].[Geometry], [p].[Point], [p].[PointM], [p].[PointZ], [p].[PointZM]
 FROM [PointEntity] AS [p]");
         }
 

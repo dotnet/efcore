@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             modelBuilder.Entity<CustomerOrderHistory>().HasKey(coh => coh.ProductName);
             modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
 
-            modelBuilder.Entity<CustomerView>().HasNoKey().ToQuery(
+            modelBuilder.Entity<CustomerQuery>().HasNoKey().ToQuery(
                 () => CustomerQueries.FromSqlInterpolated(
                     $"SELECT [c].[CustomerID] + {_empty} as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]"
                 ));
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                         .Select(
                             o => new OrderQuery { CustomerID = o.CustomerID }));
 
-            modelBuilder.Entity<ProductQuery>().HasNoKey().ToView("Alphabetical list of products");
+            modelBuilder.Entity<ProductView>().HasNoKey().ToView("Alphabetical list of products");
         }
     }
 }

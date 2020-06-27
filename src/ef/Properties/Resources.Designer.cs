@@ -515,12 +515,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsNamespaceDescription");
 
         /// <summary>
-        ///     Remaining arguments: '{remainingArguments}'.
+        ///     Remaining arguments: {remainingArguments}.
         /// </summary>
         public static string RemainingArguments([CanBeNull] object remainingArguments)
             => string.Format(
                 GetString("RemainingArguments", nameof(remainingArguments)),
                 remainingArguments);
+
+        /// <summary>
+        ///     Suppress generation of the DbContext.OnConfiguring() method.
+        /// </summary>
+        public static string SuppressOnConfiguringDescription
+            => GetString("SuppressOnConfiguringDescription");
+
+        /// <summary>
+        ///     Don't use the pluralizer.
+        /// </summary>
+        public static string NoPluralizeDescription
+            => GetString("NoPluralizeDescription");
 
         private static string GetString(string name, params string[] formatterNames)
         {

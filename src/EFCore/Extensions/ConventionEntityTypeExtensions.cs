@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the root base type for a given entity type.
         /// </summary>
-        /// <param name="entityType"> The type to find the root of. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
@@ -32,19 +32,29 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionEntityType)((IEntityType)entityType).GetRootType();
 
         /// <summary>
-        ///     Gets all types in the model which a given entity type derives from.
+        ///     Gets all types in the model from which a given entity type derives, starting with the root.
         /// </summary>
-        /// <param name="entityType"> The type to find base types. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns>
         ///     The base types.
         /// </returns>
         public static IEnumerable<IConventionEntityType> GetAllBaseTypes([NotNull] this IConventionEntityType entityType)
-            => entityType.GetAllBaseTypesAscending().Reverse().Cast<IConventionEntityType>();
+            => entityType.GetAllBaseTypesAscending().Reverse();
+
+        /// <summary>
+        ///     Gets all types in the model from which a given entity type derives, starting with the closest one.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns>
+        ///     The base types.
+        /// </returns>
+        public static IEnumerable<IConventionEntityType> GetAllBaseTypesAscending([NotNull] this IConventionEntityType entityType)
+            => entityType.GetAllBaseTypesInclusiveAscending().Skip(1);
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
         /// </summary>
-        /// <param name="entityType"> The base type to find types that derive from. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> The derived types. </returns>
         public static IEnumerable<IConventionEntityType> GetDerivedTypes([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).GetDerivedTypes();
@@ -60,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets all types in the model that directly derive from a given entity type.
         /// </summary>
-        /// <param name="entityType"> The base type to find types that derive from. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> The derived types. </returns>
         public static IEnumerable<IConventionEntityType> GetDirectlyDerivedTypes([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).GetDirectlyDerivedTypes();
@@ -174,10 +184,10 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).RemoveProperty(name);
 
         /// <summary>
-        ///     Gets the primary or alternate key that is defined on the given property. Returns <c>null</c> if no key is defined
+        ///     Gets the primary or alternate key that is defined on the given property. Returns <see langword="null" /> if no key is defined
         ///     for the given property.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the key on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
         public static IConventionKey FindKey([NotNull] this IConventionEntityType entityType, [NotNull] IProperty property)
@@ -190,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Adds a new alternate key to this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to add the alternate key to. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to use as an alternate key. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created key. </returns>
@@ -203,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Removes a primary or alternate key from this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to add remove the key from. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key that was removed. </returns>
         public static IConventionKey RemoveKey(
@@ -245,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the foreign keys defined on the given property. Only foreign keys that are defined on exactly the specified
         ///     property are returned. Composite foreign keys that include the specified property are not returned.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IConventionForeignKey> FindForeignKeys(
@@ -256,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
         ///     set of properties are returned.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IConventionForeignKey> FindForeignKeys(
@@ -264,10 +274,10 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).FindForeignKeys(properties);
 
         /// <summary>
-        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <c>null</c>
+        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <see langword="null" />
         ///     if no foreign key is found.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
         /// <param name="principalEntityType">
@@ -275,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns> The foreign key, or <c>null</c> if none is defined. </returns>
+        /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
         public static IConventionForeignKey FindForeignKey(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IProperty property,
@@ -302,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
         ///     or a type it's derived from is the principal).
         /// </summary>
-        /// <param name="entityType"> The entity type to find the foreign keys for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> The foreign keys that reference the given entity type. </returns>
         public static IEnumerable<IConventionForeignKey> GetReferencingForeignKeys([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).GetReferencingForeignKeys();
@@ -311,23 +321,23 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
         ///     is the principal).
         /// </summary>
-        /// <param name="entityType"> The entity type to find the foreign keys for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> The foreign keys that reference the given entity type. </returns>
         public static IEnumerable<IConventionForeignKey> GetDeclaredReferencingForeignKeys([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).GetDeclaredReferencingForeignKeys();
 
         /// <summary>
-        ///     Returns the relationship to the owner if this is an owned type or <c>null</c> otherwise.
+        ///     Returns the relationship to the owner if this is an owned type or <see langword="null" /> otherwise.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the foreign keys on. </param>
-        /// <returns> The relationship to the owner if this is an owned type or <c>null</c> otherwise. </returns>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The relationship to the owner if this is an owned type or <see langword="null" /> otherwise. </returns>
         public static IConventionForeignKey FindOwnership([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).FindOwnership();
 
         /// <summary>
         ///     Adds a new relationship to this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to add the foreign key to. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
         /// <param name="principalEntityType">
@@ -349,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Removes a foreign key from this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to remove the foreign key from. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
         /// <param name="principalEntityType">
@@ -366,63 +376,63 @@ namespace Microsoft.EntityFrameworkCore
             => ((EntityType)entityType).RemoveForeignKey(properties, principalKey, principalEntityType);
 
         /// <summary>
-        ///     Gets a navigation property on the given entity type. Returns <c>null</c> if no navigation property is found.
+        ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the navigation property on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         public static IConventionNavigation FindNavigation(
             [NotNull] this IConventionEntityType entityType, [NotNull] MemberInfo memberInfo)
             => Check.NotNull(entityType, nameof(entityType))
                 .FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
         /// <summary>
-        ///     Gets a navigation property on the given entity type. Returns <c>null</c> if no navigation property is found.
+        ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the navigation property on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         public static IConventionNavigation FindNavigation([NotNull] this IConventionEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindNavigation(name);
 
         /// <summary>
         ///     Gets a navigation property on the given entity type. Does not return navigation properties defined on a base type.
-        ///     Returns <c>null</c> if no navigation property is found.
+        ///     Returns <see langword="null" /> if no navigation property is found.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the navigation property on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         public static IConventionNavigation FindDeclaredNavigation([NotNull] this IConventionEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
 
         /// <summary>
-        ///     Returns the defining navigation if one exists or <c>null</c> otherwise.
+        ///     Returns the defining navigation if one exists or <see langword="null" /> otherwise.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the defining navigation for. </param>
-        /// <returns> The defining navigation if one exists or <c>null</c> otherwise. </returns>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
         public static IConventionNavigation FindDefiningNavigation([NotNull] this IConventionEntityType entityType)
             => (IConventionNavigation)((IEntityType)entityType).FindDefiningNavigation();
 
         /// <summary>
         ///     Gets all navigation properties on the given entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to get navigation properties for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> All navigation properties on the given entity type. </returns>
         public static IEnumerable<IConventionNavigation> GetNavigations([NotNull] this IConventionEntityType entityType)
             => ((EntityType)entityType).GetNavigations();
 
         /// <summary>
         ///     <para>
-        ///         Gets a property on the given entity type. Returns <c>null</c> if no property is found.
+        ///         Gets a property on the given entity type. Returns <see langword="null" /> if no property is found.
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties. Use
         ///         <see cref="FindNavigation(IConventionEntityType, MemberInfo)" /> to find a navigation property.
         ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type to find the property on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The property on the entity class. </param>
-        /// <returns> The property, or <c>null</c> if none is found. </returns>
+        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
         public static IConventionProperty FindProperty([NotNull] this IConventionEntityType entityType, [NotNull] MemberInfo memberInfo)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -435,15 +445,15 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Finds matching properties on the given entity type. Returns <c>null</c> if any property is not found.
+        ///         Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties.
         ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type to find the properties on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="propertyNames"> The property names. </param>
-        /// <returns> The properties, or <c>null</c> if any property is not found. </returns>
+        /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
         public static IReadOnlyList<IConventionProperty> FindProperties(
             [NotNull] this IConventionEntityType entityType,
             [NotNull] IReadOnlyList<string> propertyNames)
@@ -453,16 +463,16 @@ namespace Microsoft.EntityFrameworkCore
         ///     Finds a property declared on the type with the given name.
         ///     Does not return properties defined on a base type.
         /// </summary>
-        /// <param name="entityType"> The entity type to find the property on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The property name. </param>
-        /// <returns> The property, or <c>null</c> if none is found. </returns>
+        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
         public static IConventionProperty FindDeclaredProperty([NotNull] this IConventionEntityType entityType, [NotNull] string name)
             => ((EntityType)entityType).FindDeclaredProperty(name);
 
         /// <summary>
         ///     Adds a property to this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="memberInfo"> The corresponding member on the entity class. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
@@ -477,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Adds a property to this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the property to add. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
@@ -490,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Adds a property to this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the property to add. </param>
         /// <param name="propertyType"> The type of value the property will hold. </param>
         /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
@@ -504,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Adds a property backed by and indexer to this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The name of the property to add. </param>
         /// <param name="propertyType"> The type of value the property will hold. </param>
         /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
@@ -527,9 +537,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets the index defined on the given property. Returns null if no index is defined.
+        ///     <para>
+        ///         Gets the unnamed index defined on the given property. Returns <see langword="null"/> if no such index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type to find the index on. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to find the index on. </param>
         /// <returns> The index, or null if none is found. </returns>
         public static IConventionIndex FindIndex([NotNull] this IConventionEntityType entityType, [NotNull] IProperty property)
@@ -542,7 +557,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Adds an index to this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to add the index to. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to be indexed. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created index. </returns>
@@ -555,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Removes an index from this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to remove the index from. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties that make up the index. </param>
         /// <returns> The index that was removed. </returns>
         public static IConventionIndex RemoveIndex(
@@ -567,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
         ///     context detects changes to properties for an instance of the entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the change tracking strategy for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="changeTrackingStrategy"> The strategy to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
@@ -583,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the configuration source for <see cref="EntityTypeExtensions.GetChangeTrackingStrategy" />.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetChangeTrackingStrategy" />. </returns>
         public static ConfigurationSource? GetChangeTrackingStrategyConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.ChangeTrackingStrategy)?.GetConfigurationSource();
@@ -591,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the query filter for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="queryFilter"> The LINQ expression filter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured filter. </returns>
@@ -607,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the configuration source for <see cref="EntityTypeExtensions.GetQueryFilter" />.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetQueryFilter" />. </returns>
         public static ConfigurationSource? GetQueryFilterConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.QueryFilter)?.GetConfigurationSource();
@@ -615,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the LINQ query used as the default source for queries of this type.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the defining query for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="definingQuery"> The LINQ query used as the default source. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured entity type. </returns>
@@ -631,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />. </returns>
         public static ConfigurationSource? GetDefiningQueryConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery)?.GetConfigurationSource();
@@ -639,14 +654,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the <see cref="IConventionProperty" /> that will be used for storing a discriminator value.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the discriminator property for. </param>
+        /// <param name="entityType"> The entity type. </param>
         public static IConventionProperty GetDiscriminatorProperty([NotNull] this IConventionEntityType entityType)
             => (IConventionProperty)((IEntityType)entityType).GetDiscriminatorProperty();
 
         /// <summary>
         ///     Sets the <see cref="IProperty" /> that will be used for storing a discriminator value.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the discriminator property for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="property"> The property to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The discriminator property. </returns>
@@ -660,8 +675,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the discriminator property.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> or <c>null</c> if no discriminator property has been set. </returns>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> or <see langword="null" /> if no discriminator property has been set. </returns>
         public static ConfigurationSource? GetDiscriminatorPropertyConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DiscriminatorProperty)
                 ?.GetConfigurationSource();
@@ -669,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the value indicating whether the discriminator mapping is complete.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the discriminator mapping complete for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="complete"> The value indicating whether the discriminator mapping is complete. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
@@ -686,7 +701,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value completeness.
         /// </summary>
-        /// <returns> The <see cref="ConfigurationSource" /> or <c>null</c> if discriminator completeness has not been set. </returns>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> or <see langword="null" /> if discriminator completeness has not been set. </returns>
         public static ConfigurationSource? GetDiscriminatorMappingCompleteConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete)
                 ?.GetConfigurationSource();
@@ -694,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the discriminator value for this entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the discriminator value for. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
@@ -711,6 +727,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Removes the discriminator value for this entity type.
         /// </summary>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> The removed discriminator value. </returns>
         public static object RemoveDiscriminatorValue([NotNull] this IConventionEntityType entityType)
             => entityType.RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue)?.Value;
@@ -718,7 +735,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value.
         /// </summary>
-        /// <returns> The <see cref="ConfigurationSource" /> or <c>null</c> if no discriminator value has been set. </returns>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> or <see langword="null" /> if no discriminator value has been set. </returns>
         public static ConfigurationSource? GetDiscriminatorValueConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DiscriminatorValue)
                 ?.GetConfigurationSource();

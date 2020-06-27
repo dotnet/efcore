@@ -175,7 +175,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the collection contains the specified parameter.
         /// </summary>
         /// <param name="value">The parameter to look for. Must be a <see cref="SqliteParameter" />.</param>
-        /// <returns>true if the collection contains the parameter; otherwise, false.</returns>
+        /// <returns><see langword="true"/> if the collection contains the parameter; otherwise, <see langword="false"/>. </returns>
         public override bool Contains(object value)
             => Contains((SqliteParameter)value);
 
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the collection contains the specified parameter.
         /// </summary>
         /// <param name="value">The parameter to look for.</param>
-        /// <returns>true if the collection contains the parameter; otherwise, false.</returns>
+        /// <returns><see langword="true"/> if the collection contains the parameter; otherwise, <see langword="false"/>. </returns>
         public virtual bool Contains(SqliteParameter value)
             => _parameters.Contains(value);
 
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the collection contains a parameter with the specified name.
         /// </summary>
         /// <param name="value">The name of the parameter.</param>
-        /// <returns>true if the collection contains the parameter; otherwise, false.</returns>
+        /// <returns><see langword="true"/> if the collection contains the parameter; otherwise, <see langword="false"/>. </returns>
         public override bool Contains(string value)
             => IndexOf(value) != -1;
 

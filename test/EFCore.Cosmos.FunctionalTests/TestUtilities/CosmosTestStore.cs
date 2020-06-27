@@ -5,18 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
+using System.Text.Json;
+using Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class CosmosTestStore : TestStore
     {
@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
+            ConnectionString = TestEnvironment.ConnectionString;
             _configureCosmos = extensionConfiguration == null
                 ? (Action<CosmosDbContextOptionsBuilder>)(b => b.ApplyConfiguration())
                 : (b =>
@@ -65,10 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         private static string CreateName(string name) => TestEnvironment.IsEmulator || name == "Northwind"
             ? name
-            : (name + _runId);
+            : name + _runId;
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
+        public string ConnectionString { get; }
 
         protected override DbContext CreateDefaultContext() => new TestStoreContext(this);
 
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             if (await context.Database.EnsureCreatedAsync())
             {
                 var cosmosClient = context.GetService<CosmosClientWrapper>();
-                var serializer = new JsonSerializer();
+                var serializer = CosmosClientWrapper.Serializer;
                 using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
                 using var sr = new StreamReader(fs);
                 using var reader = new JsonTextReader(sr);
@@ -166,30 +168,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                     var cosmosClient = context.Database.GetCosmosClient();
                     var database = cosmosClient.GetDatabase(Name);
                     var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
-                    while (containerIterator.HasMoreResults)
+                    await foreach (var containerProperties in containerIterator)
                     {
-                        foreach (var containerProperties in await containerIterator.ReadNextAsync())
+                        var container = database.GetContainer(containerProperties.Id);
+                        var partitionKey = containerProperties.PartitionKeyPath[1..];
+                        var itemIterator = container.GetItemQueryIterator<JObject>(
+                            new QueryDefinition("SELECT * FROM c"));
+
+                        var items = new List<(string Id, string PartitionKey)>();
+                        await foreach (var item in itemIterator)
                         {
-                            var container = database.GetContainer(containerProperties.Id);
-                            var partitionKey = containerProperties.PartitionKeyPath[1..];
-                            var itemIterator = container.GetItemQueryIterator<JObject>(
-                                new QueryDefinition("SELECT * FROM c"));
+                            items.Add((item["id"].ToString(), item[partitionKey]?.ToString()));
+                        }
 
-                            var items = new List<(string Id, string PartitionKey)>();
-                            while (itemIterator.HasMoreResults)
-                            {
-                                foreach (var item in await itemIterator.ReadNextAsync())
-                                {
-                                    items.Add((item["id"].ToString(), item[partitionKey]?.ToString()));
-                                }
-                            }
-
-                            foreach (var item in items)
-                            {
-                                await container.DeleteItemAsync<object>(
-                                    item.Id,
-                                    item.PartitionKey == null ? PartitionKey.None : new PartitionKey(item.PartitionKey));
-                            }
+                        foreach (var item in items)
+                        {
+                            await container.DeleteItemAsync<object>(
+                                item.Id,
+                                item.PartitionKey == null ? PartitionKey.None : new PartitionKey(item.PartitionKey));
                         }
                     }
 
@@ -282,6 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
             public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) => throw new NotImplementedException();
             public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IIndex FindIndex(string name) => throw new NotImplementedException();
             public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
             public IKey FindPrimaryKey() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => null;

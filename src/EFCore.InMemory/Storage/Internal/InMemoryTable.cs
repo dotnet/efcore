@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     /// </summary>
     public class InMemoryTable<TKey> : IInMemoryTable
     {
-        // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
         private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly Dictionary<TKey, object[]> _rows;
@@ -45,15 +43,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             EntityType = entityType;
             BaseTable = baseTable;
-            // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
             _keyValueFactory = entityType.FindPrimaryKey().GetPrincipalKeyValueFactory<TKey>();
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
             _rows = new Dictionary<TKey, object[]>(_keyValueFactory.EqualityComparer);
 
             foreach (var property in entityType.GetProperties())
             {
-                var converter = property.FindTypeMapping()?.Converter
-                    ?? property.GetValueConverter();
+                var converter = property.GetValueConverter()
+                    ?? property.FindTypeMapping()?.Converter;
 
                 if (converter != null)
                 {
@@ -314,16 +311,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             }
         }
 
-        // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
         private TKey CreateKey(IUpdateEntry entry)
-            => _keyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
+            => _keyValueFactory.CreateFromCurrentValues(entry);
 
         private static object SnapshotValue(IProperty property, ValueComparer comparer, IUpdateEntry entry)
         {
             var value = SnapshotValue(comparer, entry.GetCurrentValue(property));
 
-            var converter = property.FindTypeMapping()?.Converter
-                ?? property.GetValueConverter();
+            var converter = property.GetValueConverter()
+                ?? property.FindTypeMapping()?.Converter;
 
             if (converter != null)
             {

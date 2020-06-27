@@ -74,10 +74,11 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
                 .AddSingleton<IModelCodeGenerator, CSharpModelGenerator>()
                 .AddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<INamedConnectionStringResolver>(
                     new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                 .AddSingleton(reporter)
-                .AddSingleton<IPluralizer, NullPluralizer>()
+                .AddSingleton<IPluralizer, HumanizerPluralizer>()
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()

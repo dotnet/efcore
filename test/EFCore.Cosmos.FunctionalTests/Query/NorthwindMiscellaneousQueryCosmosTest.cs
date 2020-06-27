@@ -2064,7 +2064,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Projection_null_coalesce_operator(async);
 
             AssertSql(
-                @"SELECT c[""CustomerID""], c[""CompanyName""], ((c[""Region""] != null) ? c[""Region""] : ""ZZ"") AS Region
+                @"SELECT VALUE {""CustomerID"" : c[""CustomerID""], ""CompanyName"" : c[""CompanyName""], ""Region"" : ((c[""Region""] != null) ? c[""Region""] : ""ZZ"")}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -3616,7 +3616,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 @"@__p_0='5'
 @__p_1='10'
 
-SELECT c[""CustomerID""] AS Id
+SELECT VALUE {""Id"" : c[""CustomerID""]}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]
@@ -4123,6 +4123,20 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         public override Task Perform_identity_resolution_reuses_same_instances_across_joins(bool async)
         {
             return base.Perform_identity_resolution_reuses_same_instances_across_joins(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task All_client_and_server_top_level(bool async)
+            => base.All_client_and_server_top_level(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task All_client_or_server_top_level(bool async)
+            => base.All_client_or_server_top_level(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Single_non_scalar_projection_after_skip_uses_join(bool async)
+        {
+            return base.Single_non_scalar_projection_after_skip_uses_join(async);
         }
 
         private void AssertSql(params string[] expected)

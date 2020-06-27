@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindSelectQuerySqliteTest : NorthwindSelectQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class NorthwindSelectQuerySqliteTest : NorthwindSelectQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
         public NorthwindSelectQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -136,10 +136,6 @@ FROM ""Orders"" AS ""o""");
             => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(async);
 
         // Sqlite does not support cross/outer apply
-        public override void Select_nested_collection_multi_level()
-        {
-        }
-
         public override Task SelectMany_correlated_with_outer_1(bool async) => null;
 
         public override Task SelectMany_correlated_with_outer_2(bool async) => null;

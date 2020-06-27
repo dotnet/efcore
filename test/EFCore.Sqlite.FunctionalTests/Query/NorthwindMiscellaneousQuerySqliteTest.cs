@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindMiscellaneousQuerySqliteTest : NorthwindMiscellaneousQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class NorthwindMiscellaneousQuerySqliteTest : NorthwindMiscellaneousQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
         public NorthwindMiscellaneousQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -215,7 +215,6 @@ SELECT COUNT(*)
 FROM (
     SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
     FROM ""Customers"" AS ""c""
-    ORDER BY (SELECT 1)
     LIMIT -1 OFFSET @__p_0
 ) AS ""t""");
         }
@@ -239,8 +238,6 @@ FROM (
             => null;
 
         public override Task SelectMany_correlated_subquery_hard(bool async) => null;
-
-        public override Task AsQueryable_in_query_server_evals(bool async) => null;
 
         public override async Task Concat_string_int(bool async)
         {

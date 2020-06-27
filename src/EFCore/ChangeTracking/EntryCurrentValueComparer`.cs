@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="x"> The first object to compare. </param>
         /// <param name="y"> The second object to compare. </param>
-        /// <returns> True if the specified objects are equal; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified objects are equal; otherwise, <see langword="false"/>. </returns>
         public bool Equals(IUpdateEntry x, IUpdateEntry y)
             => Compare(x, y) == 0;
 

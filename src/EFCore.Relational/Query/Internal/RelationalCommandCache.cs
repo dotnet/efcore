@@ -19,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class RelationalCommandCache : IPrintableExpression
     {
-        private static readonly ConcurrentDictionary<object, object> _syncObjects
+        private static readonly ConcurrentDictionary<object, object> _locks
             = new ConcurrentDictionary<object, object>();
 
         private readonly IMemoryCache _memoryCache;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly RelationalParameterBasedQueryTranslationPostprocessor _relationalParameterBasedQueryTranslationPostprocessor;
+        private readonly RelationalParameterBasedSqlProcessor _relationalParameterBasedSqlProcessor;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,17 +35,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public RelationalCommandCache(
             [NotNull] IMemoryCache memoryCache,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            [NotNull] IRelationalParameterBasedQueryTranslationPostprocessorFactory relationalParameterBasedQueryTranslationPostprocessorFactory,
-            bool useRelationalNulls,
-            [NotNull] SelectExpression selectExpression)
+            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
+            [NotNull] SelectExpression selectExpression,
+            [NotNull] IReadOnlyList<ReaderColumn> readerColumns,
+            bool useRelationalNulls)
         {
             _memoryCache = memoryCache;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _selectExpression = selectExpression;
-            _relationalParameterBasedQueryTranslationPostprocessor = relationalParameterBasedQueryTranslationPostprocessorFactory.Create(useRelationalNulls);
+            ReaderColumns = readerColumns;
+            _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(useRelationalNulls);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IReadOnlyList<ReaderColumn> ReaderColumns { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,32 +66,39 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
-            retry:
-            if (!_memoryCache.TryGetValue(cacheKey, out IRelationalCommand relationalCommand))
+            if (_memoryCache.TryGetValue(cacheKey, out IRelationalCommand relationalCommand))
             {
-                if (!_syncObjects.TryAdd(cacheKey, value: null))
-                {
-                    goto retry;
-                }
-
-                try
-                {
-                    var (selectExpression, canCache) =
-                        _relationalParameterBasedQueryTranslationPostprocessor.Optimize(_selectExpression, parameters);
-                    relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
-
-                    if (canCache)
-                    {
-                        _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
-                    }
-                }
-                finally
-                {
-                    _syncObjects.TryRemove(cacheKey, out _);
-                }
+                return relationalCommand;
             }
 
-            return relationalCommand;
+            // When multiple threads attempt to start processing the same query (program startup / thundering
+            // herd), have only one actually process and block the others.
+            // Note that the following synchronization isn't perfect - some race conditions may cause concurrent
+            // processing. This is benign (and rare).
+            var compilationLock = _locks.GetOrAdd(cacheKey, _ => new object());
+            try
+            {
+                lock (compilationLock)
+                {
+                    if (!_memoryCache.TryGetValue(cacheKey, out relationalCommand))
+                    {
+                        var selectExpression = _relationalParameterBasedSqlProcessor.Optimize(
+                            _selectExpression, parameters, out var canCache);
+                        relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
+
+                        if (canCache)
+                        {
+                            _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
+                        }
+                    }
+
+                    return relationalCommand;
+                }
+            }
+            finally
+            {
+                _locks.TryRemove(cacheKey, out _);
+            }
         }
 
         /// <summary>
@@ -91,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.AppendLine("RelationalCommandCache.SelectExpression(");
             using (expressionPrinter.Indent())

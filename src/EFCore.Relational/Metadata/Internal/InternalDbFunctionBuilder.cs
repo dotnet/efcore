@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -12,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,6 +88,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual bool CanSetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetSchemaConfigurationSource())
                 || Metadata.Schema == schema;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionDbFunctionBuilder IsBuiltIn(bool builtIn, ConfigurationSource configurationSource)
+        {
+            if (CanSetIsBuiltIn(builtIn, configurationSource))
+            {
+                Metadata.SetIsBuiltIn(builtIn, configurationSource);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetIsBuiltIn(bool builtIn, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(Metadata.GetIsBuiltInConfigurationSource())
+                || Metadata.IsBuiltIn == builtIn;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -169,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         public virtual bool CanSetTranslation(
             [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, ConfigurationSource configurationSource)
-            => ((Metadata.IsScalar && !Metadata.IsAggregate) || configurationSource == ConfigurationSource.Explicit)
+            => (Metadata.IsScalar && !Metadata.IsAggregate || configurationSource == ConfigurationSource.Explicit)
                 && (configurationSource.Overrides(Metadata.GetTranslationConfigurationSource())
                     || Metadata.Translation == translation);
 
@@ -193,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         IConventionDbFunction IConventionDbFunctionBuilder.Metadata
         {
-            [DebuggerStepThrough] get => Metadata;
+            [DebuggerStepThrough]
+            get => Metadata;
         }
 
         /// <inheritdoc />
@@ -215,6 +244,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [DebuggerStepThrough]
         bool IConventionDbFunctionBuilder.CanSetSchema(string schema, bool fromDataAnnotation)
             => CanSetSchema(schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.IsBuiltIn(bool builtIn, bool fromDataAnnotation)
+            => IsBuiltIn(builtIn, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        bool IConventionDbFunctionBuilder.CanSetIsBuiltIn(bool builtIn, bool fromDataAnnotation)
+            => CanSetIsBuiltIn(builtIn, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]

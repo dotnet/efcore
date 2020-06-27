@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityTypeBuilder Builder { get; }
 
         /// <summary>
-        ///     Gets the base type of this entity type. Returns <c>null</c> if this is not a derived type in an inheritance hierarchy.
+        ///     Gets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         new IConventionEntityType BaseType { get; }
 
@@ -49,12 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Gets a value indicating whether the entity type has no keys.
-        ///     If <c>true</c> it will only be usable for queries.
+        ///     If <see langword="true" /> it will only be usable for queries.
         /// </summary>
         bool IsKeyless { get; }
 
         /// <summary>
-        ///     Sets the base type of this entity type. Returns <c>null</c> if this is not a derived type in an inheritance hierarchy.
+        ///     Sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         /// <param name="entityType"> The base entity type.</param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IConventionEntityType SetBaseType([CanBeNull] IConventionEntityType entityType, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Sets the base type of this entity type. Returns <c>null</c> if this is not a derived type in an inheritance hierarchy.
+        ///     Sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         /// <param name="entityType"> The base entity type.</param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -78,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Sets a value indicating whether the entity type has no keys.
-        ///     When set to <c>true</c> it will only be usable for queries.
-        ///     <c>null</c> to reset to default.
+        ///     When set to <see langword="true" /> it will only be usable for queries.
+        ///     <see langword="null" /> to reset to default.
         /// </summary>
         /// <param name="keyless"> A value indicating whether the entity type to has no keys. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -88,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Sets a value indicating whether the entity type has no keys.
-        ///     When set to <c>true</c> it will only be usable for queries.
-        ///     <c>null</c> to reset to default.
+        ///     When set to <see langword="true" /> it will only be usable for queries.
+        ///     <see langword="null" /> to reset to default.
         /// </summary>
         /// <param name="keyless"> A value indicating whether the entity type to has no keys. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => SetPrimaryKey(property == null ? null : new[] { property }, fromDataAnnotation);
 
         /// <summary>
-        ///     Gets primary key for this entity type. Returns <c>null</c> if no primary key is defined.
+        ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
         /// </summary>
-        /// <returns> The primary key, or <c>null</c> if none is defined. </returns>
+        /// <returns> The primary key, or <see langword="null" /> if none is defined. </returns>
         new IConventionKey FindPrimaryKey();
 
         /// <summary>
@@ -144,10 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given properties.
-        ///     Returns <c>null</c> if no key is defined for the given properties.
+        ///     Returns <see langword="null" /> if no key is defined for the given properties.
         /// </summary>
         /// <param name="properties"> The properties that make up the key. </param>
-        /// <returns> The key, or <c>null</c> if none is defined. </returns>
+        /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
         new IConventionKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Gets the foreign key for the given properties that points to a given primary or alternate key.
-        ///     Returns <c>null</c> if no foreign key is found.
+        ///     Returns <see langword="null" /> if no foreign key is found.
         /// </summary>
         /// <param name="properties"> The properties that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns> The foreign key, or <c>null</c> if none is defined. </returns>
+        /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
         new IConventionForeignKey FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
@@ -221,10 +221,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the skip navigation property to add. </param>
         /// <param name="memberInfo">
         ///     <para>
-        ///         The corresponding CLR type member or <c>null</c> for a shadow property.
+        ///         The corresponding CLR type member or <see langword="null" /> for a shadow property.
         ///     </para>
         ///     <para>
-        ///         An indexer with a <c>string</c> parameter and <c>object</c> return type can be used.
+        ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
         ///     </para>
         /// </param>
         /// <param name="targetEntityType"> The entity type that the skip navigation property will hold an instance(s) of.</param>
@@ -243,26 +243,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets a skip navigation property on this entity type. Returns <c>null</c> if no navigation property is found.
+        ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no navigation property is found.
         /// </summary>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         new IConventionSkipNavigation FindSkipNavigation([NotNull] MemberInfo memberInfo)
             => (IConventionSkipNavigation)((IEntityType)this).FindSkipNavigation(memberInfo);
 
         /// <summary>
-        ///     Gets a skip navigation property on this entity type. Returns <c>null</c> if no skip navigation property is found.
+        ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         new IConventionSkipNavigation FindSkipNavigation([NotNull] string name);
 
         /// <summary>
         ///     Gets a skip navigation property on this entity type. Does not return skip navigation properties defined on a base type.
-        ///     Returns <c>null</c> if no skip navigation property is found.
+        ///     Returns <see langword="null" /> if no skip navigation property is found.
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <c>null</c> if none is found. </returns>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         new IConventionSkipNavigation FindDeclaredSkipNavigation([NotNull] string name)
             => (IConventionSkipNavigation)((IEntityType)this).FindDeclaredSkipNavigation(name);
 
@@ -294,19 +294,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IConventionSkipNavigation RemoveSkipNavigation([NotNull] IConventionSkipNavigation navigation);
 
         /// <summary>
-        ///     Adds an index to this entity type.
+        ///     Adds an unnamed index to this entity type.
         /// </summary>
         /// <param name="properties"> The properties that are to be indexed. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created index. </returns>
-        IConventionIndex AddIndex([NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+        IConventionIndex AddIndex(
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the index defined on the given properties. Returns <c>null</c> if no index is defined.
+        ///     Adds a named index to this entity type.
+        /// </summary>
+        /// <param name="properties"> The properties that are to be indexed. </param>
+        /// <param name="name"> The name of the index. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created index. </returns>
+        IConventionIndex AddIndex(
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            [NotNull] string name,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
-        /// <returns> The index, or <c>null</c> if none is found. </returns>
+        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
         new IConventionIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+
+        /// <summary>
+        ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
+        /// </summary>
+        /// <param name="name"> The name of the index to find. </param>
+        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        new IConventionIndex FindIndex([NotNull] string name);
 
         /// <summary>
         ///     Gets the indexes defined on this entity type.
@@ -328,10 +354,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="propertyType"> The type of value the property will hold. </param>
         /// <param name="memberInfo">
         ///     <para>
-        ///         The corresponding CLR type member or <c>null</c> for a shadow property.
+        ///         The corresponding CLR type member or <see langword="null" /> for a shadow property.
         ///     </para>
         ///     <para>
-        ///         An indexer with a <c>string</c> parameter and <c>object</c> return type can be used.
+        ///         An indexer with a <see cref="string"/> parameter and <see cref="object"/> return type can be used.
         ///     </para>
         /// </param>
         /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
@@ -346,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets the property with a given name. Returns <c>null</c> if no property with the given name is defined.
+        ///         Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties. Use
@@ -355,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         /// <param name="name"> The name of the property. </param>
-        /// <returns> The property, or <c>null</c> if none is found. </returns>
+        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
         new IConventionProperty FindProperty([NotNull] string name);
 
         /// <summary>
@@ -389,14 +415,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     <para>
         ///         Gets the <see cref="IConventionServiceProperty" /> with a given name.
-        ///         Returns <c>null</c> if no property with the given name is defined.
+        ///         Returns <see langword="null" /> if no property with the given name is defined.
         ///     </para>
         ///     <para>
         ///         This API only finds service properties and does not find scalar or navigation properties.
         ///     </para>
         /// </summary>
         /// <param name="name"> The name of the property. </param>
-        /// <returns> The service property, or <c>null</c> if none is found. </returns>
+        /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
         new IConventionServiceProperty FindServiceProperty([NotNull] string name);
 
         /// <summary>

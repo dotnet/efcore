@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,
             CancellationToken cancellationToken = default)
         {
-            if (!await handleNode(node, cancellationToken))
+            if (!await handleNode(node, cancellationToken).ConfigureAwait(false))
             {
                 return;
             }
@@ -108,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             await TraverseGraphAsync(
                                 (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                                 handleNode,
-                                cancellationToken);
+                                cancellationToken)
+                                .ConfigureAwait(false);
                         }
                     }
                     else
@@ -117,7 +118,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         await TraverseGraphAsync(
                             (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                             handleNode,
-                            cancellationToken);
+                            cancellationToken)
+                            .ConfigureAwait(false);
                     }
                 }
             }

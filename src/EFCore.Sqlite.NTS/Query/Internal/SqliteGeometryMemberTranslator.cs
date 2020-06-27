@@ -106,15 +106,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         nullable: true,
                         argumentsPropagateNullability: new[] { true },
                         returnType),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant("Point")),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant("LineString")),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("POLYGON"), _sqlExpressionFactory.Constant("Polygon")),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant("MultiPoint")),
-                    new CaseWhenClause(
-                        _sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant("MultiLineString")),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant("MultiPolygon")),
-                    new CaseWhenClause(
-                        _sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"), _sqlExpressionFactory.Constant("GeometryCollection")));
+                    new[] {
+                        new CaseWhenClause(_sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant("Point")),
+                        new CaseWhenClause(_sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant("LineString")),
+                        new CaseWhenClause(_sqlExpressionFactory.Constant("POLYGON"), _sqlExpressionFactory.Constant("Polygon")),
+                        new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant("MultiPoint")),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant("MultiLineString")),
+                        new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant("MultiPolygon")),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"), _sqlExpressionFactory.Constant("GeometryCollection"))
+                    },
+                    null);
             }
 
             if (Equals(member, _ogcGeometryType))
@@ -135,19 +138,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         nullable: true,
                         argumentsPropagateNullability: new[] { true },
                         typeof(string)),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
-                    new CaseWhenClause(
-                        _sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
-                    new CaseWhenClause(_sqlExpressionFactory.Constant("POLYGON"), _sqlExpressionFactory.Constant(OgcGeometryType.Polygon)),
-                    new CaseWhenClause(
-                        _sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPoint)),
-                    new CaseWhenClause(
-                        _sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiLineString)),
-                    new CaseWhenClause(
-                        _sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
-                    new CaseWhenClause(
-                        _sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"),
-                        _sqlExpressionFactory.Constant(OgcGeometryType.GeometryCollection)));
+                    new[] {
+                        new CaseWhenClause(_sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
+                        new CaseWhenClause(_sqlExpressionFactory.Constant("POLYGON"), _sqlExpressionFactory.Constant(OgcGeometryType.Polygon)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPoint)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiLineString)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"),
+                            _sqlExpressionFactory.Constant(OgcGeometryType.GeometryCollection))
+                    },
+                    null);
             }
 
             return null;

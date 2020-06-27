@@ -143,8 +143,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IRelationalConnection connection)
         {
             command.Parameters.Clear();
-            await command.DisposeAsync();
-            await connection.CloseAsync();
+            await command.DisposeAsync().ConfigureAwait(false);
+            await connection.CloseAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var commandId = Guid.NewGuid();
             var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery);
 
-            await connection.OpenAsync(cancellationToken);
+            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -179,11 +179,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         commandId,
                         connection.ConnectionId,
                         startTime,
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
 
                 var result = interceptionResult.HasResult
                     ? interceptionResult.Result
-                    : await command.ExecuteNonQueryAsync(cancellationToken);
+                    : await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
 
                 if (logger != null)
                 {
@@ -196,7 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         result,
                         startTime,
                         stopwatch.Elapsed,
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -215,14 +217,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         exception,
                         startTime,
                         stopwatch.Elapsed,
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 throw;
             }
             finally
             {
-                await CleanupCommandAsync(command, connection);
+                await CleanupCommandAsync(command, connection).ConfigureAwait(false);
             }
         }
 
@@ -306,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var commandId = Guid.NewGuid();
             var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar);
 
-            await connection.OpenAsync(cancellationToken);
+            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -322,11 +325,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         commandId,
                         connection.ConnectionId,
                         startTime,
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
 
                 var result = interceptionResult.HasResult
                     ? interceptionResult.Result
-                    : await command.ExecuteScalarAsync(cancellationToken);
+                    : await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
 
                 if (logger != null)
                 {
@@ -339,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         result,
                         startTime,
                         stopwatch.Elapsed,
-                        cancellationToken);
+                        cancellationToken).ConfigureAwait(false);
                 }
 
                 return result;
@@ -358,14 +362,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         exception,
                         startTime,
                         stopwatch.Elapsed,
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 throw;
             }
             finally
             {
-                await CleanupCommandAsync(command, connection);
+                await CleanupCommandAsync(command, connection).ConfigureAwait(false);
             }
         }
 
@@ -478,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var commandId = Guid.NewGuid();
             var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
 
-            await connection.OpenAsync(cancellationToken);
+            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
             var startTime = DateTimeOffset.UtcNow;
             var stopwatch = Stopwatch.StartNew();
@@ -495,11 +500,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         commandId,
                         connection.ConnectionId,
                         startTime,
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
 
                 var reader = interceptionResult.HasResult
                     ? interceptionResult.Result
-                    : await command.ExecuteReaderAsync(cancellationToken);
+                    : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
 
                 if (logger != null)
                 {
@@ -512,12 +518,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         reader,
                         startTime,
                         stopwatch.Elapsed,
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 if (readerColumns != null)
                 {
-                    reader = await new BufferedDataReader(reader).InitializeAsync(readerColumns, cancellationToken);
+                    reader = await new BufferedDataReader(reader).InitializeAsync(readerColumns, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 var result = CreateRelationalDataReader(
@@ -545,7 +553,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         exception,
                         startTime,
                         stopwatch.Elapsed,
-                        cancellationToken);
+                        cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 throw;
@@ -554,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 if (!readerOpen)
                 {
-                    await CleanupCommandAsync(command, connection);
+                    await CleanupCommandAsync(command, connection).ConfigureAwait(false);
                 }
             }
         }

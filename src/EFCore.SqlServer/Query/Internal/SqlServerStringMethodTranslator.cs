@@ -68,9 +68,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
+        private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
+             = typeof(Enumerable).GetRuntimeMethods().Single(
+                 m => m.Name == nameof(Enumerable.FirstOrDefault)
+                 && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+
+        private static readonly MethodInfo _lastOrDefaultMethodInfoWithoutArgs
+             = typeof(Enumerable).GetRuntimeMethods().Single(
+                m => m.Name == nameof(Enumerable.LastOrDefault)
+                && m.GetParameters().Length == 1).MakeGenericMethod(new[] { typeof(char) });
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         private const char LikeEscapeChar = '\\';
+        private const string LikeEscapeString = "\\";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         "CHARINDEX",
                         new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
                         nullable: true,
-                        argumentsPropagateNullability: new [] { true, true },
+                        argumentsPropagateNullability: new[] { true, true },
                         typeof(long));
 
                     charIndexExpression = _sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
@@ -273,26 +284,28 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 if (pattern is SqlConstantExpression constantPattern)
                 {
-                     // Intentionally string.Empty since we don't want to match nulls here.
-#pragma warning disable CA1820 // Test for empty strings using string length
-                    if ((string)constantPattern.Value == string.Empty)
-#pragma warning restore CA1820 // Test for empty strings using string length
+                    if (!(constantPattern.Value is string patternValue))
+                    {
+                        return _sqlExpressionFactory.Like(
+                            instance,
+                            _sqlExpressionFactory.Constant(null, stringTypeMapping));
+                    }
+
+                    if (patternValue.Length == 0)
                     {
                         return _sqlExpressionFactory.Constant(true);
                     }
 
-                    return _sqlExpressionFactory.GreaterThan(
-                        _sqlExpressionFactory.Function(
-                            "CHARINDEX",
-                            new[] { pattern, instance },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
-                            typeof(int)),
-                        _sqlExpressionFactory.Constant(0));
+                    return patternValue.Any(IsLikeWildChar)
+                        ? _sqlExpressionFactory.Like(
+                            instance,
+                            _sqlExpressionFactory.Constant($"%{EscapeLikePattern(patternValue)}%"),
+                            _sqlExpressionFactory.Constant(LikeEscapeString))
+                        : _sqlExpressionFactory.Like(instance, _sqlExpressionFactory.Constant($"%{patternValue}%"));
                 }
 
                 return _sqlExpressionFactory.OrElse(
-                    _sqlExpressionFactory.Equal(
+                    _sqlExpressionFactory.Like(
                         pattern,
                         _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
                     _sqlExpressionFactory.GreaterThan(
@@ -303,6 +316,36 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             argumentsPropagateNullability: new[] { true, true },
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0)));
+            }
+
+            if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
+            {
+                var argument = arguments[0];
+                return _sqlExpressionFactory.Function(
+                    "SUBSTRING",
+                    new[] { argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true, true },
+                    method.ReturnType);
+            }
+
+
+            if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
+            {
+                var argument = arguments[0];
+                return _sqlExpressionFactory.Function(
+                    "SUBSTRING",
+                    new[] { argument,
+                          _sqlExpressionFactory.Function(
+                                "LEN",
+                                new[] { argument },
+                                nullable: true,
+                                argumentsPropagateNullability: new[] { true },
+                                typeof(int)),
+                        _sqlExpressionFactory.Constant(1) },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true, true },
+                    method.ReturnType);
             }
 
             if (_startsWithMethodInfo.Equals(method))
@@ -329,25 +372,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 // The pattern is constant. Aside from null or empty, we escape all special characters (%, _, \)
                 // in C# and send a simple LIKE
-                if (!(constantExpression.Value is string constantString))
+                if (!(constantExpression.Value is string patternValue))
                 {
                     return _sqlExpressionFactory.Like(
                         instance,
                         _sqlExpressionFactory.Constant(null, stringTypeMapping));
                 }
 
-                return constantString.Any(c => IsLikeWildChar(c))
+                return patternValue.Any(IsLikeWildChar)
                     ? _sqlExpressionFactory.Like(
                         instance,
                         _sqlExpressionFactory.Constant(
                             startsWith
-                                ? EscapeLikePattern(constantString) + '%'
-                                : '%' + EscapeLikePattern(constantString)),
-                        _sqlExpressionFactory.Constant(
-                            LikeEscapeChar.ToString())) // SQL Server has no char mapping, avoid value conversion warning)
+                                ? EscapeLikePattern(patternValue) + '%'
+                                : '%' + EscapeLikePattern(patternValue)),
+                        _sqlExpressionFactory.Constant(LikeEscapeString))
                     : _sqlExpressionFactory.Like(
                         instance,
-                        _sqlExpressionFactory.Constant(startsWith ? constantString + '%' : '%' + constantString));
+                        _sqlExpressionFactory.Constant(startsWith ? patternValue + '%' : '%' + patternValue));
             }
 
             // The pattern is non-constant, we use LEFT or RIGHT to extract substring and compare.

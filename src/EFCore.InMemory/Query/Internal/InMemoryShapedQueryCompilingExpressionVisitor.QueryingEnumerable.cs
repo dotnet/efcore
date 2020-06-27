@@ -28,23 +28,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly IEnumerable<ValueBuffer> _innerEnumerable;
             private readonly Func<QueryContext, ValueBuffer, T> _shaper;
             private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-            private readonly bool _performIdentityResolution;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+            private readonly bool _standAloneStateManager;
 
             public QueryingEnumerable(
                 QueryContext queryContext,
                 IEnumerable<ValueBuffer> innerEnumerable,
                 Func<QueryContext, ValueBuffer, T> shaper,
                 Type contextType,
-                IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-                bool performIdentityResolution)
+                bool standAloneStateManager)
             {
                 _queryContext = queryContext;
                 _innerEnumerable = innerEnumerable;
                 _shaper = shaper;
                 _contextType = contextType;
-                _logger = logger;
-                _performIdentityResolution = performIdentityResolution;
+                _queryLogger = queryContext.QueryLogger;
+                _standAloneStateManager = standAloneStateManager;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -63,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 private readonly IEnumerable<ValueBuffer> _innerEnumerable;
                 private readonly Func<QueryContext, ValueBuffer, T> _shaper;
                 private readonly Type _contextType;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-                private readonly bool _performIdentityResolution;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+                private readonly bool _standAloneStateManager;
                 private readonly CancellationToken _cancellationToken;
 
                 public Enumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken = default)
@@ -73,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _innerEnumerable = queryingEnumerable._innerEnumerable;
                     _shaper = queryingEnumerable._shaper;
                     _contextType = queryingEnumerable._contextType;
-                    _logger = queryingEnumerable._logger;
-                    _performIdentityResolution = queryingEnumerable._performIdentityResolution;
+                    _queryLogger = queryingEnumerable._queryLogger;
+                    _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                     _cancellationToken = cancellationToken;
                 }
 
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
                     catch (Exception exception)
                     {
-                        _logger.QueryIterationFailed(_contextType, exception);
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
                     }
@@ -123,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     if (_enumerator == null)
                     {
                         _enumerator = _innerEnumerable.GetEnumerator();
-                        _queryContext.InitializeStateManager(_performIdentityResolution);
+                        _queryContext.InitializeStateManager(_standAloneStateManager);
                     }
 
                     var hasNext = _enumerator.MoveNext();

@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 15);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory (Skip = "Issue#19247")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Projection_when_arithmetic_mixed_subqueries(bool async)
         {
@@ -1678,7 +1678,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Select(c => ss.Set<CustomerView>().FirstOrDefault(cv => cv.CompanyName == c.CompanyName)));
+                ss => ss.Set<Customer>().Select(c => ss.Set<CustomerQuery>().FirstOrDefault(cv => cv.CompanyName == c.CompanyName)));
         }
 
         [ConditionalTheory]

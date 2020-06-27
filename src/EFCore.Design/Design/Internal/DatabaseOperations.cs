@@ -46,13 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
-            Check.NotNull(args, nameof(args));
+            // Note: cannot assert that args is not null - as old versions of
+            // tools can still pass null.
 
             _reporter = reporter;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _language = language;
-            _args = args;
+            _args = args ?? Array.Empty<string>();
 
             _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
         }
@@ -75,7 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [CanBeNull] string contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool suppressOnConfiguring,
+            bool noPluralize)
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -103,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 new DatabaseModelFactoryOptions(tables, schemas),
-                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames },
+                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize },
                 new ModelCodeGenerationOptions
                 {
                     UseDataAnnotations = useDataAnnotations,
@@ -112,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ContextNamespace = finalContextNamespace,
                     Language = _language,
                     ContextDir = MakeDirRelative(outputDir, outputContextDir),
-                    ContextName = dbContextClassName
+                    ContextName = dbContextClassName,
+                    SuppressOnConfiguring = suppressOnConfiguring
                 });
 
             return scaffolder.Save(

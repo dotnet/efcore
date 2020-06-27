@@ -74,15 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> Logger { get; }
 
-        /// <summary>
-        ///     A correlation ID that allows this transaction to be identified and
-        ///     correlated across multiple database calls.
-        /// </summary>
+        /// <inheritdoc />
         public virtual Guid TransactionId { get; }
 
-        /// <summary>
-        ///     Commits all changes made to the database in the current transaction.
-        /// </summary>
+        /// <inheritdoc />
         public virtual void Commit()
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -125,9 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ClearTransaction();
         }
 
-        /// <summary>
-        ///     Discards all changes made to the database in the current transaction.
-        /// </summary>
+        /// <inheritdoc />
         public virtual void Rollback()
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -170,11 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ClearTransaction();
         }
 
-        /// <summary>
-        ///     Commits all changes made to the database in the current transaction asynchronously.
-        /// </summary>
-        /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <inheritdoc />
         public virtual async Task CommitAsync(CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -187,11 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _dbTransaction,
                     TransactionId,
                     startTime,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
 
                 if (!interceptionResult.IsSuppressed)
                 {
-                    await _dbTransaction.CommitAsync(cancellationToken);
+                    await _dbTransaction.CommitAsync(cancellationToken).ConfigureAwait(false);
                 }
 
                 await Logger.TransactionCommittedAsync(
@@ -200,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TransactionId,
                     startTime,
                     stopwatch.Elapsed,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -212,19 +203,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     e,
                     startTime,
                     stopwatch.Elapsed,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
 
                 throw;
             }
 
-            await ClearTransactionAsync(cancellationToken);
+            await ClearTransactionAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        /// <summary>
-        ///     Discards all changes made to the database in the current transaction asynchronously.
-        /// </summary>
-        /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <inheritdoc />
         public virtual async Task RollbackAsync(CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -237,11 +225,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _dbTransaction,
                     TransactionId,
                     startTime,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
 
                 if (!interceptionResult.IsSuppressed)
                 {
-                    await _dbTransaction.RollbackAsync(cancellationToken);
+                    await _dbTransaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
                 }
 
                 await Logger.TransactionRolledBackAsync(
@@ -250,7 +239,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TransactionId,
                     startTime,
                     stopwatch.Elapsed,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -262,17 +252,316 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     e,
                     startTime,
                     stopwatch.Elapsed,
-                    cancellationToken);
+                    cancellationToken)
+                    .ConfigureAwait(false);
 
                 throw;
             }
 
-            await ClearTransactionAsync(cancellationToken);
+            await ClearTransactionAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public virtual void CreateSavepoint(string name)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = Logger.CreatingTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = GetCreateSavepointSql(name);
+                    command.ExecuteNonQuery();
+                }
+
+                Logger.CreatedTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+            }
+            catch (Exception e)
+            {
+                Logger.TransactionError(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "CreateSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual async Task CreateSavepointAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.CreatingTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = GetCreateSavepointSql(name);
+                    await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await Logger.CreatedTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "CreateSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken).ConfigureAwait(false);
+
+                throw;
+            }
         }
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        ///     When implemented in a provider supporting transaction savepoints, this method should return an
+        ///     SQL statement which creates a savepoint with the given name.
         /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        protected virtual string GetCreateSavepointSql([NotNull] string name) => "SAVEPOINT " + name;
+
+        /// <inheritdoc />
+        public virtual void RollbackToSavepoint(string name)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = Logger.RollingBackToTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = GetRollbackToSavepointSql(name);
+                    command.ExecuteNonQuery();
+                }
+
+                Logger.RolledBackToTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+            }
+            catch (Exception e)
+            {
+                Logger.TransactionError(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "RollbackToSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual async Task RollbackToSavepointAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.RollingBackToTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = GetRollbackToSavepointSql(name);
+                    await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await Logger.RolledBackToTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "RollbackToSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken).ConfigureAwait(false);
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     When implemented in a provider supporting transaction savepoints, this method should return an
+        ///     SQL statement which rolls back a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        protected virtual string GetRollbackToSavepointSql([NotNull] string name) => "ROLLBACK TO " + name;
+
+        /// <inheritdoc />
+        public virtual void ReleaseSavepoint(string name)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = Logger.ReleasingTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = GetReleaseSavepointSql(name);
+                    command.ExecuteNonQuery();
+                }
+
+                Logger.ReleasedTransactionSavepoint(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime);
+            }
+            catch (Exception e)
+            {
+                Logger.TransactionError(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "ReleaseSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual async Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var startTime = DateTimeOffset.UtcNow;
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                var interceptionResult = await Logger.ReleasingTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (!interceptionResult.IsSuppressed)
+                {
+                    using var command = Connection.DbConnection.CreateCommand();
+                    command.Transaction = _dbTransaction;
+                    command.CommandText = GetReleaseSavepointSql(name);
+                    await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await Logger.ReleasedTransactionSavepointAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    startTime,
+                    cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await Logger.TransactionErrorAsync(
+                    Connection,
+                    _dbTransaction,
+                    TransactionId,
+                    "ReleaseSavepoint",
+                    e,
+                    startTime,
+                    stopwatch.Elapsed,
+                    cancellationToken).ConfigureAwait(false);
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         When implemented in a provider supporting transaction savepoints, this method should return an
+        ///         SQL statement which releases a savepoint with the given name.
+        ///     </para>
+        ///     <para>
+        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint "/> and <see cref="ReleaseSavepointAsync "/> should
+        ///         be overridden to do nothing.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        protected virtual string GetReleaseSavepointSql([NotNull] string name) => "RELEASE SAVEPOINT " + name;
+
+        /// <inheritdoc />
+        public virtual bool AreSavepointsSupported => true;
+
+        /// <inheritdoc />
         public virtual void Dispose()
         {
             if (!_disposed)
@@ -294,9 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public virtual async ValueTask DisposeAsync()
         {
             if (!_disposed)
@@ -305,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (_transactionOwned)
                 {
-                    await _dbTransaction.DisposeAsync();
+                    await _dbTransaction.DisposeAsync().ConfigureAwait(false);
 
                     Logger.TransactionDisposed(
                         Connection,
@@ -314,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         DateTimeOffset.UtcNow);
                 }
 
-                await ClearTransactionAsync();
+                await ClearTransactionAsync().ConfigureAwait(false);
             }
         }
 
@@ -346,13 +633,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Connection.CurrentTransaction == null || Connection.CurrentTransaction == this,
                 "Connection.CurrentTransaction is unexpected instance");
 
-            await Connection.UseTransactionAsync(null, cancellationToken);
+            await Connection.UseTransactionAsync(null, cancellationToken).ConfigureAwait(false);
 
             if (!_connectionClosed)
             {
                 _connectionClosed = true;
 
-                await Connection.CloseAsync();
+                await Connection.CloseAsync().ConfigureAwait(false);
             }
         }
 

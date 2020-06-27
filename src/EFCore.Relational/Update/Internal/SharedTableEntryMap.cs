@@ -19,11 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     {
         private readonly ITable _table;
         private readonly IUpdateAdapter _updateAdapter;
-        private readonly SharedTableEntryValueFactory<TValue> _createElement;
         private readonly IComparer<IUpdateEntry> _comparer;
-
-        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap
-            = new Dictionary<IUpdateEntry, TValue>();
+        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = new Dictionary<IUpdateEntry, TValue>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,56 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public SharedTableEntryMap(
             [NotNull] ITable table,
-            [NotNull] IUpdateAdapter updateAdapter,
-            [NotNull] SharedTableEntryValueFactory<TValue> createElement)
+            [NotNull] IUpdateAdapter updateAdapter)
         {
             _table = table;
             _updateAdapter = updateAdapter;
-            _createElement = createElement;
             _comparer = new EntryComparer(table);
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static Dictionary<(string Name, string Schema), SharedTableEntryMapFactory<TValue>>
-            CreateSharedTableEntryMapFactories(
-                [NotNull] IModel model,
-                [NotNull] IUpdateAdapter updateAdapter)
-        {
-            var sharedTablesMap = new Dictionary<(string, string), SharedTableEntryMapFactory<TValue>>();
-            foreach (var table in model.GetRelationalModel().Tables)
-            {
-                if (!table.IsSplit)
-                {
-                    continue;
-                }
-
-                var factory = CreateSharedTableEntryMapFactory(table, updateAdapter);
-
-                sharedTablesMap.Add((table.Name, table.Schema), factory);
-            }
-
-            return sharedTablesMap;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static SharedTableEntryMapFactory<TValue> CreateSharedTableEntryMapFactory(
-            [NotNull] ITable table,
-            [NotNull] IUpdateAdapter updateAdapter)
-            => createElement
-                => new SharedTableEntryMap<TValue>(
-                    table,
-                    updateAdapter,
-                    createElement);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TValue GetOrAddValue([NotNull] IUpdateEntry entry)
+        public virtual TValue GetOrAddValue([NotNull] IUpdateEntry entry, [NotNull] SharedTableEntryValueFactory<TValue> createElement)
         {
             var mainEntry = GetMainEntry(entry);
             if (_entryValueMap.TryGetValue(mainEntry, out var sharedCommand))
@@ -106,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 return sharedCommand;
             }
 
-            sharedCommand = _createElement(_table.Name, _table.Schema, _comparer);
+            sharedCommand = createElement(_table.Name, _table.Schema, _comparer);
             _entryValueMap.Add(mainEntry, sharedCommand);
 
             return sharedCommand;
@@ -118,12 +71,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsMainEntry([NotNull] IUpdateEntry entry) => !_table.GetInternalForeignKeys(entry.EntityType).Any();
+        public virtual bool IsMainEntry([NotNull] IUpdateEntry entry) => !_table.GetRowInternalForeignKeys(entry.EntityType).Any();
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {
             var entityType = entry.EntityType;
-            var foreignKeys = _table.GetInternalForeignKeys(entityType);
+            var foreignKeys = _table.GetRowInternalForeignKeys(entityType);
             foreach (var foreignKey in foreignKeys)
             {
                 var principalEntry = _updateAdapter.FindPrincipal(entry, foreignKey);
@@ -153,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private void AddAllDependentsInclusive(IUpdateEntry entry, List<IUpdateEntry> entries)
         {
             entries.Add(entry);
-            var foreignKeys = _table.GetReferencingInternalForeignKeys(entry.EntityType);
+            var foreignKeys = _table.GetReferencingRowInternalForeignKeys(entry.EntityType);
             if (!foreignKeys.Any())
             {
                 return;
@@ -179,9 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             public int Compare(IUpdateEntry x, IUpdateEntry y)
-                => !_table.GetInternalForeignKeys(x.EntityType).Any()
+                => !_table.GetRowInternalForeignKeys(x.EntityType).Any()
                     ? -1
-                    : !_table.GetInternalForeignKeys(y.EntityType).Any()
+                    : !_table.GetRowInternalForeignKeys(y.EntityType).Any()
                         ? 1
                         : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
         }

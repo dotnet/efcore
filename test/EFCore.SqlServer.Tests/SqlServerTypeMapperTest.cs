@@ -385,6 +385,30 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
+        [InlineData(true, false)]
+        [InlineData(null, false)]
+        [InlineData(true, null)]
+        [InlineData(null, null)]
+        public void Does_IndexAttribute_column_SQL_Server_string_mapping(bool? unicode, bool? fixedLength)
+        {
+            var model = CreateModel();
+            var entityType = model.FindEntityType(typeof(MyTypeWithIndexAttribute));
+            var property = entityType.FindProperty("Name");
+            property.SetIsUnicode(unicode);
+            property.SetIsFixedLength(fixedLength);
+            model.FinalizeModel();
+
+            var typeMapping = CreateTypeMapper().GetMapping(property);
+
+            Assert.Null(typeMapping.DbType);
+            Assert.Equal("nvarchar(450)", typeMapping.StoreType);
+            Assert.Equal(450, typeMapping.Size);
+            Assert.True(typeMapping.IsUnicode);
+            Assert.False(typeMapping.IsFixedLength);
+            Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [ConditionalTheory]
         [InlineData(false)]
         [InlineData(null)]
         public void Does_non_key_SQL_Server_string_mapping_ansi(bool? fixedLength)
@@ -600,6 +624,28 @@ namespace Microsoft.EntityFrameworkCore
             property.SetIsUnicode(false);
             property.SetIsFixedLength(fixedLength);
             entityType.AddIndex(property);
+
+            var typeMapping = CreateTypeMapper().GetMapping(property);
+
+            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal("varchar(900)", typeMapping.StoreType);
+            Assert.Equal(900, typeMapping.Size);
+            Assert.False(typeMapping.IsUnicode);
+            Assert.False(typeMapping.IsFixedLength);
+            Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(null)]
+        public void Does_IndexAttribute_column_SQL_Server_string_mapping_ansi(bool? fixedLength)
+        {
+            var model = CreateModel();
+            var entityType = model.FindEntityType(typeof(MyTypeWithIndexAttribute));
+            var property = entityType.FindProperty("Name");
+            property.SetIsUnicode(false);
+            property.SetIsFixedLength(fixedLength);
+            model.FinalizeModel();
 
             var typeMapping = CreateTypeMapper().GetMapping(property);
 

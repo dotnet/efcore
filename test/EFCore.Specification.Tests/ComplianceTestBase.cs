@@ -19,8 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void All_test_bases_must_be_implemented()
         {
             var concreteTests = TargetAssembly.GetTypes().Where(
-                    c =>
-                        c.BaseType != typeof(object)
+                    c => c.BaseType != typeof(object)
                         && !c.IsAbstract
                         && (c.IsPublic || c.IsNestedPublic))
                 .ToList();

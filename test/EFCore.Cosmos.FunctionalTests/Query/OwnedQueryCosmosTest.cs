@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -420,7 +419,7 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
             await base.Projecting_indexer_property_ignores_include(isAsync);
 
             AssertSql(
-                @"SELECT c[""PersonAddress""][""ZipCode""] AS Nation
+                @"SELECT VALUE {""Nation"" : c[""PersonAddress""][""ZipCode""]}
 FROM root c
 WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
         }
@@ -430,7 +429,7 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
             await base.Projecting_indexer_property_ignores_include_converted(isAsync);
 
             AssertSql(
-                @"SELECT c[""PersonAddress""][""ZipCode""] AS Nation
+                @"SELECT VALUE {""Nation"" : c[""PersonAddress""][""ZipCode""]}
 FROM root c
 WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
         }

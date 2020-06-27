@@ -309,8 +309,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void KeyPropertyChanged(
             InternalEntityEntry entry,
             IProperty property,
-            IReadOnlyList<IKey> containingPrincipalKeys,
-            IReadOnlyList<IForeignKey> containingForeignKeys,
+            IEnumerable<IKey> containingPrincipalKeys,
+            IEnumerable<IForeignKey> containingForeignKeys,
             object oldValue,
             object newValue)
         {
@@ -626,9 +626,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         foreach (InternalEntityEntry dependentEntry in dependents)
                         {
-                            if (!foreignKey.IsOwnership
-                                || (dependentEntry.EntityState != EntityState.Deleted
-                                    && dependentEntry.EntityState != EntityState.Detached))
+                            if ((!foreignKey.IsOwnership
+                                    || (dependentEntry.EntityState != EntityState.Deleted
+                                        && dependentEntry.EntityState != EntityState.Detached))
+                                && (!fromQuery
+                                    || foreignKey.DependentToPrincipal == null
+                                    || dependentEntry.GetCurrentValue(foreignKey.DependentToPrincipal) == null))
                             {
                                 // Add to collection on principal indicated by FK and set inverse navigation
                                 AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);

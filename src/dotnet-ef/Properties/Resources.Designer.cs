@@ -470,6 +470,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string MigrationsNamespaceDescription
             => GetString("MigrationsNamespaceDescription");
 
+        /// <summary>
+        ///     Suppress generation of the DbContext.OnConfiguring() method.
+        /// </summary>
+        public static string SuppressOnConfiguringDescription
+            => GetString("SuppressOnConfiguringDescription");
+
+        /// <summary>
+        ///     Don't use the pluralizer.
+        /// </summary>
+        public static string NoPluralizeDescription
+            => GetString("NoPluralizeDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

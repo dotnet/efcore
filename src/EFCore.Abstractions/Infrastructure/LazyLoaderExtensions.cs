@@ -16,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Loads a navigation property if it has not already been loaded.
         /// </summary>
         /// <typeparam name="TRelated"> The type of the navigation property. </typeparam>
-        /// <param name="loader">The loader instance, which may be <c>null</c>.</param>
+        /// <param name="loader">The loader instance, which may be <see langword="null" />.</param>
         /// <param name="entity"> The entity on which the navigation property is located. </param>
         /// <param name="navigationField"> A reference to the backing field for the navigation. </param>
         /// <param name="navigationName"> The navigation property name. </param>
         /// <returns>
-        ///     The loaded navigation property value, or the navigation property value unchanged if the loader is <c>null</c>.
+        ///     The loaded navigation property value, or the navigation property value unchanged if the loader is <see langword="null" />.
         /// </returns>
         public static TRelated Load<TRelated>(
             [CanBeNull] this ILazyLoader loader,

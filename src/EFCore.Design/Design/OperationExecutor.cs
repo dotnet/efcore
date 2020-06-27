@@ -448,6 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>useDatabaseNames</c>--Use table and column names directly from the database.</para>
             ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated entity types.</para>
             ///     <para><c>contextNamespace</c>--Specify to override the namespace of the generated DbContext class.</para>
+            ///     <para><c>noPluralize</c>--Don't use the pluralizer.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
@@ -471,12 +472,14 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var useDataAnnotations = (bool)args["useDataAnnotations"];
                 var overwriteFiles = (bool)args["overwriteFiles"];
                 var useDatabaseNames = (bool)args["useDatabaseNames"];
+                var suppressOnConfiguring = (bool)(args["suppressOnConfiguring"] ?? false);
+                var noPluralize = (bool)(args["noPluralize"] ?? false);
 
                 Execute(
                     () => executor.ScaffoldContextImpl(
                         provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
                         schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
-                        overwriteFiles, useDatabaseNames));
+                        overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize));
             }
         }
 
@@ -492,7 +495,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             [CanBeNull] string contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool suppressOnConfiguring,
+            bool noPluarlize)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
@@ -502,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var files = DatabaseOperations.ScaffoldContext(
                 provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
                 schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
-                overwriteFiles, useDatabaseNames);
+                overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluarlize);
 
             return new Hashtable { ["ContextFile"] = files.ContextFile, ["EntityTypeFiles"] = files.AdditionalFiles.ToArray() };
         }

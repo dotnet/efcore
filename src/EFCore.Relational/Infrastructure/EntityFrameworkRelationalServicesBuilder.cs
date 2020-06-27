@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalTypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IMethodCallTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
-                { typeof(IRelationalParameterBasedQueryTranslationPostprocessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) }
+                { typeof(IRelationalParameterBasedSqlProcessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) }
             };
 
         /// <summary>
@@ -167,8 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, RelationalSqlTranslatingExpressionVisitorFactory>();
             TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
             TryAdd<IQueryTranslationPreprocessorFactory, RelationalQueryTranslationPreprocessorFactory>();
-            TryAdd<IRelationalParameterBasedQueryTranslationPostprocessorFactory, RelationalParameterBasedQueryTranslationPostprocessorFactory>();
+            TryAdd<IRelationalParameterBasedSqlProcessorFactory, RelationalParameterBasedSqlProcessorFactory>();
             TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
+            TryAdd<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
@@ -191,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalQueryTranslationPostprocessorDependencies>()
                 .AddDependencySingleton<RelationalEvaluatableExpressionFilterDependencies>()
                 .AddDependencySingleton<RelationalQueryTranslationPreprocessorDependencies>()
-                .AddDependencySingleton<RelationalParameterBasedQueryTranslationPostprocessorDependencies>()
+                .AddDependencySingleton<RelationalParameterBasedSqlProcessorDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()
@@ -201,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalCompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
-                .AddDependencyScoped<RelationalQueryContextDependencies>();
+                .AddDependencyScoped<RelationalQueryContextDependencies>()
+                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
 
             return base.TryAddCoreServices();
         }

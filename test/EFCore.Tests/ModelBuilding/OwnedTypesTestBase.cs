@@ -43,9 +43,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owned = ownership.DeclaringEntityType;
                 Assert.Single(owned.GetForeignKeys());
                 Assert.Equal(nameof(CustomerDetails.CustomerId), owned.GetIndexes().Single().Properties.Single().Name);
-                Assert.Equal(
-                    new[] { "CustomerAlternateKey", nameof(CustomerDetails.CustomerId), nameof(CustomerDetails.Id) },
-                    owned.GetProperties().Select(p => p.Name));
                 Assert.NotNull(model.FindEntityType(typeof(CustomerDetails)));
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
             }
@@ -111,8 +108,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owned = ownership.DeclaringEntityType;
                 Assert.Single(owned.GetForeignKeys());
                 Assert.Equal(nameof(OneToOneOwnedWithField.OneToOneOwnerId), owned.GetIndexes().Single().Properties.Single().Name);
-                Assert.Equal(
-                    new[] { nameof(OneToOneOwnedWithField.OneToOneOwnerId) }, owned.GetProperties().Select(p => p.Name));
                 Assert.NotNull(model.FindEntityType(typeof(OneToOneOwnedWithField)));
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToOneOwnedWithField)));
             }
@@ -158,9 +153,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owned = ownership.DeclaringEntityType;
                 Assert.Single(owned.GetForeignKeys());
                 Assert.Equal(nameof(OneToManyOwnedWithField.OneToManyOwnerId), owned.GetIndexes().Single().Properties.Single().Name);
-                Assert.Equal(
-                    new[] { nameof(OneToManyOwnedWithField.OneToManyOwnerId), nameof(OneToManyOwnerWithField.Id) },
-                    owned.GetProperties().Select(p => p.Name));
                 Assert.NotNull(model.FindEntityType(typeof(OneToManyOwnedWithField)));
                 Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToManyOwnedWithField)));
             }
@@ -206,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owner = model.FindEntityType(typeof(Customer));
                 var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
                 Assert.Null(owner.FindProperty("foo"));
-                Assert.Equal(new[] { nameof(CustomerDetails.CustomerId), "foo" }, owned.GetProperties().Select(p => p.Name).ToArray());
+                Assert.Contains("foo", owned.GetProperties().Select(p => p.Name));
                 Assert.Equal(PropertyAccessMode.FieldDuringConstruction, owned.GetPropertyAccessMode());
                 Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, owned.GetChangeTrackingStrategy());
             }
@@ -223,9 +215,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var owner = model.FindEntityType(typeof(Customer));
                 var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
-                Assert.Equal(
-                    new[] { nameof(CustomerDetails.Id), nameof(CustomerDetails.CustomerId) },
-                    owned.GetProperties().Select(p => p.Name).ToArray());
                 Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey().Properties.Single().Name);
             }
 
@@ -425,9 +414,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(2, owned.GetIndexes().Count());
                 Assert.Equal("CustomerAlternateKey", owned.GetIndexes().First().Properties.Single().Name);
                 Assert.Equal("foo", owned.GetIndexes().Last().Properties.Single().Name);
-                Assert.Equal(
-                    new[] { nameof(Order.AnotherCustomerId), "CustomerAlternateKey", nameof(Order.CustomerId), "foo" },
-                    owned.GetProperties().Select(p => p.Name).ToArray());
                 Assert.Equal(PropertyAccessMode.FieldDuringConstruction, owned.GetPropertyAccessMode());
                 Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, owned.GetChangeTrackingStrategy());
 

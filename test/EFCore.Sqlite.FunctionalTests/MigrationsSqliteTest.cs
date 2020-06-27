@@ -118,6 +118,36 @@ be found in the docs.";
 );");
         }
 
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        [InlineData(null)]
+        public virtual async Task Create_table_with_computed_column(bool? stored)
+        {
+            await Test(
+                builder => { },
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
+                        e.Property<string>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}",
+                            stored);
+                    }),
+                model => { /* Scaffolding computed columns isn't supported in Sqlite */ });
+
+            var computedColumnTypeSql = stored == true ? " STORED" : "";
+
+            AssertSql(
+                $@"CREATE TABLE ""People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Sum"" AS (""X"" + ""Y""){computedColumnTypeSql},
+    ""X"" INTEGER NOT NULL,
+    ""Y"" INTEGER NOT NULL
+);");
+        }
+
         // In Sqlite, comments are only generated when creating a table
         public override async Task Alter_table_add_comment()
         {
@@ -212,10 +242,32 @@ be found in the docs.";
             Assert.Contains("Cannot add a column with non-constant default", ex.Message);
         }
 
-        public override Task Add_column_with_computedSql(bool? computedColumnStored)
-            => AssertNotSupportedAsync(
-                () => base.Add_column_with_computedSql(computedColumnStored),
-                SqliteStrings.ComputedColumnsNotSupported);
+        public override async Task Add_column_with_computedSql(bool? stored)
+        {
+            if (stored == true)
+            {
+                var ex = await Assert.ThrowsAsync<SqliteException>
+                    (() => base.Add_column_with_computedSql(stored));
+                Assert.Contains("cannot add a STORED column", ex.Message);
+                return;
+            }
+
+            await Test(
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
+                    }),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored),
+                model => { /* Scaffolding computed columns isn't supported in Sqlite */ });
+
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Sum"" AS (""X"" + ""Y"");");
+        }
 
         public override async Task Add_column_with_max_length()
         {
@@ -260,8 +312,23 @@ be found in the docs.";
                 @"ALTER TABLE ""People"" ADD ""Name"" TEXT COLLATE NOCASE NULL;");
         }
 
-        public override Task Add_column_computed_with_collation()
-            => AssertNotSupportedAsync(base.Add_column_computed_with_collation, SqliteStrings.ComputedColumnsNotSupported);
+        public override async Task Add_column_computed_with_collation()
+        {
+            await Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .HasComputedColumnSql("'hello'")
+                    .UseCollation(NonDefaultCollation),
+                model => { /* Scaffolding computed columns isn't supported in Sqlite */ });
+
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Name"" AS ('hello') COLLATE NOCASE;");
+        }
+
+        [ConditionalFact]
+        public override Task Add_column_with_check_constraint()
+            => AssertNotSupportedAsync(base.Add_column_with_check_constraint, SqliteStrings.InvalidMigrationOperation("CreateCheckConstraintOperation"));
 
         public override Task Alter_column_make_required()
             => AssertNotSupportedAsync(base.Alter_column_make_required, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
@@ -274,16 +341,20 @@ be found in the docs.";
             => AssertNotSupportedAsync(
                 base.Alter_column_make_required_with_composite_index, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
-        public override Task Alter_column_make_computed(bool? computedColumnStored)
+        public override Task Alter_column_make_computed(bool? stored)
             => AssertNotSupportedAsync(
-                () => base.Alter_column_make_computed(computedColumnStored),
+                () => base.Alter_column_make_computed(stored),
                 SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
         public override Task Alter_column_change_computed()
-            => AssertNotSupportedAsync(base.Alter_column_change_computed, SqliteStrings.ComputedColumnsNotSupported);
+            => AssertNotSupportedAsync(
+                () => base.Alter_column_change_computed(),
+                SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
         public override Task Alter_column_change_computed_type()
-            => AssertNotSupportedAsync(base.Alter_column_change_computed, SqliteStrings.ComputedColumnsNotSupported);
+            => AssertNotSupportedAsync(
+                () => base.Alter_column_change_computed_type(),
+                SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
 
         public override Task Alter_column_add_comment()
             => AssertNotSupportedAsync(base.Alter_column_add_comment, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
@@ -386,6 +457,10 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
         public override Task Add_check_constraint_with_name()
             => AssertNotSupportedAsync(
                 base.Add_check_constraint_with_name, SqliteStrings.InvalidMigrationOperation("CreateCheckConstraintOperation"));
+
+        public override Task Alter_check_constraint()
+            => AssertNotSupportedAsync(
+                base.Alter_check_constraint, SqliteStrings.InvalidMigrationOperation("DropCheckConstraintOperation"));
 
         public override Task Drop_check_constraint()
             => AssertNotSupportedAsync(base.Drop_check_constraint, SqliteStrings.InvalidMigrationOperation("DropCheckConstraintOperation"));

@@ -42,12 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             => GetString("SequencesNotSupported");
 
         /// <summary>
-        ///     SQLite doesn't support computed columns. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
-        /// </summary>
-        public static string ComputedColumnsNotSupported
-            => GetString("ComputedColumnsNotSupported");
-
-        /// <summary>
         ///     SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.
         /// </summary>
         public static string OrderByNotSupported([CanBeNull] object type)
@@ -56,20 +50,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 type);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different geometric dimensions.
-        /// </summary>
-        public static string DuplicateColumnNameDimensionMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
-            => string.Format(
-                GetString("DuplicateColumnNameDimensionMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
-                entityType1, property1, entityType2, property2, columnName, table);
-
-        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.
         /// </summary>
         public static string DuplicateColumnNameSridMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
             => string.Format(
                 GetString("DuplicateColumnNameSridMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     SQLite cannot apply aggregate operator '{aggregateOperator}' on expression of type '{type}'. Convert the values to a supported type or use LINQ to Objects to aggregate the results.
+        /// </summary>
+        public static string AggregateOperationNotSupported([CanBeNull] object aggregateOperator, [CanBeNull] object type)
+            => string.Format(
+                GetString("AggregateOperationNotSupported", nameof(aggregateOperator), nameof(type)),
+                aggregateOperator, type);
 
         private static string GetString(string name, params string[] formatterNames)
         {

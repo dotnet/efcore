@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         The common use case is when the metadata object was removed or replaced by the convention.
         ///     </para>
         /// </summary>
-        /// <param name="result"> The new metadata object or <c>null</c>. </param>
+        /// <param name="result"> The new metadata object or <see langword="null" />. </param>
         public virtual void StopProcessing(TMetadata result)
         {
             _stopProcessing = true;

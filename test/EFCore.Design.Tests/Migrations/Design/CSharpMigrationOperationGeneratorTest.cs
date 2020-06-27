@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     ClrType = typeof(int),
                     ComputedColumnSql = "1",
-                    ComputedColumnIsStored = true
+                    IsStored = true
                 },
                 "mb.AddColumn<int>("
                 + _eol
@@ -180,14 +180,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    computedColumnSql: \"1\","
                 + _eol
-                + "    computedColumnIsStored: true);",
+                + "    stored: true);",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(typeof(int), o.ClrType);
                     Assert.Equal("1", o.ComputedColumnSql);
-                    Assert.True(o.ComputedColumnIsStored);
+                    Assert.True(o.IsStored);
                 });
         }
 
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Table = "Post",
                     ClrType = typeof(int),
                     ComputedColumnSql = "1",
-                    ComputedColumnIsStored = true
+                    IsStored = true
                 },
                 "mb.AlterColumn<int>("
                 + _eol
@@ -751,13 +751,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    computedColumnSql: \"1\","
                 + _eol
-                + "    computedColumnIsStored: true);",
+                + "    stored: true);",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("1", o.ComputedColumnSql);
-                    Assert.True(o.ComputedColumnIsStored);
+                    Assert.True(o.IsStored);
                     Assert.Equal(typeof(int), o.ClrType);
                     Assert.Null(o.ColumnType);
                     Assert.Null(o.IsUnicode);
@@ -779,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.DefaultValue);
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
-                    Assert.Null(o.OldColumn.ComputedColumnIsStored);
+                    Assert.Null(o.OldColumn.IsStored);
                 });
         }
 
@@ -1313,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             Table = "Post",
                             ClrType = typeof(int),
                             ComputedColumnSql = "1",
-                            ComputedColumnIsStored = true
+                            IsStored = true
                         }
                     }
                 },
@@ -1325,7 +1325,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    {"
                 + _eol
-                + "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\", computedColumnIsStored: true)"
+                + "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\", stored: true)"
                 + _eol
                 + "    },"
                 + _eol
@@ -1342,7 +1342,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Columns[0].Table);
                     Assert.Equal(typeof(int), o.Columns[0].ClrType);
                     Assert.Equal("1", o.Columns[0].ComputedColumnSql);
-                    Assert.True(o.Columns[0].ComputedColumnIsStored);
+                    Assert.True(o.Columns[0].IsStored);
                 });
         }
 
@@ -2661,6 +2661,61 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(0));
                     Assert.Equal(1, o.Values.GetLength(1));
                     Assert.Equal(_point1, o.Values[0, 0]);
+                });
+        }
+
+        [ConditionalFact]
+        public void InsertDataOperation_required_empty_array()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "Tags" },
+                    Values = new object[,] { { new string[0] } }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    column: \"Tags\","
+                + _eol
+                + "    value: new string[0]);",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Single(o.Columns);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal(new string[0], (string[])o.Values[0, 0]);
+                });
+        }
+
+        [ConditionalFact]
+        public void InsertDataOperation_required_empty_array_composite()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "First Name", "Last Name", "Geometry" },
+                    Values = new object[,] { { "John", "Snow", new string[0] } }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    columns: new[] { \"First Name\", \"Last Name\", \"Geometry\" },"
+                + _eol
+                + "    values: new object[] { \"John\", \"Snow\", new string[0] });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
+                    Assert.Equal("Snow", o.Values[0, 1]);
+                    Assert.Equal(new string[0], (string[])o.Values[0, 2]);
                 });
         }
 

@@ -68,6 +68,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
+        public void Clear() => throw new NotImplementedException();
+
         public bool SavingChanges => throw new NotImplementedException();
 
         public IEnumerable<TEntity> GetNonDeletedEntities<TEntity>()

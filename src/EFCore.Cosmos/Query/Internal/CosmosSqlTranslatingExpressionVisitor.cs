@@ -11,6 +11,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -35,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private static readonly MethodInfo _concatMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _stringEqualsWithStringComparison
+            = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) });
+        private static readonly MethodInfo _stringEqualsWithStringComparisonStatic
+            = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
 
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
@@ -69,7 +74,44 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual string TranslationErrorDetails { get; private set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void AddTranslationErrorDetails([NotNull] string details)
+        {
+            Check.NotNull(details, nameof(details));
+
+            if (TranslationErrorDetails == null)
+            {
+                TranslationErrorDetails = details;
+            }
+            else
+            {
+                TranslationErrorDetails += Environment.NewLine + details;
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual SqlExpression Translate([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            TranslationErrorDetails = null;
+
+            return TranslateInternal(expression);
+        }
+
+        private SqlExpression TranslateInternal(Expression expression)
         {
             var result = Visit(expression);
 
@@ -120,6 +162,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
             var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
+            // Remove convert-to-object nodes if both sides have them, or if the other side is null constant
+            var isLeftConvertToObject = TryUnwrapConvertToObject(left, out var leftOperand);
+            var isRightConvertToObject = TryUnwrapConvertToObject(right, out var rightOperand);
+            if (isLeftConvertToObject && isRightConvertToObject)
+            {
+                left = leftOperand;
+                right = rightOperand;
+            }
+            else if (isLeftConvertToObject && right.IsNullConstantExpression())
+            {
+                left = leftOperand;
+            }
+            else if (isRightConvertToObject && left.IsNullConstantExpression())
+            {
+                right = rightOperand;
+            }
+
             var visitedLeft = Visit(left);
             var visitedRight = Visit(right);
 
@@ -152,6 +211,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     sqlLeft,
                     sqlRight,
                     null);
+
+            static bool TryUnwrapConvertToObject(Expression expression, out Expression operand)
+            {
+                if (expression is UnaryExpression convertExpression
+                    && (convertExpression.NodeType == ExpressionType.Convert
+                        || convertExpression.NodeType == ExpressionType.ConvertChecked)
+                    && expression.Type == typeof(object))
+                {
+                    operand = convertExpression.Operand;
+                    return true;
+                }
+
+                operand = null;
+                return false;
+            }
         }
 
         /// <summary>
@@ -416,7 +490,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
             }
 
-            return _methodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+            var translation = _methodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+
+            if (translation == null)
+            {
+                if (methodCallExpression.Method == _stringEqualsWithStringComparison
+                    || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic)
+                {
+                    AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+                }
+                else
+                {
+                    AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateMethod(
+                        methodCallExpression.Method.Name,
+                        methodCallExpression.Method.DeclaringType?.DisplayName()));
+                }
+            }
+
+            return translation;
 
             static Expression RemoveObjectConvert(Expression expression)
                 => expression is UnaryExpression unaryExpression
@@ -485,6 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _sqlExpressionFactory.Not(sqlOperand);
 
                 case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
                     return _sqlExpressionFactory.Negate(sqlOperand);
 
                 case ExpressionType.Convert:
@@ -516,6 +608,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var result = member.MemberInfo != null
                 ? entityReferenceExpression.ParameterEntity.BindMember(member.MemberInfo, entityReferenceExpression.Type, clientEval: false, out _)
                 : entityReferenceExpression.ParameterEntity.BindMember(member.Name, entityReferenceExpression.Type, clientEval: false, out _);
+
+            if (result == null)
+            {
+                AddTranslationErrorDetails(
+                    CoreStrings.QueryUnableToTranslateMember(
+                        member.Name,
+                        entityReferenceExpression.EntityType.DisplayName()));
+            }
 
             return result switch
             {

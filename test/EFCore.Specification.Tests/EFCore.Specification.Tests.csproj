@@ -6,7 +6,6 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Specification.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
@@ -14,15 +13,17 @@
   <ItemGroup>
     <Compile Include="..\..\src\Shared\*.cs" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore\EFCore.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="$(NetTopologySuiteVersion)" />
-    <PackageReference Include="xunit" Version="$(XUnitVersion)" />
+    <PackageReference Include="NetTopologySuite" Version="2.0.0" />
+    <PackageReference Include="xunit.assert" Version="$(XUnitVersion)" />
+    <PackageReference Include="xunit.core" Version="$(XUnitVersion)" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
 </Project>

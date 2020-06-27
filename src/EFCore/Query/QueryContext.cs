@@ -17,7 +17,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     The principal data structure used by a compiled query during execution.
+    ///     <para>
+    ///         The principal data structure used by a compiled query during execution.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public abstract class QueryContext : IParameterValues
     {
@@ -43,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Gets the current DbContext.
+        ///     The current DbContext in using while executing the query.
         /// </summary>
         public virtual DbContext Context => Dependencies.CurrentContext.Context;
 
@@ -53,11 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryContextDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Sets the navigation as loaded.
+        ///     Sets the navigation for given entity as loaded.
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <param name="navigation"> The navigation property. </param>
-        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigation navigation)
+        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigationBase navigation)
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotNull(navigation, nameof(navigation));
@@ -68,64 +74,47 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The query provider.
         /// </summary>
-        /// <value>
-        ///     The query provider.
-        /// </value>
+        [Obsolete("The service requiring IQueryProvider should inject it directly.")]
         public virtual IQueryProvider QueryProvider
             => Dependencies.QueryProvider;
 
         /// <summary>
-        ///     The execution strategy factory.
+        ///     The execution strategy factory to use while executing the query.
         /// </summary>
-        /// <value>
-        ///     The execution strategy factory.
-        /// </value>
         public virtual IExecutionStrategyFactory ExecutionStrategyFactory
             => Dependencies.ExecutionStrategyFactory;
 
         /// <summary>
-        ///     Gets the concurrency detector.
+        ///     The concurrency detector to use while executing the query.
         /// </summary>
-        /// <value>
-        ///     The concurrency detector.
-        /// </value>
         public virtual IConcurrencyDetector ConcurrencyDetector
             => Dependencies.ConcurrencyDetector;
 
         /// <summary>
-        ///     Gets or sets the cancellation token.
+        ///     The cancellation token to use while executing the query.
         /// </summary>
-        /// <value>
-        ///     The cancellation token.
-        /// </value>
         public virtual CancellationToken CancellationToken { get; set; }
 
         /// <summary>
-        ///     Gets or sets the cancellation token.
+        ///     The command logger to use while executing the query.
         /// </summary>
-        /// <value>
-        ///     The cancellation token.
-        /// </value>
         public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger
             => Dependencies.CommandLogger;
 
         /// <summary>
-        ///     Gets or sets the cancellation token.
+        ///     The query logger to use while executing the query.
         /// </summary>
-        /// <value>
-        ///     The cancellation token.
-        /// </value>
         public virtual IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger
             => Dependencies.QueryLogger;
 
         /// <summary>
-        ///     The parameter values.
+        ///     The parameter values to use while executing the query.
         /// </summary>
         public virtual IReadOnlyDictionary<string, object> ParameterValues
             => (IReadOnlyDictionary<string, object>)_parameterValues;
 
         /// <summary>
-        ///     Adds a parameter.
+        ///     Adds a parameter to <see cref="ParameterValues"/> for this query.
         /// </summary>
         /// <param name="name"> The name. </param>
         /// <param name="value"> The value. </param>

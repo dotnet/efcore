@@ -39,6 +39,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class Post
@@ -100,6 +102,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class Post
@@ -155,6 +159,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+
+#nullable disable
 
 namespace TestNamespace
 {
@@ -212,6 +218,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+
+#nullable disable
 
 namespace TestNamespace
 {
@@ -281,6 +289,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 namespace TestNamespace
 {
     public partial class Post
@@ -316,6 +326,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+
+#nullable disable
 
 namespace TestNamespace
 {
@@ -353,6 +365,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 namespace TestNamespace
 {
     [Keyless]
@@ -367,6 +381,8 @@ namespace TestNamespace
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
 
 namespace TestNamespace
 {
@@ -387,7 +403,7 @@ namespace TestNamespace
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
             }
         }
@@ -408,6 +424,114 @@ namespace TestNamespace
                     var entityType = model.FindEntityType("TestNamespace.Vista");
                     Assert.Null(entityType.FindPrimaryKey());
                 });
+        }
+
+        [ConditionalFact]
+        public void Entity_with_multiple_indexes_generates_multiple_IndexAttributes()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithIndexes",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("A");
+                            x.Property<int>("B");
+                            x.Property<int>("C");
+                            x.HasKey("Id");
+                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                                .IsUnique();
+                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    var entityFile = code.AdditionalFiles.First(f => f.Path == "EntityWithIndexes.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    [Index(nameof(A), nameof(B), Name = ""IndexOnAAndB"", IsUnique = true)]
+    [Index(nameof(B), nameof(C), Name = ""IndexOnBAndC"")]
+    public partial class EntityWithIndexes
+    {
+        [Key]
+        public int Id { get; set; }
+        public int A { get; set; }
+        public int B { get; set; }
+        public int C { get; set; }
+    }
+}
+",
+                        entityFile.Code, ignoreLineEndingDifferences: true);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes");
+                    var indexes = entityType.GetIndexes();
+                    Assert.Equal(2, indexes.Count());
+                    Assert.Equal("IndexOnAAndB", indexes.First().Name);
+                    Assert.Equal("IndexOnBAndC", indexes.Skip(1).First().Name);
+                });
+        }
+
+        [ConditionalFact]
+        public void Entity_with_indexes_generates_IndexAttribute_only_for_indexes_without_annotations()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithIndexes",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("A");
+                            x.Property<int>("B");
+                            x.Property<int>("C");
+                            x.HasKey("Id");
+                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                                .IsUnique();
+                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
+                                .HasFilter("Filter SQL");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    var entityFile = code.AdditionalFiles.First(f => f.Path == "EntityWithIndexes.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    [Index(nameof(A), nameof(B), Name = ""IndexOnAAndB"", IsUnique = true)]
+    public partial class EntityWithIndexes
+    {
+        [Key]
+        public int Id { get; set; }
+        public int A { get; set; }
+        public int B { get; set; }
+        public int C { get; set; }
+    }
+}
+",
+                        entityFile.Code, ignoreLineEndingDifferences: true);
+                },
+                model =>
+                    Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
         }
     }
 }

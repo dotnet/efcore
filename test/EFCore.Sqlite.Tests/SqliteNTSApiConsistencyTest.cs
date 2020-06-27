@@ -34,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore
             public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>()
             {
                 typeof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions),
-                typeof(SqliteNetTopologySuitePropertyBuilderExtensions),
                 typeof(SqliteNetTopologySuiteServiceCollectionExtensions)
             };
         }

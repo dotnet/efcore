@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Connection, b =>
                 {
                     b.CommandTimeout(CommandTimeout);
+                    b.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
                     configureSqlite?.Invoke(b);
                 });
 

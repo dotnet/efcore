@@ -39,8 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<string, SkipNavigation> _skipNavigations
             = new SortedDictionary<string, SkipNavigation>(StringComparer.Ordinal);
 
-        private readonly SortedDictionary<IReadOnlyList<IProperty>, Index> _indexes
+        private readonly SortedDictionary<IReadOnlyList<IProperty>, Index> _unnamedIndexes
             = new SortedDictionary<IReadOnlyList<IProperty>, Index>(PropertyListComparer.Instance);
+
+        private readonly SortedDictionary<string, Index> _namedIndexes
+            = new SortedDictionary<string, Index>(StringComparer.Ordinal);
 
         private readonly SortedDictionary<string, Property> _properties;
 
@@ -1847,8 +1850,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Index AddIndex(
             [NotNull] Property property,
             ConfigurationSource configurationSource)
+            => AddIndex(new[] { property }, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Index AddIndex(
+            [NotNull] Property property,
+            [NotNull] string name,
+            ConfigurationSource configurationSource)
             => AddIndex(
-                new[] { property }, configurationSource);
+                new[] { property }, name, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1863,6 +1878,61 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
 
+            CheckIndexProperties(properties);
+
+            var duplicateIndex = FindIndexesInHierarchy(properties).FirstOrDefault();
+            if (duplicateIndex != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateIndex(properties.Format(), this.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
+            }
+
+            var index = new Index(properties, this, configurationSource);
+            _unnamedIndexes.Add(properties, index);
+
+            UpdatePropertyIndexes(properties, index);
+
+            return (Index)Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Index AddIndex(
+            [NotNull] IReadOnlyList<Property> properties,
+            [NotNull] string name,
+            ConfigurationSource configurationSource)
+        {
+            Check.NotEmpty(properties, nameof(properties));
+            Check.HasNoNulls(properties, nameof(properties));
+            Check.NotEmpty(name, nameof(name));
+
+            CheckIndexProperties(properties);
+
+            var duplicateIndex = FindIndexesInHierarchy(name).FirstOrDefault();
+            if (duplicateIndex != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateNamedIndex(
+                        name,
+                        properties.Format(),
+                        this.DisplayName(),
+                        duplicateIndex.DeclaringEntityType.DisplayName()));
+            }
+
+            var index = new Index(properties, name, this, configurationSource);
+            _namedIndexes.Add(name, index);
+
+            UpdatePropertyIndexes(properties, index);
+
+            return (Index)Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
+        }
+
+        private void CheckIndexProperties(IReadOnlyList<Property> properties)
+        {
             for (var i = 0; i < properties.Count; i++)
             {
                 var property = properties[i];
@@ -1880,17 +1950,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(properties.Format(), this.DisplayName()));
                 }
             }
+        }
 
-            var duplicateIndex = FindIndexesInHierarchy(properties).FirstOrDefault();
-            if (duplicateIndex != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.DuplicateIndex(properties.Format(), this.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
-            }
-
-            var index = new Index(properties, this, configurationSource);
-            _indexes.Add(properties, index);
-
+        private void UpdatePropertyIndexes(IReadOnlyList<Property> properties, Index index)
+        {
             foreach (var property in properties)
             {
                 if (property.Indexes == null)
@@ -1902,8 +1965,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     property.Indexes.Add(index);
                 }
             }
-
-            return (Index)Model.ConventionDispatcher.OnIndexAdded(index.Builder)?.Metadata;
         }
 
         /// <summary>
@@ -1913,8 +1974,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Index FindIndex([NotNull] IProperty property)
-            => FindIndex(
-                new[] { property });
+            => FindIndex(new[] { property });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1936,7 +1996,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Index> GetDeclaredIndexes() => _indexes.Values;
+        public virtual Index FindIndex([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return FindDeclaredIndex(name) ?? _baseType?.FindIndex(name);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<Index> GetDeclaredIndexes() =>
+            _unnamedIndexes.Values.Concat(_namedIndexes.Values);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1954,7 +2028,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Index FindDeclaredIndex([NotNull] IReadOnlyList<IProperty> properties)
-            => _indexes.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var index)
+            => _unnamedIndexes.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var index)
+                ? index
+                : null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Index FindDeclaredIndex([NotNull] string name)
+            => _namedIndexes.TryGetValue(Check.NotEmpty(name, nameof(name)), out var index)
                 ? index
                 : null;
 
@@ -1973,8 +2058,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] string name)
+            => GetDerivedTypes().Select(et => et.FindDeclaredIndex(Check.NotEmpty(name, nameof(name)))).Where(i => i != null);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] IReadOnlyList<IProperty> properties)
             => ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] string name)
+            => ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name)))).Concat(FindDerivedIndexes(name));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1998,15 +2101,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual Index RemoveIndex([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            var index = FindDeclaredIndex(name);
+            return index == null
+                ? null
+                : RemoveIndex(index);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual Index RemoveIndex([NotNull] Index index)
         {
             Check.NotNull(index, nameof(index));
             Check.DebugAssert(Builder != null, "Builder is null");
 
-            if (!_indexes.Remove(index.Properties))
+            if (index.Name == null)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.IndexWrongType(index.Properties.Format(), this.DisplayName(), index.DeclaringEntityType.DisplayName()));
+                if (!_unnamedIndexes.Remove(index.Properties))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.IndexWrongType(index.Properties.Format(), this.DisplayName(), index.DeclaringEntityType.DisplayName()));
+                }
+            }
+            else
+            {
+                if (!_namedIndexes.Remove(index.Name))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NamedIndexWrongType(index.Name, this.DisplayName()));
+                }
             }
 
             index.Builder = null;
@@ -2032,7 +2162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Index> GetIndexes() => _baseType?.GetIndexes().Concat(_indexes.Values) ?? _indexes.Values;
+        public virtual IEnumerable<Index> GetIndexes() => _baseType?.GetIndexes().Concat(GetDeclaredIndexes()) ?? GetDeclaredIndexes();
 
         #endregion
 
@@ -3508,9 +3638,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
+        IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties, string name)
+            => AddIndex(properties.Cast<Property>().ToList(), name, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
         IConventionIndex IConventionEntityType.AddIndex(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => AddIndex(
                 properties.Cast<Property>().ToList(),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IConventionIndex IConventionEntityType.AddIndex(
+            IReadOnlyList<IConventionProperty> properties, string name, bool fromDataAnnotation)
+            => AddIndex(
+                properties.Cast<Property>().ToList(),
+                name,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -3529,6 +3683,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
+        IIndex IEntityType.FindIndex(string name) => FindIndex(name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
         IMutableIndex IMutableEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
 
         /// <summary>
@@ -3538,7 +3701,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
+        IMutableIndex IMutableEntityType.FindIndex(string name) => FindIndex(name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
         IConventionIndex IConventionEntityType.FindIndex(IReadOnlyList<IProperty> properties) => FindIndex(properties);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IConventionIndex IConventionEntityType.FindIndex(string name) => FindIndex(name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

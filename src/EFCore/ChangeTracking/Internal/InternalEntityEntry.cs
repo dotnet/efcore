@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -10,7 +9,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -161,7 +159,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (adding)
             {
-                await StateManager.ValueGenerationManager.GenerateAsync(this, cancellationToken);
+                await StateManager.ValueGenerationManager.GenerateAsync(this, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
@@ -562,6 +561,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (equals == null)
             {
                 equals = ValuesEqualFunc(property);
+            }
+
+            if (!PropertyHasDefaultValue(property))
+            {
+                return CurrentValueType.Normal;
             }
 
             var defaultValue = property.ClrType.GetDefaultValue();
@@ -1660,7 +1664,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetIsLoaded([NotNull] INavigation navigation, bool loaded = true)
+        public virtual void SetIsLoaded([NotNull] INavigationBase navigation, bool loaded = true)
         {
             if (!loaded
                 && !navigation.IsCollection

@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
         private readonly Type _contextType;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             : base(dependencies, queryCompilationContext)
         {
             _contextType = queryCompilationContext.ContextType;
-            _logger = queryCompilationContext.Logger;
         }
 
         /// <summary>
@@ -82,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             shaper = new InMemoryProjectionBindingRemovingExpressionVisitor().Visit(shaper);
 
-            shaper = new CustomShaperCompilingExpressionVisitor(QueryCompilationContext.IsTracking).Visit(shaper);
+            shaper = new CustomShaperCompilingExpressionVisitor(
+                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll).Visit(shaper);
 
             var shaperLambda = (LambdaExpression)shaper;
 
@@ -92,8 +91,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerEnumerable,
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
-                Expression.Constant(_logger),
-                Expression.Constant(QueryCompilationContext.PerformIdentityResolution));
+                Expression.Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
         }
 
         private static readonly MethodInfo _tableMethodInfo

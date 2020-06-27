@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Cosmos;
 using JetBrains.Annotations;
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -114,9 +114,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         rowsAffected++;
                     }
                 }
-                catch (CosmosException ex)
+                catch (CosmosException cosmosException)
                 {
-                    throw ThrowUpdateException(ex, entry);
+                    throw ThrowUpdateException(cosmosException, entry);
+                }
+                catch (HttpException httpException)
+                {
+                    throw ThrowUpdateException(httpException, entry);
                 }
             }
 
@@ -172,21 +176,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 entriesSaved.Add(entry);
                 try
                 {
-                    if (await SaveAsync(entry, cancellationToken))
+                    if (await SaveAsync(entry, cancellationToken).ConfigureAwait(false))
                     {
                         rowsAffected++;
                     }
                 }
-                catch (CosmosException ex)
+                catch (CosmosException cosmosException)
                 {
-                    throw ThrowUpdateException(ex, entry);
+                    throw ThrowUpdateException(cosmosException, entry);
+                }
+                catch (HttpException httpException)
+                {
+                    throw ThrowUpdateException(httpException, entry);
                 }
             }
 
             foreach (var rootEntry in rootEntriesToSave)
             {
                 if (!entriesSaved.Contains(rootEntry)
-                    && await SaveAsync(rootEntry, cancellationToken))
+                    && await SaveAsync(rootEntry, cancellationToken).ConfigureAwait(false))
                 {
                     rowsAffected++;
                 }
@@ -384,10 +392,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var documentSource = GetDocumentSource(entry.EntityType);
             var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
-            throw exception.StatusCode switch
+            throw exception.Status switch
             {
-                HttpStatusCode.PreconditionFailed => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
-                HttpStatusCode.Conflict => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                (int)HttpStatusCode.PreconditionFailed =>
+                    new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                (int)HttpStatusCode.Conflict =>
+                    new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                _ => Rethrow(exception),
+            };
+        }
+
+        private Exception ThrowUpdateException(HttpException exception, IUpdateEntry entry)
+        {
+            var documentSource = GetDocumentSource(entry.EntityType);
+            var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
+            throw exception.Response.Status switch
+            {
+                (int)HttpStatusCode.PreconditionFailed =>
+                    new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                (int)HttpStatusCode.Conflict =>
+                    new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
                 _ => Rethrow(exception),
             };
         }

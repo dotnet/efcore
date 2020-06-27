@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -25,8 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     {
         internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
             : this(
-                property.GetColumnName(), table, property.ClrType, property.GetRelationalTypeMapping(),
-                nullable || property.IsColumnNullable())
+                property.GetTableColumnMappings().Cast<IColumnMappingBase>().Concat(property.GetViewColumnMappings())
+                  .FirstOrDefault()?.Column.Name // TODO: this should take table into account
+                  ?? property.GetColumnName(),
+                table,
+                property.ClrType,
+                property.GetRelationalTypeMapping(),
+                nullable
+                  || (property.GetTableColumnMappings().Cast<IColumnMappingBase>().Concat(property.GetViewColumnMappings())
+                  .FirstOrDefault()?.Column.IsNullable // TODO: this should take table into account
+                    ?? property.IsColumnNullable()))
         {
         }
 
@@ -87,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
 
         /// <inheritdoc />
-        public override void Print(ExpressionPrinter expressionPrinter)
+        protected override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

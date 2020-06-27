@@ -49,6 +49,5 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             return base.VisitMethodCall(methodCallExpression);
         }
-
     }
 }

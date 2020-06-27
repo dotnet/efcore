@@ -106,13 +106,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             public override IEnumerable<IConventionEntityType> GetOutgoingNeighbors(IConventionEntityType from)
                 => from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
-                    .Union(
-                        from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType));
+                    .Union(from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType));
 
             public override IEnumerable<IConventionEntityType> GetIncomingNeighbors(IConventionEntityType to)
                 => to.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
-                    .Union(
-                        to.GetReferencingForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType));
+                    .Union(to.GetReferencingForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType));
+
+            public override void Clear()
+            {
+            }
         }
     }
 }

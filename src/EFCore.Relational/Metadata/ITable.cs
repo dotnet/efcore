@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the value indicating whether the table should be managed by migrations
         /// </summary>
-        bool IsMigratable { get; }
+        bool IsExcludedFromMigrations { get; }
 
         /// <summary>
         ///     Gets the foreing key constraints for this table.
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the primary key for this table.
         /// </summary>
-        IUniqueConstraint PrimaryKey { get; }
+        IPrimaryKeyConstraint PrimaryKey { get; }
 
         /// <summary>
         ///     Gets the indexes for this table.
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => EntityTypeMappings.Select(e => e.EntityType.GetComment()).FirstOrDefault(c => c != null);
 
         /// <summary>
-        ///     Gets the column with a given name. Returns <c>null</c> if no column with the given name is defined.
+        ///     Gets the column with a given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
         new IColumn FindColumn([NotNull] string name);
     }

@@ -118,12 +118,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
             await internalEntityEntry.SetEntityStateAsync(
-                isSet
-                    ? (isGenerated ? storeGenTargetState : targetState)
-                    : EntityState.Added, // Key can only be not-set if it is store-generated
-                acceptChanges: true,
-                forceStateWhenUnknownKey: force ? (EntityState?)targetState : null,
-                cancellationToken: cancellationToken);
+                    isSet
+                        ? (isGenerated ? storeGenTargetState : targetState)
+                        : EntityState.Added, // Key can only be not-set if it is store-generated
+                    acceptChanges: true,
+                    forceStateWhenUnknownKey: force ? (EntityState?)targetState : null,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return true;
         }

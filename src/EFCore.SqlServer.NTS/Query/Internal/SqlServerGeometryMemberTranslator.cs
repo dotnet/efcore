@@ -146,12 +146,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             instancePropagatesNullability: true,
                             argumentsPropagateNullability: Array.Empty<bool>(),
                             typeof(string)),
-                        whenClauses.ToArray());
+                        whenClauses,
+                        null);
                 }
 
                 if (Equals(member, _srid))
                 {
-                    return _sqlExpressionFactory.Function(
+                    return _sqlExpressionFactory.NiladicFunction(
                         instance,
                         "STSrid",
                         nullable: true,

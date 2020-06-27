@@ -175,6 +175,9 @@ function Remove-Migration(
 .PARAMETER Force
     Overwrite existing files.
 
+.PARAMETER NoOnConfiguring
+    Suppress generation of the DbContext.OnConfiguring() method.
+
 .PARAMETER Project
     The project to use.
 
@@ -186,6 +189,9 @@ function Remove-Migration(
 
 .PARAMETER ContextNamespace
     Specify to override the namespace for the DbContext class.
+
+.PARAMETER NoPluralize
+    Don't use the pluralizer.
 
 .LINK
     about_EntityFrameworkCore
@@ -201,10 +207,12 @@ function Scaffold-DbContext(
     [switch] $DataAnnotations,
     [switch] $UseDatabaseNames,
     [switch] $Force,
+    [switch] $NoOnConfiguring,
     $Project,
     $StartupProject,
     $Namespace,
-    $ContextNamespace)
+    $ContextNamespace,
+    [switch] $NoPluralize)
 {
     throw $UpdatePowerShell
 }

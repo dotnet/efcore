@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 {
                     foreach (var et in entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract()))
                     {
-                        var key = _useNameMatching ? (object)et.Name : et;
+                        var key = _useNameMatching ? (object)et.DisplayName() : et;
                         if (_tables.TryGetValue(key, out var table))
                         {
                             data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             var entityTypes = entityType.GetAllBaseTypesInclusive();
             foreach (var currentEntityType in entityTypes)
             {
-                var key = _useNameMatching ? (object)currentEntityType.Name : currentEntityType;
+                var key = _useNameMatching ? (object)currentEntityType.DisplayName() : currentEntityType;
                 if (!_tables.TryGetValue(key, out var table))
                 {
                     _tables.Add(key, table = _tableFactory.Create(currentEntityType, baseTable));
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             }
 
 
-            return _tables[_useNameMatching ? (object)entityType.Name : entityType];
+            return _tables[_useNameMatching ? (object)entityType.DisplayName() : entityType];
         }
     }
 }

@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     expression and a shallow copy for the snapshot.
         /// </summary>
         /// <param name="favorStructuralComparisons">
-        ///     If <c>true</c>, then EF will use <see cref="IStructuralEquatable" /> if the type
+        ///     If <see langword="true" />, then EF will use <see cref="IStructuralEquatable" /> if the type
         ///     implements it. This is usually used when byte arrays act as keys.
         /// </param>
         public ValueComparer(bool favorStructuralComparisons)
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Creates an expression for generating a hash code.
         /// </summary>
         /// <param name="favorStructuralComparisons">
-        ///     If <c>true</c>, then <see cref="IStructuralEquatable" /> is used if the type implements it.
+        ///     If <see langword="true" />, then <see cref="IStructuralEquatable" /> is used if the type implements it.
         /// </param>
         /// <returns> The hash code expression. </returns>
         protected static Expression<Func<T, int>> CreateDefaultHashCodeExpression(bool favorStructuralComparisons)
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="left"> The first instance. </param>
         /// <param name="right"> The second instance. </param>
-        /// <returns> <c>True</c> if they are equal; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
         public override bool Equals(object left, object right)
         {
             var v1Null = left == null;
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="left"> The first instance. </param>
         /// <param name="right"> The second instance. </param>
-        /// <returns> <c>True</c> if they are equal; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
         public virtual bool Equals(T left, T right)
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _equals, this, c => c.EqualsExpression.Compile())(left, right);

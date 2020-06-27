@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)Context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
+            if ((string)Context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
             {
                 Context.GetDependencies().ChangeDetector.DetectChanges(InternalEntry);
             }
@@ -349,7 +350,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </returns>
         public virtual async Task<PropertyValues> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {
-            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken);
+            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken)
+                .ConfigureAwait(false);
 
             return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
         }
@@ -387,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     A task that represents the asynchronous operation.
         /// </returns>
         public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
-            => Reload(await GetDatabaseValuesAsync(cancellationToken));
+            => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false));
 
         private void Reload(PropertyValues storeValues)
         {
@@ -436,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => base.Equals(obj);
 

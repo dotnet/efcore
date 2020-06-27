@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Sets whether or not the sequence will start again from the beginning once
         ///     the maximum value is reached.
         /// </summary>
-        /// <param name="cyclic"> If <c>true</c>, then the sequence with restart when the maximum is reached. </param>
+        /// <param name="cyclic"> If <see langword="true" />, then the sequence with restart when the maximum is reached. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder IsCyclic(bool cyclic = true)
         {
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object obj) => base.Equals(obj);

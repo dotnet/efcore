@@ -210,11 +210,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual bool IsCondition { get; }
 
+        /// <summary>
+        ///     Indicates whether or not the column is concurrency token.
+        /// </summary>
         [Obsolete]
         public virtual bool IsConcurrencyToken { get; }
 
         /// <summary>
-        ///     Indicates whether or not the column part of a primary or alternate key.
+        ///     Indicates whether or not the column is part of a primary or alternate key.
         /// </summary>
         public virtual bool IsKey { get; }
 
@@ -313,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
                             Entry.BuildCurrentValuesString(new[] { Property }),
                             modification.Entry.BuildCurrentValuesString(new[] { modification.Property }),
-                            new[] { Property }.FormatColumns()));
+                            "{'" + ColumnName + "'}"));
                 }
 
                 throw new InvalidOperationException(
@@ -322,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         modification.Entry.EntityType.DisplayName(),
                         new[] { Property }.Format(),
                         new[] { modification.Property }.Format(),
-                        new[] { Property }.FormatColumns()));
+                        "{'" + ColumnName + "'}"));
             }
 
             if (UseOriginalValueParameter
@@ -337,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
                             Entry.BuildOriginalValuesString(new[] { Property }),
                             modification.Entry.BuildOriginalValuesString(new[] { modification.Property }),
-                            new[] { Property }.FormatColumns()));
+                            "{'" + ColumnName + "'}"));
                 }
 
                 throw new InvalidOperationException(
@@ -346,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         modification.Entry.EntityType.DisplayName(),
                         new[] { Property }.Format(),
                         new[] { modification.Property }.Format(),
-                        new[] { Property }.FormatColumns()));
+                        "{'" + ColumnName + "'}"));
             }
 
             _sharedColumnModifications.Add(modification);

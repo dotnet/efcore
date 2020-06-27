@@ -19,9 +19,39 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the index is clustered.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <returns> <c>true</c> if the index is clustered. </returns>
+        /// <returns> <see langword="true" /> if the index is clustered. </returns>
         public static bool? IsClustered([NotNull] this IIndex index)
             => (bool?)index[SqlServerAnnotationNames.Clustered];
+
+        /// <summary>
+        ///     Returns a value indicating whether the index is clustered.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> <see langword="true" /> if the index is clustered. </returns>
+        public static bool? IsClustered(
+            [NotNull] this IIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
+            if (annotation != null)
+            {
+                return (bool?)annotation.Value;
+            }
+
+            return GetDefaultIsClustered(index, tableName, schema);
+        }
+
+        private static bool? GetDefaultIsClustered(
+            [NotNull] IIndex index,
+            [NotNull] string tableName,
+            [CanBeNull] string schema)
+        {
+            var sharedTableRootIndex = index.FindSharedTableRootIndex(tableName, schema);
+            return sharedTableRootIndex?.IsClustered(tableName, schema);
+        }
 
         /// <summary>
         ///     Sets a value indicating whether the index is clustered.
@@ -60,10 +90,10 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(SqlServerAnnotationNames.Clustered)?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns included property names, or <c>null</c> if they have not been specified.
+        ///     Returns included property names, or <see langword="null" /> if they have not been specified.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <returns> The included property names, or <c>null</c> if they have not been specified. </returns>
+        /// <returns> The included property names, or <see langword="null" /> if they have not been specified. </returns>
         public static IReadOnlyList<string> GetIncludeProperties([NotNull] this IIndex index)
             => (string[])index[SqlServerAnnotationNames.Include];
 
@@ -107,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the index is online.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <returns> <c>true</c> if the index is online. </returns>
+        /// <returns> <see langword="true" /> if the index is online. </returns>
         public static bool? IsCreatedOnline([NotNull] this IIndex index)
             => (bool?)index[SqlServerAnnotationNames.CreatedOnline];
 
@@ -151,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the index uses the fill factor.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <returns> <c>true</c> if the index is online. </returns>
+        /// <returns> <see langword="true" /> if the index is online. </returns>
         public static int? GetFillFactor([NotNull] this IIndex index)
            => (int?)index[SqlServerAnnotationNames.FillFactor];
 

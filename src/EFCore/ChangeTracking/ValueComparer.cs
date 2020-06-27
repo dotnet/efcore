@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="left"> The first instance. </param>
         /// <param name="right"> The second instance. </param>
-        /// <returns> <c>True</c> if they are equal; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
         public new abstract bool Equals(object left, object right);
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="type"> The type. </param>
         /// <param name="favorStructuralComparisons">
-        ///     If <c>true</c>, then EF will use <see cref="IStructuralEquatable" /> if the type
+        ///     If <see langword="true" />, then EF will use <see cref="IStructuralEquatable" /> if the type
         ///     implements it. This is usually used when byte arrays act as keys.
         /// </param>
         /// <returns> The <see cref="ValueComparer{T}" />. </returns>

@@ -19,9 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    /// <summary>
-    ///     Represents a SQL Table Valued Fuction in the sql generation tree.
-    /// </summary>
     public class TableValuedFunctionExpression : TableExpressionBase
     {
         /// <summary>
@@ -91,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override void Print(ExpressionPrinter expressionPrinter)
+        protected override void Print(ExpressionPrinter expressionPrinter)
         {
             if (!string.IsNullOrEmpty(Schema))
             {

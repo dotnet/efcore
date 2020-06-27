@@ -115,33 +115,33 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         /// <inheritdoc />
-        public virtual void CreateSavepoint(string savepointName)
+        public virtual void CreateSavepoint(string name)
             => _logger.TransactionIgnoredWarning();
 
         /// <inheritdoc />
-        public virtual Task CreateSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual Task CreateSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             _logger.TransactionIgnoredWarning();
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public virtual void RollbackSavepoint(string savepointName)
+        public virtual void RollbackToSavepoint(string name)
             => _logger.TransactionIgnoredWarning();
 
         /// <inheritdoc />
-        public virtual Task RollbackSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual Task RollbackToSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             _logger.TransactionIgnoredWarning();
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public virtual void ReleaseSavepoint(string savepointName)
+        public virtual void ReleaseSavepoint(string name)
             => _logger.TransactionIgnoredWarning();
 
         /// <inheritdoc />
-        public virtual Task ReleaseSavepointAsync(string savepointName, CancellationToken cancellationToken = default)
+        public virtual Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
         {
             _logger.TransactionIgnoredWarning();
             return Task.CompletedTask;

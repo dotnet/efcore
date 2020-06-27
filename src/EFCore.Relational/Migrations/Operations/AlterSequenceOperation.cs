@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     public class AlterSequenceOperation : SequenceOperation, IAlterMigrationOperation
     {
         /// <summary>
-        ///     The schema that contains the sequence, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the sequence, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 

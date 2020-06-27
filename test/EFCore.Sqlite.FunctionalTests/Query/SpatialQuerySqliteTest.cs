@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     [SpatialiteRequired]
-    public class SpatialQuerySqliteTest : SpatialQueryTestBase<SpatialQuerySqliteFixture>
+    public class SpatialQuerySqliteTest : SpatialQueryRelationalTestBase<SpatialQuerySqliteFixture>
     {
         public SpatialQuerySqliteTest(SpatialQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.SimpleSelect(async);
 
             AssertSql(
-                @"SELECT ""p"".""Id"", ""p"".""Geometry"", ""p"".""Point""
+                @"SELECT ""p"".""Id"", ""p"".""Geometry"", ""p"".""Point"", ""p"".""PointM"", ""p"".""PointZ"", ""p"".""PointZM""
 FROM ""PointEntity"" AS ""p""");
         }
 

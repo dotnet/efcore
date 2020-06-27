@@ -22,13 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IViewColumn> Columns { get; }
 
         /// <summary>
-        ///     Gets the column with the given name. Returns <c>null</c> if no column with the given name is defined.
+        ///     Gets the column with the given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
         new IViewColumn FindColumn([NotNull] string name);
 
         /// <summary>
-        ///     Gets the view definition or <c>null</c> if this view is not managed by migrations.
+        ///     Gets the view definition or <see langword="null" /> if this view is not managed by migrations.
         /// </summary>
-        public string ViewDefinition { get; }
+        public string ViewDefinitionSql { get; }
     }
 }

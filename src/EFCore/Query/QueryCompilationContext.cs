@@ -15,8 +15,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     A query compilation context. The primary data structure representing the state/components
-    ///     used during query compilation.
+    ///     <para>
+    ///         The primary data structure representing the state/components used during query compilation.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public class QueryCompilationContext
     {
@@ -50,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         private Dictionary<string, LambdaExpression> _runtimeParameters;
 
         /// <summary>
-        ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
+        ///     Creates a new instance of the <see cref="QueryCompilationContext" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="async"> A bool value indicating whether it is for async query. </param>
         public QueryCompilationContext(
             [NotNull] QueryCompilationContextDependencies dependencies,
@@ -60,8 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
+            Dependencies = dependencies;
             IsAsync = async;
-            IsTracking = dependencies.IsTracking;
+            QueryTrackingBehavior = dependencies.QueryTrackingBehavior;
             IsBuffering = dependencies.IsRetryingExecutionStrategy;
             Model = dependencies.Model;
             ContextOptions = dependencies.ContextOptions;
@@ -73,6 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             _queryTranslationPostprocessorFactory = dependencies.QueryTranslationPostprocessorFactory;
             _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
         }
+
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
+        protected virtual QueryCompilationContextDependencies Dependencies { get; }
 
         /// <summary>
         ///     A value indicating whether it is async query.
@@ -89,19 +100,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IDbContextOptions ContextOptions { get; }
 
         /// <summary>
-        ///     A value indicating whether it is tracking query.
+        ///     A value indicating <see cref="EntityFrameworkCore.QueryTrackingBehavior"/> of the query.
         /// </summary>
-        public virtual bool IsTracking { get; internal set; }
+        public virtual QueryTrackingBehavior QueryTrackingBehavior { get; internal set; }
 
         /// <summary>
-        ///     <para>
-        ///         A value indicating whether query should perform identity resolution for the entities returned in the results.
-        ///     </para>
-        ///     <para>
-        ///         This value is only set when <see cref="IsTracking"/> is to <see langword="false"/>.
-        ///     </para>
+        ///     A value indicating whether it is tracking query.
         /// </summary>
-        public virtual bool PerformIdentityResolution { get; internal set; }
+        [Obsolete("Use " + nameof(QueryTrackingBehavior) + " instead.")]
+        public virtual bool IsTracking => QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+
         /// <summary>
         ///     A value indicating whether the underlying server query needs to pre-buffer all data.
         /// </summary>

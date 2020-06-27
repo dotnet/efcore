@@ -88,6 +88,13 @@ namespace <#= model.Namespace #>
 #>
         /// </summary>
 <#
+            if (resource.Obsolete)
+            {
+#>
+        [Obsolete]
+<#
+            }
+
             if (resource.Parameters.Any())
             {
 #>

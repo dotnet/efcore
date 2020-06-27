@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0";
+WHERE [c].[ContactName] LIKE N'%z%'";
 
             AssertSql(expected);
             Assert.Equal(expected, queryString);
@@ -73,7 +73,7 @@ FROM (
     SELECT
     * FROM ""Customers""
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%z%'");
         }
 
         public override void FromSqlRaw_queryable_composed_compiled()
@@ -85,7 +85,7 @@ WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%z%'");
         }
 
         public override void FromSqlRaw_queryable_composed_compiled_with_DbParameter()
@@ -99,7 +99,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @customer
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%z%'");
         }
 
         public override void FromSqlRaw_queryable_composed_compiled_with_nameless_DbParameter()
@@ -113,7 +113,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @p0
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%z%'");
         }
 
         public override void FromSqlRaw_queryable_composed_compiled_with_parameter()
@@ -125,7 +125,7 @@ WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
 FROM (
     SELECT * FROM ""Customers"" WHERE ""CustomerID"" = N'CONSH'
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE [c].[ContactName] LIKE N'%z%'");
         }
 
         public override void FromSqlRaw_composed_contains()

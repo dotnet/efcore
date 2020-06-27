@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             Reporter.WriteVerbose(Resources.UsingWorkingDirectory(Directory.GetCurrentDirectory()));
             Reporter.WriteVerbose(Resources.UsingRootNamespace(RootNamespace));
             Reporter.WriteVerbose(Resources.UsingProjectDir(ProjectDirectory));
-            Reporter.WriteVerbose(Resources.RemainingArguments(string.Join(",", RemainingArguments)));
+            Reporter.WriteVerbose(Resources.RemainingArguments(string.Join(",", RemainingArguments.Select(s => "'" + s + "'"))));
         }
 
         public virtual void Dispose()
@@ -143,7 +144,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool overwriteFiles,
             bool useDatabaseNames,
             string modelNamespace,
-            string contextNamespace)
+            string contextNamespace,
+            bool suppressOnConfiguring,
+            bool noPluralize)
             => InvokeOperation<IDictionary>(
                 "ScaffoldContext",
                 new Dictionary<string, object>
@@ -159,7 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["overwriteFiles"] = overwriteFiles,
                     ["useDatabaseNames"] = useDatabaseNames,
                     ["modelNamespace"] = modelNamespace,
-                    ["contextNamespace"] = contextNamespace
+                    ["contextNamespace"] = contextNamespace,
+                    ["suppressOnConfiguring"] = suppressOnConfiguring,
+                    ["noPluralize"] = noPluralize
                 });
 
         public string ScriptMigration(

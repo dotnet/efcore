@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
         public NorthwindFunctionsQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        public override Task Convert_ToBoolean(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToBoolean(async));
 
         public override Task Convert_ToByte(bool async)
             => AssertTranslationFailed(() => base.Convert_ToByte(async));
@@ -224,6 +227,27 @@ WHERE (""c"".""ContactName"" = '') OR (instr(""c"".""ContactName"", ""c"".""Cont
 FROM ""Customers"" AS ""c""
 WHERE (""c"".""ContactName"" = '') OR (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0)");
         }
+
+
+        public override async Task String_FirstOrDefault_MethodCall(bool async)
+        {
+            await base.String_FirstOrDefault_MethodCall(async);
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE substr(""c"".""ContactName"", 1, 1) = 'A'");
+        }
+
+
+        public override async Task String_LastOrDefault_MethodCall(bool async)
+        {
+            await base.String_LastOrDefault_MethodCall(async);
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE substr(""c"".""ContactName"", length(""c"".""ContactName""), 1) = 's'");
+        }
+
 
         public override async Task String_Contains_MethodCall(bool async)
         {

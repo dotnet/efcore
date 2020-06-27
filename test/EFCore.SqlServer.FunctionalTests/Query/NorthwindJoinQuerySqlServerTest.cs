@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindJoinQuerySqlServerTest : NorthwindJoinQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindJoinQuerySqlServerTest : NorthwindJoinQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindJoinQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ClearLog();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected override bool CanExecuteQueryString => true;
 
         public override async Task Join_customers_orders_projection(bool async)
         {
@@ -509,6 +511,73 @@ LEFT JOIN (
     ORDER BY [o].[OrderID]
 ) AS [t0] ON 1 = 1
 ORDER BY [t].[CustomerID]");
+        }
+
+        public override async Task SelectMany_with_client_eval(bool async)
+        {
+            await base.SelectMany_with_client_eval(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[ContactName]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[ContactName]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'");
+        }
+
+        public override async Task SelectMany_with_client_eval_with_collection_shaper(bool async)
+        {
+            await base.SelectMany_with_client_eval_with_collection_shaper(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[ContactName], [c].[CustomerID], [t].[OrderID], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[ContactName]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+LEFT JOIN [Order Details] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+        }
+
+        public override async Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
+        {
+            await base.SelectMany_with_client_eval_with_collection_shaper_ignored(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[ContactName]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[ContactName]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'");
+        }
+
+        public override async Task SelectMany_with_client_eval_with_constructor(bool async)
+        {
+            await base.SelectMany_with_client_eval_with_constructor(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[City], [t0].[OrderID], [t0].[ProductID], [t0].[OrderID0], [t0].[OrderID1], [t0].[ProductID0]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [t].[OrderID], [t].[ProductID], [o].[OrderID] AS [OrderID0], [t].[OrderID] AS [OrderID1], [t].[ProductID] AS [ProductID0], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    INNER JOIN (
+        SELECT [o0].[OrderID], [o0].[ProductID]
+        FROM [Order Details] AS [o0]
+        WHERE [o0].[OrderID] < 11000
+    ) AS [t] ON [o].[OrderID] = [t].[OrderID]
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID], [t0].[OrderID0], [t0].[OrderID1], [t0].[ProductID0]");
         }
 
         private void AssertSql(params string[] expected)

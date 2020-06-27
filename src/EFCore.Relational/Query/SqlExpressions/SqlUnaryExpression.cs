@@ -31,10 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ExpressionType.Negate
         };
 
-        private static ExpressionType VerifyOperator(ExpressionType operatorType)
-            => _allowedOperators.Contains(operatorType)
-                ? operatorType
-                : throw new InvalidOperationException(CoreStrings.UnsupportedUnary);
+        internal static bool IsValidOperator(ExpressionType operatorType)
+            => _allowedOperators.Contains(operatorType);
 
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlUnaryExpression" /> class.
@@ -53,7 +51,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(operand, nameof(operand));
             Check.NotNull(type, nameof(type));
 
-            OperatorType = VerifyOperator(operatorType);
+            if (!IsValidOperator(operatorType))
+            {
+                throw new InvalidOperationException(CoreStrings.UnsupportedUnary);
+            }
+
+            OperatorType = operatorType;
             Operand = operand;
         }
 
@@ -90,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override void Print(ExpressionPrinter expressionPrinter)
+        protected override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

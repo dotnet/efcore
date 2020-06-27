@@ -167,7 +167,7 @@
     <comment>Debug SqlServerEventId.TypeAliasFound string string</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
-    <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {computedValueIsStored}</value>
+    <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}</value>
     <comment>Debug SqlServerEventId.ColumnFound string string int string int int int bool bool string string bool?</comment>
   </data>
   <data name="LogFoundForeignKey" xml:space="preserve">
@@ -261,7 +261,7 @@
     <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different clustered configuration.</value>
   </data>
   <data name="DuplicateIndexIncludedMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different included properties {includedProperties1} and {includedProperties2}.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different included columns {includedColumns1} and {includedColumns2}.</value>
   </data>
   <data name="DuplicateIndexOnlineMismatch" xml:space="preserve">
     <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different online configuration.</value>

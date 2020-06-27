@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
     {
+        private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
         private readonly ICSharpHelper _code;
 
         private IndentedStringBuilder _sb = null!;
@@ -39,10 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpEntityTypeGenerator(
+            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
             [NotNull] ICSharpHelper cSharpHelper)
         {
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
 
+            _annotationCodeGenerator = annotationCodeGenerator;
             _code = cSharpHelper;
         }
 
@@ -80,6 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _sb.AppendLine();
+            _sb.AppendLine("#nullable disable");
+
+            _sb.AppendLine();
             _sb.AppendLine($"namespace {@namespace}");
             _sb.AppendLine("{");
 
@@ -99,8 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateClass(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateClass([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -129,13 +134,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateEntityTypeDataAnnotations(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateEntityTypeDataAnnotations([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
             GenerateKeylessAttribute(entityType);
             GenerateTableAttribute(entityType);
+            GenerateIndexAttributes(entityType);
+
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(entityType.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(entityType, annotations);
+
+            foreach (var attribute in _annotationCodeGenerator.GenerateDataAnnotationAttributes(entityType, annotations))
+            {
+                var attributeWriter = new AttributeWriter(attribute.Type.Name);
+                foreach (var argument in attribute.Arguments)
+                {
+                    attributeWriter.AddParameter(_code.UnknownLiteral(argument));
+                }
+            }
         }
 
         private void GenerateKeylessAttribute(IEntityType entityType)
@@ -170,14 +189,49 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        private void GenerateIndexAttributes(IEntityType entityType)
+        {
+            // Do not generate IndexAttributes for indexes which
+            // would be generated anyway by convention.
+            foreach (var index in entityType.GetIndexes().Where(i =>
+                ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
+            {
+                // If there are annotations that cannot be represented using an IndexAttribute then use fluent API instead.
+                var annotations = _annotationCodeGenerator
+                    .FilterIgnoredAnnotations(index.GetAnnotations())
+                    .ToDictionary(a => a.Name, a => a);
+                _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(index, annotations);
+
+                if (annotations.Count == 0)
+                {
+                    var indexAttribute = new AttributeWriter(nameof(IndexAttribute));
+                    foreach (var property in index.Properties)
+                    {
+                        indexAttribute.AddParameter($"nameof({property.Name})");
+                    }
+
+                    if (index.Name != null)
+                    {
+                        indexAttribute.AddParameter($"{nameof(IndexAttribute.Name)} = {_code.Literal(index.Name)}");
+                    }
+
+                    if (index.IsUnique)
+                    {
+                        indexAttribute.AddParameter($"{nameof(IndexAttribute.IsUnique)} = {_code.Literal(index.IsUnique)}");
+                    }
+
+                    _sb.AppendLine(indexAttribute.ToString());
+                }
+            }
+        }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateConstructor(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateConstructor([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -207,8 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateProperties(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateProperties([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -229,15 +282,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GeneratePropertyDataAnnotations(
-            [NotNull] IProperty property)
+        protected virtual void GeneratePropertyDataAnnotations([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
             GenerateKeyAttribute(property);
             GenerateRequiredAttribute(property);
             GenerateColumnAttribute(property);
-            GenerateMaxLengthAttribute(property);
+
+            var annotations = _annotationCodeGenerator
+                .FilterIgnoredAnnotations(property.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+            _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(property, annotations);
+
+            foreach (var attribute in _annotationCodeGenerator.GenerateDataAnnotationAttributes(property, annotations))
+            {
+                var attributeWriter = new AttributeWriter(attribute.Type.Name);
+                foreach (var argument in attribute.Arguments)
+                {
+                    attributeWriter.AddParameter(_code.UnknownLiteral(argument));
+                }
+            }
         }
 
         private void GenerateKeyAttribute(IProperty property)
@@ -275,23 +340,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateMaxLengthAttribute(IProperty property)
-        {
-            var maxLength = property.GetMaxLength();
-
-            if (maxLength.HasValue)
-            {
-                var lengthAttribute = new AttributeWriter(
-                    property.ClrType == typeof(string)
-                        ? nameof(StringLengthAttribute)
-                        : nameof(MaxLengthAttribute));
-
-                lengthAttribute.AddParameter(_code.Literal(maxLength.Value));
-
-                _sb.AppendLine(lengthAttribute.ToString());
-            }
-        }
-
         private void GenerateRequiredAttribute(IProperty property)
         {
             if (!property.IsNullable
@@ -308,8 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateNavigationProperties(
-            [NotNull] IEntityType entityType)
+        protected virtual void GenerateNavigationProperties([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 

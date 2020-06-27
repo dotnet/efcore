@@ -51,15 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<IEntityType> GetAllBaseTypesAscending([NotNull] this IEntityType entityType)
-            => entityType.GetAllBaseTypesInclusiveAscending().Skip(1);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static IForeignKey FindDeclaredOwnership([NotNull] this IEntityType entityType)
             => ((EntityType)entityType).FindDeclaredOwnership();
 
@@ -375,6 +366,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IEnumerable<Navigation> GetDerivedNavigations([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().GetDerivedNavigations();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IEnumerable<SkipNavigation> GetDerivedSkipNavigations([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDerivedSkipNavigations();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

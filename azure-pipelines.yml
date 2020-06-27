@@ -23,10 +23,6 @@ variables:
     - name: _InternalRuntimeDownloadArgs
       value: ''
 
-  # used for post-build phases, internal builds only
-  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-    - group: DotNet-EFCore-SDLValidation-Params
-
 trigger:
   - master
   - release/*
@@ -180,6 +176,7 @@ stages:
                   parallel: true
 
           - job: Helix
+            timeoutInMinutes: 180
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCorePublic-Pool
@@ -217,7 +214,7 @@ stages:
                     Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig)
                 displayName: Restore packages
-              - script: .dotnet\dotnet msbuild eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog
                 displayName: Send job to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
@@ -229,17 +226,3 @@ stages:
       # Symbol validation isn't being very reliable lately. This should be enabled back
       # once this issue is resolved: https://github.com/dotnet/arcade/issues/2871
       enableSymbolValidation: false
-      # This is to enable SDL runs part of Post-Build Validation Stage
-      SDLValidationParameters:
-        enable: true
-        continueOnError: false
-        params: ' -SourceToolsList @("policheck","credscan")
-        -TsaInstanceURL $(_TsaInstanceURL)
-        -TsaProjectName $(_TsaProjectName)
-        -TsaNotificationEmail $(_TsaNotificationEmail)
-        -TsaCodebaseAdmin $(_TsaCodebaseAdmin)
-        -TsaBugAreaPath $(_TsaBugAreaPath)
-        -TsaIterationPath $(_TsaIterationPath)
-        -TsaRepositoryName "EntityFrameworkCore"
-        -TsaCodebaseName "EntityFrameworkCore"
-        -TsaPublish $True'

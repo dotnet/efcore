@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(10)
-                      join o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(10) on 1 equals 1 
+                      join o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(10) on 1 equals 1
                       select new { c.CustomerID, o.OrderID });
         }
 
@@ -730,6 +730,132 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(10) on c.CustomerID != null equals true into grouping
                       from o in grouping.DefaultIfEmpty()
                       select new { c.CustomerID, o.OrderID });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_client_eval(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                    .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), CustomerProperty = c.ContactName })),
+                elementSorter: e => e.OrderProperty,
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_client_eval_with_collection_shaper(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                    .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), o.OrderDetails, CustomerProperty = c.ContactName })),
+                elementSorter: e => e.OrderProperty,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.OrderProperty, a.OrderProperty);
+                    AssertEqual(e.CustomerProperty, a.CustomerProperty);
+                    AssertCollection(e.OrderDetails, a.OrderDetails);
+                },
+                entryCount: 227);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                    .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), o.OrderDetails, CustomerProperty = c.ContactName }))
+                    .Select(e => new { e.OrderProperty, e.CustomerProperty }),
+                elementSorter: e => e.OrderProperty,
+                entryCount: 63);
+        }
+
+        private static int ClientMethod(Order order) => order.OrderID;
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_client_eval_with_constructor(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new CustomerViewModel(
+                        c.CustomerID, c.City,
+                        c.Orders.SelectMany(o => o.OrderDetails
+                            .Where(od => od.OrderID < 11000)
+                            .Select(od => new OrderDetailViewModel(od.OrderID, od.ProductID)))
+                            .ToArray())),
+                assertOrder: true);
+        }
+
+        private class CustomerViewModel
+        {
+            private readonly string _customerID;
+            private readonly string _city;
+            private readonly OrderDetailViewModel[] _views;
+
+            public CustomerViewModel(string customerID, string city, OrderDetailViewModel[] views)
+            {
+                _customerID = customerID;
+                _city = city;
+                _views = views;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is null)
+                {
+                    return false;
+                }
+
+                return ReferenceEquals(this, obj)
+                    || obj.GetType() == GetType()
+                        && Equals((CustomerViewModel)obj);
+            }
+
+            private bool Equals(CustomerViewModel customerViewModel)
+                => _customerID == customerViewModel._customerID
+                    && _city == customerViewModel._city
+                    && _views.SequenceEqual(customerViewModel._views);
+
+            public override int GetHashCode() => HashCode.Combine(_customerID, _city);
+        }
+
+        private class OrderDetailViewModel
+        {
+            private readonly int _orderID;
+            private readonly int _productID;
+
+            public OrderDetailViewModel(int orderID, int productID)
+            {
+                _orderID = orderID;
+                _productID = productID;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is null)
+                {
+                    return false;
+                }
+
+                return ReferenceEquals(this, obj)
+                    || obj.GetType() == GetType()
+                        && Equals((OrderDetailViewModel)obj);
+            }
+
+            private bool Equals(OrderDetailViewModel orderDetailViewModel)
+                => _orderID == orderDetailViewModel._orderID
+                    && _productID == orderDetailViewModel._productID;
+
+            public override int GetHashCode() => HashCode.Combine(_orderID, _productID);
         }
     }
 }

@@ -27,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     {
         private readonly IModel _model;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IMemberTranslatorProvider _memberTranslatorProvider;
+        private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
         private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly CosmosProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
 
@@ -46,11 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             _model = queryCompilationContext.Model;
             _sqlExpressionFactory = sqlExpressionFactory;
+            _memberTranslatorProvider = memberTranslatorProvider;
+            _methodCallTranslatorProvider = methodCallTranslatorProvider;
             _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
                 queryCompilationContext,
-                sqlExpressionFactory,
-                memberTranslatorProvider,
-                methodCallTranslatorProvider);
+                _sqlExpressionFactory,
+                _memberTranslatorProvider,
+                _methodCallTranslatorProvider);
             _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
         }
 
@@ -66,7 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             _model = parentVisitor._model;
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
-            _sqlTranslator = parentVisitor._sqlTranslator;
+            _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
+                QueryCompilationContext,
+                _sqlExpressionFactory,
+                _memberTranslatorProvider,
+                _methodCallTranslatorProvider);
             _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
         }
 
@@ -100,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             {
                                 var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey().Properties;
                                 var idProperty = entityType.GetProperties()
-                                    .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyName);
+                                    .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
 
                                 if (TryGetPartitionKeyProperty(entityType, out var partitionKeyProperty)
                                     && entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
@@ -1091,7 +1099,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private SqlExpression TranslateExpression(Expression expression)
-            => _sqlTranslator.Translate(expression);
+        {
+            var translation = _sqlTranslator.Translate(expression);
+            if (translation == null && _sqlTranslator.TranslationErrorDetails != null)
+            {
+                AddTranslationErrorDetails(_sqlTranslator.TranslationErrorDetails);
+            }
+
+            return translation;
+        }
 
         private SqlExpression TranslateLambdaExpression(
             ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)

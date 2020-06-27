@@ -112,8 +112,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void KeyPropertyChanged(
             InternalEntityEntry entry,
             IProperty property,
-            IReadOnlyList<IKey> keys,
-            IReadOnlyList<IForeignKey> foreignKeys,
+            IEnumerable<IKey> keys,
+            IEnumerable<IForeignKey> foreignKeys,
             object oldValue,
             object newValue)
             => _navigationFixer.KeyPropertyChanged(entry, property, keys, foreignKeys, oldValue, newValue);

@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     contains the schema for the current model.
         /// </summary>
         /// <returns>
-        ///     True if the database exists; otherwise false.
+        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>.
         /// </returns>
         public abstract bool Exists();
 
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     true if the database exists; otherwise false.
+        ///     <see langword="true"/> if the database exists; otherwise <see langword="false"/>.
         /// </returns>
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
         {
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <returns>
-        ///     True if the database is deleted, false if it did not exist.
+        ///     <see langword="true"/> if the database is deleted, <see langword="false"/> if it did not exist.
         /// </returns>
         public virtual bool EnsureDeleted()
         {
@@ -201,14 +201,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted,
-        ///     false if it did not exist.
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/>
+        ///     if the database is deleted, <see langword="false"/> if it did not exist.
         /// </returns>
         public virtual async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
         {
-            if (await ExistsAsync(cancellationToken))
+            if (await ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
-                await DeleteAsync(cancellationToken);
+                await DeleteAsync(cancellationToken).ConfigureAwait(false);
 
                 return true;
             }
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     to ensure it is compatible with the model for this context.
         /// </summary>
         /// <returns>
-        ///     True if the database is created, false if it already existed.
+        ///     <see langword="true"/> if the database is created, <see langword="false"/> if it already existed.
         /// </returns>
         public virtual bool EnsureCreated()
         {
@@ -252,32 +252,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created,
-        ///     false if it already existed.
+        ///     A task that represents the asynchronous save operation. The task result contains <see langword="true"/>
+        ///     if the database is created, <see langword="false"/> if it already existed.
         /// </returns>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
             var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                if (!await ExistsAsync(cancellationToken))
+                if (!await ExistsAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    await CreateAsync(cancellationToken);
-                    await CreateTablesAsync(cancellationToken);
+                    await CreateAsync(cancellationToken).ConfigureAwait(false);
+                    await CreateTablesAsync(cancellationToken).ConfigureAwait(false);
 
                     return true;
                 }
 
-                if (!await HasTablesAsync(cancellationToken))
+                if (!await HasTablesAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    await CreateTablesAsync(cancellationToken);
+                    await CreateTablesAsync(cancellationToken).ConfigureAwait(false);
 
                     return true;
                 }
             }
             finally
             {
-                await transactionScope.DisposeAsyncIfAvailable();
+                await transactionScope.DisposeAsyncIfAvailable().ConfigureAwait(false);
             }
 
             return false;
@@ -308,11 +308,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Determines whether or not the database is available and can be connected to.
         ///     </para>
         ///     <para>
+        ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
+        ///     </para>
+        ///     <para>
+        ///         The configured connection string is used to create the connection in the normal way, so all
+        ///         configured options such as timeouts are honored.
+        ///     </para>
+        ///     <para>
         ///         Note that being able to connect to the database does not mean that it is
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
         /// </summary>
-        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         public virtual bool CanConnect()
         {
             try
@@ -330,17 +337,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Determines whether or not the database is available and can be connected to.
         ///     </para>
         ///     <para>
+        ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
+        ///     </para>
+        ///     <para>
+        ///         The configured connection string is used to create the connection in the normal way, so all
+        ///         configured options such as timeouts are honored.
+        ///     </para>
+        ///     <para>
         ///         Note that being able to connect to the database does not mean that it is
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         public virtual async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                return await ExistsAsync(cancellationToken);
+                return await ExistsAsync(cancellationToken).ConfigureAwait(false);
             }
             catch
             {

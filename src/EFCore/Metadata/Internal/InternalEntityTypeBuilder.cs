@@ -980,9 +980,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
-            var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(name);
-            return !configurationSource.HasValue
-                || !configurationSource.Value.Overrides(ignoredConfigurationSource);
+            return configurationSource != ConfigurationSource.Explicit
+                && !configurationSource.OverridesStrictly(Metadata.FindIgnoredConfigurationSource(name));
         }
 
         /// <summary>
@@ -1088,7 +1087,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (derivedNavigation != null)
                     {
                         var foreignKey = derivedNavigation.ForeignKey;
-                        if (configurationSource != foreignKey.GetConfigurationSource())
+                        if (foreignKey.GetConfigurationSource() != derivedNavigation.GetConfigurationSource())
+                        {
+                            if (derivedNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
+                            {
+                                foreignKey.Builder.HasNavigation(
+                                    (MemberInfo)null, derivedNavigation.IsOnDependent, configurationSource);
+                            }
+                        }
+                        else if (foreignKey.GetConfigurationSource() != ConfigurationSource.Explicit)
                         {
                             foreignKey.DeclaringEntityType.Builder.HasNoRelationship(
                                 foreignKey, configurationSource);
@@ -1099,7 +1106,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var derivedProperty = derivedType.FindDeclaredProperty(name);
                         if (derivedProperty != null)
                         {
-                            derivedType.Builder.RemoveProperty(derivedProperty, configurationSource, canOverrideSameSource: false);
+                            derivedType.Builder.RemoveProperty(
+                                derivedProperty, configurationSource, canOverrideSameSource: configurationSource != ConfigurationSource.Explicit);
                         }
                         else
                         {
@@ -1115,7 +1123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
                                 }
 
-                                if (configurationSource.OverridesStrictly(skipNavigation.GetConfigurationSource()))
+                                if (configurationSource.Overrides(skipNavigation.GetConfigurationSource())
+                                    && skipNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
                                 {
                                     derivedType.RemoveSkipNavigation(skipNavigation);
                                 }
@@ -1124,7 +1133,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 var derivedServiceProperty = derivedType.FindDeclaredServiceProperty(name);
                                 if (derivedServiceProperty != null
-                                    && configurationSource.OverridesStrictly(derivedServiceProperty.GetConfigurationSource()))
+                                    && configurationSource.Overrides(derivedServiceProperty.GetConfigurationSource())
+                                    && derivedServiceProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
                                 {
                                     derivedType.RemoveServiceProperty(name);
                                 }
@@ -1157,7 +1167,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigation = Metadata.FindNavigation(name);
             if (navigation != null)
             {
-                var foreignKey = navigation.ForeignKey;
                 if (navigation.DeclaringEntityType != Metadata)
                 {
                     if (shouldThrow)
@@ -1170,16 +1179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return false;
                 }
 
-                var navigationConfigurationSource = navigation.GetConfigurationSource();
-                if (foreignKey.GetConfigurationSource() != navigationConfigurationSource)
-                {
-                    if (!configurationSource.Overrides(navigationConfigurationSource))
-                    {
-                        return false;
-                    }
-                }
-                else if (configurationSource != ConfigurationSource.Explicit
-                    && !configurationSource.OverridesStrictly(foreignKey.GetConfigurationSource()))
+                if (!configurationSource.Overrides(navigation.GetConfigurationSource()))
                 {
                     return false;
                 }
@@ -1202,7 +1202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     if (!property.DeclaringEntityType.Builder.CanRemoveProperty(
-                        property, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit))
+                        property, configurationSource, canOverrideSameSource: true))
                     {
                         return false;
                     }
@@ -1224,8 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return false;
                         }
 
-                        if (configurationSource != ConfigurationSource.Explicit
-                            && !configurationSource.OverridesStrictly(skipNavigation.GetConfigurationSource()))
+                        if (!configurationSource.Overrides(skipNavigation.GetConfigurationSource()))
                         {
                             return false;
                         }
@@ -1247,8 +1246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 return false;
                             }
 
-                            if (configurationSource != ConfigurationSource.Explicit
-                                && !configurationSource.OverridesStrictly(serviceProperty.GetConfigurationSource()))
+                            if (!configurationSource.Overrides(serviceProperty.GetConfigurationSource()))
                             {
                                 return false;
                             }
@@ -1653,9 +1651,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (detachedIndexes != null)
                 {
-                    foreach (var indexBuilderTuple in detachedIndexes)
+                    foreach (var detachedIndex in detachedIndexes)
                     {
-                        indexBuilderTuple.Attach(indexBuilderTuple.Metadata.DeclaringEntityType.Builder);
+                        detachedIndex.Attach(detachedIndex.Metadata.DeclaringEntityType.Builder);
                     }
                 }
 
@@ -1690,8 +1688,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreach (var member in derivedMembers)
                 {
                     ConfigurationSource? baseConfigurationSource = null;
-                    if (!member.GetConfigurationSource().Overrides(
+                    if ((!member.GetConfigurationSource().OverridesStrictly(
                             baseEntityType.FindIgnoredConfigurationSource(member.Name))
+                            && member.GetConfigurationSource() != ConfigurationSource.Explicit)
                         || (baseMemberNames.TryGetValue(member.Name, out baseConfigurationSource)
                             && baseConfigurationSource.Overrides(member.GetConfigurationSource())
                             && !compatibleWithBaseMember(member)))
@@ -2171,8 +2170,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalIndexBuilder HasIndex(
+            [NotNull] IReadOnlyList<string> propertyNames,
+            [NotNull] string name,
+            ConfigurationSource configurationSource)
+            => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), name, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalIndexBuilder HasIndex(
             [NotNull] IReadOnlyList<MemberInfo> clrMembers, ConfigurationSource configurationSource)
             => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalIndexBuilder HasIndex(
+            [NotNull] IReadOnlyList<MemberInfo> clrMembers,
+            [NotNull] string name,
+            ConfigurationSource configurationSource)
+            => HasIndex(GetOrCreateProperties(clrMembers, configurationSource), name, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2196,16 +2219,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else if (existingIndex.DeclaringEntityType != Metadata)
             {
-                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, configurationSource);
+                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, null, configurationSource);
             }
 
-            var indexBuilder = HasIndex(existingIndex, properties, configurationSource);
+            var indexBuilder = HasIndex(existingIndex, properties, null, configurationSource);
 
             if (detachedIndexes != null)
             {
-                foreach (var indexBuilderTuple in detachedIndexes)
+                foreach (var detachedIndex in detachedIndexes)
                 {
-                    indexBuilderTuple.Attach(indexBuilderTuple.Metadata.DeclaringEntityType.Builder);
+                    detachedIndex.Attach(detachedIndex.Metadata.DeclaringEntityType.Builder);
+                }
+            }
+
+            return indexBuilder;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalIndexBuilder HasIndex(
+            [CanBeNull] IReadOnlyList<Property> properties,
+            [NotNull] string name,
+            ConfigurationSource configurationSource)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            if (properties == null)
+            {
+                return null;
+            }
+
+            List<InternalIndexBuilder> detachedIndexes = null;
+
+            var existingIndex = Metadata.FindIndex(name);
+            if (existingIndex != null
+                && !existingIndex.Properties.SequenceEqual(properties))
+            {
+                // use existing index only if properties match
+                existingIndex = null;
+            }
+
+            if (existingIndex == null)
+            {
+                detachedIndexes = Metadata.FindDerivedIndexes(name)
+                    .Where(i => i.Properties.SequenceEqual(properties))
+                    .ToList().Select(DetachIndex).ToList();
+            }
+            else if (existingIndex.DeclaringEntityType != Metadata)
+            {
+                return existingIndex.DeclaringEntityType.Builder.HasIndex(existingIndex, properties, name, configurationSource);
+            }
+
+            var indexBuilder = HasIndex(existingIndex, properties, name, configurationSource);
+
+            if (detachedIndexes != null)
+            {
+                foreach (var detachedIndex in detachedIndexes)
+                {
+                    detachedIndex.Attach(detachedIndex.Metadata.DeclaringEntityType.Builder);
                 }
             }
 
@@ -2213,11 +2288,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private InternalIndexBuilder HasIndex(
-            Index index, IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+            Index index,
+            IReadOnlyList<Property> properties,
+            string name,
+            ConfigurationSource configurationSource)
         {
             if (index == null)
             {
-                index = Metadata.AddIndex(properties, configurationSource);
+                if (name == null)
+                {
+                    index = Metadata.AddIndex(properties, configurationSource);
+                }
+                else
+                {
+                    index = Metadata.AddIndex(properties, name, configurationSource);
+                }
             }
             else
             {
@@ -2241,7 +2326,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var removedIndex = Metadata.RemoveIndex(index.Properties);
+            var removedIndex = index.Name == null
+                ? Metadata.RemoveIndex(index.Properties)
+                : Metadata.RemoveIndex(index.Name);
             Check.DebugAssert(removedIndex == index, "removedIndex != index");
 
             RemoveUnusedShadowProperties(index.Properties);
@@ -4051,6 +4138,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Metadata.SetDiscriminatorProperty(null, configurationSource);
 
+            if (configurationSource == ConfigurationSource.Explicit)
+            {
+                Metadata.SetDiscriminatorMappingComplete(null);
+            }
+            else if (CanSetAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, null, configurationSource))
+            {
+                Metadata.SetDiscriminatorMappingComplete(null, configurationSource == ConfigurationSource.DataAnnotation);
+            }
+
             return this;
         }
 
@@ -4366,9 +4462,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionIndexBuilder IConventionEntityTypeBuilder.HasIndex(
+            IReadOnlyList<string> propertyNames, bool fromDataAnnotation)
+            => HasIndex(
+                propertyNames,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IConventionIndexBuilder IConventionEntityTypeBuilder.HasIndex(
+            IReadOnlyList<string> propertyNames, string name, bool fromDataAnnotation)
+            => HasIndex(
+                propertyNames,
+                name,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        IConventionIndexBuilder IConventionEntityTypeBuilder.HasIndex(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => HasIndex(
                 properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionIndexBuilder IConventionEntityTypeBuilder.HasIndex(
+            IReadOnlyList<IConventionProperty> properties, string name, bool fromDataAnnotation)
+            => HasIndex(
+                properties as IReadOnlyList<Property> ?? properties.Cast<Property>().ToList(),
+                name,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

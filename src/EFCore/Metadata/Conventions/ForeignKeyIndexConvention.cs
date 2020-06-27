@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="unique"> Whether the index to create should be unique. </param>
         /// <param name="coveringIndexProperties"> The properties of an existing index. </param>
         /// <param name="coveringIndexUnique"> Whether the existing index is unique. </param>
-        /// <returns> <c>true</c> if the existing index covers the given properties. </returns>
+        /// <returns> <see langword="true" /> if the existing index covers the given properties. </returns>
         protected virtual bool AreIndexedBy(
             [NotNull] IReadOnlyList<IConventionProperty> properties,
             bool unique,

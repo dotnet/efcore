@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         so that EF will manage the service providers and can create new instances as required.
         ///     </para>
         /// </summary>
-        /// <param name="sensitiveDataLoggingEnabled"> If <c>true</c>, then sensitive data is logged. </param>
+        /// <param name="sensitiveDataLoggingEnabled"> If <see langword="true" />, then sensitive data is logged. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder EnableSensitiveDataLogging(bool sensitiveDataLoggingEnabled = true)
             => WithOption(e => e.WithSensitiveDataLoggingEnabled(sensitiveDataLoggingEnabled));
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
         ///     </para>
         /// </summary>
-        /// <param name="cacheServiceProvider"> If <c>true</c>, then the internal service provider is cached. </param>
+        /// <param name="cacheServiceProvider"> If <see langword="true" />, then the internal service provider is cached. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder EnableServiceProviderCaching(bool cacheServiceProvider = true)
             => WithOption(e => e.WithServiceProviderCachingEnabled(cacheServiceProvider));
@@ -482,10 +482,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <example>
         ///     <code>
-        ///         optionsBuilder.ConfigureWarnings(warnings =>
-        ///             warnings.Default(WarningBehavior.Ignore)
-        ///                     .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
-        ///                     .Throw(RelationalEventId.BoolWithDefaultWarning))
+        /// optionsBuilder.ConfigureWarnings(warnings =>
+        ///     warnings.Default(WarningBehavior.Ignore)
+        ///         .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
+        ///         .Throw(RelationalEventId.BoolWithDefaultWarning));
         ///     </code>
         /// </example>
         /// <param name="warningsConfigurationBuilderAction">
@@ -643,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => base.Equals(obj);
 

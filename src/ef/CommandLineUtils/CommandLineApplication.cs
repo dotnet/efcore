@@ -27,13 +27,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
         // remaining arguments, including the first unexpected argument, will be stored in RemainingArguments property.
         private readonly bool _throwOnUnexpectedArg;
 
-        public CommandLineApplication(bool throwOnUnexpectedArg = false)
+        public CommandLineApplication(bool throwOnUnexpectedArg = true)
         {
             _throwOnUnexpectedArg = throwOnUnexpectedArg;
             Options = new List<CommandOption>();
             Arguments = new List<CommandArgument>();
             Commands = new List<CommandLineApplication>();
             RemainingArguments = new List<string>();
+            ApplicationArguments = new List<string>();
             Invoke = (args) => 0;
         }
 
@@ -47,6 +48,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public CommandOption OptionVersion { get; private set; }
         public List<CommandArgument> Arguments { get; }
         public List<string> RemainingArguments { get; }
+        public List<string> ApplicationArguments { get; }
         public bool IsShowingInformation { get; protected set; } // Is showing help or version?
         public Func<string[],  int> Invoke { get; set; }
         public Func<string> LongVersionGetter { get; set; }
@@ -62,7 +64,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public CommandLineApplication Command(
             string name, Action<CommandLineApplication> configuration,
-            bool throwOnUnexpectedArg = false)
+            bool throwOnUnexpectedArg = true)
         {
             var command = new CommandLineApplication(throwOnUnexpectedArg) { Name = name, Parent = this };
             Commands.Add(command);
@@ -158,7 +160,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            return command.Invoke(command.RemainingArguments.ToArray());
+            return command.Invoke(command.ApplicationArguments.ToArray());
         }
 
         private ParseOptionResult ParseOption(
@@ -197,15 +199,20 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 if (isLongOption
                     && string.IsNullOrEmpty(optionName)
-                    && !command._throwOnUnexpectedArg
-                    && AllowArgumentSeparator)
+                    && command.AllowArgumentSeparator)
                 {
                     // a stand-alone "--" is the argument separator, so skip it and
-                    // handle the rest of the args as unexpected args
-                    index++;
+                    // handle the rest of the args as application args
+                    for (index++; index < args.Length; index++)
+                    {
+                        command.ApplicationArguments.Add(args[index]);
+                    }
+                }
+                else
+                {
+                    HandleUnexpectedArg(command, args, index, argTypeName: "option");
                 }
 
-                HandleUnexpectedArg(command, args, index, argTypeName: "option");
                 result = ParseOptionResult.UnexpectedArgs;
             }
             else if (command.OptionHelp == option)

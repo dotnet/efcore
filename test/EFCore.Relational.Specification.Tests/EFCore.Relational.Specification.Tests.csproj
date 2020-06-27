@@ -6,10 +6,13 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Specification.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\Shared\*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />

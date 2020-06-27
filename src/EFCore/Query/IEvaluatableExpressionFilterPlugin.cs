@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Checks whether the given expression can be evaluated.
         /// </summary>
         /// <param name="expression"> The expression. </param>
-        /// <returns> True if the expression can be evaluated; false otherwise. </returns>
+        /// <returns> <see langword="true"/> if the expression can be evaluated; <see langword="false"/> otherwise. </returns>
         bool IsEvaluatableExpression([NotNull] Expression expression);
     }
 }

@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindKeylessEntitiesQuerySqlServerTest : NorthwindKeylessEntitiesQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class NorthwindKeylessEntitiesQuerySqlServerTest : NorthwindKeylessEntitiesQueryRelationalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         public NorthwindKeylessEntitiesQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -16,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ClearLog();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected override bool CanExecuteQueryString => true;
 
         [ConditionalTheory]
         public override async Task KeylessEntity_simple(bool async)
@@ -43,15 +45,9 @@ WHERE [c].[City] = N'London'");
         {
             base.KeylessEntity_by_database_view();
 
-            // See issue#17804
-            // when we have defining query and ToView, defining query wins
-            //            AssertSql(
-            //                @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]
-            //FROM [Alphabetical list of products] AS [a]");
             AssertSql(
-                @"SELECT [p].[ProductID], [p].[ProductName], N'Food' AS [CategoryName]
-FROM [Products] AS [p]
-WHERE [p].[Discontinued] <> CAST(1 AS bit)");
+                @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]
+FROM [Alphabetical list of products] AS [a]");
         }
 
         public override void KeylessEntity_with_nav_defining_query()
@@ -155,11 +151,21 @@ WHERE EXISTS (
             await base.KeylesEntity_groupby(async);
 
             AssertSql(
-                @"SELECT [c].[City] AS [Key], COUNT(*) AS [Count], SUM(CAST(LEN([c].[Address]) AS int)) AS [Sum]
+                @"SELECT [c].[City] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST(LEN([c].[Address]) AS int)), 0) AS [Sum]
 FROM (
     SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
 ) AS [c]
 GROUP BY [c].[City]");
+        }
+
+        public override void Entity_mapped_to_view_on_right_side_of_join()
+        {
+            base.Entity_mapped_to_view_on_right_side_of_join();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [a].[CategoryName], [a].[ProductID], [a].[ProductName]
+FROM [Orders] AS [o]
+LEFT JOIN [Alphabetical list of products] AS [a] ON [o].[CustomerID] = [a].[CategoryName]");
         }
 
         private void AssertSql(params string[] expected)

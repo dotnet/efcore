@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public IEntityType EntityType { get; }
-            public IDictionary<INavigation, Expression> NavigationMap { get; } = new Dictionary<INavigation, Expression>();
+            public IDictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } = new Dictionary<(IForeignKey, bool), Expression>();
 
             public bool IsOptional { get; private set; }
             public IncludeTreeNode IncludePaths { get; private set; }
@@ -38,16 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return this;
             }
 
-            public void SetIncludePaths(IncludeTreeNode includePaths)
-            {
-                IncludePaths = includePaths;
-                includePaths.SetEntityReference(this);
-            }
-
-            public EntityReference Clone()
+            public EntityReference Snapshot()
             {
                 var result = new EntityReference(EntityType) { IsOptional = IsOptional };
-                result.IncludePaths = IncludePaths.Clone(result);
+                result.IncludePaths = IncludePaths.Snapshot(result);
 
                 return result;
             }
@@ -56,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public void MarkAsOptional() => IsOptional = true;
 
-            public void Print(ExpressionPrinter expressionPrinter)
+            void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {
                 Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
@@ -80,11 +74,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// <summary>
         ///     A tree structure of includes for a given entity type in <see cref="EntityReference"/>.
         /// </summary>
-        private sealed class IncludeTreeNode : Dictionary<INavigation, IncludeTreeNode>
+        private sealed class IncludeTreeNode : Dictionary<INavigationBase, IncludeTreeNode>
         {
             private EntityReference _entityReference;
 
-            public LambdaExpression FilterExpression { get; set; }
+            public IncludeTreeNode(IEntityType entityType)
+            {
+                EntityType = entityType;
+            }
 
             public IncludeTreeNode(IEntityType entityType, EntityReference entityReference)
             {
@@ -92,51 +89,72 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _entityReference = entityReference;
             }
 
-            public IEntityType EntityType { get; private set; }
+            public IEntityType EntityType { get; }
+            public LambdaExpression FilterExpression { get; private set; }
 
-            public IncludeTreeNode AddNavigation(INavigation navigation)
+            public IncludeTreeNode AddNavigation(INavigationBase navigation)
             {
                 if (TryGetValue(navigation, out var existingValue))
                 {
                     return existingValue;
                 }
 
-                if (_entityReference != null
-                    && _entityReference.NavigationMap.TryGetValue(navigation, out var expandedNavigation))
+                IncludeTreeNode nodeToAdd = null;
+                if (_entityReference != null)
                 {
-                    var entityReference = expandedNavigation switch
+                    if (navigation is INavigation concreteNavigation
+                        && _entityReference.ForeignKeyExpansionMap.TryGetValue(
+                            (concreteNavigation.ForeignKey, concreteNavigation.IsOnDependent), out var expansion))
                     {
-                        NavigationTreeExpression navigationTree => (EntityReference)navigationTree.Value,
-                        OwnedNavigationReference ownedNavigationReference => ownedNavigationReference.EntityReference,
-                        _ => throw new InvalidOperationException(CoreStrings.InvalidExpressionTypeStoredInNavigationMap),
-                    };
+                        nodeToAdd = UnwrapEntityReference(expansion).IncludePaths;
+                    }
+                    else if (navigation is ISkipNavigation skipNavigation
+                        && _entityReference.ForeignKeyExpansionMap.TryGetValue(
+                            (skipNavigation.ForeignKey, skipNavigation.IsOnDependent), out var firstExpansion)
+                        && UnwrapEntityReference(firstExpansion).ForeignKeyExpansionMap.TryGetValue(
+                            (skipNavigation.Inverse.ForeignKey, !skipNavigation.Inverse.IsOnDependent), out var secondExpansion))
+                    {
+                        nodeToAdd = UnwrapEntityReference(secondExpansion).IncludePaths;
+                    }
+                }
 
-                    this[navigation] = entityReference.IncludePaths;
-                }
-                else
+                if (nodeToAdd == null)
                 {
-                    this[navigation] = new IncludeTreeNode(navigation.TargetEntityType, null);
+                    nodeToAdd = new IncludeTreeNode(navigation.TargetEntityType, null);
                 }
+
+                this[navigation] = nodeToAdd;
 
                 return this[navigation];
             }
 
-            public void SetEntityReference(EntityReference entityReference)
+            public IncludeTreeNode Snapshot(EntityReference entityReference)
             {
-                _entityReference = entityReference;
-                EntityType = entityReference.EntityType;
-            }
+                var result = new IncludeTreeNode(EntityType, entityReference)
+                {
+                    FilterExpression = FilterExpression
+                };
 
-            public IncludeTreeNode Clone(EntityReference entityReference)
-            {
-                var result = new IncludeTreeNode(EntityType, entityReference);
                 foreach (var kvp in this)
                 {
-                    result[kvp.Key] = kvp.Value.Clone(kvp.Value._entityReference);
+                    result[kvp.Key] = kvp.Value.Snapshot(null);
                 }
 
                 return result;
             }
+
+            public void Merge(IncludeTreeNode includeTreeNode)
+            {
+                // EntityReference is intentionally ignored
+                FilterExpression = includeTreeNode.FilterExpression;
+                foreach (var item in includeTreeNode)
+                {
+                    AddNavigation(item.Key).Merge(item.Value);
+                }
+            }
+
+            public void AssignEntityReference(EntityReference entityReference) => _entityReference = entityReference;
+            public void ApplyFilter(LambdaExpression filterExpression) => FilterExpression = filterExpression;
 
             public override bool Equals(object obj)
                 => obj != null
@@ -237,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return this;
             }
 
-            public void Print(ExpressionPrinter expressionPrinter)
+            void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {
                 Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
@@ -287,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override Type Type => Value.Type;
 
-            public void Print(ExpressionPrinter expressionPrinter)
+            void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {
                 Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

@@ -14,9 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "GearsOfWarQueryTest";
 
-        protected GearsOfWarQueryFixtureBase()
-        {
-            var entitySorters = new Dictionary<Type, Func<object, object>>
+        public Func<DbContext> GetContextCreator() => () => CreateContext();
+
+        public ISetSource GetExpectedData() => new GearsOfWarData();
+
+        public IReadOnlyDictionary<Type, object> GetEntitySorters()
+            => new Dictionary<Type, Func<object, object>>
             {
                 { typeof(City), e => ((City)e)?.Name },
                 { typeof(CogTag), e => ((CogTag)e)?.Id },
@@ -33,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(LocustHighCommand), e => ((LocustHighCommand)e)?.Id }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, Action<object, object>>
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+            => new Dictionary<Type, Action<object, object>>
             {
                 {
                     typeof(City), (e, a) =>
@@ -269,20 +273,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
-
-            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
-        }
-
-        protected virtual QueryAsserter<GearsOfWarContext> CreateQueryAsserter(
-            Dictionary<Type, object> entitySorters,
-            Dictionary<Type, object> entityAsserters)
-            => new QueryAsserter<GearsOfWarContext>(
-                CreateContext,
-                new GearsOfWarData(),
-                entitySorters,
-                entityAsserters);
-
-        public QueryAsserterBase QueryAsserter { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

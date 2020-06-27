@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
-            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override async Task Create_table()
@@ -328,11 +328,11 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
                 @"ALTER TABLE [People] ADD [Sum] int NOT NULL DEFAULT (1 + 2);");
         }
 
-        public override async Task Add_column_with_computedSql(bool? computedColumnStored)
+        public override async Task Add_column_with_computedSql(bool? stored)
         {
-            await base.Add_column_with_computedSql(computedColumnStored);
+            await base.Add_column_with_computedSql(stored);
 
-            var computedColumnTypeSql = computedColumnStored == true ? " PERSISTED" : "";
+            var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
 
             AssertSql(
                 @$"ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};");
@@ -412,6 +412,16 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
             AssertSql(
                 @"ALTER TABLE [Base] ADD [Foo] nvarchar(max) NULL;");
+        }
+
+        public override async Task Add_column_with_check_constraint()
+        {
+            await base.Add_column_with_check_constraint();
+
+            AssertSql(
+                @"ALTER TABLE [People] ADD [DriverLicense] int NOT NULL DEFAULT 0;",
+                //
+                @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 0);");
         }
 
         [ConditionalFact]
@@ -515,11 +525,11 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;
 CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]);");
         }
 
-        public override async Task Alter_column_make_computed(bool? computedColumnStored)
+        public override async Task Alter_column_make_computed(bool? stored)
         {
-            await base.Alter_column_make_computed(computedColumnStored);
+            await base.Alter_column_make_computed(stored);
 
-            var computedColumnTypeSql = computedColumnStored == true ? " PERSISTED" : "";
+            var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
 
             AssertSql(
                 $@"DECLARE @var0 sysname;
@@ -1563,6 +1573,16 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
 
             AssertSql(
                 @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 0);");
+        }
+
+        public override async Task Alter_check_constraint()
+        {
+            await base.Alter_check_constraint();
+
+            AssertSql(
+                @"ALTER TABLE [People] DROP CONSTRAINT [CK_Foo];",
+                //
+                @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 1);");
         }
 
         public override async Task Drop_check_constraint()

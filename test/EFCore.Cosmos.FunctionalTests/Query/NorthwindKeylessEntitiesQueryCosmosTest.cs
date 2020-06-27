@@ -42,16 +42,14 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
-
-        [ConditionalFact]
+        
+        [ConditionalFact] // views are not supported
         public override void KeylessEntity_by_database_view()
         {
-            base.KeylessEntity_by_database_view();
+        }
 
-            AssertSql(
-                @"SELECT c[""ProductID""], c[""ProductName""], ""Food"" AS CategoryName
-FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
+        public override void Entity_mapped_to_view_on_right_side_of_join()
+        {
         }
 
         [ConditionalFact(Skip = "See issue#17246")]

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Table { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
     {
@@ -16,24 +16,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         {
             return (T)NextValue(entry);
         }
+
         protected override object NextValue(EntityEntry entry)
         {
             var builder = new StringBuilder();
             var entityType = entry.Metadata;
 
-            var pk = entityType.FindPrimaryKey();
+            var primaryKey = entityType.FindPrimaryKey();
             var discriminator = entityType.GetDiscriminatorValue();
             if (discriminator != null
-                && !pk.Properties.Contains(entityType.GetDiscriminatorProperty()))
+                && !primaryKey.Properties.Contains(entityType.GetDiscriminatorProperty()))
             {
                 AppendString(builder, discriminator);
                 builder.Append("-");
             }
-            
-            var partitionKey = entityType.GetPartitionKeyPropertyName() ?? CosmosClientWrapper.DefaultPartitionKey;
-            foreach (var property in pk.Properties.Where(p => p.Name != StoreKeyConvention.IdPropertyName))
+
+            var partitionKey = entityType.GetPartitionKeyPropertyName();
+            foreach (var property in primaryKey.Properties)
             {
-                if (property.Name == partitionKey)
+                if (property.Name == partitionKey
+                    || property.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName)
                 {
                     continue;
                 }
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 {
                     value = converter.ConvertToProvider(value);
                 }
-                
+
                 if (value is int x)
                 {
                     // We don't allow the Id to be zero for our custom generator.

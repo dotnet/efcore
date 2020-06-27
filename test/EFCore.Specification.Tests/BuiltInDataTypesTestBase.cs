@@ -1916,7 +1916,7 @@ namespace Microsoft.EntityFrameworkCore
                         DateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                         TimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                         Single = -1.234F,
-                        Boolean = false,
+                        Boolean = true,
                         Byte = 255,
                         UnsignedInt16 = 1234,
                         UnsignedInt32 = 1234565789U,
@@ -1953,7 +1953,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => dt.DateTimeOffset);
                 AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TimeSpan);
                 AssertEqualIfMapped(entityType, -1.234F, () => dt.Single);
-                AssertEqualIfMapped(entityType, false, () => dt.Boolean);
+                AssertEqualIfMapped(entityType, true, () => dt.Boolean);
                 AssertEqualIfMapped(entityType, (byte)255, () => dt.Byte);
                 AssertEqualIfMapped(entityType, Enum64.SomeValue, () => dt.Enum64);
                 AssertEqualIfMapped(entityType, Enum32.SomeValue, () => dt.Enum32);
@@ -1992,6 +1992,31 @@ namespace Microsoft.EntityFrameworkCore
 
             var result = Assert.Single(query.ToList());
             Assert.True(result.BoolField);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_compare_enum_to_constant()
+        {
+            using var context = CreateContext();
+            var query = context.Set<AnimalIdentification>()
+                .Where(a => a.Method == IdentificationMethod.EarTag)
+                .ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal(IdentificationMethod.EarTag, result.Method);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_compare_enum_to_parameter()
+        {
+            var method = IdentificationMethod.EarTag;
+            using var context = CreateContext();
+            var query = context.Set<AnimalIdentification>()
+                .Where(a => a.Method == method)
+                .ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal(IdentificationMethod.EarTag, result.Method);
         }
 
         [ConditionalFact]

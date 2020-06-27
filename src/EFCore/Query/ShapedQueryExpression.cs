@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -110,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new ShapedQueryExpression(QueryExpression, ShaperExpression, resultCardinality);
 
         /// <inheritdoc />
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

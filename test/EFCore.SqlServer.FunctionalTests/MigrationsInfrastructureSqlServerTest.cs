@@ -498,7 +498,7 @@ GO
 
                         b.HasIndex("NormalizedName")
                             .IsUnique()
-                            .HasName("RoleNameIndex")
+                            .HasName("RoleNameIndex") // Don't change to HasDatabaseName
                             .HasFilter("[NormalizedName] IS NOT NULL");
 
                         b.ToTable("AspNetRoles");
@@ -1301,8 +1301,8 @@ namespace Identity30.Data
             builder.Entity<IdentityUser>(
                 b =>
                 {
-                    b.HasIndex(u => u.NormalizedUserName).HasName("UserNameIndex").IsUnique();
-                    b.HasIndex(u => u.NormalizedEmail).HasName("EmailIndex");
+                    b.HasIndex(u => u.NormalizedUserName).HasDatabaseName("UserNameIndex").IsUnique();
+                    b.HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex");
                     b.ToTable("AspNetUsers");
                 });
 
@@ -1327,7 +1327,7 @@ namespace Identity30.Data
             builder.Entity<IdentityRole>(
                 b =>
                 {
-                    b.HasIndex(r => r.NormalizedName).HasName("RoleNameIndex").IsUnique();
+                    b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
                     b.ToTable("AspNetRoles");
                 });
 

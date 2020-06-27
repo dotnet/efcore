@@ -25,6 +25,26 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
+        public void CreateContext_gets_service_when_context_factory_used()
+        {
+            CreateOperations(typeof(TestProgramWithContextFactory)).CreateContext(typeof(TestContextFromFactory).FullName);
+        }
+
+        [ConditionalFact]
+        public void Can_pass_null_args()
+        {
+            // Even though newer versions of the tools will pass an empty array
+            // older versions of the tools can pass null args.
+            var assembly = MockAssembly.Create(typeof(TestContext));
+            _ = new TestDbContextOperations(
+                new TestOperationReporter(),
+                assembly,
+                assembly,
+                args: null,
+                new TestAppServiceProviderFactory(assembly));
+        }
+
+        [ConditionalFact]
         public void CreateContext_uses_exact_factory_method()
         {
             var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
@@ -105,6 +125,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         .BuildServiceProvider());
         }
 
+        private static class TestProgramWithContextFactory
+        {
+            private static TestWebHost BuildWebHost(string[] args)
+                => new TestWebHost(
+                    new ServiceCollection()
+                        .AddDbContextFactory<TestContextFromFactory>(b => b.UseInMemoryDatabase("In-memory test database"))
+                        .BuildServiceProvider());
+        }
+
         private static class TestProgramRelational
         {
             private static TestWebHost BuildWebHost(string[] args)
@@ -144,6 +173,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             public TestContext(DbContextOptions<TestContext> options)
+                : base(options)
+            {
+            }
+        }
+
+        private class TestContextFromFactory : DbContext
+        {
+            private TestContextFromFactory()
+            {
+                throw new Exception("This isn't the constructor you're looking for.");
+            }
+
+            public TestContextFromFactory(DbContextOptions<TestContextFromFactory> options)
                 : base(options)
             {
             }

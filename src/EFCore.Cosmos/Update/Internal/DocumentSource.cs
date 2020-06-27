@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Linq;
 using JetBrains.Annotations;
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         {
             _collectionId = entityType.GetContainer();
             _database = database;
-            _idProperty = entityType.FindProperty(StoreKeyConvention.IdPropertyName);
+            _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
             _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
         }
 
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GetId([NotNull] IUpdateEntry entry)
-            => entry.GetCurrentValue<string>(_idProperty);
+            => (string)entry.GetCurrentProviderValue(_idProperty);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 var storeName = property.GetJsonPropertyName();
                 if (storeName.Length != 0)
                 {
-                    document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
+                    document[storeName] = ConvertPropertyValue(property, entry);
                 }
                 else if (entry.HasTemporaryValue(property))
                 {
@@ -169,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     var storeName = property.GetJsonPropertyName();
                     if (storeName.Length != 0)
                     {
-                        document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
+                        document[storeName] = ConvertPropertyValue(property, entry);
                         anyPropertyUpdated = true;
                     }
                 }
@@ -318,20 +319,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
                 : null;
 
-        private static JToken ConvertPropertyValue(IProperty property, object value)
+        private static JToken ConvertPropertyValue(IProperty property, IUpdateEntry entry)
         {
-            if (value == null)
-            {
-                return null;
-            }
-
-            var converter = property.GetTypeMapping().Converter;
-            if (converter != null)
-            {
-                value = converter.ConvertToProvider(value);
-            }
-
-            return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
+            var value = entry.GetCurrentProviderValue(property);
+            return value == null
+                ? null
+                : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
         }
     }
 }

@@ -1201,7 +1201,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip = "Issue #15182")]
+        [ConditionalFact]
         public virtual void Nullable_fields_get_defaults_when_not_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -1212,64 +1212,189 @@ namespace Microsoft.EntityFrameworkCore
                     context.SaveChanges();
 
                     Assert.NotEqual(0, entity.Id);
-                    Assert.True(entity.NullableBackedBool);
-                    Assert.Equal(-1, entity.NullableBackedInt);
+                    Assert.True(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(-1, entity.NullableBackedIntNonZeroDefault);
+                    Assert.False(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(0, entity.NullableBackedIntZeroDefault);
                 },
                 context =>
                 {
                     var entity = context.Set<WithNullableBackingFields>().Single();
-                    Assert.True(entity.NullableBackedBool);
-                    Assert.Equal(-1, entity.NullableBackedInt);
+                    Assert.True(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(-1, entity.NullableBackedIntNonZeroDefault);
+                    Assert.False(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(0, entity.NullableBackedIntZeroDefault);
                 });
         }
 
-        [ConditionalFact(Skip = "Issue #15182")]
+        [ConditionalFact]
         public virtual void Nullable_fields_store_non_defaults_when_set()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var entity = context.Add(new WithNullableBackingFields { NullableBackedBool = false, NullableBackedInt = 0 }).Entity;
+                    var entity = context.Add(
+                        new WithNullableBackingFields
+                        {
+                            NullableBackedBoolTrueDefault = false,
+                            NullableBackedIntNonZeroDefault = 0,
+                            NullableBackedBoolFalseDefault = true,
+                            NullableBackedIntZeroDefault = -1
+                        }).Entity;
 
                     context.SaveChanges();
 
                     Assert.NotEqual(0, entity.Id);
-                    Assert.False(entity.NullableBackedBool);
-                    Assert.Equal(0, entity.NullableBackedInt);
+                    Assert.False(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(0, entity.NullableBackedIntNonZeroDefault);
+                    Assert.True(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(-1, entity.NullableBackedIntZeroDefault);
                 },
                 context =>
                 {
                     var entity = context.Set<WithNullableBackingFields>().Single();
-                    Assert.False(entity.NullableBackedBool);
-                    Assert.Equal(0, entity.NullableBackedInt);
+                    Assert.False(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(0, entity.NullableBackedIntNonZeroDefault);
+                    Assert.True(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(-1, entity.NullableBackedIntZeroDefault);
                 });
         }
 
-        [ConditionalFact(Skip = "Issue #15182")]
+        [ConditionalFact]
         public virtual void Nullable_fields_store_any_value_when_set()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var entity = context.Add(new WithNullableBackingFields { NullableBackedBool = true, NullableBackedInt = 3 }).Entity;
+                    var entity = context.Add(
+                        new WithNullableBackingFields
+                        {
+                            NullableBackedBoolTrueDefault = true,
+                            NullableBackedIntNonZeroDefault = 3,
+                            NullableBackedBoolFalseDefault = true,
+                            NullableBackedIntZeroDefault = 5
+                        }).Entity;
 
                     context.SaveChanges();
 
                     Assert.NotEqual(0, entity.Id);
-                    Assert.True(entity.NullableBackedBool);
-                    Assert.Equal(3, entity.NullableBackedInt);
+                    Assert.True(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(3, entity.NullableBackedIntNonZeroDefault);
+                    Assert.True(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(5, entity.NullableBackedIntZeroDefault);
                 },
                 context =>
                 {
                     var entity = context.Set<WithNullableBackingFields>().Single();
-                    Assert.True(entity.NullableBackedBool);
-                    Assert.Equal(3, entity.NullableBackedInt);
+                    Assert.True(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(3, entity.NullableBackedIntNonZeroDefault);
+                    Assert.True(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(5, entity.NullableBackedIntZeroDefault);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Object_fields_get_defaults_when_not_set()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Add(new WithObjectBackingFields()).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.NotEqual(0, entity.Id);
+                    Assert.True(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(-1, entity.NullableBackedIntNonZeroDefault);
+                    Assert.False(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(0, entity.NullableBackedIntZeroDefault);
+                },
+                context =>
+                {
+                    var entity = context.Set<WithObjectBackingFields>().Single();
+                    Assert.True(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(-1, entity.NullableBackedIntNonZeroDefault);
+                    Assert.False(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(0, entity.NullableBackedIntZeroDefault);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Object_fields_store_non_defaults_when_set()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Add(
+                        new WithObjectBackingFields
+                        {
+                            NullableBackedBoolTrueDefault = false,
+                            NullableBackedIntNonZeroDefault = 0,
+                            NullableBackedBoolFalseDefault = true,
+                            NullableBackedIntZeroDefault = -1
+                        }).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.NotEqual(0, entity.Id);
+                    Assert.False(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(0, entity.NullableBackedIntNonZeroDefault);
+                    Assert.True(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(-1, entity.NullableBackedIntZeroDefault);
+                },
+                context =>
+                {
+                    var entity = context.Set<WithObjectBackingFields>().Single();
+                    Assert.False(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(0, entity.NullableBackedIntNonZeroDefault);
+                    Assert.True(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(-1, entity.NullableBackedIntZeroDefault);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Object_fields_store_any_value_when_set()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Add(
+                        new WithObjectBackingFields
+                        {
+                            NullableBackedBoolTrueDefault = true,
+                            NullableBackedIntNonZeroDefault = 3,
+                            NullableBackedBoolFalseDefault = true,
+                            NullableBackedIntZeroDefault = 5
+                        }).Entity;
+
+                    context.SaveChanges();
+
+                    Assert.NotEqual(0, entity.Id);
+                    Assert.True(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(3, entity.NullableBackedIntNonZeroDefault);
+                    Assert.True(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(5, entity.NullableBackedIntZeroDefault);
+                },
+                context =>
+                {
+                    var entity = context.Set<WithObjectBackingFields>().Single();
+                    Assert.True(entity.NullableBackedBoolTrueDefault);
+                    Assert.Equal(3, entity.NullableBackedIntNonZeroDefault);
+                    Assert.True(entity.NullableBackedBoolFalseDefault);
+                    Assert.Equal(5, entity.NullableBackedIntZeroDefault);
                 });
         }
 
         protected class Darwin
         {
-            public int Id { get; set; }
+            public int? _id;
+
+            public int Id
+            {
+                get => _id ?? 0;
+                set => _id = value;
+            }
+
             public string Name { get; set; }
         }
 
@@ -1380,24 +1505,83 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id
             {
-                get => _id ?? 0;
+                get => _id ?? throw new Exception("Bang!");
                 set => _id = value;
             }
 
-            private bool? _nullableBackedBool;
+            private bool? _nullableBackedBoolTrueDefault;
 
-            public bool NullableBackedBool
+            public bool NullableBackedBoolTrueDefault
             {
-                get => _nullableBackedBool ?? false;
-                set => _nullableBackedBool = value;
+                get => _nullableBackedBoolTrueDefault ?? true;
+                set => _nullableBackedBoolTrueDefault = value;
             }
 
-            private int? _nullableBackedInt;
+            private int? _nullableBackedIntNonZeroDefault;
 
-            public int NullableBackedInt
+            public int NullableBackedIntNonZeroDefault
             {
-                get => _nullableBackedInt ?? 0;
-                set => _nullableBackedInt = value;
+                get => _nullableBackedIntNonZeroDefault ?? -1;
+                set => _nullableBackedIntNonZeroDefault = value;
+            }
+
+            private bool? _nullableBackedBoolFalseDefault;
+
+            public bool NullableBackedBoolFalseDefault
+            {
+                get => _nullableBackedBoolFalseDefault ?? false;
+                set => _nullableBackedBoolFalseDefault = value;
+            }
+
+            private int? _nullableBackedIntZeroDefault;
+
+            public int NullableBackedIntZeroDefault
+            {
+                get => _nullableBackedIntZeroDefault ?? 0;
+                set => _nullableBackedIntZeroDefault = value;
+            }
+        }
+
+        protected class WithObjectBackingFields
+        {
+            private object _id;
+
+            public int Id
+            {
+                get => (int)(_id ?? 0);
+                set => _id = value;
+            }
+
+            private object _nullableBackedBoolTrueDefault;
+
+            public bool NullableBackedBoolTrueDefault
+            {
+                get => (bool)(_nullableBackedBoolTrueDefault ?? throw new Exception("Bang!"));
+                set => _nullableBackedBoolTrueDefault = value;
+            }
+
+            private object _nullableBackedIntNonZeroDefault;
+
+            public int NullableBackedIntNonZeroDefault
+            {
+                get => (int)(_nullableBackedIntNonZeroDefault ?? throw new Exception("Bang!"));
+                set => _nullableBackedIntNonZeroDefault = value;
+            }
+
+            private object _nullableBackedBoolFalseDefault;
+
+            public bool NullableBackedBoolFalseDefault
+            {
+                get => (bool)(_nullableBackedBoolFalseDefault ?? false);
+                set => _nullableBackedBoolFalseDefault = value;
+            }
+
+            private object _nullableBackedIntZeroDefault;
+
+            public int NullableBackedIntZeroDefault
+            {
+                get => (int)(_nullableBackedIntZeroDefault ?? 0);
+                set => _nullableBackedIntZeroDefault = value;
             }
         }
 
