@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class BackingFieldConvention :
         IPropertyAddedConvention,
         INavigationAddedConvention,
+        ISkipNavigationAddedConvention,
         IModelFinalizingConvention
     {
         /// <summary>
@@ -257,6 +258,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);
                     }
                 }
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessSkipNavigationAdded(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            IConventionContext<IConventionSkipNavigationBuilder> context)
+        {
+            var field = GetFieldToSet(skipNavigationBuilder.Metadata);
+            if (field != null)
+            {
+                skipNavigationBuilder.HasField(field);
             }
         }
     }

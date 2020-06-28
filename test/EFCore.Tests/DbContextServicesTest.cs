@@ -393,11 +393,11 @@ namespace Microsoft.EntityFrameworkCore
             public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery) =>
                 throw new NotImplementedException();
 
-            public void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue) =>
+            public void NavigationReferenceChanged(InternalEntityEntry entry, INavigationBase navigationBase, object oldValue, object newValue) =>
                 throw new NotImplementedException();
 
             public void NavigationCollectionChanged(
-                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed) =>
+                InternalEntityEntry entry, INavigationBase navigationBase, IEnumerable<object> added, IEnumerable<object> removed) =>
                 throw new NotImplementedException();
 
             public void KeyPropertyChanged(

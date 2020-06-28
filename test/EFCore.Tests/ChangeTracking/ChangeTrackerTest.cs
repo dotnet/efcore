@@ -252,6 +252,48 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
+        public void Detect_skip_collection_change_is_logged(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
+            var cat = context.Cats.Include(e => e.Mats).Single(e => e.Id == 1);
+            var mat = cat.Mats.Single(h => h.Id == 77);
+
+            _loggerFactory.Log.Clear();
+
+            cat.Mats.Clear();
+            context.ChangeTracker.DetectChanges();
+
+            var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.SkipCollectionChangeDetected.Id);
+            Assert.Equal(LogLevel.Debug, level);
+            Assert.Equal(
+                sensitive
+                    ? CoreResources.LogSkipCollectionChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Mats), "{Id: 1}")
+                    : CoreResources.LogSkipCollectionChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Mats)),
+                message);
+
+            _loggerFactory.Log.Clear();
+
+            cat.Mats.Add(mat);
+            context.ChangeTracker.DetectChanges();
+
+            (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.SkipCollectionChangeDetected.Id);
+            Assert.Equal(LogLevel.Debug, level);
+            Assert.Equal(
+                sensitive
+                    ? CoreResources.LogSkipCollectionChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(1, 0, nameof(Cat), nameof(Cat.Mats), "{Id: 1}")
+                    : CoreResources.LogSkipCollectionChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(1, 0, nameof(Cat), nameof(Cat.Mats)),
+                message);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
         public void Detect_reference_change_is_logged(bool sensitive)
         {
             Seed(sensitive);
@@ -1130,6 +1172,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public string Name { get; set; }
 
             public ICollection<Hat> Hats { get; } = new List<Hat>();
+
+            public ICollection<Mat> Mats { get; } = new List<Mat>();
         }
 
         private class Hat
@@ -1143,6 +1187,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public int CatId { get; set; }
             public Cat Cat { get; set; }
+        }
+
+        private class Mat
+        {
+            public Mat(int id) => Id = id;
+
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+            public int Id { get; private set; }
+
+            public ICollection<Cat> Cats { get; } = new List<Cat>();
+        }
+
+        private class CatMat
+        {
+            public int CatId { get; set; }
+            public int MatId { get; set; }
         }
 
         private static readonly ListLoggerFactory _loggerFactory
@@ -1202,6 +1262,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     .Entity<Hat>()
                     .Property(e => e.Id)
                     .HasValueGenerator<InMemoryIntegerValueGenerator<int>>();
+
+                modelBuilder.Entity<Mat>(b =>
+                {
+                    b.Property(e => e.Id).HasValueGenerator<InMemoryIntegerValueGenerator<int>>();
+                    b.HasMany(e => e.Cats)
+                        .WithMany(e => e.Mats)
+                        .UsingEntity<CatMat>(
+                            ts => ts.HasOne<Cat>().WithMany(),
+                            ts => ts.HasOne<Mat>().WithMany())
+                        .HasKey(ts => new { ts.CatId, ts.MatId });
+                });
             }
         }
 
@@ -1223,10 +1294,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var cat1 = new Cat(1) { Name = "Smokey" };
                 var cat2 = new Cat(2) { Name = "Sid" };
 
-                cat1.Hats.Add(
-                    new Hat(77) { Color = "Pine Green" });
+                cat1.Hats.Add(new Hat(77) { Color = "Pine Green" });
 
                 context.AddRange(cat1, cat2);
+
+                var mat = new Mat(77);
+                context.Add(mat);
+                cat1.Mats.Add(mat);
 
                 context.SaveChanges();
             }

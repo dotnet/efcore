@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         void RecordReferencedUntrackedEntity(
-            [NotNull] object referencedEntity, [NotNull] INavigation navigation, [NotNull] InternalEntityEntry referencedFromEntry);
+            [NotNull] object referencedEntity, [NotNull] INavigationBase navigation, [NotNull] InternalEntityEntry referencedFromEntry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferrers([NotNull] object referencedEntity, bool clear);
+        IEnumerable<Tuple<INavigationBase, InternalEntityEntry>> GetRecordedReferrers([NotNull] object referencedEntity, bool clear);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

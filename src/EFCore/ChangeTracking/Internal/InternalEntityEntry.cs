@@ -783,11 +783,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object GetOrCreateCollection([NotNull] INavigation navigation, bool forMaterialization)
+        public virtual object GetOrCreateCollection([NotNull] INavigationBase navigation, bool forMaterialization)
         {
             Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
 
-            return ((Navigation)navigation).CollectionAccessor.GetOrCreate(Entity, forMaterialization);
+            return navigation is SkipNavigation skipNavigation
+                ? skipNavigation.CollectionAccessor.GetOrCreate(Entity, forMaterialization)
+                : ((Navigation)navigation).CollectionAccessor.GetOrCreate(Entity, forMaterialization);
         }
 
         /// <summary>
@@ -796,11 +798,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CollectionContains([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        public virtual bool CollectionContains([NotNull] INavigationBase navigation, [NotNull] InternalEntityEntry value)
         {
             Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
 
-            return ((Navigation)navigation).CollectionAccessor.Contains(Entity, value.Entity);
+            return navigation is SkipNavigation skipNavigation
+                ? skipNavigation.CollectionAccessor.Contains(Entity, value.Entity)
+                : ((Navigation)navigation).CollectionAccessor.Contains(Entity, value.Entity);
         }
 
         /// <summary>
@@ -810,13 +814,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool AddToCollection(
-            [NotNull] INavigation navigation,
+            [NotNull] INavigationBase navigation,
             [NotNull] InternalEntityEntry value,
             bool forMaterialization)
         {
             Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
 
-            return ((Navigation)navigation).CollectionAccessor.Add(Entity, value.Entity, forMaterialization);
+            return navigation is SkipNavigation skipNavigation
+                ? skipNavigation.CollectionAccessor.Add(Entity, value.Entity, forMaterialization)
+                : ((Navigation)navigation).CollectionAccessor.Add(Entity, value.Entity, forMaterialization);
         }
 
         /// <summary>
@@ -825,11 +831,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool RemoveFromCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        public virtual bool RemoveFromCollection([NotNull] INavigationBase navigation, [NotNull] InternalEntityEntry value)
         {
             Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
 
-            return ((Navigation)navigation).CollectionAccessor.Remove(Entity, value.Entity);
+            return navigation is SkipNavigation skipNavigation
+                ? skipNavigation.CollectionAccessor.Remove(Entity, value.Entity)
+                : ((Navigation)navigation).CollectionAccessor.Remove(Entity, value.Entity);
         }
 
         /// <summary>
@@ -1212,7 +1220,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, isFlagged: false);
                     }
 
-                    if (propertyBase is INavigation navigation)
+                    if (propertyBase is INavigationBase navigation)
                     {
                         if (!navigation.IsCollection)
                         {
@@ -1689,7 +1697,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsLoaded([NotNull] INavigation navigation)
+        public virtual bool IsLoaded([NotNull] INavigationBase navigation)
             => _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
 
         /// <summary>

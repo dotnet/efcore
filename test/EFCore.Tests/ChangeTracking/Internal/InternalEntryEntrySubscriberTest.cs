@@ -510,17 +510,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class TestNavigationListener : INavigationFixer
         {
-            public List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
-                = new List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>>();
+            public List<Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
+                = new List<Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>>>();
 
             public void NavigationReferenceChanged(
-                InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
+                InternalEntityEntry entry, INavigationBase navigationBase, object oldValue, object newValue)
             {
             }
 
             public void NavigationCollectionChanged(
-                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
-                => CollectionChanged.Add(Tuple.Create(entry, navigation, added, removed));
+                InternalEntityEntry entry, INavigationBase navigationBase, IEnumerable<object> added, IEnumerable<object> removed)
+                => CollectionChanged.Add(Tuple.Create(entry, navigationBase, added, removed));
 
             public void TrackedFromQuery(InternalEntityEntry entry)
             {

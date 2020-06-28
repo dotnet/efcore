@@ -123,10 +123,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void StopTracking(InternalEntityEntry entry, EntityState oldState) => throw new NotImplementedException();
 
         public void RecordReferencedUntrackedEntity(
-            object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry) =>
+            object referencedEntity, INavigationBase navigation, InternalEntityEntry referencedFromEntry) =>
             throw new NotImplementedException();
 
-        public IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear) =>
+        public IEnumerable<Tuple<INavigationBase, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear) =>
             throw new NotImplementedException();
 
         public InternalEntityEntry FindPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>

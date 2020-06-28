@@ -300,9 +300,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override void Seed(ManyToManyContext context) => ManyToManyContext.Seed(context);
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder);
     }
 }
 

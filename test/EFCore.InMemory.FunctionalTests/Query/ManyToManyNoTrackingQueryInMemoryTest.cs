@@ -5,12 +5,19 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyNoTrackingQueryInMemoryTest : ManyToManyNoTrackingQueryTestBase<ManyToManyQueryInMemoryFixture>
+    public class ManyToManyNoTrackingQueryInMemoryTest
+        : ManyToManyNoTrackingQueryTestBase<ManyToManyNoTrackingQueryInMemoryTest.ManyToManyNoTrackingFixture>
     {
-        public ManyToManyNoTrackingQueryInMemoryTest(ManyToManyQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
+        public ManyToManyNoTrackingQueryInMemoryTest(ManyToManyNoTrackingFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
+        }
+
+        public class ManyToManyNoTrackingFixture : ManyToManyQueryInMemoryFixture
+        {
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
         }
+
         protected override bool IgnoreEntryCount => true;
 
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)

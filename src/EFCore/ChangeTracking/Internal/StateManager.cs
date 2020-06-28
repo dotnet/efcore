@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly EntityReferenceMap _entityReferenceMap
             = new EntityReferenceMap(hasSubMap: true);
 
-        private IDictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>> _referencedUntrackedEntities;
+        private IDictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>> _referencedUntrackedEntities;
         private IIdentityMap _identityMap0;
         private IIdentityMap _identityMap1;
         private Dictionary<IKey, IIdentityMap> _identityMaps;
@@ -695,17 +695,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void RecordReferencedUntrackedEntity(
-            object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry)
+            object referencedEntity, INavigationBase navigation, InternalEntityEntry referencedFromEntry)
         {
             if (_referencedUntrackedEntities == null)
             {
                 _referencedUntrackedEntities
-                    = new Dictionary<object, IList<Tuple<INavigation, InternalEntityEntry>>>(LegacyReferenceEqualityComparer.Instance);
+                    = new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(LegacyReferenceEqualityComparer.Instance);
             }
 
             if (!_referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
             {
-                danglers = new List<Tuple<INavigation, InternalEntityEntry>>();
+                danglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();
                 _referencedUntrackedEntities.Add(referencedEntity, danglers);
             }
 
@@ -718,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear)
+        public virtual IEnumerable<Tuple<INavigationBase, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear)
         {
             if (_referencedUntrackedEntities != null
                 && _referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
@@ -731,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return danglers;
             }
 
-            return Enumerable.Empty<Tuple<INavigation, InternalEntityEntry>>();
+            return Enumerable.Empty<Tuple<INavigationBase, InternalEntityEntry>>();
         }
 
         /// <summary>

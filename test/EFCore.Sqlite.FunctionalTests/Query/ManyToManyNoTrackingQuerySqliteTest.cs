@@ -6,9 +6,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyNoTrackingQuerySqliteTest : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
+    public class ManyToManyNoTrackingQuerySqliteTest
+        : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyNoTrackingQuerySqliteTest.ManyToManyNoTrackingFixture>
     {
-        public ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
+        public ManyToManyNoTrackingQuerySqliteTest(ManyToManyNoTrackingFixture fixture)
             : base(fixture)
         {
         }
@@ -21,5 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue#21541")]
         public override Task Left_join_with_skip_navigation(bool async) => base.Left_join_with_skip_navigation(async);
+
+        public class ManyToManyNoTrackingFixture : ManyToManyQuerySqliteFixture
+        {
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        }
     }
 }

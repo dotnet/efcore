@@ -2283,6 +2283,112 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.CollectionChangeDetected" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="internalEntityEntry"> The internal entity entry. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="added"> The added values. </param>
+        /// <param name="removed"> The removed values. </param>
+        public static void SkipCollectionChangeDetected(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            [NotNull] InternalEntityEntry internalEntityEntry,
+            [NotNull] ISkipNavigation navigation,
+            [NotNull] ISet<object> added,
+            [NotNull] ISet<object> removed)
+        {
+            var definition = CoreResources.LogSkipCollectionChangeDetected(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(
+                    diagnostics,
+                    added.Count,
+                    removed.Count,
+                    navigation.DeclaringEntityType.ShortName(),
+                    navigation.Name);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new SkipCollectionChangedEventData(
+                    definition,
+                    SkipCollectionChangeDetected,
+                    new EntityEntry(internalEntityEntry),
+                    navigation,
+                    added,
+                    removed);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string SkipCollectionChangeDetected(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<int, int, string, string>)definition;
+            var p = (SkipCollectionChangedEventData)payload;
+            return d.GenerateMessage(
+                p.Added.Count(),
+                p.Removed.Count(),
+                p.Navigation.DeclaringEntityType.ShortName(),
+                p.Navigation.Name);
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.CollectionChangeDetected" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="internalEntityEntry"> The internal entity entry. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="added"> The added values. </param>
+        /// <param name="removed"> The removed values. </param>
+        public static void SkipCollectionChangeDetectedSensitive(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            [NotNull] InternalEntityEntry internalEntityEntry,
+            [NotNull] ISkipNavigation navigation,
+            [NotNull] ISet<object> added,
+            [NotNull] ISet<object> removed)
+        {
+            var definition = CoreResources.LogSkipCollectionChangeDetectedSensitive(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(
+                    diagnostics,
+                    added.Count,
+                    removed.Count,
+                    navigation.DeclaringEntityType.ShortName(),
+                    navigation.Name,
+                    internalEntityEntry.BuildCurrentValuesString(navigation.DeclaringEntityType.FindPrimaryKey().Properties));
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new SkipCollectionChangedEventData(
+                    definition,
+                    SkipCollectionChangeDetectedSensitive,
+                    new EntityEntry(internalEntityEntry),
+                    navigation,
+                    added,
+                    removed);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string SkipCollectionChangeDetectedSensitive(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<int, int, string, string, string>)definition;
+            var p = (SkipCollectionChangedEventData)payload;
+            return d.GenerateMessage(
+                p.Added.Count(),
+                p.Removed.Count(),
+                p.Navigation.DeclaringEntityType.ShortName(),
+                p.Navigation.Name,
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Navigation.DeclaringEntityType.FindPrimaryKey().Properties));
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.ReferenceChangeDetected" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

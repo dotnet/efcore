@@ -31,6 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new[] { property }, otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
             var navigation = new Navigation("N", propertyInfo, null, foreignKey);
+            var skipNavigation = new SkipNavigation(
+                "SN", propertyInfo, null, entityType, otherEntityType, true, false, ConfigurationSource.Convention);
+
             entityType.Model.FinalizeModel();
             var options = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
@@ -59,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IReadOnlyList<Exception>), () => new[] { new Exception() } },
                 { typeof(IProperty), () => property },
                 { typeof(INavigation), () => navigation },
+                { typeof(ISkipNavigation), () => skipNavigation },
                 { typeof(IForeignKey), () => foreignKey },
                 { typeof(InternalEntityEntry), () => new FakeInternalEntityEntry(entityType) },
                 { typeof(ISet<object>), () => new HashSet<object>() },

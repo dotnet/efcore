@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     A <see cref="DiagnosticSource" /> event payload class for events that have an <see cref="ISkipNavigation"/>.
+    ///     A <see cref="DiagnosticSource" /> event payload class for events that have an <see cref="INavigation"/>.
     /// </summary>
-    public class NavigationEventData : NavigationBaseEventData
+    public class SkipNavigationEventData : NavigationBaseEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="navigation"> The navigation. </param>
-        public NavigationEventData(
+        public SkipNavigationEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] INavigation navigation)
+            [NotNull] ISkipNavigation navigation)
             : base(eventDefinition, messageGenerator, navigation)
         {
             Navigation = navigation;
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation.
         /// </summary>
-        public virtual INavigation Navigation { get; }
+        public virtual ISkipNavigation Navigation { get; }
 
         /// <summary>
         ///     The navigation.
