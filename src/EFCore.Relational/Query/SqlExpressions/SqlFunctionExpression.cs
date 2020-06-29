@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public class SqlFunctionExpression : SqlExpression
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
+        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class which represents a built-in niladic function.
         /// </summary>
         /// <param name="functionName"> The name of the function. </param>
         /// <param name="nullable"> A bool value indicating whether this function can return null. </param>
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
+        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class which represents a niladic function.
         /// </summary>
         /// <param name="schema"> The schema in which the function is defined. </param>
         /// <param name="functionName"> The name of the function. </param>
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
+        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class which represents a niladic function which is invoked on an instance.
         /// </summary>
         /// <param name="instance"> An expression on which the function is defined. </param>
         /// <param name="functionName"> The name of the function. </param>
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
+        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class which represents a built-in function.
         /// </summary>
         /// <param name="functionName"> The name of the function. </param>
         /// <param name="arguments"> The arguments of the function. </param>
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
+        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class which represents a function.
         /// </summary>
         /// <param name="schema"> The schema in which the function is defined. </param>
         /// <param name="functionName"> The name of the function. </param>
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class.
+        ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class which represents a function which is invoked on an instance.
         /// </summary>
         /// <param name="instance"> An expression on which the function is applied. </param>
         /// <param name="functionName"> The name of the function. </param>
