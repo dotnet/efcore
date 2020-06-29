@@ -203,6 +203,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public void Dispose()
             {
                 _dataReader?.Dispose();
+                foreach (var dataReader in _resultCoordinator.DataReaders)
+                {
+                    dataReader?.DataReader.Dispose();
+                }
+                _resultCoordinator.DataReaders.Clear();
+
                 _dataReader = null;
             }
 
@@ -300,17 +306,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return result;
             }
 
-            public ValueTask DisposeAsync()
+            public async ValueTask DisposeAsync()
             {
                 if (_dataReader != null)
                 {
-                    var dataReader = _dataReader;
+                    await _dataReader.DisposeAsync().ConfigureAwait(false);
+                    foreach (var dataReader in _resultCoordinator.DataReaders)
+                    {
+                        if (dataReader != null)
+                        {
+                            await dataReader.DataReader.DisposeAsync().ConfigureAwait(false);
+                        }
+                    }
+                    _resultCoordinator.DataReaders.Clear();
+
                     _dataReader = null;
-
-                    return dataReader.DisposeAsync();
                 }
-
-                return default;
             }
         }
     }

@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
@@ -7467,6 +7468,62 @@ ORDER BY [p].[Id]"
                             });
         }
 
+        [ConditionalFact]
+        public virtual void SplitQuery_disposes_inner_data_readers()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+            var dbConnection = context.Database.GetDbConnection();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        }
+
+        [ConditionalFact]
+        public virtual async Task SplitQuery_disposes_inner_data_readers_async()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+            var dbConnection = context.Database.GetDbConnection();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+
+            await context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToListAsync();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        }
+
+        [ConditionalFact]
+        public virtual void SplitQuery_disposes_inner_data_readers_single()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+            var dbConnection = context.Database.GetDbConnection();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().Single();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        }
+
+        [ConditionalFact]
+        public virtual async Task SplitQuery_disposes_inner_data_readers_single_async()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+            var dbConnection = context.Database.GetDbConnection();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+
+            await context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().SingleAsync();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        }
+
         private class Parent21355
         {
             public string Id { get; set; }
@@ -7511,10 +7568,10 @@ ORDER BY [p].[Id]"
                 {
                     Id = "Parent1",
                     Children1 = new List<Child21355>
-                {
-                    new Child21355(),
-                    new Child21355()
-                }
+                    {
+                        new Child21355(),
+                        new Child21355()
+                    }
                 });
                 context.SaveChanges();
             }
