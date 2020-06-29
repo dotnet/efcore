@@ -7423,7 +7423,7 @@ ORDER BY [p].[Id]"
         }
 
         [ConditionalFact]
-        public virtual void Using_AsSingleQuery_withouth_context_configuration_does_not_throw_warning()
+        public virtual void Using_AsSingleQuery_without_context_configuration_does_not_throw_warning()
         {
             var (options, testSqlLoggerFactory) = CreateOptions21355(null);
             using var context = new BugContext21355(options);
@@ -7442,7 +7442,7 @@ ORDER BY [p].[Id], [c].[Id], [a].[Id]"
         }
 
         [ConditionalFact]
-        public virtual void Using_AsSplitQuery_withouth_context_configuration_does_not_throw_warning()
+        public virtual void Using_AsSplitQuery_without_context_configuration_does_not_throw_warning()
         {
             var (options, testSqlLoggerFactory) = CreateOptions21355(null);
             using var context = new BugContext21355(options);
@@ -7450,8 +7450,8 @@ ORDER BY [p].[Id], [c].[Id], [a].[Id]"
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
 
             testSqlLoggerFactory.AssertBaseline(
-                            new[]
-                            {
+                new[]
+                {
                     @"SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]",
@@ -7465,7 +7465,7 @@ ORDER BY [p].[Id]",
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
 ORDER BY [p].[Id]"
-                            });
+                });
         }
 
         [ConditionalFact]
@@ -7524,6 +7524,21 @@ ORDER BY [p].[Id]"
             Assert.Equal(ConnectionState.Closed, dbConnection.State);
         }
 
+        [ConditionalFact]
+        public virtual void Using_AsSplitQuery_without_multiple_active_result_sets_work()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null, mars: true);
+            using var context = new BugContext21355(options);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
+
+            var connectionStringWithoutMars = SqlServerTestStore.CreateConnectionString("QueryBugsTest", multipleActiveResultSets: false);
+            var connection = context.GetService<IRelationalConnection>();
+            connection.ConnectionString = connectionStringWithoutMars;
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
+        }
+
         private class Parent21355
         {
             public string Id { get; set; }
@@ -7545,9 +7560,9 @@ ORDER BY [p].[Id]"
             public Parent21355 Parent { get; set; }
         }
 
-        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions21355(QuerySplittingBehavior? querySplittingBehavior)
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions21355(QuerySplittingBehavior? querySplittingBehavior, bool mars = true)
         {
-            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: true);
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: mars);
             var testSqlLoggerFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection().AddSingleton<ILoggerFactory>(testSqlLoggerFactory).BuildServiceProvider();
 
