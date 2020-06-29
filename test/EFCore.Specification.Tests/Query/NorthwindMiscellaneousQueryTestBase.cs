@@ -5980,5 +5980,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderDate).ThenBy(o => o.OrderID).Skip(2).FirstOrDefault()),
                 entryCount: 86);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_distinct_Select_with_client_bindings(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderID < 10000).Select(o => o.OrderDate.Value.Year).Distinct()
+                        .Select(e => new DTO<int> { Property = ClientMethod(e) }));
+        }
+
+        private static int ClientMethod(int s) => s;
     }
 }
