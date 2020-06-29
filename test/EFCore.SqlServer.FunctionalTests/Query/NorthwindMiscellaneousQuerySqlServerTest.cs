@@ -5120,6 +5120,19 @@ LEFT JOIN (
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]");
         }
 
+        public override async Task Select_distinct_Select_with_client_bindings(bool async)
+        {
+            await base.Select_distinct_Select_with_client_bindings(async);
+
+            AssertSql(
+                @"SELECT [t].[c]
+FROM (
+    SELECT DISTINCT DATEPART(year, [o].[OrderDate]) AS [c]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10000
+) AS [t]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

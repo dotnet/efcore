@@ -127,6 +127,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 return new ProjectionBindingExpression(_selectExpression, newIndex, expression.Type);
                             }
 
+                            if (projectionBindingExpression.ProjectionMember != null)
+                            {
+                                // This would be SqlExpression. EntityProjectionExpression would be wrapped inside EntityShaperExpression.
+                                var mappedProjection = (SqlExpression)_selectExpression.GetMappedProjection(
+                                    projectionBindingExpression.ProjectionMember);
+
+                                return new ProjectionBindingExpression(
+                                    _selectExpression, _selectExpression.AddToProjection(mappedProjection), expression.Type);
+                            }
+
                             throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
 
                         case ParameterExpression parameterExpression:
