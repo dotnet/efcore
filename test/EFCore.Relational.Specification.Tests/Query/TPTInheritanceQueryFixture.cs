@@ -43,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
             modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
 
-            // Keyless entities are mapped to TPH
-            modelBuilder.Entity<AnimalQuery>().HasNoKey().ToQuery(
-                () => context.Set<AnimalQuery>().FromSqlRaw("SELECT * FROM Animals"));
-            modelBuilder.Entity<KiwiQuery>().HasDiscriminator().HasValue("Kiwi");
-            modelBuilder.Entity<EagleQuery>().HasDiscriminator().HasValue("Eagle");
+            // Keyless entities are mapped to TPH so ignoring them
+            modelBuilder.Ignore<AnimalQuery>();
+            modelBuilder.Ignore<BirdQuery>();
+            modelBuilder.Ignore<KiwiQuery>();
+            modelBuilder.Ignore<EagleQuery>();
         }
     }
 }

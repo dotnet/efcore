@@ -501,12 +501,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             entityShaperExpression.MaterializationCondition.Body)));
 
                 var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
-                var discriminatorProperty = entityType.GetDiscriminatorProperty();
-                if (discriminatorProperty == null
-                    && concreteEntityTypes.Length > 1)
-                {
-                    concreteEntityTypes = new [] { entityType };
-                }
 
                 var switchCases = new SwitchCase[concreteEntityTypes.Length];
                 for (var i = 0; i < concreteEntityTypes.Length; i++)

@@ -404,10 +404,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-        {
-        }
-
         [ConditionalTheory(Skip = "Issue#16298")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_siblings_with_duplicate_property_in_subquery(bool async)
@@ -527,7 +523,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal("Great spotted kiwi", kiwi.Name);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Is_operator_on_result_of_FirstOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Animal>()
+                    .Where(a => ss.Set<Animal>().FirstOrDefault(a1 => a1.Name == "Great spotted kiwi") is Kiwi)
+                    .OrderBy(a => a.Species),
+                assertOrder: true,
+                entryCount: 2);
+        }
+
         protected InheritanceContext CreateContext() => Fixture.CreateContext();
+
+        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        {
+        }
 
         protected virtual bool EnforcesFkConstraints => true;
 

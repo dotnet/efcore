@@ -747,19 +747,60 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (derivedType != null)
                 {
                     var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
-                    var discriminatorColumn = BindProperty(entityReferenceExpression, entityType.GetDiscriminatorProperty());
+                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
+                    if (discriminatorProperty == null)
+                    {
+                        // TPT
+                        if (entityReferenceExpression.SubqueryEntity != null)
+                        {
+                            var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
+                            var entityProjection = (EntityProjectionExpression)Visit(entityShaper.ValueBufferExpression);
+                            var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
 
-                    return concreteEntityTypes.Count == 1
-                        ? _sqlExpressionFactory.Equal(
-                            discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                        : (Expression)_sqlExpressionFactory.In(
-                            discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
-                            negated: false);
+                            var predicate = entityProjection.EntityTypeIdentifyingExpressionMap
+                                .Where(kvp => concreteEntityTypes.Contains(kvp.Key))
+                                .Select(kvp => kvp.Value)
+                                .Aggregate((l, r) => _sqlExpressionFactory.OrElse(l, r));
+
+                            subSelectExpression.ApplyPredicate(predicate);
+                            subSelectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
+                            if (subSelectExpression.Limit == null
+                                && subSelectExpression.Offset == null)
+                            {
+                                subSelectExpression.ClearOrdering();
+                            }
+
+                            return _sqlExpressionFactory.Exists(subSelectExpression, false);
+                        }
+
+                        if (entityReferenceExpression.ParameterEntity != null)
+                        {
+                            var entityProjection = (EntityProjectionExpression)Visit(
+                                entityReferenceExpression.ParameterEntity.ValueBufferExpression);
+
+                            return entityProjection.EntityTypeIdentifyingExpressionMap
+                                .Where(kvp => concreteEntityTypes.Contains(kvp.Key))
+                                .Select(kvp => kvp.Value)
+                                .Aggregate((l, r) => _sqlExpressionFactory.OrElse(l, r));
+                        }
+                    }
+                    else
+                    {
+                        var discriminatorColumn = BindProperty(entityReferenceExpression, discriminatorProperty);
+
+                        if (discriminatorColumn != null)
+                        {
+                            return concreteEntityTypes.Count == 1
+                                ? _sqlExpressionFactory.Equal(
+                                    discriminatorColumn,
+                                    _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                                : (Expression)_sqlExpressionFactory.In(
+                                    discriminatorColumn,
+                                    _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
+                                    negated: false);
+                        }
+                    }
                 }
-
-                return _sqlExpressionFactory.Constant(false);
             }
 
             return null;

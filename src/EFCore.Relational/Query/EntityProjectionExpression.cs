@@ -23,14 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class EntityProjectionExpression : Expression
     {
-        private readonly IDictionary<IProperty, ColumnExpression> _propertyExpressionsCache
-            = new Dictionary<IProperty, ColumnExpression>();
-
-        private readonly IDictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache
+        private readonly IDictionary<IProperty, ColumnExpression> _propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
+        private readonly IDictionary<INavigation, EntityShaperExpression> _ownedNavigationMap
             = new Dictionary<INavigation, EntityShaperExpression>();
-
-        private readonly TableExpressionBase _innerTable;
-        private readonly bool _nullable;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
@@ -38,34 +33,39 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType"> The entity type to shape. </param>
         /// <param name="innerTable"> The table from which entity columns are being projected out. </param>
         /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
+        [Obsolete("Use the constructor which takes populated column expressions map.", error: true)]
         public EntityProjectionExpression([NotNull] IEntityType entityType, [NotNull] TableExpressionBase innerTable, bool nullable)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(innerTable, nameof(innerTable));
-
-            EntityType = entityType;
-            _innerTable = innerTable;
-            _nullable = nullable;
+            throw new NotSupportedException();
         }
 
         /// <summary>
         ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
         /// </summary>
         /// <param name="entityType"> The entity type to shape. </param>
-        /// <param name="propertyExpressions"> A dictionary of column expressions corresponding to properties of the entity type. </param>
-        public EntityProjectionExpression([NotNull] IEntityType entityType, [NotNull] IDictionary<IProperty, ColumnExpression> propertyExpressions)
+        /// <param name="propertyExpressionMap"> A dictionary of column expressions corresponding to properties of the entity type. </param>
+        /// <param name="entityTypeIdentifyingExpressionMap"> A dictionary of <see cref="SqlExpression"/> to identify each entity type in hierarchy. </param>
+        public EntityProjectionExpression(
+            [NotNull] IEntityType entityType,
+            [NotNull] IDictionary<IProperty, ColumnExpression> propertyExpressionMap,
+            [CanBeNull] IReadOnlyDictionary<IEntityType, SqlExpression> entityTypeIdentifyingExpressionMap = null)
         {
             Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyExpressions, nameof(propertyExpressions));
+            Check.NotNull(propertyExpressionMap, nameof(propertyExpressionMap));
 
             EntityType = entityType;
-            _propertyExpressionsCache = propertyExpressions;
+            _propertyExpressionMap = propertyExpressionMap;
+            EntityTypeIdentifyingExpressionMap = entityTypeIdentifyingExpressionMap;
         }
 
         /// <summary>
         ///     The entity type being projected out.
         /// </summary>
         public virtual IEntityType EntityType { get; }
+        /// <summary>
+        ///     Dictionary of entity type identifying expressions.
+        /// </summary>
+        public virtual IReadOnlyDictionary<IEntityType, SqlExpression> EntityTypeIdentifyingExpressionMap { get; }
         /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
         /// <inheritdoc />
@@ -76,27 +76,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(visitor, nameof(visitor));
 
-            if (_innerTable != null)
-            {
-                var table = (TableExpressionBase)visitor.Visit(_innerTable);
-
-                return table != _innerTable
-                    ? new EntityProjectionExpression(EntityType, table, _nullable)
-                    : this;
-            }
-
             var changed = false;
-            var newCache = new Dictionary<IProperty, ColumnExpression>();
-            foreach (var expression in _propertyExpressionsCache)
+            var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
+            foreach (var expression in _propertyExpressionMap)
             {
                 var newExpression = (ColumnExpression)visitor.Visit(expression.Value);
                 changed |= newExpression != expression.Value;
 
-                newCache[expression.Key] = newExpression;
+                propertyExpressionMap[expression.Key] = newExpression;
+            }
+
+            Dictionary<IEntityType, SqlExpression> entityTypeIdentifyingExpressionMap = null;
+            if (EntityTypeIdentifyingExpressionMap != null)
+            {
+                entityTypeIdentifyingExpressionMap = new Dictionary<IEntityType, SqlExpression>();
+                foreach (var expression in EntityTypeIdentifyingExpressionMap)
+                {
+                    var newExpression = (SqlExpression)visitor.Visit(expression.Value);
+                    changed |= newExpression != expression.Value;
+
+                    entityTypeIdentifyingExpressionMap[expression.Key] = newExpression;
+                }
             }
 
             return changed
-                ? new EntityProjectionExpression(EntityType, newCache)
+                ? new EntityProjectionExpression(EntityType, propertyExpressionMap, entityTypeIdentifyingExpressionMap)
                 : this;
         }
 
@@ -106,18 +110,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> A new entity projection expression which can project nullable entity. </returns>
         public virtual EntityProjectionExpression MakeNullable()
         {
-            if (_innerTable != null)
+            var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
+            foreach (var expression in _propertyExpressionMap)
             {
-                return new EntityProjectionExpression(EntityType, _innerTable, nullable: true);
+                propertyExpressionMap[expression.Key] = expression.Value.MakeNullable();
             }
 
-            var newCache = new Dictionary<IProperty, ColumnExpression>();
-            foreach (var expression in _propertyExpressionsCache)
-            {
-                newCache[expression.Key] = expression.Value.MakeNullable();
-            }
-
-            return new EntityProjectionExpression(EntityType, newCache);
+            // We don't need to process EntityTypeIdentifyingExpressionMap because they are already nullable
+            return new EntityProjectionExpression(EntityType, propertyExpressionMap, EntityTypeIdentifyingExpressionMap);
         }
 
         /// <summary>
@@ -129,23 +129,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(derivedType, nameof(derivedType));
 
-            if (_innerTable != null)
-            {
-                return new EntityProjectionExpression(derivedType, _innerTable, _nullable);
-            }
-
-            var propertyExpressionCache = new Dictionary<IProperty, ColumnExpression>();
-            foreach (var kvp in _propertyExpressionsCache)
+            var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
+            foreach (var kvp in _propertyExpressionMap)
             {
                 var property = kvp.Key;
                 if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
                     || property.DeclaringEntityType.IsAssignableFrom(derivedType))
                 {
-                    propertyExpressionCache[property] = kvp.Value;
+                    propertyExpressionMap[property] = kvp.Value;
                 }
             }
 
-            return new EntityProjectionExpression(derivedType, propertyExpressionCache);
+            Dictionary<IEntityType, SqlExpression> entityTypeIdentifyingExpressionMap = null;
+            if (EntityTypeIdentifyingExpressionMap != null)
+            {
+                entityTypeIdentifyingExpressionMap = new Dictionary<IEntityType, SqlExpression>();
+                foreach (var kvp in EntityTypeIdentifyingExpressionMap)
+                {
+                    var entityType = kvp.Key;
+                    if (entityType.IsStrictlyDerivedFrom(derivedType))
+                    {
+                        entityTypeIdentifyingExpressionMap[entityType] = kvp.Value;
+                    }
+                }
+            }
+
+            return new EntityProjectionExpression(derivedType, propertyExpressionMap, entityTypeIdentifyingExpressionMap);
         }
 
         /// <summary>
@@ -168,13 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         property.Name));
             }
 
-            if (!_propertyExpressionsCache.TryGetValue(property, out var expression))
-            {
-                expression = new ColumnExpression(property, _innerTable, _nullable);
-                _propertyExpressionsCache[property] = expression;
-            }
-
-            return expression;
+            return _propertyExpressionMap[property];
         }
 
         /// <summary>
@@ -198,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         navigation.Name));
             }
 
-            _navigationExpressionsCache[navigation] = entityShaper;
+            _ownedNavigationMap[navigation] = entityShaper;
         }
 
         /// <summary>
@@ -222,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         navigation.Name));
             }
 
-            return _navigationExpressionsCache.TryGetValue(navigation, out var expression)
+            return _ownedNavigationMap.TryGetValue(navigation, out var expression)
                 ? expression
                 : null;
         }
