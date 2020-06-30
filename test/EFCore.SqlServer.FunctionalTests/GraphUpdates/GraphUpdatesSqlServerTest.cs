@@ -125,6 +125,8 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            protected override IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query) => query.AsSplitQuery();
+
             protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
                 => facade.UseTransaction(transaction.GetDbTransaction());
 
