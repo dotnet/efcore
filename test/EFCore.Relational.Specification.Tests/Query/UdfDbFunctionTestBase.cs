@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public IQueryable<OrderByYear> GetCustomerOrderCountByYear(int customerId)
             {
-                return CreateQuery(() => GetCustomerOrderCountByYear(customerId));
+                return FromExpression(() => GetCustomerOrderCountByYear(customerId));
             }
 
             public class TopSellingProduct
@@ -184,17 +184,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public IQueryable<TopSellingProduct> GetTopTwoSellingProducts()
             {
-                return CreateQuery(() => GetTopTwoSellingProducts());
+                return FromExpression(() => GetTopTwoSellingProducts());
             }
 
             public IQueryable<TopSellingProduct> GetTopSellingProductsForCustomer(int customerId)
             {
-                return CreateQuery(() => GetTopSellingProductsForCustomer(customerId));
+                return FromExpression(() => GetTopSellingProductsForCustomer(customerId));
             }
 
             public IQueryable<MultProductOrders> GetOrdersWithMultipleProducts(int customerId)
             {
-                return CreateQuery(() => GetOrdersWithMultipleProducts(customerId));
+                return FromExpression(() => GetOrdersWithMultipleProducts(customerId));
             }
 
             #endregion
