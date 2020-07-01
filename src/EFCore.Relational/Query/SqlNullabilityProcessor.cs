@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="canCache"> A bool value indicating whether the select expression can be cached. </param>
         /// <returns> An optimized select expression. </returns>
         public virtual SelectExpression Process(
-            [NotNull] SelectExpression selectExpression, [NotNull] IReadOnlyDictionary<string, object> parameterValues,  out bool canCache)
+            [NotNull] SelectExpression selectExpression, [NotNull] IReadOnlyDictionary<string, object> parameterValues, out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parameterValues, nameof(parameterValues));
@@ -560,8 +560,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 nullable = false;
 
                 return valuesList.Count == 0
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(false, inExpression.TypeMapping)
-                    : inExpression.Update(item, valuesExpression, subquery: null);
+                    ? _sqlExpressionFactory.Constant(false, inExpression.TypeMapping)
+                    : SimplifyInExpression(
+                        inExpression.Update(item, valuesExpression, subquery: null),
+                        valuesExpression,
+                        valuesList);
             }
 
             // for c# null semantics we need to remove nulls from Values and add IsNull/IsNotNull when necessary
@@ -587,6 +590,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : _sqlExpressionFactory.IsNull(item);
             }
 
+            var simplifiedInExpression = SimplifyInExpression(
+                inExpression.Update(item, inValuesExpression, subquery: null),
+                inValuesExpression,
+                inValuesList);
+
             if (!itemNullable
                 || (allowOptimizedExpansion && !inExpression.IsNegated && !hasNullValue))
             {
@@ -597,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // non_nullable NOT IN (1, 2) -> non_nullable NOT IN (1, 2)
                 // non_nullable NOT IN (1, 2, NULL) -> non_nullable NOT IN (1, 2)
                 // nullable IN (1, 2) -> nullable IN (1, 2) (optimized)
-                return inExpression.Update(item, inValuesExpression, subquery: null);
+                return simplifiedInExpression;
             }
 
             nullable = false;
@@ -608,10 +616,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             // nullable NOT IN (1, 2, NULL) -> nullable NOT IN (1, 2) AND nullable IS NOT NULL (full)
             return inExpression.IsNegated == hasNullValue
                 ? _sqlExpressionFactory.AndAlso(
-                    inExpression.Update(item, inValuesExpression, subquery: null),
+                    simplifiedInExpression,
                     _sqlExpressionFactory.IsNotNull(item))
                 : _sqlExpressionFactory.OrElse(
-                    inExpression.Update(item, inValuesExpression, subquery: null),
+                    simplifiedInExpression,
                     _sqlExpressionFactory.IsNull(item));
 
             (SqlConstantExpression ProcessedValuesExpression, List<object> ProcessedValuesList, bool HasNullValue) ProcessInExpressionValues(SqlExpression valuesExpression, bool extractNullValues)
@@ -647,6 +655,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var processedValuesExpression = _sqlExpressionFactory.Constant(inValues, typeMapping);
 
                 return (processedValuesExpression, inValues, hasNullValue);
+            }
+
+            SqlExpression SimplifyInExpression(InExpression inExpression, SqlConstantExpression inValuesExpression, List<object> inValuesList)
+            {
+                return inValuesList.Count == 1
+                    ? inExpression.IsNegated
+                        ? (SqlExpression)_sqlExpressionFactory.NotEqual(
+                            inExpression.Item,
+                            _sqlExpressionFactory.Constant(inValuesList[0], inValuesExpression.TypeMapping))
+                        : _sqlExpressionFactory.Equal(
+                            inExpression.Item,
+                            _sqlExpressionFactory.Constant(inValuesList[0], inExpression.Values.TypeMapping))
+                    : inExpression;
             }
         }
 
@@ -920,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return sqlFunctionExpression.IsBuiltIn
                 && string.Equals(sqlFunctionExpression.Name, "SUM", StringComparison.OrdinalIgnoreCase)
-                ?  _sqlExpressionFactory.Coalesce(
+                ? _sqlExpressionFactory.Coalesce(
                         sqlFunctionExpression.Update(instance, arguments),
                         _sqlExpressionFactory.Constant(0, sqlFunctionExpression.TypeMapping),
                         sqlFunctionExpression.TypeMapping)

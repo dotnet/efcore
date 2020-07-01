@@ -437,7 +437,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-WHERE ([o0].[CustomerID] = N'ALFKI') OR ([o0].[CustomerID] = N'ANTON')
+WHERE [o0].[CustomerID] IN (N'ALFKI', N'ANTON')
 ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID], [o1].[OrderID]");
         }
 
@@ -760,7 +760,7 @@ WHERE [c0].[CustomerID] LIKE N'A%'");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[CustomerID] IN (N'ALFKI')");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Navigation_inside_contains(bool async)
@@ -854,7 +854,7 @@ WHERE ((
     FROM [Order Details] AS [o0]
     INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
     LEFT JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
-    WHERE ([c].[Country] = [c0].[Country]) OR ([c].[Country] IS NULL AND [c0].[Country] IS NULL)) > 0) AND (([o].[OrderID] = 10643) OR ([o].[OrderID] = 10692))");
+    WHERE ([c].[Country] = [c0].[Country]) OR ([c].[Country] IS NULL AND [c0].[Country] IS NULL)) > 0) AND [o].[OrderID] IN (10643, 10692)");
         }
 
         public override async Task Project_single_scalar_value_subquery_is_properly_inlined(bool async)
