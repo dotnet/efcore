@@ -128,28 +128,35 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
                                 && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
                             {
-                                return AddCollectionProjection(
-                                    _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                        methodCallExpression.Arguments[0]),
-                                    null,
-                                    methodCallExpression.Method.GetGenericArguments()[0]);
-                            }
+                                var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                                        methodCallExpression.Arguments[0]);
 
-                            var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-                            if (subquery != null)
-                            {
-                                if (subquery.ResultCardinality == ResultCardinality.Enumerable)
+                                if (subqueryTranslation != null)
                                 {
-                                    return AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                    return AddCollectionProjection(
+                                        subqueryTranslation,
+                                        null,
+                                        methodCallExpression.Method.GetGenericArguments()[0]);
                                 }
+                            }
+                            else
+                            {
+                                var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+                                if (subquery != null)
+                                {
+                                    if (subquery.ResultCardinality == ResultCardinality.Enumerable)
+                                    {
+                                        return AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                    }
 
-                                return new SingleResultShaperExpression(
-                                    new ProjectionBindingExpression(
-                                        _queryExpression,
-                                        _queryExpression.AddSubqueryProjection(subquery, out var innerShaper),
-                                        typeof(ValueBuffer)),
-                                    innerShaper,
-                                    subquery.ShaperExpression.Type);
+                                    return new SingleResultShaperExpression(
+                                        new ProjectionBindingExpression(
+                                            _queryExpression,
+                                            _queryExpression.AddSubqueryProjection(subquery, out var innerShaper),
+                                            typeof(ValueBuffer)),
+                                        innerShaper,
+                                        subquery.ShaperExpression.Type);
+                                }
                             }
 
                             break;

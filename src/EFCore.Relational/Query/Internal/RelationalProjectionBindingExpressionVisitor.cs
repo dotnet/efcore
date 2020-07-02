@@ -167,39 +167,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                     methodCallExpression.Arguments[0]);
 
-                                return _selectExpression.AddCollectionProjection(result, null, elementType);
-                            }
-
-                            var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-
-                            if (subquery != null)
-                            {
-                                if (subquery.ResultCardinality == ResultCardinality.Enumerable)
+                                if (result != null)
                                 {
-                                    return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                    return _selectExpression.AddCollectionProjection(result, null, elementType);
                                 }
-
-                                static bool IsAggregateResultWithCustomShaper(MethodInfo method)
+                            }
+                            else
+                            {
+                                var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+                                if (subquery != null)
                                 {
-                                    if (method.IsGenericMethod)
+                                    if (subquery.ResultCardinality == ResultCardinality.Enumerable)
                                     {
-                                        method = method.GetGenericMethodDefinition();
+                                        return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
                                     }
 
-                                    return QueryableMethods.IsAverageWithoutSelector(method)
-                                        || QueryableMethods.IsAverageWithSelector(method)
-                                        || method == QueryableMethods.MaxWithoutSelector
-                                        || method == QueryableMethods.MaxWithSelector
-                                        || method == QueryableMethods.MinWithoutSelector
-                                        || method == QueryableMethods.MinWithSelector
-                                        || QueryableMethods.IsSumWithoutSelector(method)
-                                        || QueryableMethods.IsSumWithSelector(method);
-                                }
+                                    static bool IsAggregateResultWithCustomShaper(MethodInfo method)
+                                    {
+                                        if (method.IsGenericMethod)
+                                        {
+                                            method = method.GetGenericMethodDefinition();
+                                        }
 
-                                if (!(subquery.ShaperExpression is ProjectionBindingExpression
-                                    || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
-                                {
-                                    return _selectExpression.AddSingleProjection(subquery);
+                                        return QueryableMethods.IsAverageWithoutSelector(method)
+                                            || QueryableMethods.IsAverageWithSelector(method)
+                                            || method == QueryableMethods.MaxWithoutSelector
+                                            || method == QueryableMethods.MaxWithSelector
+                                            || method == QueryableMethods.MinWithoutSelector
+                                            || method == QueryableMethods.MinWithSelector
+                                            || QueryableMethods.IsSumWithoutSelector(method)
+                                            || QueryableMethods.IsSumWithSelector(method);
+                                    }
+
+                                    if (!(subquery.ShaperExpression is ProjectionBindingExpression
+                                        || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
+                                    {
+                                        return _selectExpression.AddSingleProjection(subquery);
+                                    }
                                 }
                             }
 

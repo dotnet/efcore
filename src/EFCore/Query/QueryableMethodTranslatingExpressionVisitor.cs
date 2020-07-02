@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(expression, nameof(expression));
 
             var subqueryVisitor = CreateSubqueryVisitor();
-            var translation = (ShapedQueryExpression)subqueryVisitor.Visit(expression);
+            var translation = subqueryVisitor.Visit(expression) as ShapedQueryExpression;
             if (translation == null && subqueryVisitor.TranslationErrorDetails != null)
             {
                 AddTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);
