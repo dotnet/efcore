@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE [a].[CountryId] = 1
 ORDER BY [a].[Species]");
         }
@@ -31,7 +31,7 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE ([a].[CountryId] = 1) AND ([a].[Discriminator] = N'Kiwi')");
         }
 
@@ -41,7 +41,7 @@ WHERE ([a].[CountryId] = 1) AND ([a].[Discriminator] = N'Kiwi')");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE ([a].[CountryId] = 1) AND (([a].[Discriminator] = N'Kiwi') AND ([a].[CountryId] = 1))");
         }
 
@@ -54,7 +54,7 @@ WHERE ([a].[CountryId] = 1) AND (([a].[Discriminator] = N'Kiwi') AND ([a].[Count
     WHEN [a].[Discriminator] = N'Kiwi' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE [a].[CountryId] = 1");
         }
 
@@ -64,7 +64,7 @@ WHERE [a].[CountryId] = 1");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE [a].[CountryId] = 1
 ORDER BY [a].[Species]");
         }
@@ -75,7 +75,7 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE ([a].[CountryId] = 1) AND ([a].[CountryId] = 1)
 ORDER BY [a].[Species]");
         }
@@ -86,7 +86,7 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [a].[EagleId]
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE [a].[CountryId] = 1");
         }
 
@@ -96,7 +96,7 @@ WHERE [a].[CountryId] = 1");
 
             AssertSql(
                 @"SELECT TOP(1) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE [a].[CountryId] = 1
 ORDER BY [a].[Species]");
         }
@@ -107,7 +107,7 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
-FROM [Animal] AS [a]
+FROM [Animals] AS [a]
 WHERE ([a].[CountryId] = 1) AND ([a].[Discriminator] = N'Kiwi')");
         }
 

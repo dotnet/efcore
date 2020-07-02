@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
+namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel
 {
     public class Country
     {

@@ -3,6 +3,7 @@
 
 
 // ReSharper disable InconsistentNaming
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -15,190 +16,190 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Byte_enum_value_constant_used_in_projection()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Byte_enum_value_constant_used_in_projection(bool async)
         {
-            base.Byte_enum_value_constant_used_in_projection();
+            return base.Byte_enum_value_constant_used_in_projection(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_filter_all_animals()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_filter_all_animals(bool async)
         {
-            base.Can_filter_all_animals();
+            return base.Can_filter_all_animals(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_include_animals()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_include_animals(bool async)
         {
-            base.Can_include_animals();
+            return base.Can_include_animals(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_include_prey()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_include_prey(bool async)
         {
-            base.Can_include_prey();
+            return base.Can_include_prey(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
+        [ConditionalTheory(Skip = "Issue#2266")]
         public override void Can_insert_update_delete()
         {
             base.Can_insert_update_delete();
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_query_all_animals()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_query_all_animals(bool async)
         {
-            base.Can_query_all_animals();
+            return base.Can_query_all_animals(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_query_all_animal_views()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_query_all_animal_views(bool async)
         {
-            base.Can_query_all_animal_views();
+            return base.Can_query_all_animal_views(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_query_all_birds()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_query_all_birds(bool async)
         {
-            base.Can_query_all_birds();
+            return base.Can_query_all_birds(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_query_all_plants()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_query_all_plants(bool async)
         {
-            base.Can_query_all_plants();
+            return base.Can_query_all_plants(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_query_all_types_when_shared_column()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_query_all_types_when_shared_column(bool async)
         {
-            base.Can_query_all_types_when_shared_column();
+            return base.Can_query_all_types_when_shared_column(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_query_just_kiwis()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_query_just_kiwis(bool async)
         {
-            base.Can_query_just_kiwis();
+            return base.Can_query_just_kiwis(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_query_just_roses()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_query_just_roses(bool async)
         {
-            base.Can_query_just_roses();
+            return base.Can_query_just_roses(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_query_when_shared_column()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_query_when_shared_column(bool async)
         {
-            base.Can_query_when_shared_column();
+            return base.Can_query_when_shared_column(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_backwards_is_animal()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_backwards_is_animal(bool async)
         {
-            base.Can_use_backwards_is_animal();
+            return base.Can_use_backwards_is_animal(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_backwards_of_type_animal()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_backwards_of_type_animal(bool async)
         {
-            base.Can_use_backwards_of_type_animal();
+            return base.Can_use_backwards_of_type_animal(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_is_kiwi()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_is_kiwi(bool async)
         {
-            base.Can_use_is_kiwi();
+            return base.Can_use_is_kiwi(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_is_kiwi_in_projection()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_is_kiwi_in_projection(bool async)
         {
-            base.Can_use_is_kiwi_in_projection();
+            return base.Can_use_is_kiwi_in_projection(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_is_kiwi_with_other_predicate()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_is_kiwi_with_other_predicate(bool async)
         {
-            base.Can_use_is_kiwi_with_other_predicate();
+            return base.Can_use_is_kiwi_with_other_predicate(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_animal()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_animal(bool async)
         {
-            base.Can_use_of_type_animal();
+            return base.Can_use_of_type_animal(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_bird()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_bird(bool async)
         {
-            base.Can_use_of_type_bird();
+            return base.Can_use_of_type_bird(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_bird_first()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_bird_first(bool async)
         {
-            base.Can_use_of_type_bird_first();
+            return base.Can_use_of_type_bird_first(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_bird_predicate()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_bird_predicate(bool async)
         {
-            base.Can_use_of_type_bird_predicate();
+            return base.Can_use_of_type_bird_predicate(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_bird_with_projection()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_bird_with_projection(bool async)
         {
-            base.Can_use_of_type_bird_with_projection();
+            return base.Can_use_of_type_bird_with_projection(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_kiwi()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_kiwi(bool async)
         {
-            base.Can_use_of_type_kiwi();
+            return base.Can_use_of_type_kiwi(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_kiwi_where_north_on_derived_property()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_kiwi_where_north_on_derived_property(bool async)
         {
-            base.Can_use_of_type_kiwi_where_north_on_derived_property();
+            return base.Can_use_of_type_kiwi_where_north_on_derived_property(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_kiwi_where_south_on_derived_property()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_kiwi_where_south_on_derived_property(bool async)
         {
-            base.Can_use_of_type_kiwi_where_south_on_derived_property();
+            return base.Can_use_of_type_kiwi_where_south_on_derived_property(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Can_use_of_type_rose()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Can_use_of_type_rose(bool async)
         {
-            base.Can_use_of_type_rose();
+            return base.Can_use_of_type_rose(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Discriminator_used_when_projection_over_derived_type()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Discriminator_used_when_projection_over_derived_type(bool async)
         {
-            base.Discriminator_used_when_projection_over_derived_type();
+            return base.Discriminator_used_when_projection_over_derived_type(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Discriminator_used_when_projection_over_derived_type2()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Discriminator_used_when_projection_over_derived_type2(bool async)
         {
-            base.Discriminator_used_when_projection_over_derived_type2();
+            return base.Discriminator_used_when_projection_over_derived_type2(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Discriminator_used_when_projection_over_of_type()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Discriminator_used_when_projection_over_of_type(bool async)
         {
-            base.Discriminator_used_when_projection_over_of_type();
+            return base.Discriminator_used_when_projection_over_of_type(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Discriminator_with_cast_in_shadow_property()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Discriminator_with_cast_in_shadow_property(bool async)
         {
-            base.Discriminator_with_cast_in_shadow_property();
+            return base.Discriminator_with_cast_in_shadow_property(async);
         }
 
         [ConditionalFact(Skip = "Issue#2266")]
@@ -207,16 +208,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Member_access_on_intermediate_type_works();
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void OfType_Union_OfType()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task OfType_Union_OfType(bool async)
         {
-            base.OfType_Union_OfType();
+            return base.OfType_Union_OfType(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void OfType_Union_subquery()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task OfType_Union_subquery(bool async)
         {
-            base.OfType_Union_subquery();
+            return base.OfType_Union_subquery(async);
         }
 
         [ConditionalFact(Skip = "Issue#2266")]
@@ -225,22 +226,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Setting_foreign_key_to_a_different_type_throws();
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Subquery_OfType()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Subquery_OfType(bool async)
         {
-            base.Subquery_OfType();
+            return base.Subquery_OfType(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Union_entity_equality()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Union_entity_equality(bool async)
         {
-            base.Union_entity_equality();
+            return base.Union_entity_equality(async);
         }
 
-        [ConditionalFact(Skip = "Issue#2266")]
-        public override void Union_siblings_with_duplicate_property_in_subquery()
+        [ConditionalTheory(Skip = "Issue#2266")]
+        public override Task Union_siblings_with_duplicate_property_in_subquery(bool async)
         {
-            base.Union_siblings_with_duplicate_property_in_subquery();
+            return base.Union_siblings_with_duplicate_property_in_subquery(async);
         }
     }
 }

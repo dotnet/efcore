@@ -7,8 +7,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     public class ManyToManyContext : PoolableDbContext
     {
-        public static readonly string StoreName = "ManyToMany";
-
         public ManyToManyContext(DbContextOptions options)
             : base(options)
         {
