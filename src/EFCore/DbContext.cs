@@ -1707,16 +1707,13 @@ namespace Microsoft.EntityFrameworkCore
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
 
         /// <summary>
-        /// Creates a query expression, which represents a function call, against the query store.
+        ///     Creates a queryable for given query expression.
         /// </summary>
-        /// <typeparam name="TResult"> The result type of the query expression </typeparam>
+        /// <typeparam name="TResult"> The result type of the query expression. </typeparam>
         /// <param name="expression"> The query expression to create. </param>
-        /// <returns> An IQueryable representing the query. </returns>
-        protected virtual IQueryable<TResult> CreateQuery<TResult>([NotNull] Expression<Func<IQueryable<TResult>>> expression)
+        /// <returns> An <see cref="IQueryable{T}"/> representing the query. </returns>
+        public virtual IQueryable<TResult> FromExpression<TResult>([NotNull] Expression<Func<IQueryable<TResult>>> expression)
         {
-            //should we add this method as an extension in relational?  That would require making DbContextDependencies public.
-            //Is there a 3rd way?
-
             Check.NotNull(expression, nameof(expression));
 
             return DbContextDependencies.QueryProvider.CreateQuery<TResult>(expression.Body);
