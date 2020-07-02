@@ -5991,6 +5991,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(e => new DTO<int> { Property = ClientMethod(e) }));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task ToList_over_string(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(e => new { Property = e.City.ToList() }),
+                assertOrder: true,
+                elementAsserter: (e,a) => Assert.True(e.Property.SequenceEqual(a.Property)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task ToArray_over_string(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(e => new { Property = e.City.ToArray() }),
+                assertOrder: true,
+                elementAsserter: (e, a) => Assert.True(e.Property.SequenceEqual(a.Property)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task AsEnumerable_over_string(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(e => new { Property = e.City.AsEnumerable() }),
+                assertOrder: true,
+                elementAsserter: (e, a) => Assert.True(e.Property.SequenceEqual(a.Property)));
+        }
+
         private static int ClientMethod(int s) => s;
     }
 }

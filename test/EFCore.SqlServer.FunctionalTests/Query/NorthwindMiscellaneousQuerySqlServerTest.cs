@@ -5133,6 +5133,36 @@ FROM (
 ) AS [t]");
         }
 
+        public override async Task ToList_over_string(bool async)
+        {
+            await base.ToList_over_string(async);
+
+            AssertSql(
+                @"SELECT [c].[City]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task ToArray_over_string(bool async)
+        {
+            await base.ToArray_over_string(async);
+
+            AssertSql(
+                @"SELECT [c].[City]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task AsEnumerable_over_string(bool async)
+        {
+            await base.AsEnumerable_over_string(async);
+
+            AssertSql(
+                @"SELECT [c].[City]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
