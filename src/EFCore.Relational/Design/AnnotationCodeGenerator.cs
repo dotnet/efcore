@@ -89,20 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 annotations.Remove(RelationalAnnotationNames.ColumnName);
             }
 
-            if (annotations.TryGetValue(RelationalAnnotationNames.ViewColumnName, out var viewColumnNameAnnotation)
-                && viewColumnNameAnnotation.Value is string viewColumnName
-                && viewColumnName == columnName)
-            {
-                annotations.Remove(RelationalAnnotationNames.ViewColumnName);
-            }
-
-            if (annotations.TryGetValue(RelationalAnnotationNames.FunctionColumnName, out var functionColumnNameAnnotation)
-                && functionColumnNameAnnotation.Value is string functionColumnName
-                && functionColumnName == columnName)
-            {
-                annotations.Remove(RelationalAnnotationNames.FunctionColumnName);
-            }
-
             RemoveConventionalAnnotationsHelper(property, annotations, IsHandledByConvention);
         }
 
@@ -158,16 +144,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             GenerateSimpleFluentApiCall(
                 annotations,
                 RelationalAnnotationNames.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), methodCallCodeFragments);
-
-            GenerateSimpleFluentApiCall(
-                annotations,
-                RelationalAnnotationNames.ViewColumnName, nameof(RelationalPropertyBuilderExtensions.HasViewColumnName),
-                methodCallCodeFragments);
-
-            GenerateSimpleFluentApiCall(
-                annotations,
-                RelationalAnnotationNames.FunctionColumnName, nameof(RelationalPropertyBuilderExtensions.HasFunctionColumnName),
-                methodCallCodeFragments);
 
             GenerateSimpleFluentApiCall(
                 annotations,

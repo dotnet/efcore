@@ -24,17 +24,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public FunctionMapping(
             [NotNull] IEntityType entityType,
-            [NotNull] StoreFunction function,
+            [NotNull] StoreFunction storeFunction,
+            [NotNull] DbFunction dbFunction,
             bool includesDerivedTypes)
-            : base(entityType, function, includesDerivedTypes)
+            : base(entityType, storeFunction, includesDerivedTypes)
         {
+            DbFunction = dbFunction;
         }
 
         /// <inheritdoc/>
         public virtual bool IsDefaultFunctionMapping { get; set; }
 
         /// <inheritdoc/>
-        public virtual IStoreFunction Function => (IStoreFunction)base.Table;
+        public virtual IStoreFunction StoreFunction => (IStoreFunction)base.Table;
+
+        /// <inheritdoc/>
+        public virtual IDbFunction DbFunction { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

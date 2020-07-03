@@ -617,46 +617,80 @@ namespace Microsoft.EntityFrameworkCore
                 ?.GetConfigurationSource();
 
         /// <summary>
-        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same table.
+        ///     Gets the foreign keys for the given entity type that point to other entity types
+        ///     sharing the same table-like store object.
         /// </summary>
-        public static IEnumerable<IForeignKey> FindTableRowInternalForeignKeys(
-            [NotNull] this IEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
-            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.Table);
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        public static IEnumerable<IForeignKey> FindRowInternalForeignKeys(
+            [NotNull] this IEntityType entityType, StoreObjectIdentifier storeObject)
+        {
+            var primaryKey = entityType.FindPrimaryKey();
+            if (primaryKey == null)
+            {
+                yield break;
+            }
+
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                var principalEntityType = foreignKey.PrincipalEntityType;
+                if (!foreignKey.PrincipalKey.IsPrimaryKey()
+                    || principalEntityType == foreignKey.DeclaringEntityType
+                    || !foreignKey.IsUnique
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    || !PropertyListComparer.Instance.Equals(foreignKey.Properties, primaryKey.Properties))
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                {
+                    continue;
+                }
+
+                switch (storeObject.StoreObjectType)
+                {
+                    case StoreObjectType.Table:
+                        if (storeObject.Name == principalEntityType.GetTableName()
+                            && storeObject.Schema == principalEntityType.GetSchema())
+                        {
+                            yield return foreignKey;
+                        }
+                        break;
+                    case StoreObjectType.View:
+                        if (storeObject.Name == principalEntityType.GetViewName()
+                            && storeObject.Schema == principalEntityType.GetViewSchema())
+                        {
+                            yield return foreignKey;
+                        }
+                        break;
+                    case StoreObjectType.Function:
+                        if (storeObject.Name == principalEntityType.GetFunctionName())
+                        {
+                            yield return foreignKey;
+                        }
+                        break;
+                    default:
+                        throw new NotImplementedException(storeObject.StoreObjectType.ToString());
+                }
+            }
+        }
 
         /// <summary>
-        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same table.
+        ///     Gets the foreign keys for the given entity type that point to other entity types
+        ///     sharing the same table-like store object.
         /// </summary>
-        public static IEnumerable<IMutableForeignKey> FindTableRowInternalForeignKeys(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
-            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.Table).Cast<IMutableForeignKey>();
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        public static IEnumerable<IMutableForeignKey> FindRowInternalForeignKeys(
+            [NotNull] this IMutableEntityType entityType, StoreObjectIdentifier storeObject)
+            => ((IEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IMutableForeignKey>();
 
         /// <summary>
-        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same table.
+        ///     Gets the foreign keys for the given entity type that point to other entity types
+        ///     sharing the same table-like store object.
         /// </summary>
-        public static IEnumerable<IConventionForeignKey> FindTableRowInternalForeignKeys(
-            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
-            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.Table).Cast<IConventionForeignKey>();
-
-        /// <summary>
-        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same view.
-        /// </summary>
-        public static IEnumerable<IForeignKey> FindViewRowInternalForeignKeys(
-            [NotNull] this IEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
-            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.View);
-
-        /// <summary>
-        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same view.
-        /// </summary>
-        public static IEnumerable<IMutableForeignKey> FindViewRowInternalForeignKeys(
-            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
-            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.View).Cast<IMutableForeignKey>();
-
-        /// <summary>
-        ///     Gets the foreign keys for the given entity type that point to other entity types sharing the same view.
-        /// </summary>
-        public static IEnumerable<IConventionForeignKey> FindViewRowInternalForeignKeys(
-            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [CanBeNull] string schema)
-            => entityType.FindRowInternalForeignKeys(name, schema, StoreObjectType.View).Cast<IConventionForeignKey>();
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        public static IEnumerable<IConventionForeignKey> FindRowInternalForeignKeys(
+            [NotNull] this IConventionEntityType entityType, StoreObjectIdentifier storeObject)
+            => ((IEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IConventionForeignKey>();
 
         /// <summary>
         ///     Gets a value indicating whether the associated table is ignored by Migrations.

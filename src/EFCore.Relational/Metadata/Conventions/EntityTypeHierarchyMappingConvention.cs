@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             continue;
                         }
 
-                        property.Builder.HasColumnName(null, tableName, schema);
+                        property.Builder.HasColumnName(null, StoreObjectIdentifier.Table(tableName, schema));
                     }
                 }
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             continue;
                         }
 
-                        property.Builder.HasViewColumnName(null, viewName, viewSchema);
+                        property.Builder.HasColumnName(null, StoreObjectIdentifier.View(viewName, viewSchema));
                     }
                 }
             }

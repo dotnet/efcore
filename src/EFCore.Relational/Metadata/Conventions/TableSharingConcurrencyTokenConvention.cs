@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         foundMappedProperty = foundMappedProperty
                             || entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties())
-                                .Any(p => p.GetColumnName(table.Table, table.Schema) == concurrencyColumnName);
+                                .Any(p => p.GetColumnName(StoreObjectIdentifier.Table(table.Table, table.Schema)) == concurrencyColumnName);
 
                         if (!foundMappedProperty)
                         {
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             concurrencyColumnsToProperties[table] = columnToProperties;
                         }
 
-                        var columnName = property.GetColumnName(tableName, table.Schema);
+                        var columnName = property.GetColumnName(StoreObjectIdentifier.Table(tableName, table.Schema));
                         if (columnName == null)
                         {
                             continue;

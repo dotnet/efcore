@@ -34,10 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (index.GetIncludeProperties() == null
                     || duplicateIndex.GetIncludeProperties() == null
                     || !index.GetIncludeProperties().Select(
-                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(tableName, schema))
+                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(StoreObjectIdentifier.Table(tableName, schema)))
                         .SequenceEqual(
                             duplicateIndex.GetIncludeProperties().Select(
-                                p => duplicateIndex.DeclaringEntityType.FindProperty(p).GetColumnName(tableName, schema))))
+                                p => duplicateIndex.DeclaringEntityType.FindProperty(p)
+                                    .GetColumnName(StoreObjectIdentifier.Table(tableName, schema)))))
                 {
                     if (shouldThrow)
                     {
@@ -116,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? "{}"
                 : "{'"
                     + string.Join("', '",
-                        index.GetIncludeProperties().Select(p => index.DeclaringEntityType.FindProperty(p)?.GetColumnName(tableName, schema)))
+                        index.GetIncludeProperties().Select(p => index.DeclaringEntityType.FindProperty(p)
+                            ?.GetColumnName(StoreObjectIdentifier.Table(tableName, schema))))
                     + "'}";
     }
 }

@@ -103,18 +103,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var oldLink = entityTypeBuilder.Metadata.FindTableRowInternalForeignKeys(oldTable, oldSchema);
-            var newLink = entityTypeBuilder.Metadata.FindTableRowInternalForeignKeys(newTable, newSchema);
+            var oldLink = oldTable != null
+                ? entityTypeBuilder.Metadata.FindRowInternalForeignKeys(StoreObjectIdentifier.Table(oldTable, oldSchema))
+                : null;
+            var newLink = newTable != null
+                ? entityTypeBuilder.Metadata.FindRowInternalForeignKeys(StoreObjectIdentifier.Table(newTable, newSchema))
+                : null;
 
-            if (!oldLink.Any()
-                && !newLink.Any())
+            if ((oldLink?.Any() != true
+                && newLink?.Any() != true)
+                || newLink == null)
             {
                 return;
             }
 
             foreach (var property in primaryKey.Properties)
             {
-                property.Builder.ValueGenerated(GetValueGenerated(property, newTable, newSchema));
+                property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable, newSchema)));
             }
         }
 
@@ -131,23 +136,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return null;
             }
 
-            return GetValueGenerated(property, tableName, property.DeclaringEntityType.GetSchema());
+            return GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
         }
 
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The new store value generation strategy to set for the given property. </returns>
-        public static ValueGenerated? GetValueGenerated(
-            [NotNull] IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+        public static ValueGenerated? GetValueGenerated([NotNull] IProperty property, StoreObjectIdentifier storeObject)
         {
             var valueGenerated = GetValueGenerated(property);
-            return valueGenerated ?? (property.GetComputedColumnSql(tableName, schema) != null
+            return valueGenerated ?? (property.GetComputedColumnSql(storeObject) != null
                     ? ValueGenerated.OnAddOrUpdate
-                    : property.GetDefaultValue(tableName, schema) != null || property.GetDefaultValueSql(tableName, schema) != null
+                    : property.GetDefaultValue(storeObject) != null || property.GetDefaultValueSql(storeObject) != null
                         ? ValueGenerated.OnAdd
                         : (ValueGenerated?)null);
         }

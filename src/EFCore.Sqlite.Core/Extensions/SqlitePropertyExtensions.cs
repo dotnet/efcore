@@ -25,13 +25,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the SRID to use when creating a column for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The SRID to use when creating a column for this property. </returns>
         public static int? GetSrid(
             [NotNull] this IProperty property,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+            StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqliteAnnotationNames.Srid);
             if (annotation != null)
@@ -39,9 +37,9 @@ namespace Microsoft.EntityFrameworkCore
                 return (int?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
             return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetSrid(tableName, schema)
+                ? sharedTableRootProperty.GetSrid(storeObject)
                 : null;
         }
 

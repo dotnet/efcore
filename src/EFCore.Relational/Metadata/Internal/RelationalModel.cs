@@ -181,21 +181,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 List<TableMapping> tableMappings = null;
                 while (mappedType != null)
                 {
-                    var mappedTable = mappedType.GetTableName();
+                    var mappedTableName = mappedType.GetTableName();
                     var mappedSchema = mappedType.GetSchema();
 
-                    if (mappedTable == null
-                        || (mappedTable == tableName
+                    if (mappedTableName == null
+                        || (mappedTableName == tableName
                             && mappedSchema == schema
                             && mappedType != entityType))
                     {
                         break;
                     }
 
-                    if (!databaseModel.Tables.TryGetValue((mappedTable, mappedSchema), out var table))
+                    var mappedTable = StoreObjectIdentifier.Table(mappedTableName, mappedSchema);
+                    if (!databaseModel.Tables.TryGetValue((mappedTableName, mappedSchema), out var table))
                     {
-                        table = new Table(mappedTable, mappedSchema, databaseModel);
-                        databaseModel.Tables.Add((mappedTable, mappedSchema), table);
+                        table = new Table(mappedTableName, mappedSchema, databaseModel);
+                        databaseModel.Tables.Add((mappedTableName, mappedSchema), table);
                     }
 
                     if (mappedType == entityType)
@@ -213,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     };
                     foreach (var property in mappedType.GetProperties())
                     {
-                        var columnName = property.GetColumnName(mappedTable, mappedSchema);
+                        var columnName = property.GetColumnName(mappedTable);
                         if (columnName == null)
                         {
                             continue;
@@ -222,17 +223,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var column = (Column)table.FindColumn(columnName);
                         if (column == null)
                         {
-                            column = new Column(columnName, property.GetColumnType(mappedTable, mappedSchema), table);
-                            column.IsNullable = property.IsColumnNullable(mappedTable, mappedSchema);
+                            column = new Column(columnName, property.GetColumnType(mappedTable), table);
+                            column.IsNullable = property.IsColumnNullable(mappedTable);
                             table.Columns.Add(columnName, column);
                         }
-                        else if (!property.IsColumnNullable(mappedTable, mappedSchema))
+                        else if (!property.IsColumnNullable(mappedTable))
                         {
                             column.IsNullable = false;
                         }
 
                         var columnMapping = new ColumnMapping(
-                            property, column, property.FindRelationalTypeMapping(mappedTable, mappedSchema), tableMapping);
+                            property, column, property.FindRelationalTypeMapping(mappedTable), tableMapping);
                         tableMapping.ColumnMappings.Add(columnMapping);
                         column.PropertyMappings.Add(columnMapping);
 
@@ -294,13 +295,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         databaseModel.Views.Add((mappedViewName, mappedSchema), view);
                     }
 
+                    var mappedView = StoreObjectIdentifier.View(mappedViewName, mappedSchema);
                     var viewMapping = new ViewMapping(entityType, view, includesDerivedTypes: mappedType == entityType)
                     {
                         IsSplitEntityTypePrincipal = true
                     };
                     foreach (var property in mappedType.GetProperties())
                     {
-                        var columnName = property.GetViewColumnName(mappedViewName, mappedSchema);
+                        var columnName = property.GetColumnName(mappedView);
                         if (columnName == null)
                         {
                             continue;
@@ -309,17 +311,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var column = (ViewColumn)view.FindColumn(columnName);
                         if (column == null)
                         {
-                            column = new ViewColumn(columnName, property.GetViewColumnType(mappedViewName, mappedSchema), view);
-                            column.IsNullable = property.IsViewColumnNullable(mappedViewName, mappedSchema);
+                            column = new ViewColumn(columnName, property.GetColumnType(mappedView), view);
+                            column.IsNullable = property.IsColumnNullable(mappedView);
                             view.Columns.Add(columnName, column);
                         }
-                        else if (!property.IsViewColumnNullable(mappedViewName, mappedSchema))
+                        else if (!property.IsColumnNullable(mappedView))
                         {
                             column.IsNullable = false;
                         }
 
                         var columnMapping = new ViewColumnMapping(
-                            property, column, property.FindRelationalTypeMapping(mappedViewName, mappedSchema), viewMapping);
+                            property, column, property.FindRelationalTypeMapping(mappedView), viewMapping);
                         viewMapping.ColumnMappings.Add(columnMapping);
                         column.PropertyMappings.Add(columnMapping);
 
@@ -390,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         || functionMappings.Count == 0)
                     {
                         functionMappings.Add(functionMapping);
-                        ((StoreFunction)functionMapping.Function).EntityTypeMappings.Add(functionMapping);
+                        ((StoreFunction)functionMapping.StoreFunction).EntityTypeMappings.Add(functionMapping);
                     }
                 }
 
@@ -429,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 functionMappings.Add(functionMapping);
-                ((StoreFunction)functionMapping.Function).EntityTypeMappings.Add(functionMapping);
+                ((StoreFunction)functionMapping.StoreFunction).EntityTypeMappings.Add(functionMapping);
             }
         }
 
@@ -442,7 +444,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var storeFunction = GetOrCreateStoreFunction(dbFunction, model);
 
-            var functionMapping = new FunctionMapping(entityType, storeFunction, includesDerivedTypes: true)
+            var mappedFunction = StoreObjectIdentifier.DbFunction(dbFunction.Name);
+            var functionMapping = new FunctionMapping(entityType, storeFunction, dbFunction, includesDerivedTypes: true)
             {
                 IsDefaultFunctionMapping = @default,
                 // See Issue #19970
@@ -452,7 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in mappedType.GetProperties())
             {
-                var columnName = property.GetFunctionColumnName();
+                var columnName = property.GetColumnName(mappedFunction);
                 if (columnName == null)
                 {
                     continue;
@@ -461,16 +464,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var column = (FunctionColumn)storeFunction.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new FunctionColumn(columnName, property.GetColumnType(), storeFunction);
-                    column.IsNullable = property.IsColumnNullable();
+                    column = new FunctionColumn(columnName, property.GetColumnType(mappedFunction), storeFunction);
+                    column.IsNullable = property.IsColumnNullable(mappedFunction);
                     storeFunction.Columns.Add(columnName, column);
                 }
-                else if (!property.IsColumnNullable())
+                else if (!property.IsColumnNullable(mappedFunction))
                 {
                     column.IsNullable = false;
                 }
 
-                var columnMapping = new FunctionColumnMapping(property, column, property.FindRelationalTypeMapping(), functionMapping);
+                var columnMapping = new FunctionColumnMapping(property, column, property.FindRelationalTypeMapping(mappedFunction), functionMapping);
                 functionMapping.ColumnMappings.Add(columnMapping);
                 column.PropertyMappings.Add(columnMapping);
 

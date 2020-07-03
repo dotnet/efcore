@@ -93,14 +93,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             IProperty property,
             IProperty duplicateProperty,
             string columnName,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateCompatible(property, duplicateProperty, columnName, tableName, schema, logger);
+            base.ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
 
-            var propertySrid = property.GetSrid(tableName, schema);
-            var duplicatePropertySrid = duplicateProperty.GetSrid(tableName, schema);
+            var propertySrid = property.GetSrid(storeObject);
+            var duplicatePropertySrid = duplicateProperty.GetSrid(storeObject);
             if (propertySrid != duplicatePropertySrid)
             {
                 throw new InvalidOperationException(
@@ -110,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                         property.DeclaringEntityType.DisplayName(),
                         property.Name,
                         columnName,
-                        tableName));
+                        storeObject.DisplayName()));
             }
         }
     }
