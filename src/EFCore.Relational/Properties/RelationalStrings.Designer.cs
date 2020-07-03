@@ -921,6 +921,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("MappedFunctionNotFound", nameof(entityType), nameof(functionName)),
                 entityType, functionName);
 
+        /// <summary>
+        ///     Unable to identify the concrete entity type to materialize in TPT hierarchy.
+        /// </summary>
+        public static string QueryUnableToIdentifyConcreteTypeInTPT
+            => GetString("QueryUnableToIdentifyConcreteTypeInTPT");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

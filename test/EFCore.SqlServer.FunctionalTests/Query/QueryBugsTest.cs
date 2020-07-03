@@ -6361,7 +6361,7 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
         #region Issue15137
 
         [ConditionalFact]
-        public virtual async Task Run_something()
+        public virtual async Task Max_in_multi_level_nested_subquery()
         {
             using (CreateDatabase15137())
             {
@@ -6391,8 +6391,8 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
                         })
                     .SingleAsync();
 
-                AssertSql(
-                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[c]
+            AssertSql(
+                @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[IsPastTradeDeadline]
 FROM (
     SELECT TOP(2) [t].[Id]
     FROM [Trades] AS [t]
@@ -6404,7 +6404,7 @@ LEFT JOIN (
             FROM [DbGame] AS [d]
             WHERE [d2].[Id] IS NOT NULL AND ([d2].[Id] = [d].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END AS [c], [d0].[DbTradeId]
+    END AS [IsPastTradeDeadline], [d0].[DbTradeId]
     FROM [DbTradeAsset] AS [d0]
     INNER JOIN [DbContract] AS [d1] ON [d0].[ContractId] = [d1].[Id]
     LEFT JOIN [DbSeason] AS [d2] ON [d1].[SeasonId] = [d2].[Id]

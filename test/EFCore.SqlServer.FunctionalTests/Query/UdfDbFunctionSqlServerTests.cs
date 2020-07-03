@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -742,10 +742,11 @@ WHERE [c].[Id] = @__custId_1");
         {
             base.QF_Correlated_Func_Call_With_Navigation();
 
-            AssertSql(@"SELECT [c].[Id], [t].[LastName], [t].[OrderId], [t].[Id]
+            AssertSql(
+                @"SELECT [c].[Id], [t].[CustomerName], [t].[OrderId], [t].[Id]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [c0].[LastName], [m].[OrderId], [c0].[Id]
+    SELECT [c0].[LastName] AS [CustomerName], [m].[OrderId], [c0].[Id]
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
     INNER JOIN [Customers] AS [c0] ON [m].[CustomerId] = [c0].[Id]
 ) AS [t]

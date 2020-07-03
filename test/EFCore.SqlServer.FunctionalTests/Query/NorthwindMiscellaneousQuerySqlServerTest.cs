@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -4451,13 +4451,13 @@ ORDER BY [c].[CustomerID] DESC");
             await base.Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t].[c], [t].[CustomerID], [t].[OrderID]
+                @"SELECT [c].[CustomerID], [t].[InnerOrder], [t].[Id], [t].[OrderID]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT (
         SELECT COUNT(*)
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]) AS [c], [c].[CustomerID], [o0].[OrderID]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) AS [InnerOrder], [c].[CustomerID] AS [Id], [o0].[OrderID]
     FROM [Orders] AS [o0]
     WHERE [c].[CustomerID] = [o0].[CustomerID]
 ) AS [t]

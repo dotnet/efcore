@@ -679,4 +679,7 @@
   <data name="MappedFunctionNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.</value>
   </data>
+  <data name="QueryUnableToIdentifyConcreteTypeInTPT" xml:space="preserve">
+    <value>Unable to identify the concrete entity type to materialize in TPT hierarchy.</value>
+  </data>
 </root>

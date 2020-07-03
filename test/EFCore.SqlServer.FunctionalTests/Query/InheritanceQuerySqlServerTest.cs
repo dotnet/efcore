@@ -501,6 +501,20 @@ INNER JOIN (
 WHERE [a].[Discriminator] = N'Eagle'");
         }
 
+        public override async Task Is_operator_on_result_of_FirstOrDefault(bool async)
+        {
+            await base.Is_operator_on_result_of_FirstOrDefault(async);
+
+            AssertSql(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM [Animals] AS [a]
+WHERE (
+    SELECT TOP(1) [a0].[Discriminator]
+    FROM [Animals] AS [a0]
+    WHERE [a0].[Name] = N'Great spotted kiwi') = N'Kiwi'
+ORDER BY [a].[Species]");
+        }
+
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 

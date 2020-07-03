@@ -4,10 +4,13 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -23,6 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalEntityShaperExpression : EntityShaperExpression
     {
+        private static readonly MethodInfo _createUnableToIdentifyConcreteTypeException
+               = typeof(RelationalEntityShaperExpression).GetTypeInfo()
+                   .GetDeclaredMethod(nameof(CreateUnableToIdentifyConcreteTypeException));
+
+        [UsedImplicitly]
+        private static Exception CreateUnableToIdentifyConcreteTypeException()
+            => new InvalidOperationException(RelationalStrings.QueryUnableToIdentifyConcreteTypeInTPT);
+
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalEntityShaperExpression" /> class.
         /// </summary>
@@ -55,11 +66,35 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(entityType, nameof(EntityType));
 
-            var baseCondition = base.GenerateMaterializationCondition(entityType, nullable);
+            LambdaExpression baseCondition;
+            if (entityType.GetDiscriminatorProperty() == null
+                && entityType.GetDirectlyDerivedTypes().Any())
+            {
+                // TPT
+                var valueBufferParameter = Parameter(typeof(ValueBuffer));
+                var body = entityType.IsAbstract()
+                    ? Block(Throw(Call(_createUnableToIdentifyConcreteTypeException)), Constant(null, typeof(IEntityType)))
+                    : (Expression)Constant(entityType, typeof(IEntityType));
+
+                var concreteEntityTypes = entityType.GetDerivedTypes().Where(dt => !dt.IsAbstract()).ToArray();
+                for (var i = 0; i < concreteEntityTypes.Length; i++)
+                {
+                    body = Condition(
+                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(bool), i, property: null),
+                        Constant(concreteEntityTypes[i], typeof(IEntityType)),
+                        body);
+                }
+
+                baseCondition = Lambda(body, valueBufferParameter);
+            }
+            else
+            {
+                baseCondition = base.GenerateMaterializationCondition(entityType, nullable);
+            }
 
             if (entityType.FindPrimaryKey() != null)
             {
-                var linkingFks = entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.GetRowInternalForeignKeys(entityType);
+                var linkingFks = entityType.GetViewOrTableMappings().FirstOrDefault()?.Table.GetRowInternalForeignKeys(entityType);
                 if (linkingFks != null
                     && linkingFks.Any())
                 {

@@ -106,6 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // States to convert code to data reader read
             private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
                 = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
+            private readonly IDictionary<ParameterExpression, int> entityTypeIdentifyingExpressionOffsets
+                = new Dictionary<ParameterExpression, int>();
 
             public ShaperProcessingExpressionVisitor(
                 RelationalShapedQueryCompilingExpressionVisitor parentVisitor,
@@ -343,8 +345,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var newExpression = (NewExpression)binaryExpression.Right;
                     var projectionBindingExpression = (ProjectionBindingExpression)newExpression.Arguments[0];
 
-                    _materializationContextBindings[parameterExpression]
-                        = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
+                    var propertyMap = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
+                    _materializationContextBindings[parameterExpression] = propertyMap;
+                    entityTypeIdentifyingExpressionOffsets[parameterExpression] = propertyMap.Values.Max() + 1;
 
                     var updatedExpression = Expression.New(
                         newExpression.Constructor,
@@ -371,14 +374,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 switch (extensionExpression)
                 {
-                    case EntityShaperExpression entityShaperExpression:
+                    case RelationalEntityShaperExpression entityShaperExpression:
                     {
                         var key = GenerateKey((ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
                         if (!_variableShaperMapping.TryGetValue(key, out var accessor))
                         {
                             var entityParameter = Expression.Parameter(entityShaperExpression.Type);
                             _variables.Add(entityParameter);
-                            var entityMaterializationExpression = Visit(_parentVisitor.InjectEntityMaterializers(entityShaperExpression));
+                            var entityMaterializationExpression = _parentVisitor.InjectEntityMaterializers(entityShaperExpression);
+                            entityMaterializationExpression = Visit(entityMaterializationExpression);
 
                             _expressions.Add(Expression.Assign(entityParameter, entityMaterializationExpression));
 
@@ -818,19 +822,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && methodCallExpression.Method.GetGenericMethodDefinition() == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
                     var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
-                    var propertyProjectionMap = methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression
-                        ? (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression)
-                        : _materializationContextBindings[
-                            (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
-
-                    var projectionIndex = propertyProjectionMap[property];
+                    var mappingParameter = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object;
+                    var projectionIndex = property == null
+                        ? entityTypeIdentifyingExpressionOffsets[mappingParameter] + (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value
+                        : _materializationContextBindings[mappingParameter][property];
                     var projection = _selectExpression.Projection[projectionIndex];
 
                     return CreateGetValueExpression(
                         _dataReaderParameter,
                         projectionIndex,
                         IsNullableProjection(projection),
-                        property.GetRelationalTypeMapping(),
+                        projection.Expression.TypeMapping,
                         methodCallExpression.Type,
                         property);
                 }
