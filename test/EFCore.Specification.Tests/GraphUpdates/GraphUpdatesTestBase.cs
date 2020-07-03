@@ -604,9 +604,11 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Expression<Func<Root, bool>> IsTheRoot => r => r.AlternateId == Fixture.RootAK;
 
+        protected virtual IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query) => query;
+
         protected Root LoadRequiredGraph(DbContext context)
         {
-            return context.Set<Root>()
+            return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
                 .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
                 .Single(IsTheRoot);
@@ -614,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Root LoadOptionalGraph(DbContext context)
         {
-            return context.Set<Root>()
+            return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
@@ -625,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Root LoadRequiredNonPkGraph(DbContext context)
         {
-            return context.Set<Root>()
+            return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredNonPkSingle).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Root)
@@ -637,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Root LoadRequiredAkGraph(DbContext context)
         {
-            return context.Set<Root>()
+            return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
@@ -647,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Root LoadOptionalAkGraph(DbContext context)
         {
-            return context.Set<Root>()
+            return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single)
@@ -659,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Root LoadRequiredNonPkAkGraph(DbContext context)
         {
-            return context.Set<Root>()
+            return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredNonPkSingleAk).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Root)
@@ -671,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Root LoadOptionalOneToManyGraph(DbContext context)
         {
-            return context.Set<Root>()
+            return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
@@ -681,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Root LoadRequiredCompositeGraph(DbContext context)
         {
-            return context.Set<Root>()
+            return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredCompositeChildren).ThenInclude(e => e.CompositeChildren)
                 .Single(IsTheRoot);
         }
