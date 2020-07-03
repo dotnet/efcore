@@ -10,10 +10,10 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ManyToManyQueryRelationalTestBase<TFixture> : ManyToManyQueryTestBase<TFixture>
+    public abstract class ManyToManyNoTrackingQueryRelationalTestBase<TFixture> : ManyToManyNoTrackingQueryTestBase<TFixture>
         where TFixture : ManyToManyQueryFixtureBase, new()
     {
-        protected ManyToManyQueryRelationalTestBase(TFixture fixture)
+        protected ManyToManyNoTrackingQueryRelationalTestBase(TFixture fixture)
             : base(fixture)
         {
         }
