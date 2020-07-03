@@ -753,6 +753,26 @@ OUTER APPLY (
 ORDER BY [c].[Id], [t].[OrderId], [t].[Id]");
         }
 
+        public override void DbSet_mapped_to_function()
+        {
+            base.DbSet_mapped_to_function();
+
+            AssertSql(
+                @"SELECT [t].[AmountSold], [t].[ProductId]
+FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
+ORDER BY [t].[ProductId]");
+        }
+
+        public override void TVF_backing_entity_type_mapped_to_view()
+        {
+            base.TVF_backing_entity_type_mapped_to_view();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
+FROM [Customers] AS [c]
+ORDER BY [c].[FirstName]");
+        }
+
         #endregion
 
         public class SqlServer : UdfFixtureBase

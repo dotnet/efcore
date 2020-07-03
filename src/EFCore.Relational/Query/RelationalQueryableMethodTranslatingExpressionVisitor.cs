@@ -129,8 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     var entityType = tableValuedFunctionQueryRootExpression.EntityType;
-                    var alias = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
-                        ?? entityType.ShortName()).Substring(0, 1).ToLower();
+                    var alias = entityType.ShortName().Substring(0, 1).ToLower();
 
                     var translation = new TableValuedFunctionExpression(alias, function.Schema, function.Name, arguments);
                     var queryExpression = _sqlExpressionFactory.Select(entityType, translation);

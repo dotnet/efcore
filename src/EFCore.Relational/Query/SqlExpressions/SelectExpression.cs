@@ -124,9 +124,23 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if ((entityType.BaseType == null && !entityType.GetDirectlyDerivedTypes().Any())
                 || entityType.GetDiscriminatorProperty() != null)
             {
-                // Key-less entities or TPH
-                var table = entityType.GetViewOrTableMappings().Single().Table;
-                var tableExpression = new TableExpression(table);
+                ITableBase table;
+                TableExpressionBase tableExpression;
+                if (entityType.GetFunctionMappings().SingleOrDefault(e => e.IsDefaultFunctionMapping) is IFunctionMapping functionMapping)
+                {
+                    var storeFunction = functionMapping.Table;
+                    var alias = entityType.ShortName().Substring(0, 1).ToLower();
+
+                    table = storeFunction;
+                    tableExpression = new TableValuedFunctionExpression(
+                        alias, storeFunction.Schema, storeFunction.Name, Array.Empty<SqlExpression>());
+                }
+                else
+                {
+                    table = entityType.GetViewOrTableMappings().Single().Table;
+                    tableExpression = new TableExpression(entityType.GetViewOrTableMappings().Single().Table);
+                }
+
                 _tables.Add(tableExpression);
 
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
@@ -218,13 +232,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             static ColumnExpression GetColumn(
-                    IProperty property, IEntityType currentEntityType, ITableBase table, TableExpression tableExpression, bool nullable)
+                    IProperty property, IEntityType currentEntityType, ITableBase table, TableExpressionBase tableExpression, bool nullable)
             {
-                var column = table is ITable
-                        ? (IColumnBase)property.GetTableColumnMappings().Single(cm => cm.TableMapping.Table == table
-                            && cm.TableMapping.EntityType == currentEntityType).Column
-                        : property.GetViewColumnMappings().Single(cm => cm.TableMapping.Table == table
-                            && cm.TableMapping.EntityType == currentEntityType).Column;
+                var columnMappings = table switch
+                {
+                    IStoreFunction _ => property.GetFunctionColumnMappings().Cast<IColumnMappingBase>(),
+                    IView _ => property.GetViewColumnMappings().Cast<IColumnMappingBase>(),
+                    _ => property.GetTableColumnMappings().Cast<IColumnMappingBase>()
+                };
+
+                var column = columnMappings
+                    .Single(cm => cm.TableMapping.Table == table && cm.TableMapping.EntityType == currentEntityType)
+                    .Column;
 
                 return new ColumnExpression(property, column, tableExpression, nullable);
             }
