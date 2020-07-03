@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _storeTypeConfigurationSource;
         private ConfigurationSource? _typeMappingConfigurationSource;
         private ConfigurationSource? _translationConfigurationSource;
-        private IEntityType _queryableEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] MethodInfo methodInfo,
             [NotNull] IMutableModel model,
             ConfigurationSource configurationSource)
-            : this(methodInfo.DisplayName(),
+            : this(methodInfo.Name,
                   methodInfo.ReturnType,
                   methodInfo.GetParameters().Select(pi => (pi.Name, pi.ParameterType)),
                   model,
@@ -97,8 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 || returnType == typeof(void))
             {
                 throw new ArgumentException(
-                    RelationalStrings.DbFunctionInvalidReturnType(
-                        name, returnType.ShortDisplayName()));
+                    RelationalStrings.DbFunctionInvalidReturnType(name, returnType.ShortDisplayName()));
             }
 
             IsScalar = !returnType.IsGenericType
@@ -263,27 +261,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         public virtual bool IsAggregate { get; }
 
-        private IEntityType ReturnEntityType
-        {
-            get
-            {
-                if (IsScalar)
-                {
-                    return null;
-                }
-
-                if (_queryableEntityType == null)
-                {
-                    _queryableEntityType = Model.FindEntityType(ReturnType.GetGenericArguments()[0]);
-                }
-
-                return _queryableEntityType;
-            }
-
-            [param: CanBeNull]
-            set => _queryableEntityType = value;
-        }
-
         /// <inheritdoc />
         [DebuggerStepThrough]
         public virtual ConfigurationSource GetConfigurationSource()
@@ -417,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string StoreType
         {
-            get => _storeType;
+            get => _storeType ?? TypeMapping?.StoreType;
             set => SetStoreType(value, ConfigurationSource.Explicit);
         }
 
@@ -541,6 +518,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IStoreFunction StoreFunction { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
@@ -563,9 +548,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [DebuggerStepThrough]
             get => (IConventionModel)Model;
         }
-
-        /// <inheritdoc />
-        IEntityType IDbFunction.ReturnEntityType => ReturnEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

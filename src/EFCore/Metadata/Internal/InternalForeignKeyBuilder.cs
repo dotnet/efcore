@@ -3800,15 +3800,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (!someAspectsFitNonInverted
-                && canInvert
                 && shouldThrow)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.EntityTypesNotInRelationship(
-                        dependentEntityType.DisplayName(),
-                        principalEntityType.DisplayName(),
-                        Metadata.DeclaringEntityType.DisplayName(),
-                        Metadata.PrincipalEntityType.DisplayName()));
+                if (strictPrincipal
+                    && principalEntityType.IsKeyless)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.PrincipalKeylessType(
+                            principalEntityType.DisplayName(),
+                        Metadata.PrincipalEntityType.DisplayName()
+                                + (Metadata.PrincipalToDependent == null
+                                    ? ""
+                                    : "." + Metadata.PrincipalToDependent.Name),
+                        Metadata.DeclaringEntityType.DisplayName()
+                                + (Metadata.DependentToPrincipal == null
+                                    ? ""
+                                    : "." + Metadata.DependentToPrincipal.Name)));
+                }
+
+                if (canInvert)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.EntityTypesNotInRelationship(
+                            dependentEntityType.DisplayName(),
+                            principalEntityType.DisplayName(),
+                            Metadata.DeclaringEntityType.DisplayName(),
+                            Metadata.PrincipalEntityType.DisplayName()));
+                }
             }
 
             return someAspectsFitNonInverted;
@@ -3844,6 +3862,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && !principalEntityType.IsAssignableFrom(Metadata.PrincipalEntityType))
             {
                 return false;
+            }
+
+            if (inverted)
+            {
+                if (dependentEntityType.IsKeyless
+                    && !configurationSource.OverridesStrictly(dependentEntityType.GetIsKeylessConfigurationSource()))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (principalEntityType.IsKeyless
+                    && !configurationSource.OverridesStrictly(principalEntityType.GetIsKeylessConfigurationSource()))
+                {
+                    return false;
+                }
             }
 
             if (navigationToPrincipal != null)

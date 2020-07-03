@@ -3344,8 +3344,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKey = SetOrAddForeignKey(
                 null, principalEntityTypeBuilder,
                 dependentProperties, principalKey, navigationToPrincipalName, required, configurationSource);
+
             if (required.HasValue
-                && foreignKey.IsRequired == required.Value)
+                && foreignKey?.IsRequired == required.Value)
             {
                 foreignKey.SetIsRequired(required.Value, configurationSource);
             }
@@ -3388,6 +3389,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var principalBaseEntityTypeBuilder = principalType.RootType().Builder;
             if (principalKey == null)
             {
+                if (principalType.IsKeyless
+                    && !configurationSource.Overrides(principalType.GetIsKeylessConfigurationSource()))
+                {
+                    return null;
+                }
+
                 principalKey = principalType.FindPrimaryKey();
                 if (principalKey != null
                     && dependentProperties != null

@@ -9194,7 +9194,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 ops => { });
         }
 
-
         private class TestKeylessType
         {
             public string Something { get; set; }

@@ -1,15 +1,13 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class TableValuedFunctionQueryRootExpression : QueryRootExpression
+    public class StoreFunction : TableBase, IStoreFunction
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,53 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        //Since this is always generated while compiling there is no query provider associated
-        public TableValuedFunctionQueryRootExpression(
-            [NotNull] IEntityType entityType, [NotNull] IStoreFunction function, [NotNull] IReadOnlyCollection<Expression> arguments)
-            : base(entityType)
+        public StoreFunction([NotNull] DbFunction dbFunction, [NotNull] RelationalModel model)
+            : base(dbFunction.Name, dbFunction.Schema, model)
         {
-            Check.NotNull(function, nameof(function));
-            Check.NotNull(arguments, nameof(arguments));
+            DbFunctions = new SortedDictionary<string, DbFunction>() { { dbFunction.ModelName, dbFunction } };
+            IsBuiltIn = dbFunction.IsBuiltIn;
+            ReturnType = dbFunction.StoreType;
 
-            Function = function;
-            Arguments = arguments;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IStoreFunction Function { get; }
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IReadOnlyCollection<Expression> Arguments { get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            var arguments = new List<Expression>();
-            var changed = false;
-            foreach (var argument in Arguments)
+            Parameters = new StoreFunctionParameter[dbFunction.Parameters.Count];
+            for (var i = 0; i < dbFunction.Parameters.Count; i++)
             {
-                var newArgument = visitor.Visit(argument);
-                arguments.Add(newArgument);
-                changed |= argument != newArgument;
+                Parameters[i] = new StoreFunctionParameter(this, dbFunction.Parameters[i]);
             }
-
-            return changed
-                ? new TableValuedFunctionQueryRootExpression(EntityType, Function, arguments)
-                : this;
+            dbFunction.StoreFunction = this;
         }
 
         /// <summary>
@@ -80,50 +44,99 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override void Print(ExpressionPrinter expressionPrinter)
+        public virtual SortedDictionary<string, DbFunction> DbFunctions { get; } 
+
+        /// <inheritdoc />
+        public virtual bool IsBuiltIn { get; }
+
+        /// <inheritdoc />
+        public virtual string ReturnType { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SortedSet<IFunctionMapping> EntityTypeMappings { get; }
+            = new SortedSet<IFunctionMapping>(TableMappingBaseComparer.Instance);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SortedDictionary<string, FunctionColumn> Columns { get; }
+            = new SortedDictionary<string, FunctionColumn>(StringComparer.Ordinal);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual StoreFunctionParameter[] Parameters { get; }
+
+        /// <inheritdoc/>
+        public virtual IFunctionColumn FindColumn(string name)
+            => Columns.TryGetValue(name, out var column)
+                ? column
+                : null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
+        /// <inheritdoc />
+        IEnumerable<IFunctionMapping> IStoreFunction.EntityTypeMappings
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
-            expressionPrinter.Append(Function.Name);
-            expressionPrinter.Append("(");
-            expressionPrinter.VisitCollection(Arguments);
-            expressionPrinter.Append(")");
+            [DebuggerStepThrough]
+            get => EntityTypeMappings;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override bool Equals(object obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is TableValuedFunctionQueryRootExpression queryRootExpression
-                    && Equals(queryRootExpression));
-
-        private bool Equals(TableValuedFunctionQueryRootExpression queryRootExpression)
-            => base.Equals(queryRootExpression)
-                && Equals(Function, queryRootExpression.Function)
-                && Arguments.SequenceEqual(queryRootExpression.Arguments, ExpressionEqualityComparer.Instance);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override int GetHashCode()
+        /// <inheritdoc />
+        IEnumerable<ITableMappingBase> ITableBase.EntityTypeMappings
         {
-            var hashCode = new HashCode();
-            hashCode.Add(base.GetHashCode());
-            hashCode.Add(Function);
-            foreach (var item in Arguments)
-            {
-                hashCode.Add(item);
-            }
-
-            return hashCode.ToHashCode();
+            [DebuggerStepThrough]
+            get => EntityTypeMappings;
         }
+
+        /// <inheritdoc />
+        IEnumerable<IFunctionColumn> IStoreFunction.Columns
+        {
+            [DebuggerStepThrough]
+            get => Columns.Values;
+        }
+
+        /// <inheritdoc />
+        IEnumerable<IColumnBase> ITableBase.Columns
+        {
+            [DebuggerStepThrough]
+            get => Columns.Values;
+        }
+
+        /// <inheritdoc />
+        IEnumerable<IStoreFunctionParameter> IStoreFunction.Parameters
+        {
+            [DebuggerStepThrough]
+            get => Parameters;
+        }
+
+        /// <inheritdoc />
+        IEnumerable<IDbFunction> IStoreFunction.DbFunctions
+        {
+            [DebuggerStepThrough]
+            get => DbFunctions.Values;
+        }
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IColumnBase ITableBase.FindColumn(string name)
+            => FindColumn(name);
     }
 }

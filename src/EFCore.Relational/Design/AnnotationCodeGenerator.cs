@@ -37,6 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             RelationalAnnotationNames.TableColumnMappings,
             RelationalAnnotationNames.ViewMappings,
             RelationalAnnotationNames.ViewColumnMappings,
+            RelationalAnnotationNames.FunctionMappings,
+            RelationalAnnotationNames.FunctionColumnMappings,
             RelationalAnnotationNames.ForeignKeyMappings,
             RelationalAnnotationNames.TableIndexMappings,
             RelationalAnnotationNames.UniqueConstraintMappings,
@@ -89,9 +91,16 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             if (annotations.TryGetValue(RelationalAnnotationNames.ViewColumnName, out var viewColumnNameAnnotation)
                 && viewColumnNameAnnotation.Value is string viewColumnName
-                && viewColumnName != columnName)
+                && viewColumnName == columnName)
             {
                 annotations.Remove(RelationalAnnotationNames.ViewColumnName);
+            }
+
+            if (annotations.TryGetValue(RelationalAnnotationNames.FunctionColumnName, out var functionColumnNameAnnotation)
+                && functionColumnNameAnnotation.Value is string functionColumnName
+                && functionColumnName == columnName)
+            {
+                annotations.Remove(RelationalAnnotationNames.FunctionColumnName);
             }
 
             RemoveConventionalAnnotationsHelper(property, annotations, IsHandledByConvention);
@@ -153,6 +162,11 @@ namespace Microsoft.EntityFrameworkCore.Design
             GenerateSimpleFluentApiCall(
                 annotations,
                 RelationalAnnotationNames.ViewColumnName, nameof(RelationalPropertyBuilderExtensions.HasViewColumnName),
+                methodCallCodeFragments);
+
+            GenerateSimpleFluentApiCall(
+                annotations,
+                RelationalAnnotationNames.FunctionColumnName, nameof(RelationalPropertyBuilderExtensions.HasFunctionColumnName),
                 methodCallCodeFragments);
 
             GenerateSimpleFluentApiCall(

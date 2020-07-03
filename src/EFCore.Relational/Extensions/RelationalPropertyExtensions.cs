@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore
             => RelationalPropertyOverrides.Find(property, tableName, schema)?.GetColumnNameConfigurationSource();
 
         /// <summary>
-        ///     Returns the name of the column to which the property is mapped for a particular view.
+        ///     Returns the name of the view column to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The name of the view column to which the property is mapped. </returns>
@@ -420,6 +420,61 @@ namespace Microsoft.EntityFrameworkCore
             => RelationalPropertyOverrides.Find(property, viewName, schema)?.GetViewColumnNameConfigurationSource();
 
         /// <summary>
+        ///     Returns the table-valued function column name to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The name of the table-valued function column to which the property is mapped. </returns>
+        public static string GetFunctionColumnName([NotNull] this IProperty property)
+        {
+            var annotation = property.FindAnnotation(RelationalAnnotationNames.FunctionColumnName);
+            return annotation != null ? (string)annotation.Value : GetDefaultFunctionColumnName(property);
+        }
+
+        /// <summary>
+        ///     Returns the default table-valued function column name to which the property would be mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The default table-valued function column name to which the property would be mapped. </returns>
+        public static string GetDefaultFunctionColumnName([NotNull] this IProperty property)
+            => property.GetDefaultColumnName();
+
+        /// <summary>
+        ///     Sets the table-valued function column to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="name"> The name to set. </param>
+        public static void SetFunctionColumnName([NotNull] this IMutableProperty property, [CanBeNull] string name)
+            => property.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.FunctionColumnName,
+                Check.NullButNotEmpty(name, nameof(name)));
+
+        /// <summary>
+        ///     Sets the table-valued function column to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="name"> The name to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static string SetFunctionColumnName(
+            [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.FunctionColumnName,
+                Check.NullButNotEmpty(name, nameof(name)),
+                fromDataAnnotation);
+
+            return name;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the function column name.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the function column name. </returns>
+        public static ConfigurationSource? GetFunctionColumnNameConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.FunctionColumnName)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Returns the database type of the column to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -462,6 +517,35 @@ namespace Microsoft.EntityFrameworkCore
             return sharedTableRootProperty != null
                 ? sharedTableRootProperty.GetColumnType(tableName, schema)
                 : property.FindRelationalTypeMapping(tableName, schema)?.StoreType;
+        }
+
+        /// <summary>
+        ///     Returns the database type of the column to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="viewName"> The view name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <returns> The database type of the column to which the property is mapped. </returns>
+        public static string GetViewColumnType(
+            [NotNull] this IProperty property,
+            [NotNull] string viewName,
+            [CanBeNull] string schema)
+        {
+            var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
+            if (annotation != null)
+            {
+                return (string)annotation.Value;
+            }
+
+            return GetDefaultViewColumnType(property, viewName, schema);
+        }
+
+        private static string GetDefaultViewColumnType(IProperty property, string viewName, string schema)
+        {
+            var sharedViewRootProperty = property.FindSharedViewRootProperty(viewName, schema);
+            return sharedViewRootProperty != null
+                ? sharedViewRootProperty.GetViewColumnType(viewName, schema)
+                : property.FindRelationalTypeMapping(viewName, schema)?.StoreType;
         }
 
         /// <summary>
@@ -519,6 +603,15 @@ namespace Microsoft.EntityFrameworkCore
                 ?? Enumerable.Empty<IViewColumnMapping>();
 
         /// <summary>
+        ///     Returns the function columns to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The function columns to which the property is mapped. </returns>
+        public static IEnumerable<IFunctionColumnMapping> GetFunctionColumnMappings([NotNull] this IProperty property) =>
+            (IEnumerable<IFunctionColumnMapping>)property[RelationalAnnotationNames.FunctionColumnMappings]
+                ?? Enumerable.Empty<IFunctionColumnMapping>();
+
+        /// <summary>
         ///     Returns the table column corresponding to this property if it's mapped to the given table.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -530,12 +623,12 @@ namespace Microsoft.EntityFrameworkCore
                 .FirstOrDefault(c => c.Table.Name == tableName && c.Table.Schema == schema);
 
         /// <summary>
-        ///     Returns the view column corresponding to this property if it's mapped to the given table.
+        ///     Returns the view column corresponding to this property if it's mapped to the given view.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="viewName"> The target table name. </param>
-        /// <param name="schema"> The target table schema. </param>
-        /// <returns> The table column to which the property is mapped. </returns>
+        /// <param name="viewName"> The target view name. </param>
+        /// <param name="schema"> The target view schema. </param>
+        /// <returns> The view column to which the property is mapped. </returns>
         public static IViewColumn FindViewColumn([NotNull] this IProperty property, [NotNull] string viewName, [CanBeNull] string schema)
             => property.GetViewColumnMappings().Select(m => m.Column)
                 .FirstOrDefault(c => c.View.Name == viewName && c.View.Schema == schema);
@@ -1039,10 +1132,10 @@ namespace Microsoft.EntityFrameworkCore
                 return false;
             }
 
-            var sharedTableRootProperty = property.FindSharedViewRootProperty(viewName, schema);
-            if (sharedTableRootProperty != null)
+            var sharedViewRootProperty = property.FindSharedViewRootProperty(viewName, schema);
+            if (sharedViewRootProperty != null)
             {
-                return sharedTableRootProperty.IsViewColumnNullable(viewName, schema);
+                return sharedViewRootProperty.IsViewColumnNullable(viewName, schema);
             }
 
             return property.IsNullable

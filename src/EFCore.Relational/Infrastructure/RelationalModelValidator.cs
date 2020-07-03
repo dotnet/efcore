@@ -75,15 +75,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var dbFunction in model.GetDbFunctions())
             {
-                var methodInfo = dbFunction.MethodInfo;
-
-                if (dbFunction.TypeMapping == null
-                    && dbFunction.ReturnEntityType == null)
+                if (dbFunction.IsScalar)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DbFunctionInvalidReturnType(
-                            methodInfo.DisplayName(),
-                            methodInfo.ReturnType.ShortDisplayName()));
+                    if (dbFunction.TypeMapping == null)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.DbFunctionInvalidReturnType(
+                                dbFunction.ModelName,
+                                dbFunction.ReturnType.ShortDisplayName()));
+                    }
+                }
+                else
+                {
+                    var elementType = dbFunction.ReturnType.GetGenericArguments()[0];
+                    var entityType = model.FindEntityType(elementType);
+                    if (entityType?.IsOwned() == true
+                        || ((IConventionModel)model).IsOwned(elementType)
+                        || (entityType == null && model.GetEntityTypes().Any(e => e.ClrType == elementType)))
+                    {
+                        throw new InvalidOperationException(RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
+                            dbFunction.ModelName, elementType.ShortDisplayName()));
+                    }
+
+                    if (entityType == null)
+                    {
+                        throw new InvalidOperationException(RelationalStrings.DbFunctionInvalidReturnEntityType(
+                            dbFunction.ModelName, dbFunction.ReturnType.ShortDisplayName(), elementType.ShortDisplayName()));
+                    }
                 }
 
                 foreach (var parameter in dbFunction.Parameters)
@@ -93,9 +111,55 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         throw new InvalidOperationException(
                             RelationalStrings.DbFunctionInvalidParameterType(
                                 parameter.Name,
-                                methodInfo.DisplayName(),
+                                dbFunction.ModelName,
                                 parameter.ClrType.ShortDisplayName()));
                     }
+                }
+            }
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var mappedFunctionName = entityType.GetFunctionName();
+                if (mappedFunctionName == null)
+                {
+                    continue;
+                }
+
+                var mappedFunction = model.FindDbFunction(mappedFunctionName);
+                if (mappedFunction == null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.MappedFunctionNotFound(entityType.DisplayName(), mappedFunctionName));
+                }
+
+                if (entityType.BaseType != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.InvalidMappedFunctionDerivedType(
+                            entityType.DisplayName(), mappedFunctionName, entityType.BaseType.DisplayName()));
+                }
+
+                if (mappedFunction.IsScalar
+                    || mappedFunction.ReturnType.GetGenericArguments()[0] != entityType.ClrType)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.InvalidMappedFunctionUnmatchedReturn(
+                            entityType.DisplayName(),
+                            mappedFunctionName,
+                            mappedFunction.ReturnType.ShortDisplayName(),
+                            entityType.ClrType.ShortDisplayName()));
+                }
+
+                if (mappedFunction.Parameters.Count > 0)
+                {
+                    var parameters = "{"
+                        + string.Join(
+                            ", ",
+                            mappedFunction.Parameters.Select(p => "'" + p.Name + "'"))
+                        + "}";
+                    throw new InvalidOperationException(
+                        RelationalStrings.InvalidMappedFunctionWithParameters(
+                            entityType.DisplayName(), mappedFunctionName, parameters));
                 }
             }
         }

@@ -845,6 +845,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
             }
 
+            var functionNameAnnotation = annotations.Find(RelationalAnnotationNames.FunctionName);
+            if (functionNameAnnotation?.Value != null
+                || entityType.BaseType == null)
+            {
+                var functionName = (string)functionNameAnnotation?.Value ?? entityType.GetFunctionName();
+                if (functionName != null)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(builderName)
+                        .Append(".ToFunction(")
+                        .Append(Code.Literal(functionName));
+                    if (functionNameAnnotation != null)
+                    {
+                        annotations.Remove(functionNameAnnotation.Name);
+                    }
+
+                    stringBuilder.AppendLine(");");
+                }
+            }
+
             if ((discriminatorPropertyAnnotation?.Value
                 ?? discriminatorMappingCompleteAnnotation?.Value
                 ?? discriminatorValueAnnotation?.Value) != null)

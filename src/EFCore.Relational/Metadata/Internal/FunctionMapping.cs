@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class TableMappingBase : Annotatable, ITableMappingBase
+    public class FunctionMapping : TableMappingBase, IFunctionMapping
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,21 +22,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TableMappingBase(
+        public FunctionMapping(
             [NotNull] IEntityType entityType,
-            [NotNull] ITableBase table,
+            [NotNull] StoreFunction function,
             bool includesDerivedTypes)
+            : base(entityType, function, includesDerivedTypes)
         {
-            EntityType = entityType;
-            Table = table;
-            IncludesDerivedTypes = includesDerivedTypes;
         }
 
         /// <inheritdoc/>
-        public virtual IEntityType EntityType { get; }
+        public virtual bool IsDefaultFunctionMapping { get; set; }
 
         /// <inheritdoc/>
-        public virtual ITableBase Table { get; }
+        public virtual IStoreFunction Function => (IStoreFunction)base.Table;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,22 +42,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract IEnumerable<IColumnMappingBase> ProtectedColumnMappings { get; }
+        public virtual SortedSet<IFunctionColumnMapping> ColumnMappings { get; }
+            = new SortedSet<IFunctionColumnMapping>(ColumnMappingBaseComparer.Instance);
 
         /// <inheritdoc/>
-        public virtual bool IncludesDerivedTypes { get; }
+        protected override IEnumerable<IColumnMappingBase> ProtectedColumnMappings => ColumnMappings;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc/>
-        public virtual bool IsSharedTablePrincipal { get; set; }
-
-        /// <inheritdoc/>
-        public virtual bool IsSplitEntityTypePrincipal { get; set; }
+        IEnumerable<IFunctionColumnMapping> IFunctionMapping.ColumnMappings
+        {
+            [DebuggerStepThrough]
+            get => ColumnMappings;
+        }
 
         /// <inheritdoc/>
         IEnumerable<IColumnMappingBase> ITableMappingBase.ColumnMappings
         {
             [DebuggerStepThrough]
-            get => ProtectedColumnMappings;
+            get => ColumnMappings;
         }
     }
 }

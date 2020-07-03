@@ -27,6 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ViewColumnName = Prefix + "ViewColumnName";
 
         /// <summary>
+        ///     The name for column name annotations.
+        /// </summary>
+        public const string FunctionColumnName = Prefix + "FunctionColumnName";
+
+        /// <summary>
         ///     The name for column type annotations.
         /// </summary>
         public const string ColumnType = Prefix + "ColumnType";
@@ -70,6 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for view schema name annotations.
         /// </summary>
         public const string ViewSchema = Prefix + "ViewSchema";
+
+        /// <summary>
+        ///     The name for mapped function name annotations.
+        /// </summary>
+        public const string FunctionName = Prefix + "FunctionName";
 
         /// <summary>
         ///     The name for comment annotations.
@@ -167,6 +177,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for view column mappings annotations.
         /// </summary>
         public const string ViewColumnMappings = Prefix + "ViewColumnMappings";
+
+        /// <summary>
+        ///     The name for view mappings annotations.
+        /// </summary>
+        public const string FunctionMappings = Prefix + "FunctionMappings";
+
+        /// <summary>
+        ///     The name for view column mappings annotations.
+        /// </summary>
+        public const string FunctionColumnMappings = Prefix + "FunctionColumnMappings";
 
         /// <summary>
         ///     The name for foreign key mappings annotations.

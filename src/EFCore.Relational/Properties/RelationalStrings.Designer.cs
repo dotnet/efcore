@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
-        ///     The DbFunction '{function}' has an invalid return type '{type}'. Only functions that return IQueryable of entity type are supported.
+        ///     The DbFunction '{function}' has an invalid return type '{type}'. Non-scalar functions must return IQueryable of a valid entity type.
         /// </summary>
         public static string DbFunctionInvalidIQueryableReturnType([CanBeNull] object function, [CanBeNull] object type)
             => string.Format(
@@ -880,6 +880,46 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("IncompatibleTableExcludedMismatch", nameof(table), nameof(entityType), nameof(otherEntityType)),
                 table, entityType, otherEntityType);
+
+        /// <summary>
+        ///     The DbFunction '{function}' returns '{type}', but `{elementType}` is not a mapped entity type. Ensure that `{elementType}` is included in the model.
+        /// </summary>
+        public static string DbFunctionInvalidReturnEntityType([CanBeNull] object function, [CanBeNull] object type, [CanBeNull] object elementType)
+            => string.Format(
+                GetString("DbFunctionInvalidReturnEntityType", nameof(function), nameof(type), nameof(elementType)),
+                function, type, elementType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' and it's derived from '{baseEntityType}'. Derived entity types cannot be mapped to a function.
+        /// </summary>
+        public static string InvalidMappedFunctionDerivedType([CanBeNull] object entityType, [CanBeNull] object functionName, [CanBeNull] object baseEntityType)
+            => string.Format(
+                GetString("InvalidMappedFunctionDerivedType", nameof(entityType), nameof(functionName), nameof(baseEntityType)),
+                entityType, functionName, baseEntityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with return type '{returnType}'. Ensure that mapped function returns `IQueryable&lt;{clrType}&gt;`.
+        /// </summary>
+        public static string InvalidMappedFunctionUnmatchedReturn([CanBeNull] object entityType, [CanBeNull] object functionName, [CanBeNull] object returnType, [CanBeNull] object clrType)
+            => string.Format(
+                GetString("InvalidMappedFunctionUnmatchedReturn", nameof(entityType), nameof(functionName), nameof(returnType), nameof(clrType)),
+                entityType, functionName, returnType, clrType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}' with parameters {parameters}. Ensure that mapped function doesn't have any parameters.
+        /// </summary>
+        public static string InvalidMappedFunctionWithParameters([CanBeNull] object entityType, [CanBeNull] object functionName, [CanBeNull] object parameters)
+            => string.Format(
+                GetString("InvalidMappedFunctionWithParameters", nameof(entityType), nameof(functionName), nameof(parameters)),
+                entityType, functionName, parameters);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.
+        /// </summary>
+        public static string MappedFunctionNotFound([CanBeNull] object entityType, [CanBeNull] object functionName)
+            => string.Format(
+                GetString("MappedFunctionNotFound", nameof(entityType), nameof(functionName)),
+                entityType, functionName);
 
         private static string GetString(string name, params string[] formatterNames)
         {

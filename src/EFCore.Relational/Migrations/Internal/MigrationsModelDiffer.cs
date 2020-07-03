@@ -1776,18 +1776,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     continue;
                 }
 
-                ITable mainSourceTable = null;
+                ITable firstSourceTable = null;
                 foreach (var targetTableMapping in targetEntityType.GetTableMappings())
                 {
                     var targetTable = targetTableMapping.Table;
-                    if (targetTableMapping.IsMainTableMapping)
+                    if (firstSourceTable == null)
                     {
-                        mainSourceTable = diffContext.FindSource(targetTable);
+                        firstSourceTable = diffContext.FindSource(targetTable);
 
                         continue;
                     }
 
-                    Check.DebugAssert(mainSourceTable != null, "mainSourceTable is null");
+                    Check.DebugAssert(firstSourceTable != null, "mainSourceTable is null");
 
                     var newMapping = true;
                     var sourceTable = diffContext.FindSource(targetTable);
@@ -1798,7 +1798,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             var sourceEntityType = sourceEntityTypeMapping.EntityType;
                             if (keyMapping.TryGetValue(sourceEntityType, out var targetKeyMap)
                                 && targetKeyMap.ContainsKey((targetKey, targetTable))
-                                && sourceEntityType.GetTableMappings().Any(m => m.IsMainTableMapping && m.Table == mainSourceTable))
+                                && sourceEntityType.GetTableMappings().First().Table == firstSourceTable)
                             {
                                 newMapping = false;
                             }
@@ -1820,31 +1820,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var sourceEntityType in source.Model.GetEntityTypes())
             {
-                ITable mainSourceTable = null;
+                ITable firstSourceTable = null;
                 if (keyMapping.TryGetValue(sourceEntityType, out var targetKeyMap))
                 {
-                    ITable mainTargetTable = null;
+                    ITable firstTargetTable = null;
                     foreach (var sourceTableMapping in sourceEntityType.GetTableMappings())
                     {
                         var sourceTable = sourceTableMapping.Table;
-                        if (sourceTableMapping.IsMainTableMapping)
+                        if (firstSourceTable == null)
                         {
-                            mainSourceTable = sourceTable;
-                            mainTargetTable = diffContext.FindTarget(mainSourceTable);
-                            if (mainTargetTable == null)
+                            firstSourceTable = sourceTable;
+                            firstTargetTable = diffContext.FindTarget(firstSourceTable);
+                            if (firstTargetTable == null)
                             {
                                 break;
                             }
                             continue;
                         }
 
-                        Check.DebugAssert(mainSourceTable != null, "mainSourceTable is null");
-
                         var targetTable = diffContext.FindTarget(sourceTable);
                         var removedMapping = true;
                         if (targetTable != null
                             && targetKeyMap.Keys.Any(k => k.Item2 == targetTable
-                                && k.Item1.DeclaringEntityType.GetTableMappings().Any(m => m.IsMainTableMapping && m.Table == mainTargetTable)))
+                                && k.Item1.DeclaringEntityType.GetTableMappings().First().Table == firstTargetTable))
                         {
                             removedMapping = false;
                         }
@@ -1865,34 +1863,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 else
                 {
                     targetKeyMap = null;
-                    mainSourceTable = sourceEntityType.GetTableMappings().FirstOrDefault(m => m.IsMainTableMapping)?.Table;
+                    firstSourceTable = sourceEntityType.GetTableMappings().FirstOrDefault()?.Table;
                 }
 
-                if (mainSourceTable == null)
+                if (firstSourceTable == null)
                 {
                     continue;
                 }
 
                 // If table sharing is being used find the main table of the principal entity type
                 var mainSourceEntityType = sourceEntityType;
-                var mainPrincipalSourceTable = mainSourceTable;
-                while (mainSourceTable.GetRowInternalForeignKeys(mainSourceEntityType).Any())
+                var principalSourceTable = firstSourceTable;
+                while (firstSourceTable.GetRowInternalForeignKeys(mainSourceEntityType).Any())
                 {
-                    mainSourceEntityType = mainPrincipalSourceTable.EntityTypeMappings.First(m => m.IsMainEntityTypeMapping).EntityType;
-                    mainPrincipalSourceTable = mainSourceEntityType.GetTableMappings().First(m => m.IsMainTableMapping).Table;
+                    mainSourceEntityType = principalSourceTable.EntityTypeMappings.First(m => m.IsSharedTablePrincipal).EntityType;
+                    principalSourceTable = mainSourceEntityType.GetTableMappings().First().Table;
                 }
 
                 foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
                     var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceUpdateAdapter);
 
-                    if (!_sourceSharedIdentityEntryMaps.TryGetValue(mainPrincipalSourceTable, out var sourceTableEntryMappingMap))
+                    if (!_sourceSharedIdentityEntryMaps.TryGetValue(principalSourceTable, out var sourceTableEntryMappingMap))
                     {
                         sourceTableEntryMappingMap = new SharedIdentityMap(_sourceUpdateAdapter);
-                        _sourceSharedIdentityEntryMaps.Add(mainPrincipalSourceTable, sourceTableEntryMappingMap);
+                        _sourceSharedIdentityEntryMaps.Add(principalSourceTable, sourceTableEntryMappingMap);
                     }
 
-                    var entryMapping = sourceTableEntryMappingMap.GetOrAddValue(sourceEntry, mainSourceTable);
+                    var entryMapping = sourceTableEntryMappingMap.GetOrAddValue(sourceEntry, firstSourceTable);
                     entryMapping.SourceEntries.Add(sourceEntry);
 
                     if (targetKeyMap == null)
@@ -2416,7 +2414,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => property.GetValueConverter() ?? (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
 
         private static IEntityType GetMainType(ITable table)
-            => table.EntityTypeMappings.FirstOrDefault(t => t.IsMainEntityTypeMapping).EntityType;
+            => table.EntityTypeMappings.FirstOrDefault(t => t.IsSharedTablePrincipal).EntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2534,7 +2532,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }
                 }
 
-                var mainTable = entry.EntityType.GetTableMappings().First(m => m.IsMainTableMapping).Table;
+                var mainTable = entry.EntityType.GetTableMappings().First(m => m.IsSplitEntityTypePrincipal).Table;
                 if (mainTable != table)
                 {
                     return GetMainEntry(entry, mainTable);
