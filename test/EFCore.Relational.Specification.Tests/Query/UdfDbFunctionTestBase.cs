@@ -73,6 +73,38 @@ namespace Microsoft.EntityFrameworkCore.Query
             public Customer Customer { get; set; }
         }
 
+        public class OrderByYear
+        {
+            public int? CustomerId { get; set; }
+            public int? Count { get; set; }
+            public int? Year { get; set; }
+        }
+
+        public class MultProductOrders
+        {
+            public int OrderId { get; set; }
+
+            public Customer Customer { get; set; }
+            public int CustomerId { get; set; }
+
+            public DateTime OrderDate { get; set; }
+        }
+
+        public class TopSellingProduct
+        {
+            public Product Product { get; set; }
+            public int? ProductId { get; set; }
+
+            public int? AmountSold { get; set; }
+        }
+
+        public class CustomerData
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
         protected class UDFSqlContext : PoolableDbContext
         {
             #region DbSets
@@ -152,34 +184,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             #region Queryable Functions
 
-            public class OrderByYear
-            {
-                public int? CustomerId { get; set; }
-                public int? Count { get; set; }
-                public int? Year { get; set; }
-            }
-
-            public class MultProductOrders
-            {
-                public int OrderId { get; set; }
-
-                public Customer Customer { get; set; }
-                public int CustomerId { get; set; }
-
-                public DateTime OrderDate { get; set; }
-            }
-
             public IQueryable<OrderByYear> GetCustomerOrderCountByYear(int customerId)
             {
                 return FromExpression(() => GetCustomerOrderCountByYear(customerId));
-            }
-
-            public class TopSellingProduct
-            {
-                public Product Product { get; set; }
-                public int? ProductId { get; set; }
-
-                public int? AmountSold { get; set; }
             }
 
             public IQueryable<TopSellingProduct> GetTopTwoSellingProducts()
@@ -195,6 +202,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IQueryable<MultProductOrders> GetOrdersWithMultipleProducts(int customerId)
             {
                 return FromExpression(() => GetOrdersWithMultipleProducts(customerId));
+            }
+
+            public IQueryable<CustomerData> GetCustomerData(int customerId)
+            {
+                return FromExpression(() => GetCustomerData(customerId));
             }
 
             #endregion
@@ -251,11 +263,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), new[] { typeof(int) }));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts)));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
-
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerData)));
 
                 modelBuilder.Entity<OrderByYear>().HasNoKey();
-                modelBuilder.Entity<TopSellingProduct>().HasNoKey();
+                modelBuilder.Entity<TopSellingProduct>().HasNoKey().ToFunction("GetTopTwoSellingProducts");
+                modelBuilder.Entity<CustomerData>().ToView("Customers");
             }
         }
 
@@ -1902,6 +1915,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("One", cust[0].Orders[0].CustomerName);
                 Assert.Equal(2, cust[1].Orders.Count);
                 Assert.Equal("Two", cust[1].Orders[0].CustomerName);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DbSet_mapped_to_function()
+        {
+            using (var context = CreateContext())
+            {
+                var products = (from t in context.Set<TopSellingProduct>()
+                                orderby t.ProductId
+                                select t).ToList();
+
+                Assert.Equal(2, products.Count);
+                Assert.Equal(3, products[0].ProductId);
+                Assert.Equal(249, products[0].AmountSold);
+                Assert.Equal(4, products[1].ProductId);
+                Assert.Equal(184, products[1].AmountSold);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void TVF_backing_entity_type_mapped_to_view()
+        {
+            using (var context = CreateContext())
+            {
+                var customers = (from t in context.Set<CustomerData>()
+                                orderby t.FirstName
+                                select t).ToList();
+
+                Assert.Equal(4, customers.Count);
             }
         }
 
