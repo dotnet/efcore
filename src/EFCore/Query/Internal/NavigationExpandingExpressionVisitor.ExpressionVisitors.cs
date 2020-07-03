@@ -463,14 +463,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
         {
-            private readonly bool _allowCycles;
+            private static readonly MethodInfo _fetchJoinEntityMethodInfo =
+                typeof(IncludeExpandingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(FetchJoinEntity));
+
+            private readonly bool _queryStateManager;
 
             public IncludeExpandingExpressionVisitor(
                 NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
                 NavigationExpansionExpression source)
                 : base(navigationExpandingExpressionVisitor, source)
             {
-                _allowCycles = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll
+                _queryStateManager = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll
                     || navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             }
 
@@ -626,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private Expression ExpandInclude(Expression root, EntityReference entityReference)
             {
-                if (!_allowCycles)
+                if (!_queryStateManager)
                 {
                     VerifyNoCycles(entityReference.IncludePaths);
                 }
@@ -673,6 +676,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _ => throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType()))
                     };
 
+                    if (_queryStateManager
+                        && navigationBase is ISkipNavigation
+                        && included is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression
+                        && materializeCollectionNavigationExpression.Subquery is MethodCallExpression joinMethodCallExpression
+                        && joinMethodCallExpression.Method.IsGenericMethod
+                        && joinMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Join
+                        && joinMethodCallExpression.Arguments[4] is UnaryExpression unaryExpression
+                        && unaryExpression.NodeType == ExpressionType.Quote
+                        && unaryExpression.Operand is LambdaExpression resultSelectorLambda
+                        && resultSelectorLambda.Body == resultSelectorLambda.Parameters[1])
+                    {
+                        var joinParameter = resultSelectorLambda.Parameters[0];
+                        var targetParameter = resultSelectorLambda.Parameters[1];
+                        var newResultSelector = Expression.Quote(
+                            Expression.Lambda(
+                                Expression.Call(
+                                    _fetchJoinEntityMethodInfo.MakeGenericMethod(joinParameter.Type, targetParameter.Type),
+                                    joinParameter,
+                                    targetParameter),
+                                joinParameter,
+                                targetParameter));
+
+                        included = materializeCollectionNavigationExpression.Update(
+                            joinMethodCallExpression.Update(null, joinMethodCallExpression.Arguments.Take(4).Append(newResultSelector)));
+                    }
+
                     // Collection will expand it's includes when reducing the navigationExpansionExpression
                     if (!navigationBase.IsCollection)
                     {
@@ -700,6 +729,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return result;
             }
+
+            private static TTarget FetchJoinEntity<TJoin, TTarget>(TJoin joinEntity, TTarget targetEntity) => targetEntity;
         }
 
         /// <summary>
