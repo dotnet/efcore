@@ -676,32 +676,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _ => throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType()))
                     };
 
-                    if (_queryStateManager
-                        && navigationBase is ISkipNavigation
-                        && included is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression
-                        && materializeCollectionNavigationExpression.Subquery is MethodCallExpression joinMethodCallExpression
-                        && joinMethodCallExpression.Method.IsGenericMethod
-                        && joinMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Join
-                        && joinMethodCallExpression.Arguments[4] is UnaryExpression unaryExpression
-                        && unaryExpression.NodeType == ExpressionType.Quote
-                        && unaryExpression.Operand is LambdaExpression resultSelectorLambda
-                        && resultSelectorLambda.Body == resultSelectorLambda.Parameters[1])
-                    {
-                        var joinParameter = resultSelectorLambda.Parameters[0];
-                        var targetParameter = resultSelectorLambda.Parameters[1];
-                        var newResultSelector = Expression.Quote(
-                            Expression.Lambda(
-                                Expression.Call(
-                                    _fetchJoinEntityMethodInfo.MakeGenericMethod(joinParameter.Type, targetParameter.Type),
-                                    joinParameter,
-                                    targetParameter),
-                                joinParameter,
-                                targetParameter));
-
-                        included = materializeCollectionNavigationExpression.Update(
-                            joinMethodCallExpression.Update(null, joinMethodCallExpression.Arguments.Take(4).Append(newResultSelector)));
-                    }
-
                     // Collection will expand it's includes when reducing the navigationExpansionExpression
                     if (!navigationBase.IsCollection)
                     {
@@ -712,14 +686,87 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (included is MaterializeCollectionNavigationExpression materializeCollectionNavigation)
                     {
+                        var subquery = materializeCollectionNavigation.Subquery;
                         var filterExpression = entityReference.IncludePaths[navigationBase].FilterExpression;
-                        if (filterExpression != null)
+                        if (_queryStateManager
+                            && navigationBase is ISkipNavigation
+                            && subquery is MethodCallExpression joinMethodCallExpression
+                            && joinMethodCallExpression.Method.IsGenericMethod
+                            && joinMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Join
+                            && joinMethodCallExpression.Arguments[4] is UnaryExpression unaryExpression
+                            && unaryExpression.NodeType == ExpressionType.Quote
+                            && unaryExpression.Operand is LambdaExpression resultSelectorLambda
+                            && resultSelectorLambda.Body == resultSelectorLambda.Parameters[1])
                         {
-                            var subquery = ReplacingExpressionVisitor.Replace(
-                                filterExpression.Parameters[0],
-                                materializeCollectionNavigation.Subquery,
-                                filterExpression.Body);
+                            var joinParameter = resultSelectorLambda.Parameters[0];
+                            var targetParameter = resultSelectorLambda.Parameters[1];
+                            if (filterExpression == null)
+                            {
+                                var newResultSelector = Expression.Quote(
+                                    Expression.Lambda(
+                                        Expression.Call(
+                                            _fetchJoinEntityMethodInfo.MakeGenericMethod(joinParameter.Type, targetParameter.Type),
+                                            joinParameter,
+                                            targetParameter),
+                                        joinParameter,
+                                        targetParameter));
 
+                                subquery = joinMethodCallExpression.Update(
+                                    null, joinMethodCallExpression.Arguments.Take(4).Append(newResultSelector));
+                            }
+                            else
+                            {
+                                var resultType = TransparentIdentifierFactory.Create(joinParameter.Type, targetParameter.Type);
+
+                                var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer");
+                                var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner");
+
+                                var newResultSelector = Expression.Quote(
+                                    Expression.Lambda(
+                                        Expression.New(
+                                            resultType.GetConstructors().Single(),
+                                            new[] { joinParameter, targetParameter },
+                                            transparentIdentifierOuterMemberInfo,
+                                            transparentIdentifierInnerMemberInfo),
+                                        joinParameter,
+                                        targetParameter));
+
+                                var joinTypeParameters = joinMethodCallExpression.Method.GetGenericArguments();
+                                joinTypeParameters[3] = resultType;
+                                subquery = Expression.Call(
+                                    QueryableMethods.Join.MakeGenericMethod(joinTypeParameters),
+                                    joinMethodCallExpression.Arguments.Take(4).Append(newResultSelector));
+
+                                var transparentIdentifierParameter = Expression.Parameter(resultType);
+                                var transparentIdentifierInnerAccessor = Expression.MakeMemberAccess(
+                                    transparentIdentifierParameter, transparentIdentifierInnerMemberInfo);
+
+                                subquery = RemapFilterExpressionForJoinEntity(
+                                    filterExpression.Parameters[0],
+                                    filterExpression.Body,
+                                    subquery,
+                                    transparentIdentifierParameter,
+                                    transparentIdentifierInnerAccessor);
+
+                                var selector = Expression.Quote(
+                                    Expression.Lambda(
+                                        Expression.Call(
+                                            _fetchJoinEntityMethodInfo.MakeGenericMethod(joinParameter.Type, targetParameter.Type),
+                                            Expression.MakeMemberAccess(transparentIdentifierParameter, transparentIdentifierOuterMemberInfo),
+                                            transparentIdentifierInnerAccessor),
+                                        transparentIdentifierParameter));
+
+                                subquery = Expression.Call(
+                                    QueryableMethods.Select.MakeGenericMethod(resultType, targetParameter.Type),
+                                    subquery,
+                                    selector);
+                            }
+
+                            included = materializeCollectionNavigation.Update(subquery);
+                        }
+                        else if (filterExpression != null)
+                        {
+                            subquery = ReplacingExpressionVisitor.Replace(filterExpression.Parameters[0], subquery, filterExpression.Body);
                             included = materializeCollectionNavigation.Update(subquery);
                         }
                     }
@@ -730,7 +777,42 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return result;
             }
 
+#pragma warning disable IDE0060 // Remove unused parameter
             private static TTarget FetchJoinEntity<TJoin, TTarget>(TJoin joinEntity, TTarget targetEntity) => targetEntity;
+#pragma warning restore IDE0060 // Remove unused parameter
+
+            private static Expression RemapFilterExpressionForJoinEntity(
+                ParameterExpression filterParameter,
+                Expression filterExpressionBody,
+                Expression subquery,
+                ParameterExpression transparentIdentifierParameter,
+                Expression transparentIdentifierInnerAccessor)
+            {
+                if (filterExpressionBody == filterParameter)
+                {
+                    return subquery;
+                }
+
+                var methodCallExpression = (MethodCallExpression)filterExpressionBody;
+                var arguments = methodCallExpression.Arguments.ToArray();
+                arguments[0] = RemapFilterExpressionForJoinEntity(
+                    filterParameter, arguments[0], subquery, transparentIdentifierParameter, transparentIdentifierInnerAccessor);
+                var genericParameters = methodCallExpression.Method.GetGenericArguments();
+                genericParameters[0] = transparentIdentifierParameter.Type;
+                var method = methodCallExpression.Method.GetGenericMethodDefinition().MakeGenericMethod(genericParameters);
+
+                if (arguments.Length == 2
+                    && arguments[1].GetLambdaOrNull() is LambdaExpression lambdaExpression)
+                {
+                    arguments[1] = Expression.Quote(
+                        Expression.Lambda(
+                            ReplacingExpressionVisitor.Replace(
+                                lambdaExpression.Parameters[0], transparentIdentifierInnerAccessor, lambdaExpression.Body),
+                            transparentIdentifierParameter));
+                }
+
+                return Expression.Call(method, arguments);
+            }
         }
 
         /// <summary>
