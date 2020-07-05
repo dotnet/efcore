@@ -21,9 +21,6 @@ namespace Microsoft.EntityFrameworkCore
         public class ManyToManyTrackingSqlServerFixture : ManyToManyTrackingFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
         }
     }
 }

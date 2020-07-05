@@ -311,9 +311,6 @@ namespace Microsoft.EntityFrameworkCore
         public abstract class ManyToManyTrackingFixtureBase : ManyToManyQueryFixtureBase
         {
             protected override string StoreName { get; } = "ManyToManyTracking";
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }
     }
 }

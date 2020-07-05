@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ManyToManyNoTrackingQuerySqlServerTest
-        : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyNoTrackingQuerySqlServerTest.ManyToManyNoTrackingFixture>
+        : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqlServerFixture>
     {
-        public ManyToManyNoTrackingQuerySqlServerTest(ManyToManyNoTrackingFixture fixture, ITestOutputHelper testOutputHelper)
+        public ManyToManyNoTrackingQuerySqlServerTest(ManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -1569,11 +1569,5 @@ ORDER BY [e].[Id], [t].[Id]");
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        public class ManyToManyNoTrackingFixture : ManyToManyQuerySqlServerFixture
-        {
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-        }
     }
 }

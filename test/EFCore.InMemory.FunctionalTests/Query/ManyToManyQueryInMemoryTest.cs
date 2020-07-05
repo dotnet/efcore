@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyQueryInMemoryTest : ManyToManyQueryTestBase<ManyToManyQueryInMemoryTest.ManyToManyTrackingFixture>
+    public class ManyToManyQueryInMemoryTest : ManyToManyQueryTestBase<ManyToManyQueryInMemoryFixture>
     {
-        public ManyToManyQueryInMemoryTest(ManyToManyTrackingFixture fixture, ITestOutputHelper testOutputHelper)
+        public ManyToManyQueryInMemoryTest(ManyToManyQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
@@ -73,11 +73,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Include_skip_navigation_then_include_inverse_throws_in_no_tracking(bool async)
             => Task.CompletedTask;
-
-        public class ManyToManyTrackingFixture : ManyToManyQueryInMemoryFixture
-        {
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
-        }
     }
 }

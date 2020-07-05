@@ -6,9 +6,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyQuerySqliteTest : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqliteTest.ManyToManyTrackingFixture>
+    public class ManyToManyQuerySqliteTest : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
     {
-        public ManyToManyQuerySqliteTest(ManyToManyTrackingFixture fixture)
+        public ManyToManyQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
             : base(fixture)
         {
         }
@@ -139,11 +139,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Include_skip_navigation_then_include_inverse_throws_in_no_tracking(bool async)
             => Task.CompletedTask;
-
-        public class ManyToManyTrackingFixture : ManyToManyQuerySqliteFixture
-        {
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
-        }
     }
 }
