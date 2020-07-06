@@ -479,6 +479,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
+            SetEntitiesTimestamps();
+
+            DetectSoftDeleteEntities();
+
             CheckDisposed();
 
             DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
@@ -504,6 +508,53 @@ namespace Microsoft.EntityFrameworkCore
                 DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
 
                 throw;
+            }
+        }
+
+        private void SetEntitiesTimestamps()
+        {
+            var newRecords = ChangeTracker.Entries()
+                .Where(x => x.State == EntityState.Added && x.Entity is ITimestamps)
+                .Select(x => x.Entity as ITimestamps);
+            foreach (var record in newRecords)
+            {
+                if (record == null)
+                {
+                    continue;
+                }
+
+                record.CreatedAt = DateTime.Now;
+                record.UpdatedAt = DateTime.Now;
+            }
+
+            var updatedRecords = ChangeTracker.Entries()
+                .Where(x => x.State == EntityState.Modified && x.Entity is ITimestamps)
+                .Select(x => x.Entity as ITimestamps);
+            foreach (var record in updatedRecords)
+            {
+                if (record == null)
+                {
+                    continue;
+                }
+
+                record.UpdatedAt = DateTime.Now;
+            }
+        }
+
+        private void DetectSoftDeleteEntities()
+        {
+            var deletedRecords = ChangeTracker.Entries()
+                .Where(x => x.State == EntityState.Deleted && x.Entity is ISoftDelete)
+                .Select(x => x);
+            foreach (var record in deletedRecords)
+            {
+                if (((ISoftDelete)record.Entity).GetForcedDelete())
+                {
+                    continue;
+                }
+
+                record.State = EntityState.Modified;
+                ((ISoftDelete)record.Entity).DeletedAt = DateTime.Now;
             }
         }
 
@@ -588,6 +639,10 @@ namespace Microsoft.EntityFrameworkCore
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default)
         {
+            SetEntitiesTimestamps();
+
+            DetectSoftDeleteEntities();
+
             CheckDisposed();
 
             DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
@@ -642,10 +697,13 @@ namespace Microsoft.EntityFrameworkCore
 
             if (_configurationSnapshot?.AutoDetectChangesEnabled != null)
             {
-                Check.DebugAssert(_configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
+                Check.DebugAssert(
+                    _configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
                 Check.DebugAssert(_configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
-                Check.DebugAssert(_configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
-                Check.DebugAssert(_configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
+                Check.DebugAssert(
+                    _configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
+                Check.DebugAssert(
+                    _configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
 
                 ChangeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled.Value;
                 ChangeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
@@ -1025,9 +1083,14 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the database when <see cref="SaveChanges()" /> is called.
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
         ///     <para>
         ///         If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///         stop tracking the entity (rather than marking it as <see cref="EntityState.Deleted" />) since the
@@ -1068,6 +1131,121 @@ namespace Microsoft.EntityFrameworkCore
                 initialState == EntityState.Added
                     ? EntityState.Detached
                     : EntityState.Deleted;
+
+            if (!(entity is ISoftDelete x))
+            {
+                return entry;
+            }
+
+            if (x.GetForcedDelete())
+            {
+                return entry;
+            }
+
+            if (entity is ModelExtension y)
+            {
+                y.LoadRelations(this);
+            }
+
+            x.OnSoftDelete(this, resolveRecursive: true);
+
+            return entry;
+        }
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will force delete any entity even it implements soft delete.
+        ///     </para>
+        /// </remarks>
+        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
+        /// <param name="entity"> The entity to remove. </param>
+        /// <returns>
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
+        /// </returns>
+        public virtual EntityEntry<TEntity> ForceRemove<TEntity>([NotNull] TEntity entity)
+            where TEntity : class
+        {
+            Check.NotNull(entity, nameof(entity));
+            CheckDisposed();
+
+            var entry = EntryWithoutDetectChanges(entity);
+
+            var initialState = entry.State;
+            if (initialState == EntityState.Detached)
+            {
+                SetEntityState(entry.GetInfrastructure(), EntityState.Unchanged);
+            }
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            entry.State =
+                initialState == EntityState.Added
+                    ? EntityState.Detached
+                    : EntityState.Deleted;
+
+            if (!(entity is ISoftDelete x))
+            {
+                return entry;
+            }
+
+            x.SetForceDelete();
+
+            return entry;
+        }
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entity"> The entity to remove. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        public virtual async Task<EntityEntry<TEntity>> RemoveAsync<TEntity>(
+            [NotNull] TEntity entity,
+            CancellationToken cancellationToken = default)
+            where TEntity : class
+        {
+            Check.NotNull(entity, nameof(entity));
+            CheckDisposed();
+
+            var entry = EntryWithoutDetectChanges(entity);
+
+            var initialState = entry.State;
+            if (initialState == EntityState.Detached)
+            {
+                SetEntityState(entry.GetInfrastructure(), EntityState.Unchanged);
+            }
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            entry.State =
+                initialState == EntityState.Added
+                    ? EntityState.Detached
+                    : EntityState.Deleted;
+
+            if (!(entity is ISoftDelete x))
+                return entry;
+
+            if (x.GetForcedDelete())
+                return entry;
+
+            if (entity is ModelExtension y)
+            {
+                await y.LoadRelationsAsync(this, cancellationToken).ConfigureAwait(false);
+            }
+
+            await x.OnSoftDeleteAsync(this, true, cancellationToken).ConfigureAwait(false);
 
             return entry;
         }
@@ -1226,9 +1404,14 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the database when <see cref="SaveChanges()" /> is called.
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
         ///     <para>
         ///         If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///         stop tracking the entity (rather than marking it as <see cref="EntityState.Deleted" />) since the
@@ -1267,6 +1450,115 @@ namespace Microsoft.EntityFrameworkCore
                 initialState == EntityState.Added
                     ? EntityState.Detached
                     : EntityState.Deleted;
+
+            if (!(entity is ISoftDelete x))
+            {
+                return entry;
+            }
+
+            if (x.GetForcedDelete())
+            {
+                return entry;
+            }
+
+            if (entity is ModelExtension y)
+            {
+                y.LoadRelations(this);
+            }
+
+            x.OnSoftDelete(this, resolveRecursive: true);
+
+            return entry;
+        }
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will force delete any entity even it implements soft delete.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entity"> The entity to remove. </param>
+        public virtual EntityEntry ForceRemove([NotNull] object entity)
+        {
+            Check.NotNull(entity, nameof(entity));
+            CheckDisposed();
+
+            var entry = EntryWithoutDetectChanges(entity);
+
+            var initialState = entry.State;
+            if (initialState == EntityState.Detached)
+            {
+                SetEntityState(entry.GetInfrastructure(), EntityState.Unchanged);
+            }
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            entry.State =
+                initialState == EntityState.Added
+                    ? EntityState.Detached
+                    : EntityState.Deleted;
+
+            if (!(entity is ISoftDelete x))
+            {
+                return entry;
+            }
+
+            x.SetForceDelete();
+
+            return entry;
+        }
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entity"> The entity to remove. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        public virtual async Task<EntityEntry> RemoveAsync(
+            [NotNull] object entity,
+            CancellationToken cancellationToken = default
+        )
+        {
+            Check.NotNull(entity, nameof(entity));
+            CheckDisposed();
+
+            var entry = EntryWithoutDetectChanges(entity);
+
+            var initialState = entry.State;
+            if (initialState == EntityState.Detached)
+            {
+                SetEntityState(entry.GetInfrastructure(), EntityState.Unchanged);
+            }
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            entry.State =
+                initialState == EntityState.Added
+                    ? EntityState.Detached
+                    : EntityState.Deleted;
+
+            if (!(entity is ISoftDelete x))
+                return entry;
+
+            if (x.GetForcedDelete())
+                return entry;
+
+            if (entity is ModelExtension y)
+            {
+                await y.LoadRelationsAsync(this, cancellationToken).ConfigureAwait(false);
+            }
+
+            await x.OnSoftDeleteAsync(this, true, cancellationToken).ConfigureAwait(false);
 
             return entry;
         }
@@ -1390,9 +1682,14 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the database when <see cref="SaveChanges()" /> is called.
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
         ///     <para>
         ///         If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///         stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
@@ -1410,6 +1707,42 @@ namespace Microsoft.EntityFrameworkCore
             CheckDisposed();
 
             RemoveRange((IEnumerable<object>)entities);
+        }
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will force delete any entity even it implements soft delete.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entities"> The entities to remove. </param>
+        public virtual void ForceRemoveRange([NotNull] params object[] entities)
+        {
+            CheckDisposed();
+
+            ForceRemove((IEnumerable<object>)entities);
+        }
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entities"> The entities to remove. </param>
+        public virtual async Task RemoveRangeAsync([NotNull] params object[] entities)
+        {
+            CheckDisposed();
+
+            await RemoveRangeAsync((IEnumerable<object>)entities).ConfigureAwait(false);
         }
 
         private void SetEntityStates(IEnumerable<object> entities, EntityState entityState)
@@ -1463,9 +1796,9 @@ namespace Microsoft.EntityFrameworkCore
             foreach (var entity in entities)
             {
                 await SetEntityStateAsync(
-                    stateManager.GetOrCreateEntry(entity),
-                    EntityState.Added,
-                    cancellationToken)
+                        stateManager.GetOrCreateEntry(entity),
+                        EntityState.Added,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
         }
@@ -1546,9 +1879,14 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the database when <see cref="SaveChanges()" /> is called.
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
         ///     <para>
         ///         If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///         stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
@@ -1584,6 +1922,124 @@ namespace Microsoft.EntityFrameworkCore
                     initialState == EntityState.Added
                         ? EntityState.Detached
                         : EntityState.Deleted);
+
+                if (!(entity is ISoftDelete x))
+                {
+                    continue;
+                }
+
+                if (x.GetForcedDelete())
+                {
+                    continue;
+                }
+
+                if (entity is ModelExtension y)
+                {
+                    y.LoadRelations(this);
+                }
+
+                x.OnSoftDelete(this, resolveRecursive: true);
+            }
+        }
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will force delete any entity even it implements soft delete.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entities"> The entities to remove. </param>
+        public virtual void ForceRemoveRange([NotNull] IEnumerable<object> entities)
+        {
+            Check.NotNull(entities, nameof(entities));
+            CheckDisposed();
+
+            var stateManager = DbContextDependencies.StateManager;
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            foreach (var entity in entities)
+            {
+                var entry = stateManager.GetOrCreateEntry(entity);
+
+                var initialState = entry.EntityState;
+                if (initialState == EntityState.Detached)
+                {
+                    SetEntityState(entry, EntityState.Unchanged);
+                }
+
+                entry.SetEntityState(
+                    initialState == EntityState.Added
+                        ? EntityState.Detached
+                        : EntityState.Deleted);
+
+                if (!(entity is ISoftDelete x))
+                {
+                    continue;
+                }
+
+                x.SetForceDelete();
+            }
+        }
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entities"> The entities to remove. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        public virtual async Task RemoveRangeAsync(
+            [NotNull] IEnumerable<object> entities,
+            CancellationToken cancellationToken = default)
+        {
+            Check.NotNull(entities, nameof(entities));
+            CheckDisposed();
+
+            var stateManager = DbContextDependencies.StateManager;
+
+            // An Added entity does not yet exist in the database. If it is then marked as deleted there is
+            // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
+            foreach (var entity in entities)
+            {
+                var entry = stateManager.GetOrCreateEntry(entity);
+
+                var initialState = entry.EntityState;
+                if (initialState == EntityState.Detached)
+                {
+                    SetEntityState(entry, EntityState.Unchanged);
+                }
+
+                entry.SetEntityState(
+                    initialState == EntityState.Added
+                        ? EntityState.Detached
+                        : EntityState.Deleted);
+
+                if (!(entity is ISoftDelete x))
+                {
+                    continue;
+                }
+
+                if (x.GetForcedDelete())
+                {
+                    continue;
+                }
+
+                if (entity is ModelExtension y)
+                {
+                    await y.LoadRelationsAsync(this, cancellationToken).ConfigureAwait(false);
+                }
+
+                await x.OnSoftDeleteAsync(this, resolveRecursive: true, cancellationToken).ConfigureAwait(false);
             }
         }
 
