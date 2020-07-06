@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class InheritanceRelationshipsQuerySqliteTest :
-        InheritanceRelationshipsQueryTestBase<InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture>
+        InheritanceRelationshipsQueryRelationalTestBase<InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture>
     {
         public InheritanceRelationshipsQuerySqliteTest(InheritanceRelationshipsQuerySqliteFixture fixture)
             : base(fixture)
