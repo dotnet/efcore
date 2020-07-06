@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             typeof(ManyToManyQueryTestBase<>),
             typeof(ManyToManyQueryRelationalTestBase<>),
+            typeof(TPTManyToManyQueryRelationalTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(SqlServerComplianceTest).Assembly;

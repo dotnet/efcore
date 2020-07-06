@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(bool async) => Task.CompletedTask;
 
-        [ConditionalTheory(Skip = "SQLite bug")]
+        [ConditionalTheory(Skip = "Issue#21541")]
         public override Task Left_join_with_skip_navigation(bool async) => base.Left_join_with_skip_navigation(async);
     }
 }
