@@ -202,9 +202,14 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
-        ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
         ///     <para>
         ///         If the entity is already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///         stop tracking the entity (rather than marking it as <see cref="EntityState.Deleted" />) since the
@@ -225,6 +230,36 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Remove([NotNull] TEntity entity) => throw new NotImplementedException();
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will force delete any entity even it implements soft delete.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entity"> The entity to remove. </param>
+        public virtual EntityEntry<TEntity> ForceRemove([NotNull] TEntity entity) => throw new NotImplementedException();
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entity"> The entity to remove. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        public virtual Task<EntityEntry<TEntity>> RemoveAsync(
+            [NotNull] TEntity entity,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
 
         /// <summary>
         ///     <para>
@@ -320,9 +355,14 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
-        ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
         ///     <para>
         ///         If any of the entities are already tracked in the <see cref="EntityState.Added" /> state then the context will
         ///         stop tracking those entities (rather than marking them as <see cref="EntityState.Deleted" />) since those
@@ -336,6 +376,32 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange([NotNull] params TEntity[] entities) => throw new NotImplementedException();
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will force delete any entity even it implements soft delete.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entities">The entities to remove.</param>
+        public virtual void ForceRemoveRange([NotNull] params TEntity[] entities) => throw new NotImplementedException();
+
+        /// <summary>
+        ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
+        ///     be removed from the database for not soft delete implemented models and soft delete them from database
+        ///     for soft delete implemented models when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
+        /// </remarks>
+        /// <param name="entities"> The entities to remove. </param>
+        public virtual Task RemoveRangeAsync([NotNull] params TEntity[] entities) => throw new NotImplementedException();
 
         /// <summary>
         ///     <para>
@@ -552,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Gets a value indicating whether the collection is a collection of System.Collections.IList objects.
-        ///     Always returns <see langword="false"/>. 
+        ///     Always returns <see langword="false"/>.
         /// </summary>
         bool IListSource.ContainsListCollection => false;
 

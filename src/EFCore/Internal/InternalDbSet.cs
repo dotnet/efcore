@@ -201,8 +201,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
+        /// </remarks>
         public override EntityEntry<TEntity> Remove(TEntity entity)
             => _context.Remove(entity);
+
+        /// <inheritdoc />
+        public override EntityEntry<TEntity> ForceRemove(TEntity entity)
+            => _context.ForceRemove(entity);
+
+        /// <inheritdoc />
+        public override async Task<EntityEntry<TEntity>> RemoveAsync(
+            TEntity entity,
+            CancellationToken cancellationToken = default)
+            => await _context.RemoveAsync(entity, cancellationToken).ConfigureAwait(false);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -249,9 +265,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         NOTE: This method will soft delete entities that implements soft deletes and force delete entities that
+        ///         soft delete not implemented.
+        ///     </para>
+        /// </remarks>
         public override void RemoveRange(params TEntity[] entities)
             // ReSharper disable once CoVariantArrayConversion
             => _context.RemoveRange(entities);
+
+        /// <inheritdoc />
+        public override void ForceRemoveRange(params TEntity[] entities)
+            // ReSharper disable once CoVariantArrayConversion
+            => _context.ForceRemoveRange(entities);
+
+        /// <inheritdoc />
+        public override async Task RemoveRangeAsync(params TEntity[] entities)
+            // ReSharper disable once CoVariantArrayConversion
+            => await _context.RemoveRangeAsync(entities).ConfigureAwait(false);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
