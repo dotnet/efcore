@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 foreach (var property in entry.EntityType.GetProperties())
                 {
-                    var column = property.FindTableColumn(TableName, Schema);
+                    var column = (IColumn)property.FindColumn(StoreObjectIdentifier.Table(TableName, Schema));
                     if (column == null)
                     {
                         continue;
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var columnName = property.FindTableColumn(TableName, Schema)?.Name;
+                var columnName = property.FindColumn(StoreObjectIdentifier.Table(TableName, Schema))?.Name;
                 if (columnName == null)
                 {
                     continue;

@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     "Details_BillingAddress_Street",
                     "Details_ShippingAddress_City",
                     "Details_ShippingAddress_Street",
-                    "OrderDateView",
+                    "OrderDate",
                     nameof(Order.OrderId)
             },
                 ordersView.Columns.Select(m => m.Name));
@@ -93,7 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(ordersView.ViewDefinitionSql);
 
             var orderDate = orderType.FindProperty(nameof(Order.OrderDate));
-            Assert.False(orderDate.IsViewColumnNullable());
 
             var orderDateMapping = orderDate.GetViewColumnMappings().Single();
             Assert.NotNull(orderDateMapping.TypeMapping);
@@ -106,13 +105,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(ordersView.GetReferencingRowInternalForeignKeys(orderType), ordersView.GetRowInternalForeignKeys(orderDetailsType));
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.True(orderDetailsDate.IsViewColumnNullable());
 
             var orderDateColumn = orderDateMapping.Column;
-            Assert.Same(orderDateColumn, ordersView.FindColumn("OrderDateView"));
-            Assert.Same(orderDateColumn, orderDate.FindViewColumn(ordersView.Name, ordersView.Schema));
+            Assert.Same(orderDateColumn, ordersView.FindColumn("OrderDate"));
+            Assert.Same(orderDateColumn, orderDate.FindColumn(StoreObjectIdentifier.View(ordersView.Name, ordersView.Schema)));
             Assert.Equal(new[] { orderDate, orderDetailsDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
-            Assert.Equal("OrderDateView", orderDateColumn.Name);
+            Assert.Equal("OrderDate", orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersView, orderDateColumn.Table);
@@ -196,7 +194,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(ordersTable.IsShared);
 
             var orderDate = orderType.FindProperty(nameof(Order.OrderDate));
-            Assert.False(orderDate.IsColumnNullable());
 
             var orderDateMapping = orderDate.GetTableColumnMappings().Single();
             Assert.NotNull(orderDateMapping.TypeMapping);
@@ -205,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var orderDateColumn = orderDateMapping.Column;
             Assert.Same(orderDateColumn, ordersTable.FindColumn("OrderDate"));
-            Assert.Same(orderDateColumn, orderDate.FindTableColumn(ordersTable.Name, ordersTable.Schema));
+            Assert.Same(orderDateColumn, orderDate.FindColumn(StoreObjectIdentifier.Table(ordersTable.Name, ordersTable.Schema)));
             Assert.Equal("OrderDate", orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
@@ -297,7 +294,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 orderPkConstraint.MappedKeys);
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.True(orderDetailsDate.IsColumnNullable());
             Assert.Equal(new[] { orderDate, orderDetailsDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
 
             var orderDetailsAk = orderDetailsType.GetKeys().Single(k => k != orderDetailsPk);
@@ -442,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Entity<Order>(ob =>
             {
-                ob.Property(o => o.OrderDate).HasColumnName("OrderDate").HasViewColumnName("OrderDateView");
+                ob.Property(o => o.OrderDate).HasColumnName("OrderDate");
                 ob.Property(o => o.AlternateId).HasColumnName("AlternateId");
 
                 ob.HasAlternateKey(o => o.AlternateId).HasName("AK_AlternateId");
@@ -456,8 +452,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 ob.OwnsOne(o => o.Details, odb =>
                 {
-                    odb.Property(od => od.OrderDate).HasColumnName("OrderDate").HasViewColumnName("OrderDateView");
-                    var alternateId = odb.Property(o => o.AlternateId).HasColumnName("AlternateId").HasViewColumnName("AlternateId").Metadata;
+                    odb.Property(od => od.OrderDate).HasColumnName("OrderDate");
+                    var alternateId = odb.Property(o => o.AlternateId).HasColumnName("AlternateId").Metadata;
 
                     odb.OwnedEntityType.AddKey(new[] { alternateId });
                     //odb.HasAlternateKey(o => o.AlternateId);
@@ -555,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.Ignore(c => c.Details);
                 cb.Ignore(c => c.DateDetails);
 
-                cb.Property(c => c.AlternateId).HasColumnName("SomeName").HasFunctionColumnName("CoolName");
+                cb.Property(c => c.AlternateId).HasColumnName("SomeName");
                 cb.HasNoKey();
             });
 
@@ -588,16 +584,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate), nameof(Order.OrderId) },
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
-            var ordersFunction = orderMapping.Function;
+            var ordersFunction = orderMapping.StoreFunction;
             Assert.Same(ordersFunction, model.FindFunction(ordersFunction.Name, ordersFunction.Schema, new string[0]));
             Assert.Equal(
                 new[] { orderType },
                 ordersFunction.EntityTypeMappings.Select(m => m.EntityType));
             Assert.Equal(new[] {
-                    "CoolName",
-                    nameof(Order.CustomerId),
-                    nameof(Order.OrderDate),
-                    nameof(Order.OrderId)
+                nameof(Order.CustomerId),
+                nameof(Order.OrderDate),
+                nameof(Order.OrderId),
+                "SomeName"
             },
                 ordersFunction.Columns.Select(m => m.Name));
             Assert.Equal("GetOrders", ordersFunction.Name);
@@ -623,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Same(orderMapping, ordersFunction.EntityTypeMappings.Single());
 
-            var tvfFunction = tvfMapping.Function;
+            var tvfFunction = tvfMapping.StoreFunction;
             Assert.Same(tvfMapping, tvfFunction.EntityTypeMappings.Single());
             Assert.Same(tvfFunction, model.FindFunction(tvfFunction.Name, tvfFunction.Schema, new[] { "default_int_mapping" }));
             Assert.Equal(nameof(GetOrdersForCustomer), tvfFunction.Name);

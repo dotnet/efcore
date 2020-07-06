@@ -17,13 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a comma-separated list of column names.
         /// </summary>
         /// <param name="properties"> The properties to format. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> A comma-separated list of column names. </returns>
         public static string FormatColumns(
             [NotNull] this IEnumerable<IProperty> properties,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
-            => "{" + string.Join(", ", properties.Select(p => "'" + p.GetColumnName(tableName, schema) + "'")) + "}";
+            StoreObjectIdentifier storeObject)
+            => "{" + string.Join(", ", properties.Select(p => "'" + p.GetColumnName(storeObject) + "'")) + "}";
     }
 }

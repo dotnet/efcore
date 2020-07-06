@@ -1263,7 +1263,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
             modelBuilder.Entity<Dog>().ToTable("Dog");
-            property.HasColumnName("DogName", "Dog", null);
+            property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog", null));
 
             Validate(modelBuilder.Model);
         }
@@ -1273,7 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
-            property.HasColumnName("DogName", "Dog", null);
+            property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog", null));
 
             VerifyError(RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
                 modelBuilder.Model);
@@ -1285,7 +1285,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             var property = modelBuilder.Entity<Animal>().ToView("Animal").Property(a => a.Name).GetInfrastructure();
             modelBuilder.Entity<Dog>().ToView("Dog");
-            property.HasViewColumnName("DogName", "Dog", null);
+            property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog", null));
 
             Validate(modelBuilder.Model);
         }
@@ -1295,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
-            property.HasViewColumnName("DogName", "Dog", null);
+            property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog", null));
 
             VerifyError(RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
                 modelBuilder.Model);

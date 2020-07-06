@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore
                 return (string)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedTableRootProperty(
-                property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema());
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(
+                StoreObjectIdentifier.Table(property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema()));
             return sharedTableRootProperty != null
                 ? sharedTableRootProperty.GetHiLoSequenceSchema()
                 : null;
@@ -86,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore
                 return (string)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedTableRootProperty(
-                property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema());
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(
+                StoreObjectIdentifier.Table(property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema()));
             return sharedTableRootProperty != null
                 ? sharedTableRootProperty.GetHiLoSequenceSchema()
                 : null;
@@ -158,10 +158,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the identity seed.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The identity seed. </returns>
-        public static int? GetIdentitySeed([NotNull] this IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+        public static int? GetIdentitySeed([NotNull] this IProperty property, StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
             if (annotation != null)
@@ -169,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore
                 return (int?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
             return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetIdentitySeed(tableName, schema)
+                ? sharedTableRootProperty.GetIdentitySeed(storeObject)
                 : null;
         }
 
@@ -223,10 +222,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the identity increment.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The identity increment. </returns>
-        public static int? GetIdentityIncrement([NotNull] this IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+        public static int? GetIdentityIncrement([NotNull] this IProperty property, StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement);
             if (annotation != null)
@@ -234,9 +232,9 @@ namespace Microsoft.EntityFrameworkCore
                 return (int?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
             return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetIdentityIncrement(tableName, schema)
+                ? sharedTableRootProperty.GetIdentityIncrement(storeObject)
                 : null;
         }
 
@@ -315,13 +313,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
         public static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
             [NotNull] this IProperty property,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+            StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
             if (annotation != null)
@@ -329,10 +325,10 @@ namespace Microsoft.EntityFrameworkCore
                 return (SqlServerValueGenerationStrategy)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedTableRootProperty(tableName, schema);
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
             if (sharedTableRootProperty != null)
             {
-                return sharedTableRootProperty.GetValueGenerationStrategy(tableName, schema)
+                return sharedTableRootProperty.GetValueGenerationStrategy(storeObject)
                     == SqlServerValueGenerationStrategy.IdentityColumn
                         ? SqlServerValueGenerationStrategy.IdentityColumn
                         : SqlServerValueGenerationStrategy.None;
@@ -340,9 +336,9 @@ namespace Microsoft.EntityFrameworkCore
 
             if (property.ValueGenerated != ValueGenerated.OnAdd
                 || property.IsForeignKey()
-                || property.GetDefaultValue(tableName, schema) != null
-                || property.GetDefaultValueSql(tableName, schema) != null
-                || property.GetComputedColumnSql(tableName, schema) != null)
+                || property.GetDefaultValue(storeObject) != null
+                || property.GetDefaultValueSql(storeObject) != null
+                || property.GetComputedColumnSql(storeObject) != null)
             {
                 return SqlServerValueGenerationStrategy.None;
             }

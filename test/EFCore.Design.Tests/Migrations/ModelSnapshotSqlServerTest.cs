@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder =>
                     builder.Entity<TestKeylessType>(kb => {
-                        kb.Property(k => k.Something).HasFunctionColumnName("SomethingElse");
+                        kb.Property(k => k.Something);
                         kb.HasNoKey().ToFunction("GetCount");
                     }),
                 AddBoilerPlate(
@@ -528,8 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestKeylessType"", b =>
                 {
                     b.Property<string>(""Something"")
-                        .HasColumnType(""nvarchar(max)"")
-                        .HasFunctionColumnName(""SomethingElse"");
+                        .HasColumnType(""nvarchar(max)"");
 
                     b.ToFunction(""GetCount"");
                 });"),

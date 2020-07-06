@@ -97,37 +97,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc/>
-        protected override void Validate(IConventionProperty property, string tableName, string schema)
+        protected override void Validate(IConventionProperty property, StoreObjectIdentifier storeObject)
         {
             if (property.GetValueGenerationStrategyConfigurationSource() != null)
             {
-                var generationStrategy = property.GetValueGenerationStrategy(tableName, schema);
+                var generationStrategy = property.GetValueGenerationStrategy(storeObject);
                 if (generationStrategy == SqlServerValueGenerationStrategy.None)
                 {
-                    base.Validate(property, tableName, schema);
+                    base.Validate(property, storeObject);
                     return;
                 }
 
-                if (property.GetDefaultValue(tableName, schema) != null)
+                if (property.GetDefaultValue(storeObject) != null)
                 {
                     Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
                         generationStrategy, "DefaultValue", property);
                 }
 
-                if (property.GetDefaultValueSql(tableName, schema) != null)
+                if (property.GetDefaultValueSql(storeObject) != null)
                 {
                     Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
                         generationStrategy, "DefaultValueSql", property);
                 }
 
-                if (property.GetComputedColumnSql(tableName, schema) != null)
+                if (property.GetComputedColumnSql(storeObject) != null)
                 {
                     Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
                         generationStrategy, "ComputedColumnSql", property);
                 }
             }
 
-            base.Validate(property, tableName, schema);
+            base.Validate(property, storeObject);
         }
     }
 }

@@ -19,7 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the target function.
         /// </summary>
-        IStoreFunction Function { get; }
+        IStoreFunction StoreFunction { get; }
+
+        /// <summary>
+        ///     Gets the target function.
+        /// </summary>
+        IDbFunction DbFunction { get; }
 
         /// <summary>
         ///     Gets the properties mapped to columns on the target function.

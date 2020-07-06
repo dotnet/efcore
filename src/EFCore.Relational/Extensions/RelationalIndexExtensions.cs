@@ -92,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string tableName,
             [CanBeNull] string schema)
         {
-            var propertyNames = index.Properties.Select(p => p.GetColumnName(tableName, schema)).ToList();
+            var table = StoreObjectIdentifier.Table(tableName, schema);
+            var propertyNames = index.Properties.Select(p => p.GetColumnName(table)).ToList();
             var rootIndex = index;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -100,9 +101,9 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
                 var linkedIndex = rootIndex.DeclaringEntityType
-                    .FindTableRowInternalForeignKeys(tableName, schema)
+                    .FindRowInternalForeignKeys(table)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
-                    .FirstOrDefault(i => i.Properties.Select(p => p.GetColumnName(tableName, schema)).SequenceEqual(propertyNames));
+                    .FirstOrDefault(i => i.Properties.Select(p => p.GetColumnName(table)).SequenceEqual(propertyNames));
                 if (linkedIndex == null)
                 {
                     break;
@@ -287,6 +288,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(index, nameof(index));
             Check.NotNull(tableName, nameof(tableName));
 
+            var table = StoreObjectIdentifier.Table(tableName, schema);
             var indexName = index.GetDatabaseName(tableName, schema);
             var rootIndex = index;
 
@@ -295,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
                 var linkedIndex = rootIndex.DeclaringEntityType
-                    .FindTableRowInternalForeignKeys(tableName, schema)
+                    .FindRowInternalForeignKeys(table)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
                     .FirstOrDefault(i => i.GetDatabaseName(tableName, schema) == indexName);
                 if (linkedIndex == null)

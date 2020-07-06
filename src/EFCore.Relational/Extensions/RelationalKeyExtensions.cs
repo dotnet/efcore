@@ -78,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string tableName,
             [CanBeNull] string schema)
         {
+            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
             string name = null;
             if (key.IsPrimaryKey())
             {
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Using a hashset is detrimental to the perf when there are no cycles
                 for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
                 {
-                    var linkingFk = rootKey.DeclaringEntityType.FindTableRowInternalForeignKeys(tableName, schema)
+                    var linkingFk = rootKey.DeclaringEntityType.FindRowInternalForeignKeys(storeObject)
                         .FirstOrDefault();
                     if (linkingFk == null)
                     {
@@ -106,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                var propertyNames = key.Properties.Select(p => p.GetColumnName(tableName, schema)).ToList();
+                var propertyNames = key.Properties.Select(p => p.GetColumnName(storeObject)).ToList();
                 var rootKey = key;
 
                 // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -114,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
                 {
                     var linkedKey = rootKey.DeclaringEntityType
-                        .FindTableRowInternalForeignKeys(tableName, schema)
+                        .FindRowInternalForeignKeys(storeObject)
                         .SelectMany(fk => fk.PrincipalEntityType.GetKeys())
-                        .FirstOrDefault(k => k.Properties.Select(p => p.GetColumnName(tableName, schema)).SequenceEqual(propertyNames));
+                        .FirstOrDefault(k => k.Properties.Select(p => p.GetColumnName(storeObject)).SequenceEqual(propertyNames));
                     if (linkedKey == null)
                     {
                         break;
@@ -134,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Append("AK_")
                     .Append(tableName)
                     .Append("_")
-                    .AppendJoin(key.Properties.Select(p => p.GetColumnName(tableName, schema)), "_")
+                    .AppendJoin(key.Properties.Select(p => p.GetColumnName(storeObject)), "_")
                     .ToString();
             }
 
@@ -214,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
                 var linkedKey = rootKey.DeclaringEntityType
-                    .FindTableRowInternalForeignKeys(tableName, schema)
+                    .FindRowInternalForeignKeys(StoreObjectIdentifier.Table(tableName, schema))
                     .SelectMany(fk => fk.PrincipalEntityType.GetKeys())
                     .FirstOrDefault(k => k.GetName(tableName, schema) == keyName);
                 if (linkedKey == null)

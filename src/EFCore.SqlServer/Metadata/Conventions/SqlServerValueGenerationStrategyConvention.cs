@@ -55,14 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var table = entityType.GetTableName();
                     if (table != null)
                     {
-                        strategy = property.GetValueGenerationStrategy(table, entityType.GetSchema());
+                        strategy = property.GetValueGenerationStrategy(StoreObjectIdentifier.Table(table, entityType.GetSchema()));
                     }
                     else
                     {
                         var view = entityType.GetViewName();
                         if (view != null)
                         {
-                            strategy = property.GetValueGenerationStrategy(view, entityType.GetViewSchema());
+                            strategy = property.GetValueGenerationStrategy(StoreObjectIdentifier.View(view, entityType.GetViewSchema()));
                         }
                     }
 

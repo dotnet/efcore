@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 if (entityTypes.Count > 0
-                    && !entityType.FindTableRowInternalForeignKeys(table.Name, table.Schema).Any()
+                    && !entityType.FindRowInternalForeignKeys(StoreObjectIdentifier.Table(table.Name, table.Schema)).Any()
                     && !entityTypes.Any(t => t.IsAssignableFrom(entityType)))
                 {
                     entityTypes.Insert(0, entityType);
@@ -158,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                var columnName = property.GetColumnName(tableName, schema);
+                var storeObject = StoreObjectIdentifier.Table(tableName, schema);
+                var columnName = property.GetColumnName(storeObject);
                 if (columnName == null)
                 {
                     continue;
@@ -183,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (!usePrefix
                     || (!property.DeclaringEntityType.IsStrictlyDerivedFrom(otherProperty.DeclaringEntityType)
                         && !otherProperty.DeclaringEntityType.IsStrictlyDerivedFrom(property.DeclaringEntityType))
-                    || property.DeclaringEntityType.FindRowInternalForeignKeys(tableName, schema, StoreObjectType.Table).Any())
+                    || property.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
                 {
                     var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);
                     if (newColumnName != null)
@@ -196,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (!usePrefix
                     || (!property.DeclaringEntityType.IsStrictlyDerivedFrom(otherProperty.DeclaringEntityType)
                         && !otherProperty.DeclaringEntityType.IsStrictlyDerivedFrom(property.DeclaringEntityType))
-                    || otherProperty.DeclaringEntityType.FindRowInternalForeignKeys(tableName, schema, StoreObjectType.Table).Any())
+                    || otherProperty.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
                 {
                     var newOtherColumnName = TryUniquify(otherProperty, columnName, properties, usePrefix, maxLength);
                     if (newOtherColumnName != null)

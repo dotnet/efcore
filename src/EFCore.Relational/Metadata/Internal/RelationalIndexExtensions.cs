@@ -30,8 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] string schema,
             bool shouldThrow)
         {
-            if (!index.Properties.Select(p => p.GetColumnName(tableName, schema))
-                .SequenceEqual(duplicateIndex.Properties.Select(p => p.GetColumnName(tableName, schema))))
+            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
+            if (!index.Properties.Select(p => p.GetColumnName(storeObject))
+                .SequenceEqual(duplicateIndex.Properties.Select(p => p.GetColumnName(storeObject))))
             {
                 if (shouldThrow)
                 {
@@ -43,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             index.GetDatabaseName(tableName, schema),
-                            index.Properties.FormatColumns(tableName, schema),
-                            duplicateIndex.Properties.FormatColumns(tableName, schema)));
+                            index.Properties.FormatColumns(storeObject),
+                            duplicateIndex.Properties.FormatColumns(storeObject)));
                 }
 
                 return false;

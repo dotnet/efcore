@@ -225,19 +225,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// </summary>
         protected override void ValidateSharedColumnsCompatibility(
             IReadOnlyList<IEntityType> mappedTypes,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateSharedColumnsCompatibility(mappedTypes, tableName, schema, logger);
+            base.ValidateSharedColumnsCompatibility(mappedTypes, storeObject, logger);
 
             var identityColumns = new Dictionary<string, IProperty>();
 
             foreach (var property in mappedTypes.SelectMany(et => et.GetDeclaredProperties()))
             {
-                if (property.GetValueGenerationStrategy(tableName, schema) == SqlServerValueGenerationStrategy.IdentityColumn)
+                if (property.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn)
                 {
-                    var columnName = property.GetColumnName(tableName, schema);
+                    var columnName = property.GetColumnName(storeObject);
                     if (columnName == null)
                     {
                         continue;
@@ -251,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             {
                 var sb = new StringBuilder()
                     .AppendJoin(identityColumns.Values.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
-                throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, tableName));
+                throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, storeObject.DisplayName()));
             }
         }
 
@@ -260,14 +259,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             IProperty property,
             IProperty duplicateProperty,
             string columnName,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateCompatible(property, duplicateProperty, columnName, tableName, schema, logger);
+            base.ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
 
-            var propertyStrategy = property.GetValueGenerationStrategy(tableName, schema);
-            var duplicatePropertyStrategy = duplicateProperty.GetValueGenerationStrategy(tableName, schema);
+            var propertyStrategy = property.GetValueGenerationStrategy(storeObject);
+            var duplicatePropertyStrategy = duplicateProperty.GetValueGenerationStrategy(storeObject);
             if (propertyStrategy != duplicatePropertyStrategy)
             {
                 throw new InvalidOperationException(
@@ -277,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         property.DeclaringEntityType.DisplayName(),
                         property.Name,
                         columnName,
-                        tableName));
+                        storeObject.DisplayName()));
             }
 
             switch (propertyStrategy)
@@ -294,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                                 property.DeclaringEntityType.DisplayName(),
                                 property.Name,
                                 columnName,
-                                tableName));
+                                storeObject.DisplayName()));
                     }
 
                     var seed = property.GetIdentitySeed();
@@ -308,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                                 property.DeclaringEntityType.DisplayName(),
                                 property.Name,
                                 columnName,
-                                tableName));
+                                storeObject.DisplayName()));
                     }
 
                     break;
@@ -323,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                                 property.DeclaringEntityType.DisplayName(),
                                 property.Name,
                                 columnName,
-                                tableName));
+                                storeObject.DisplayName()));
                     }
 
                     break;

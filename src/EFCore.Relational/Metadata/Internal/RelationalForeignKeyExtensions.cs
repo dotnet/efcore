@@ -53,8 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (!foreignKey.Properties.Select(p => p.GetColumnName(tableName, schema))
-                .SequenceEqual(duplicateForeignKey.Properties.Select(p => p.GetColumnName(tableName, schema))))
+            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
+            if (!foreignKey.Properties.Select(p => p.GetColumnName(storeObject))
+                .SequenceEqual(duplicateForeignKey.Properties.Select(p => p.GetColumnName(storeObject))))
             {
                 if (shouldThrow)
                 {
@@ -67,15 +68,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             foreignKey.GetConstraintName(tableName, schema,
                                 foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()),
-                            foreignKey.Properties.FormatColumns(tableName, schema),
-                            duplicateForeignKey.Properties.FormatColumns(tableName, schema)));
+                            foreignKey.Properties.FormatColumns(storeObject),
+                            duplicateForeignKey.Properties.FormatColumns(storeObject)));
                 }
 
                 return false;
             }
 
-            if (!foreignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(tableName, schema))
-                .SequenceEqual(duplicateForeignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(tableName, schema))))
+            if (!foreignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(storeObject))
+                .SequenceEqual(duplicateForeignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(storeObject))))
             {
                 if (shouldThrow)
                 {
@@ -88,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             foreignKey.GetConstraintName(tableName, schema,
                                 foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()),
-                            foreignKey.PrincipalKey.Properties.FormatColumns(tableName, schema),
-                            duplicateForeignKey.PrincipalKey.Properties.FormatColumns(tableName, schema)));
+                            foreignKey.PrincipalKey.Properties.FormatColumns(storeObject),
+                            duplicateForeignKey.PrincipalKey.Properties.FormatColumns(storeObject)));
                 }
 
                 return false;

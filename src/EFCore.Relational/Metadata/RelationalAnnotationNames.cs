@@ -22,16 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ColumnName = Prefix + "ColumnName";
 
         /// <summary>
-        ///     The name for column name annotations.
-        /// </summary>
-        public const string ViewColumnName = Prefix + "ViewColumnName";
-
-        /// <summary>
-        ///     The name for column name annotations.
-        /// </summary>
-        public const string FunctionColumnName = Prefix + "FunctionColumnName";
-
-        /// <summary>
         ///     The name for column type annotations.
         /// </summary>
         public const string ColumnType = Prefix + "ColumnType";
