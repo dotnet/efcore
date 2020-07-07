@@ -930,157 +930,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalForeignKeyBuilder HasField(
-            [CanBeNull] string fieldName, bool pointsToPrincipal, ConfigurationSource configurationSource)
-        {
-            var navigation = pointsToPrincipal ? Metadata.DependentToPrincipal : Metadata.PrincipalToDependent;
-            if (navigation == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NoNavigation(
-                        pointsToPrincipal ? Metadata.DeclaringEntityType.DisplayName() : Metadata.PrincipalEntityType.DisplayName(),
-                        Metadata.Properties.Format()));
-            }
-
-            if (navigation.FieldInfo?.GetSimpleMemberName() == fieldName
-                || configurationSource.Overrides(navigation.GetFieldInfoConfigurationSource()))
-            {
-                navigation.SetField(fieldName, configurationSource);
-
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool CanSetField([CanBeNull] string fieldName, bool pointsToPrincipal, ConfigurationSource? configurationSource)
-        {
-            var navigation = pointsToPrincipal ? Metadata.DependentToPrincipal : Metadata.PrincipalToDependent;
-            if (navigation == null)
-            {
-                return false;
-            }
-
-            if (configurationSource.Overrides(navigation.GetFieldInfoConfigurationSource()))
-            {
-                if (fieldName == null)
-                {
-                    return true;
-                }
-
-                var fieldInfo = PropertyBase.GetFieldInfo(
-                    fieldName, navigation.DeclaringEntityType, navigation.Name,
-                    shouldThrow: false);
-                return fieldInfo != null
-                    && PropertyBase.IsCompatible(
-                        fieldInfo, navigation.ClrType, navigation.DeclaringType.ClrType, navigation.Name,
-                        shouldThrow: false);
-            }
-
-            return navigation.FieldInfo?.GetSimpleMemberName() == fieldName;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InternalForeignKeyBuilder HasField(
-            [CanBeNull] FieldInfo fieldInfo, bool pointsToPrincipal, ConfigurationSource configurationSource)
-        {
-            var navigation = pointsToPrincipal ? Metadata.DependentToPrincipal : Metadata.PrincipalToDependent;
-            if (navigation == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NoNavigation(
-                        pointsToPrincipal ? Metadata.DeclaringEntityType.DisplayName() : Metadata.PrincipalEntityType.DisplayName(),
-                        Metadata.Properties.Format()));
-            }
-
-            if (configurationSource.Overrides(navigation.GetFieldInfoConfigurationSource())
-                || Equals(navigation.FieldInfo, fieldInfo))
-            {
-                navigation.SetFieldInfo(fieldInfo, configurationSource);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool CanSetField([CanBeNull] FieldInfo fieldInfo, bool pointsToPrincipal, ConfigurationSource? configurationSource)
-        {
-            var navigation = pointsToPrincipal ? Metadata.DependentToPrincipal : Metadata.PrincipalToDependent;
-            return navigation != null
-                && ((configurationSource.Overrides(navigation.GetFieldInfoConfigurationSource())
-                        && (fieldInfo == null
-                            || PropertyBase.IsCompatible(
-                                fieldInfo, navigation.ClrType, Metadata.DeclaringEntityType.ClrType, navigation.Name,
-                                shouldThrow: false)))
-                    || Equals(navigation.FieldInfo, fieldInfo));
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InternalForeignKeyBuilder UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, ConfigurationSource configurationSource)
-        {
-            var navigation = pointsToPrincipal ? Metadata.DependentToPrincipal : Metadata.PrincipalToDependent;
-            if (navigation == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NoNavigation(
-                        pointsToPrincipal ? Metadata.DeclaringEntityType.DisplayName() : Metadata.PrincipalEntityType.DisplayName(),
-                        Metadata.Properties.Format()));
-            }
-
-            if (CanSetPropertyAccessMode(propertyAccessMode, pointsToPrincipal, configurationSource))
-            {
-                navigation.SetPropertyAccessMode(propertyAccessMode, configurationSource);
-
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool CanSetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, ConfigurationSource? configurationSource)
-        {
-            IConventionNavigation navigation = pointsToPrincipal ? Metadata.DependentToPrincipal : Metadata.PrincipalToDependent;
-            return navigation != null
-                && (configurationSource.Overrides(navigation.GetPropertyAccessModeConfigurationSource())
-                    || navigation.GetPropertyAccessMode() == propertyAccessMode);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual InternalForeignKeyBuilder IsRequired(bool? required, ConfigurationSource configurationSource)
         {
             if (!CanSetIsRequired(required, configurationSource))
@@ -2740,27 +2589,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             newNavigation?.Builder.MergeAnnotationsFrom(oldNavigation);
 
-            var builder = newNavigation.ForeignKey.Builder;
+            var builder = newNavigation.Builder;
 
             var propertyAccessModeConfigurationSource = oldNavigation.GetPropertyAccessModeConfigurationSource();
             if (propertyAccessModeConfigurationSource.HasValue
                 && builder.CanSetPropertyAccessMode(
                     ((IConventionNavigation)oldNavigation).GetPropertyAccessMode(),
-                    newNavigation.IsOnDependent,
                     propertyAccessModeConfigurationSource))
             {
                 builder = builder.UsePropertyAccessMode(
-                    ((IConventionNavigation)oldNavigation).GetPropertyAccessMode(), newNavigation.IsOnDependent, propertyAccessModeConfigurationSource.Value);
+                    ((IConventionNavigation)oldNavigation).GetPropertyAccessMode(), propertyAccessModeConfigurationSource.Value);
             }
 
             var oldFieldInfoConfigurationSource = oldNavigation.GetFieldInfoConfigurationSource();
             if (oldFieldInfoConfigurationSource.HasValue
-                && builder.CanSetField(oldNavigation.FieldInfo, newNavigation.IsOnDependent, oldFieldInfoConfigurationSource))
+                && builder.CanSetField(oldNavigation.FieldInfo, oldFieldInfoConfigurationSource))
             {
-                builder = builder.HasField(oldNavigation.FieldInfo, newNavigation.IsOnDependent, oldFieldInfoConfigurationSource.Value);
+                builder = builder.HasField(oldNavigation.FieldInfo, oldFieldInfoConfigurationSource.Value);
             }
 
-            return builder;
+            return builder.Metadata.ForeignKey.Builder;
         }
 
         private InternalForeignKeyBuilder GetOrCreateRelationshipBuilder(
@@ -4218,80 +4066,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             MemberInfo navigationToPrincipal, MemberInfo navigationToDependent, bool fromDataAnnotation)
             => CanSetNavigations(
                 navigationToPrincipal, navigationToDependent,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasField(
-            string fieldName, bool pointsToPrincipal, bool fromDataAnnotation)
-            => HasField(
-                fieldName, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasField(
-            FieldInfo fieldInfo, bool pointsToPrincipal, bool fromDataAnnotation)
-            => HasField(
-                fieldInfo, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        bool IConventionForeignKeyBuilder.CanSetField(string fieldName, bool pointsToPrincipal, bool fromDataAnnotation)
-            => CanSetField(
-                fieldName, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        bool IConventionForeignKeyBuilder.CanSetField(FieldInfo fieldInfo, bool pointsToPrincipal, bool fromDataAnnotation)
-            => CanSetField(
-                fieldInfo, pointsToPrincipal, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, bool fromDataAnnotation)
-            => UsePropertyAccessMode(
-                propertyAccessMode,
-                pointsToPrincipal,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        bool IConventionForeignKeyBuilder.CanSetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, bool fromDataAnnotation)
-            => CanSetPropertyAccessMode(
-                propertyAccessMode,
-                pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var field = GetFieldToSet(navigation);
             if (field != null)
             {
-                navigation.ForeignKey.Builder.HasField(field, navigation.IsOnDependent);
+                navigation.Builder.HasField(field);
             }
         }
 

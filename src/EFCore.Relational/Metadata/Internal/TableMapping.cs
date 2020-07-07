@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc/>
-        new public virtual ITable Table => (ITable)base.Table;
+        public new virtual ITable Table => (ITable)base.Table;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
