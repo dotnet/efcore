@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -13,6 +14,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         [ConditionalFact]
         public void Can_only_override_lower_or_equal_source_HasField()
+        {
+            var builder = CreateInternalNavigationBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.Equal(Order.DetailsField, metadata.FieldInfo);
+            Assert.Equal(ConfigurationSource.Convention, metadata.GetFieldInfoConfigurationSource());
+
+            Assert.True(builder.CanSetField(Order.DetailsField, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasField(Order.DetailsField, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(Order.DetailsField, metadata.FieldInfo);
+            Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetFieldInfoConfigurationSource());
+
+            Assert.True(builder.CanSetField(Order.DetailsField, ConfigurationSource.Convention));
+            Assert.False(builder.CanSetField(Order.OtherDetailsField, ConfigurationSource.Convention));
+            Assert.NotNull(builder.HasField(Order.DetailsField, ConfigurationSource.Convention));
+            Assert.Null(builder.HasField(Order.OtherDetailsField, ConfigurationSource.Convention));
+
+            Assert.Equal(Order.DetailsField, metadata.FieldInfo);
+            Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetFieldInfoConfigurationSource());
+
+            Assert.True(builder.CanSetField(Order.OtherDetailsField, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasField(Order.OtherDetailsField, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(Order.OtherDetailsField, metadata.FieldInfo);
+            Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetFieldInfoConfigurationSource());
+
+            Assert.True(builder.CanSetField((string)null, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasField((string)null, ConfigurationSource.DataAnnotation));
+
+            Assert.Null(metadata.FieldInfo);
+            Assert.Null(metadata.GetFieldInfoConfigurationSource());
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_HasField_string()
         {
             var builder = CreateInternalNavigationBuilder();
             var metadata = builder.Metadata;
@@ -135,6 +172,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         protected class Order
         {
+            public static readonly FieldInfo DetailsField = typeof(Order)
+                .GetField(nameof(_details), BindingFlags.Instance | BindingFlags.NonPublic);
+            public static readonly FieldInfo OtherDetailsField = typeof(Order)
+                .GetField(nameof(_otherDetails), BindingFlags.Instance | BindingFlags.NonPublic);
+
             public int OrderId { get; set; }
 
             private ICollection<OrderDetails> _details;
