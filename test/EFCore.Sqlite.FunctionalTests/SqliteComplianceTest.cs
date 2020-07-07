@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore
             typeof(UdfDbFunctionTestBase<>),
             typeof(ManyToManyQueryTestBase<>),
             typeof(ManyToManyQueryRelationalTestBase<>),
+            typeof(TPTManyToManyQueryRelationalTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;
