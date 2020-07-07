@@ -119,6 +119,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual bool IgnoreQueryFilters { get; internal set; }
         /// <summary>
+        ///     A value indicating whether eager loaded navigations are ignored in this query.
+        /// </summary>
+        public virtual bool IgnoreEagerLoadedNavigations { get; internal set; }
+        /// <summary>
         ///     The set of tags applied to this query.
         /// </summary>
         public virtual ISet<string> Tags { get; } = new HashSet<string>();

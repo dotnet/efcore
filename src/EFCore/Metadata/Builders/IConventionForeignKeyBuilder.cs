@@ -390,33 +390,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             PropertyAccessMode? propertyAccessMode, bool pointsToPrincipal, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Configures whether this navigation should be eager loaded by default.
-        /// </summary>
-        /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
-        /// <param name="pointsToPrincipal">
-        ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
-        IConventionForeignKeyBuilder IsEagerLoaded(
-            bool? eagerLoaded, bool pointsToPrincipal, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether this navigation can be configured as should be eager loaded by default
-        ///     from the current configuration source.
-        /// </summary>
-        /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
-        /// <param name="pointsToPrincipal">
-        ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if this navigation can be configured as should be eager loaded by default. </returns>
-        bool CanSetIsEagerLoaded(bool? eagerLoaded, bool pointsToPrincipal, bool fromDataAnnotation = false);
-
-        /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether none the foreign key properties can
         ///     be assigned <see langword="null" />).
         /// </summary>

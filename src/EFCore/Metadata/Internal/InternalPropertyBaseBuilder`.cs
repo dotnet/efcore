@@ -35,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalPropertyBaseBuilder<TPropertyBase> HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
-            if (Metadata.FieldInfo?.GetSimpleMemberName() == fieldName
-                || configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
+            if (CanSetField(fieldName, configurationSource))
             {
                 Metadata.SetField(fieldName, configurationSource);
 
@@ -63,11 +62,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var fieldInfo = PropertyBase.GetFieldInfo(
                     fieldName, Metadata.DeclaringType, Metadata.Name,
-                    shouldThrow: false);
+                    shouldThrow: configurationSource == ConfigurationSource.Explicit);
+
                 return fieldInfo != null
                     && PropertyBase.IsCompatible(
                         fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
-                        shouldThrow: false);
+                        shouldThrow: configurationSource == ConfigurationSource.Explicit);
             }
 
             return Metadata.FieldInfo?.GetSimpleMemberName() == fieldName;
