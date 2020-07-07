@@ -1059,6 +1059,497 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1]
 ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
+        public override void Include_collection_with_inheritance_split()
+        {
+            base.Include_collection_with_inheritance_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedInheritanceRelationshipEntity], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedProperty], [t].[IsDerivedCollectionOnBase]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [b1].[Id], [b1].[BaseParentId], [b1].[Name], [d1].[DerivedProperty], CASE
+        WHEN [d1].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedCollectionOnBase]
+    FROM [BaseCollectionsOnBase] AS [b1]
+    LEFT JOIN [DerivedCollectionsOnBase] AS [d1] ON [b1].[Id] = [d1].[Id]
+) AS [t] ON [b].[Id] = [t].[BaseParentId]
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
+        }
+
+        public override void Include_collection_with_inheritance_reverse_split()
+        {
+            base.Include_collection_with_inheritance_reverse_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedProperty], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedCollectionOnBase], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
+FROM [BaseCollectionsOnBase] AS [b]
+LEFT JOIN [DerivedCollectionsOnBase] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN (
+    SELECT [b0].[Id], [b0].[Name], [d0].[BaseId], CASE
+        WHEN [d0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedInheritanceRelationshipEntity], [b0].[Id] AS [Id0], [b0].[OwnedReferenceOnBase_Id], [b0].[OwnedReferenceOnBase_Name], [d0].[Id] AS [Id1], [d0].[OwnedReferenceOnDerived_Id], [d0].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b0]
+    LEFT JOIN [DerivedEntities] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t] ON [b].[BaseParentId] = [t].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [t].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].[DerivedInheritanceRelationshipEntityId]
+ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
+        }
+
+        public override void Include_collection_with_inheritance_with_filter_split()
+        {
+            base.Include_collection_with_inheritance_with_filter_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedInheritanceRelationshipEntity], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedProperty], [t].[IsDerivedCollectionOnBase]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [b1].[Id], [b1].[BaseParentId], [b1].[Name], [d1].[DerivedProperty], CASE
+        WHEN [d1].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedCollectionOnBase]
+    FROM [BaseCollectionsOnBase] AS [b1]
+    LEFT JOIN [DerivedCollectionsOnBase] AS [d1] ON [b1].[Id] = [d1].[Id]
+) AS [t] ON [b].[Id] = [t].[BaseParentId]
+WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
+        }
+
+        public override void Include_collection_with_inheritance_with_filter_reverse_split()
+        {
+            base.Include_collection_with_inheritance_with_filter_reverse_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedProperty], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedCollectionOnBase], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
+FROM [BaseCollectionsOnBase] AS [b]
+LEFT JOIN [DerivedCollectionsOnBase] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN (
+    SELECT [b0].[Id], [b0].[Name], [d0].[BaseId], CASE
+        WHEN [d0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedInheritanceRelationshipEntity], [b0].[Id] AS [Id0], [b0].[OwnedReferenceOnBase_Id], [b0].[OwnedReferenceOnBase_Name], [d0].[Id] AS [Id1], [d0].[OwnedReferenceOnDerived_Id], [d0].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b0]
+    LEFT JOIN [DerivedEntities] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t] ON [b].[BaseParentId] = [t].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [t].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].[DerivedInheritanceRelationshipEntityId]
+WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
+ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
+        }
+
+        public override void Include_collection_without_inheritance_split()
+        {
+            base.Include_collection_without_inheritance_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedInheritanceRelationshipEntity], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [c].[Id], [c].[Name], [c].[ParentId]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN [CollectionsOnBase] AS [c] ON [b].[Id] = [c].[ParentId]
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [c].[Id]");
+        }
+
+        public override void Include_collection_without_inheritance_reverse_split()
+        {
+            base.Include_collection_without_inheritance_reverse_split();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[Name], [c].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
+FROM [CollectionsOnBase] AS [c]
+LEFT JOIN (
+    SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+        WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedInheritanceRelationshipEntity], [b].[Id] AS [Id0], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id] AS [Id1], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b]
+    LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+) AS [t] ON [c].[ParentId] = [t].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [t].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [t].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+ORDER BY [c].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
+        }
+
+        public override void Include_collection_without_inheritance_with_filter_split()
+        {
+            base.Include_collection_without_inheritance_with_filter_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedInheritanceRelationshipEntity], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [c].[Id], [c].[Name], [c].[ParentId]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN [CollectionsOnBase] AS [c] ON [b].[Id] = [c].[ParentId]
+WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [c].[Id]");
+        }
+
+        public override void Include_collection_without_inheritance_with_filter_reverse_split()
+        {
+            base.Include_collection_without_inheritance_with_filter_reverse_split();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[Name], [c].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
+FROM [CollectionsOnBase] AS [c]
+LEFT JOIN (
+    SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+        WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedInheritanceRelationshipEntity], [b].[Id] AS [Id0], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id] AS [Id1], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b]
+    LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+) AS [t] ON [c].[ParentId] = [t].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [t].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [t].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+WHERE ([c].[Name] <> N'Bar') OR [c].[Name] IS NULL
+ORDER BY [c].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
+        }
+
+        public override void Include_collection_with_inheritance_on_derived1_split()
+        {
+            base.Include_collection_with_inheritance_on_derived1_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedProperty], [t].[IsDerivedCollectionOnBase]
+FROM [BaseEntities] AS [b]
+INNER JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [b1].[Id], [b1].[BaseParentId], [b1].[Name], [d1].[DerivedProperty], CASE
+        WHEN [d1].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedCollectionOnBase]
+    FROM [BaseCollectionsOnBase] AS [b1]
+    LEFT JOIN [DerivedCollectionsOnBase] AS [d1] ON [b1].[Id] = [d1].[Id]
+) AS [t] ON [b].[Id] = [t].[BaseParentId]
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
+        }
+
+        public override void Include_collection_with_inheritance_on_derived2_split()
+        {
+            base.Include_collection_with_inheritance_on_derived2_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[Name], [t].[ParentId], [t].[DerivedInheritanceRelationshipEntityId], [t].[IsDerivedCollectionOnDerived]
+FROM [BaseEntities] AS [b]
+INNER JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [b1].[Id], [b1].[Name], [b1].[ParentId], [d1].[DerivedInheritanceRelationshipEntityId], CASE
+        WHEN [d1].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedCollectionOnDerived]
+    FROM [BaseCollectionsOnDerived] AS [b1]
+    LEFT JOIN [DerivedCollectionsOnDerived] AS [d1] ON [b1].[Id] = [d1].[Id]
+) AS [t] ON [b].[Id] = [t].[ParentId]
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
+        }
+
+        public override void Include_collection_with_inheritance_on_derived3_split()
+        {
+            base.Include_collection_with_inheritance_on_derived3_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[Name], [t].[ParentId], [t].[DerivedInheritanceRelationshipEntityId]
+FROM [BaseEntities] AS [b]
+INNER JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [b1].[Id], [b1].[Name], [b1].[ParentId], [d1].[DerivedInheritanceRelationshipEntityId]
+    FROM [BaseCollectionsOnDerived] AS [b1]
+    INNER JOIN [DerivedCollectionsOnDerived] AS [d1] ON [b1].[Id] = [d1].[Id]
+) AS [t] ON [b].[Id] = [t].[DerivedInheritanceRelationshipEntityId]
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
+        }
+
+        public override void Include_collection_with_inheritance_on_derived_reverse_split()
+        {
+            base.Include_collection_with_inheritance_on_derived_reverse_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [b].[ParentId], [d].[DerivedInheritanceRelationshipEntityId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedCollectionOnDerived], [t].[Id], [t].[Name], [t].[BaseId], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
+FROM [BaseCollectionsOnDerived] AS [b]
+LEFT JOIN [DerivedCollectionsOnDerived] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN (
+    SELECT [b0].[Id], [b0].[Name], [d0].[BaseId], [b0].[Id] AS [Id0], [b0].[OwnedReferenceOnBase_Id], [b0].[OwnedReferenceOnBase_Name], [d0].[Id] AS [Id1], [d0].[OwnedReferenceOnDerived_Id], [d0].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b0]
+    INNER JOIN [DerivedEntities] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t] ON [b].[ParentId] = [t].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [t].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].[DerivedInheritanceRelationshipEntityId]
+ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
+        }
+
+        public override void Nested_include_with_inheritance_reference_collection_split()
+        {
+            base.Nested_include_with_inheritance_reference_collection_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedInheritanceRelationshipEntity], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[IsDerivedReferenceOnBase], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name], [t0].[Id], [t0].[Name], [t0].[ParentCollectionId], [t0].[ParentReferenceId], [t0].[IsNestedCollectionDerived]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN (
+    SELECT [b0].[Id], [b0].[BaseParentId], [b0].[Name], CASE
+        WHEN [d0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedReferenceOnBase]
+    FROM [BaseReferencesOnBase] AS [b0]
+    LEFT JOIN [DerivedReferencesOnBase] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t] ON [b].[Id] = [t].[BaseParentId]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [b].[Id] = [d1].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
+        WHEN [n0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsNestedCollectionDerived]
+    FROM [NestedCollections] AS [n]
+    LEFT JOIN [NestedCollectionsDerived] AS [n0] ON [n].[Id] = [n0].[Id]
+) AS [t0] ON [t].[Id] = [t0].[ParentReferenceId]
+ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [t0].[Id]");
+        }
+
+        public override void Nested_include_with_inheritance_reference_collection_on_base_split()
+        {
+            base.Nested_include_with_inheritance_reference_collection_on_base_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[IsDerivedReferenceOnBase], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name], [t0].[Id], [t0].[Name], [t0].[ParentCollectionId], [t0].[ParentReferenceId], [t0].[IsNestedCollectionDerived]
+FROM [BaseEntities] AS [b]
+INNER JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN (
+    SELECT [b0].[Id], [b0].[BaseParentId], [b0].[Name], CASE
+        WHEN [d0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedReferenceOnBase]
+    FROM [BaseReferencesOnBase] AS [b0]
+    LEFT JOIN [DerivedReferencesOnBase] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t] ON [b].[Id] = [t].[BaseParentId]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [b].[Id] = [d1].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
+        WHEN [n0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsNestedCollectionDerived]
+    FROM [NestedCollections] AS [n]
+    LEFT JOIN [NestedCollectionsDerived] AS [n0] ON [n].[Id] = [n0].[Id]
+) AS [t0] ON [t].[Id] = [t0].[ParentReferenceId]
+ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [t0].[Id]");
+        }
+
+        public override void Nested_include_with_inheritance_reference_collection_reverse_split()
+        {
+            base.Nested_include_with_inheritance_reference_collection_reverse_split();
+
+            AssertSql(
+                @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
+    WHEN [n0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNestedCollectionDerived], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[IsDerivedReferenceOnBase], [t0].[Id], [t0].[Name], [t0].[BaseId], [t0].[IsDerivedInheritanceRelationshipEntity], [t0].[Id0], [t0].[OwnedReferenceOnBase_Id], [t0].[OwnedReferenceOnBase_Name], [t0].[Id1], [t0].[OwnedReferenceOnDerived_Id], [t0].[OwnedReferenceOnDerived_Name], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
+FROM [NestedCollections] AS [n]
+LEFT JOIN [NestedCollectionsDerived] AS [n0] ON [n].[Id] = [n0].[Id]
+LEFT JOIN (
+    SELECT [b].[Id], [b].[BaseParentId], [b].[Name], CASE
+        WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedReferenceOnBase]
+    FROM [BaseReferencesOnBase] AS [b]
+    LEFT JOIN [DerivedReferencesOnBase] AS [d] ON [b].[Id] = [d].[Id]
+) AS [t] ON [n].[ParentReferenceId] = [t].[Id]
+LEFT JOIN (
+    SELECT [b0].[Id], [b0].[Name], [d0].[BaseId], CASE
+        WHEN [d0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedInheritanceRelationshipEntity], [b0].[Id] AS [Id0], [b0].[OwnedReferenceOnBase_Id], [b0].[OwnedReferenceOnBase_Name], [d0].[Id] AS [Id1], [d0].[OwnedReferenceOnDerived_Id], [d0].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b0]
+    LEFT JOIN [DerivedEntities] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t0] ON [t].[BaseParentId] = [t0].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [t0].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1].[DerivedInheritanceRelationshipEntityId]
+ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
+        }
+
+        public override void Nested_include_with_inheritance_collection_reference_split()
+        {
+            base.Nested_include_with_inheritance_collection_reference_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedInheritanceRelationshipEntity], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t0].[Id], [t0].[BaseParentId], [t0].[Name], [t0].[DerivedProperty], [t0].[IsDerivedCollectionOnBase], [t0].[Id0], [t0].[Name0], [t0].[ParentCollectionId], [t0].[ParentReferenceId], [t0].[IsNestedReferenceDerived]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [b1].[Id], [b1].[BaseParentId], [b1].[Name], [d1].[DerivedProperty], CASE
+        WHEN [d1].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedCollectionOnBase], [t].[Id] AS [Id0], [t].[Name] AS [Name0], [t].[ParentCollectionId], [t].[ParentReferenceId], [t].[IsNestedReferenceDerived]
+    FROM [BaseCollectionsOnBase] AS [b1]
+    LEFT JOIN [DerivedCollectionsOnBase] AS [d1] ON [b1].[Id] = [d1].[Id]
+    LEFT JOIN (
+        SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
+            WHEN [n0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END AS [IsNestedReferenceDerived]
+        FROM [NestedReferences] AS [n]
+        LEFT JOIN [NestedReferencesDerived] AS [n0] ON [n].[Id] = [n0].[Id]
+    ) AS [t] ON [b1].[Id] = [t].[ParentCollectionId]
+) AS [t0] ON [b].[Id] = [t0].[BaseParentId]
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t0].[Id], [t0].[Id0]");
+        }
+
+        public override void Nested_include_with_inheritance_collection_reference_reverse_split()
+        {
+            base.Nested_include_with_inheritance_collection_reference_reverse_split();
+
+            AssertSql(
+                @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
+    WHEN [n0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNestedReferenceDerived], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedProperty], [t].[IsDerivedCollectionOnBase], [t0].[Id], [t0].[Name], [t0].[BaseId], [t0].[IsDerivedInheritanceRelationshipEntity], [t0].[Id0], [t0].[OwnedReferenceOnBase_Id], [t0].[OwnedReferenceOnBase_Name], [t0].[Id1], [t0].[OwnedReferenceOnDerived_Id], [t0].[OwnedReferenceOnDerived_Name], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
+FROM [NestedReferences] AS [n]
+LEFT JOIN [NestedReferencesDerived] AS [n0] ON [n].[Id] = [n0].[Id]
+LEFT JOIN (
+    SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedProperty], CASE
+        WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedCollectionOnBase]
+    FROM [BaseCollectionsOnBase] AS [b]
+    LEFT JOIN [DerivedCollectionsOnBase] AS [d] ON [b].[Id] = [d].[Id]
+) AS [t] ON [n].[ParentCollectionId] = [t].[Id]
+LEFT JOIN (
+    SELECT [b0].[Id], [b0].[Name], [d0].[BaseId], CASE
+        WHEN [d0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedInheritanceRelationshipEntity], [b0].[Id] AS [Id0], [b0].[OwnedReferenceOnBase_Id], [b0].[OwnedReferenceOnBase_Name], [d0].[Id] AS [Id1], [d0].[OwnedReferenceOnDerived_Id], [d0].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b0]
+    LEFT JOIN [DerivedEntities] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t0] ON [t].[BaseParentId] = [t0].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [t0].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1].[DerivedInheritanceRelationshipEntityId]
+ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
+        }
+
+        public override void Nested_include_with_inheritance_collection_collection_split()
+        {
+            base.Nested_include_with_inheritance_collection_collection_split();
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsDerivedInheritanceRelationshipEntity], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t0].[Id], [t0].[BaseParentId], [t0].[Name], [t0].[DerivedProperty], [t0].[IsDerivedCollectionOnBase], [t0].[Id0], [t0].[Name0], [t0].[ParentCollectionId], [t0].[ParentReferenceId], [t0].[IsNestedCollectionDerived]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [b1].[Id], [b1].[BaseParentId], [b1].[Name], [d1].[DerivedProperty], CASE
+        WHEN [d1].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedCollectionOnBase], [t].[Id] AS [Id0], [t].[Name] AS [Name0], [t].[ParentCollectionId], [t].[ParentReferenceId], [t].[IsNestedCollectionDerived]
+    FROM [BaseCollectionsOnBase] AS [b1]
+    LEFT JOIN [DerivedCollectionsOnBase] AS [d1] ON [b1].[Id] = [d1].[Id]
+    LEFT JOIN (
+        SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
+            WHEN [n0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END AS [IsNestedCollectionDerived]
+        FROM [NestedCollections] AS [n]
+        LEFT JOIN [NestedCollectionsDerived] AS [n0] ON [n].[Id] = [n0].[Id]
+    ) AS [t] ON [b1].[Id] = [t].[ParentCollectionId]
+) AS [t0] ON [b].[Id] = [t0].[BaseParentId]
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t0].[Id], [t0].[Id0]");
+        }
+
+        public override void Nested_include_with_inheritance_collection_collection_reverse_split()
+        {
+            base.Nested_include_with_inheritance_collection_collection_reverse_split();
+
+            AssertSql(
+                @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
+    WHEN [n0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNestedCollectionDerived], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedProperty], [t].[IsDerivedCollectionOnBase], [t0].[Id], [t0].[Name], [t0].[BaseId], [t0].[IsDerivedInheritanceRelationshipEntity], [t0].[Id0], [t0].[OwnedReferenceOnBase_Id], [t0].[OwnedReferenceOnBase_Name], [t0].[Id1], [t0].[OwnedReferenceOnDerived_Id], [t0].[OwnedReferenceOnDerived_Name], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
+FROM [NestedCollections] AS [n]
+LEFT JOIN [NestedCollectionsDerived] AS [n0] ON [n].[Id] = [n0].[Id]
+LEFT JOIN (
+    SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedProperty], CASE
+        WHEN [d].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedCollectionOnBase]
+    FROM [BaseCollectionsOnBase] AS [b]
+    LEFT JOIN [DerivedCollectionsOnBase] AS [d] ON [b].[Id] = [d].[Id]
+) AS [t] ON [n].[ParentCollectionId] = [t].[Id]
+LEFT JOIN (
+    SELECT [b0].[Id], [b0].[Name], [d0].[BaseId], CASE
+        WHEN [d0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsDerivedInheritanceRelationshipEntity], [b0].[Id] AS [Id0], [b0].[OwnedReferenceOnBase_Id], [b0].[OwnedReferenceOnBase_Name], [d0].[Id] AS [Id1], [d0].[OwnedReferenceOnDerived_Id], [d0].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b0]
+    LEFT JOIN [DerivedEntities] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t0] ON [t].[BaseParentId] = [t0].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [t0].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1].[DerivedInheritanceRelationshipEntityId]
+ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
+        }
+
+        public override void Nested_include_collection_reference_on_non_entity_base_split()
+        {
+            base.Nested_include_collection_reference_on_non_entity_base_split();
+
+            AssertSql(
+                @"SELECT [r].[Id], [r].[Name], [t].[Id], [t].[Name], [t].[ReferenceId], [t].[ReferencedEntityId], [t].[Id0], [t].[Name0]
+FROM [ReferencedEntities] AS [r]
+LEFT JOIN (
+    SELECT [p].[Id], [p].[Name], [p].[ReferenceId], [p].[ReferencedEntityId], [r0].[Id] AS [Id0], [r0].[Name] AS [Name0]
+    FROM [PrincipalEntities] AS [p]
+    LEFT JOIN [ReferencedEntities] AS [r0] ON [p].[ReferenceId] = [r0].[Id]
+) AS [t] ON [r].[Id] = [t].[ReferencedEntityId]
+ORDER BY [r].[Id], [t].[Id], [t].[Id0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
