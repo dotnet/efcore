@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
                 var mappingCount = mappings.Count;
                 ModificationCommand firstCommand = null;
-                var relatedCommands = mappingCount > 1 ? new List<ModificationCommand>(mappingCount - 1) : null;
+                var relatedCommands = mappingCount > 1 ? new List<ModificationCommand>(mappingCount) : null;
                 foreach (var mapping in mappings)
                 {
                     var table = mapping.Table;
@@ -213,10 +213,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                     if (firstCommand == null)
                     {
-                        Check.DebugAssert(firstCommand == null, "mainCommand == null");
+                        Check.DebugAssert(firstCommand == null, "firstCommand == null");
                         firstCommand = command;
                     }
-                    else if (relatedCommands != null)
+
+                    if (relatedCommands != null)
                     {
                         relatedCommands.Add(command);
                     }
@@ -229,9 +230,17 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 if (relatedCommands != null)
                 {
-                    foreach (var relatedCommand in relatedCommands)
+                    if (firstCommand.EntityState == EntityState.Deleted)
                     {
-                        relatedCommand.Predecessor = firstCommand;
+                        relatedCommands.Reverse();
+                    }
+
+                    var previousCommand = relatedCommands[0];
+                    for (var i = 1; i < relatedCommands.Count; i++)
+                    {
+                        var relatedCommand = relatedCommands[i];
+                        relatedCommand.Predecessor = previousCommand;
+                        previousCommand = relatedCommand;
                     }
                 }
             }
