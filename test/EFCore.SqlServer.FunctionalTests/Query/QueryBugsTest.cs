@@ -6391,8 +6391,8 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
                         })
                     .SingleAsync();
 
-            AssertSql(
-                @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[IsPastTradeDeadline]
+                AssertSql(
+                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[IsPastTradeDeadline]
 FROM (
     SELECT TOP(2) [t].[Id]
     FROM [Trades] AS [t]
@@ -7605,6 +7605,153 @@ ORDER BY [p].[Id]"
 
             public DbSet<Parent21355> Parents { get; set; }
         }
+
+        #endregion
+
+        #region Issue21540
+
+        [ConditionalFact]
+        public virtual void Can_eager_loaded_navigation_from_model()
+        {
+            using (CreateDatabase21540())
+            {
+                using var context = new MyContext21540(_options);
+                var query = context.Parents.AsNoTracking().ToList();
+
+                var result = Assert.Single(query);
+                Assert.NotNull(result.OwnedReference);
+                Assert.NotNull(result.Reference);
+                Assert.NotNull(result.Collection);
+                Assert.Equal(2, result.Collection.Count);
+                Assert.NotNull(result.SkipOtherSide);
+                Assert.Single(result.SkipOtherSide);
+
+                AssertSql(
+                    @"SELECT [p].[Id], [p].[OwnedReference_Id], [r].[Id], [r].[ParentId], [c].[Id], [c].[ParentId], [t].[Id], [t].[ParentId], [t].[OtherSideId]
+FROM [Parents] AS [p]
+LEFT JOIN [Reference21540] AS [r] ON [p].[Id] = [r].[ParentId]
+LEFT JOIN [Collection21540] AS [c] ON [p].[Id] = [c].[ParentId]
+LEFT JOIN (
+    SELECT [o].[Id], [j].[ParentId], [j].[OtherSideId]
+    FROM [JoinEntity21540] AS [j]
+    INNER JOIN [OtherSide21540] AS [o] ON [j].[OtherSideId] = [o].[Id]
+) AS [t] ON [p].[Id] = [t].[ParentId]
+ORDER BY [p].[Id], [r].[Id], [c].[Id], [t].[ParentId], [t].[OtherSideId], [t].[Id]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_ignore_eager_loaded_navigation_from_model()
+        {
+            using (CreateDatabase21540())
+            {
+                using var context = new MyContext21540(_options);
+                var query = context.Parents.AsNoTracking().IgnoreEagerLoadedNavigations().ToList();
+
+                var result = Assert.Single(query);
+                Assert.NotNull(result.OwnedReference);
+                Assert.Null(result.Reference);
+                Assert.Null(result.Collection);
+                Assert.Null(result.SkipOtherSide);
+
+                AssertSql(
+                    @"SELECT [p].[Id], [p].[OwnedReference_Id]
+FROM [Parents] AS [p]");
+            }
+        }
+
+        private class Parent21540
+        {
+            public int Id { get; set; }
+            public Reference21540 Reference { get; set; }
+            public Owned21540 OwnedReference { get; set; }
+            public List<Collection21540> Collection { get; set; }
+            public List<OtherSide21540> SkipOtherSide { get; set; }
+        }
+
+        private class JoinEntity21540
+        {
+            public int ParentId { get; set; }
+            public Parent21540 Parent { get; set; }
+            public int OtherSideId { get; set; }
+            public OtherSide21540 OtherSide { get; set; }
+        }
+
+        private class OtherSide21540
+        {
+            public int Id { get; set; }
+            public List<Parent21540> SkipParent { get; set; }
+        }
+
+        private class Reference21540
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public Parent21540 Parent { get; set; }
+        }
+
+        private class Owned21540
+        {
+            public int Id { get; set; }
+        }
+
+        private class Collection21540
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public Parent21540 Parent { get; set; }
+        }
+
+        private class MyContext21540 : DbContext
+        {
+            public DbSet<Parent21540> Parents { get; set; }
+
+            public MyContext21540(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Parent21540>().HasMany(e => e.SkipOtherSide).WithMany(e => e.SkipParent)
+                    .UsingEntity<JoinEntity21540>(
+                        e => e.HasOne(i => i.OtherSide).WithMany().HasForeignKey(e => e.OtherSideId),
+                        e => e.HasOne(i => i.Parent).WithMany().HasForeignKey(e => e.ParentId))
+                    .HasKey(e => new { e.ParentId, e.OtherSideId });
+                modelBuilder.Entity<Parent21540>().OwnsOne(e => e.OwnedReference);
+
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.Reference).IsEagerLoaded();
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.Collection).IsEagerLoaded();
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.SkipOtherSide).IsEagerLoaded();
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase21540()
+            => CreateTestStore(
+                () => new MyContext21540(_options),
+                context =>
+                {
+                    var joinEntity = new JoinEntity21540
+                    {
+                        OtherSide = new OtherSide21540(),
+                        Parent = new Parent21540
+                        {
+                            Reference = new Reference21540(),
+                            OwnedReference = new Owned21540(),
+                            Collection = new List<Collection21540>
+                            {
+                                new Collection21540(),
+                                new Collection21540(),
+                            }
+                        }
+                    };
+
+                    context.AddRange(joinEntity);
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
 
         #endregion
 

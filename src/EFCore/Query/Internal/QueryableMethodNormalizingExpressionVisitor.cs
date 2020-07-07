@@ -166,6 +166,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return visitedExpression;
             }
 
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreEagerLoadedNavigationsMethodInfo)
+            {
+                var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                _queryCompilationContext.IgnoreEagerLoadedNavigations = true;
+
+                return visitedExpression;
+            }
+
             return null;
         }
 

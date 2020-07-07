@@ -104,9 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Sets a backing field to use for this navigation property.
-        ///     </para>
+        ///     Sets a backing field to use for this navigation property.
         /// </summary>
         /// <param name="fieldName"> The name of the field to use for this navigation property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -119,6 +117,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             else
             {
                 InternalSkipNavigationBuilder.HasField(fieldName, ConfigurationSource.Explicit);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures whether this navigation should be eager loaded in a query.
+        /// </summary>
+        /// <param name="eagerLoaded"> A value indicating if the navigation should be eager loaded. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual NavigationBuilder IsEagerLoaded(bool eagerLoaded = true)
+        {
+            if (InternalNavigationBuilder != null)
+            {
+                InternalNavigationBuilder.IsEagerLoaded(eagerLoaded, ConfigurationSource.Explicit);
+            }
+            else
+            {
+                InternalSkipNavigationBuilder.IsEagerLoaded(eagerLoaded, ConfigurationSource.Explicit);
             }
 
             return this;

@@ -129,5 +129,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the <see cref="IConventionSkipNavigation.Inverse" /> can be set for this property. </returns>
         bool CanSetInverse([CanBeNull] IConventionSkipNavigation inverse, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether this navigation can be configured to be eager loaded in a query
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="eagerLoaded"> A value indicating whether the navigation should be eager loaded. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if eager loaded can be set for this navigation. </returns>
+        bool CanSetIsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures this navigation to be eager loaded in a query
+        /// </summary>
+        /// <param name="eagerLoaded"> A value indicating whether the navigation should be eager loaded. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionSkipNavigationBuilder IsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation = false);
     }
 }

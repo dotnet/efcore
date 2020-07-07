@@ -295,6 +295,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return newSkipNavigationBuilder;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetIsEagerLoaded(bool? eagerLoaded, ConfigurationSource configurationSource)
+        {
+            IConventionSkipNavigation conventionNavigation = Metadata;
+
+            return configurationSource.Overrides(conventionNavigation.GetIsEagerLoadedConfigurationSource())
+                || conventionNavigation.IsEagerLoaded == eagerLoaded;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalSkipNavigationBuilder IsEagerLoaded(bool? eagerLoaded, ConfigurationSource configurationSource)
+        {
+            if (CanSetIsEagerLoaded(eagerLoaded, configurationSource))
+            {
+                Metadata.SetIsEagerLoaded(eagerLoaded, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
         IConventionSkipNavigation IConventionSkipNavigationBuilder.Metadata
         {
             [DebuggerStepThrough] get => Metadata;
@@ -375,5 +407,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => CanSetInverse(
                 (SkipNavigation)inverse,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        bool IConventionSkipNavigationBuilder.CanSetIsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation)
+            => CanSetIsEagerLoaded(eagerLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.IsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation)
+            => IsEagerLoaded(eagerLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

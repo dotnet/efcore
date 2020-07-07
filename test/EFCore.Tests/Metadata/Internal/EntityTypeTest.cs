@@ -2406,7 +2406,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal((1, 1, 1, 1, 1), indexes["Id"]);
             Assert.Equal((2, -1, 2, -1, -1), indexes[nameof(ChildEntity.Name)]);
 
-            Dictionary<string, (int, int, int, int, int)> GetIndexes(IEnumerable<IPropertyBase> properties)
+            static Dictionary<string, (int, int, int, int, int)> GetIndexes(IEnumerable<IPropertyBase> properties)
                 => properties.ToDictionary(
                     p => p.Name,
                     p =>

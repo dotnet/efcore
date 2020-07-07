@@ -1671,7 +1671,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return uniqueName;
         }
 
-        private static void PopulateEagerLoadedNavigations(IncludeTreeNode includeTreeNode)
+        private void PopulateEagerLoadedNavigations(IncludeTreeNode includeTreeNode)
         {
             var entityType = includeTreeNode.EntityType;
             var outboundNavigations
@@ -1681,6 +1681,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .Concat(entityType.GetDerivedNavigations())
                     .Concat(entityType.GetDerivedSkipNavigations())
                     .Where(n => n.IsEagerLoaded);
+
+            if (_queryCompilationContext.IgnoreEagerLoadedNavigations)
+            {
+                outboundNavigations = outboundNavigations.Where(n => n is INavigation navigation && navigation.ForeignKey.IsOwnership);
+            }
 
             foreach (var navigation in outboundNavigations)
             {
