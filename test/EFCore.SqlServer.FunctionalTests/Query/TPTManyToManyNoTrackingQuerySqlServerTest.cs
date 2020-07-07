@@ -997,11 +997,11 @@ ORDER BY [e].[Id], [t3].[OneId], [t3].[ThreeId], [t3].[Id], [t3].[OneId0], [t3].
             await base.Filtered_include_on_skip_navigation_then_filtered_include_on_navigation(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t0].[Id], [t0].[Name], [t0].[OneId], [t0].[TwoId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId]
-FROM [EntityTwos] AS [e]
+                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t0].[Id], [t0].[Name], [t0].[OneId], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId]
+FROM [EntityThrees] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[Name], [j].[OneId], [j].[TwoId], [t].[Id] AS [Id0], [t].[CollectionInverseId], [t].[Name] AS [Name0], [t].[ReferenceInverseId]
-    FROM [JoinOneToTwo] AS [j]
+    SELECT [e0].[Id], [e0].[Name], [j].[OneId], [j].[ThreeId], [t].[Id] AS [Id0], [t].[CollectionInverseId], [t].[Name] AS [Name0], [t].[ReferenceInverseId]
+    FROM [JoinOneToThreePayloadFull] AS [j]
     INNER JOIN [EntityOnes] AS [e0] ON [j].[OneId] = [e0].[Id]
     LEFT JOIN (
         SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
@@ -1009,8 +1009,8 @@ LEFT JOIN (
         WHERE [e1].[Id] < 5
     ) AS [t] ON [e0].[Id] = [t].[CollectionInverseId]
     WHERE [e0].[Id] > 15
-) AS [t0] ON [e].[Id] = [t0].[TwoId]
-ORDER BY [e].[Id], [t0].[OneId], [t0].[TwoId], [t0].[Id], [t0].[Id0]");
+) AS [t0] ON [e].[Id] = [t0].[ThreeId]
+ORDER BY [e].[Id], [t0].[OneId], [t0].[ThreeId], [t0].[Id], [t0].[Id0]");
         }
 
         public override async Task Filtered_include_on_navigation_then_filtered_include_on_skip_navigation(bool async)
@@ -1628,33 +1628,33 @@ ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]");
 
             AssertSql(
                 @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId]
-FROM [EntityTwos] AS [e]
+FROM [EntityThrees] AS [e]
 ORDER BY [e].[Id]",
                 //
-                @"SELECT [t].[Id], [t].[Name], [e].[Id], [t].[OneId], [t].[TwoId]
-FROM [EntityTwos] AS [e]
+                @"SELECT [t].[Id], [t].[Name], [e].[Id], [t].[OneId], [t].[ThreeId]
+FROM [EntityThrees] AS [e]
 INNER JOIN (
-    SELECT [j].[OneId], [j].[TwoId], [e0].[Id], [e0].[Name]
-    FROM [JoinOneToTwo] AS [j]
+    SELECT [j].[OneId], [j].[ThreeId], [j].[Payload], [e0].[Id], [e0].[Name]
+    FROM [JoinOneToThreePayloadFull] AS [j]
     INNER JOIN [EntityOnes] AS [e0] ON [j].[OneId] = [e0].[Id]
     WHERE [e0].[Id] > 15
-) AS [t] ON [e].[Id] = [t].[TwoId]
-ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id]",
+) AS [t] ON [e].[Id] = [t].[ThreeId]
+ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]",
                 //
-                @"SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id]
-FROM [EntityTwos] AS [e]
+                @"SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
+FROM [EntityThrees] AS [e]
 INNER JOIN (
-    SELECT [j].[OneId], [j].[TwoId], [e0].[Id], [e0].[Name]
-    FROM [JoinOneToTwo] AS [j]
+    SELECT [j].[OneId], [j].[ThreeId], [j].[Payload], [e0].[Id], [e0].[Name]
+    FROM [JoinOneToThreePayloadFull] AS [j]
     INNER JOIN [EntityOnes] AS [e0] ON [j].[OneId] = [e0].[Id]
     WHERE [e0].[Id] > 15
-) AS [t] ON [e].[Id] = [t].[TwoId]
+) AS [t] ON [e].[Id] = [t].[ThreeId]
 INNER JOIN (
     SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
     FROM [EntityTwos] AS [e1]
     WHERE [e1].[Id] < 5
 ) AS [t0] ON [t].[Id] = [t0].[CollectionInverseId]
-ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id]");
+ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]");
         }
 
         public override async Task Filtered_include_on_navigation_then_filtered_include_on_skip_navigation_split(bool async)
