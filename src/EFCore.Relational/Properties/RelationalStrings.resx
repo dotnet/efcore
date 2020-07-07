@@ -576,9 +576,6 @@
   <data name="InsertDataOperationValuesCountMismatch" xml:space="preserve">
     <value>The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of values and columns.</value>
   </data>
-  <data name="MigrationColumnTableMismatch" xml:space="preserve">
-    <value>The operation for the column '{column}' targets the '{columnTable}' table, but is part of the create operation for table '{table}'. Make both operations use the same name.</value>
-  </data>
   <data name="UpdateDataOperationKeyTypesCountMismatch" xml:space="preserve">
     <value>The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key column types and key columns.</value>
   </data>

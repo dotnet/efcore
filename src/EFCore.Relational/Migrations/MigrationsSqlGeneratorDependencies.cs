@@ -63,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] ILoggingOptions loggingOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> migrationsLogger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
@@ -72,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(loggingOptions, nameof(loggingOptions));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(migrationsLogger, nameof(migrationsLogger));
 
             CommandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
@@ -80,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             CurrentContext = currentContext;
             LoggingOptions = loggingOptions;
             Logger = logger;
+            MigrationsLogger = migrationsLogger;
         }
 
         /// <summary>
@@ -118,6 +121,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
 
         /// <summary>
+        ///     The database command logger.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Migrations> MigrationsLogger { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
@@ -130,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -145,7 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -160,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -175,7 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 typeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -190,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 currentContext,
                 LoggingOptions,
-                Logger);
+                Logger,
+                MigrationsLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -205,7 +218,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 loggingOptions,
-                Logger);
+                Logger,
+                MigrationsLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -220,6 +234,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 TypeMappingSource,
                 CurrentContext,
                 LoggingOptions,
-                logger);
+                logger,
+                MigrationsLogger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="migrationsLogger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsSqlGeneratorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> migrationsLogger)
+            => new MigrationsSqlGeneratorDependencies(
+                CommandBuilderFactory,
+                UpdateSqlGenerator,
+                SqlGenerationHelper,
+                TypeMappingSource,
+                CurrentContext,
+                LoggingOptions,
+                Logger,
+                migrationsLogger);
     }
 }

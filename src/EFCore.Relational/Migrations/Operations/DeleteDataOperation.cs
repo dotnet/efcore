@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for deleting seed data from an existing table.
     /// </summary>
     [DebuggerDisplay("DELETE FROM {Table}")]
-    public class DeleteDataOperation : MigrationOperation
+    public class DeleteDataOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The table from which data will be deleted.

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing column.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} DROP COLUMN {Name}")]
-    public class DropColumnOperation : MigrationOperation
+    public class DropColumnOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     Creates a new instance of the <see cref="DropColumnOperation" />.

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 
         /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldDatabase;
-        
+
         private sealed class CreateDatabaseOperation : DatabaseOperation
         {
         }

@@ -124,6 +124,7 @@ Statement3
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
             var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var migrationsLogger = new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>();
             var generationHelper = new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
 
             return new MigrationCommandListBuilder(
@@ -139,7 +140,8 @@ Statement3
                     typeMappingSource,
                     new CurrentDbContext(new FakeDbContext()),
                     new LoggingOptions(),
-                    logger));
+                    logger,
+                    migrationsLogger));
         }
 
         private class FakeDbContext : DbContext

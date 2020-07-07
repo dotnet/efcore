@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for renaming an existing column.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} RENAME COLUMN {Name} TO {NewName}")]
-    public class RenameColumnOperation : MigrationOperation
+    public class RenameColumnOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The old name of the column.

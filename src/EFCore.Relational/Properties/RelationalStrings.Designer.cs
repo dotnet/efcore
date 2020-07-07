@@ -722,14 +722,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 valuesCount, columnsCount, table);
 
         /// <summary>
-        ///     The operation for the column '{column}' targets the '{columnTable}' table, but is part of the create operation for table '{table}'. Make both operations use the same name.
-        /// </summary>
-        public static string MigrationColumnTableMismatch([CanBeNull] object column, [CanBeNull] object columnTable, [CanBeNull] object table)
-            => string.Format(
-                GetString("MigrationColumnTableMismatch", nameof(column), nameof(columnTable), nameof(table)),
-                column, columnTable, table);
-
-        /// <summary>
         ///     The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key column types and key columns.
         /// </summary>
         public static string UpdateDataOperationKeyTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)

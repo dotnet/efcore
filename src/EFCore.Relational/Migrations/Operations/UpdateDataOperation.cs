@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for updating seed data in an existing table.
     /// </summary>
     [DebuggerDisplay("UPDATE {Table}")]
-    public class UpdateDataOperation : MigrationOperation
+    public class UpdateDataOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the table in which data will be updated.

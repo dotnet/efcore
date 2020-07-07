@@ -1175,34 +1175,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IUniqueConstraint target, [NotNull] DiffContext diffContext)
         {
-            var targetTable = target.Table;
-            var columns = target.Columns;
-
-            MigrationOperation operation;
             if (target.GetIsPrimaryKey())
             {
-                operation = new AddPrimaryKeyOperation
-                {
-                    Schema = targetTable.Schema,
-                    Table = targetTable.Name,
-                    Name = target.Name,
-                    Columns = columns.Select(c => c.Name).ToArray()
-                };
+                yield return AddPrimaryKeyOperation.For((IPrimaryKeyConstraint)target);
             }
             else
             {
-                operation = new AddUniqueConstraintOperation
-                {
-                    Schema = targetTable.Schema,
-                    Table = targetTable.Name,
-                    Name = target.Name,
-                    Columns = columns.Select(c => c.Name).ToArray()
-                };
+                yield return AddUniqueConstraintOperation.For(target);
             }
-
-            operation.AddAnnotations(target.GetAnnotations());
-
-            yield return operation;
         }
 
         /// <summary>
@@ -1296,20 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 yield break;
             }
 
-            var targetPrincipleTable = target.PrincipalTable;
-
-            var operation = new AddForeignKeyOperation
-            {
-                Schema = targetTable.Schema,
-                Table = targetTable.Name,
-                Name = target.Name,
-                Columns = target.Columns.Select(c => c.Name).ToArray(),
-                PrincipalSchema = targetPrincipleTable.Schema,
-                PrincipalTable = targetPrincipleTable.Name,
-                PrincipalColumns = target.PrincipalColumns.Select(c => c.Name).ToArray(),
-                OnDelete = target.OnDeleteAction
-            };
-            operation.AddAnnotations(target.GetAnnotations());
+            var operation = AddForeignKeyOperation.For(target);
 
             var createTableOperation = diffContext.FindCreate(targetTable);
             if (createTableOperation != null)
@@ -1483,20 +1450,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
         {
-            var targetEntityType = target.EntityType;
-
-            var operation = new AddCheckConstraintOperation
-            {
-                Name = target.Name,
-                Sql = target.Sql,
-                Schema = targetEntityType.GetSchema(),
-                Table = targetEntityType.GetTableName()
-            };
-
-            operation.Sql = target.Sql;
-            operation.AddAnnotations(target.GetAnnotations());
-
-            yield return operation;
+            yield return AddCheckConstraintOperation.For(target);
         }
 
         /// <summary>

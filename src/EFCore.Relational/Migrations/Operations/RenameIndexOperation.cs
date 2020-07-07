@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for renaming an existing index.
     /// </summary>
     [DebuggerDisplay("ALTER INDEX {Name} RENAME TO {NewName}")]
-    public class RenameIndexOperation : MigrationOperation
+    public class RenameIndexOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The old name of the index.

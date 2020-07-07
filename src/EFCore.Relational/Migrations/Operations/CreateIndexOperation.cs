@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-using System;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for creating a new index.
     /// </summary>
     [DebuggerDisplay("CREATE INDEX {Name} ON {Table}")]
-    public class CreateIndexOperation : MigrationOperation
+    public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     Indicates whether or not the index should enforce uniqueness.

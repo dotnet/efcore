@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing unique constraint.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
-    public class DropUniqueConstraintOperation : MigrationOperation
+    public class DropUniqueConstraintOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the constraint.

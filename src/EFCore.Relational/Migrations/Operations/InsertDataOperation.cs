@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for inserting seed data into a table.
     /// </summary>
     [DebuggerDisplay("INSERT INTO {Table}")]
-    public class InsertDataOperation : MigrationOperation
+    public class InsertDataOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the table into which data will be inserted.
