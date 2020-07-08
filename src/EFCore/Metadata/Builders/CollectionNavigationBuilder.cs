@@ -151,16 +151,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             if (SkipNavigation != null)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.ConflictingRelationshipNavigation(
-                        SkipNavigation.DeclaringEntityType.DisplayName() + "." + SkipNavigation.Name,
-                        RelatedEntityType.DisplayName() + (reference.Name == null
-                                                        ? ""
-                                                        : "." + reference.Name),
-                        SkipNavigation.DeclaringEntityType.DisplayName() + "." + SkipNavigation.Name,
-                        SkipNavigation.TargetEntityType.DisplayName() + (SkipNavigation.Inverse == null
-                                                                        ? ""
-                                                                        : "." + SkipNavigation.Inverse.Name)));
+                // Note: we delayed setting the ConfigurationSource of SkipNavigation in HasMany()
+                // so we can test it here and override if the skip navigation was originally found
+                // by convention.
+                if (((IConventionSkipNavigation)SkipNavigation).GetConfigurationSource() == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ConflictingRelationshipNavigation(
+                            SkipNavigation.DeclaringEntityType.DisplayName() + "." + SkipNavigation.Name,
+                            RelatedEntityType.DisplayName() + (reference.Name == null
+                                                            ? ""
+                                                            : "." + reference.Name),
+                            SkipNavigation.DeclaringEntityType.DisplayName() + "." + SkipNavigation.Name,
+                            SkipNavigation.TargetEntityType.DisplayName() + (SkipNavigation.Inverse == null
+                                                                            ? ""
+                                                                            : "." + SkipNavigation.Inverse.Name)));
+                }
+
+                var navigationName = SkipNavigation.Name;
+                var declaringEntityType = (EntityType)DeclaringEntityType;
+                declaringEntityType.Model.Builder
+                    .RemoveAssociationEntityIfCreatedImplicitly(
+                        (EntityType)SkipNavigation.AssociationEntityType,
+                        removeSkipNavigations: true,
+                        ConfigurationSource.Explicit);
+
+                Builder = declaringEntityType.Builder
+                    .HasRelationship(
+                        (EntityType)RelatedEntityType,
+                        navigationName,
+                        ConfigurationSource.Explicit,
+                        targetIsPrincipal: false);
+                SkipNavigation = null;
             }
 
             var foreignKey = Builder.Metadata;
@@ -205,11 +227,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             var leftName = Builder?.Metadata.PrincipalToDependent.Name;
-            return new CollectionCollectionBuilder(
-                           RelatedEntityType,
-                           DeclaringEntityType,
-                           WithLeftManyNavigation(navigationName),
-                           WithRightManyNavigation(navigationName, leftName));
+            var collectionCollectionBuilder =
+                new CollectionCollectionBuilder(
+                    RelatedEntityType,
+                    DeclaringEntityType,
+                    WithLeftManyNavigation(navigationName),
+                    WithRightManyNavigation(navigationName, leftName));
+
+            Configure(collectionCollectionBuilder);
+
+            return collectionCollectionBuilder;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected virtual void Configure([NotNull] CollectionCollectionBuilder collectionCollectionBuilder)
+        {
+            Check.NotNull(collectionCollectionBuilder, nameof(collectionCollectionBuilder));
+
+            var leftSkipNavigation = (SkipNavigation)collectionCollectionBuilder.LeftNavigation;
+            var rightSkipNavigation = (SkipNavigation)collectionCollectionBuilder.RightNavigation;
+
+            leftSkipNavigation.Builder.HasInverse(rightSkipNavigation, ConfigurationSource.Explicit);
+
+            // Note: we delayed setting the ConfigurationSource of SkipNavigation
+            // in HasMany(). But now we know that both skip navigations should
+            // have ConfigurationSource.Explicit.
+            leftSkipNavigation.UpdateConfigurationSource(ConfigurationSource.Explicit);
+            rightSkipNavigation.UpdateConfigurationSource(ConfigurationSource.Explicit);
         }
 
         /// <summary>

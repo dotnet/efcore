@@ -194,9 +194,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && Inverse.AssociationEntityType != AssociationEntityType)
             {
                 throw new InvalidOperationException(CoreStrings.SkipInverseMismatchedForeignKey(
-                   foreignKey.Properties.Format(),
-                   Name, AssociationEntityType.DisplayName(),
-                   Inverse.Name, Inverse.AssociationEntityType.DisplayName()));
+                    foreignKey.Properties.Format(),
+                    Name, AssociationEntityType.DisplayName(),
+                    Inverse.Name, Inverse.AssociationEntityType.DisplayName()));
             }
 
             return isChanging

@@ -1050,6 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 && inverse.DeclaringEntityType.Builder
                                     .CanRemoveSkipNavigation(inverse, configurationSource))
                             {
+                                inverse.SetInverse(null, configurationSource);
                                 inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
                             }
 
@@ -1120,6 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     && inverse.DeclaringEntityType.Builder
                                         .CanRemoveSkipNavigation(inverse, configurationSource))
                                 {
+                                    inverse.SetInverse(null, configurationSource);
                                     inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
                                 }
 

@@ -1844,7 +1844,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         nameof(Category) + "." + nameof(Category.Products),
                         nameof(Product),
                         nameof(Category) + "." + nameof(Category.Products),
-                        nameof(Product)),
+                        nameof(Product) + "." + nameof(Product.Categories)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<Category>()
                             .HasMany(o => o.Products).WithOne()).Message);
@@ -1855,7 +1855,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = HobNobBuilder();
                 var model = modelBuilder.Model;
+
+                // set up a 1:1 relationship using Nob.Hob and Hob.Nob
                 modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob);
+
+                // Now that Nob.Hob and Hob.Nob are used, Nob.Hobs and Hob.Nobs
+                // are no longer ambiguous and we do implicitly create the N:N
+                // relationship between them. But this can be silently overridden
+                // by the more explicit HasMany().WithOne() call below. So we do
+                // not see a clash with that relationship, only with the 1:1
+                // relationship configured above.
 
                 var dependentType = model.FindEntityType(typeof(Hob));
                 var principalType = model.FindEntityType(typeof(Nob));
@@ -1878,6 +1887,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob);
 
+                // The below ensures that the relationship is no longer
+                // using Nob.Hob. After that it is allowed to override
+                // Hob.Nob's inverse in the HasMany().WithOne() call below.
                 modelBuilder.Entity<Nob>().HasOne<Hob>().WithOne(e => e.Nob);
 
                 var dependentType = model.FindEntityType(typeof(Hob));
@@ -1887,10 +1899,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob);
 
+                // assert the 1:N relationship defined through the HasMany().WithOne() call above
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.False(fk.IsUnique);
                 Assert.Equal(nameof(Nob.Hobs), fk.PrincipalToDependent.Name);
                 Assert.Equal(nameof(Hob.Nob), fk.DependentToPrincipal.Name);
+
+                // The 1:N relationship above has "used up" Hob.Nob and Nob.Hobs,
+                // so now the RelationshipDiscoveryConvention should be able
+                // to unambiguously and automatically match up Nob.Hob and Hob.Nobs
+                // in a different 1:N relationship.
                 var otherFk = principalType.GetForeignKeys().Single();
                 Assert.False(fk.IsUnique);
                 Assert.Equal(nameof(Hob.Nobs), otherFk.PrincipalToDependent.Name);

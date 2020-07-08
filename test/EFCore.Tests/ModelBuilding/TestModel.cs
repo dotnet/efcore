@@ -1035,5 +1035,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OneToOneOwnerWithField OneToOneOwner { get; set; }
 
         }
+
+        public class AutomaticManyToManyA
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<AutomaticManyToManyB> Bs { get; set; }
+        }
+
+
+        public class AutomaticManyToManyB
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<AutomaticManyToManyA> As { get; set; }
+        }
     }
 }

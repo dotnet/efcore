@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessSkipNavigationInverseChanged(
             [NotNull] IConventionSkipNavigationBuilder skipNavigationBuilder,
-            [NotNull] IConventionSkipNavigation inverse,
-            [NotNull] IConventionSkipNavigation oldInverse,
+            [CanBeNull] IConventionSkipNavigation inverse,
+            [CanBeNull] IConventionSkipNavigation oldInverse,
             [NotNull] IConventionContext<IConventionSkipNavigation> context);
     }
 }
