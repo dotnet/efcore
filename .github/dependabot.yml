@@ -25,3 +25,5 @@ updates:
       - dependency-name: StyleCop.Analyzers
       # Testing infrastructure should be intentionally updated
       - dependency-name: BenchmarkDotNet
+    labels:
+      - auto-merge
