@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
+namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
 {
-    public class BaseReferenceOnBase
+    public class BaseCollectionOnBase
     {
         public int Id { get; set; }
 

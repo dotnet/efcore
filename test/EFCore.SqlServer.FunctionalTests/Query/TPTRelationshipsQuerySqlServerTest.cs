@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -44,9 +45,9 @@ LEFT JOIN (
 ORDER BY [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t0].[Id]");
         }
 
-        public override void Include_collection_without_inheritance()
+        public override async Task Include_collection_without_inheritance(bool async)
         {
-            base.Include_collection_without_inheritance();
+            await base.Include_collection_without_inheritance(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -61,9 +62,9 @@ LEFT JOIN [CollectionsOnBase] AS [c] ON [b].[Id] = [c].[ParentId]
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [c].[Id]");
         }
 
-        public override void Include_collection_without_inheritance_reverse()
+        public override async Task Include_collection_without_inheritance_reverse(bool async)
         {
-            base.Include_collection_without_inheritance_reverse();
+            await base.Include_collection_without_inheritance_reverse(async);
 
             AssertSql(
                 @"SELECT [c].[Id], [c].[Name], [c].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -81,9 +82,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [t].[Id] = [d0].
 ORDER BY [c].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_collection_without_inheritance_with_filter()
+        public override async Task Include_collection_without_inheritance_with_filter(bool async)
         {
-            base.Include_collection_without_inheritance_with_filter();
+            await base.Include_collection_without_inheritance_with_filter(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -99,9 +100,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [c].[Id]");
         }
 
-        public override void Include_collection_without_inheritance_with_filter_reverse()
+        public override async Task Include_collection_without_inheritance_with_filter_reverse(bool async)
         {
-            base.Include_collection_without_inheritance_with_filter_reverse();
+            await base.Include_collection_without_inheritance_with_filter_reverse(async);
 
             AssertSql(
                 @"SELECT [c].[Id], [c].[Name], [c].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -120,9 +121,9 @@ WHERE ([c].[Name] <> N'Bar') OR [c].[Name] IS NULL
 ORDER BY [c].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_collection_with_inheritance()
+        public override async Task Include_collection_with_inheritance(bool async)
         {
-            base.Include_collection_with_inheritance();
+            await base.Include_collection_with_inheritance(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -144,9 +145,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_on_derived1()
+        public override async Task Include_collection_with_inheritance_on_derived1(bool async)
         {
-            base.Include_collection_with_inheritance_on_derived1();
+            await base.Include_collection_with_inheritance_on_derived1(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedProperty], [t].[IsDerivedCollectionOnBase]
@@ -165,9 +166,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_on_derived2()
+        public override async Task Include_collection_with_inheritance_on_derived2(bool async)
         {
-            base.Include_collection_with_inheritance_on_derived2();
+            await base.Include_collection_with_inheritance_on_derived2(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[Name], [t].[ParentId], [t].[DerivedInheritanceRelationshipEntityId], [t].[IsDerivedCollectionOnDerived]
@@ -186,9 +187,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_on_derived3()
+        public override async Task Include_collection_with_inheritance_on_derived3(bool async)
         {
-            base.Include_collection_with_inheritance_on_derived3();
+            await base.Include_collection_with_inheritance_on_derived3(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[Name], [t].[ParentId], [t].[DerivedInheritanceRelationshipEntityId]
@@ -204,9 +205,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_on_derived_reverse()
+        public override async Task Include_collection_with_inheritance_on_derived_reverse(bool async)
         {
-            base.Include_collection_with_inheritance_on_derived_reverse();
+            await base.Include_collection_with_inheritance_on_derived_reverse(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [b].[ParentId], [d].[DerivedInheritanceRelationshipEntityId], CASE
@@ -225,9 +226,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_reverse()
+        public override async Task Include_collection_with_inheritance_reverse(bool async)
         {
-            base.Include_collection_with_inheritance_reverse();
+            await base.Include_collection_with_inheritance_reverse(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedProperty], CASE
@@ -249,9 +250,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_with_filter()
+        public override async Task Include_collection_with_inheritance_with_filter(bool async)
         {
-            base.Include_collection_with_inheritance_with_filter();
+            await base.Include_collection_with_inheritance_with_filter(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -274,9 +275,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_with_filter_reverse()
+        public override async Task Include_collection_with_inheritance_with_filter_reverse(bool async)
         {
-            base.Include_collection_with_inheritance_with_filter_reverse();
+            await base.Include_collection_with_inheritance_with_filter_reverse(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedProperty], CASE
@@ -299,9 +300,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_without_inheritance()
+        public override async Task Include_reference_without_inheritance(bool async)
         {
-            base.Include_reference_without_inheritance();
+            await base.Include_reference_without_inheritance(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -316,9 +317,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].
 ORDER BY [b].[Id], [r].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_reference_without_inheritance_on_derived1()
+        public override async Task Include_reference_without_inheritance_on_derived1(bool async)
         {
-            base.Include_reference_without_inheritance_on_derived1();
+            await base.Include_reference_without_inheritance_on_derived1(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [r].[Id], [r].[Name], [r].[ParentId], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -330,9 +331,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].
 ORDER BY [b].[Id], [r].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_reference_without_inheritance_on_derived2()
+        public override async Task Include_reference_without_inheritance_on_derived2(bool async)
         {
-            base.Include_reference_without_inheritance_on_derived2();
+            await base.Include_reference_without_inheritance_on_derived2(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [r].[Id], [r].[Name], [r].[ParentId], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -344,9 +345,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].
 ORDER BY [b].[Id], [r].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_reference_without_inheritance_on_derived_reverse()
+        public override async Task Include_reference_without_inheritance_on_derived_reverse(bool async)
         {
-            base.Include_reference_without_inheritance_on_derived_reverse();
+            await base.Include_reference_without_inheritance_on_derived_reverse(async);
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [r].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -361,9 +362,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [t].[Id] = [d0].
 ORDER BY [r].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_reference_without_inheritance_reverse()
+        public override async Task Include_reference_without_inheritance_reverse(bool async)
         {
-            base.Include_reference_without_inheritance_reverse();
+            await base.Include_reference_without_inheritance_reverse(async);
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [r].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -381,9 +382,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [t].[Id] = [d0].
 ORDER BY [r].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_reference_without_inheritance_with_filter()
+        public override async Task Include_reference_without_inheritance_with_filter(bool async)
         {
-            base.Include_reference_without_inheritance_with_filter();
+            await base.Include_reference_without_inheritance_with_filter(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -399,9 +400,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [r].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_reference_without_inheritance_with_filter_reverse()
+        public override async Task Include_reference_without_inheritance_with_filter_reverse(bool async)
         {
-            base.Include_reference_without_inheritance_with_filter_reverse();
+            await base.Include_reference_without_inheritance_with_filter_reverse(async);
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [r].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -420,9 +421,9 @@ WHERE ([r].[Name] <> N'Bar') OR [r].[Name] IS NULL
 ORDER BY [r].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_reference_with_inheritance()
+        public override async Task Include_reference_with_inheritance(bool async)
         {
-            base.Include_reference_with_inheritance();
+            await base.Include_reference_with_inheritance(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -444,9 +445,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [b].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_on_derived1()
+        public override async Task Include_reference_with_inheritance_on_derived1(bool async)
         {
-            base.Include_reference_with_inheritance_on_derived1();
+            await base.Include_reference_with_inheritance_on_derived1(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[IsDerivedReferenceOnBase], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
@@ -465,9 +466,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [b].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_on_derived2()
+        public override async Task Include_reference_with_inheritance_on_derived2(bool async)
         {
-            base.Include_reference_with_inheritance_on_derived2();
+            await base.Include_reference_with_inheritance_on_derived2(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedInheritanceRelationshipEntityId], [t].[IsDerivedReferenceOnDerived], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
@@ -486,9 +487,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [b].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_on_derived4()
+        public override async Task Include_reference_with_inheritance_on_derived4(bool async)
         {
-            base.Include_reference_with_inheritance_on_derived4();
+            await base.Include_reference_with_inheritance_on_derived4(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedInheritanceRelationshipEntityId], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
@@ -504,9 +505,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [b].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_on_derived_reverse()
+        public override async Task Include_reference_with_inheritance_on_derived_reverse(bool async)
         {
-            base.Include_reference_with_inheritance_on_derived_reverse();
+            await base.Include_reference_with_inheritance_on_derived_reverse(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedInheritanceRelationshipEntityId], CASE
@@ -525,9 +526,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_on_derived_with_filter1()
+        public override async Task Include_reference_with_inheritance_on_derived_with_filter1(bool async)
         {
-            base.Include_reference_with_inheritance_on_derived_with_filter1();
+            await base.Include_reference_with_inheritance_on_derived_with_filter1(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[IsDerivedReferenceOnBase], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
@@ -547,9 +548,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_on_derived_with_filter2()
+        public override async Task Include_reference_with_inheritance_on_derived_with_filter2(bool async)
         {
-            base.Include_reference_with_inheritance_on_derived_with_filter2();
+            await base.Include_reference_with_inheritance_on_derived_with_filter2(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedInheritanceRelationshipEntityId], [t].[IsDerivedReferenceOnDerived], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
@@ -569,9 +570,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_on_derived_with_filter4()
+        public override async Task Include_reference_with_inheritance_on_derived_with_filter4(bool async)
         {
-            base.Include_reference_with_inheritance_on_derived_with_filter4();
+            await base.Include_reference_with_inheritance_on_derived_with_filter4(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedInheritanceRelationshipEntityId], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
@@ -588,9 +589,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_on_derived_with_filter_reverse()
+        public override async Task Include_reference_with_inheritance_on_derived_with_filter_reverse(bool async)
         {
-            base.Include_reference_with_inheritance_on_derived_with_filter_reverse();
+            await base.Include_reference_with_inheritance_on_derived_with_filter_reverse(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedInheritanceRelationshipEntityId], CASE
@@ -610,9 +611,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_reverse()
+        public override async Task Include_reference_with_inheritance_reverse(bool async)
         {
-            base.Include_reference_with_inheritance_reverse();
+            await base.Include_reference_with_inheritance_reverse(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], CASE
@@ -634,9 +635,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_with_filter()
+        public override async Task Include_reference_with_inheritance_with_filter(bool async)
         {
-            base.Include_reference_with_inheritance_with_filter();
+            await base.Include_reference_with_inheritance_with_filter(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -659,9 +660,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_reference_with_inheritance_with_filter_reverse()
+        public override async Task Include_reference_with_inheritance_with_filter_reverse(bool async)
         {
-            base.Include_reference_with_inheritance_with_filter_reverse();
+            await base.Include_reference_with_inheritance_with_filter_reverse(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], CASE
@@ -684,9 +685,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_self_reference_with_inheritance()
+        public override async Task Include_self_reference_with_inheritance(bool async)
         {
-            base.Include_self_reference_with_inheritance();
+            await base.Include_self_reference_with_inheritance(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -707,9 +708,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d2] ON [t].[Id] = [d2].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [b2].[BaseInheritanceRelationshipEntityId], [b2].[Id], [d2].[DerivedInheritanceRelationshipEntityId], [d2].[Id]");
         }
 
-        public override void Include_self_reference_with_inheritance_reverse()
+        public override async Task Include_self_reference_with_inheritance_reverse(bool async)
         {
-            base.Include_self_reference_with_inheritance_reverse();
+            await base.Include_self_reference_with_inheritance_reverse(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name], [b2].[BaseInheritanceRelationshipEntityId], [b2].[Id], [b2].[Name], [d2].[DerivedInheritanceRelationshipEntityId], [d2].[Id], [d2].[Name]
@@ -730,9 +731,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d2] ON [t].[Id] = [d2].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [b2].[BaseInheritanceRelationshipEntityId], [b2].[Id], [d2].[DerivedInheritanceRelationshipEntityId], [d2].[Id]");
         }
 
-        public override void Nested_include_collection_reference_on_non_entity_base()
+        public override async Task Nested_include_collection_reference_on_non_entity_base(bool async)
         {
-            base.Nested_include_collection_reference_on_non_entity_base();
+            await base.Nested_include_collection_reference_on_non_entity_base(async);
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [t].[Id], [t].[Name], [t].[ReferenceId], [t].[ReferencedEntityId], [t].[Id0], [t].[Name0]
@@ -745,9 +746,9 @@ LEFT JOIN (
 ORDER BY [r].[Id], [t].[Id], [t].[Id0]");
         }
 
-        public override void Nested_include_with_inheritance_collection_collection()
+        public override async Task Nested_include_with_inheritance_collection_collection(bool async)
         {
-            base.Nested_include_with_inheritance_collection_collection();
+            await base.Nested_include_with_inheritance_collection_collection(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -777,9 +778,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t0].[Id], [t0].[Id0]");
         }
 
-        public override void Nested_include_with_inheritance_collection_collection_reverse()
+        public override async Task Nested_include_with_inheritance_collection_collection_reverse(bool async)
         {
-            base.Nested_include_with_inheritance_collection_collection_reverse();
+            await base.Nested_include_with_inheritance_collection_collection_reverse(async);
 
             AssertSql(
                 @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
@@ -809,9 +810,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1]
 ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_collection_reference()
+        public override async Task Nested_include_with_inheritance_collection_reference(bool async)
         {
-            base.Nested_include_with_inheritance_collection_reference();
+            await base.Nested_include_with_inheritance_collection_reference(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -841,9 +842,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t0].[Id], [t0].[Id0]");
         }
 
-        public override void Nested_include_with_inheritance_collection_reference_reverse()
+        public override async Task Nested_include_with_inheritance_collection_reference_reverse(bool async)
         {
-            base.Nested_include_with_inheritance_collection_reference_reverse();
+            await base.Nested_include_with_inheritance_collection_reference_reverse(async);
 
             AssertSql(
                 @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
@@ -873,9 +874,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1]
 ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_collection()
+        public override async Task Nested_include_with_inheritance_reference_collection(bool async)
         {
-            base.Nested_include_with_inheritance_reference_collection();
+            await base.Nested_include_with_inheritance_reference_collection(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -905,9 +906,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [t0].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_collection_on_base()
+        public override async Task Nested_include_with_inheritance_reference_collection_on_base(bool async)
         {
-            base.Nested_include_with_inheritance_reference_collection_on_base();
+            await base.Nested_include_with_inheritance_reference_collection_on_base(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[IsDerivedReferenceOnBase], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name], [t0].[Id], [t0].[Name], [t0].[ParentCollectionId], [t0].[ParentReferenceId], [t0].[IsNestedCollectionDerived]
@@ -934,9 +935,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [t0].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_collection_reverse()
+        public override async Task Nested_include_with_inheritance_reference_collection_reverse(bool async)
         {
-            base.Nested_include_with_inheritance_reference_collection_reverse();
+            await base.Nested_include_with_inheritance_reference_collection_reverse(async);
 
             AssertSql(
                 @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
@@ -966,9 +967,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1]
 ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_reference()
+        public override async Task Nested_include_with_inheritance_reference_reference(bool async)
         {
-            base.Nested_include_with_inheritance_reference_reference();
+            await base.Nested_include_with_inheritance_reference_reference(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -998,9 +999,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [b].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_reference_on_base()
+        public override async Task Nested_include_with_inheritance_reference_reference_on_base(bool async)
         {
-            base.Nested_include_with_inheritance_reference_reference_on_base();
+            await base.Nested_include_with_inheritance_reference_reference_on_base(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[IsDerivedReferenceOnBase], [t0].[Id], [t0].[Name], [t0].[ParentCollectionId], [t0].[ParentReferenceId], [t0].[IsNestedReferenceDerived], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name]
@@ -1027,9 +1028,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [b].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_reference_reverse()
+        public override async Task Nested_include_with_inheritance_reference_reference_reverse(bool async)
         {
-            base.Nested_include_with_inheritance_reference_reference_reverse();
+            await base.Nested_include_with_inheritance_reference_reference_reverse(async);
 
             AssertSql(
                 @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
@@ -1059,9 +1060,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1]
 ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_split()
+        public override async Task Include_collection_with_inheritance_split(bool async)
         {
-            base.Include_collection_with_inheritance_split();
+            await base.Include_collection_with_inheritance_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -1083,9 +1084,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_reverse_split()
+        public override async Task Include_collection_with_inheritance_reverse_split(bool async)
         {
-            base.Include_collection_with_inheritance_reverse_split();
+            await base.Include_collection_with_inheritance_reverse_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedProperty], CASE
@@ -1107,9 +1108,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_with_filter_split()
+        public override async Task Include_collection_with_inheritance_with_filter_split(bool async)
         {
-            base.Include_collection_with_inheritance_with_filter_split();
+            await base.Include_collection_with_inheritance_with_filter_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -1132,9 +1133,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_with_filter_reverse_split()
+        public override async Task Include_collection_with_inheritance_with_filter_reverse_split(bool async)
         {
-            base.Include_collection_with_inheritance_with_filter_reverse_split();
+            await base.Include_collection_with_inheritance_with_filter_reverse_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[BaseParentId], [b].[Name], [d].[DerivedProperty], CASE
@@ -1157,9 +1158,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Include_collection_without_inheritance_split()
+        public override async Task Include_collection_without_inheritance_split(bool async)
         {
-            base.Include_collection_without_inheritance_split();
+            await base.Include_collection_without_inheritance_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -1174,9 +1175,9 @@ LEFT JOIN [CollectionsOnBase] AS [c] ON [b].[Id] = [c].[ParentId]
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [c].[Id]");
         }
 
-        public override void Include_collection_without_inheritance_reverse_split()
+        public override async Task Include_collection_without_inheritance_reverse_split(bool async)
         {
-            base.Include_collection_without_inheritance_reverse_split();
+            await base.Include_collection_without_inheritance_reverse_split(async);
 
             AssertSql(
                 @"SELECT [c].[Id], [c].[Name], [c].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -1194,9 +1195,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [t].[Id] = [d0].
 ORDER BY [c].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_collection_without_inheritance_with_filter_split()
+        public override async Task Include_collection_without_inheritance_with_filter_split(bool async)
         {
-            base.Include_collection_without_inheritance_with_filter_split();
+            await base.Include_collection_without_inheritance_with_filter_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -1212,9 +1213,9 @@ WHERE ([b].[Name] <> N'Bar') OR [b].[Name] IS NULL
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [c].[Id]");
         }
 
-        public override void Include_collection_without_inheritance_with_filter_reverse_split()
+        public override async Task Include_collection_without_inheritance_with_filter_reverse_split(bool async)
         {
-            base.Include_collection_without_inheritance_with_filter_reverse_split();
+            await base.Include_collection_without_inheritance_with_filter_reverse_split(async);
 
             AssertSql(
                 @"SELECT [c].[Id], [c].[Name], [c].[ParentId], [t].[Id], [t].[Name], [t].[BaseId], [t].[IsDerivedInheritanceRelationshipEntity], [t].[Id0], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [t].[Id1], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name]
@@ -1233,9 +1234,9 @@ WHERE ([c].[Name] <> N'Bar') OR [c].[Name] IS NULL
 ORDER BY [c].[Id], [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_on_derived1_split()
+        public override async Task Include_collection_with_inheritance_on_derived1_split(bool async)
         {
-            base.Include_collection_with_inheritance_on_derived1_split();
+            await base.Include_collection_with_inheritance_on_derived1_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[DerivedProperty], [t].[IsDerivedCollectionOnBase]
@@ -1254,9 +1255,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_on_derived2_split()
+        public override async Task Include_collection_with_inheritance_on_derived2_split(bool async)
         {
-            base.Include_collection_with_inheritance_on_derived2_split();
+            await base.Include_collection_with_inheritance_on_derived2_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[Name], [t].[ParentId], [t].[DerivedInheritanceRelationshipEntityId], [t].[IsDerivedCollectionOnDerived]
@@ -1275,9 +1276,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_on_derived3_split()
+        public override async Task Include_collection_with_inheritance_on_derived3_split(bool async)
         {
-            base.Include_collection_with_inheritance_on_derived3_split();
+            await base.Include_collection_with_inheritance_on_derived3_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [t].[Id], [t].[Name], [t].[ParentId], [t].[DerivedInheritanceRelationshipEntityId]
@@ -1293,9 +1294,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
         }
 
-        public override void Include_collection_with_inheritance_on_derived_reverse_split()
+        public override async Task Include_collection_with_inheritance_on_derived_reverse_split(bool async)
         {
-            base.Include_collection_with_inheritance_on_derived_reverse_split();
+            await base.Include_collection_with_inheritance_on_derived_reverse_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [b].[ParentId], [d].[DerivedInheritanceRelationshipEntityId], CASE
@@ -1314,9 +1315,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t].[Id] = [d1].
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_collection_split()
+        public override async Task Nested_include_with_inheritance_reference_collection_split(bool async)
         {
-            base.Nested_include_with_inheritance_reference_collection_split();
+            await base.Nested_include_with_inheritance_reference_collection_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -1346,9 +1347,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [t0].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_collection_on_base_split()
+        public override async Task Nested_include_with_inheritance_reference_collection_on_base_split(bool async)
         {
-            base.Nested_include_with_inheritance_reference_collection_on_base_split();
+            await base.Nested_include_with_inheritance_reference_collection_on_base_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[BaseParentId], [t].[Name], [t].[IsDerivedReferenceOnBase], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [d1].[Name], [t0].[Id], [t0].[Name], [t0].[ParentCollectionId], [t0].[ParentReferenceId], [t0].[IsNestedCollectionDerived]
@@ -1375,9 +1376,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [t].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id], [t0].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_reference_collection_reverse_split()
+        public override async Task Nested_include_with_inheritance_reference_collection_reverse_split(bool async)
         {
-            base.Nested_include_with_inheritance_reference_collection_reverse_split();
+            await base.Nested_include_with_inheritance_reference_collection_reverse_split(async);
 
             AssertSql(
                 @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
@@ -1407,9 +1408,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1]
 ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_collection_reference_split()
+        public override async Task Nested_include_with_inheritance_collection_reference_split(bool async)
         {
-            base.Nested_include_with_inheritance_collection_reference_split();
+            await base.Nested_include_with_inheritance_collection_reference_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -1439,9 +1440,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t0].[Id], [t0].[Id0]");
         }
 
-        public override void Nested_include_with_inheritance_collection_reference_reverse_split()
+        public override async Task Nested_include_with_inheritance_collection_reference_reverse_split(bool async)
         {
-            base.Nested_include_with_inheritance_collection_reference_reverse_split();
+            await base.Nested_include_with_inheritance_collection_reference_reverse_split(async);
 
             AssertSql(
                 @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
@@ -1471,9 +1472,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1]
 ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_with_inheritance_collection_collection_split()
+        public override async Task Nested_include_with_inheritance_collection_collection_split(bool async)
         {
-            base.Nested_include_with_inheritance_collection_collection_split();
+            await base.Nested_include_with_inheritance_collection_collection_split(async);
 
             AssertSql(
                 @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
@@ -1503,9 +1504,9 @@ LEFT JOIN (
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t0].[Id], [t0].[Id0]");
         }
 
-        public override void Nested_include_with_inheritance_collection_collection_reverse_split()
+        public override async Task Nested_include_with_inheritance_collection_collection_reverse_split(bool async)
         {
-            base.Nested_include_with_inheritance_collection_collection_reverse_split();
+            await base.Nested_include_with_inheritance_collection_collection_reverse_split(async);
 
             AssertSql(
                 @"SELECT [n].[Id], [n].[Name], [n].[ParentCollectionId], [n].[ParentReferenceId], CASE
@@ -1535,9 +1536,9 @@ LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d1] ON [t0].[Id] = [d1]
 ORDER BY [n].[Id], [t].[Id], [t0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [d1].[DerivedInheritanceRelationshipEntityId], [d1].[Id]");
         }
 
-        public override void Nested_include_collection_reference_on_non_entity_base_split()
+        public override async Task Nested_include_collection_reference_on_non_entity_base_split(bool async)
         {
-            base.Nested_include_collection_reference_on_non_entity_base_split();
+            await base.Nested_include_collection_reference_on_non_entity_base_split(async);
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [t].[Id], [t].[Name], [t].[ReferenceId], [t].[ReferencedEntityId], [t].[Id0], [t].[Name0]
