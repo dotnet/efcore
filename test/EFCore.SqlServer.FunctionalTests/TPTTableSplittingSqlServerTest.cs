@@ -265,15 +265,21 @@ WHERE [c].[FuelType] IS NOT NULL AND [c].[Capacity] IS NOT NULL");
             base.Can_change_dependent_instance_non_derived();
 
             AssertSql(
-                @"@p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
-@p0='LicensedOperator' (Nullable = false) (Size = 4000)
-@p1='repairman' (Size = 4000)
-@p2='Repair' (Size = 4000)
+                @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+@p0='repairman' (Size = 4000)
 
 SET NOCOUNT ON;
-UPDATE [Vehicles] SET [Operator_Discriminator] = @p0, [Operator_Name] = @p1, [LicenseType] = @p2
-WHERE [Name] = @p3;
-SELECT @@ROWCOUNT;");
+UPDATE [Vehicles] SET [Operator_Name] = @p0
+WHERE [Name] = @p1;
+SELECT [RequiredInt]
+FROM [Vehicles]
+WHERE @@ROWCOUNT = 1 AND [Name] = @p1;",
+                @"@p2='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+@p3='Repair' (Size = 4000)
+
+SET NOCOUNT ON;
+INSERT INTO [LicensedOperators] ([VehicleName], [LicenseType])
+VALUES (@p2, @p3);");
         }
 
         public override void Can_change_principal_instance_non_derived()

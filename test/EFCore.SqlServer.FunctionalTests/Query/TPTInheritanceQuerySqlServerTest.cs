@@ -120,20 +120,20 @@ SET NOCOUNT ON;
 INSERT INTO [Animals] ([Species], [CountryId], [Name])
 VALUES (@p0, @p1, @p2);",
                 //
-                @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
-@p1=NULL (Size = 100)
-@p2='True'
+                @"@p3='Apteryx owenii' (Nullable = false) (Size = 100)
+@p4=NULL (Size = 100)
+@p5='True'
 
 SET NOCOUNT ON;
 INSERT INTO [Birds] ([Species], [EagleId], [IsFlightless])
-VALUES (@p0, @p1, @p2);",
+VALUES (@p3, @p4, @p5);",
                 //
-                @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
-@p1='0' (Size = 1)
+                @"@p6='Apteryx owenii' (Nullable = false) (Size = 100)
+@p7='0' (Size = 1)
 
 SET NOCOUNT ON;
 INSERT INTO [Kiwi] ([Species], [FoundOn])
-VALUES (@p0, @p1);",
+VALUES (@p6, @p7);",
                 //
                 @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
 FROM [Animals] AS [a]
@@ -158,22 +158,22 @@ WHERE [a].[Species] LIKE N'%owenii'",
                 @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 
 SET NOCOUNT ON;
-DELETE FROM [Animals]
+DELETE FROM [Kiwi]
 WHERE [Species] = @p0;
 SELECT @@ROWCOUNT;",
                 //
-                @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
+                @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
 
 SET NOCOUNT ON;
 DELETE FROM [Birds]
-WHERE [Species] = @p0;
+WHERE [Species] = @p1;
 SELECT @@ROWCOUNT;",
                 //
-                @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
+                @"@p2='Apteryx owenii' (Nullable = false) (Size = 100)
 
 SET NOCOUNT ON;
-DELETE FROM [Kiwi]
-WHERE [Species] = @p0;
+DELETE FROM [Animals]
+WHERE [Species] = @p2;
 SELECT @@ROWCOUNT;",
                 //
                 @"SELECT COUNT(*)
