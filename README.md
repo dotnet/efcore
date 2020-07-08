@@ -12,3 +12,6 @@ methods for relations that you want to delete on soft deleting entity.
 #### Step 2:
 For soft delete entities use `Remove` and `RemoveAsync`.
 For force delete entities from database use `ForceRemove`.
+
+### Proposal
+Please check [the proposal](https://1drv.ms/b/s!AirwjkMOI-BwkAzedA6E6YVkZqjQ?e=vfV2hq) for this pull request.
