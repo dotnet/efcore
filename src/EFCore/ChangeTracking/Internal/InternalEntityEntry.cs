@@ -783,13 +783,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object GetOrCreateCollection([NotNull] INavigationBase navigation, bool forMaterialization)
+        public virtual object GetOrCreateCollection([NotNull] INavigationBase navigationBase, bool forMaterialization)
         {
-            Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
+            Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
-            return navigation is SkipNavigation skipNavigation
-                ? skipNavigation.CollectionAccessor.GetOrCreate(Entity, forMaterialization)
-                : ((Navigation)navigation).CollectionAccessor.GetOrCreate(Entity, forMaterialization);
+            return navigationBase.GetCollectionAccessor().GetOrCreate(Entity, forMaterialization);
         }
 
         /// <summary>
@@ -798,13 +796,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CollectionContains([NotNull] INavigationBase navigation, [NotNull] InternalEntityEntry value)
+        public virtual bool CollectionContains([NotNull] INavigationBase navigationBase, [NotNull] InternalEntityEntry value)
         {
-            Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
+            Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
-            return navigation is SkipNavigation skipNavigation
-                ? skipNavigation.CollectionAccessor.Contains(Entity, value.Entity)
-                : ((Navigation)navigation).CollectionAccessor.Contains(Entity, value.Entity);
+            return navigationBase.GetCollectionAccessor().Contains(Entity, value.Entity);
         }
 
         /// <summary>
@@ -814,15 +810,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool AddToCollection(
-            [NotNull] INavigationBase navigation,
+            [NotNull] INavigationBase navigationBase,
             [NotNull] InternalEntityEntry value,
             bool forMaterialization)
         {
-            Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
+            Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
-            return navigation is SkipNavigation skipNavigation
-                ? skipNavigation.CollectionAccessor.Add(Entity, value.Entity, forMaterialization)
-                : ((Navigation)navigation).CollectionAccessor.Add(Entity, value.Entity, forMaterialization);
+            return navigationBase.GetCollectionAccessor().Add(Entity, value.Entity, forMaterialization);
         }
 
         /// <summary>
@@ -831,13 +825,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool RemoveFromCollection([NotNull] INavigationBase navigation, [NotNull] InternalEntityEntry value)
+        public virtual bool RemoveFromCollection([NotNull] INavigationBase navigationBase, [NotNull] InternalEntityEntry value)
         {
-            Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
+            Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
-            return navigation is SkipNavigation skipNavigation
-                ? skipNavigation.CollectionAccessor.Remove(Entity, value.Entity)
-                : ((Navigation)navigation).CollectionAccessor.Remove(Entity, value.Entity);
+            return navigationBase.GetCollectionAccessor().Remove(Entity, value.Entity);
         }
 
         /// <summary>

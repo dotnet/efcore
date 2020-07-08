@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private void EnsureInitialized()
-            => Metadata.AsNavigation().CollectionAccessor.GetOrCreate(InternalEntry.Entity, forMaterialization: true);
+            => Metadata.GetCollectionAccessor().GetOrCreate(InternalEntry.Entity, forMaterialization: true);
 
         /// <summary>
         ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [EntityFrameworkInternal]
         protected virtual InternalEntityEntry GetInternalTargetEntry([NotNull] object entity)
             => CurrentValue == null
-                || !((Navigation)Metadata).CollectionAccessor.Contains(InternalEntry.Entity, entity)
+                || !Metadata.GetCollectionAccessor().Contains(InternalEntry.Entity, entity)
                     ? null
                     : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
     }

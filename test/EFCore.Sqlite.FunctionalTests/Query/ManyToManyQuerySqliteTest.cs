@@ -25,10 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Left_join_with_skip_navigation(bool async)
             => Task.CompletedTask;
 
-        [ConditionalTheory(Skip = "SQLite bug")]
-        public override Task Left_join_with_skip_navigation(bool async)
-            => Task.CompletedTask;
-
         [ConditionalTheory(Skip = "TODO: query translation #19003")]
         public override Task Filter_include_on_skip_navigation_combined_split(bool async)
             => Task.CompletedTask;
