@@ -2959,7 +2959,7 @@ LEFT JOIN (
     FROM [Weapons] AS [w]
     WHERE ([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
-WHERE ([c].[Name] = N'Ephyra') OR ([c].[Name] = N'Hanover')
+WHERE [c].[Name] IN (N'Ephyra', N'Hanover')
 ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t].[Id]");
         }
 
@@ -4035,7 +4035,7 @@ END AS [IsOfficer]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
-WHERE ([g].[SquadId] < 2) AND ([c].[Name] IN (N'Ephyra') OR [c].[Name] IS NULL)");
+WHERE ([g].[SquadId] < 2) AND (([c].[Name] = N'Ephyra') OR [c].[Name] IS NULL)");
         }
 
         public override async Task Optional_navigation_with_collection_composite_key(bool async)
@@ -6015,7 +6015,7 @@ INNER JOIN (
         FROM [Gears] AS [g0]
         LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
     ) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
-    WHERE ([t].[Note] = N'Cole''s Tag') OR ([t].[Note] = N'Dom''s Tag')
+    WHERE [t].[Note] IN (N'Cole''s Tag', N'Dom''s Tag')
 ) AS [t1] ON ([g].[Nickname] = [t1].[Nickname]) AND ([g].[SquadId] = [t1].[SquadId])");
         }
 
@@ -7377,7 +7377,7 @@ WHERE (
 
 SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND ([m].[Timeline] < @__end_1)) AND [m].[Timeline] IN ('1902-01-02T10:00:00.1234567+01:30')");
+WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND ([m].[Timeline] < @__end_1)) AND ([m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30')");
         }
 
         public override async Task Navigation_inside_interpolated_string_expanded(bool async)
@@ -8778,7 +8778,7 @@ ORDER BY [g].[Nickname]");
                 @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] IN (1) OR [w0].[AmmunitionType] IS NULL)");
+WHERE [w0].[Id] IS NOT NULL AND (([w0].[AmmunitionType] = 1) OR [w0].[AmmunitionType] IS NULL)");
         }
 
         [ConditionalTheory]
