@@ -795,7 +795,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from r in ss.Set<EntityOne>()
                       from t in r.TwoSkip.Where(x => x.Id != r.Id).DefaultIfEmpty()
-                      select t);
+                      select t,
+                entryCount: 20);
         }
 
         // When adding include test here always add a tracking version and a split version in relational layer.
