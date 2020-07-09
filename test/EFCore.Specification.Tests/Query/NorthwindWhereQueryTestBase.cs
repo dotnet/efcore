@@ -2298,5 +2298,153 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(o => orderIds.Contains(o.OrderID)),
                 entryCount: 2);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_OrElse_on_same_column_converted_to_in_with_overlap(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR" || c.CustomerID == "ANTON" || c.CustomerID == "ANATR"),
+                entryCount: 3);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_OrElse_on_same_column_with_null_constant_comparison_converted_to_in(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.Region == "WA" || c.Region == "OR" || c.Region == null || c.Region == "BC"),
+                entryCount: 69);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Constant_array_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) || c.CustomerID == "ANTON"),
+                entryCount: 3);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Constant_array_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in_with_overlap(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ANTON" || new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) || c.CustomerID == "ALFKI"),
+                entryCount: 3);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Constant_array_Contains_OrElse_another_Contains_gets_combined_to_one_in_with_overlap(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) || new[] { "ALFKI", "ANTON" }.Contains(c.CustomerID)),
+                entryCount: 3);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Constant_array_Contains_AndAlso_another_Contains_gets_combined_to_one_in_with_overlap(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => !new[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) && !new[] { "ALFKI", "ANTON" }.Contains(c.CustomerID)),
+                entryCount: 88);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_AndAlso_on_same_column_converted_to_in_using_parameters(bool async)
+        {
+            var prm1 = "ALFKI";
+            var prm2 = "ANATR";
+            var prm3 = "ANTON";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID != prm1 && c.CustomerID != prm2 && c.CustomerID != prm3),
+                entryCount: 88);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Array_of_parameters_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(bool async)
+        {
+            var prm1 = "ALFKI";
+            var prm2 = "ANATR";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => new[] { prm1, prm2 }.Contains(c.CustomerID) || c.CustomerID == "ANTON"),
+                entryCount: 3);
+        }
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_OrElse_on_same_column_with_null_parameter_comparison_converted_to_in(bool async)
+        {
+            string prm = null;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.Region == "WA" || c.Region == "OR" || c.Region == prm || c.Region == "BC"),
+                entryCount: 69);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Parameter_array_Contains_OrElse_comparison_with_constant(bool async)
+        {
+            var array = new[] { "ALFKI", "ANATR" };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => array.Contains(c.CustomerID) || c.CustomerID == "ANTON"),
+                entryCount: 3);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Parameter_array_Contains_OrElse_comparison_with_parameter_with_overlap(bool async)
+        {
+            var array = new[] { "ALFKI", "ANATR" };
+            var prm1 = "ANTON";
+            var prm2 = "ALFKI";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == prm1 || array.Contains(c.CustomerID) || c.CustomerID == prm2),
+                entryCount: 3);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Two_sets_of_comparison_combine_correctly(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => new string[] { "ALFKI", "ANATR" }.Contains(c.CustomerID) && (c.CustomerID == "ANATR" || c.CustomerID == "ANTON")),
+                entryCount: 1);
+        }
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Two_sets_of_comparison_combine_correctly2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => (c.Region != "WA" && c.Region != "OR" && c.Region != null) || (c.Region != "WA" && c.Region != null)),
+                entryCount: 28);
+        }
+
     }
 }

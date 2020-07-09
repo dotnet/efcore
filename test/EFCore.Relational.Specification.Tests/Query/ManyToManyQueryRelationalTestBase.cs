@@ -255,12 +255,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<EntityTwo>().Include(e => e.OneSkip.Where(i => i.Id > 15))
+                ss => ss.Set<EntityThree>().Include(e => e.OneSkipPayloadFull.Where(i => i.Id > 15))
                     .ThenInclude(e => e.Collection.Where(i => i.Id < 5))
                     .AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
-                    new ExpectedFilteredInclude<EntityTwo, EntityOne>(et => et.OneSkip, includeFilter: x => x.Where(i => i.Id > 15)),
-                    new ExpectedFilteredInclude<EntityOne, EntityTwo>(et => et.Collection, "OneSkip", includeFilter: x => x.Where(i => i.Id < 5))));
+                    new ExpectedFilteredInclude<EntityThree, EntityOne>(et => et.OneSkipPayloadFull, includeFilter: x => x.Where(i => i.Id > 15)),
+                    new ExpectedFilteredInclude<EntityOne, EntityTwo>(et => et.Collection, "OneSkipPayloadFull", includeFilter: x => x.Where(i => i.Id < 5))));
         }
 
         [ConditionalTheory]
@@ -278,6 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            => new RelationalQueryAsserter(
+                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, IgnoreEntryCount, CanExecuteQueryString);
     }
 }

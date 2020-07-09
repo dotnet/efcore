@@ -37,6 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             RelationalAnnotationNames.TableColumnMappings,
             RelationalAnnotationNames.ViewMappings,
             RelationalAnnotationNames.ViewColumnMappings,
+            RelationalAnnotationNames.FunctionMappings,
+            RelationalAnnotationNames.FunctionColumnMappings,
             RelationalAnnotationNames.ForeignKeyMappings,
             RelationalAnnotationNames.TableIndexMappings,
             RelationalAnnotationNames.UniqueConstraintMappings,
@@ -85,13 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             if (columnName == property.Name)
             {
                 annotations.Remove(RelationalAnnotationNames.ColumnName);
-            }
-
-            if (annotations.TryGetValue(RelationalAnnotationNames.ViewColumnName, out var viewColumnNameAnnotation)
-                && viewColumnNameAnnotation.Value is string viewColumnName
-                && viewColumnName != columnName)
-            {
-                annotations.Remove(RelationalAnnotationNames.ViewColumnName);
             }
 
             RemoveConventionalAnnotationsHelper(property, annotations, IsHandledByConvention);
@@ -149,11 +144,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             GenerateSimpleFluentApiCall(
                 annotations,
                 RelationalAnnotationNames.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), methodCallCodeFragments);
-
-            GenerateSimpleFluentApiCall(
-                annotations,
-                RelationalAnnotationNames.ViewColumnName, nameof(RelationalPropertyBuilderExtensions.HasViewColumnName),
-                methodCallCodeFragments);
 
             GenerateSimpleFluentApiCall(
                 annotations,

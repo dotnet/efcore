@@ -325,12 +325,12 @@ ORDER BY [o].[OrderID]");
             base.Select_nested_collection_multi_level();
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t0].[OrderDate], [t0].[OrderID]
+                @"SELECT [c].[CustomerID], [t0].[Date], [t0].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [t].[OrderDate], [t].[OrderID], [t].[CustomerID]
+    SELECT [t].[Date], [t].[OrderID], [t].[CustomerID]
     FROM (
-        SELECT [o].[OrderDate], [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+        SELECT [o].[OrderDate] AS [Date], [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
         WHERE [o].[OrderID] < 10500
     ) AS [t]

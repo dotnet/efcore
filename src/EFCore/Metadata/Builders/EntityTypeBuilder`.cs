@@ -702,6 +702,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationName);
+
+            // Note: delay setting ConfigurationSource of skip navigation (if it exists).
+            // We do not yet know whether this will be a HasMany().WithOne() or a
+            // HasMany().WithMany(). If the skip navigation was found by convention
+            // we want to be able to override it later.
             var skipNavigation = navigationName != null ? Builder.Metadata.FindSkipNavigation(navigationName) : null;
 
             InternalForeignKeyBuilder relationship = null;
@@ -751,6 +756,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             var navigationMember = navigationExpression?.GetMemberAccess();
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationMember?.GetSimpleMemberName());
+
+            // Note: delay setting ConfigurationSource of skip navigation (if it exists).
+            // We do not yet know whether this will be a HasMany().WithOne() or a
+            // HasMany().WithMany(). If the skip navigation was found by convention
+            // we want to be able to override it later.
             var skipNavigation = navigationMember != null ? Builder.Metadata.FindSkipNavigation(navigationMember) : null;
 
             InternalForeignKeyBuilder relationship = null;

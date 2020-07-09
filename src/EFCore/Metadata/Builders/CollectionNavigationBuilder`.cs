@@ -95,11 +95,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany([NotNull] string navigationName)
         {
             var leftName = Builder?.Metadata.PrincipalToDependent.Name;
-            return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
-                           RelatedEntityType,
-                           DeclaringEntityType,
-                           WithLeftManyNavigation(navigationName),
-                           WithRightManyNavigation(navigationName, leftName));
+            var collectionCollectionBuilder =
+                new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
+                    RelatedEntityType,
+                    DeclaringEntityType,
+                    WithLeftManyNavigation(navigationName),
+                    WithRightManyNavigation(navigationName, leftName));
+
+            Configure(collectionCollectionBuilder);
+
+            return collectionCollectionBuilder;
         }
 
         /// <summary>
@@ -126,11 +131,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             var leftName = Builder?.Metadata.PrincipalToDependent.Name;
-            return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
-                           RelatedEntityType,
-                           DeclaringEntityType,
-                           WithLeftManyNavigation(navigationExpression.GetMemberAccess()),
-                           WithRightManyNavigation(navigationExpression.GetMemberAccess(), leftName));
+            var collectionCollectionBuilder =
+                new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
+                    RelatedEntityType,
+                    DeclaringEntityType,
+                    WithLeftManyNavigation(navigationExpression.GetMemberAccess()),
+                    WithRightManyNavigation(navigationExpression.GetMemberAccess(), leftName));
+
+            Configure(collectionCollectionBuilder);
+
+            return collectionCollectionBuilder;
         }
     }
 }

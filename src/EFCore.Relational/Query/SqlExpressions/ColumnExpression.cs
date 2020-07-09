@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -24,18 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed class ColumnExpression : SqlExpression
     {
-        internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
+        internal ColumnExpression(IProperty property, IColumnBase column, TableExpressionBase table, bool nullable)
             : this(
-                property.GetTableColumnMappings().Cast<IColumnMappingBase>().Concat(property.GetViewColumnMappings())
-                  .FirstOrDefault()?.Column.Name // TODO: this should take table into account
-                  ?? property.GetColumnName(),
+                column?.Name ?? property.GetColumnName(),
                 table,
                 property.ClrType,
                 property.GetRelationalTypeMapping(),
-                nullable
-                  || (property.GetTableColumnMappings().Cast<IColumnMappingBase>().Concat(property.GetViewColumnMappings())
-                  .FirstOrDefault()?.Column.IsNullable // TODO: this should take table into account
-                    ?? property.IsColumnNullable()))
+                nullable || (column?.IsNullable ?? property.IsColumnNullable()))
         {
         }
 

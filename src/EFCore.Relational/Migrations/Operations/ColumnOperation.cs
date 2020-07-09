@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -11,8 +10,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on columns.
     ///     See also <see cref="AddColumnOperation" /> and <see cref="AlterColumnOperation" />.
     /// </summary>
-    public class ColumnOperation : MigrationOperation
+    public abstract class ColumnOperation : MigrationOperation
     {
+        /// <summary>
+        ///     The name of the column.
+        /// </summary>
+        public virtual string Name { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
+        /// </summary>
+        public virtual string Schema { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The table which contains the column.
+        /// </summary>
+        public virtual string Table { get; [param: NotNull] set; }
+
         /// <summary>
         ///     The CLR <see cref="Type" /> of the property or properties mapped to the column.
         /// </summary>

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -742,14 +742,35 @@ WHERE [c].[Id] = @__custId_1");
         {
             base.QF_Correlated_Func_Call_With_Navigation();
 
-            AssertSql(@"SELECT [c].[Id], [t].[LastName], [t].[OrderId], [t].[Id]
+            AssertSql(
+                @"SELECT [c].[Id], [t].[CustomerName], [t].[OrderId], [t].[Id]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [c0].[LastName], [m].[OrderId], [c0].[Id]
+    SELECT [c0].[LastName] AS [CustomerName], [m].[OrderId], [c0].[Id]
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
     INNER JOIN [Customers] AS [c0] ON [m].[CustomerId] = [c0].[Id]
 ) AS [t]
 ORDER BY [c].[Id], [t].[OrderId], [t].[Id]");
+        }
+
+        public override void DbSet_mapped_to_function()
+        {
+            base.DbSet_mapped_to_function();
+
+            AssertSql(
+                @"SELECT [t].[AmountSold], [t].[ProductId]
+FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
+ORDER BY [t].[ProductId]");
+        }
+
+        public override void TVF_backing_entity_type_mapped_to_view()
+        {
+            base.TVF_backing_entity_type_mapped_to_view();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
+FROM [Customers] AS [c]
+ORDER BY [c].[FirstName]");
         }
 
         #endregion

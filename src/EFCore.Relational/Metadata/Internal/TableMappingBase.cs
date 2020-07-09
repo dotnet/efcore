@@ -50,10 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IncludesDerivedTypes { get; }
 
         /// <inheritdoc/>
-        public virtual bool IsMainEntityTypeMapping { get; set; }
+        public virtual bool IsSharedTablePrincipal { get; set; }
 
         /// <inheritdoc/>
-        public virtual bool IsMainTableMapping { get; set; }
+        public virtual bool IsSplitEntityTypePrincipal { get; set; }
 
         /// <inheritdoc/>
         IEnumerable<IColumnMappingBase> ITableMappingBase.ColumnMappings

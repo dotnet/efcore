@@ -176,8 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
                 var mappingCount = mappings.Count;
-                ModificationCommand mainCommand = null;
-                var relatedCommands = mappingCount > 1 ? new List<ModificationCommand>(mappingCount - 1) : null;
+                ModificationCommand firstCommand = null;
+                var relatedCommands = mappingCount > 1 ? new List<ModificationCommand>(mappingCount) : null;
                 foreach (var mapping in mappings)
                 {
                     var table = mapping.Table;
@@ -211,27 +211,36 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     command.AddEntry(entry, isMainEntry);
                     commands.Add(command);
 
-                    if (mapping.IsMainTableMapping)
+                    if (firstCommand == null)
                     {
-                        Check.DebugAssert(mainCommand == null, "mainCommand == null");
-                        mainCommand = command;
+                        Check.DebugAssert(firstCommand == null, "firstCommand == null");
+                        firstCommand = command;
                     }
-                    else if (relatedCommands != null)
+
+                    if (relatedCommands != null)
                     {
                         relatedCommands.Add(command);
                     }
                 }
 
-                if (mainCommand == null)
+                if (firstCommand == null)
                 {
                     throw new InvalidOperationException(RelationalStrings.ReadonlyEntitySaved(entry.EntityType.DisplayName()));
                 }
 
                 if (relatedCommands != null)
                 {
-                    foreach (var relatedCommand in relatedCommands)
+                    if (firstCommand.EntityState == EntityState.Deleted)
                     {
-                        relatedCommand.Predecessor = mainCommand;
+                        relatedCommands.Reverse();
+                    }
+
+                    var previousCommand = relatedCommands[0];
+                    for (var i = 1; i < relatedCommands.Count; i++)
+                    {
+                        var relatedCommand = relatedCommands[i];
+                        relatedCommand.Predecessor = previousCommand;
+                        previousCommand = relatedCommand;
                     }
                 }
             }

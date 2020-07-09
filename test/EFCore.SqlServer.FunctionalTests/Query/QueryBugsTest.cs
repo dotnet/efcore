@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
@@ -4171,7 +4172,7 @@ FROM [Prices] AS [p]");
                 AssertSql(
                     @"SELECT [r].[Id], [r].[MyTime]
 FROM [ReproEntity] AS [r]
-WHERE [r].[MyTime] IN ('2018-10-07T00:00:00')");
+WHERE [r].[MyTime] = '2018-10-07T00:00:00'");
             }
         }
 
@@ -4237,7 +4238,7 @@ WHERE [r].[MyTime] IN ('2018-10-07T00:00:00')");
 SELECT [t].[Id], [t].[Type]
 FROM [Todos] AS [t]
 WHERE CASE
-    WHEN [t].[Type] IN (0) THEN @__key_2
+    WHEN [t].[Type] = 0 THEN @__key_2
     ELSE @__key_2
 END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed5989cc7')");
             }
@@ -6360,7 +6361,7 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
         #region Issue15137
 
         [ConditionalFact]
-        public virtual async Task Run_something()
+        public virtual async Task Max_in_multi_level_nested_subquery()
         {
             using (CreateDatabase15137())
             {
@@ -6391,7 +6392,7 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
                     .SingleAsync();
 
                 AssertSql(
-                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[c]
+                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[IsPastTradeDeadline]
 FROM (
     SELECT TOP(2) [t].[Id]
     FROM [Trades] AS [t]
@@ -6403,7 +6404,7 @@ LEFT JOIN (
             FROM [DbGame] AS [d]
             WHERE [d2].[Id] IS NOT NULL AND ([d2].[Id] = [d].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END AS [c], [d0].[DbTradeId]
+    END AS [IsPastTradeDeadline], [d0].[DbTradeId]
     FROM [DbTradeAsset] AS [d0]
     INNER JOIN [DbContract] AS [d1] ON [d0].[ContractId] = [d1].[Id]
     LEFT JOIN [DbSeason] AS [d2] ON [d1].[SeasonId] = [d2].[Id]
@@ -7422,7 +7423,7 @@ ORDER BY [p].[Id]"
         }
 
         [ConditionalFact]
-        public virtual void Using_AsSingleQuery_withouth_context_configuration_does_not_throw_warning()
+        public virtual void Using_AsSingleQuery_without_context_configuration_does_not_throw_warning()
         {
             var (options, testSqlLoggerFactory) = CreateOptions21355(null);
             using var context = new BugContext21355(options);
@@ -7441,7 +7442,7 @@ ORDER BY [p].[Id], [c].[Id], [a].[Id]"
         }
 
         [ConditionalFact]
-        public virtual void Using_AsSplitQuery_withouth_context_configuration_does_not_throw_warning()
+        public virtual void Using_AsSplitQuery_without_context_configuration_does_not_throw_warning()
         {
             var (options, testSqlLoggerFactory) = CreateOptions21355(null);
             using var context = new BugContext21355(options);
@@ -7449,8 +7450,8 @@ ORDER BY [p].[Id], [c].[Id], [a].[Id]"
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
 
             testSqlLoggerFactory.AssertBaseline(
-                            new[]
-                            {
+                new[]
+                {
                     @"SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]",
@@ -7464,7 +7465,78 @@ ORDER BY [p].[Id]",
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
 ORDER BY [p].[Id]"
-                            });
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void SplitQuery_disposes_inner_data_readers()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+            var dbConnection = context.Database.GetDbConnection();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        }
+
+        [ConditionalFact]
+        public virtual async Task SplitQuery_disposes_inner_data_readers_async()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+            var dbConnection = context.Database.GetDbConnection();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+
+            await context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToListAsync();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        }
+
+        [ConditionalFact]
+        public virtual void SplitQuery_disposes_inner_data_readers_single()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+            var dbConnection = context.Database.GetDbConnection();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().Single();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        }
+
+        [ConditionalFact]
+        public virtual async Task SplitQuery_disposes_inner_data_readers_single_async()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null);
+            using var context = new BugContext21355(options);
+            var dbConnection = context.Database.GetDbConnection();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+
+            await context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().SingleAsync();
+
+            Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        }
+
+        [ConditionalFact]
+        public virtual void Using_AsSplitQuery_without_multiple_active_result_sets_work()
+        {
+            var (options, testSqlLoggerFactory) = CreateOptions21355(null, mars: true);
+            using var context = new BugContext21355(options);
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
+
+            var connectionStringWithoutMars = SqlServerTestStore.CreateConnectionString("QueryBugsTest", multipleActiveResultSets: false);
+            var connection = context.GetService<IRelationalConnection>();
+            connection.ConnectionString = connectionStringWithoutMars;
+
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
         }
 
         private class Parent21355
@@ -7488,9 +7560,9 @@ ORDER BY [p].[Id]"
             public Parent21355 Parent { get; set; }
         }
 
-        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions21355(QuerySplittingBehavior? querySplittingBehavior)
+        private (DbContextOptions, TestSqlLoggerFactory) CreateOptions21355(QuerySplittingBehavior? querySplittingBehavior, bool mars = true)
         {
-            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: true);
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: mars);
             var testSqlLoggerFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection().AddSingleton<ILoggerFactory>(testSqlLoggerFactory).BuildServiceProvider();
 
@@ -7511,10 +7583,10 @@ ORDER BY [p].[Id]"
                 {
                     Id = "Parent1",
                     Children1 = new List<Child21355>
-                {
-                    new Child21355(),
-                    new Child21355()
-                }
+                    {
+                        new Child21355(),
+                        new Child21355()
+                    }
                 });
                 context.SaveChanges();
             }
@@ -7533,6 +7605,153 @@ ORDER BY [p].[Id]"
 
             public DbSet<Parent21355> Parents { get; set; }
         }
+
+        #endregion
+
+        #region Issue21540
+
+        [ConditionalFact]
+        public virtual void Can_eager_loaded_navigation_from_model()
+        {
+            using (CreateDatabase21540())
+            {
+                using var context = new MyContext21540(_options);
+                var query = context.Parents.AsNoTracking().ToList();
+
+                var result = Assert.Single(query);
+                Assert.NotNull(result.OwnedReference);
+                Assert.NotNull(result.Reference);
+                Assert.NotNull(result.Collection);
+                Assert.Equal(2, result.Collection.Count);
+                Assert.NotNull(result.SkipOtherSide);
+                Assert.Single(result.SkipOtherSide);
+
+                AssertSql(
+                    @"SELECT [p].[Id], [p].[OwnedReference_Id], [r].[Id], [r].[ParentId], [c].[Id], [c].[ParentId], [t].[Id], [t].[ParentId], [t].[OtherSideId]
+FROM [Parents] AS [p]
+LEFT JOIN [Reference21540] AS [r] ON [p].[Id] = [r].[ParentId]
+LEFT JOIN [Collection21540] AS [c] ON [p].[Id] = [c].[ParentId]
+LEFT JOIN (
+    SELECT [o].[Id], [j].[ParentId], [j].[OtherSideId]
+    FROM [JoinEntity21540] AS [j]
+    INNER JOIN [OtherSide21540] AS [o] ON [j].[OtherSideId] = [o].[Id]
+) AS [t] ON [p].[Id] = [t].[ParentId]
+ORDER BY [p].[Id], [r].[Id], [c].[Id], [t].[ParentId], [t].[OtherSideId], [t].[Id]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_ignore_eager_loaded_navigation_from_model()
+        {
+            using (CreateDatabase21540())
+            {
+                using var context = new MyContext21540(_options);
+                var query = context.Parents.AsNoTracking().IgnoreEagerLoadedNavigations().ToList();
+
+                var result = Assert.Single(query);
+                Assert.NotNull(result.OwnedReference);
+                Assert.Null(result.Reference);
+                Assert.Null(result.Collection);
+                Assert.Null(result.SkipOtherSide);
+
+                AssertSql(
+                    @"SELECT [p].[Id], [p].[OwnedReference_Id]
+FROM [Parents] AS [p]");
+            }
+        }
+
+        private class Parent21540
+        {
+            public int Id { get; set; }
+            public Reference21540 Reference { get; set; }
+            public Owned21540 OwnedReference { get; set; }
+            public List<Collection21540> Collection { get; set; }
+            public List<OtherSide21540> SkipOtherSide { get; set; }
+        }
+
+        private class JoinEntity21540
+        {
+            public int ParentId { get; set; }
+            public Parent21540 Parent { get; set; }
+            public int OtherSideId { get; set; }
+            public OtherSide21540 OtherSide { get; set; }
+        }
+
+        private class OtherSide21540
+        {
+            public int Id { get; set; }
+            public List<Parent21540> SkipParent { get; set; }
+        }
+
+        private class Reference21540
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public Parent21540 Parent { get; set; }
+        }
+
+        private class Owned21540
+        {
+            public int Id { get; set; }
+        }
+
+        private class Collection21540
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public Parent21540 Parent { get; set; }
+        }
+
+        private class MyContext21540 : DbContext
+        {
+            public DbSet<Parent21540> Parents { get; set; }
+
+            public MyContext21540(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Parent21540>().HasMany(e => e.SkipOtherSide).WithMany(e => e.SkipParent)
+                    .UsingEntity<JoinEntity21540>(
+                        e => e.HasOne(i => i.OtherSide).WithMany().HasForeignKey(e => e.OtherSideId),
+                        e => e.HasOne(i => i.Parent).WithMany().HasForeignKey(e => e.ParentId))
+                    .HasKey(e => new { e.ParentId, e.OtherSideId });
+                modelBuilder.Entity<Parent21540>().OwnsOne(e => e.OwnedReference);
+
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.Reference).IsEagerLoaded();
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.Collection).IsEagerLoaded();
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.SkipOtherSide).IsEagerLoaded();
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase21540()
+            => CreateTestStore(
+                () => new MyContext21540(_options),
+                context =>
+                {
+                    var joinEntity = new JoinEntity21540
+                    {
+                        OtherSide = new OtherSide21540(),
+                        Parent = new Parent21540
+                        {
+                            Reference = new Reference21540(),
+                            OwnedReference = new Owned21540(),
+                            Collection = new List<Collection21540>
+                            {
+                                new Collection21540(),
+                                new Collection21540(),
+                            }
+                        }
+                    };
+
+                    context.AddRange(joinEntity);
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
 
         #endregion
 

@@ -303,14 +303,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder);
-
-        public override ManyToManyContext CreateContext()
-        {
-            var context = base.CreateContext();
-            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-
-            return context;
-        }
     }
 }
 

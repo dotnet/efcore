@@ -114,8 +114,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 if (_mainEntryAdded)
                 {
-                    var entry = _entries[0];
-                    return entry.SharedIdentityEntry != null ? EntityState.Modified : entry.EntityState;
+                    var mainEntry = _entries[0];
+                    if (mainEntry.SharedIdentityEntry == null)
+                    {
+                        return mainEntry.EntityState;
+                    }
+
+                    return mainEntry.SharedIdentityEntry.EntityType == mainEntry.EntityType
+                        || mainEntry.SharedIdentityEntry.EntityType.GetTableMappings()
+                            .Any(m => m.Table.Name == TableName && m.Table.Schema == Schema)
+                        ? EntityState.Modified
+                        : mainEntry.EntityState;
                 }
 
                 return EntityState.Modified;
@@ -277,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 foreach (var property in entry.EntityType.GetProperties())
                 {
-                    var column = property.FindTableColumn(TableName, Schema);
+                    var column = (IColumn)property.FindColumn(StoreObjectIdentifier.Table(TableName, Schema));
                     if (column == null)
                     {
                         continue;
@@ -351,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var columnName = property.FindTableColumn(TableName, Schema)?.Name;
+                var columnName = property.FindColumn(StoreObjectIdentifier.Table(TableName, Schema))?.Name;
                 if (columnName == null)
                 {
                     continue;

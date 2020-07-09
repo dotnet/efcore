@@ -1611,6 +1611,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasForeignKey<Nob>(
                         e => new { e.HobId1, e.HobId2 });
 
+                // The below means the relationship is no longer
+                // using Nob.Hob. After that it is allowed to override
+                // Hob.Nob's inverse in the HasOne().WithMany() call below.
                 modelBuilder.Entity<Nob>().HasOne<Hob>().WithOne(e => e.Nob);
 
                 var dependentType = model.FindEntityType(typeof(Hob));
@@ -1622,6 +1625,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
+                // assert 1:N relationship defined through the HasOne().WithMany() call above
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.False(fk.IsUnique);
                 Assert.Same(fk, dependentType.GetNavigations().Single(n => n.Name == nameof(Hob.Nob)).ForeignKey);
@@ -1629,6 +1633,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
+                // The 1:N relationship above has "used up" Hob.Nob and Nob.Hobs,
+                // so now the RelationshipDiscoveryConvention should be able
+                // to unambiguously and automatically match up Nob.Hob and Hob.Nobs
                 var oldFk = principalType.GetForeignKeys().Single();
                 AssertEqual(new[] { nameof(Nob.HobId1), nameof(Nob.HobId2) }, oldFk.Properties.Select(p => p.Name));
                 Assert.Same(oldFk, dependentType.GetNavigations().Single(n => n.Name == nameof(Hob.Nobs)).ForeignKey);

@@ -457,16 +457,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
-        public void CreateCheckConstraint_required_args()
+        public void AddCheckConstraint_required_args()
         {
             Test(
-                new CreateCheckConstraintOperation
+                new AddCheckConstraintOperation
                 {
                     Name = "CK_Post_AltId1_AltId2",
                     Table = "Post",
                     Sql = "AltId1 > AltId2"
                 },
-                "mb.CreateCheckConstraint("
+                "mb.AddCheckConstraint("
                 + _eol
                 + "    name: \"CK_Post_AltId1_AltId2\","
                 + _eol
@@ -482,17 +482,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
-        public void CreateCheckConstraint_all_args()
+        public void AddCheckConstraint_all_args()
         {
             Test(
-                new CreateCheckConstraintOperation
+                new AddCheckConstraintOperation
                 {
                     Name = "CK_Post_AltId1_AltId2",
                     Schema = "dbo",
                     Table = "Post",
                     Sql = "AltId1 > AltId2"
                 },
-                "mb.CreateCheckConstraint("
+                "mb.AddCheckConstraint("
                 + _eol
                 + "    name: \"CK_Post_AltId1_AltId2\","
                 + _eol
@@ -1856,7 +1856,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     },
                     CheckConstraints =
                     {
-                        new CreateCheckConstraintOperation
+                        new AddCheckConstraintOperation
                         {
                             Name = "CK_Post_AltId1_AltId2",
                             Table = "Post",
@@ -1910,7 +1910,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     },
                     CheckConstraints =
                     {
-                        new CreateCheckConstraintOperation
+                        new AddCheckConstraintOperation
                         {
                             Name = "CK_Post_AltId1_AltId2",
                             Schema = "dbo",
@@ -2539,7 +2539,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         };
 
         private static readonly MultiPoint _multiPoint = new MultiPoint(
-            new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) }) { SRID = 4326 };
+            new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
+        {
+            SRID = 4326
+        };
 
         private static readonly Polygon _polygon1 = new Polygon(
             new LinearRing(
@@ -2558,10 +2561,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private static readonly Point _point1 = new Point(1.1, 2.2, 3.3) { SRID = 4326 };
 
         private static readonly MultiLineString _multiLineString = new MultiLineString(
-            new[] { _lineString1, _lineString2 }) { SRID = 4326 };
+            new[] { _lineString1, _lineString2 })
+        {
+            SRID = 4326
+        };
 
         private static readonly MultiPolygon _multiPolygon = new MultiPolygon(
-            new[] { _polygon2, _polygon1 }) { SRID = 4326 };
+            new[] { _polygon2, _polygon1 })
+        {
+            SRID = 4326
+        };
 
         private static readonly GeometryCollection _geometryCollection = new GeometryCollection(
             new Geometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })

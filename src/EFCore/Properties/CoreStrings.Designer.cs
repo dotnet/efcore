@@ -2708,6 +2708,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("UnhandledNavigationBase", nameof(type)),
                 type);
 
+        /// <summary>
+        ///     The entity type '{entityType}' cannot be on the principal end of the relationship between '{firstNavigationSpecification}' and '{secondNavigationSpecification}'. The principal entity type must have a key.
+        /// </summary>
+        public static string PrincipalKeylessType([CanBeNull] object entityType, [CanBeNull] object firstNavigationSpecification, [CanBeNull] object secondNavigationSpecification)
+            => string.Format(
+                GetString("PrincipalKeylessType", nameof(entityType), nameof(firstNavigationSpecification), nameof(secondNavigationSpecification)),
+                entityType, firstNavigationSpecification, secondNavigationSpecification);
+
+        /// <summary>
+        ///     Cannot use UsingEntity() passing type '{clrType}' because the model contains shared entity type(s) with same type. Use a type which uniquely defines an entity type.
+        /// </summary>
+        public static string DoNotUseUsingEntityOnSharedClrType([CanBeNull] object clrType)
+            => string.Format(
+                GetString("DoNotUseUsingEntityOnSharedClrType", nameof(clrType)),
+                clrType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -14,19 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     public class AlterTableOperation : TableOperation, IAlterMigrationOperation
     {
         /// <summary>
-        ///     The name of the table.
-        /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
-        /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
-
-        /// <summary>
         ///     An operation representing the table as it was before being altered.
         /// </summary>
-        public virtual TableOperation OldTable { get; [param: NotNull] set; } = new TableOperation();
+        public virtual TableOperation OldTable { get; [param: NotNull] set; } = new CreateTableOperation();
 
         /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldTable;

@@ -36,5 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the <see cref="RelationalTypeMapping" /> for this parameter.
         /// </summary>
         RelationalTypeMapping TypeMapping { get; }
+
+        /// <summary>
+        ///     Gets the associated <see cref="IStoreFunctionParameter"/>.
+        /// </summary>
+        IStoreFunctionParameter StoreFunctionParameter { get; }
     }
 }

@@ -292,10 +292,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures a database function when targeting a relational database.
+        ///     Configures a relational database function.
         /// </summary>
         /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="methodInfo"> The methodInfo this dbFunction uses. </param>
+        /// <param name="methodInfo"> The method this function uses. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A builder to further configure the function. </returns>
         public static IConventionDbFunctionBuilder HasDbFunction(
@@ -310,6 +310,37 @@ namespace Microsoft.EntityFrameworkCore
             if (dbFunction == null)
             {
                 dbFunction = modelBuilder.Metadata.AddDbFunction(methodInfo, fromDataAnnotation);
+            }
+            else
+            {
+                ((DbFunction)dbFunction).UpdateConfigurationSource(
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            }
+
+            return dbFunction.Builder;
+        }
+
+        /// <summary>
+        ///     Configures a relational database function.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="name"> The name of the function. </param>
+        /// <param name="returnType"> The function's return type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> A builder to further configure the function. </returns>
+        public static IConventionDbFunctionBuilder HasDbFunction(
+            [NotNull] this IConventionModelBuilder modelBuilder,
+            [NotNull] string name,
+            [NotNull] Type returnType,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotEmpty(name, nameof(name));
+
+            var dbFunction = modelBuilder.Metadata.FindDbFunction(name);
+            if (dbFunction == null)
+            {
+                dbFunction = modelBuilder.Metadata.AddDbFunction(name, returnType, fromDataAnnotation);
             }
             else
             {

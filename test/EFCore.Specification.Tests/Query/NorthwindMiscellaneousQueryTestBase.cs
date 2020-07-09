@@ -5980,5 +5980,50 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderDate).ThenBy(o => o.OrderID).Skip(2).FirstOrDefault()),
                 entryCount: 86);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_distinct_Select_with_client_bindings(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderID < 10000).Select(o => o.OrderDate.Value.Year).Distinct()
+                        .Select(e => new DTO<int> { Property = ClientMethod(e) }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task ToList_over_string(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(e => new { Property = e.City.ToList() }),
+                assertOrder: true,
+                elementAsserter: (e,a) => Assert.True(e.Property.SequenceEqual(a.Property)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task ToArray_over_string(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(e => new { Property = e.City.ToArray() }),
+                assertOrder: true,
+                elementAsserter: (e, a) => Assert.True(e.Property.SequenceEqual(a.Property)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task AsEnumerable_over_string(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(e => new { Property = e.City.AsEnumerable() }),
+                assertOrder: true,
+                elementAsserter: (e, a) => Assert.True(e.Property.SequenceEqual(a.Property)));
+        }
+
+        private static int ClientMethod(int s) => s;
     }
 }

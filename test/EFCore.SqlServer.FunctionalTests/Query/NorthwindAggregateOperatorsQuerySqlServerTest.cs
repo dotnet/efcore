@@ -736,7 +736,7 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')",
                 //
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE')");
+WHERE [c].[CustomerID] = N'ABCDE'");
         }
 
         public override async Task Contains_with_subquery_and_local_array_closure(bool async)
@@ -756,7 +756,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Customers] AS [c0]
-    WHERE [c0].[City] IN (N'London') AND ([c0].[CustomerID] = [c].[CustomerID]))");
+    WHERE ([c0].[City] = N'London') AND ([c0].[CustomerID] = [c].[CustomerID]))");
         }
 
         public override async Task Contains_with_local_uint_array_closure(bool async)
@@ -770,7 +770,7 @@ WHERE [e].[EmployeeID] IN (0, 1)",
                 //
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] IN (0)");
+WHERE [e].[EmployeeID] = 0");
         }
 
         public override async Task Contains_with_local_nullable_uint_array_closure(bool async)
@@ -784,7 +784,7 @@ WHERE [e].[EmployeeID] IN (0, 1)",
                 //
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] IN (0)");
+WHERE [e].[EmployeeID] = 0");
         }
 
         public override async Task Contains_with_local_array_inline(bool async)
@@ -892,7 +892,7 @@ WHERE [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (([c].[CustomerID] = N'ALFKI') OR ([c].[CustomerID] = N'ABCDE')) AND [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ABCDE') AND [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
         }
 
         public override async Task Contains_with_local_collection_complex_predicate_or(bool async)
@@ -935,7 +935,7 @@ WHERE (([c].[CustomerID] = N'ALFKI') OR ([c].[CustomerID] = N'ABCDE')) AND [c].[
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ABC'')); GO; DROP TABLE Orders; GO; --') OR (([c].[CustomerID] = N'ALFKI') OR ([c].[CustomerID] = N'ABCDE'))");
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ABC'')); GO; DROP TABLE Orders; GO; --') OR [c].[CustomerID] IN (N'ALFKI', N'ABCDE')");
         }
 
         public override async Task Contains_with_local_collection_empty_closure(bool async)
@@ -1152,7 +1152,7 @@ WHERE [o].[OrderID] IN (10248, 10249)");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI')");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task ImmutableHashSet_Contains_with_parameter(bool async)
@@ -1162,7 +1162,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI')");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)

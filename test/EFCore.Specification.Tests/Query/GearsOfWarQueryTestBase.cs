@@ -38,6 +38,33 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Negate_on_binary_expression(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Id == -(s.Id + s.Id)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Negate_on_column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Id == -s.Id));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Negate_on_like_expression(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => !s.Name.StartsWith("us")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Entity_equality_empty(bool async)
         {
             return AssertQuery(

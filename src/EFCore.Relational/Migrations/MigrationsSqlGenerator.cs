@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     { typeof(AlterDatabaseOperation), (g, o, m, b) => g.Generate((AlterDatabaseOperation)o, m, b) },
                     { typeof(AlterSequenceOperation), (g, o, m, b) => g.Generate((AlterSequenceOperation)o, m, b) },
                     { typeof(AlterTableOperation), (g, o, m, b) => g.Generate((AlterTableOperation)o, m, b) },
-                    { typeof(CreateCheckConstraintOperation), (g, o, m, b) => g.Generate((CreateCheckConstraintOperation)o, m, b) },
+                    { typeof(AddCheckConstraintOperation), (g, o, m, b) => g.Generate((AddCheckConstraintOperation)o, m, b) },
                     { typeof(CreateIndexOperation), (g, o, m, b) => g.Generate((CreateIndexOperation)o, m, b) },
                     { typeof(CreateSequenceOperation), (g, o, m, b) => g.Generate((CreateSequenceOperation)o, m, b) },
                     { typeof(CreateTableOperation), (g, o, m, b) => g.Generate((CreateTableOperation)o, m, b) },
@@ -277,14 +277,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Builds commands for the given <see cref="CreateCheckConstraintOperation" /> by making calls on the given
+        ///     Builds commands for the given <see cref="AddCheckConstraintOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected virtual void Generate(
-            [NotNull] CreateCheckConstraintOperation operation,
+            [NotNull] AddCheckConstraintOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
         {
@@ -1710,13 +1710,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Generates a SQL fragment for a check constraint of an <see cref="CreateCheckConstraintOperation" />.
+        ///     Generates a SQL fragment for a check constraint of an <see cref="AddCheckConstraintOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
         protected virtual void CheckConstraint(
-            [NotNull] CreateCheckConstraintOperation operation,
+            [NotNull] AddCheckConstraintOperation operation,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
         {

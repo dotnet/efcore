@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query

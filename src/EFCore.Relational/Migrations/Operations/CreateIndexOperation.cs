@@ -3,6 +3,10 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
+using System;
+using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -41,5 +45,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     An expression to use as the index filter.
         /// </summary>
         public virtual string Filter { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     Creates a new <see cref="CreateIndexOperation"/> for the specified index.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> The operation. </returns>
+        public static CreateIndexOperation For([NotNull] ITableIndex index)
+        {
+            Check.NotNull(index, nameof(index));
+
+            var operation = new CreateIndexOperation
+            {
+                IsUnique = index.IsUnique,
+                Name = index.Name,
+                Schema = index.Table.Schema,
+                Table = index.Table.Name,
+                Columns = index.Columns.Select(p => p.Name).ToArray(),
+                Filter = index.Filter
+            };
+            operation.AddAnnotations(index.GetAnnotations());
+
+            return operation;
+        }
     }
 }

@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
                     Logger.TestOutputHelper?.WriteLine(newBaseLine);
 
-                    var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
+                    var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
                     File.AppendAllText(logFile, contents);
                 }

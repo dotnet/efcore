@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     An operation representing the sequence as it was before being altered.
         /// </summary>
-        public virtual SequenceOperation OldSequence { get; [param: NotNull] set; } = new SequenceOperation();
+        public virtual SequenceOperation OldSequence { get; [param: NotNull] set; } = new CreateSequenceOperation();
 
         /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldSequence;

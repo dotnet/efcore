@@ -2655,6 +2655,39 @@ namespace Microsoft.EntityFrameworkCore
 
         #endregion
 
+        #region Eager loaded navigations
+
+        internal static readonly MethodInfo IgnoreEagerLoadedNavigationsMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(IgnoreEagerLoadedNavigations));
+
+        /// <summary>
+        ///     Specifies that the current Entity Framework LINQ query should not have any
+        ///     model-level eager loaded navigations applied.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns>
+        ///     A new query that will not apply any model-level eager loaded navigations.
+        /// </returns>
+        public static IQueryable<TEntity> IgnoreEagerLoadedNavigations<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+        {
+            Check.NotNull(source, nameof(source));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<TEntity>(
+                        Expression.Call(
+                            instance: null,
+                            method: IgnoreEagerLoadedNavigationsMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            arguments: source.Expression))
+                    : source;
+        }
+
+        #endregion
+
         #region Query Filters
 
         internal static readonly MethodInfo IgnoreQueryFiltersMethodInfo

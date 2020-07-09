@@ -162,14 +162,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="name"> The constraint name. </param>
         /// <param name="sql"> The sql expression used in the CHECK constraint. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual OperationBuilder<CreateCheckConstraintOperation> CheckConstraint(
+        public virtual OperationBuilder<AddCheckConstraintOperation> CheckConstraint(
             [NotNull] string name,
             [NotNull] string sql)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(sql, nameof(sql));
 
-            var operation = new CreateCheckConstraintOperation
+            var operation = new AddCheckConstraintOperation
             {
                 Schema = Operation.Schema,
                 Table = Operation.Name,
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             };
             Operation.CheckConstraints.Add(operation);
 
-            return new OperationBuilder<CreateCheckConstraintOperation>(operation);
+            return new OperationBuilder<AddCheckConstraintOperation>(operation);
         }
 
         /// <summary>

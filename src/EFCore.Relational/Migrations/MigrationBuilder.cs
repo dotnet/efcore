@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Precision = precision,
                 Scale = scale,
                 IsStored = stored,
-                OldColumn = new ColumnOperation
+                OldColumn = new AddColumnOperation
                 {
                     ClrType = oldClrType ?? typeof(T),
                     ColumnType = oldType,
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MinValue = minValue,
                 MaxValue = maxValue,
                 IsCyclic = cyclic,
-                OldSequence = new SequenceOperation
+                OldSequence = new CreateSequenceOperation
                 {
                     IncrementBy = oldIncrementBy,
                     MinValue = oldMinValue,
@@ -550,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Schema = schema,
                 Name = name,
                 Comment = comment,
-                OldTable = new TableOperation { Comment = oldComment }
+                OldTable = new CreateTableOperation { Comment = oldComment }
             };
             Operations.Add(operation);
 
@@ -695,14 +695,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Builds an <see cref="CreateCheckConstraintOperation" /> to create a new check constraint.
+        ///     Builds an <see cref="AddCheckConstraintOperation" /> to create a new check constraint.
         /// </summary>
         /// <param name="name"> The check constraint name. </param>
         /// <param name="table"> The name of the table for the check constraint. </param>
         /// <param name="sql"> The constraint sql for the check constraint. </param>
         /// <param name="schema"> The schema that contains the check constraint, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
-        public virtual OperationBuilder<CreateCheckConstraintOperation> CreateCheckConstraint(
+        [Obsolete("Use AddCheckConstraint")]
+        public virtual OperationBuilder<AddCheckConstraintOperation> CreateCheckConstraint(
+            [NotNull] string name,
+            [NotNull] string table,
+            [NotNull] string sql,
+            [CanBeNull] string schema = null)
+            => AddCheckConstraint(name, table, sql, schema);
+
+        /// <summary>
+        ///     Builds an <see cref="AddCheckConstraintOperation" /> to add a new check constraint to a table.
+        /// </summary>
+        /// <param name="name"> The check constraint name. </param>
+        /// <param name="table"> The name of the table for the check constraint. </param>
+        /// <param name="sql"> The constraint sql for the check constraint. </param>
+        /// <param name="schema"> The schema that contains the check constraint, or <see langword="null" /> to use the default schema. </param>
+        /// <returns> A builder to allow annotations to be added to the operation. </returns>
+        public virtual OperationBuilder<AddCheckConstraintOperation> AddCheckConstraint(
             [NotNull] string name,
             [NotNull] string table,
             [NotNull] string sql,
@@ -710,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(name, nameof(name));
 
-            var operation = new CreateCheckConstraintOperation
+            var operation = new AddCheckConstraintOperation
             {
                 Schema = schema,
                 Name = name,
@@ -719,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             };
             Operations.Add(operation);
 
-            return new OperationBuilder<CreateCheckConstraintOperation>(operation);
+            return new OperationBuilder<AddCheckConstraintOperation>(operation);
         }
 
         /// <summary>

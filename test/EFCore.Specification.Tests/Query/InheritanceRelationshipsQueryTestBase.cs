@@ -2,18 +2,21 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceRelationshipsQueryTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class InheritanceRelationshipsQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : InheritanceRelationshipsQueryFixtureBase, new()
     {
-        protected InheritanceRelationshipsQueryTestBase(TFixture fixture) => Fixture = fixture;
-
-        protected TFixture Fixture { get; }
+        protected InheritanceRelationshipsQueryTestBase(TFixture fixture)
+            : base(fixture)
+        {
+        }
 
         [ConditionalFact]
         public virtual void Changes_in_derived_related_entities_are_detected()
@@ -37,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.IsType<DerivedCollectionOnBase>(entry.Entity);
 
             Assert.Equal(
-                "Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships.DerivedCollectionOnBase",
+                "Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel.DerivedCollectionOnBase",
                 entry.Metadata.Name);
 
             firstRelatedEntity.DerivedProperty = originalValue + 1;
@@ -73,454 +76,501 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(nameof(DerivedInheritanceRelationshipEntity.DerivedReferenceOnDerived), fkOnDerived.PrincipalToDependent.Name);
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseReferencesOnBase.Include(e => e.BaseParent);
-            var result = query.ToList();
-
-            Assert.Equal(8, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseReferenceOnBase>().Include(e => e.BaseParent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_self_reference_with_inheritance()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_self_reference_with_inheritance(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.DerivedSefReferenceOnBase);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.DerivedSefReferenceOnBase),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.DerivedSefReferenceOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_self_reference_with_inheritance_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_self_reference_with_inheritance_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseSelfReferenceOnDerived);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseSelfReferenceOnDerived),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseSelfReferenceOnDerived)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_with_filter()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_with_filter(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_with_filter_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_with_filter_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseReferencesOnBase.Include(e => e.BaseParent).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(8, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseReferenceOnBase>().Include(e => e.BaseParent).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_without_inheritance()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_without_inheritance(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.ReferenceOnBase);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.ReferenceOnBase),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.ReferenceOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_without_inheritance_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_without_inheritance_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.ReferencesOnBase.Include(e => e.Parent);
-            var result = query.ToList();
-
-            Assert.Equal(4, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<ReferenceOnBase>().Include(e => e.Parent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<ReferenceOnBase>(x => x.Parent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_without_inheritance_with_filter()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_without_inheritance_with_filter(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.ReferenceOnBase).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.ReferenceOnBase).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.ReferenceOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_without_inheritance_with_filter_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_without_inheritance_with_filter_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.ReferencesOnBase.Include(e => e.Parent).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(4, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<ReferenceOnBase>().Include(e => e.Parent).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<ReferenceOnBase>(x => x.Parent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_with_inheritance()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_inheritance(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.BaseCollectionOnBase);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
-            Assert.Equal(
-                3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_with_inheritance_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_inheritance_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseCollectionsOnBase.Include(e => e.BaseParent);
-            var result = query.ToList();
-
-            Assert.Equal(13, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseCollectionOnBase>().Include(e => e.BaseParent),
+                elementAsserter: (e, a) => AssertInclude(
+                    e,
+                    a,
+                    new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_with_inheritance_with_filter()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_inheritance_with_filter(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.BaseCollectionOnBase).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
-            Assert.Equal(
-                3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_with_inheritance_with_filter_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_inheritance_with_filter_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseCollectionsOnBase.Include(e => e.BaseParent).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(13, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseCollectionOnBase>().Include(e => e.BaseParent).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_without_inheritance()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_without_inheritance(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.CollectionOnBase);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.CollectionOnBase),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.CollectionOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_without_inheritance_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_without_inheritance_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.CollectionsOnBase.Include(e => e.Parent);
-            var result = query.ToList();
-
-            Assert.Equal(9, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<CollectionOnBase>().Include(e => e.Parent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_without_inheritance_with_filter()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_without_inheritance_with_filter(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.CollectionOnBase).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.CollectionOnBase).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.CollectionOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_without_inheritance_with_filter_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_without_inheritance_with_filter_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.CollectionsOnBase.Include(e => e.Parent).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(9, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<CollectionOnBase>().Include(e => e.Parent).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_on_derived1()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_on_derived1(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseReferenceOnBase);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_on_derived2()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_on_derived2(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseReferenceOnDerived);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnDerived),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnDerived)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_on_derived4()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_on_derived4(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.DerivedReferenceOnDerived);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.DerivedReferenceOnDerived),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.DerivedReferenceOnDerived)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_on_derived_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_on_derived_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseReferencesOnDerived.Include(e => e.BaseParent);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseReferenceOnDerived>().Include(e => e.BaseParent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseReferenceOnDerived>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_on_derived_with_filter1()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_on_derived_with_filter1(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseReferenceOnBase).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_on_derived_with_filter2()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_on_derived_with_filter2(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseReferenceOnDerived).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnDerived).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnDerived)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_on_derived_with_filter4()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_on_derived_with_filter4(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.DerivedReferenceOnDerived).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.DerivedReferenceOnDerived).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.DerivedReferenceOnDerived)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_with_inheritance_on_derived_with_filter_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_with_inheritance_on_derived_with_filter_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseReferencesOnDerived.Include(e => e.BaseParent).Where(e => e.Name != "Bar");
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseReferenceOnDerived>().Include(e => e.BaseParent).Where(e => e.Name != "Bar"),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseReferenceOnDerived>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_without_inheritance_on_derived1()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_without_inheritance_on_derived1(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.ReferenceOnBase);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.ReferenceOnBase),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.ReferenceOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_without_inheritance_on_derived2()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_without_inheritance_on_derived2(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.ReferenceOnDerived);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.ReferenceOnDerived),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.ReferenceOnDerived)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_reference_without_inheritance_on_derived_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_reference_without_inheritance_on_derived_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.ReferencesOnDerived.Include(e => e.Parent);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<ReferenceOnDerived>().Include(e => e.Parent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<ReferenceOnDerived>(x => x.Parent)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_with_inheritance_on_derived1()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_inheritance_on_derived1(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseCollectionOnBase);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
-            Assert.Equal(
-                2, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_with_inheritance_on_derived2()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_inheritance_on_derived2(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseCollectionOnDerived);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnDerived),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseCollectionOnDerived)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_with_inheritance_on_derived3()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_inheritance_on_derived3(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.DerivedCollectionOnDerived);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.DerivedCollectionOnDerived),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.DerivedCollectionOnDerived)));
         }
 
-        [ConditionalFact]
-        public virtual void Include_collection_with_inheritance_on_derived_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_collection_with_inheritance_on_derived_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseCollectionsOnDerived.Include(e => e.BaseParent);
-            var result = query.ToList();
-
-            Assert.Equal(7, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseCollectionOnDerived>().Include(e => e.BaseParent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseCollectionOnDerived>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_reference()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_reference_reference(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase.NestedReference);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedReference),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
+                    new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedReference)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_reference_on_base()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_reference_reference_on_base(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseReferenceOnBase.NestedReference);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedReference),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
+                    new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedReference)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_reference_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_reference_reference_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.NestedReferences.Include(e => e.ParentReference.BaseParent);
-            var result = query.ToList();
-
-            Assert.Equal(9, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<NestedReferenceBase>().Include(e => e.ParentReference.BaseParent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<NestedReferenceBase>(x => x.ParentReference),
+                    new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_collection()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_reference_collection(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase.NestedCollection);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedCollection),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
+                    new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_collection_on_base()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_reference_collection_on_base(bool async)
         {
-            using var context = CreateContext();
-            var query = context.DerivedEntities.Include(e => e.BaseReferenceOnBase.NestedCollection);
-            var result = query.ToList();
-
-            Assert.Equal(3, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedCollection),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
+                    new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_reference_collection_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_reference_collection_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.NestedCollections.Include(e => e.ParentReference.BaseParent);
-            var result = query.ToList();
-
-            Assert.Equal(13, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentReference.BaseParent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<NestedCollectionBase>(x => x.ParentReference),
+                    new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_collection_reference()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_collection_reference(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.BaseCollectionOnBase).ThenInclude(e => e.NestedReference);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
-            Assert.Equal(
-                3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).ThenInclude(e => e.NestedReference),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
+                    new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedReference)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_collection_reference_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_collection_reference_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.NestedReferences.Include(e => e.ParentCollection.BaseParent);
-            var result = query.ToList();
-
-            Assert.Equal(9, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<NestedReferenceBase>().Include(e => e.ParentCollection.BaseParent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<NestedReferenceBase>(x => x.ParentCollection),
+                    new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_collection_collection()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_collection_collection(bool async)
         {
-            using var context = CreateContext();
-            var query = context.BaseEntities.Include(e => e.BaseCollectionOnBase).ThenInclude(e => e.NestedCollection);
-            var result = query.ToList();
-
-            Assert.Equal(6, result.Count);
-            Assert.Equal(
-                3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).ThenInclude(e => e.NestedCollection),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
+                    new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedCollection)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_with_inheritance_collection_collection_reverse()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_with_inheritance_collection_collection_reverse(bool async)
         {
-            using var context = CreateContext();
-            var query = context.NestedCollections.Include(e => e.ParentCollection.BaseParent);
-            var result = query.ToList();
-
-            Assert.Equal(13, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentCollection.BaseParent),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<NestedCollectionBase>(x => x.ParentCollection),
+                    new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
         }
 
-        [ConditionalFact]
-        public virtual void Nested_include_collection_reference_on_non_entity_base()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nested_include_collection_reference_on_non_entity_base(bool async)
         {
-            using var context = CreateContext();
-            var query = context.ReferencedEntities.Include(e => e.Principals).ThenInclude(e => e.Reference);
-            var result = query.ToList();
-
-            Assert.Equal(2, result.Count);
+            return AssertQuery(
+                async,
+                ss => ss.Set<ReferencedEntity>().Include(e => e.Principals).ThenInclude(e => e.Reference),
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<ReferencedEntity>(x => x.Principals),
+                    new ExpectedInclude<PrincipalEntity>(x => x.Reference)));
         }
 
         protected InheritanceRelationshipsContext CreateContext() => Fixture.CreateContext();

@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -1738,19 +1737,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             foreach (var index in indexes)
             {
-                var table = index.Table;
-                var operation = new CreateIndexOperation
-                {
-                    IsUnique = index.IsUnique,
-                    Name = index.Name,
-                    Schema = table.Schema,
-                    Table = table.Name,
-                    Columns = index.Columns.Select(c => c.Name).ToArray(),
-                    Filter = index.Filter
-                };
-                operation.AddAnnotations(index.GetAnnotations());
-
-                Generate(operation, table.Model.Model, builder, terminate: false);
+                Generate(CreateIndexOperation.For(index), index.Table.Model.Model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }

@@ -264,10 +264,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     nameof(BookLabel.Id),
-                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName("Label", null));
+                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
                 Assert.Equal(
                     nameof(BookLabel.Id),
-                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName("AlternateLabel", null));
+                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label).ToTable("Label");
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).ToTable("AlternateLabel");
@@ -276,10 +278,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     nameof(BookLabel.Id),
-                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName("Label", null));
+                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
                 Assert.Equal(
                     nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
-                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName("AlternateLabel", null));
+                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
             }
 
             [ConditionalFact]

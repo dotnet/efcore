@@ -149,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             if (includeProperties != null)
             {
                 var includeColumns = (IReadOnlyList<string>)includeProperties
-                    .Select(p => modelIndex.DeclaringEntityType.FindProperty(p).GetColumnName(table.Name, table.Schema))
+                    .Select(p => modelIndex.DeclaringEntityType.FindProperty(p)
+                    .GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)))
                     .ToArray();
 
                 yield return new Annotation(
@@ -182,15 +183,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         /// </summary>
         public override IEnumerable<IAnnotation> For(IColumn column)
         {
-            var table = column.Table;
+            var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
             var property = column.PropertyMappings.Where(m =>
-                m.TableMapping.IsMainEntityTypeMapping && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
+                m.TableMapping.IsSharedTablePrincipal && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
                 .Select(m => m.Property)
-                .FirstOrDefault(p => p.GetValueGenerationStrategy(table.Name, table.Schema) == SqlServerValueGenerationStrategy.IdentityColumn);
+                .FirstOrDefault(p => p.GetValueGenerationStrategy(table)
+                    == SqlServerValueGenerationStrategy.IdentityColumn);
             if (property != null)
             {
-                var seed = property.GetIdentitySeed(table.Name, table.Schema);
-                var increment = property.GetIdentityIncrement(table.Name, table.Schema);
+                var seed = property.GetIdentitySeed(table);
+                var increment = property.GetIdentityIncrement(table);
 
                 yield return new Annotation(
                     SqlServerAnnotationNames.Identity,

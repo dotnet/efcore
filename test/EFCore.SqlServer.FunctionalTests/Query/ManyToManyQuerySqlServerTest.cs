@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyQuerySqlServerTest : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqlServerFixture>
+    internal class ManyToManyQuerySqlServerTest : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqlServerFixture>
     {
         public ManyToManyQuerySqlServerTest(ManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

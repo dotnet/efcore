@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -43,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
             modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
 
-            // Keyless entities are mapped to TPH
-            modelBuilder.Entity<AnimalQuery>().HasNoKey().ToQuery(
-                () => context.Set<AnimalQuery>().FromSqlRaw("SELECT * FROM Animals"));
-            modelBuilder.Entity<KiwiQuery>().HasDiscriminator().HasValue("Kiwi");
-            modelBuilder.Entity<EagleQuery>().HasDiscriminator().HasValue("Eagle");
+            // Keyless entities are mapped to TPH so ignoring them
+            modelBuilder.Ignore<AnimalQuery>();
+            modelBuilder.Ignore<BirdQuery>();
+            modelBuilder.Ignore<KiwiQuery>();
+            modelBuilder.Ignore<EagleQuery>();
         }
     }
 }

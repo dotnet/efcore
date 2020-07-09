@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on databases.
     ///     See also <see cref="AlterDatabaseOperation" />.
     /// </summary>
-    public class DatabaseOperation : MigrationOperation
+    public abstract class DatabaseOperation : MigrationOperation
     {
         /// <summary>
         ///     The collation for the database, or <see langword="null" /> to use the default collation of the instance of SQL Server.

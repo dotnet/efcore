@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
@@ -14,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact]
-        public override void Can_query_all_animal_views()
+        public override async Task Can_query_all_animal_views(bool async)
         {
-            var message = Assert.Throws<InvalidOperationException>(() => base.Can_query_all_animal_views()).Message;
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Can_query_all_animal_views(async))).Message;
 
             Assert.Equal(
                 CoreStrings.TranslationFailed(

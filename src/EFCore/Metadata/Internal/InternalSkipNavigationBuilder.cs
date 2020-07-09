@@ -42,31 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSkipNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
-        {
-            if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
-                || Equals(Metadata.FieldInfo, fieldInfo))
-            {
-                Metadata.SetFieldInfo(fieldInfo, configurationSource);
-                return this;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool CanSetField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource? configurationSource)
-            => (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
-                    && (fieldInfo == null
-                        || PropertyBase.IsCompatible(
-                            fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
-                            shouldThrow: false)))
-                || Equals(Metadata.FieldInfo, fieldInfo);
+        public new virtual InternalSkipNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
+            => (InternalSkipNavigationBuilder)base.HasField(fieldInfo, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,12 +63,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalSkipNavigationBuilder HasForeignKey([CanBeNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetForeignKeyConfigurationSource())
-                || Equals(Metadata.ForeignKey, foreignKey))
+            if (CanSetForeignKey(foreignKey, configurationSource))
             {
                 if (foreignKey != null)
                 {
                     foreignKey.UpdateConfigurationSource(configurationSource);
+                }
+
+                if (Metadata.AssociationEntityType != null
+                    && foreignKey?.DeclaringEntityType != Metadata.AssociationEntityType)
+                {
+                    // Have reset the foreign key of a skip navigation on one side of an
+                    // association entity type to a different entity type. An implicit
+                    // association entity type is only useful if both sides are
+                    // configured - so, if it is implicit, remove that entity type
+                    // (which will also remove the other skip navigation's foreign key).
+                    Metadata.AssociationEntityType.Model.Builder.RemoveAssociationEntityIfCreatedImplicitly(
+                        Metadata.AssociationEntityType, removeSkipNavigations: false, configurationSource);
                 }
 
                 Metadata.SetForeignKey(foreignKey, configurationSource);
@@ -122,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return (Metadata.DeclaringEntityType
                     == (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType))
                             && (Metadata.Inverse?.AssociationEntityType == null
+                                || Metadata.Inverse.AssociationEntityType.IsImplicitlyCreatedAssociationEntityType == true
                                 || Metadata.Inverse.AssociationEntityType
                                 == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType));
         }
@@ -135,10 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalSkipNavigationBuilder HasInverse(
             [CanBeNull] SkipNavigation inverse, ConfigurationSource configurationSource)
         {
-            if (!Equals(Metadata.Inverse, inverse)
-                && (!configurationSource.Overrides(Metadata.GetInverseConfigurationSource())
-                    || inverse != null
-                        && !configurationSource.Overrides(inverse.GetInverseConfigurationSource())))
+            if (!CanSetInverse(inverse, configurationSource))
             {
                 return null;
             }
@@ -295,6 +281,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return newSkipNavigationBuilder;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetIsEagerLoaded(bool? eagerLoaded, ConfigurationSource configurationSource)
+        {
+            IConventionSkipNavigation conventionNavigation = Metadata;
+
+            return configurationSource.Overrides(conventionNavigation.GetIsEagerLoadedConfigurationSource())
+                || conventionNavigation.IsEagerLoaded == eagerLoaded;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalSkipNavigationBuilder IsEagerLoaded(bool? eagerLoaded, ConfigurationSource configurationSource)
+        {
+            if (CanSetIsEagerLoaded(eagerLoaded, configurationSource))
+            {
+                Metadata.SetIsEagerLoaded(eagerLoaded, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
         IConventionSkipNavigation IConventionSkipNavigationBuilder.Metadata
         {
             [DebuggerStepThrough] get => Metadata;
@@ -375,5 +393,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => CanSetInverse(
                 (SkipNavigation)inverse,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        bool IConventionSkipNavigationBuilder.CanSetIsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation)
+            => CanSetIsEagerLoaded(eagerLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.IsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation)
+            => IsEagerLoaded(eagerLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

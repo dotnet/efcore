@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
+using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -22,14 +22,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void FromSql_on_root()
         {
             using var context = CreateContext();
-            context.Set<Animal>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
+            context.Set<Animal>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animals]")).ToList();
         }
 
         [ConditionalFact]
         public virtual void FromSql_on_derived()
         {
             using var context = CreateContext();
-            context.Set<Eagle>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
+            context.Set<Eagle>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animals]")).ToList();
         }
 
         [ConditionalFact]
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GetEntityWithAuditHistoryQuery<T>(InheritanceContext context, IQueryable<T> query)
             where T : Animal
         {
-            var queryTypeQuery = context.Set<AnimalQuery>().FromSqlRaw(NormalizeDelimitersInRawString("Select * from [Animal]"));
+            var queryTypeQuery = context.Set<AnimalQuery>().FromSqlRaw(NormalizeDelimitersInRawString("Select * from [Animals]"));
 
             var animalQuery = query.Cast<Animal>();
 

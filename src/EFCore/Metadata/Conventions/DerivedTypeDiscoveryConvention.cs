@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         && t.FindDeclaredOwnership() == null
                         && model.FindIsOwnedConfigurationSource(t.ClrType) == null
                         && ((t.BaseType == null && clrType.IsAssignableFrom(t.ClrType))
-                            || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
+                            || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType))
+                        && !t.HasSharedClrType)
                 .ToList();
 
             foreach (var directlyDerivedType in directlyDerivedTypes)

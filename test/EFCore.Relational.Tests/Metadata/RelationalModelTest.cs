@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     "Details_BillingAddress_Street",
                     "Details_ShippingAddress_City",
                     "Details_ShippingAddress_Street",
-                    "OrderDateView",
+                    "OrderDate",
                     nameof(Order.OrderId)
             },
                 ordersView.Columns.Select(m => m.Name));
@@ -92,7 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(ordersView.ViewDefinitionSql);
 
             var orderDate = orderType.FindProperty(nameof(Order.OrderDate));
-            Assert.False(orderDate.IsViewColumnNullable());
 
             var orderDateMapping = orderDate.GetViewColumnMappings().Single();
             Assert.NotNull(orderDateMapping.TypeMapping);
@@ -105,13 +105,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(ordersView.GetReferencingRowInternalForeignKeys(orderType), ordersView.GetRowInternalForeignKeys(orderDetailsType));
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.True(orderDetailsDate.IsViewColumnNullable());
 
             var orderDateColumn = orderDateMapping.Column;
-            Assert.Same(orderDateColumn, ordersView.FindColumn("OrderDateView"));
-            Assert.Same(orderDateColumn, orderDate.FindViewColumn(ordersView.Name, ordersView.Schema));
+            Assert.Same(orderDateColumn, ordersView.FindColumn("OrderDate"));
+            Assert.Same(orderDateColumn, orderDate.FindColumn(StoreObjectIdentifier.View(ordersView.Name, ordersView.Schema)));
             Assert.Equal(new[] { orderDate, orderDetailsDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
-            Assert.Equal("OrderDateView", orderDateColumn.Name);
+            Assert.Equal("OrderDate", orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersView, orderDateColumn.Table);
@@ -127,14 +126,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             if (mapping == Mapping.TPT)
             {
                 Assert.Equal(2, specialCustomerType.GetViewMappings().Count());
-                Assert.True(specialCustomerType.GetViewMappings().First().IsMainTableMapping);
-                Assert.False(specialCustomerType.GetViewMappings().Last().IsMainTableMapping);
+                Assert.True(specialCustomerType.GetViewMappings().First().IsSplitEntityTypePrincipal);
+                Assert.False(specialCustomerType.GetViewMappings().First().IncludesDerivedTypes);
+                Assert.True(specialCustomerType.GetViewMappings().Last().IsSplitEntityTypePrincipal);
+                Assert.True(specialCustomerType.GetViewMappings().Last().IncludesDerivedTypes);
 
                 var specialCustomerView = specialCustomerType.GetViewMappings().Select(t => t.Table).First(t => t.Name == "SpecialCustomerView");
                 Assert.Null(specialCustomerView.Schema);
                 Assert.Equal(3, specialCustomerView.Columns.Count());
 
-                Assert.True(specialCustomerView.EntityTypeMappings.Single().IsMainEntityTypeMapping);
+                Assert.True(specialCustomerView.EntityTypeMappings.Single().IsSharedTablePrincipal);
 
                 var specialityColumn = specialCustomerView.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.False(specialityColumn.IsNullable);
@@ -147,14 +148,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             else
             {
                 var specialCustomerViewMapping = specialCustomerType.GetViewMappings().Single();
-                Assert.True(specialCustomerViewMapping.IsMainTableMapping);
+                Assert.True(specialCustomerViewMapping.IsSplitEntityTypePrincipal);
+                Assert.True(specialCustomerViewMapping.IncludesDerivedTypes);
 
                 var specialCustomerView = specialCustomerViewMapping.View;
                 Assert.Same(customerView, specialCustomerView);
 
                 Assert.Equal(2, specialCustomerView.EntityTypeMappings.Count());
-                Assert.True(specialCustomerView.EntityTypeMappings.First().IsMainEntityTypeMapping);
-                Assert.False(specialCustomerView.EntityTypeMappings.Last().IsMainEntityTypeMapping);
+                Assert.True(specialCustomerView.EntityTypeMappings.First().IsSharedTablePrincipal);
+                Assert.False(specialCustomerView.EntityTypeMappings.Last().IsSharedTablePrincipal);
 
                 var specialityColumn = specialCustomerView.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.True(specialityColumn.IsNullable);
@@ -192,7 +194,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(ordersTable.IsShared);
 
             var orderDate = orderType.FindProperty(nameof(Order.OrderDate));
-            Assert.False(orderDate.IsColumnNullable());
 
             var orderDateMapping = orderDate.GetTableColumnMappings().Single();
             Assert.NotNull(orderDateMapping.TypeMapping);
@@ -201,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var orderDateColumn = orderDateMapping.Column;
             Assert.Same(orderDateColumn, ordersTable.FindColumn("OrderDate"));
-            Assert.Same(orderDateColumn, orderDate.FindTableColumn(ordersTable.Name, ordersTable.Schema));
+            Assert.Same(orderDateColumn, orderDate.FindColumn(StoreObjectIdentifier.Table(ordersTable.Name, ordersTable.Schema)));
             Assert.Equal("OrderDate", orderDateColumn.Name);
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
@@ -293,7 +294,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 orderPkConstraint.MappedKeys);
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
-            Assert.True(orderDetailsDate.IsColumnNullable());
             Assert.Equal(new[] { orderDate, orderDetailsDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
 
             var orderDetailsAk = orderDetailsType.GetKeys().Single(k => k != orderDetailsPk);
@@ -318,14 +318,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             if (mapping == Mapping.TPT)
             {
                 Assert.Equal(2, specialCustomerType.GetTableMappings().Count());
-                Assert.True(specialCustomerType.GetTableMappings().First().IsMainTableMapping);
-                Assert.False(specialCustomerType.GetTableMappings().Last().IsMainTableMapping);
+                Assert.True(specialCustomerType.GetTableMappings().First().IsSplitEntityTypePrincipal);
+                Assert.False(specialCustomerType.GetTableMappings().First().IncludesDerivedTypes);
+                Assert.True(specialCustomerType.GetTableMappings().Last().IsSplitEntityTypePrincipal);
+                Assert.True(specialCustomerType.GetTableMappings().Last().IncludesDerivedTypes);
 
                 var specialCustomerTable = specialCustomerType.GetTableMappings().Select(t => t.Table).First(t => t.Name == "SpecialCustomer");
                 Assert.Equal("SpecialSchema", specialCustomerTable.Schema);
                 Assert.Equal(3, specialCustomerTable.Columns.Count());
 
-                Assert.True(specialCustomerTable.EntityTypeMappings.Single().IsMainEntityTypeMapping);
+                Assert.True(specialCustomerTable.EntityTypeMappings.Single().IsSharedTablePrincipal);
 
                 var specialityColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.False(specialityColumn.IsNullable);
@@ -361,14 +363,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             else
             {
                 var specialCustomerTypeMapping = specialCustomerType.GetTableMappings().Single();
-                Assert.True(specialCustomerTypeMapping.IsMainTableMapping);
+                Assert.True(specialCustomerTypeMapping.IsSplitEntityTypePrincipal);
+                Assert.True(specialCustomerTypeMapping.IncludesDerivedTypes);
 
                 var specialCustomerTable = specialCustomerTypeMapping.Table;
                 Assert.Same(customerTable, specialCustomerTable);
 
                 Assert.Equal(2, specialCustomerTable.EntityTypeMappings.Count());
-                Assert.True(specialCustomerTable.EntityTypeMappings.First().IsMainEntityTypeMapping);
-                Assert.False(specialCustomerTable.EntityTypeMappings.Last().IsMainEntityTypeMapping);
+                Assert.True(specialCustomerTable.EntityTypeMappings.First().IsSharedTablePrincipal);
+                Assert.False(specialCustomerTable.EntityTypeMappings.Last().IsSharedTablePrincipal);
 
                 var specialityColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.True(specialityColumn.IsNullable);
@@ -435,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Entity<Order>(ob =>
             {
-                ob.Property(o => o.OrderDate).HasColumnName("OrderDate").HasViewColumnName("OrderDateView");
+                ob.Property(o => o.OrderDate).HasColumnName("OrderDate");
                 ob.Property(o => o.AlternateId).HasColumnName("AlternateId");
 
                 ob.HasAlternateKey(o => o.AlternateId).HasName("AK_AlternateId");
@@ -449,8 +452,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 ob.OwnsOne(o => o.Details, odb =>
                 {
-                    odb.Property(od => od.OrderDate).HasColumnName("OrderDate").HasViewColumnName("OrderDateView");
-                    var alternateId = odb.Property(o => o.AlternateId).HasColumnName("AlternateId").HasViewColumnName("AlternateId").Metadata;
+                    odb.Property(od => od.OrderDate).HasColumnName("OrderDate");
+                    var alternateId = odb.Property(o => o.AlternateId).HasColumnName("AlternateId").Metadata;
 
                     odb.OwnedEntityType.AddKey(new[] { alternateId });
                     //odb.HasAlternateKey(o => o.AlternateId);
@@ -521,17 +524,115 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var specialCustomerType = model.Model.FindEntityType(typeof(SpecialCustomer));
 
             var specialCustomerTypeMapping = specialCustomerType.GetViewMappings().Single();
-            Assert.True(specialCustomerTypeMapping.IsMainTableMapping);
+            Assert.True(specialCustomerTypeMapping.IsSplitEntityTypePrincipal);
 
             var specialCustomerView = specialCustomerTypeMapping.View;
             Assert.Same(customerView, specialCustomerView);
 
             Assert.Equal(2, specialCustomerView.EntityTypeMappings.Count());
-            Assert.True(specialCustomerView.EntityTypeMappings.First().IsMainEntityTypeMapping);
-            Assert.False(specialCustomerView.EntityTypeMappings.Last().IsMainEntityTypeMapping);
+            Assert.True(specialCustomerView.EntityTypeMappings.First().IsSharedTablePrincipal);
+            Assert.False(specialCustomerView.EntityTypeMappings.Last().IsSharedTablePrincipal);
 
             var specialityColumn = specialCustomerView.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
             Assert.True(specialityColumn.IsNullable);
+        }
+
+        private static IQueryable<Order> GetOrdersForCustomer(int id)
+            => throw new NotImplementedException();
+
+        [ConditionalFact]
+        public void Can_use_relational_model_with_functions()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.ToFunction("GetOrders");
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.DateDetails);
+
+                cb.Property(c => c.AlternateId).HasColumnName("SomeName");
+                cb.HasNoKey();
+            });
+
+            modelBuilder.HasDbFunction(typeof(RelationalModelTest).GetMethod(
+                nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static));
+
+            var model = modelBuilder.FinalizeModel().GetRelationalModel();
+
+            Assert.Single(model.Model.GetEntityTypes());
+            Assert.Equal(2, model.Functions.Count());
+            Assert.Empty(model.Views);
+            Assert.Empty(model.Tables);
+
+            var orderType = model.Model.FindEntityType(typeof(Order));
+            Assert.Null(orderType.FindPrimaryKey());
+
+            Assert.Equal(2, orderType.GetFunctionMappings().Count());
+            var orderMapping = orderType.GetFunctionMappings().First();
+            Assert.True(orderMapping.IsSharedTablePrincipal);
+            Assert.True(orderMapping.IsSplitEntityTypePrincipal);
+            Assert.True(orderMapping.IsDefaultFunctionMapping);
+
+            var tvfMapping = orderType.GetFunctionMappings().Last();
+            Assert.True(tvfMapping.IsSharedTablePrincipal);
+            Assert.True(tvfMapping.IsSplitEntityTypePrincipal);
+            Assert.False(tvfMapping.IsDefaultFunctionMapping);
+
+            Assert.True(orderMapping.IncludesDerivedTypes);
+            Assert.Equal(
+                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate), nameof(Order.OrderId) },
+                orderMapping.ColumnMappings.Select(m => m.Property.Name));
+
+            var ordersFunction = orderMapping.StoreFunction;
+            Assert.Same(ordersFunction, model.FindFunction(ordersFunction.Name, ordersFunction.Schema, new string[0]));
+            Assert.Equal(
+                new[] { orderType },
+                ordersFunction.EntityTypeMappings.Select(m => m.EntityType));
+            Assert.Equal(new[] {
+                nameof(Order.CustomerId),
+                nameof(Order.OrderDate),
+                nameof(Order.OrderId),
+                "SomeName"
+            },
+                ordersFunction.Columns.Select(m => m.Name));
+            Assert.Equal("GetOrders", ordersFunction.Name);
+            Assert.Null(ordersFunction.Schema);
+            Assert.False(ordersFunction.IsBuiltIn);
+            Assert.False(ordersFunction.IsShared);
+            Assert.Null(ordersFunction.ReturnType);
+
+            var orderDate = orderType.FindProperty(nameof(Order.OrderDate));
+            Assert.Equal(2, orderDate.GetFunctionColumnMappings().Count());
+            var orderDateMapping = orderMapping.ColumnMappings.Single(m => m.Property == orderDate);
+            Assert.NotNull(orderDateMapping.TypeMapping);
+            Assert.Equal("default_datetime_mapping", orderDateMapping.TypeMapping.StoreType);
+            Assert.Same(orderMapping, orderDateMapping.FunctionMapping);
+
+            var orderDateColumn = orderDateMapping.Column;
+            Assert.Same(orderDateColumn, ordersFunction.FindColumn(nameof(Order.OrderDate)));
+            Assert.Equal(new[] { orderDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal(nameof(Order.OrderDate), orderDateColumn.Name);
+            Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
+            Assert.False(orderDateColumn.IsNullable);
+            Assert.Same(ordersFunction, orderDateColumn.Function);
+
+            Assert.Same(orderMapping, ordersFunction.EntityTypeMappings.Single());
+
+            var tvfFunction = tvfMapping.StoreFunction;
+            Assert.Same(tvfMapping, tvfFunction.EntityTypeMappings.Single());
+            Assert.Same(tvfFunction, model.FindFunction(tvfFunction.Name, tvfFunction.Schema, new[] { "default_int_mapping" }));
+            Assert.Equal(nameof(GetOrdersForCustomer), tvfFunction.Name);
+            Assert.Null(tvfFunction.Schema);
+            Assert.False(tvfFunction.IsBuiltIn);
+            Assert.False(tvfFunction.IsShared);
+            Assert.Null(tvfFunction.ReturnType);
+
+            var tvfDbFunction = tvfFunction.DbFunctions.Single();
+            Assert.Same(tvfFunction, tvfDbFunction.StoreFunction);
+            Assert.Same(model.Model.GetDbFunctions().Single(f => f.Parameters.Count() == 1), tvfDbFunction);
+            Assert.Same(tvfFunction.Parameters.Single(), tvfDbFunction.Parameters.Single().StoreFunctionParameter);
+            Assert.Same(tvfDbFunction.Parameters.Single(), tvfFunction.Parameters.Single().DbFunctionParameters.Single());
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();

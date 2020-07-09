@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         //Since this is always generated while compiling there is no query provider associated
         public TableValuedFunctionQueryRootExpression(
-            [NotNull] IEntityType entityType, [NotNull] IDbFunction function, [NotNull] IReadOnlyCollection<Expression> arguments)
+            [NotNull] IEntityType entityType, [NotNull] IStoreFunction function, [NotNull] IReadOnlyCollection<Expression> arguments)
             : base(entityType)
         {
             Check.NotNull(function, nameof(function));
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDbFunction Function { get; }
+        public virtual IStoreFunction Function { get; }
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
-            expressionPrinter.Append(Function.MethodInfo.DisplayName());
+            expressionPrinter.Append(Function.Name);
             expressionPrinter.Append("(");
             expressionPrinter.VisitCollection(Arguments);
             expressionPrinter.Append(")");

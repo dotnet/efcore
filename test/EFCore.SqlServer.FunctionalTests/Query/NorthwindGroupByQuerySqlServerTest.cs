@@ -985,7 +985,7 @@ FROM (
 INNER JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE ([c].[CustomerID] <> N'DRACD') AND ([c].[CustomerID] <> N'FOLKO')
+    WHERE [c].[CustomerID] NOT IN (N'DRACD', N'FOLKO')
     ORDER BY [c].[City]
     OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY
 ) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
@@ -1072,7 +1072,7 @@ SELECT [t0].[CustomerID] AS [Key], AVG(CAST([t0].[OrderID] AS float)) AS [Count]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE ([c].[CustomerID] <> N'DRACD') AND ([c].[CustomerID] <> N'FOLKO')
+    WHERE [c].[CustomerID] NOT IN (N'DRACD', N'FOLKO')
     ORDER BY [c].[City]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]

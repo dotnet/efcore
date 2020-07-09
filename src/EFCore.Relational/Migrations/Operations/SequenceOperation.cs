@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on sequences.
     ///     See also <see cref="CreateSequenceOperation" /> and <see cref="AlterSequenceOperation" />.
     /// </summary>
-    public class SequenceOperation : MigrationOperation
+    public abstract class SequenceOperation : MigrationOperation
     {
         /// <summary>
         ///     The amount to increment by when generating the next value in the sequence, defaulting to 1.

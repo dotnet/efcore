@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -347,6 +348,135 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Owned(typeof(Details), ConfigurationSource.Explicit)).Message);
         }
 
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_remove_implicitly_created_association_entity_type(bool removeSkipNavs)
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            var manyToManyLeft = modelBuilder.Entity(typeof(ManyToManyLeft), ConfigurationSource.Convention);
+            var manyToManyRight = modelBuilder.Entity(typeof(ManyToManyRight), ConfigurationSource.Convention);
+            var manyToManyLeftPK = manyToManyLeft.PrimaryKey(new[] { nameof(ManyToManyLeft.Id) }, ConfigurationSource.Convention);
+            var manyToManyRightPK = manyToManyRight.PrimaryKey(new[] { nameof(ManyToManyRight.Id) }, ConfigurationSource.Convention);
+
+            var skipNavOnLeft = manyToManyLeft.HasSkipNavigation(
+                new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))),
+                manyToManyRight.Metadata,
+                ConfigurationSource.Convention);
+            var skipNavOnRight = manyToManyRight.HasSkipNavigation(
+                new MemberIdentity(typeof(ManyToManyRight).GetProperty(nameof(ManyToManyRight.Lefts))),
+                manyToManyLeft.Metadata,
+                ConfigurationSource.Convention);
+            skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
+
+            var associationEntityTypeBuilder =
+                model.AddEntityType(
+                    "AssociationEntity",
+                    typeof(Dictionary<string, object>),
+                    ConfigurationSource.Convention).Builder;
+            var leftFK = associationEntityTypeBuilder
+                .HasRelationship(
+                    manyToManyLeft.Metadata.Name,
+                    new List<string>() { "ManyToManyLeft_Id" },
+                    manyToManyLeftPK.Metadata,
+                    ConfigurationSource.Convention)
+                .IsUnique(false, ConfigurationSource.Convention)
+                .Metadata;
+            var rightFK = associationEntityTypeBuilder
+                .HasRelationship(
+                    manyToManyRight.Metadata.Name,
+                    new List<string>() { "ManyToManyRight_Id" },
+                    manyToManyRightPK.Metadata,
+                    ConfigurationSource.Convention)
+                .IsUnique(false, ConfigurationSource.Convention)
+                .Metadata;
+            skipNavOnLeft.HasForeignKey(leftFK, ConfigurationSource.Convention);
+            skipNavOnRight.HasForeignKey(rightFK, ConfigurationSource.Convention);
+            associationEntityTypeBuilder.PrimaryKey(
+                leftFK.Properties.Concat(rightFK.Properties).ToList(),
+                ConfigurationSource.Convention);
+
+            var associationEntityType = associationEntityTypeBuilder.Metadata;
+
+            Assert.NotNull(associationEntityType);
+
+            Assert.NotNull(modelBuilder.RemoveAssociationEntityIfCreatedImplicitly(
+                associationEntityType, removeSkipNavs, ConfigurationSource.Convention));
+
+            Assert.Empty(model.GetEntityTypes()
+                .Where(e => e.IsImplicitlyCreatedAssociationEntityType));
+
+            var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
+            var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
+            if (removeSkipNavs)
+            {
+                Assert.Null(leftSkipNav);
+                Assert.Null(rightSkipNav);
+            }
+            else
+            {
+                Assert.NotNull(leftSkipNav);
+                Assert.NotNull(rightSkipNav);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Cannot_remove_manually_created_association_entity_type(bool removeSkipNavs)
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            var manyToManyLeft = modelBuilder.Entity(typeof(ManyToManyLeft), ConfigurationSource.Convention);
+            var manyToManyRight = modelBuilder.Entity(typeof(ManyToManyRight), ConfigurationSource.Convention);
+            var manyToManyJoin = modelBuilder.Entity(typeof(ManyToManyJoin), ConfigurationSource.Convention);
+            var manyToManyLeftPK = manyToManyLeft.PrimaryKey(new[] { nameof(ManyToManyLeft.Id) }, ConfigurationSource.Convention);
+            var manyToManyRightPK = manyToManyRight.PrimaryKey(new[] { nameof(ManyToManyRight.Id) }, ConfigurationSource.Convention);
+            manyToManyJoin.PrimaryKey(new[] { nameof(ManyToManyJoin.LeftId), nameof(ManyToManyJoin.RightId) }, ConfigurationSource.Convention);
+
+            var skipNavOnLeft = manyToManyLeft.HasSkipNavigation(
+                new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))),
+                manyToManyRight.Metadata,
+                ConfigurationSource.Convention);
+            var skipNavOnRight = manyToManyRight.HasSkipNavigation(
+                new MemberIdentity(typeof(ManyToManyRight).GetProperty(nameof(ManyToManyRight.Lefts))),
+                manyToManyLeft.Metadata,
+                ConfigurationSource.Convention);
+            skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
+
+            var leftFK = manyToManyJoin.HasRelationship(
+                manyToManyLeft.Metadata.Name,
+                new[] { nameof(ManyToManyJoin.LeftId) },
+                manyToManyLeftPK.Metadata,
+                ConfigurationSource.Convention);
+            skipNavOnLeft.Metadata.SetForeignKey(leftFK.Metadata, ConfigurationSource.Convention);
+            var rightFK = manyToManyJoin.HasRelationship(
+                manyToManyRight.Metadata.Name,
+                new[] { nameof(ManyToManyJoin.RightId) },
+                manyToManyRightPK.Metadata,
+                ConfigurationSource.Convention);
+            skipNavOnRight.Metadata.SetForeignKey(rightFK.Metadata, ConfigurationSource.Convention);
+            skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
+
+            var associationEntityType = skipNavOnLeft.Metadata.AssociationEntityType;
+            Assert.NotNull(associationEntityType);
+            Assert.Same(associationEntityType, skipNavOnRight.Metadata.AssociationEntityType);
+
+            Assert.Null(modelBuilder.RemoveAssociationEntityIfCreatedImplicitly(
+                associationEntityType, removeSkipNavs, ConfigurationSource.Convention));
+
+            var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
+            var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
+            Assert.NotNull(leftSkipNav);
+            Assert.NotNull(rightSkipNav);
+
+            Assert.Same(leftSkipNav.AssociationEntityType, rightSkipNav.AssociationEntityType);
+            Assert.Same(manyToManyJoin.Metadata, leftSkipNav.AssociationEntityType);
+        }
+
         private static void Cleanup(InternalModelBuilder modelBuilder)
         {
             new ModelCleanupConvention(CreateDependencies())
@@ -403,6 +533,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class Details
         {
             public string Name { get; set; }
+        }
+
+        private class ManyToManyLeft
+        {
+            public int Id { get; set; }
+            public List<ManyToManyRight> Rights { get; set; }
+            public List<ManyToManyRight> OtherRights { get; set; }
+        }
+
+        private class ManyToManyRight
+        {
+            public int Id { get; set; }
+            public List<ManyToManyLeft> Lefts { get; set; }
+            public List<ManyToManyLeft> OtherLefts { get; set; }
+        }
+
+        private class ManyToManyJoin
+        {
+            public int LeftId { get; set; }
+            public int RightId { get; set; }
         }
     }
 }

@@ -260,6 +260,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public Days? Day { get; set; }
         }
 
+        private class ManyToManyLeft
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public List<ManyToManyRight> Rights { get; set; }
+        }
+
+        private class ManyToManyRight
+        {
+            public int Id { get; set; }
+            public string Description { get; set; }
+            public List<ManyToManyLeft> Lefts { get; set; }
+        }
+
         private class CustomValueGenerator : ValueGenerator<int>
         {
             public override int Next(EntityEntry entry) => throw new NotImplementedException();
@@ -479,6 +493,60 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToView(""EntityWithOneProperty"");
                 });"),
                 o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
+        }
+
+        private class TestKeylessType
+        {
+            public string Something { get; set; }
+        }
+
+        private static IQueryable<TestKeylessType> GetCountByYear(int id)
+            => throw new NotImplementedException();
+
+        [ConditionalFact]
+        public void TVF_types_are_stored_in_the_model_snapshot()
+        {
+            Test(
+                builder =>
+                    {
+                        builder.HasDbFunction(typeof(ModelSnapshotSqlServerTest).GetMethod(
+                          nameof(GetCountByYear),
+                          BindingFlags.NonPublic | BindingFlags.Static));
+
+                        builder.Entity<TestKeylessType>().HasNoKey();
+                    },
+
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestKeylessType"", b =>
+                {
+                    b.Property<string>(""Something"")
+                        .HasColumnType(""nvarchar(max)"");
+                });"),
+                o => Assert.Null(o.GetEntityTypes().Single().GetFunctionName()));
+        }
+
+        [ConditionalFact]
+        public void Entity_types_mapped_to_functions_are_stored_in_the_model_snapshot()
+        {
+            Test(
+                builder =>
+                    builder.Entity<TestKeylessType>(kb => {
+                        kb.Property(k => k.Something);
+                        kb.HasNoKey().ToFunction("GetCount");
+                    }),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestKeylessType"", b =>
+                {
+                    b.Property<string>(""Something"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.ToFunction(""GetCount"");
+                });"),
+                o => Assert.Equal("GetCount", o.GetEntityTypes().Single().GetFunctionName()));
         }
 
         [ConditionalFact]
@@ -1038,6 +1106,135 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("AlternateId", foreignKey.Properties[0].Name);
                     Assert.Equal("EntityWithTwoProperties", foreignKey.PrincipalToDependent.Name);
                     Assert.Equal("EntityWithOneProperty", foreignKey.DependentToPrincipal.Name);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Many_to_many_join_table_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder
+                        .Entity<ManyToManyLeft>()
+                        .HasMany(l => l.Rights)
+                        .WithMany(r => r.Lefts);
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Join_ManyToManyLeft_ManyToManyRight"", b =>
+                {
+                    b.Property<int?>(""ManyToManyLeft_Id"")
+                        .HasColumnType(""int"");
+
+                    b.Property<int?>(""ManyToManyRight_Id"")
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""ManyToManyLeft_Id"", ""ManyToManyRight_Id"");
+
+                    b.HasIndex(""ManyToManyRight_Id"");
+
+                    b.ToTable(""Join_ManyToManyLeft_ManyToManyRight"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""ManyToManyLeft"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""Description"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""ManyToManyRight"");
+                });
+
+            modelBuilder.Entity(""Join_ManyToManyLeft_ManyToManyRight"", b =>
+                {
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", null)
+                        .WithMany()
+                        .HasForeignKey(""ManyToManyLeft_Id"")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight"", null)
+                        .WithMany()
+                        .HasForeignKey(""ManyToManyRight_Id"")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });", usingSystem: true),
+                model =>
+                {
+                    var associationEntity = model.FindEntityType("Join_ManyToManyLeft_ManyToManyRight");
+                    Assert.NotNull(associationEntity);
+                    Assert.Collection(associationEntity.GetDeclaredProperties(),
+                        p =>
+                        {
+                            Assert.Equal("ManyToManyLeft_Id", p.Name);
+                            Assert.True(p.IsShadowProperty());
+                        },
+                        p =>
+                        {
+                            Assert.Equal("ManyToManyRight_Id", p.Name);
+                            Assert.True(p.IsShadowProperty());
+                        });
+                    Assert.Collection(associationEntity.FindDeclaredPrimaryKey().Properties,
+                        p =>
+                        {
+                            Assert.Equal("ManyToManyLeft_Id", p.Name);
+                        },
+                        p =>
+                        {
+                            Assert.Equal("ManyToManyRight_Id", p.Name);
+                        });
+                    Assert.Collection(associationEntity.GetDeclaredForeignKeys(),
+                        fk =>
+                        {
+                            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft", fk.PrincipalEntityType.Name);
+                            Assert.Collection(fk.PrincipalKey.Properties,
+                                p =>
+                                {
+                                    Assert.Equal("Id", p.Name);
+                                });
+                            Assert.Collection(fk.Properties,
+                                p =>
+                                {
+                                    Assert.Equal("ManyToManyLeft_Id", p.Name);
+                                });
+                        },
+                        fk =>
+                        {
+                            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight", fk.PrincipalEntityType.Name);
+                            Assert.Collection(fk.PrincipalKey.Properties,
+                                p =>
+                                {
+                                    Assert.Equal("Id", p.Name);
+                                });
+                            Assert.Collection(fk.Properties,
+                                p =>
+                                {
+                                    Assert.Equal("ManyToManyRight_Id", p.Name);
+                                });
+                        });
                 });
         }
 

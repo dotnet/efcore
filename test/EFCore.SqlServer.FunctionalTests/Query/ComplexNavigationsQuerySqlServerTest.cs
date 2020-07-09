@@ -139,7 +139,7 @@ WHERE [l0].[Id] = 1");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE ([l0].[Id] = 1) OR ([l0].[Id] = 2)");
+WHERE [l0].[Id] IN (1, 2)");
         }
 
         public override async Task Key_equality_two_conditions_on_same_navigation2(bool async)
@@ -150,7 +150,7 @@ WHERE ([l0].[Id] = 1) OR ([l0].[Id] = 2)");
                 @"SELECT [l].[Id], [l].[Date], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse2Id], [l].[OneToMany_Optional_Self_Inverse2Id], [l].[OneToMany_Required_Inverse2Id], [l].[OneToMany_Required_Self_Inverse2Id], [l].[OneToOne_Optional_PK_Inverse2Id], [l].[OneToOne_Optional_Self2Id]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[Level1_Required_Id] = [l0].[Id]
-WHERE ([l0].[Id] = 1) OR ([l0].[Id] = 2)");
+WHERE [l0].[Id] IN (1, 2)");
         }
 
         public override async Task Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql(bool async)
@@ -644,7 +644,7 @@ LEFT JOIN [LevelOne] AS [l0] ON [l].[Level1_Optional_Id] = [l0].[Id]");
                 @"SELECT [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE ([l0].[Name] = N'L2 05') OR ([l0].[Name] = N'L2 07')");
+WHERE [l0].[Name] IN (N'L2 05', N'L2 07')");
         }
 
         public override async Task Where_nav_prop_reference_optional1_via_DefaultIfEmpty(bool async)

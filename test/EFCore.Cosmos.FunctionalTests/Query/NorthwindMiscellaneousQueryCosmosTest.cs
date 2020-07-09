@@ -4139,6 +4139,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.Single_non_scalar_projection_after_skip_uses_join(async);
         }
 
+        [ConditionalTheory(Skip = "No Select after Distinct issue#17246")]
+        public override Task Select_distinct_Select_with_client_bindings(bool async)
+        {
+            return base.Select_distinct_Select_with_client_bindings(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -325,14 +325,30 @@ namespace Microsoft.Extensions.DependencyInjection
             Check.NotNull(serviceCollection, nameof(serviceCollection));
             Check.NotNull(optionsAction, nameof(optionsAction));
 
+            AddPoolingOptions<TContextImplementation>(serviceCollection, optionsAction, poolSize);
+
+            serviceCollection.TryAddSingleton<IDbContextPool<TContextImplementation>, DbContextPool<TContextImplementation>>();
+            serviceCollection.AddScoped<IScopedDbContextLease<TContextImplementation>, ScopedDbContextLease<TContextImplementation>>();
+
+            serviceCollection.AddScoped<TContextService>(
+                sp => sp.GetRequiredService<IScopedDbContextLease<TContextImplementation>>().Context);
+
+            return serviceCollection;
+        }
+
+        private static void AddPoolingOptions<TContext>(
+            IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction, int poolSize)
+            where TContext : DbContext
+        {
             if (poolSize <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(poolSize), CoreStrings.InvalidPoolSize);
             }
 
-            CheckContextConstructors<TContextImplementation>();
+            CheckContextConstructors<TContext>();
 
-            AddCoreServices<TContextImplementation>(
+            AddCoreServices<TContext>(
                 serviceCollection,
                 (sp, ob) =>
                 {
@@ -344,17 +360,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     ((IDbContextOptionsBuilderInfrastructure)ob).AddOrUpdateExtension(extension);
                 },
                 ServiceLifetime.Singleton);
-
-            serviceCollection.TryAddSingleton(
-                sp => new DbContextPool<TContextImplementation>(
-                    sp.GetService<DbContextOptions<TContextImplementation>>()));
-
-            serviceCollection.AddScoped<DbContextPool<TContextImplementation>.Lease>();
-
-            serviceCollection.AddScoped(
-                sp => (TContextService)sp.GetService<DbContextPool<TContextImplementation>.Lease>().Context);
-
-            return serviceCollection;
         }
 
         /// <summary>
@@ -557,10 +562,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         of given <see cref="DbContext"/> type.
         ///     </para>
         ///     <para>
-        ///         Using this method to register a factory is recommended for Blazor applications.
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
         ///         <see cref="DbContext" /> instances.
-        ///         This is most useful where the dependency injection scope is not aligned with the context lifetime, such as in Blazor.
+        ///         Registering a factory is recommended for Blazor applications and other situations where the dependency
+        ///         injection scope is not aligned with the context lifetime.
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with Blazor.
@@ -611,10 +616,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         of given <see cref="DbContext"/> type.
         ///     </para>
         ///     <para>
-        ///         Using this method to register a factory is recommended for Blazor applications.
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
         ///         <see cref="DbContext" /> instances.
-        ///         This is most useful where the dependency injection scope is not aligned with the context lifetime, such as in Blazor.
+        ///         Registering a factory is recommended for Blazor applications and other situations where the dependency
+        ///         injection scope is not aligned with the context lifetime.
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with Blazor.
@@ -676,10 +681,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         of given <see cref="DbContext"/> type.
         ///     </para>
         ///     <para>
-        ///         Using this method to register a factory is recommended for Blazor applications.
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
         ///         <see cref="DbContext" /> instances.
-        ///         This is most useful where the dependency injection scope is not aligned with the context lifetime, such as in Blazor.
+        ///         Registering a factory is recommended for Blazor applications and other situations where the dependency
+        ///         injection scope is not aligned with the context lifetime.
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with Blazor.
@@ -738,10 +743,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         of given <see cref="DbContext"/> type.
         ///     </para>
         ///     <para>
-        ///         Using this method to register a factory is recommended for Blazor applications.
         ///         Registering a factory instead of registering the context type directly allows for easy creation of new
         ///         <see cref="DbContext" /> instances.
-        ///         This is most useful where the dependency injection scope is not aligned with the context lifetime, such as in Blazor.
+        ///         Registering a factory is recommended for Blazor applications and other situations where the dependency
+        ///         injection scope is not aligned with the context lifetime.
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with Blazor.
@@ -799,6 +804,8 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContext : DbContext
             where TFactory : IDbContextFactory<TContext>
         {
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
+
             AddCoreServices<TContext>(serviceCollection, optionsAction, lifetime);
 
             serviceCollection.AddSingleton<IDbContextFactorySource<TContext>, DbContextFactorySource<TContext>>();
@@ -808,6 +815,108 @@ namespace Microsoft.Extensions.DependencyInjection
                     typeof(IDbContextFactory<TContext>),
                     typeof(TFactory),
                     lifetime));
+
+            return serviceCollection;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
+        ///         of given <see cref="DbContext"/> type where instances are pooled for reuse.
+        ///     </para>
+        ///     <para>
+        ///         Registering a factory instead of registering the context type directly allows for easy creation of new
+        ///         <see cref="DbContext" /> instances.
+        ///         Registering a factory is recommended for Blazor applications and other situations where the dependency
+        ///         injection scope is not aligned with the context lifetime.
+        ///     </para>
+        ///     <para>
+        ///         Use this method when using dependency injection in your application, such as with Blazor.
+        ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
+        ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
+        ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
+        ///         For more information on using dependency injection, see https://go.microsoft.com/fwlink/?LinkId=526890.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="optionsAction">
+        ///     <para>
+        ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
+        ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
+        ///         will not be called.
+        ///     </para>
+        /// </param>
+        /// <param name="poolSize">
+        ///     Sets the maximum number of instances retained by the pool.
+        /// </param>
+        /// <returns>
+        ///     The same service collection so that multiple calls can be chained.
+        /// </returns>
+        public static IServiceCollection AddPooledDbContextFactory<TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            [NotNull] Action<DbContextOptionsBuilder> optionsAction,
+            int poolSize = 128)
+            where TContext : DbContext
+        {
+            Check.NotNull(optionsAction, nameof(optionsAction));
+
+            return AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob));
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
+        ///         of given <see cref="DbContext"/> type where instances are pooled for reuse.
+        ///     </para>
+        ///     <para>
+        ///         Registering a factory instead of registering the context type directly allows for easy creation of new
+        ///         <see cref="DbContext" /> instances.
+        ///         Registering a factory is recommended for Blazor applications and other situations where the dependency
+        ///         injection scope is not aligned with the context lifetime.
+        ///     </para>
+        ///     <para>
+        ///         Use this method when using dependency injection in your application, such as with Blazor.
+        ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
+        ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
+        ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
+        ///         For more information on using dependency injection, see https://go.microsoft.com/fwlink/?LinkId=526890.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="optionsAction">
+        ///     <para>
+        ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
+        ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
+        ///         will not be called.
+        ///     </para>
+        /// </param>
+        /// <param name="poolSize">
+        ///     Sets the maximum number of instances retained by the pool.
+        /// </param>
+        /// <returns>
+        ///     The same service collection so that multiple calls can be chained.
+        /// </returns>
+        public static IServiceCollection AddPooledDbContextFactory<TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            [NotNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            int poolSize = 128)
+            where TContext : DbContext
+        {
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
+            Check.NotNull(optionsAction, nameof(optionsAction));
+
+            AddPoolingOptions<TContext>(serviceCollection, optionsAction, poolSize);
+
+            serviceCollection.TryAddSingleton<IDbContextPool<TContext>, DbContextPool<TContext>>();
+            serviceCollection.TryAddSingleton<IDbContextFactory<TContext>, PooledDbContextFactory<TContext>>();
 
             return serviceCollection;
         }

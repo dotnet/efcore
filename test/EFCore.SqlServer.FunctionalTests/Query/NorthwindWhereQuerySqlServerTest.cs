@@ -950,7 +950,7 @@ WHERE ([c].[City] = [c].[City]) OR [c].[City] IS NULL");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ((([c].[City] = N'London') OR ([c].[City] = N'Berlin')) OR ([c].[CustomerID] = N'ALFKI')) OR ([c].[CustomerID] = N'ABCDE')");
+WHERE ([c].[City] IN (N'London', N'Berlin') OR ([c].[CustomerID] = N'ALFKI')) OR ([c].[CustomerID] = N'ABCDE')");
         }
 
         public override async Task Where_not_in_optimization1(bool async)
@@ -972,7 +972,7 @@ WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([e].[City] <> N'Lo
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'Berlin') OR [c].[City] IS NULL)");
+WHERE [c].[City] NOT IN (N'London', N'Berlin') OR [c].[City] IS NULL");
         }
 
         public override async Task Where_not_in_optimization3(bool async)
@@ -983,7 +983,7 @@ WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'Be
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ((([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'Berlin') OR [c].[City] IS NULL)) AND (([c].[City] <> N'Seattle') OR [c].[City] IS NULL)");
+WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle') OR [c].[City] IS NULL");
         }
 
         public override async Task Where_not_in_optimization4(bool async)
@@ -994,7 +994,7 @@ WHERE ((([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'B
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE (((([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'Berlin') OR [c].[City] IS NULL)) AND (([c].[City] <> N'Seattle') OR [c].[City] IS NULL)) AND (([c].[City] <> N'Lisboa') OR [c].[City] IS NULL)");
+WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle', N'Lisboa') OR [c].[City] IS NULL");
         }
 
         public override async Task Where_select_many_and(bool async)
@@ -1754,7 +1754,7 @@ WHERE [o].[OrderID] = 1");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] IN (N'Seattle')");
+WHERE [c].[City] = N'Seattle'");
         }
 
         public override async Task Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool async)
@@ -2081,6 +2081,146 @@ WHERE [o].[OrderID] IN (10248, 10249)");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] IN (10248, 10249)");
+        }
+
+        public override async Task Multiple_OrElse_on_same_column_converted_to_in_with_overlap(bool async)
+        {
+            await base.Multiple_OrElse_on_same_column_converted_to_in_with_overlap(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')");
+        }
+
+        public override async Task Multiple_OrElse_on_same_column_with_null_constant_comparison_converted_to_in(bool async)
+        {
+            await base.Multiple_OrElse_on_same_column_with_null_constant_comparison_converted_to_in(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Region] IN (N'WA', N'OR', N'BC') OR [c].[Region] IS NULL");
+        }
+
+        public override async Task Constant_array_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(bool async)
+        {
+            await base.Constant_array_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')");
+        }
+
+        public override async Task Constant_array_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in_with_overlap(bool async)
+        {
+            await base.Constant_array_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in_with_overlap(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')");
+        }
+
+        public override async Task Constant_array_Contains_OrElse_another_Contains_gets_combined_to_one_in_with_overlap(bool async)
+        {
+            await base.Constant_array_Contains_OrElse_another_Contains_gets_combined_to_one_in_with_overlap(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')");
+        }
+
+        public override async Task Constant_array_Contains_AndAlso_another_Contains_gets_combined_to_one_in_with_overlap(bool async)
+        {
+            await base.Constant_array_Contains_AndAlso_another_Contains_gets_combined_to_one_in_with_overlap(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] NOT IN (N'ALFKI', N'ANATR', N'ANTON')");
+        }
+
+        public override async Task Multiple_AndAlso_on_same_column_converted_to_in_using_parameters(bool async)
+        {
+            await base.Multiple_AndAlso_on_same_column_converted_to_in_using_parameters(async);
+
+            // issue #21462
+            AssertSql(
+                @"@__prm1_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@__prm2_1='ANATR' (Size = 5) (DbType = StringFixedLength)
+@__prm3_2='ANTON' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (([c].[CustomerID] <> @__prm1_0) AND ([c].[CustomerID] <> @__prm2_1)) AND ([c].[CustomerID] <> @__prm3_2)");
+        }
+
+        public override async Task Array_of_parameters_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(bool async)
+        {
+            await base.Array_of_parameters_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(async);
+
+            // issue #21462
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') OR ([c].[CustomerID] = N'ANTON')");
+        }
+
+        public override async Task Multiple_OrElse_on_same_column_with_null_parameter_comparison_converted_to_in(bool async)
+        {
+            await base.Multiple_OrElse_on_same_column_with_null_parameter_comparison_converted_to_in(async);
+
+            // issue #21462
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Region] IN (N'WA', N'OR') OR [c].[Region] IS NULL) OR ([c].[Region] = N'BC')");
+        }
+
+        public override async Task Parameter_array_Contains_OrElse_comparison_with_constant(bool async)
+        {
+            await base.Parameter_array_Contains_OrElse_comparison_with_constant(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') OR ([c].[CustomerID] = N'ANTON')");
+        }
+
+        public override async Task Parameter_array_Contains_OrElse_comparison_with_parameter_with_overlap(bool async)
+        {
+            await base.Parameter_array_Contains_OrElse_comparison_with_parameter_with_overlap(async);
+
+            AssertSql(
+                @"@__prm1_0='ANTON' (Size = 5) (DbType = StringFixedLength)
+@__prm2_2='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (([c].[CustomerID] = @__prm1_0) OR [c].[CustomerID] IN (N'ALFKI', N'ANATR')) OR ([c].[CustomerID] = @__prm2_2)");
+        }
+
+        public override async Task Two_sets_of_comparison_combine_correctly(bool async)
+        {
+            await base.Two_sets_of_comparison_combine_correctly(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ANATR'");
+        }
+
+        public override async Task Two_sets_of_comparison_combine_correctly2(bool async)
+        {
+            await base.Two_sets_of_comparison_combine_correctly2(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[Region] <> N'WA') AND [c].[Region] IS NOT NULL");
         }
 
         private void AssertSql(params string[] expected)

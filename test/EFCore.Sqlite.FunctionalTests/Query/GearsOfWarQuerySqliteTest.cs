@@ -78,6 +78,36 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(bool async) => null;
 
+        public override async Task Negate_on_binary_expression(bool async)
+        {
+            await base.Negate_on_binary_expression(async);
+
+            AssertSql(
+                @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE ""s"".""Id"" = -(""s"".""Id"" + ""s"".""Id"")");
+        }
+
+        public override async Task Negate_on_column(bool async)
+        {
+            await base.Negate_on_column(async);
+
+            AssertSql(
+                @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE ""s"".""Id"" = -""s"".""Id""");
+        }
+
+        public override async Task Negate_on_like_expression(bool async)
+        {
+            await base.Negate_on_like_expression(async);
+
+            AssertSql(
+                @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE ""s"".""Name"" IS NOT NULL AND NOT (""s"".""Name"" LIKE 'us%')");
+        }
+
         public override async Task Select_datetimeoffset_comparison_in_projection(bool async)
         {
             await base.Select_datetimeoffset_comparison_in_projection(async);
@@ -152,28 +182,28 @@ FROM ""Squads"" AS ""s""
 WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
         }
 
-        [ConditionalTheory(Skip = "PR #19774")]
+        [ConditionalTheory(Skip = "Issue#18844")]
         public override Task TimeSpan_Hours(bool async) => base.TimeSpan_Hours(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
+        [ConditionalTheory(Skip = "Issue#18844")]
         public override Task TimeSpan_Minutes(bool async) => base.TimeSpan_Minutes(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
+        [ConditionalTheory(Skip = "Issue#18844")]
         public override Task TimeSpan_Seconds(bool async) => base.TimeSpan_Seconds(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
+        [ConditionalTheory(Skip = "Issue#18844")]
         public override Task TimeSpan_Milliseconds(bool async) => base.TimeSpan_Milliseconds(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
+        [ConditionalTheory(Skip = "Issue#18844")]
         public override Task Where_TimeSpan_Hours(bool async) => base.Where_TimeSpan_Hours(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
+        [ConditionalTheory(Skip = "Issue#18844")]
         public override Task Where_TimeSpan_Minutes(bool async) => base.Where_TimeSpan_Minutes(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
+        [ConditionalTheory(Skip = "Issue#18844")]
         public override Task Where_TimeSpan_Seconds(bool async) => base.Where_TimeSpan_Seconds(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
+        [ConditionalTheory(Skip = "Issue#18844")]
         public override Task Where_TimeSpan_Milliseconds(bool async) => base.Where_TimeSpan_Milliseconds(async);
 
         private void AssertSql(params string[] expected)

@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var selectExpression = new SelectExpression(entityType);
+            var selectExpression = new SelectExpression(entityType, this);
             AddConditions(selectExpression, entityType);
 
             return selectExpression;
@@ -801,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             // Add conditions if dependent sharing table with principal
-            table ??= entityType.GetViewOrTableMappings().SingleOrDefault()?.Table;
+            table ??= entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
             if (table != null
                 && table.GetRowInternalForeignKeys(entityType).Any()
                 && !discriminatorAdded)
@@ -814,7 +814,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AddSelfConditions(selectExpression, entityType, table);
             // Add inner join to principal if table sharing
-            table ??= entityType.GetViewOrTableMappings().SingleOrDefault()?.Table;
+            table ??= entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
             if (table != null)
             {
                 var linkingFks = table.GetRowInternalForeignKeys(entityType);
@@ -828,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        var dependentSelectExpression = new SelectExpression(entityType);
+                        var dependentSelectExpression = new SelectExpression(entityType, this);
                         AddSelfConditions(dependentSelectExpression, entityType, table);
                         AddInnerJoin(dependentSelectExpression, foreignKey, table);
                         selectExpression.ApplyUnion(dependentSelectExpression, distinct: true);
@@ -843,8 +843,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var outerIsPrincipal = foreignKey.PrincipalEntityType.IsAssignableFrom(outerEntityProjection.EntityType);
 
             var innerSelect = outerIsPrincipal
-                ? new SelectExpression(foreignKey.DeclaringEntityType)
-                : new SelectExpression(foreignKey.PrincipalEntityType);
+                ? new SelectExpression(foreignKey.DeclaringEntityType, this)
+                : new SelectExpression(foreignKey.PrincipalEntityType, this);
 
             if (outerIsPrincipal)
             {
@@ -944,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // other dependents.
                     foreach (var referencingFk in entityType.GetReferencingForeignKeys())
                     {
-                        var otherSelectExpression = new SelectExpression(entityType);
+                        var otherSelectExpression = new SelectExpression(entityType, this);
 
                         var sameTable = table.GetRowInternalForeignKeys(referencingFk.DeclaringEntityType).Any();
                         AddInnerJoin(

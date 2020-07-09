@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -43,12 +44,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var function = _model.FindDbFunction(methodCallExpression.Method);
 
             return function?.IsScalar == false
-                ? CreateTableValuedFunctionQueryRootExpression(function, methodCallExpression.Arguments)
+                ? CreateTableValuedFunctionQueryRootExpression(function.StoreFunction, methodCallExpression.Arguments)
                 : base.VisitMethodCall(methodCallExpression);
         }
 
         private Expression CreateTableValuedFunctionQueryRootExpression(
-            IDbFunction function, IReadOnlyCollection<Expression> arguments)
-            => new TableValuedFunctionQueryRootExpression(function.ReturnEntityType, function, arguments);
+            IStoreFunction function, IReadOnlyCollection<Expression> arguments)
+            // See issue #19970
+            => new TableValuedFunctionQueryRootExpression(function.EntityTypeMappings.Single().EntityType, function, arguments);
     }
 }

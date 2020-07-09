@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var field = GetFieldToSet(navigation);
             if (field != null)
             {
-                navigation.ForeignKey.Builder.HasField(field, navigation.IsOnDependent);
+                navigation.Builder.HasField(field);
             }
         }
 
@@ -80,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (propertyBase == null
                 || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource())
-                || propertyBase.IsIndexerProperty())
+                || propertyBase.IsIndexerProperty()
+                || propertyBase.IsShadowProperty())
             {
                 return null;
             }

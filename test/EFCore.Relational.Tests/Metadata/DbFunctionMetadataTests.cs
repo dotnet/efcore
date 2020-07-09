@@ -185,20 +185,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public IQueryable<Foo> QueryableMultiParam(Expression<Func<int>> i, Expression<Func<double>> j) => throw new Exception();
         }
 
-        public static MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(
+        private static readonly MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(
             nameof(TestMethods.MethodA), new[] { typeof(string), typeof(int) });
 
-        public static MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(
+        private static readonly MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(
             nameof(TestMethods.MethodB), new[] { typeof(string), typeof(int) });
 
-        public static MethodInfo MethodImi = typeof(TestMethods).GetRuntimeMethod(
+        private static readonly MethodInfo MethodImi = typeof(TestMethods).GetRuntimeMethod(
             nameof(TestMethods.MethodI), new Type[] { });
 
-        public static MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
+        private static readonly MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
 
-        public static MethodInfo MethodJmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodJ));
+        private static readonly MethodInfo MethodJmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodJ));
 
-        public class TestMethods
+        private class TestMethods
         {
             public static int Foo => 1;
 
@@ -241,9 +241,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 throw new Exception();
             }
+
+            public static IQueryable<TestMethods> MethodK(int id)
+            {
+                throw new Exception();
+            }
         }
 
-        public static class OuterA
+        private static class OuterA
         {
             public static class Inner
             {
@@ -253,7 +258,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
             }
         }
-        public static class OuterB
+
+        private static class OuterB
         {
             public static class Inner
             {
@@ -287,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public virtual void Finds_dbFunctions_on_dbContext()
+        public virtual void Finds_DbFunctions_on_DbContext()
         {
             var context = new MyDerivedContext();
             var modelBuilder = GetModelBuilder(context);
@@ -351,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var methodInfo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), Array.Empty<Type>());
 
             Assert.Equal(
-                RelationalStrings.DbFunctionInvalidReturnType(methodInfo.DisplayName(), typeof(void).ShortDisplayName()),
+                RelationalStrings.DbFunctionInvalidReturnType(nameof(TestMethods.MethodC), typeof(void).ShortDisplayName()),
                 Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(methodInfo)).Message);
         }
 
@@ -643,16 +649,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 = typeof(MyDerivedContext)
                     .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), Array.Empty<Type>());
 
-            IDbFunction function = modelBuilder.HasDbFunction(queryableNoParams).Metadata;
+            var functionName = modelBuilder.HasDbFunction(queryableNoParams).Metadata.ModelName;
 
             var model = modelBuilder.FinalizeModel();
 
-            function = model.FindDbFunction(function.ModelName);
+            var function = model.FindDbFunction(functionName);
             var entityType = model.FindEntityType(typeof(Foo));
 
             Assert.False(function.IsScalar);
             Assert.False(function.IsAggregate);
-            Assert.Same(entityType, function.ReturnEntityType);
+            var mapping = function.StoreFunction.EntityTypeMappings.Single();
+            Assert.False(mapping.IsDefaultFunctionMapping);
+            Assert.Same(entityType, mapping.EntityType);
         }
 
         [ConditionalFact]
@@ -799,6 +807,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(dependencies, relationalDependencies));
+            conventionSet.ModelFinalizingConventions.Add(new TableValuedDbFunctionConvention(dependencies, relationalDependencies));
+            conventionSet.ModelFinalizedConventions.Add(new RelationalModelConvention(dependencies, relationalDependencies));
 
             return new ModelBuilder(conventionSet);
         }

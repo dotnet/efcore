@@ -16,10 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class RelationalPropertyOverrides : ConventionAnnotatable
     {
         private string _columnName;
-        private string _viewColumnName;
 
         private ConfigurationSource? _columnNameConfigurationSource;
-        private ConfigurationSource? _viewColumnNameConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,18 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ClearColumnName()
-        {
-            _columnName = null;
-            _columnNameConfigurationSource = null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual ConfigurationSource? GetColumnNameConfigurationSource() => _columnNameConfigurationSource;
 
         /// <summary>
@@ -74,60 +60,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ViewColumnName
+        public static RelationalPropertyOverrides Find([NotNull] IProperty property, StoreObjectIdentifier storeObject)
         {
-            get => _viewColumnName;
-            [param: CanBeNull]
-            set => SetViewColumnName(value, ConfigurationSource.Explicit);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual string SetViewColumnName([CanBeNull] string columnName, ConfigurationSource configurationSource)
-        {
-            _viewColumnName = columnName;
-            _viewColumnNameConfigurationSource = configurationSource.Max(_viewColumnNameConfigurationSource);
-
-            return columnName;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ClearViewColumnName()
-        {
-            _viewColumnName = null;
-            _viewColumnNameConfigurationSource = null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ConfigurationSource? GetViewColumnNameConfigurationSource() => _viewColumnNameConfigurationSource;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static RelationalPropertyOverrides Find(
-            [NotNull] IProperty property, [NotNull] string tableName, [CanBeNull] string schema)
-        {
-            var tableOverrides = (SortedDictionary<(string Table, string Schema), RelationalPropertyOverrides>)
+            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
                 property[RelationalAnnotationNames.RelationalOverrides];
             return tableOverrides != null
-                && tableOverrides.TryGetValue((tableName, schema), out var overrides)
+                && tableOverrides.TryGetValue(storeObject, out var overrides)
                 ? overrides
                 : null;
         }
@@ -139,20 +77,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IMutableProperty property, [NotNull] string tableName, [CanBeNull] string schema)
+            [NotNull] IMutableProperty property, StoreObjectIdentifier storeObject)
         {
-            var tableOverrides = (SortedDictionary<(string Table, string Schema), RelationalPropertyOverrides>)
+            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
                 property[RelationalAnnotationNames.RelationalOverrides];
             if (tableOverrides == null)
             {
-                tableOverrides = new SortedDictionary<(string Table, string Schema), RelationalPropertyOverrides>();
+                tableOverrides = new SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>();
                 property[RelationalAnnotationNames.RelationalOverrides] = tableOverrides;
             }
 
-            if (!tableOverrides.TryGetValue((tableName, schema), out var overrides))
+            if (!tableOverrides.TryGetValue(storeObject, out var overrides))
             {
                 overrides = new RelationalPropertyOverrides();
-                tableOverrides.Add((tableName, schema), overrides);
+                tableOverrides.Add(storeObject, overrides);
             }
 
             return overrides;
@@ -165,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IConventionProperty property, [NotNull] string tableName, [CanBeNull] string schema)
-            => GetOrCreate((IMutableProperty)property, tableName, schema);
+            [NotNull] IConventionProperty property, StoreObjectIdentifier storeObject)
+            => GetOrCreate((IMutableProperty)property, storeObject);
     }
 }
