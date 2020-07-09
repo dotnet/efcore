@@ -279,7 +279,32 @@ WHERE @@ROWCOUNT = 1 AND [Name] = @p1;",
 
 SET NOCOUNT ON;
 INSERT INTO [LicensedOperators] ([VehicleName], [LicenseType])
-VALUES (@p2, @p3);");
+VALUES (@p2, @p3);",
+                //
+                @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
+    WHEN [p].[Name] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsPoweredVehicle], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[IsLicensedOperator]
+FROM [Vehicles] AS [v]
+LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
+LEFT JOIN (
+    SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
+        WHEN [l].[VehicleName] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsLicensedOperator], [t].[Name] AS [Name0]
+    FROM [Vehicles] AS [v0]
+    LEFT JOIN [LicensedOperators] AS [l] ON [v0].[Name] = [l].[VehicleName]
+    INNER JOIN (
+        SELECT [v1].[Name], [v1].[SeatingCapacity], CASE
+            WHEN [p0].[Name] IS NOT NULL THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END AS [IsPoweredVehicle]
+        FROM [Vehicles] AS [v1]
+        LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
+    ) AS [t] ON [v0].[Name] = [t].[Name]
+    WHERE [v0].[RequiredInt] IS NOT NULL
+) AS [t0] ON [v].[Name] = [t0].[Name]
+WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }
 
         public override void Can_change_principal_instance_non_derived()
@@ -293,7 +318,32 @@ VALUES (@p2, @p3);");
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
 WHERE [Name] = @p1;
-SELECT @@ROWCOUNT;");
+SELECT @@ROWCOUNT;",
+                //
+                @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
+    WHEN [p].[Name] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsPoweredVehicle], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[IsLicensedOperator]
+FROM [Vehicles] AS [v]
+LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
+LEFT JOIN (
+    SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
+        WHEN [l].[VehicleName] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsLicensedOperator], [t].[Name] AS [Name0]
+    FROM [Vehicles] AS [v0]
+    LEFT JOIN [LicensedOperators] AS [l] ON [v0].[Name] = [l].[VehicleName]
+    INNER JOIN (
+        SELECT [v1].[Name], [v1].[SeatingCapacity], CASE
+            WHEN [p0].[Name] IS NOT NULL THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END AS [IsPoweredVehicle]
+        FROM [Vehicles] AS [v1]
+        LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
+    ) AS [t] ON [v0].[Name] = [t].[Name]
+    WHERE [v0].[RequiredInt] IS NOT NULL
+) AS [t0] ON [v].[Name] = [t0].[Name]
+WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }
     }
 }

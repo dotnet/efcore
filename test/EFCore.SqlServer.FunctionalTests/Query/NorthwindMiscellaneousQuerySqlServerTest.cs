@@ -1364,6 +1364,13 @@ END");
         FROM [Customers] AS [c]
         WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'A%')) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
+END",
+                //
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2092,6 +2099,18 @@ SELECT CASE
         ) AS [t]
         WHERE [t].[CustomerID] LIKE N'C%') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
+END",
+                //
+                @"@__p_0='5'
+@__p_1='7'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Customers] AS [c]
+        ORDER BY [c].[CustomerID]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END");
         }
 
@@ -2111,6 +2130,16 @@ SELECT CASE
             ORDER BY [c].[CustomerID]
         ) AS [t]
         WHERE [t].[CustomerID] LIKE N'B%') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END",
+                //
+                @"@__p_0='5'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT TOP(@__p_0) 1
+        FROM [Customers] AS [c]
+        ORDER BY [c].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }

@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
                 }
+
+                Assert.Empty(SqlStatements.Skip(expected.Length));
             }
             catch
             {

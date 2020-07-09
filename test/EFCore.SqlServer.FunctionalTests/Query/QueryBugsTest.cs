@@ -3665,6 +3665,12 @@ FROM [Prices] AS [p]",
 FROM [Prices] AS [p]",
                     //
                     @"SELECT AVG([p].[NullableDoubleColumn])
+FROM [Prices] AS [p]",
+                    //
+                    @"SELECT AVG([p].[DecimalColumn])
+FROM [Prices] AS [p]",
+                    //
+                    @"SELECT AVG([p].[NullableDecimalColumn])
 FROM [Prices] AS [p]");
             }
         }

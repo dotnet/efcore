@@ -228,7 +228,17 @@ WHERE [v1].[FuelType] IS NOT NULL AND [v1].[Capacity] IS NOT NULL");
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Discriminator] = @p0, [Operator_Name] = @p1, [LicenseType] = @p2
 WHERE [Name] = @p3;
-SELECT @@ROWCOUNT;");
+SELECT @@ROWCOUNT;",
+                //
+                @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
+FROM [Vehicles] AS [v]
+LEFT JOIN (
+    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
+    FROM [Vehicles] AS [v0]
+    INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
+    WHERE [v0].[Operator_Discriminator] IS NOT NULL
+) AS [t] ON [v].[Name] = [t].[Name]
+WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }
 
         public override void Can_change_principal_instance_non_derived()
@@ -242,7 +252,17 @@ SELECT @@ROWCOUNT;");
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
 WHERE [Name] = @p1;
-SELECT @@ROWCOUNT;");
+SELECT @@ROWCOUNT;",
+                //
+                @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
+FROM [Vehicles] AS [v]
+LEFT JOIN (
+    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
+    FROM [Vehicles] AS [v0]
+    INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
+    WHERE [v0].[Operator_Discriminator] IS NOT NULL
+) AS [t] ON [v].[Name] = [t].[Name]
+WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }
     }
 }
