@@ -1505,6 +1505,53 @@ FROM ""BuiltInDataTypes"" AS ""b""
 WHERE ""b"".""Id"" = 13");
         }
 
+        [ConditionalFact]
+        public virtual void Projecting_aritmetic_operations_on_decimals()
+        {
+            using var context = CreateContext();
+            var expected = (from dt1 in context.Set<BuiltInDataTypes>().ToList()
+                            from dt2 in context.Set<BuiltInDataTypes>().ToList()
+                            orderby dt1.Id, dt2.Id
+                            select new
+                            {
+                                add = dt1.TestDecimal + dt2.TestDecimal,
+                                subtract = dt1.TestDecimal - dt2.TestDecimal,
+                                multiply = dt1.TestDecimal * dt2.TestDecimal,
+                                divide = dt1.TestDecimal / dt2.TestDecimal,
+                                negate = -dt1.TestDecimal
+                            }).ToList();
+
+            Fixture.TestSqlLoggerFactory.Clear();
+
+            var actual = (from dt1 in context.Set<BuiltInDataTypes>()
+                          from dt2 in context.Set<BuiltInDataTypes>()
+                          orderby dt1.Id, dt2.Id
+                          select new
+                          {
+                              add = dt1.TestDecimal + dt2.TestDecimal,
+                              subtract = dt1.TestDecimal - dt2.TestDecimal,
+                              multiply = dt1.TestDecimal * dt2.TestDecimal,
+                              divide = dt1.TestDecimal / dt2.TestDecimal,
+                              negate = -dt1.TestDecimal
+                          }).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert.Equal(expected[i].add, actual[i].add);
+                Assert.Equal(expected[i].subtract, actual[i].subtract);
+                Assert.Equal(expected[i].multiply, actual[i].multiply);
+                Assert.Equal(expected[i].divide, actual[i].divide);
+                Assert.Equal(expected[i].negate, actual[i].negate);
+            }
+
+            AssertSql(
+                @"SELECT ef_add(""b"".""TestDecimal"", ""b0"".""TestDecimal"") AS ""add"", ef_add(""b"".""TestDecimal"", ef_negate(""b0"".""TestDecimal"")) AS ""subtract"", ef_multiply(""b"".""TestDecimal"", ""b0"".""TestDecimal"") AS ""multiply"", ef_divide(""b"".""TestDecimal"", ""b0"".""TestDecimal"") AS ""divide"", ef_negate(""b"".""TestDecimal"") AS ""negate""
+FROM ""BuiltInDataTypes"" AS ""b""
+CROSS JOIN ""BuiltInDataTypes"" AS ""b0""
+ORDER BY ""b"".""Id"", ""b0"".""Id""");
+        }
+
         private void AssertTranslationFailed(Action testCode)
             => Assert.Contains(
                 CoreStrings.TranslationFailed("").Substring(21),
