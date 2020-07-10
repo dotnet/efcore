@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var joinEntityType = manyToManyFirst.Metadata.Model.GetEntityTypes()
                 .Single(et => et.IsImplicitlyCreatedAssociationEntityType);
 
-            Assert.Equal("Join_ManyToManyFirst_ManyToManySecond", joinEntityType.Name);
+            Assert.Equal("ManyToManyFirstManyToManySecond", joinEntityType.Name);
 
             var skipNavOnManyToManyFirst = manyToManyFirst.Metadata.GetSkipNavigations().Single();
             var skipNavOnManyToManySecond = manyToManySecond.Metadata.GetSkipNavigations().Single();
