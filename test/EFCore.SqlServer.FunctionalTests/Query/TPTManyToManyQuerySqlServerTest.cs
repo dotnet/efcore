@@ -17,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override bool CanExecuteQueryString => true;
 
-        public override Task Include_skip_navigation_then_include_inverse_throws_in_no_tracking(bool async)
-            => Task.CompletedTask;
-
         public override async Task Skip_navigation_all(bool async)
         {
             await base.Skip_navigation_all(async);

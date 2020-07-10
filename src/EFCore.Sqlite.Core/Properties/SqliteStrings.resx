@@ -187,4 +187,7 @@
   <data name="AggregateOperationNotSupported" xml:space="preserve">
     <value>SQLite cannot apply aggregate operator '{aggregateOperator}' on expression of type '{type}'. Convert the values to a supported type or use LINQ to Objects to aggregate the results.</value>
   </data>
+  <data name="ApplyNotSupported" xml:space="preserve">
+    <value>Translating this query requires APPLY operation which is not supported on SQLite.</value>
+  </data>
 </root>

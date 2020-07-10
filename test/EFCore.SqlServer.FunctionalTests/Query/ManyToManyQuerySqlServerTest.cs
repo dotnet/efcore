@@ -1581,9 +1581,6 @@ LEFT JOIN (
 ) AS [t] ON ([e].[Id] = [t].[OneId]) AND ([e].[Id] <> [t].[Id])");
         }
 
-        public override Task Include_skip_navigation_then_include_inverse_throws_in_no_tracking(bool async)
-            => Task.CompletedTask;
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

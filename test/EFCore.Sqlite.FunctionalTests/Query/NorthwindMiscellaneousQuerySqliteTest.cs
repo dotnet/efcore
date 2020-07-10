@@ -1,8 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -277,9 +279,11 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
         }
 
-
-        // Sqlite does not support Apply operations
-        public override Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async) => Task.CompletedTask;
+        public override async Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async))).Message);
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

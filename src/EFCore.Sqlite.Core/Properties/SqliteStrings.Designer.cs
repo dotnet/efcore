@@ -65,6 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 GetString("AggregateOperationNotSupported", nameof(aggregateOperator), nameof(type)),
                 aggregateOperator, type);
 
+        /// <summary>
+        ///     Translating this query requires APPLY operation which is not supported on SQLite.
+        /// </summary>
+        public static string ApplyNotSupported
+            => GetString("ApplyNotSupported");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
