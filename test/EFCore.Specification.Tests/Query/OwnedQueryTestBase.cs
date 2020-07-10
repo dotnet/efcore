@@ -664,46 +664,46 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_group_by_indexer_property(bool isAsync)
+        public virtual Task Can_group_by_indexer_property(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<OwnedPerson>().GroupBy(c => c["Name"]).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_group_by_converted_indexer_property(bool isAsync)
+        public virtual Task Can_group_by_converted_indexer_property(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<OwnedPerson>().GroupBy(c => (string)c["Name"]).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_group_by_owned_indexer_property(bool isAsync)
+        public virtual Task Can_group_by_owned_indexer_property(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<OwnedPerson>().GroupBy(c => c.PersonAddress["ZipCode"]).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_group_by_converted_owned_indexer_property(bool isAsync)
+        public virtual Task Can_group_by_converted_owned_indexer_property(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<OwnedPerson>().GroupBy(c => (int)c.PersonAddress["ZipCode"]).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_join_on_indexer_property_on_query(bool isAsync)
+        public virtual Task Can_join_on_indexer_property_on_query(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from c1 in ss.Set<OwnedPerson>()
                      join c2 in ss.Set<OwnedPerson>()
@@ -713,30 +713,30 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Projecting_indexer_property_ignores_include(bool isAsync)
+        public virtual Task Projecting_indexer_property_ignores_include(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => from c in ss.Set<OwnedPerson>().AsTracking()
                       select new { Nation = c.PersonAddress["ZipCode"] });
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Projecting_indexer_property_ignores_include_converted(bool isAsync)
+        public virtual Task Projecting_indexer_property_ignores_include_converted(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => from c in ss.Set<OwnedPerson>().AsTracking()
                       select new { Nation = (int)c.PersonAddress["ZipCode"] });
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
+        public virtual Task Indexer_property_is_pushdown_into_subquery(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OwnedPerson>()
                     .Where(g => (string)ss.Set<OwnedPerson>().Where(c => c.Id == g.Id).FirstOrDefault()["Name"] == "Mona Cy")
                     .Select(c => (string)c["Name"]));
@@ -744,10 +744,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Can_query_indexer_property_on_owned_collection(bool isAsync)
+        public virtual Task Can_query_indexer_property_on_owned_collection(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OwnedPerson>().Where(ow => ow.Orders.Where(o => ((DateTime)o["OrderDate"]).Year == 2018).Count() == 1)
                     .Select(c => (string)c["Name"]));
         }
@@ -794,6 +794,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     async,
                     ss => ss.Set<OwnedPerson>().Where(op => (bool)op["Foo"])),
                 CoreStrings.QueryUnableToTranslateMember("Foo", nameof(OwnedPerson)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_multiple_aggregates_on_owned_navigation_properties(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().GroupBy(e => 1, x => x.PersonAddress.Country.Planet.Star).Select(e => new
+                {
+                    p1 = e.Average(x => x.Id),
+                    p2 = e.Sum(x => x.Id),
+                    p3 = e.Max(x => x.Name.Length),
+                }));
         }
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();

@@ -922,6 +922,17 @@ WHERE [o].[Name] = N'Mona Cy'
 ORDER BY [o].[Id]");
         }
 
+        public override async Task GroupBy_with_multiple_aggregates_on_owned_navigation_properties(bool async)
+        {
+            await base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
+
+            AssertSql(
+                @"SELECT AVG(CAST([s].[Id] AS float)) AS [p1], COALESCE(SUM([s].[Id]), 0) AS [p2], MAX(CAST(LEN([s].[Name]) AS int)) AS [p3]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
+LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

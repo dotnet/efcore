@@ -277,6 +277,12 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
             return base.Where_collection_navigation_ToArray_Length_member(async);
         }
 
+        [ConditionalTheory(Skip = "Issue #16146")]
+        public override Task GroupBy_with_multiple_aggregates_on_owned_navigation_properties(bool async)
+        {
+            return base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
+        }
+
         public override async Task Can_query_on_indexer_properties(bool async)
         {
             await base.Can_query_on_indexer_properties(async);

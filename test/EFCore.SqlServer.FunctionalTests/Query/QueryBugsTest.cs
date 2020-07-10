@@ -7761,6 +7761,80 @@ FROM [Parents] AS [p]");
 
         #endregion
 
+        #region Issue18346
+
+        [ConditionalFact]
+        public virtual void Can_query_hierarchy_with_non_nullable_property_on_derived()
+        {
+            using (CreateDatabase18346())
+            {
+                using var context = new MyContext18346(_options);
+                var query = context.Businesses.ToList();
+                Assert.Equal(3, query.Count);
+
+                AssertSql(
+                    @"SELECT [b].[Id], [b].[Name], [b].[Type], [b].[IsOnline]
+FROM [Businesses] AS [b]");
+            }
+        }
+
+        private abstract class Business18346
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public BusinessType18346 Type { get; set; }
+        }
+
+        private class Shop18346 : Business18346
+        {
+            public bool IsOnline { get; set; }
+        }
+
+        private class Brand18346 : Business18346
+        {
+        }
+
+        private enum BusinessType18346
+        {
+            Shop,
+            Brand,
+        }
+
+        private class MyContext18346 : DbContext
+        {
+            public DbSet<Business18346> Businesses { get; set; }
+
+            public MyContext18346(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Business18346>()
+                    .HasDiscriminator(x => x.Type)
+                    .HasValue<Shop18346>(BusinessType18346.Shop)
+                    .HasValue<Brand18346>(BusinessType18346.Brand);
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase18346()
+            => CreateTestStore(
+                () => new MyContext18346(_options),
+                context =>
+                {
+                    var shop1 = new Shop18346 { IsOnline = true, Name = "Amzn" };
+                    var shop2 = new Shop18346 { IsOnline = false, Name = "Mom and Pop's Shoppe" };
+                    var brand = new Brand18346 { Name = "Tsla" };
+                    context.Businesses.AddRange(shop1, shop2, brand);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
