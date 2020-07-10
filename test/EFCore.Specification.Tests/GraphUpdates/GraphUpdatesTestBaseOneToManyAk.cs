@@ -327,6 +327,13 @@ namespace Microsoft.EntityFrameworkCore
                         new1d.Parent = null;
                         new1dd.Parent = null;
 
+                        var old1 = root.RequiredChildrenAk.OrderBy(c => c.Id).Last();
+
+                        // Test replacing entity with the same AK, but different PK
+                        new1.AlternateId = old1.AlternateId;
+                        context.Remove(old1);
+                        context.RemoveRange(old1.Children);
+                        context.RemoveRange(old1.CompositeChildren);
                         context.AddRange(new1, new1d, new1dd, new2a, new2d, new2dd, new2b, new2ca, new2cb);
                     }
 

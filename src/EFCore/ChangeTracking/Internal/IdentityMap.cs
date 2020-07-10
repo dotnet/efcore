@@ -289,7 +289,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                if (!bothStatesEquivalent)
+                if (!bothStatesEquivalent
+                    && Key.IsPrimaryKey())
                 {
                     entry.SharedIdentityEntry = existingEntry;
                     existingEntry.SharedIdentityEntry = entry;
@@ -413,7 +414,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (otherEntry == null)
             {
-                _identityMap.Remove(key);
+                if (_identityMap.TryGetValue(key, out var existingEntry)
+                    && existingEntry == entry)
+                {
+                    _identityMap.Remove(key);
+                }
             }
             else
             {
