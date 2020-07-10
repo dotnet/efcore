@@ -927,6 +927,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string QueryUnableToIdentifyConcreteTypeInTPT
             => GetString("QueryUnableToIdentifyConcreteTypeInTPT");
 
+        /// <summary>
+        ///     The column '{column}' on table {table} has unspecified computed column SQL. Specify the SQL before using EF Core to create the database schema.
+        /// </summary>
+        public static string ComputedColumnSqlUnspecified([CanBeNull] object column, [CanBeNull] object table)
+            => string.Format(
+                GetString("ComputedColumnSqlUnspecified", nameof(column), nameof(table)),
+                column, table);
+
+        /// <summary>
+        ///     The column '{column}' on table {table} has an unspecified default value. Specify a value before using EF Core to create the database schema.
+        /// </summary>
+        public static string DefaultValueUnspecified([CanBeNull] object column, [CanBeNull] object table)
+            => string.Format(
+                GetString("DefaultValueUnspecified", nameof(column), nameof(table)),
+                column, table);
+
+        /// <summary>
+        ///     The column '{column}' on table {table} has unspecified default value SQL. Specify the SQL before using EF Core to create the database schema.
+        /// </summary>
+        public static string DefaultValueSqlUnspecified([CanBeNull] object column, [CanBeNull] object table)
+            => string.Format(
+                GetString("DefaultValueSqlUnspecified", nameof(column), nameof(table)),
+                column, table);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

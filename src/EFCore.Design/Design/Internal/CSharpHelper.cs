@@ -787,8 +787,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string UnknownLiteral(object value)
         {
-            if (value == null
-                || value == DBNull.Value)
+            if (value == null)
             {
                 return "null";
             }

@@ -267,6 +267,28 @@ namespace Microsoft.EntityFrameworkCore
             => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength, fromDataAnnotation);
 
         /// <summary>
+        ///     <para>
+        ///         Configures the default value expression for the column that the property maps to when targeting a
+        ///         relational database.
+        ///     </para>
+        ///     <para>
+        ///         When called with no argument, this method tells EF that a column has a default value constraint of
+        ///         some sort without needing to specify exactly what it is. This can be useful when mapping EF to an
+        ///         existing database.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder HasDefaultValueSql([NotNull] this PropertyBuilder propertyBuilder)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            propertyBuilder.Metadata.SetDefaultValueSql(string.Empty);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
         ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -283,6 +305,24 @@ namespace Microsoft.EntityFrameworkCore
 
             return propertyBuilder;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the default value expression for the column that the property maps to when targeting a
+        ///         relational database.
+        ///     </para>
+        ///     <para>
+        ///         When called with no argument, this method tells EF that a column has a default value constraint of
+        ///         some sort without needing to specify exactly what it is. This can be useful when mapping EF to an
+        ///         existing database.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
+            => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder);
 
         /// <summary>
         ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -333,8 +373,29 @@ namespace Microsoft.EntityFrameworkCore
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.DefaultValueSql,
-                Check.NullButNotEmpty(sql, nameof(sql)),
+                sql,
                 fromDataAnnotation);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the property to map to a computed column when targeting a relational database.
+        ///     </para>
+        ///     <para>
+        ///         When called with no arguments, this method tells EF that a column is computed without needing to
+        ///         specify the actual SQL used to computed it. This can be useful when mapping EF to an existing
+        ///         database.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder HasComputedColumnSql([NotNull] this PropertyBuilder propertyBuilder)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            propertyBuilder.Metadata.SetComputedColumnSql(string.Empty);
+
+            return propertyBuilder;
+        }
 
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
@@ -364,6 +425,23 @@ namespace Microsoft.EntityFrameworkCore
 
             return propertyBuilder;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the property to map to a computed column when targeting a relational database.
+        ///     </para>
+        ///     <para>
+        ///         When called with no arguments, this method tells EF that a column is computed without needing to
+        ///         specify the actual SQL used to computed it. This can be useful when mapping EF to an existing
+        ///         database.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
+            => (PropertyBuilder<TProperty>)HasComputedColumnSql((PropertyBuilder)propertyBuilder);
 
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
@@ -447,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.ComputedColumnSql,
-                Check.NullButNotEmpty(sql, nameof(sql)),
+                sql,
                 fromDataAnnotation);
 
         /// <summary>
@@ -482,15 +560,30 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder HasDefaultValue([NotNull] this PropertyBuilder propertyBuilder)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            propertyBuilder.Metadata.SetDefaultValue(DBNull.Value);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the default value for the column that the property maps
+        ///     to when targeting a relational database.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="value"> The default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasDefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,
-            [CanBeNull] object value = null)
+            [CanBeNull] object value)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            propertyBuilder.Metadata.SetDefaultValue(value ?? DBNull.Value);
+            propertyBuilder.Metadata.SetDefaultValue(value);
 
             return propertyBuilder;
         }
@@ -508,11 +601,22 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
+            => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder);
+
+        /// <summary>
+        ///     Configures the default value for the column that the property maps
+        ///     to when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="value"> The default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> HasDefaultValue<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [CanBeNull] object value = null)
+            [CanBeNull] object value)
             => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
 
         /// <summary>

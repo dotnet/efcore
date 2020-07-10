@@ -354,6 +354,75 @@ namespace TestNamespace
                 });
         }
 
+        [ConditionalFact]
+        public void ComputedColumnSql_works()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn").HasComputedColumnSql("1 + 2"),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(".HasComputedColumnSql(\"1 + 2\")", code.ContextFile.Code),
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal("1 + 2", entity.GetProperty("ComputedColumn").GetComputedColumnSql());
+                });
+        }
+
+        [ConditionalFact]
+        public void ComputedColumnSql_works_stored()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn").HasComputedColumnSql("1 + 2", stored: true),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(".HasComputedColumnSql(\"1 + 2\", true)", code.ContextFile.Code),
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.True(entity.GetProperty("ComputedColumn").GetIsStored());
+                });
+        }
+
+        [ConditionalFact]
+        public void ComputedColumnSql_works_unspecified()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn").HasComputedColumnSql(),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(".HasComputedColumnSql()", code.ContextFile.Code),
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Empty(entity.GetProperty("ComputedColumn").GetComputedColumnSql());
+                });
+        }
+
+        [ConditionalFact]
+        public void DefaultValue_works_unspecified()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity").Property<string>("DefaultedColumn").HasDefaultValue(),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(".HasDefaultValue()", code.ContextFile.Code),
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal(DBNull.Value, entity.GetProperty("DefaultedColumn").GetDefaultValue());
+                });
+        }
+
+        [ConditionalFact]
+        public void DefaultValueSql_works_unspecified()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity").Property<string>("DefaultedColumn").HasDefaultValueSql(),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(".HasDefaultValueSql()", code.ContextFile.Code),
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Empty(entity.GetProperty("DefaultedColumn").GetDefaultValueSql());
+                });
+        }
 
         [ConditionalFact]
         public void Entity_with_indexes_and_use_data_annotations_false_always_generates_fluent_API()

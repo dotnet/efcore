@@ -682,4 +682,13 @@
   <data name="QueryUnableToIdentifyConcreteTypeInTPT" xml:space="preserve">
     <value>Unable to identify the concrete entity type to materialize in TPT hierarchy.</value>
   </data>
+  <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
+    <value>The column '{column}' on table {table} has unspecified computed column SQL. Specify the SQL before using EF Core to create the database schema.</value>
+  </data>
+  <data name="DefaultValueUnspecified" xml:space="preserve">
+    <value>The column '{column}' on table {table} has an unspecified default value. Specify a value before using EF Core to create the database schema.</value>
+  </data>
+  <data name="DefaultValueSqlUnspecified" xml:space="preserve">
+    <value>The column '{column}' on table {table} has unspecified default value SQL. Specify the SQL before using EF Core to create the database schema.</value>
+  </data>
 </root>

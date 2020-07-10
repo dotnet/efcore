@@ -626,11 +626,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({(property.IsUnicode() == false ? "false" : "")})");
             }
 
-            if (property.GetDefaultValue() != null)
+            var defaultValue = property.GetDefaultValue();
+            if (defaultValue == DBNull.Value)
+            {
+                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}()");
+                annotations.Remove(RelationalAnnotationNames.DefaultValue);
+            }
+            else if (defaultValue != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" +
-                    $"({_code.UnknownLiteral(property.GetDefaultValue())})");
+                    $"({_code.UnknownLiteral(defaultValue)})");
                 annotations.Remove(RelationalAnnotationNames.DefaultValue);
             }
 

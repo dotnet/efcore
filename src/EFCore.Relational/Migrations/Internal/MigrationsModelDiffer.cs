@@ -9,7 +9,9 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -1078,6 +1080,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IEnumerable<IAnnotation> migrationsAnnotations,
             bool inline = false)
         {
+            if (column.DefaultValue == DBNull.Value)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DefaultValueUnspecified(
+                        column.Name,
+                        (column.Table.Name, column.Table.Schema).FormatTable()));
+            }
+            if (column.DefaultValueSql?.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DefaultValueSqlUnspecified(
+                        column.Name,
+                        (column.Table.Name, column.Table.Schema).FormatTable()));
+            }
+            if (column.ComputedColumnSql?.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ComputedColumnSqlUnspecified(
+                        column.Name,
+                        (column.Table.Name, column.Table.Schema).FormatTable()));
+            }
+
             var property = column.PropertyMappings.First().Property;
             var valueConverter = GetValueConverter(property, typeMapping);
             columnOperation.ClrType
@@ -1092,13 +1116,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             columnOperation.IsFixedLength = column.IsFixedLength;
             columnOperation.IsRowVersion = column.IsRowVersion;
             columnOperation.IsNullable = isNullable;
-
-            var defaultValue = column.DefaultValue;
-            columnOperation.DefaultValue = (defaultValue == DBNull.Value ? null : defaultValue)
+            columnOperation.DefaultValue = column.DefaultValue
                 ?? (inline || isNullable
                     ? null
                     : GetDefaultValue(columnOperation.ClrType));
-
             columnOperation.DefaultValueSql = column.DefaultValueSql;
             columnOperation.ComputedColumnSql = column.ComputedColumnSql;
             columnOperation.IsStored = column.IsStored;

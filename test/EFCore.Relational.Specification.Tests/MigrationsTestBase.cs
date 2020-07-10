@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -343,6 +344,28 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Contains("2", sumColumn.DefaultValueSql);
                 });
 
+        [ConditionalFact]
+        public virtual async Task Add_column_with_defaultValueSql_unspecified()
+        {
+            var ex = await TestThrows<InvalidOperationException>(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<int?>("Sum")
+                    .HasDefaultValueSql());
+            Assert.Equal(RelationalStrings.DefaultValueSqlUnspecified("Sum", "'People'"), ex.Message);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Add_column_with_defaultValue_unspecified()
+        {
+            var ex = await TestThrows<InvalidOperationException>(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<int?>("Sum")
+                    .HasDefaultValue());
+            Assert.Equal(RelationalStrings.DefaultValueUnspecified("Sum", "'People'"), ex.Message);
+        }
+
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
@@ -368,6 +391,17 @@ namespace Microsoft.EntityFrameworkCore
                     if (stored != null)
                         Assert.Equal(stored, sumColumn.IsStored);
                 });
+
+        [ConditionalFact]
+        public virtual async Task Add_column_with_computedSql_unspecified()
+        {
+            var ex = await TestThrows<InvalidOperationException>(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<int?>("Sum")
+                    .HasComputedColumnSql());
+            Assert.Equal(RelationalStrings.ComputedColumnSqlUnspecified("Sum", "'People'"), ex.Message);
+        }
 
         // TODO: Check this out
         [ConditionalFact]
@@ -1128,21 +1162,21 @@ namespace Microsoft.EntityFrameworkCore
                     // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
                 });
 
-            [ConditionalFact]
-            public virtual Task Alter_check_constraint()
-                => Test(
-                    builder => builder.Entity(
-                        "People", e =>
-                        {
-                            e.Property<int>("Id");
-                            e.Property<int>("DriverLicense");
-                        }),
-                    builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
-                    builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 1"),
-                    model =>
+        [ConditionalFact]
+        public virtual Task Alter_check_constraint()
+            => Test(
+                builder => builder.Entity(
+                    "People", e =>
                     {
-                        // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
-                    });
+                        e.Property<int>("Id");
+                        e.Property<int>("DriverLicense");
+                    }),
+                builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
+                builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 1"),
+                model =>
+                {
+                    // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
+                });
 
         [ConditionalFact]
         public virtual Task Drop_check_constraint()
