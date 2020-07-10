@@ -14,71 +14,306 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     A class that provides reflection metadata for translatable LINQ methods.
     /// </summary>
-    internal static class QueryableMethods
+    public static class QueryableMethods
     {
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.AsQueryable" />
+        /// </summary>
         public static MethodInfo AsQueryable { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Cast{TResult}" />
+        /// </summary>
         public static MethodInfo Cast { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.OfType{TResult}" />
+        /// </summary>
         public static MethodInfo OfType { get; }
 
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.All{TResult}" />
+        /// </summary>
         public static MethodInfo All { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Any{TSource}(IQueryable{TSource})" />
+        /// </summary>
         public static MethodInfo AnyWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see cref="Queryable.Any{TSource}(IQueryable{TSource},System.Linq.Expressions.Expression{System.Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo AnyWithPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Contains{TSource}(IQueryable{TSource},TSource)" />
+        /// </summary>
         public static MethodInfo Contains { get; }
 
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Concat{TSource}" />
+        /// </summary>
         public static MethodInfo Concat { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Except{TSource}(IQueryable{TSource},IEnumerable{TSource})" />
+        /// </summary>
         public static MethodInfo Except { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Intersect{TSource}(IQueryable{TSource},IEnumerable{TSource})" />
+        /// </summary>
         public static MethodInfo Intersect { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Union{TSource}(IQueryable{TSource},IEnumerable{TSource})" />
+        /// </summary>
         public static MethodInfo Union { get; }
 
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Count{TSource}(IQueryable{TSource})" />
+        /// </summary>
         public static MethodInfo CountWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Count{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo CountWithPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.LongCount{TSource}(IQueryable{TSource})" />
+        /// </summary>
         public static MethodInfo LongCountWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.LongCount{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo LongCountWithPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Min{TSource}" />
+        /// </summary>
         public static MethodInfo MinWithSelector { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Min{TSource,TResult}(IQueryable{TSource},Expression{Func{TSource,TResult}})" />
+        /// </summary>
         public static MethodInfo MinWithoutSelector { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Max{TSource}" />
+        /// </summary>
         public static MethodInfo MaxWithSelector { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Max{TSource,TResult}(IQueryable{TSource},Expression{Func{TSource,TResult}})" />
+        /// </summary>
         public static MethodInfo MaxWithoutSelector { get; }
 
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.ElementAt{TSource}" />
+        /// </summary>
         public static MethodInfo ElementAt { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.ElementAtOrDefault{TSource}" />
+        /// </summary>
         public static MethodInfo ElementAtOrDefault { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.First{TSource}(IQueryable{TSource})" />
+        /// </summary>
         public static MethodInfo FirstWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.First{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo FirstWithPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.FirstOrDefault{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo FirstOrDefaultWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.FirstOrDefault{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo FirstOrDefaultWithPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Single{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo SingleWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Single{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo SingleWithPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.SingleOrDefault{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo SingleOrDefaultWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.SingleOrDefault{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo SingleOrDefaultWithPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Last{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo LastWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Last{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo LastWithPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.LastOrDefault{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo LastOrDefaultWithoutPredicate { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.LastOrDefault{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo LastOrDefaultWithPredicate { get; }
 
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Distinct{TSource}(IQueryable{TSource})" />
+        /// </summary>
         public static MethodInfo Distinct { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Reverse{TSource}" />
+        /// </summary>
         public static MethodInfo Reverse { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Where{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo Where { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see cref="Queryable.Select{TSource,TResult}(IQueryable{TSource},Expression{Func{TSource,int,TResult}})" />
+        /// </summary>
         public static MethodInfo Select { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Skip{TSource}" />
+        /// </summary>
         public static MethodInfo Skip { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Take{TSource}" />
+        /// </summary>
         public static MethodInfo Take { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.SkipWhile{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo SkipWhile { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.TakeWhile{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        /// </summary>
         public static MethodInfo TakeWhile { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.OrderBy{TSource,TKey}(IQueryable{TSource},Expression{Func{TSource,TKey}})" />
+        /// </summary>
         public static MethodInfo OrderBy { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see cref="Queryable.OrderByDescending{TSource,TKey}(IQueryable{TSource},Expression{Func{TSource,TKey}})" />
+        /// </summary>
         public static MethodInfo OrderByDescending { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see cref="Queryable.ThenBy{TSource,TKey}(IOrderedQueryable{TSource},Expression{Func{TSource,TKey}})" />
+        /// </summary>
         public static MethodInfo ThenBy { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see cref="Queryable.ThenByDescending{TSource,TKey}(IOrderedQueryable{TSource},Expression{Func{TSource,TKey}})" />
+        /// </summary>
         public static MethodInfo ThenByDescending { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" />
+        /// </summary>
         public static MethodInfo DefaultIfEmptyWithoutArgument { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource},TSource)" />
+        /// </summary>
         public static MethodInfo DefaultIfEmptyWithArgument { get; }
 
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see
+        ///         cref="Queryable.Join{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,TInner,TResult}})" />
+        /// </summary>
         public static MethodInfo Join { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see
+        ///         cref="Queryable.GroupJoin{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,IEnumerable{TInner},TResult}})" />
+        /// </summary>
         public static MethodInfo GroupJoin { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see
+        ///         cref="Queryable.SelectMany{TSource,TCollection,TResult}(IQueryable{TSource},Expression{Func{TSource,IEnumerable{TCollection}}},Expression{Func{TSource,TCollection,TResult}})" />
+        /// </summary>
         public static MethodInfo SelectManyWithCollectionSelector { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see cref="Queryable.Select{TSource,TResult}(IQueryable{TSource},Expression{Func{TSource,int,TResult}})" />
+        /// </summary>
         public static MethodInfo SelectManyWithoutCollectionSelector { get; }
 
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.GroupBy{TSource,TKey}(IQueryable{TSource},Expression{Func{TSource,TKey}})" />
+        /// </summary>
         public static MethodInfo GroupByWithKeySelector { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see
+        ///         cref="Queryable.GroupBy{TSource,TKey,TElement}(IQueryable{TSource},Expression{Func{TSource,TKey}},Expression{Func{TSource,TElement}})" />
+        /// </summary>
         public static MethodInfo GroupByWithKeyElementSelector { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see
+        ///         cref="Queryable.GroupBy{TSource,TKey,TElement,TResult}(IQueryable{TSource},Expression{Func{TSource,TKey}},Expression{Func{TSource,TElement}},Expression{Func{TKey,IEnumerable{TElement},TResult}})" />
+        /// </summary>
         public static MethodInfo GroupByWithKeyElementResultSelector { get; }
+
+        /// <summary>
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see
+        ///         cref="Queryable.GroupBy{TSource,TKey,TResult}(IQueryable{TSource},Expression{Func{TSource,TKey}},Expression{Func{TKey,IEnumerable{TSource},TResult}})" />
+        /// </summary>
         public static MethodInfo GroupByWithKeyResultSelector { get; }
 
+        /// <summary>
+        ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="M:Queryable.Sum" /> without a selector.
+        /// </summary>
+        /// <param name="methodInfo"> The method to check. </param>
+        /// <returns> <see langword="true" /> if the method matches; <see langword="false" /> otherwise. </returns>
         public static bool IsSumWithoutSelector([NotNull] MethodInfo methodInfo)
         {
             Check.NotNull(methodInfo, nameof(methodInfo));
@@ -86,6 +321,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return SumWithoutSelectorMethods.Values.Contains(methodInfo);
         }
 
+        /// <summary>
+        ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="M:Queryable.Sum" /> with a selector.
+        /// </summary>
+        /// <param name="methodInfo"> The method to check. </param>
+        /// <returns> <see langword="true" /> if the method matches; <see langword="false" /> otherwise. </returns>
         public static bool IsSumWithSelector([NotNull] MethodInfo methodInfo)
         {
             Check.NotNull(methodInfo, nameof(methodInfo));
@@ -94,6 +334,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
         }
 
+        /// <summary>
+        ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="M:Queryable.Average" /> without a selector.
+        /// </summary>
+        /// <param name="methodInfo"> The method to check. </param>
+        /// <returns> <see langword="true" /> if the method matches; <see langword="false" /> otherwise. </returns>
         public static bool IsAverageWithoutSelector([NotNull] MethodInfo methodInfo)
         {
             Check.NotNull(methodInfo, nameof(methodInfo));
@@ -101,6 +346,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AverageWithoutSelectorMethods.Values.Contains(methodInfo);
         }
 
+        /// <summary>
+        ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="M:Queryable.Average" /> with a selector.
+        /// </summary>
+        /// <param name="methodInfo"> The method to check. </param>
+        /// <returns> <see langword="true" /> if the method matches; <see langword="false" /> otherwise. </returns>
         public static bool IsAverageWithSelector([NotNull] MethodInfo methodInfo)
         {
             Check.NotNull(methodInfo, nameof(methodInfo));
@@ -109,6 +359,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
         }
 
+        /// <summary>
+        ///     Returns the <see cref="MethodInfo" /> for the <see cref="M:Queryable.Sum" /> method without a selector for the given type.
+        /// </summary>
+        /// <param name="type"> The generic type of the method to create. </param>
+        /// <returns> The <see cref="MethodInfo" />. </returns>
         public static MethodInfo GetSumWithoutSelector([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -116,6 +371,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return SumWithoutSelectorMethods[type];
         }
 
+        /// <summary>
+        ///     Returns the <see cref="MethodInfo" /> for the <see cref="M:Queryable.Sum" /> method with a selector for the given type.
+        /// </summary>
+        /// <param name="type"> The generic type of the method to create. </param>
+        /// <returns> The <see cref="MethodInfo" />. </returns>
         public static MethodInfo GetSumWithSelector([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -123,6 +383,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return SumWithSelectorMethods[type];
         }
 
+        /// <summary>
+        ///     Returns the <see cref="MethodInfo" /> for the <see cref="M:Queryable.Average" /> method without a selector for the given type.
+        /// </summary>
+        /// <param name="type"> The generic type of the method to create. </param>
+        /// <returns> The <see cref="MethodInfo" />. </returns>
         public static MethodInfo GetAverageWithoutSelector([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -130,6 +395,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AverageWithoutSelectorMethods[type];
         }
 
+        /// <summary>
+        ///     Returns the <see cref="MethodInfo" /> for the <see cref="M:Queryable.Average" /> method with a selector for the given type.
+        /// </summary>
+        /// <param name="type"> The generic type of the method to create. </param>
+        /// <returns> The <see cref="MethodInfo" />. </returns>
         public static MethodInfo GetAverageWithSelector([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
