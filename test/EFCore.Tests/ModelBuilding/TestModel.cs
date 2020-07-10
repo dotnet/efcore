@@ -1036,21 +1036,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         }
 
-        public class AutomaticManyToManyA
+        public class ImplicitManyToManyA
         {
             public int Id { get; set; }
             public string Name { get; set; }
 
-            public List<AutomaticManyToManyB> Bs { get; set; }
+            public List<ImplicitManyToManyB> Bs { get; set; }
         }
 
 
-        public class AutomaticManyToManyB
+        public class ImplicitManyToManyB
         {
             public int Id { get; set; }
             public string Name { get; set; }
 
-            public List<AutomaticManyToManyA> As { get; set; }
+            public List<ImplicitManyToManyA> As { get; set; }
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     public class ManyToManyAssociationEntityTypeConvention : ISkipNavigationAddedConvention, ISkipNavigationInverseChangedConvention
     {
-        private const string AssociationEntityTypeNameTemplate = "Join_{0}_{1}";
+        private const string AssociationEntityTypeNameTemplate = "{0}{1}";
         private const string AssociationPropertyNameTemplate = "{0}_{1}";
 
         /// <summary>

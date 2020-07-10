@@ -1123,7 +1123,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 AddBoilerPlate(
                     GetHeading()
                     + @"
-            modelBuilder.Entity(""Join_ManyToManyLeft_ManyToManyRight"", b =>
+            modelBuilder.Entity(""ManyToManyLeftManyToManyRight"", b =>
                 {
                     b.Property<int?>(""ManyToManyLeft_Id"")
                         .HasColumnType(""int"");
@@ -1135,7 +1135,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasIndex(""ManyToManyRight_Id"");
 
-                    b.ToTable(""Join_ManyToManyLeft_ManyToManyRight"");
+                    b.ToTable(""ManyToManyLeftManyToManyRight"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", b =>
@@ -1168,7 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""ManyToManyRight"");
                 });
 
-            modelBuilder.Entity(""Join_ManyToManyLeft_ManyToManyRight"", b =>
+            modelBuilder.Entity(""ManyToManyLeftManyToManyRight"", b =>
                 {
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", null)
                         .WithMany()
@@ -1184,7 +1184,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });", usingSystem: true),
                 model =>
                 {
-                    var associationEntity = model.FindEntityType("Join_ManyToManyLeft_ManyToManyRight");
+                    var associationEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
                     Assert.NotNull(associationEntity);
                     Assert.Collection(associationEntity.GetDeclaredProperties(),
                         p =>

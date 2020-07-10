@@ -129,14 +129,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<AutomaticManyToManyA>();
+                modelBuilder.Entity<ImplicitManyToManyA>();
 
-                var manyToManyA = model.FindEntityType(typeof(AutomaticManyToManyA));
-                var manyToManyB = model.FindEntityType(typeof(AutomaticManyToManyB));
+                var manyToManyA = model.FindEntityType(typeof(ImplicitManyToManyA));
+                var manyToManyB = model.FindEntityType(typeof(ImplicitManyToManyB));
                 var joinEntityType = model.GetEntityTypes()
                     .Where(et => ((EntityType)et).IsImplicitlyCreatedAssociationEntityType)
                     .Single();
-                Assert.Equal("Join_AutomaticManyToManyA_AutomaticManyToManyB", joinEntityType.Name);
+                Assert.Equal("ImplicitManyToManyAImplicitManyToManyB", joinEntityType.Name);
 
                 var navigationOnManyToManyA = manyToManyA.GetSkipNavigations().Single();
                 var navigationOnManyToManyB = manyToManyB.GetSkipNavigations().Single();
@@ -156,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var key = joinEntityType.FindPrimaryKey();
                 Assert.Equal(
                     new[] {
-                        nameof(AutomaticManyToManyA) + "_" + nameof(AutomaticManyToManyA.Id),
-                        nameof(AutomaticManyToManyB) + "_" + nameof(AutomaticManyToManyB.Id) },
+                        nameof(ImplicitManyToManyA) + "_" + nameof(ImplicitManyToManyA.Id),
+                        nameof(ImplicitManyToManyB) + "_" + nameof(ImplicitManyToManyB.Id) },
                     key.Properties.Select(p => p.Name));
 
                 modelBuilder.FinalizeModel();
