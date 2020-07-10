@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var converter = _physicalAddressToBytes.ConvertToProvider;
             var physicalAddress = PhysicalAddress.Parse(address);
-            var bytes = physicalAddress.GetAddressBytes(); 
-    
+            var bytes = physicalAddress.GetAddressBytes();
+
             Assert.Equal(bytes, converter(physicalAddress));
             Assert.Null(converter(null));
         }
