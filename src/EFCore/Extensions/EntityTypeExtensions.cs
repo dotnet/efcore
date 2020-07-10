@@ -830,6 +830,16 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
+                var skipNavigations = entityType.GetDeclaredSkipNavigations().ToList();
+                if (skipNavigations.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Skip navigations: ");
+                    foreach (var skipNavigation in skipNavigations)
+                    {
+                        builder.AppendLine().Append(skipNavigation.ToDebugString(options, indent + 4));
+                    }
+                }
+
                 var serviceProperties = entityType.GetDeclaredServiceProperties().ToList();
                 if (serviceProperties.Count != 0)
                 {

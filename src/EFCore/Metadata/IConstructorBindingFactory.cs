@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="binding"> The binding, or <see langword="null" /> if <see langword="null" /> could be created. </param>
         /// <param name="unboundParameters"> The parameters that could not be bound. </param>
         /// <returns> <see langword="true" /> if a binding was created; <see langword="false" /> otherwise. </returns>
-        [ContractAnnotation("=>true, binding:notnull, failedBindings:null; =>false, binding:null, failedBindings:notnull")]
         bool TryBindConstructor(
             [NotNull] IConventionEntityType entityType,
             [NotNull] ConstructorInfo constructor,
@@ -46,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="binding"> The binding, or <see langword="null" /> if <see langword="null" /> could be created. </param>
         /// <param name="unboundParameters"> The parameters that could not be bound. </param>
         /// <returns> <see langword="true" /> if a binding was created; <see langword="false" /> otherwise. </returns>
-        [ContractAnnotation("=>true, binding:notnull, failedBindings:null; =>false, binding:null, failedBindings:notnull")]
         bool TryBindConstructor(
             [NotNull] IMutableEntityType entityType,
             [NotNull] ConstructorInfo constructor,

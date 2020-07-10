@@ -6,7 +6,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyNoTrackingQuerySqliteTest : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
+    public class ManyToManyNoTrackingQuerySqliteTest
+        : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
     {
         public ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
             : base(fixture)

@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).AsSplitQuery(),
-                elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<EntityCompositeKey>(et => et.RootSkipShared)));
+                elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<EntityCompositeKey>(et => et.RootSkipShared)),
+                entryCount: 76);
         }
 
         [ConditionalTheory]
@@ -39,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<EntityTwo>().Include(e => e.OneSkip).ThenInclude(e => e.Reference).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<EntityTwo>(et => et.OneSkip),
-                    new ExpectedInclude<EntityOne>(et => et.Reference, "OneSkip")));
+                    new ExpectedInclude<EntityOne>(et => et.Reference, "OneSkip")),
+                entryCount: 151);
         }
 
         [ConditionalTheory]
@@ -51,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<EntityCompositeKey>().Include(e => e.LeafSkipFull).ThenInclude(e => e.OneSkip).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<EntityCompositeKey>(et => et.LeafSkipFull),
-                    new ExpectedInclude<EntityLeaf>(et => et.OneSkip, "LeafSkipFull")));
+                    new ExpectedInclude<EntityLeaf>(et => et.OneSkip, "LeafSkipFull")),
+                entryCount: 83);
         }
 
         [ConditionalTheory]
@@ -65,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<EntityThree>(et => et.OneSkipPayloadFull),
                     new ExpectedInclude<EntityOne>(et => et.Reference, "OneSkipPayloadFull"),
-                    new ExpectedInclude<EntityOne>(et => et.SelfSkipPayloadRight, "OneSkipPayloadFull")));
+                    new ExpectedInclude<EntityOne>(et => et.SelfSkipPayloadRight, "OneSkipPayloadFull")),
+                entryCount: 192);
         }
 
         [ConditionalTheory]
@@ -77,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<EntityTwo>().Include(e => e.OneSkipShared).Include(e => e.Reference).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<EntityTwo>(et => et.OneSkipShared),
-                    new ExpectedInclude<EntityTwo>(et => et.Reference)));
+                    new ExpectedInclude<EntityTwo>(et => et.Reference)),
+                entryCount: 94);
         }
 
         [ConditionalTheory]
@@ -89,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<EntityThree>().Include(e => e.OneSkipPayloadFullShared.Where(i => i.Id < 10)).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityThree, EntityOne>(
-                        et => et.OneSkipPayloadFullShared, includeFilter: x => x.Where(i => i.Id < 10))));
+                        et => et.OneSkipPayloadFullShared, includeFilter: x => x.Where(i => i.Id < 10))),
+                entryCount: 42);
         }
 
         [ConditionalTheory]
@@ -101,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<EntityThree>().Include(e => e.TwoSkipFull.OrderBy(i => i.Id)).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityThree, EntityTwo>(
-                        et => et.TwoSkipFull, includeFilter: x => x.OrderBy(i => i.Id))));
+                        et => et.TwoSkipFull, includeFilter: x => x.OrderBy(i => i.Id))),
+                entryCount: 91);
         }
 
         [ConditionalTheory]
@@ -113,7 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<EntityTwo>().Include(e => e.SelfSkipSharedRight.OrderBy(i => i.Id).Skip(2)).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityTwo, EntityTwo>(
-                        et => et.SelfSkipSharedRight, includeFilter: x => x.OrderBy(i => i.Id).Skip(2))));
+                        et => et.SelfSkipSharedRight, includeFilter: x => x.OrderBy(i => i.Id).Skip(2))),
+                entryCount: 31);
         }
 
         [ConditionalTheory]
@@ -125,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<EntityCompositeKey>().Include(e => e.TwoSkipShared.OrderBy(i => i.Id).Take(2)).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityCompositeKey, EntityTwo>(
-                        et => et.TwoSkipShared, includeFilter: x => x.OrderBy(i => i.Id).Take(2))));
+                        et => et.TwoSkipShared, includeFilter: x => x.OrderBy(i => i.Id).Take(2))),
+                entryCount: 63);
         }
 
         [ConditionalTheory]
@@ -137,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<EntityCompositeKey>().Include(e => e.ThreeSkipFull.OrderBy(i => i.Id).Skip(1).Take(2)).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityCompositeKey, EntityThree>(
-                        et => et.ThreeSkipFull, includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))));
+                        et => et.ThreeSkipFull, includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))),
+                entryCount: 57);
         }
 
         [ConditionalTheory]
@@ -152,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<EntityRoot>(et => et.ThreeSkipShared),
                     new ExpectedFilteredInclude<EntityThree, EntityOne>(
-                        et => et.OneSkipPayloadFullShared, "ThreeSkipShared", includeFilter: x => x.Where(i => i.Id < 10))));
+                        et => et.OneSkipPayloadFullShared, "ThreeSkipShared", includeFilter: x => x.Where(i => i.Id < 10))),
+                entryCount: 78);
         }
 
         [ConditionalTheory]
@@ -167,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<EntityRoot>(et => et.CompositeKeySkipShared),
                     new ExpectedFilteredInclude<EntityCompositeKey, EntityThree>(
-                        et => et.ThreeSkipFull, "CompositeKeySkipShared", includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))));
+                        et => et.ThreeSkipFull, "CompositeKeySkipShared", includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))),
+                entryCount: 104);
         }
 
         [ConditionalTheory]
@@ -181,7 +193,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityLeaf, EntityCompositeKey>(
                         et => et.CompositeKeySkipFull, includeFilter: x => x.Where(i => i.Key1 < 5)),
-                    new ExpectedInclude<EntityCompositeKey>(et => et.TwoSkipShared, "CompositeKeySkipFull")));
+                    new ExpectedInclude<EntityCompositeKey>(et => et.TwoSkipShared, "CompositeKeySkipFull")),
+                entryCount: 44);
         }
 
         [ConditionalTheory]
@@ -197,7 +210,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedFilteredInclude<EntityOne, EntityTwo>(
                         et => et.TwoSkip, includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2)),
                     new ExpectedFilteredInclude<EntityTwo, EntityThree>(
-                        et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.Where(i => i.Id < 10))));
+                        et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.Where(i => i.Id < 10))),
+                entryCount: 100);
         }
 
         [ConditionalTheory]
@@ -213,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedFilteredInclude<EntityOne, EntityTwo>(
                         et => et.TwoSkip, includeFilter: x => x.Where(i => i.Id < 10)),
                     new ExpectedFilteredInclude<EntityTwo, EntityThree>(
-                        et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))));
+                        et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))),
+                entryCount: 106);
         }
 
         [ConditionalTheory]
@@ -228,7 +243,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityTwo, EntityOne>(et => et.OneSkip, includeFilter: x => x.Where(i => i.Id < 10)),
                     new ExpectedInclude<EntityOne>(et => et.Reference, "OneSkip"),
-                    new ExpectedInclude<EntityOne>(et => et.Collection, "OneSkip")));
+                    new ExpectedInclude<EntityOne>(et => et.Collection, "OneSkip")),
+                entryCount: 88);
         }
 
         [ConditionalTheory]
@@ -246,7 +262,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityThree, EntityOne>(et => et.OneSkipPayloadFull, includeFilter: x => x.Where(i => i.Id < 10)),
                     new ExpectedFilteredInclude<EntityOne, EntityTwo>(et => et.TwoSkip, "OneSkipPayloadFull", includeFilter: x => x.OrderBy(e => e.Id).Skip(1).Take(2)),
-                    new ExpectedFilteredInclude<EntityOne, EntityBranch>(et => et.BranchSkip, "OneSkipPayloadFull", includeFilter: x => x.Where(e => e.Id < 20))));
+                    new ExpectedFilteredInclude<EntityOne, EntityBranch>(et => et.BranchSkip, "OneSkipPayloadFull", includeFilter: x => x.Where(e => e.Id < 20))),
+                entryCount: 116);
         }
 
         [ConditionalTheory]
@@ -260,7 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityThree, EntityOne>(et => et.OneSkipPayloadFull, includeFilter: x => x.Where(i => i.Id > 15)),
-                    new ExpectedFilteredInclude<EntityOne, EntityTwo>(et => et.Collection, "OneSkipPayloadFull", includeFilter: x => x.Where(i => i.Id < 5))));
+                    new ExpectedFilteredInclude<EntityOne, EntityTwo>(et => et.Collection, "OneSkipPayloadFull", includeFilter: x => x.Where(i => i.Id < 5))),
+                entryCount: 61);
         }
 
         [ConditionalTheory]
@@ -274,7 +292,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedFilteredInclude<EntityOne, EntityTwo>(et => et.Collection, includeFilter: x => x.Where(i => i.Id > 15)),
-                    new ExpectedFilteredInclude<EntityTwo, EntityThree>(et => et.ThreeSkipFull, "Collection", includeFilter: x => x.Where(i => i.Id < 5))));
+                    new ExpectedFilteredInclude<EntityTwo, EntityThree>(et => et.ThreeSkipFull, "Collection", includeFilter: x => x.Where(i => i.Id < 5))),
+                entryCount: 29);
         }
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)

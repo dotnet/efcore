@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
             else if (propertyBase.GetRelationshipIndex() != -1
-                && propertyBase is INavigation navigation)
+                && propertyBase is INavigationBase navigation)
             {
                 DetectNavigationChange(entry, navigation);
             }
@@ -220,6 +221,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     DetectNavigationChange(entry, navigation);
                 }
+
+                foreach (var navigation in entityType.GetSkipNavigations())
+                {
+                    DetectNavigationChange(entry, navigation);
+                }
             }
         }
 
@@ -268,13 +274,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void DetectNavigationChange(InternalEntityEntry entry, INavigation navigation)
+        private void DetectNavigationChange(InternalEntityEntry entry, INavigationBase navigationBase)
         {
-            var snapshotValue = entry.GetRelationshipSnapshotValue(navigation);
-            var currentValue = entry[navigation];
+            var snapshotValue = entry.GetRelationshipSnapshotValue(navigationBase);
+            var currentValue = entry[navigationBase];
             var stateManager = entry.StateManager;
 
-            if (navigation.IsCollection)
+            if (navigationBase.IsCollection)
             {
                 var snapshotCollection = (IEnumerable)snapshotValue;
                 var currentCollection = (IEnumerable)currentValue;
@@ -305,30 +311,53 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                     {
-                        _logger.CollectionChangeDetectedSensitive(entry, navigation, added, removed);
+                        if (navigationBase is INavigation navigation)
+                        {
+                            _logger.CollectionChangeDetectedSensitive(entry, navigation, added, removed);
+                        }
+                        else if (navigationBase is ISkipNavigation skipNavigation)
+                        {
+                            _logger.SkipCollectionChangeDetectedSensitive(entry, skipNavigation, added, removed);
+                        }
                     }
                     else
                     {
-                        _logger.CollectionChangeDetected(entry, navigation, added, removed);
+                        if (navigationBase is INavigation navigation)
+                        {
+                            _logger.CollectionChangeDetected(entry, navigation, added, removed);
+                        }
+                        else if (navigationBase is ISkipNavigation skipNavigation)
+                        {
+                            _logger.SkipCollectionChangeDetected(entry, skipNavigation, added, removed);
+                        }
                     }
 
-                    stateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(entry, navigation, added, removed);
+                    stateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(entry, navigationBase, added, removed);
                 }
             }
-            else if (!ReferenceEquals(currentValue, snapshotValue)
-                && (!navigation.ForeignKey.IsOwnership
-                    || !navigation.IsOnDependent))
+            else if (!ReferenceEquals(currentValue, snapshotValue))
             {
-                if (_loggingOptions.IsSensitiveDataLoggingEnabled)
+                if (navigationBase is INavigation navigation)
                 {
-                    _logger.ReferenceChangeDetectedSensitive(entry, navigation, snapshotValue, currentValue);
+                    if (!navigation.ForeignKey.IsOwnership
+                        || !navigation.IsOnDependent)
+                    {
+                        if (_loggingOptions.IsSensitiveDataLoggingEnabled)
+                        {
+                            _logger.ReferenceChangeDetectedSensitive(entry, navigation, snapshotValue, currentValue);
+                        }
+                        else
+                        {
+                            _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
+                        }
+
+                        stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+                    }
                 }
                 else
                 {
-                    _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
+                    throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
                 }
-
-                stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
             }
         }
     }

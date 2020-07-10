@@ -115,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ReferenceChangeDetected,
             StartedTracking,
             StateChanged,
-            ValueGenerated
+            ValueGenerated,
+            SkipCollectionChangeDetected,
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -736,6 +737,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId CollectionChangeDetected = MakeChangeTrackingId(Id.CollectionChangeDetected);
+
+        /// <summary>
+        ///     <para>
+        ///         DetectChanges has detected entities were added and/or removed from a collection skip navigation property.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="SkipCollectionChangedEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId SkipCollectionChangeDetected = MakeChangeTrackingId(Id.SkipCollectionChangeDetected);
 
         /// <summary>
         ///     <para>

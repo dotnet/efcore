@@ -2120,19 +2120,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 set;
             }
 
-            public Tuple<InternalEntityEntry, INavigation, object, object> ReferenceChange { get; set; }
-            public Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; }
+            public Tuple<InternalEntityEntry, INavigationBase, object, object> ReferenceChange { get; set; }
+            public Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; }
 
             public override void NavigationReferenceChanged(
-                InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
+                InternalEntityEntry entry, INavigationBase navigationBase, object oldValue, object newValue)
             {
-                ReferenceChange = Tuple.Create(entry, navigation, oldValue, newValue);
+                ReferenceChange = Tuple.Create(entry, navigationBase, oldValue, newValue);
 
-                base.NavigationReferenceChanged(entry, navigation, oldValue, newValue);
+                base.NavigationReferenceChanged(entry, navigationBase, oldValue, newValue);
             }
 
             public override void NavigationCollectionChanged(
-                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
+                InternalEntityEntry entry, INavigationBase navigation, IEnumerable<object> added, IEnumerable<object> removed)
             {
                 // ReSharper disable PossibleMultipleEnumeration
                 CollectionChange = Tuple.Create(entry, navigation, added, removed);

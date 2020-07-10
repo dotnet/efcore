@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
         public int Id { get; set; }
         public string Name { get; set; }
 
-        [NotMapped]
         public virtual ICollection<Team> Teams => _teams;
     }
 }

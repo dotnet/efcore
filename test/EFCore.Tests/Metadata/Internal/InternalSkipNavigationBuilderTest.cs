@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalSkipNavigationBuilder();
             var metadata = builder.Metadata;
 
-            Assert.Null(metadata.FieldInfo);
-            Assert.Null(metadata.GetFieldInfoConfigurationSource());
+            Assert.NotNull(metadata.FieldInfo);
+            Assert.Equal(ConfigurationSource.Convention, metadata.GetFieldInfoConfigurationSource());
 
             Assert.True(builder.CanSetField(Order.ProductsField, ConfigurationSource.DataAnnotation));
             Assert.NotNull(builder.HasField(Order.ProductsField, ConfigurationSource.DataAnnotation));
@@ -54,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalSkipNavigationBuilder();
             var metadata = builder.Metadata;
 
-            Assert.Null(metadata.FieldInfo);
-            Assert.Null(metadata.GetFieldInfoConfigurationSource());
+            Assert.NotNull(metadata.FieldInfo);
+            Assert.Equal(ConfigurationSource.Convention, metadata.GetFieldInfoConfigurationSource());
 
             Assert.True(builder.CanSetField("_products", ConfigurationSource.DataAnnotation));
             Assert.NotNull(builder.HasField("_products", ConfigurationSource.DataAnnotation));

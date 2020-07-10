@@ -5,7 +5,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ManyToManyNoTrackingQueryInMemoryTest : ManyToManyNoTrackingQueryTestBase<ManyToManyQueryInMemoryFixture>
+    public class ManyToManyNoTrackingQueryInMemoryTest
+        : ManyToManyNoTrackingQueryTestBase<ManyToManyQueryInMemoryFixture>
     {
         public ManyToManyNoTrackingQueryInMemoryTest(ManyToManyQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

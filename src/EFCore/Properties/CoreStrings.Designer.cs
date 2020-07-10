@@ -3087,6 +3087,54 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Detected {addedCount} entities added and {removedCount} entities removed from skip navigation property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static EventDefinition<int, int, string, string> LogSkipCollectionChangeDetected([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogSkipCollectionChangeDetected;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogSkipCollectionChangeDetected,
+                    () => new EventDefinition<int, int, string, string>(
+                        logger.Options,
+                        CoreEventId.SkipCollectionChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.SkipCollectionChangeDetected",
+                        level => LoggerMessage.Define<int, int, string, string>(
+                            level,
+                            CoreEventId.SkipCollectionChangeDetected,
+                            _resourceManager.GetString("LogSkipCollectionChangeDetected"))));
+            }
+
+            return (EventDefinition<int, int, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Detected {addedCount} entities added and {removedCount} entities removed from skip navigation property '{entityType}.{property}' on entity with key '{keyValues}'.
+        /// </summary>
+        public static EventDefinition<int, int, string, string, string> LogSkipCollectionChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogSkipCollectionChangeDetectedSensitive;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogSkipCollectionChangeDetectedSensitive,
+                    () => new EventDefinition<int, int, string, string, string>(
+                        logger.Options,
+                        CoreEventId.SkipCollectionChangeDetected,
+                        LogLevel.Debug,
+                        "CoreEventId.SkipCollectionChangeDetected",
+                        level => LoggerMessage.Define<int, int, string, string, string>(
+                            level,
+                            CoreEventId.SkipCollectionChangeDetected,
+                            _resourceManager.GetString("LogSkipCollectionChangeDetectedSensitive"))));
+            }
+
+            return (EventDefinition<int, int, string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     Navigation property '{entityType}.{property}' detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string> LogReferenceChangeDetected([NotNull] IDiagnosticsLogger logger)

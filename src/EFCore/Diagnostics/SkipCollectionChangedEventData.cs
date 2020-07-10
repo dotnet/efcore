@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     A <see cref="DiagnosticSource" /> event payload class for events that indicate
-    ///     a collection navigation property has had entities added and/or removed.
+    ///     a skip collection navigation property has had entities added and/or removed.
     /// </summary>
-    public class CollectionChangedEventData : NavigationEventData, ICollectionChangedEventData
+    public class SkipCollectionChangedEventData : SkipNavigationEventData, ICollectionChangedEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigation"> The navigation property. </param>
         /// <param name="added"> The entities added to the collection. </param>
         /// <param name="removed"> The entities removed from the collection. </param>
-        public CollectionChangedEventData(
+        public SkipCollectionChangedEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] EntityEntry entityEntry,
-            [NotNull] INavigation navigation,
+            [NotNull] ISkipNavigation navigation,
             [NotNull] IEnumerable<object> added,
             [NotNull] IEnumerable<object> removed)
             : base(eventDefinition, messageGenerator, navigation)

@@ -102,10 +102,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object GetOrCreateCollection(INavigation navigation, bool forMaterialization)
-            => GetOrCreateCollectionTyped(navigation);
+        public override object GetOrCreateCollection(INavigationBase navigationBase, bool forMaterialization)
+            => GetOrCreateCollectionTyped(navigationBase);
 
-        private ICollection<object> GetOrCreateCollectionTyped(INavigation navigation)
+        private ICollection<object> GetOrCreateCollectionTyped(INavigationBase navigation)
         {
             if (!(_propertyValues[navigation.GetShadowIndex()] is ICollection<object> collection))
             {
@@ -122,8 +122,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool CollectionContains(INavigation navigation, InternalEntityEntry value)
-            => GetOrCreateCollectionTyped(navigation).Contains(value.Entity);
+        public override bool CollectionContains(INavigationBase navigationBase, InternalEntityEntry value)
+            => GetOrCreateCollectionTyped(navigationBase).Contains(value.Entity);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,14 +131,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool AddToCollection(INavigation navigation, InternalEntityEntry value, bool forMaterialization)
+        public override bool AddToCollection(INavigationBase navigationBase, InternalEntityEntry value, bool forMaterialization)
         {
-            if (navigation.TargetEntityType.ClrType == null)
+            if (navigationBase.TargetEntityType.ClrType == null)
             {
                 return false;
             }
 
-            var collection = GetOrCreateCollectionTyped(navigation);
+            var collection = GetOrCreateCollectionTyped(navigationBase);
             if (!collection.Contains(value.Entity))
             {
                 collection.Add(value.Entity);
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool RemoveFromCollection(INavigation navigation, InternalEntityEntry value)
-            => GetOrCreateCollectionTyped(navigation).Remove(value.Entity);
+        public override bool RemoveFromCollection(INavigationBase navigationBase, InternalEntityEntry value)
+            => GetOrCreateCollectionTyped(navigationBase).Remove(value.Entity);
     }
 }

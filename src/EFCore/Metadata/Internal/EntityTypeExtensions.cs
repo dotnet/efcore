@@ -287,13 +287,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
 
-            foreach (var navigation in entityType.GetDeclaredNavigations())
+            foreach (var navigation in entityType.GetDeclaredNavigations()
+                .Union<PropertyBase>(entityType.GetDeclaredSkipNavigations()))
             {
                 var indexes = new PropertyIndexes(
                     index: navigationIndex++,
                     originalValueIndex: -1,
                     shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
-                    relationshipIndex: ((INavigation)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
+                    relationshipIndex: ((INavigationBase)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
                     storeGenerationIndex: -1);
 
                 navigation.PropertyIndexes = indexes;
@@ -319,6 +320,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 relationshipIndex,
                 storeGenerationIndex);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static Func<object> GetInstanceFactory([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().InstanceFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

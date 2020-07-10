@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         void NavigationCollectionChanged(
             [NotNull] InternalEntityEntry entry,
-            [NotNull] INavigation navigation,
+            [NotNull] INavigationBase navigationBase,
             [NotNull] IEnumerable<object> added,
             [NotNull] IEnumerable<object> removed);
 

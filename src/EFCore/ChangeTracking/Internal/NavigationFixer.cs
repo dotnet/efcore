@@ -1,11 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -51,13 +53,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
+        public virtual void NavigationReferenceChanged(
+            InternalEntityEntry entry, INavigationBase navigationBase, object oldValue, object newValue)
         {
             if (_inFixup)
             {
                 return;
             }
 
+            if (navigationBase is ISkipNavigation)
+            {
+                throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+            }
+
+            var navigation = (INavigation)navigationBase;
             var foreignKey = navigation.ForeignKey;
             var stateManager = entry.StateManager;
             var inverse = navigation.Inverse;
@@ -209,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void NavigationCollectionChanged(
             InternalEntityEntry entry,
-            INavigation navigation,
+            INavigationBase navigationBase,
             IEnumerable<object> added,
             IEnumerable<object> removed)
         {
@@ -218,10 +227,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return;
             }
 
-            var foreignKey = navigation.ForeignKey;
             var stateManager = entry.StateManager;
-            var inverse = navigation.Inverse;
-            var targetEntityType = navigation.TargetEntityType;
+            var inverse = navigationBase.Inverse;
+            var targetEntityType = navigationBase.TargetEntityType;
 
             foreach (var oldValue in removed)
             {
@@ -234,20 +242,39 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         _inFixup = true;
 
-                        // Null FKs and navigations of dependents that have been removed, unless they
-                        // have already been changed.
-                        ConditionallyNullForeignKeyProperties(oldTargetEntry, entry, foreignKey);
-
-                        if (inverse != null
-                            && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                            && (!foreignKey.IsOwnership
-                                || (oldTargetEntry.EntityState != EntityState.Deleted
-                                    && oldTargetEntry.EntityState != EntityState.Detached)))
+                        if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            SetNavigation(oldTargetEntry, inverse, null, fromQuery: false);
+                            var associationEntry = FindAssociationEntry(entry, oldTargetEntry, skipNavigation);
+                            associationEntry?.SetEntityState(EntityState.Deleted);
+
+                            if (skipNavigation.Inverse.IsCollection)
+                            {
+                                RemoveFromCollection(oldTargetEntry, skipNavigation.Inverse, entry);
+                            }
+                            else
+                            {
+                                throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+                            }
+                        }
+                        else
+                        {
+                            var foreignKey = ((INavigation)navigationBase).ForeignKey;
+
+                            // Null FKs and navigations of dependents that have been removed, unless they
+                            // have already been changed.
+                            ConditionallyNullForeignKeyProperties(oldTargetEntry, entry, foreignKey);
+
+                            if (inverse != null
+                                && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
+                                && (!foreignKey.IsOwnership
+                                    || (oldTargetEntry.EntityState != EntityState.Deleted
+                                        && oldTargetEntry.EntityState != EntityState.Detached)))
+                            {
+                                SetNavigation(oldTargetEntry, inverse, null, fromQuery: false);
+                            }
                         }
 
-                        entry.RemoveFromCollectionSnapshot(navigation, oldValue);
+                        entry.RemoveFromCollectionSnapshot(navigationBase, oldValue);
                     }
                     finally
                     {
@@ -265,20 +292,44 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         _inFixup = true;
 
-                        // For a dependent added to the collection, remove it from the collection of
-                        // the principal entity that it was previously part of
-                        var oldPrincipalEntry = stateManager.FindPrincipalUsingRelationshipSnapshot(newTargetEntry, foreignKey);
-                        if (oldPrincipalEntry != null
-                            && oldPrincipalEntry != entry)
+                        if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            RemoveFromCollection(oldPrincipalEntry, navigation, newTargetEntry);
+                            var associationEntry = FindOrCreateAssociationEntry(
+                                entry, newTargetEntry, skipNavigation, fromQuery: false, setModified: false);
+
+                            if (associationEntry.EntityState == EntityState.Detached)
+                            {
+                                associationEntry.SetEntityState(EntityState.Added);
+                            }
+
+                            if (skipNavigation.Inverse.IsCollection)
+                            {
+                                AddToCollection(newTargetEntry, skipNavigation.Inverse, entry, fromQuery: false);
+                            }
+                            else
+                            {
+                                throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+                            }
                         }
+                        else
+                        {
+                            var foreignKey = ((INavigation)navigationBase).ForeignKey;
 
-                        // Set the FK properties on added dependents to match this principal
-                        SetForeignKeyProperties(newTargetEntry, entry, foreignKey, setModified: true, fromQuery: false);
+                            // For a dependent added to the collection, remove it from the collection of
+                            // the principal entity that it was previously part of
+                            var oldPrincipalEntry = stateManager.FindPrincipalUsingRelationshipSnapshot(newTargetEntry, foreignKey);
+                            if (oldPrincipalEntry != null
+                                && oldPrincipalEntry != entry)
+                            {
+                                RemoveFromCollection(oldPrincipalEntry, navigationBase, newTargetEntry);
+                            }
 
-                        // Set the inverse navigation to point to this principal
-                        SetNavigation(newTargetEntry, inverse, entry, fromQuery: false);
+                            // Set the FK properties on added dependents to match this principal
+                            SetForeignKeyProperties(newTargetEntry, entry, foreignKey, setModified: true, fromQuery: false);
+
+                            // Set the inverse navigation to point to this principal
+                            SetNavigation(newTargetEntry, inverse, entry, fromQuery: false);
+                        }
                     }
                     finally
                     {
@@ -287,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else
                 {
-                    stateManager.RecordReferencedUntrackedEntity(newValue, navigation, entry);
+                    stateManager.RecordReferencedUntrackedEntity(newValue, navigationBase, entry);
 
                     _attacher.AttachGraph(
                         newTargetEntry,
@@ -296,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         forceStateWhenUnknownKey: false);
                 }
 
-                entry.AddToCollectionSnapshot(navigation, newValue);
+                entry.AddToCollectionSnapshot(navigationBase, newValue);
             }
         }
 
@@ -518,6 +569,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     DeleteFixup(entry);
                 }
+                else if (entry.EntityState == EntityState.Deleted)
+                {
+                    DeleteSkipNavigationFixup(entry);
+                }
             }
             finally
             {
@@ -573,6 +628,46 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        private void DeleteSkipNavigationFixup(InternalEntityEntry entry)
+        {
+            var entityType = entry.EntityType;
+            var stateManager = entry.StateManager;
+
+            foreach (var skipNavigation in entityType.GetSkipNavigations())
+            {
+                var navigationValue = entry[skipNavigation];
+                if (navigationValue != null)
+                {
+                    if (skipNavigation.IsCollection)
+                    {
+                        var others = ((IEnumerable)navigationValue).Cast<object>().ToList();
+                        foreach (var otherEntity in others)
+                        {
+                            var otherEntry = stateManager.TryGetEntry(otherEntity, skipNavigation.Inverse.DeclaringEntityType);
+                            if (otherEntry != null)
+                            {
+                                FindAssociationEntry(entry, otherEntry, skipNavigation)?.SetEntityState(EntityState.Deleted);
+                                RemoveFromCollection(entry, skipNavigation, otherEntry);
+
+                                if (skipNavigation.Inverse.IsCollection)
+                                {
+                                    RemoveFromCollection(otherEntry, skipNavigation.Inverse, entry);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+                    }
+                }
+            }
+        }
+
         private void InitialFixup(
             InternalEntityEntry entry,
             bool fromQuery)
@@ -595,6 +690,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         // Add this entity to principal's collection, or set inverse for 1:1
                         ToDependentFixup(entry, principalEntry, foreignKey, fromQuery);
+                    }
+                }
+
+                foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
+                {
+                    var leftEntry = stateManager.FindPrincipal(entry, foreignKey);
+                    if (leftEntry != null)
+                    {
+                        var rightEntry = stateManager.FindPrincipal(entry, skipNavigation.Inverse.ForeignKey);
+                        if (rightEntry != null)
+                        {
+                            AddToCollection(leftEntry, skipNavigation, rightEntry, fromQuery);
+                            AddToCollection(rightEntry, skipNavigation.Inverse, leftEntry, fromQuery);
+                        }
                     }
                 }
             }
@@ -636,6 +745,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 // Add to collection on principal indicated by FK and set inverse navigation
                                 AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
                                 SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);
+                            }
+
+                            foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
+                            {
+                                var otherEntry = stateManager.FindPrincipal(dependentEntry, skipNavigation.Inverse.ForeignKey);
+                                if (otherEntry != null)
+                                {
+                                    AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
+                                    AddToCollection(entry, skipNavigation, otherEntry, fromQuery);
+                                }
                             }
                         }
                     }
@@ -723,6 +842,52 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
+                foreach (var skipNavigation in entityType.GetSkipNavigations())
+                {
+                    var navigationValue = entry[skipNavigation];
+                    if (navigationValue != null)
+                    {
+                        if (skipNavigation.IsCollection)
+                        {
+                            var others = ((IEnumerable)navigationValue).Cast<object>().ToList();
+                            foreach (var otherEntity in others)
+                            {
+                                var otherEntry = stateManager.TryGetEntry(otherEntity, skipNavigation.Inverse.DeclaringEntityType);
+                                if (otherEntry == null
+                                    || otherEntry.EntityState == EntityState.Detached)
+                                {
+                                    // If dependents in collection are not yet tracked, then save them away so that
+                                    // when we start tracking them we can come back and fixup this principal to them
+                                    stateManager.RecordReferencedUntrackedEntity(otherEntity, skipNavigation, entry);
+                                }
+                                else
+                                {
+                                    var associationEntry = FindOrCreateAssociationEntry(
+                                        entry, otherEntry, skipNavigation, fromQuery, setModified);
+
+                                    if (associationEntry.EntityState == EntityState.Detached)
+                                    {
+                                        associationEntry.SetEntityState(EntityState.Added);
+                                    }
+
+                                    if (skipNavigation.Inverse.IsCollection)
+                                    {
+                                        AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
+                                    }
+                                    else
+                                    {
+                                        throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+                        }
+                    }
+                }
+
                 // If the entity was previously referenced while it was still untracked, go back and do the fixup
                 // that we would have done then now that the entity is tracked.
                 foreach (var danglerEntry in stateManager.GetRecordedReferrers(entry.Entity, clear: true))
@@ -732,32 +897,119 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void DelayedFixup(InternalEntityEntry entry, INavigation navigation, InternalEntityEntry referencedEntry, bool fromQuery)
+        private void DelayedFixup(
+            InternalEntityEntry entry, INavigationBase navigationBase, InternalEntityEntry referencedEntry, bool fromQuery)
         {
-            var navigationValue = entry[navigation];
+            var navigationValue = entry[navigationBase];
 
             if (navigationValue != null)
             {
                 var setModified = referencedEntry.EntityState != EntityState.Unchanged;
-
-                if (!navigation.IsOnDependent)
+                if (navigationBase is ISkipNavigation skipNavigation)
                 {
-                    if (navigation.IsCollection)
+                    var associationEntry = FindOrCreateAssociationEntry(
+                        entry, referencedEntry, skipNavigation, fromQuery, setModified);
+
+                    if (associationEntry.EntityState == EntityState.Detached)
                     {
-                        if (entry.CollectionContains(navigation, referencedEntry))
+                        associationEntry.SetEntityState(EntityState.Added);
+                    }
+
+                    AddToCollection(referencedEntry, skipNavigation.Inverse, entry, fromQuery);
+                }
+                else
+                {
+                    var navigation = (INavigation)navigationBase;
+
+                    if (!navigation.IsOnDependent)
+                    {
+                        if (navigation.IsCollection)
+                        {
+                            if (entry.CollectionContains(navigation, referencedEntry))
+                            {
+                                FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+                            }
+                        }
+                        else if (referencedEntry.Entity == navigationValue)
                         {
                             FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
                         }
                     }
                     else if (referencedEntry.Entity == navigationValue)
                     {
-                        FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+                        FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
                     }
                 }
-                else if (referencedEntry.Entity == navigationValue)
+            }
+        }
+
+        private static InternalEntityEntry FindOrCreateAssociationEntry(
+            InternalEntityEntry entry, InternalEntityEntry otherEntry, ISkipNavigation skipNavigation,
+            bool fromQuery, bool setModified)
+        {
+            var associationEntry = FindAssociationEntry(entry, otherEntry, skipNavigation);
+
+            if (associationEntry == null)
+            {
+                var associationEntityType = skipNavigation.AssociationEntityType;
+                var associationEntity = associationEntityType.GetInstanceFactory()();
+                associationEntry = entry.StateManager.GetOrCreateEntry(associationEntity, associationEntityType);
+            }
+
+            SetForeignKeyProperties(associationEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
+            SetForeignKeyProperties(associationEntry, otherEntry, skipNavigation.Inverse.ForeignKey, setModified, fromQuery);
+
+            return associationEntry;
+        }
+
+        private static InternalEntityEntry FindAssociationEntry(
+            InternalEntityEntry entry,
+            InternalEntityEntry otherEntry,
+            ISkipNavigation skipNavigation)
+        {
+            var associationEntityType = skipNavigation.AssociationEntityType;
+            var foreignKey = skipNavigation.ForeignKey;
+            var otherForeignKey = skipNavigation.Inverse.ForeignKey;
+
+            if (foreignKey.Properties.Count == 1
+                && otherForeignKey.Properties.Count == 1)
+            {
+                if (TryFind(entry, otherEntry, foreignKey, otherForeignKey, out var associationEntry))
                 {
-                    FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+                    return associationEntry;
                 }
+
+                if (TryFind(otherEntry, entry, otherForeignKey, foreignKey, out associationEntry))
+                {
+                    return associationEntry;
+                }
+            }
+
+            throw new NotImplementedException("TODO: Other kinds of keys");
+
+            bool TryFind(
+                InternalEntityEntry firstEntry,
+                InternalEntityEntry secondEntry,
+                IForeignKey firstForeignKey,
+                IForeignKey secondForeignKey,
+                out InternalEntityEntry associationEntry)
+            {
+                var key = associationEntityType.FindKey(new[] { firstForeignKey.Properties[0], secondForeignKey.Properties[0] });
+                if (key != null)
+                {
+                    var keyValues = new[]
+                    {
+                        firstEntry[firstForeignKey.PrincipalKey.Properties[0]],
+                        secondEntry[secondForeignKey.PrincipalKey.Properties[0]]
+                    };
+                    {
+                        associationEntry = entry.StateManager.TryGetEntry(key, keyValues);
+                        return true;
+                    }
+                }
+
+                associationEntry = null;
+                return false;
             }
         }
 
@@ -928,17 +1180,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     case EntityState.Added:
                         dependentEntry.SetEntityState(EntityState.Detached);
                         DeleteFixup(dependentEntry);
+                        DeleteSkipNavigationFixup(dependentEntry);
                         break;
                     case EntityState.Unchanged:
                     case EntityState.Modified:
                         dependentEntry.SetEntityState(EntityState.Deleted);
                         DeleteFixup(dependentEntry);
+                        DeleteSkipNavigationFixup(dependentEntry);
                         break;
                 }
             }
         }
 
-        private void SetNavigation(InternalEntityEntry entry, INavigation navigation, InternalEntityEntry value, bool fromQuery)
+        private void SetNavigation(InternalEntityEntry entry, INavigationBase navigation, InternalEntityEntry value, bool fromQuery)
         {
             if (navigation != null)
             {
@@ -957,7 +1211,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void AddToCollection(InternalEntityEntry entry, INavigation navigation, InternalEntityEntry value, bool fromQuery)
+        private void AddToCollection(InternalEntityEntry entry, INavigationBase navigation, InternalEntityEntry value, bool fromQuery)
         {
             if (navigation != null)
             {
@@ -976,7 +1230,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void RemoveFromCollection(InternalEntityEntry entry, INavigation navigation, InternalEntityEntry value)
+        private void RemoveFromCollection(InternalEntityEntry entry, INavigationBase navigation, InternalEntityEntry value)
         {
             _changeDetector.Suspend();
             try
@@ -994,7 +1248,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void SetReferenceOrAddToCollection(
             InternalEntityEntry entry,
-            INavigation navigation,
+            INavigationBase navigation,
             InternalEntityEntry value,
             bool fromQuery)
         {
@@ -1010,7 +1264,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void ResetReferenceOrRemoveCollection(
             InternalEntityEntry entry,
-            INavigation navigation,
+            INavigationBase navigation,
             InternalEntityEntry value,
             bool fromQuery)
         {
