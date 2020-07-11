@@ -2205,6 +2205,61 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_join_with_grouping_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => o.CustomerID)
+                    .Select(g => new { g.Key, Count = g.Count() })
+                    .Join(ss.Set<Customer>(), o => o.Key, c => c.CustomerID, (o, c) => new { c, o.Count }),
+                elementSorter: a => a.c.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    AssertEqual(e.Count, a.Count);
+                },
+                entryCount: 89);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_join_with_group_result(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => o.CustomerID, e => e.OrderDate)
+                    .Select(g => new { g.Key, LastOrderDate = g.Max() })
+                    .Join(ss.Set<Order>(), o => o, i => new { Key = i.CustomerID, LastOrderDate = i.OrderDate }, (_, x) => x),
+                entryCount: 90);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_from_right_side_of_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => (from c in ss.Set<Customer>()
+                       join o in ss.Set<Order>().GroupBy(i => i.CustomerID).Select(e => new { e.Key, Max = e.Max(i => i.OrderDate) })
+                         on c.CustomerID equals o.Key
+                       select new { c, o.Max })
+                      .OrderBy(e => e.Max)
+                      .ThenBy(c => c.c.CustomerID)
+                      .Skip(10)
+                      .Take(10),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    AssertEqual(e.Max, a.Max);
+                },
+                entryCount: 10);
+        }
+
         #endregion
 
         #region GroupByWithoutAggregate

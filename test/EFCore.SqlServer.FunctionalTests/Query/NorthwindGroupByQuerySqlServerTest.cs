@@ -1930,6 +1930,52 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override async Task GroupBy_aggregate_join_with_grouping_key(bool async)
+        {
+            await base.GroupBy_aggregate_join_with_grouping_key(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[c] AS [Count]
+FROM (
+    SELECT [o].[CustomerID], COUNT(*) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]
+INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]");
+        }
+
+        public override async Task GroupBy_aggregate_join_with_group_result(bool async)
+        {
+            await base.GroupBy_aggregate_join_with_group_result(async);
+
+            AssertSql(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT [o].[CustomerID], MAX([o].[OrderDate]) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]
+INNER JOIN [Orders] AS [o0] ON (([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND (([t].[c] = [o0].[OrderDate]) OR ([t].[c] IS NULL AND [o0].[OrderDate] IS NULL))");
+        }
+
+        public override async Task GroupBy_aggregate_from_right_side_of_join(bool async)
+        {
+            await base.GroupBy_aggregate_from_right_side_of_join(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[c] AS [Max]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o].[CustomerID], MAX([o].[OrderDate]) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[c], [c].[CustomerID]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY");
+        }
+
         public override async Task GroupBy_with_grouping_key_using_Like(bool async)
         {
             await base.GroupBy_with_grouping_key_using_Like(async);
