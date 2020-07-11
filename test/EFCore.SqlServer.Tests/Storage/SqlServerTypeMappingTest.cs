@@ -284,21 +284,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
 
-        [ConditionalTheory]
-        [InlineData("Microsoft.SqlServer.Types.SqlHierarchyId", "hierarchyid")]
-        [InlineData("Microsoft.SqlServer.Types.SqlGeography", "geography")]
-        [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]
-        public virtual void Get_named_mappings_for_sql_type(string typeName, string udtName)
-        {
-            var type = new FakeType(typeName);
-
-            var mapping = GetMapping(type);
-
-            Assert.Equal(udtName, mapping.StoreType);
-            Assert.Equal(udtName, ((SqlServerUdtTypeMapping)mapping).UdtTypeName);
-            Assert.Same(type, mapping.ClrType);
-        }
-
         private class FakeType : Type
         {
             public FakeType(string fullName)

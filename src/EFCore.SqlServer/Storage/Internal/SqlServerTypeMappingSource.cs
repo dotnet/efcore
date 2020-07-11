@@ -152,14 +152,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 "nvarchar"
             };
 
-        private readonly IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> _namedClrMappings
-            = new Dictionary<string, Func<Type, RelationalTypeMapping>>(StringComparer.Ordinal)
-            {
-                { "Microsoft.SqlServer.Types.SqlHierarchyId", t => SqlServerUdtTypeMapping.CreateSqlHierarchyIdMapping(t) },
-                { "Microsoft.SqlServer.Types.SqlGeography", t => SqlServerUdtTypeMapping.CreateSqlSpatialMapping(t, "geography") },
-                { "Microsoft.SqlServer.Types.SqlGeometry", t => SqlServerUdtTypeMapping.CreateSqlSpatialMapping(t, "geometry") }
-            };
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -300,11 +292,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 if (_clrTypeMappings.TryGetValue(clrType, out var mapping))
                 {
                     return mapping;
-                }
-
-                if (_namedClrMappings.TryGetValue(clrType.FullName, out var mappingFunc))
-                {
-                    return mappingFunc(clrType);
                 }
 
                 if (clrType == typeof(string))
