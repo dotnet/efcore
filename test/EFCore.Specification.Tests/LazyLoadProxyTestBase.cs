@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -2028,6 +2031,155 @@ namespace Microsoft.EntityFrameworkCore
             Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_serialize_proxies_to_JSON()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var blogs = context.Set<Blog>().OrderBy(e => e.Host.HostName).ToList();
+
+            VerifyBlogs(blogs);
+            foreach (var blog in blogs)
+            {
+                Assert.IsNotType<Blog>(blog);
+            }
+
+            var serialized = Newtonsoft.Json.JsonConvert.SerializeObject(
+                blogs, new Newtonsoft.Json.JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
+                    Formatting = Newtonsoft.Json.Formatting.Indented
+                });
+
+            Assert.Equal(@"[
+  {
+    ""Writer"": {
+      ""FirstName"": ""firstNameWriter0"",
+      ""LastName"": ""lastNameWriter0""
+    },
+    ""Reader"": {
+      ""FirstName"": ""firstNameReader0"",
+      ""LastName"": ""lastNameReader0""
+    },
+    ""Host"": {
+      ""HostName"": ""127.0.0.1""
+    },
+    ""Id"": 1
+  },
+  {
+    ""Writer"": {
+      ""FirstName"": ""firstNameWriter1"",
+      ""LastName"": ""lastNameWriter1""
+    },
+    ""Reader"": {
+      ""FirstName"": ""firstNameReader1"",
+      ""LastName"": ""lastNameReader1""
+    },
+    ""Host"": {
+      ""HostName"": ""127.0.0.2""
+    },
+    ""Id"": 2
+  },
+  {
+    ""Writer"": {
+      ""FirstName"": ""firstNameWriter2"",
+      ""LastName"": ""lastNameWriter2""
+    },
+    ""Reader"": {
+      ""FirstName"": ""firstNameReader2"",
+      ""LastName"": ""lastNameReader2""
+    },
+    ""Host"": {
+      ""HostName"": ""127.0.0.3""
+    },
+    ""Id"": 3
+  }
+]", serialized, ignoreLineEndingDifferences: true);
+
+            var newBlogs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Blog>>(serialized);
+
+            VerifyBlogs(newBlogs);
+            foreach (var blog in newBlogs)
+            {
+                Assert.IsType<Blog>(blog);
+            }
+
+#if NETCOREAPP5_0
+            var options = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve, WriteIndented = true };
+
+            serialized = JsonSerializer.Serialize(blogs, options);
+
+            Assert.Equal(@"{
+  ""$id"": ""1"",
+  ""$values"": [
+    {
+      ""$id"": ""2"",
+      ""Id"": 1,
+      ""Writer"": {
+        ""$id"": ""3"",
+        ""FirstName"": ""firstNameWriter0"",
+        ""LastName"": ""lastNameWriter0""
+      },
+      ""Reader"": {
+        ""$id"": ""4"",
+        ""FirstName"": ""firstNameReader0"",
+        ""LastName"": ""lastNameReader0""
+      },
+      ""Host"": {
+        ""$id"": ""5"",
+        ""HostName"": ""127.0.0.1""
+      }
+    },
+    {
+      ""$id"": ""6"",
+      ""Id"": 2,
+      ""Writer"": {
+        ""$id"": ""7"",
+        ""FirstName"": ""firstNameWriter1"",
+        ""LastName"": ""lastNameWriter1""
+      },
+      ""Reader"": {
+        ""$id"": ""8"",
+        ""FirstName"": ""firstNameReader1"",
+        ""LastName"": ""lastNameReader1""
+      },
+      ""Host"": {
+        ""$id"": ""9"",
+        ""HostName"": ""127.0.0.2""
+      }
+    },
+    {
+      ""$id"": ""10"",
+      ""Id"": 3,
+      ""Writer"": {
+        ""$id"": ""11"",
+        ""FirstName"": ""firstNameWriter2"",
+        ""LastName"": ""lastNameWriter2""
+      },
+      ""Reader"": {
+        ""$id"": ""12"",
+        ""FirstName"": ""firstNameReader2"",
+        ""LastName"": ""lastNameReader2""
+      },
+      ""Host"": {
+        ""$id"": ""13"",
+        ""HostName"": ""127.0.0.3""
+      }
+    }
+  ]
+}", serialized, ignoreLineEndingDifferences: true);
+
+            newBlogs = JsonSerializer.Deserialize<List<Blog>>(serialized, options);
+            Assert.IsType<List<Blog>>(newBlogs);
+
+            foreach (var blog in newBlogs)
+            {
+                Assert.IsType<Blog>(blog);
+            }
+            VerifyBlogs(newBlogs);
+#endif
         }
 
         [ConditionalFact]

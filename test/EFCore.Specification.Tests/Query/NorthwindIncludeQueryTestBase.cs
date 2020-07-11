@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -52,52 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Order>(o => o.Customer),
                     new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
                 entryCount: 919);
-
-            using var context = CreateContext();
-
-            var queryable = context.Set<Order>().Include(o => o.Customer).ThenInclude(c => c.Orders);
-            var orders = async ? await queryable.ToListAsync() : queryable.ToList();
-
-            Assert.True(orders.Count > 0);
-            Assert.True(orders.All(od => od.Customer != null));
-            Assert.True(orders.All(od => od.Customer.Orders != null));
-
-            TestJsonSerialization(useNewtonsoft: false, ignoreLoops: false, writeIndented: false);
-            TestJsonSerialization(useNewtonsoft: false, ignoreLoops: false, writeIndented: true);
-            TestJsonSerialization(useNewtonsoft: true, ignoreLoops: true, writeIndented: false);
-            TestJsonSerialization(useNewtonsoft: true, ignoreLoops: true, writeIndented: true);
-            TestJsonSerialization(useNewtonsoft: true, ignoreLoops: false, writeIndented: false);
-            TestJsonSerialization(useNewtonsoft: true, ignoreLoops: false, writeIndented: true);
-
-            void TestJsonSerialization(bool useNewtonsoft, bool ignoreLoops, bool writeIndented)
-            {
-                var ordersAgain = useNewtonsoft
-                    ? RoundtripThroughNewtonsoftJson(orders, ignoreLoops, writeIndented)
-                    : RoundtripThroughBclJson(orders, ignoreLoops, writeIndented);
-
-                var ordersMap = ignoreLoops ? null : new Dictionary<int, Order>();
-                var customersMap = ignoreLoops ? null : new Dictionary<string, Customer>();
-
-                foreach (var order in ordersAgain)
-                {
-                    VerifyOrder(context, order, ordersMap);
-
-                    var customer = order.Customer;
-                    Assert.Equal(order.CustomerID, customer.CustomerID);
-
-                    VerifyCustomer(context, customer, customersMap);
-
-                    foreach (var orderAgain in customer.Orders)
-                    {
-                        VerifyOrder(context, orderAgain, ordersMap);
-
-                        if (!ignoreLoops)
-                        {
-                            Assert.Same(customer, orderAgain.Customer);
-                        }
-                    }
-                }
-            }
         }
 
         [ConditionalTheory]
@@ -888,51 +840,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<OrderDetail>().Include(o => o.Order),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderDetail>(od => od.Order)),
                 entryCount: 2985);
-
-            using var context = CreateContext();
-
-            var queryable = context.Set<Order>().Include(o => o.Customer).Include(o => o.OrderDetails);
-            var orders = async ? await queryable.ToListAsync() : queryable.ToList();
-
-            Assert.Equal(830, orders.Count);
-
-            TestJsonSerialization(useNewtonsoft: false, ignoreLoops: false, writeIndented: false);
-            TestJsonSerialization(useNewtonsoft: false, ignoreLoops: false, writeIndented: true);
-            TestJsonSerialization(useNewtonsoft: true, ignoreLoops: true, writeIndented: false);
-            TestJsonSerialization(useNewtonsoft: true, ignoreLoops: true, writeIndented: true);
-            TestJsonSerialization(useNewtonsoft: true, ignoreLoops: false, writeIndented: false);
-            TestJsonSerialization(useNewtonsoft: true, ignoreLoops: false, writeIndented: true);
-
-            void TestJsonSerialization(bool useNewtonsoft, bool ignoreLoops, bool writeIndented)
-            {
-                var ordersAgain = useNewtonsoft
-                    ? RoundtripThroughNewtonsoftJson(orders, ignoreLoops, writeIndented)
-                    : RoundtripThroughBclJson(orders, ignoreLoops, writeIndented);
-
-                var ordersMap = ignoreLoops ? null : new Dictionary<int, Order>();
-                var ordersDetailsMap = ignoreLoops ? null : new Dictionary<(int, int), OrderDetail>();
-                var customersMap = ignoreLoops ? null : new Dictionary<string, Customer>();
-
-                foreach (var order in ordersAgain)
-                {
-                    VerifyOrder(context, order, ordersMap);
-
-                    var customer = order.Customer;
-                    Assert.Equal(order.CustomerID, customer.CustomerID);
-
-                    VerifyCustomer(context, customer, customersMap);
-
-                    foreach (var orderDetail in order.OrderDetails)
-                    {
-                        VerifyOrderDetails(context, orderDetail, ordersDetailsMap);
-
-                        if (!ignoreLoops)
-                        {
-                            Assert.Same(order, orderDetail.Order);
-                        }
-                    }
-                }
-            }
         }
 
         [ConditionalTheory]
@@ -1602,146 +1509,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static string ClientMethod(Employee e)
             => e.FirstName + " reports to " + e.Manager.FirstName;
-
-        private static T RoundtripThroughBclJson<T>(T collection, bool ignoreLoops, bool writeIndented, int maxDepth = 64)
-        {
-            Assert.False(ignoreLoops, "BCL doesn't support ignoring loops.");
-
-#if NETCOREAPP5_0
-            var options = new JsonSerializerOptions
-            {
-                ReferenceHandler = ReferenceHandler.Preserve,
-                WriteIndented = writeIndented,
-                MaxDepth = maxDepth
-            };
-
-            return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(collection, options), options);
-#else
-            return collection;
-#endif
-        }
-
-        private static T RoundtripThroughNewtonsoftJson<T>(T collection, bool ignoreLoops, bool writeIndented)
-        {
-            var options = new Newtonsoft.Json.JsonSerializerSettings
-            {
-                PreserveReferencesHandling = ignoreLoops
-                ? Newtonsoft.Json.PreserveReferencesHandling.None
-                : Newtonsoft.Json.PreserveReferencesHandling.All,
-                ReferenceLoopHandling = ignoreLoops
-                ? Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                : Newtonsoft.Json.ReferenceLoopHandling.Error,
-                EqualityComparer = LegacyReferenceEqualityComparer.Instance,
-                Formatting = writeIndented
-                    ? Newtonsoft.Json.Formatting.Indented
-                    : Newtonsoft.Json.Formatting.None
-            };
-
-            var serializeObject = Newtonsoft.Json.JsonConvert.SerializeObject(collection, options);
-
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(serializeObject);
-        }
-
-        private static void VerifyCustomer(NorthwindContext context, Customer customer, Dictionary<string, Customer> customersMap)
-        {
-            var trackedCustomer = context.Customers.Find(customer.CustomerID);
-            Assert.Equal(trackedCustomer.Address, customer.Address);
-            Assert.Equal(trackedCustomer.City, customer.City);
-            Assert.Equal(trackedCustomer.Country, customer.Country);
-            Assert.Equal(trackedCustomer.Fax, customer.Fax);
-            Assert.Equal(trackedCustomer.Phone, customer.Phone);
-            Assert.Equal(trackedCustomer.Region, customer.Region);
-            Assert.Equal(trackedCustomer.CompanyName, customer.CompanyName);
-            Assert.Equal(trackedCustomer.ContactName, customer.ContactName);
-            Assert.Equal(trackedCustomer.ContactTitle, customer.ContactTitle);
-            Assert.Equal(trackedCustomer.IsLondon, customer.IsLondon);
-            Assert.Equal(trackedCustomer.PostalCode, customer.PostalCode);
-            Assert.Equal(trackedCustomer.CustomerID, customer.CustomerID);
-
-            if (customersMap != null)
-            {
-                if (customersMap.TryGetValue(customer.CustomerID, out var mappedCustomer))
-                {
-                    Assert.Same(customer, mappedCustomer);
-                }
-
-                customersMap[customer.CustomerID] = customer;
-            }
-        }
-
-        private static void VerifyOrder(NorthwindContext context, Order order, IDictionary<int, Order> ordersMap)
-        {
-            var trackedOrder = context.Orders.Find(order.OrderID);
-            Assert.Equal(trackedOrder.Freight, order.Freight);
-            Assert.Equal(trackedOrder.OrderDate, order.OrderDate);
-            Assert.Equal(trackedOrder.RequiredDate, order.RequiredDate);
-            Assert.Equal(trackedOrder.ShipAddress, order.ShipAddress);
-            Assert.Equal(trackedOrder.ShipCity, order.ShipCity);
-            Assert.Equal(trackedOrder.ShipCountry, order.ShipCountry);
-            Assert.Equal(trackedOrder.ShipName, order.ShipName);
-            Assert.Equal(trackedOrder.ShippedDate, order.ShippedDate);
-            Assert.Equal(trackedOrder.ShipRegion, order.ShipRegion);
-            Assert.Equal(trackedOrder.ShipVia, order.ShipVia);
-            Assert.Equal(trackedOrder.CustomerID, order.CustomerID);
-            Assert.Equal(trackedOrder.EmployeeID, order.EmployeeID);
-            Assert.Equal(trackedOrder.OrderID, order.OrderID);
-            Assert.Equal(trackedOrder.ShipPostalCode, order.ShipPostalCode);
-
-            if (ordersMap != null)
-            {
-                if (ordersMap.TryGetValue(order.OrderID, out var mappedOrder))
-                {
-                    Assert.Same(order, mappedOrder);
-                }
-
-                ordersMap[order.OrderID] = order;
-            }
-        }
-
-        private static void VerifyOrderDetails(NorthwindContext context, OrderDetail orderDetail, IDictionary<(int, int), OrderDetail> orderDetailsMap)
-        {
-            var trackedOrderDetail = context.OrderDetails.Find(orderDetail.OrderID, orderDetail.ProductID);
-            Assert.Equal(trackedOrderDetail.Discount, orderDetail.Discount);
-            Assert.Equal(trackedOrderDetail.Quantity, orderDetail.Quantity);
-            Assert.Equal(trackedOrderDetail.UnitPrice, orderDetail.UnitPrice);
-            Assert.Equal(trackedOrderDetail.OrderID, orderDetail.OrderID);
-            Assert.Equal(trackedOrderDetail.ProductID, orderDetail.ProductID);
-
-            if (orderDetailsMap != null)
-            {
-                if (orderDetailsMap.TryGetValue((orderDetail.OrderID, orderDetail.ProductID), out var mappedOrderDetail))
-                {
-                    Assert.Same(orderDetail, mappedOrderDetail);
-                }
-
-                orderDetailsMap[(orderDetail.OrderID, orderDetail.ProductID)] = orderDetail;
-            }
-        }
-
-        private static void VerifyProduct(NorthwindContext context, Product product, IDictionary<int, Product> productsMap)
-        {
-            var trackedProduct = context.Products.Find(product.ProductID);
-            Assert.Equal(trackedProduct.Discontinued, product.Discontinued);
-            Assert.Equal(trackedProduct.ProductName, product.ProductName);
-            Assert.Equal(trackedProduct.ReorderLevel, product.ReorderLevel);
-            Assert.Equal(trackedProduct.UnitPrice, product.UnitPrice);
-            Assert.Equal(trackedProduct.CategoryID, product.CategoryID);
-            Assert.Equal(trackedProduct.ProductID, product.ProductID);
-            Assert.Equal(trackedProduct.QuantityPerUnit, product.QuantityPerUnit);
-            Assert.Equal(trackedProduct.SupplierID, product.SupplierID);
-            Assert.Equal(trackedProduct.UnitsInStock, product.UnitsInStock);
-            Assert.Equal(trackedProduct.UnitsOnOrder, product.UnitsOnOrder);
-
-            if (productsMap != null)
-            {
-                if (productsMap.TryGetValue(product.ProductID, out var mappedProduct))
-                {
-                    Assert.Same(product, mappedProduct);
-                }
-
-                productsMap[product.ProductID] = product;
-            }
-        }
 
         // Issue#18672
         [ConditionalTheory]
