@@ -773,7 +773,40 @@ FROM [Customers] AS [c]
 ORDER BY [c].[FirstName]");
         }
 
+        public override void Udf_with_argument_being_comparison_to_null_parameter()
+        {
+            base.Udf_with_argument_being_comparison_to_null_parameter();
+
+            AssertSql(
+                @"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+FROM [Customers] AS [c]
+CROSS APPLY [dbo].[GetCustomerOrderCountByYearOnlyFrom2000]([c].[Id], CASE
+    WHEN [c].[LastName] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END) AS [o]
+ORDER BY [o].[Year]");
+        }
+
+        public override void Udf_with_argument_being_comparison_of_nullable_columns()
+        {
+            base.Udf_with_argument_being_comparison_of_nullable_columns();
+
+            AssertSql(
+                @"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+FROM [Addresses] AS [a]
+CROSS APPLY [dbo].[GetCustomerOrderCountByYearOnlyFrom2000](1, CASE
+    WHEN (([a].[City] = [a].[State]) AND ([a].[City] IS NOT NULL AND [a].[State] IS NOT NULL)) OR ([a].[City] IS NULL AND [a].[State] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END) AS [o]
+ORDER BY [a].[Id], [o].[Year]");
+        }
+
         #endregion
+
+        protected override void ClearLog()
+        {
+            Fixture.TestSqlLoggerFactory.Clear();
+        }
 
         public class SqlServer : UdfFixtureBase
         {
@@ -861,6 +894,26 @@ ORDER BY [c].[FirstName]");
                                                         select @customerId, count(id), year(orderDate)
                                                         from orders
                                                         where customerId = @customerId
+                                                        group by customerId, year(orderDate)
+                                                        order by year(orderDate)
+
+                                                        return
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].GetCustomerOrderCountByYearOnlyFrom2000(@customerId int, @onlyFrom2000 bit)
+                                                    returns @reports table
+                                                    (
+                                                        CustomerId int not null,
+                                                        Count int not null,
+                                                        Year int not null
+                                                    )
+                                                    as
+                                                    begin
+                                                        insert into @reports
+                                                        select @customerId, count(id), year(orderDate)
+                                                        from orders
+                                                        where customerId = 1 AND (@onlyFrom2000 = 0 OR @onlyFrom2000 IS NULL OR (@onlyFrom2000 = 1 AND year(orderDate) = 2000))
                                                         group by customerId, year(orderDate)
                                                         order by year(orderDate)
 

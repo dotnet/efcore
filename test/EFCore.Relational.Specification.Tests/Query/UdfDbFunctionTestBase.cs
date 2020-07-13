@@ -189,6 +189,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return FromExpression(() => GetCustomerOrderCountByYear(customerId));
             }
 
+            public IQueryable<OrderByYear> GetCustomerOrderCountByYearOnlyFrom2000(int customerId, bool onlyFrom2000)
+            {
+                return FromExpression(() => GetCustomerOrderCountByYearOnlyFrom2000(customerId, onlyFrom2000));
+            }
+
             public IQueryable<TopSellingProduct> GetTopTwoSellingProducts()
             {
                 return FromExpression(() => GetTopTwoSellingProducts());
@@ -261,6 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 //Table
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), new[] { typeof(int) }));
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), new[] { typeof(int), typeof(bool) }));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts)));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
@@ -1948,7 +1954,68 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Udf_with_argument_being_comparison_to_null_parameter()
+        {
+            using (var context = CreateContext())
+            {
+                var prm = default(string);
+                var query = (from c in context.Customers
+                              from r in context.GetCustomerOrderCountByYearOnlyFrom2000(c.Id, c.LastName != prm)
+                              orderby r.Year
+                              select r
+                             ).ToList();
+
+                Assert.Equal(4, query.Count);
+                Assert.Equal(1, query[0].CustomerId);
+                Assert.Equal(2, query[0].Count);
+                Assert.Equal(2, query[1].CustomerId);
+                Assert.Equal(2, query[1].Count);
+                Assert.Equal(3, query[2].CustomerId);
+                Assert.Equal(2, query[2].Count);
+                Assert.Equal(4, query[3].CustomerId);
+                Assert.Equal(2, query[3].Count);
+                Assert.True(query.All(x => x.Year == 2000));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Udf_with_argument_being_comparison_of_nullable_columns()
+        {
+            using (var context = CreateContext())
+            {
+                var expected = (from a in context.Addresses.ToList()
+                                from r in context.Orders.ToList()
+                                    .Where(x => x.CustomerId == 1 && (a.City != a.State || x.OrderDate.Year == 2000))
+                                    .GroupBy(x => new { x.CustomerId, x.OrderDate.Year })
+                                    .Select(x => new OrderByYear { CustomerId = x.Key.CustomerId, Year = x.Key.Year, Count = x.Count() })
+                                orderby a.Id, r.Year
+                                select r
+                             ).ToList();
+
+                ClearLog();
+
+                var query = (from a in context.Addresses
+                              from r in context.GetCustomerOrderCountByYearOnlyFrom2000(1, a.City == a.State)
+                              orderby a.Id, r.Year
+                              select r
+                             ).ToList();
+
+                Assert.Equal(expected.Count, query.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].CustomerId, query[i].CustomerId);
+                    Assert.Equal(expected[i].Year, query[i].Year);
+                    Assert.Equal(expected[i].Count, query[i].Count);
+                }
+            }
+        }
+
         #endregion
+
+        protected virtual void ClearLog()
+        {
+        }
 
         private void AssertTranslationFailed(Action testCode)
             => Assert.Contains(

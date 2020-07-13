@@ -152,8 +152,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return Visit(selectExpression);
 
                 case TableValuedFunctionExpression tableValuedFunctionExpression:
-                    // See issue#20180
-                    return tableValuedFunctionExpression;
+                {
+                    var arguments = new List<SqlExpression>();
+                    foreach (var argument in tableValuedFunctionExpression.Arguments)
+                    {
+                        arguments.Add(Visit(argument, out _));
+                    }
+
+                    return tableValuedFunctionExpression.Update(arguments);
+                }
 
                 case TableExpression tableExpression:
                     return tableExpression;

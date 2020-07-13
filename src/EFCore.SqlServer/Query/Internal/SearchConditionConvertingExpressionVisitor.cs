@@ -457,8 +457,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
 
-            // TODO: See issue#20180
-            return tableValuedFunctionExpression;
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+
+            var arguments = new SqlExpression[tableValuedFunctionExpression.Arguments.Count];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                arguments[i] = (SqlExpression)Visit(tableValuedFunctionExpression.Arguments[i]);
+            }
+
+            _isSearchCondition = parentSearchCondition;
+            return tableValuedFunctionExpression.Update(arguments);
         }
 
         /// <summary>
