@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureAssociation"> The configuration of the association type. </param>
         /// <typeparam name="TAssociationEntity"> The type of the association entity. </typeparam>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
-        public virtual EntityTypeBuilder<TLeftEntity> UsingEntity<TAssociationEntity>(
+        public virtual EntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
             [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
             [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
             [NotNull] Action<EntityTypeBuilder<TAssociationEntity>> configureAssociation)
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var entityTypeBuilder = UsingEntity<TAssociationEntity>(configureRight, configureLeft);
             configureAssociation(entityTypeBuilder);
 
-            return new EntityTypeBuilder<TLeftEntity>(LeftEntityType);
+            return new EntityTypeBuilder<TRightEntity>(RightEntityType);
         }
     }
 }

@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
                 where TAssociationEntity : class;
 
-            public abstract TestEntityTypeBuilder<TLeftEntity> UsingEntity<TAssociationEntity>(
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
                 Func<TestEntityTypeBuilder<TAssociationEntity>,
                     TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
                 Func<TestEntityTypeBuilder<TAssociationEntity>,
