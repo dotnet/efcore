@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var entityTypeBuilder = UsingEntity(joinEntity, configureRight, configureLeft);
             configureAssociation(entityTypeBuilder);
 
-            return new EntityTypeBuilder(LeftEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         /// <summary>

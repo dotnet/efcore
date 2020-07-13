@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Category>().Ignore(c => c.Products);
                 modelBuilder.Entity<Product>().Ignore(p => p.Categories);
 
-                modelBuilder.Entity<Category>()
+                var manyToMany = modelBuilder.Entity<Category>()
                     .HasMany(o => o.Products).WithMany(c => c.Categories)
                     .UsingEntity<ProductCategory>(
                         pcb => pcb.HasOne(pc => pc.Product).WithMany(),
@@ -199,6 +199,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         pcb => pcb.HasKey(pc => new { pc.ProductId, pc.CategoryId }));
 
                 modelBuilder.FinalizeModel();
+
+                Assert.Equal(typeof(Category), manyToMany.Metadata.ClrType);
 
                 var productType = model.FindEntityType(typeof(Product));
                 var categoryType = model.FindEntityType(typeof(Category));

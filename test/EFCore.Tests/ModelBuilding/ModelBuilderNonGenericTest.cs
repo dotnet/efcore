@@ -646,14 +646,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
                         new NonGenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder));
 
-            public override TestEntityTypeBuilder<TLeftEntity> UsingEntity<TAssociationEntity>(
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
                 Func<TestEntityTypeBuilder<TAssociationEntity>,
                     TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
                 Func<TestEntityTypeBuilder<TAssociationEntity>,
                     TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
                 Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
                 where TAssociationEntity : class
-                => new NonGenericTestEntityTypeBuilder<TLeftEntity>(CollectionCollectionBuilder.UsingEntity(
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(CollectionCollectionBuilder.UsingEntity(
                     typeof(TAssociationEntity),
                     l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
                         new NonGenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,
