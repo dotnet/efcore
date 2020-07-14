@@ -1059,6 +1059,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     expressionPrinter.Visit(ServerQueryExpression);
                 }
 
+                expressionPrinter.AppendLine();
                 expressionPrinter.AppendLine("ProjectionMapping:");
                 using (expressionPrinter.Indent())
                 {

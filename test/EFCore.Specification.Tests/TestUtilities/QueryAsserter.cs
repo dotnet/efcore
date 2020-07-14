@@ -237,28 +237,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             bool async = false)
         {
-            using (var context = _contextCreator())
-            {
-                var actual = async
-                    ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).AnyAsync(actualPredicate)
-                    : RewriteServerQuery(actualQuery(SetSourceCreator(context))).Any(actualPredicate);
+            using var context = _contextCreator();
+            var actual = async
+                ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).AnyAsync(actualPredicate)
+                : RewriteServerQuery(actualQuery(SetSourceCreator(context))).Any(actualPredicate);
 
-                var rewrittenExpectedPredicate = (Expression<Func<TResult, bool>>)new ExpectedQueryRewritingVisitor().Visit(expectedPredicate);
-                var expected = RewriteExpectedQuery(expectedQuery(ExpectedData)).Any(rewrittenExpectedPredicate);
+            var rewrittenExpectedPredicate = (Expression<Func<TResult, bool>>)new ExpectedQueryRewritingVisitor().Visit(expectedPredicate);
+            var expected = RewriteExpectedQuery(expectedQuery(ExpectedData)).Any(rewrittenExpectedPredicate);
 
-                Assert.Equal(expected, actual);
-            }
-
-            using (var context = _contextCreator())
-            {
-                var actual = async
-                    ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).AnyAsync()
-                    : RewriteServerQuery(actualQuery(SetSourceCreator(context))).Any();
-
-                var expected = expectedQuery(ExpectedData).Any();
-
-                Assert.Equal(expected, actual);
-            }
+            Assert.Equal(expected, actual);
         }
 
         public async Task AssertAll<TResult>(

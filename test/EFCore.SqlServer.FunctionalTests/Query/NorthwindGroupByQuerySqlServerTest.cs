@@ -1662,7 +1662,7 @@ ORDER BY [o].[OrderID]");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM (
-    SELECT COALESCE(SUM([o].[OrderID]), 0) AS [c]
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]");
@@ -1746,14 +1746,98 @@ END");
         {
             await base.Count_after_GroupBy_without_aggregate(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]");
+        }
+
+        public override async Task Count_with_predicate_after_GroupBy_without_aggregate(bool async)
+        {
+            await base.Count_with_predicate_after_GroupBy_without_aggregate(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 1
+) AS [t]");
         }
 
         public override async Task LongCount_after_GroupBy_without_aggregate(bool async)
         {
             await base.LongCount_after_GroupBy_without_aggregate(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT COUNT_BIG(*)
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]");
+        }
+
+        public override async Task LongCount_with_predicate_after_GroupBy_without_aggregate(bool async)
+        {
+            await base.LongCount_with_predicate_after_GroupBy_without_aggregate(async);
+
+            AssertSql(
+                @"SELECT COUNT_BIG(*)
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 1
+) AS [t]");
+        }
+
+        public override async Task Any_after_GroupBy_without_aggregate(bool async)
+        {
+            await base.Any_after_GroupBy_without_aggregate(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        GROUP BY [o].[CustomerID]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
+        public override async Task Any_with_predicate_after_GroupBy_without_aggregate(bool async)
+        {
+            await base.Any_with_predicate_after_GroupBy_without_aggregate(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        GROUP BY [o].[CustomerID]
+        HAVING COUNT(*) > 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
+        public override async Task All_with_predicate_after_GroupBy_without_aggregate(bool async)
+        {
+            await base.All_with_predicate_after_GroupBy_without_aggregate(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        GROUP BY [o].[CustomerID]
+        HAVING COUNT(*) <= 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
         }
 
         public override async Task GroupBy_based_on_renamed_property_simple(bool async)
