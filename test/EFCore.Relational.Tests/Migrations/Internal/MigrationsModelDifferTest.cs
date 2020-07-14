@@ -65,8 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             DbContext context = null;
             Execute(
                 _ => { },
+#pragma warning disable CS0618 // Type or member is obsolete
                 modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuery(
                     () => context.Set<TestKeylessType>().FromSqlRaw("SELECT * FROM Vista")),
+#pragma warning restore CS0618 // Type or member is obsolete
                 result => Assert.Empty(result));
         }
 

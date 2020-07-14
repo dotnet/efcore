@@ -3390,6 +3390,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                 modelBuilder.Entity<Leader>().HasQueryFilter(l => l.Name.StartsWith("Bran")); // this one is ignored
                 modelBuilder.Entity<Faction>().HasQueryFilter(f => Leaders.Any(l => l.Name == "Crach an Craite"));
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 modelBuilder
                     .Entity<FactionQuery>()
                     .HasNoKey()
@@ -3407,6 +3408,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                             .Where(fq => fq.Name != "Bar")
                             .Select(
                                 fq => new LeaderQuery { Name = "Not Bar" }));
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -4429,11 +4431,13 @@ ORDER BY [p].[Id], [a].[Id]");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 modelBuilder.Entity<OrderSummary13346>()
                     .HasNoKey()
                     .ToQuery(
                         () => Set<OrderSummary13346>()
                             .FromSqlRaw("SELECT o.Amount From Orders AS o"));
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -7027,7 +7031,9 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
                                           select a).Count() > 0)
                     .HasKey(e => e.CustomerId);
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 modelBuilder.Entity<CustomerView19708>().HasNoKey().ToQuery(Build_Customers_Sql_View_InMemory());
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             private Expression<Func<IQueryable<CustomerView19708>>> Build_Customers_Sql_View_InMemory()

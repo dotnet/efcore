@@ -188,15 +188,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Detects_defining_query_on_keyed_entity_type()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<A>().ToQuery(() => new List<A>().AsQueryable());
-
-            VerifyError(CoreStrings.DefiningQueryWithKey("A"), modelBuilder.Model);
-        }
-
-        [ConditionalFact]
         public virtual void Detects_shadow_entities()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -912,19 +903,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>(e => e.Id);
 
             Validate(modelBuilder.Model);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_ToQuery_on_derived_keyless_types()
-        {
-            var modelBuilder = base.CreateConventionalModelBuilder();
-            var context = new DbContext(new DbContextOptions<DbContext>());
-            modelBuilder.Entity<Abstract>().HasNoKey().ToQuery(() => context.Set<Abstract>());
-            modelBuilder.Entity<Generic<int>>().ToQuery(() => context.Set<Generic<int>>());
-
-            VerifyError(
-                CoreStrings.DerivedTypeDefiningQuery("Generic<int>", nameof(Abstract)),
-                modelBuilder.Model);
         }
 
         [ConditionalTheory]

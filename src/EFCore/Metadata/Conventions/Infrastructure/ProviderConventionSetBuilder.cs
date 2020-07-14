@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizingConventions.Add(servicePropertyDiscoveryConvention);
             conventionSet.ModelFinalizingConventions.Add(nonNullableReferencePropertyConvention);
             conventionSet.ModelFinalizingConventions.Add(nonNullableNavigationConvention);
-            conventionSet.ModelFinalizingConventions.Add(new QueryFilterDefiningQueryRewritingConvention(Dependencies));
+            conventionSet.ModelFinalizingConventions.Add(new QueryFilterRewritingConvention(Dependencies));
             conventionSet.ModelFinalizingConventions.Add(inversePropertyAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(backingFieldConvention);
 

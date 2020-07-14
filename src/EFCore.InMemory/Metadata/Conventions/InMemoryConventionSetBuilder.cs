@@ -33,6 +33,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
         {
         }
 
+        /// <inheritdoc />
+        public override ConventionSet CreateConventionSet()
+        {
+            var conventionSet = base.CreateConventionSet();
+
+            conventionSet.ModelFinalizingConventions.Add(new DefiningQueryRewritingConvention(Dependencies));
+
+            return conventionSet;
+        }
+
         /// <summary>
         ///     <para>
         ///         Call this method to build a <see cref="ConventionSet" /> for the in-memory provider when using
