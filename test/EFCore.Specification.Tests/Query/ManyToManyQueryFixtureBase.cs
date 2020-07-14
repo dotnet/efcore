@@ -203,14 +203,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l => l.HasOne<EntityOne>().WithMany(e => e.JoinThreePayloadFullShared).HasForeignKey(e => e.OneId))
                 .HasKey(e => new { e.OneId, e.ThreeId });
 
-            // TODO: convert to shared type
             // Nav:6 Payload:Yes Join:Concrete Extra:Self-Ref
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.SelfSkipPayloadLeft)
                 .WithMany(e => e.SelfSkipPayloadRight)
                 .UsingEntity<JoinOneSelfPayload>(
                     l => l.HasOne(x => x.Left).WithMany(x => x.JoinSelfPayloadLeft),
-                    r => r.HasOne(x => x.Right).WithMany(x => x.JoinSelfPayloadRight).OnDelete(DeleteBehavior.NoAction))
+                    r => r.HasOne(x => x.Right).WithMany(x => x.JoinSelfPayloadRight).OnDelete(DeleteBehavior.ClientCascade))
                 .HasKey(e => new { e.LeftId, e.RightId });
 
             // Nav:2 Payload:No Join:Concrete Extra:Inheritance

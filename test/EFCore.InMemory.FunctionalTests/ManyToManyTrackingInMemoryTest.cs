@@ -25,6 +25,8 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.Reseed();
         }
 
+        protected override bool SupportsDatabaseDefaults => false;
+
         public class ManyToManyTrackingInMemoryFixture : ManyToManyTrackingFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
