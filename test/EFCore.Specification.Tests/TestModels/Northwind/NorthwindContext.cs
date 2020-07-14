@@ -20,10 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
         public virtual DbSet<Product> Products { get; set; }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        public virtual DbQuery<CustomerView> CustomerQueries { get; set; }
-#pragma warning restore CS0618 // Type or member is obsolete
+        public virtual DbSet<CustomerQuery> CustomerQueries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -77,13 +74,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                         od => new { od.OrderID, od.ProductID });
                 });
 
-#pragma warning disable CS0618 // Type or member is obsolete
             modelBuilder
-                .Query<CustomerView>()
+                .Entity<CustomerQuery>()
+                .HasNoKey()
                 .ToQuery(
                     () => Customers
                         .Select(
-                            c => new CustomerView
+                            c => new CustomerQuery
                             {
                                 Address = c.Address,
                                 City = c.City,
@@ -93,14 +90,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                             }));
 
             modelBuilder
-                .Query<OrderQuery>()
+                .Entity<OrderQuery>()
+                .HasNoKey()
                 .ToQuery(
                     () => Orders
                         .Select(
                             o => new OrderQuery { CustomerID = o.CustomerID }));
 
             modelBuilder
-                .Query<ProductQuery>()
+                .Entity<ProductQuery>()
+                .HasNoKey()
                 .ToQuery(
                     () => Products
                         .Where(p => !p.Discontinued)
@@ -113,7 +112,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                             }));
 
             modelBuilder
-                .Query<CustomerQuery>()
+                .Entity<CustomerQueryWithQueryFilter>()
+                .HasNoKey()
                 .HasQueryFilter(cq => cq.CompanyName.StartsWith(_searchTerm))
                 .ToQuery(
                     () =>
@@ -121,13 +121,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                             .Include(c => c.Orders) // ignored
                             .Select(
                                 c =>
-                                    new CustomerQuery
+                                    new CustomerQueryWithQueryFilter
                                     {
                                         CompanyName = c.CompanyName,
                                         OrderCount = c.Orders.Count(),
                                         SearchTerm = _searchTerm
                                     }));
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public string TenantPrefix { get; set; } = "B";

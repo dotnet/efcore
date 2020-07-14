@@ -27,10 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private CommandOption _noBuild;
         private CommandOption _help;
         private IList<string> _args;
+        private IList<string> _applicationArgs;
 
         public override void Configure(CommandLineApplication command)
         {
             command.FullName = Resources.DotnetEfFullName;
+            command.AllowArgumentSeparator = true;
 
             var options = new ProjectOptions();
             options.Configure(command);
@@ -47,13 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _help = command.Option("-h|--help", description: null);
 
             _args = command.RemainingArguments;
+            _applicationArgs = command.ApplicationArguments;
 
             base.Configure(command);
 
             _command = command;
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] _)
         {
             var commands = _args.TakeWhile(a => a[0] != '-').ToList();
             if (_help.HasValue()
@@ -88,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             var args = new List<string>();
 
             var toolsPath = Path.Combine(
-                Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location),
+                Path.GetDirectoryName(typeof(Program).Assembly.Location),
                 "tools");
 
             var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir, startupProject.OutputPath));
@@ -197,6 +200,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 args.Add(project.RootNamespace);
             }
 
+            if (_applicationArgs.Any())
+            {
+                args.Add("--");
+                args.AddRange(_applicationArgs);
+            }
+
             return Exe.Run(executable, args, startupProject.ProjectDir);
         }
 
@@ -275,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
 
         private static string GetVersion()
-            => typeof(RootCommand).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 .InformationalVersion;
 
         private static bool ShouldHelp(IReadOnlyList<string> commands)

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            // ReleaseSavepoint is unsupported by SQL Server and is ignored
+            public override Task Intercept_ReleaseSavepoint(bool async) => Task.CompletedTask;
+
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
                 protected override bool ShouldSubscribeToDiagnosticListener => false;
@@ -49,6 +53,9 @@ namespace Microsoft.EntityFrameworkCore
                 : base(fixture)
             {
             }
+
+            // ReleaseSavepoint is unsupported by SQL Server and is ignored
+            public override Task Intercept_ReleaseSavepoint(bool async) => Task.CompletedTask;
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {

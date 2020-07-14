@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
 {
@@ -40,7 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         {
             base.Validate(model, logger);
 
+            ValidateDatabaseProperties(model, logger);
+            ValidateKeys(model, logger);
             ValidateSharedContainerCompatibility(model, logger);
+            ValidateOnlyETagConcurrencyToken(model, logger);
         }
 
         /// <summary>
@@ -95,25 +101,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             IEntityType firstEntityType = null;
             foreach (var entityType in mappedTypes)
             {
+                Check.DebugAssert(entityType.IsDocumentRoot(), "Only document roots expected here.");
                 var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
                 if (partitionKeyPropertyName != null)
                 {
                     var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
-                    if (nextPartitionKeyProperty == null)
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.PartitionKeyMissingProperty(entityType.DisplayName(), partitionKeyPropertyName));
-                    }
-
-                    var keyType = nextPartitionKeyProperty.GetTypeMapping().Converter?.ProviderClrType
-                                  ?? nextPartitionKeyProperty.ClrType;
-                    if (keyType != typeof(string))
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.PartitionKeyNonStringStoreType(
-                                partitionKeyPropertyName, entityType.DisplayName(), keyType.ShortDisplayName()));
-                    }
-
                     if (partitionKey == null)
                     {
                         if (firstEntityType != null)
@@ -123,12 +115,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
 
                         partitionKey = nextPartitionKeyProperty;
                     }
-                    else if (partitionKey.GetPropertyName() != nextPartitionKeyProperty.GetPropertyName())
+                    else if (partitionKey.GetJsonPropertyName() != nextPartitionKeyProperty.GetJsonPropertyName())
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyStoreNameMismatch(
-                                partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetPropertyName(),
-                                nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetPropertyName()));
+                                partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetJsonPropertyName(),
+                                nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetJsonPropertyName()));
                     }
                 }
                 else if (partitionKey != null)
@@ -170,6 +162,161 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                     }
 
                     discriminatorValues[discriminatorValue] = entityType;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void ValidateOnlyETagConcurrencyToken(
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetDeclaredProperties())
+                {
+                    if (property.IsConcurrencyToken)
+                    {
+                        var storeName = property.GetJsonPropertyName();
+                        if (storeName != "_etag")
+                        {
+                            throw new InvalidOperationException(
+                                CosmosStrings.NonETagConcurrencyToken(entityType.DisplayName(), storeName));
+                        }
+
+                        var etagType = property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType;
+                        if (etagType != typeof(string))
+                        {
+                            throw new InvalidOperationException(
+                                CosmosStrings.ETagNonStringStoreType(
+                                    property.Name, entityType.DisplayName(), etagType.ShortDisplayName()));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void ValidateKeys(
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var primaryKey = entityType.FindPrimaryKey();
+                if (primaryKey == null
+                    || !entityType.IsDocumentRoot())
+                {
+                    continue;
+                }
+
+                var idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+                if (idProperty == null)
+                {
+                    throw new InvalidOperationException(CosmosStrings.NoIdProperty(entityType.DisplayName()));
+                }
+
+                var idType = idProperty.GetTypeMapping().Converter?.ProviderClrType
+                    ?? idProperty.ClrType;
+                if (idType != typeof(string))
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.IdNonStringStoreType(
+                            idProperty.Name, entityType.DisplayName(), idType.ShortDisplayName()));
+                }
+
+                if (!idProperty.IsKey())
+                {
+                    throw new InvalidOperationException(CosmosStrings.NoIdKey(entityType.DisplayName(), idProperty.Name));
+                }
+
+                var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
+                if (partitionKeyPropertyName != null)
+                {
+                    var partitionKey = entityType.FindProperty(partitionKeyPropertyName);
+                    if (partitionKey == null)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.PartitionKeyMissingProperty(entityType.DisplayName(), partitionKeyPropertyName));
+                    }
+
+                    var partitionKeyType = partitionKey.GetTypeMapping().Converter?.ProviderClrType
+                        ?? partitionKey.ClrType;
+                    if (partitionKeyType != typeof(string))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.PartitionKeyNonStringStoreType(
+                                partitionKeyPropertyName, entityType.DisplayName(), partitionKeyType.ShortDisplayName()));
+                    }
+
+                    if (!partitionKey.GetContainingKeys().Any(k => k.Properties.Contains(idProperty)))
+                    {
+                        throw new InvalidOperationException(CosmosStrings.NoPartitionKeyKey(
+                            entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void ValidateDatabaseProperties(
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var properties = new Dictionary<string, IPropertyBase>();
+                foreach (var property in entityType.GetProperties())
+                {
+                    var jsonName = property.GetJsonPropertyName();
+                    if (string.IsNullOrWhiteSpace(jsonName))
+                    {
+                        continue;
+                    }
+
+                    if (properties.TryGetValue(jsonName, out var otherProperty))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.JsonPropertyCollision(property.Name, otherProperty.Name, entityType.DisplayName(), jsonName));
+                    }
+                    else
+                    {
+                        properties[jsonName] = property;
+                    }
+                }
+
+                foreach (var navigation in entityType.GetNavigations())
+                {
+                    if (!navigation.IsEmbedded())
+                    {
+                        continue;
+                    }
+
+                    var jsonName = navigation.TargetEntityType.GetContainingPropertyName();
+                    if (properties.TryGetValue(jsonName, out var otherProperty))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.JsonPropertyCollision(navigation.Name, otherProperty.Name, entityType.DisplayName(), jsonName));
+                    }
+                    else
+                    {
+                        properties[jsonName] = navigation;
+                    }
                 }
             }
         }

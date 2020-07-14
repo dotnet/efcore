@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     <para>
-        ///         Returns true if the database provider currently in use is the SQLite provider.
+        ///         Returns <see langword="true"/> if the database provider currently in use is the SQLite provider.
         ///     </para>
         ///     <para>
         ///         This method can only be used after the <see cref="DbContext" /> has been configured because
@@ -27,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
-        /// <returns> True if SQLite is being used; false otherwise. </returns>
+        /// <returns> <see langword="true"/> if SQLite is being used; <see langword="false"/> otherwise. </returns>
         public static bool IsSqlite([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
-                typeof(SqliteOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(SqliteOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

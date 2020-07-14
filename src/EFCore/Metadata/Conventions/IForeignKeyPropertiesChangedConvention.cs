@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessForeignKeyPropertiesChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
+            [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
             [NotNull] IReadOnlyList<IConventionProperty> oldDependentProperties,
             [NotNull] IConventionKey oldPrincipalKey,
-            [NotNull] IConventionContext<IConventionRelationshipBuilder> context);
+            [NotNull] IConventionContext<IReadOnlyList<IConventionProperty>> context);
     }
 }

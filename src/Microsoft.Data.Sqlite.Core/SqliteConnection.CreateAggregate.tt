@@ -108,6 +108,8 @@ namespace Microsoft.Data.Sqlite
         /// </param>
 <# } #>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
         public virtual void CreateAggregate<<#= typeArguments #>>(string name<#= seedParameter #>, Func<<#= lambdaTypeArguments #>> func<#= resultSelectorParameter #>, bool isDeterministic = false)
             => CreateAggregateCore(name, <#= arity #>, <#= seedArgument #>, IfNotNull<TAccumulate, TAccumulate>(func, (a, r) => func(<#= lambdaArguments #>)), <#= resultSelectorArgument #>, isDeterministic);
 <#
@@ -133,6 +135,8 @@ namespace Microsoft.Data.Sqlite
         /// </param>
 <# } #>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
         public virtual void CreateAggregate<TAccumulate<#= resultTypeArgument #>>(string name<#= seedParameter #>, Func<TAccumulate, object[], TAccumulate> func<#= resultSelectorParameter #>, bool isDeterministic = false)
             => CreateAggregateCore(name, -1, <#= seedArgument #>, IfNotNull<TAccumulate, TAccumulate>(func, (a, r) => func(a, GetValues(r))), <#= resultSelectorArgument #>, isDeterministic);
 <#

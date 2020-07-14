@@ -63,175 +63,85 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("SqlServer-specific expression", index.GetFilter());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_MemoryOptimized(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_MemoryOptimized()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .ForSqlServerIsMemoryOptimized();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .IsMemoryOptimized();
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .IsMemoryOptimized();
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.True(entityType.IsMemoryOptimized());
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .ForSqlServerIsMemoryOptimized(false);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .IsMemoryOptimized(false);
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .IsMemoryOptimized(false);
 
             Assert.False(entityType.IsMemoryOptimized());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_MemoryOptimized_non_generic(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_MemoryOptimized_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .ForSqlServerIsMemoryOptimized();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .IsMemoryOptimized();
-            }
+            modelBuilder
+                .Entity(typeof(Customer))
+                .IsMemoryOptimized();
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.True(entityType.IsMemoryOptimized());
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .ForSqlServerIsMemoryOptimized(false);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .IsMemoryOptimized(false);
-            }
+            modelBuilder
+                .Entity(typeof(Customer))
+                .IsMemoryOptimized(false);
 
             Assert.False(entityType.IsMemoryOptimized());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_index_clustering(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_index_clustering()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Id)
-                    .ForSqlServerIsClustered();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Id)
-                    .IsClustered();
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .IsClustered();
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.True(index.IsClustered().Value);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_key_clustering(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_key_clustering()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasKey(e => e.Id)
-                    .ForSqlServerIsClustered();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasKey(e => e.Id)
-                    .IsClustered();
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .HasKey(e => e.Id)
+                .IsClustered();
 
             var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
 
             Assert.True(key.IsClustered().Value);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_index_include(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_index_include()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .ForSqlServerInclude(e => e.Offset);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .IncludeProperties(e => e.Offset);
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .IncludeProperties(e => e.Offset);
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
@@ -241,31 +151,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_index_include_after_unique_using_generic_builder(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_index_include_after_unique_using_generic_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .IsUnique()
-                    .ForSqlServerInclude(e => e.Offset);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .IsUnique()
-                    .IncludeProperties(e => e.Offset);
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .IsUnique()
+                .IncludeProperties(e => e.Offset);
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
@@ -276,31 +171,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_index_include_after_annotation_using_generic_builder(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_index_include_after_annotation_using_generic_builder()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .HasAnnotation("Test:ShouldBeTrue", true)
-                    .ForSqlServerInclude(e => e.Offset);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .HasAnnotation("Test:ShouldBeTrue", true)
-                    .IncludeProperties(e => e.Offset);
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .HasAnnotation("Test:ShouldBeTrue", true)
+                .IncludeProperties(e => e.Offset);
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
@@ -315,29 +195,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_index_include_non_generic(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_index_include_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .ForSqlServerInclude(nameof(Customer.Offset));
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .IncludeProperties(nameof(Customer.Offset));
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .IncludeProperties(nameof(Customer.Offset));
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
@@ -347,81 +213,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 c => Assert.Equal(nameof(Customer.Offset), c));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_index_online(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_index_online()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .ForSqlServerIsCreatedOnline();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .IsCreatedOnline();
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .IsCreatedOnline();
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.True(index.IsCreatedOnline());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_index_online_non_generic(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_index_online_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .ForSqlServerIsCreatedOnline();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .HasIndex(e => e.Name)
-                    .IsCreatedOnline();
-            }
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasIndex("Name")
+                .IsCreatedOnline();
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.True(index.IsCreatedOnline());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_sequences_for_model(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_sequences_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseSequenceHiLo();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseHiLo();
-            }
+            modelBuilder.UseHiLo();
 
             var relationalExtensions = modelBuilder.Model;
             var sqlServerExtensions = modelBuilder.Model;
@@ -434,23 +261,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_sequences_with_name_for_model(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_sequences_with_name_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseSequenceHiLo("Snook");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseHiLo("Snook");
-            }
+            modelBuilder.UseHiLo("Snook");
 
             var relationalExtensions = modelBuilder.Model;
             var sqlServerExtensions = modelBuilder.Model;
@@ -472,23 +288,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_sequences_with_schema_and_name_for_model(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_sequences_with_schema_and_name_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseSequenceHiLo("Snook", "Tasty");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseHiLo("Snook", "Tasty");
-            }
+            modelBuilder.UseHiLo("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model;
             var sqlServerExtensions = modelBuilder.Model;
@@ -509,10 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_use_of_existing_relational_sequence_for_model(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_use_of_existing_relational_sequence_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -523,16 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasMin(111)
                 .HasMax(2222);
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseSequenceHiLo("Snook", "Tasty");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseHiLo("Snook", "Tasty");
-            }
+            modelBuilder.UseHiLo("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model;
             var sqlServerExtensions = modelBuilder.Model;
@@ -545,10 +339,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_use_of_existing_SQL_sequence_for_model(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_use_of_existing_SQL_sequence_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -559,16 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasMin(111)
                 .HasMax(2222);
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseSequenceHiLo("Snook", "Tasty");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseHiLo("Snook", "Tasty");
-            }
+            modelBuilder.UseHiLo("Snook", "Tasty");
 
             var relationalExtensions = modelBuilder.Model;
             var sqlServerExtensions = modelBuilder.Model;
@@ -592,23 +375,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(int), sequence.ClrType);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_identities_for_model(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_identities_for_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseIdentityColumns();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseIdentityColumns();
-            }
+            modelBuilder.UseIdentityColumns();
 
             var model = modelBuilder.Model;
 
@@ -619,10 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Setting_SqlServer_identities_for_model_is_lower_priority_than_relational_default_values(bool obsolete)
+        [ConditionalFact]
+        public void Setting_SqlServer_identities_for_model_is_lower_priority_than_relational_default_values()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -635,16 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         eb.Property(e => e.Offset).HasDefaultValueSql("Now");
                     });
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseIdentityColumns();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseIdentityColumns();
-            }
+            modelBuilder.UseIdentityColumns();
 
             var model = modelBuilder.Model;
             var idProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
@@ -666,29 +427,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("Now", offsetProperty.GetDefaultValueSql());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_sequence_for_property(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .ForSqlServerUseSequenceHiLo();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseHiLo();
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseHiLo();
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -701,29 +448,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_sequences_with_name_for_property(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_sequences_with_name_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .ForSqlServerUseSequenceHiLo("Snook");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseHiLo("Snook");
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseHiLo("Snook");
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -746,29 +479,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_sequences_with_schema_and_name_for_property(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_sequences_with_schema_and_name_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseHiLo("Snook", "Tasty");
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -790,10 +509,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(typeof(long), sequence.ClrType);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_use_of_existing_relational_sequence_for_property(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_use_of_existing_relational_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -804,22 +521,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasMin(111)
                 .HasMax(2222);
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseHiLo("Snook", "Tasty");
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -833,31 +538,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_use_of_existing_relational_sequence_for_property_using_nested_closure(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_use_of_existing_relational_sequence_for_property_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222))
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222))
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseHiLo("Snook", "Tasty");
-            }
+            modelBuilder
+                .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222))
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -871,10 +561,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_use_of_existing_SQL_sequence_for_property(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_use_of_existing_SQL_sequence_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -885,22 +573,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasMin(111)
                 .HasMax(2222);
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseHiLo("Snook", "Tasty");
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -913,10 +589,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_use_of_existing_SQL_sequence_for_property_using_nested_closure(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_use_of_existing_SQL_sequence_for_property_using_nested_closure()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -930,22 +604,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             .HasMax(2222);
                     });
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseHiLo("Snook", "Tasty");
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -958,29 +620,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_identities_for_property(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_identities_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseSqlServerIdentityColumn();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseIdentityColumn();
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseIdentityColumn();
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -995,29 +643,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_identities_with_seed_and_identity_for_property(bool obsolete)
+        [ConditionalFact]
+        public void Can_set_identities_with_seed_and_identity_for_property()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseSqlServerIdentityColumn(100, 5);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Id)
-                    .UseIdentityColumn(100, 5);
-            }
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseIdentityColumn(100, 5);
 
             var model = modelBuilder.Model;
             var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -1032,126 +666,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void SqlServer_entity_methods_dont_break_out_of_the_generics(bool obsolete)
+        [ConditionalFact]
+        public void SqlServer_entity_methods_dont_break_out_of_the_generics()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                AssertIsGeneric(
-                    modelBuilder
-                        .Entity<Customer>()
-                        .ForSqlServerIsMemoryOptimized());
-#pragma warning restore 618
-            }
-            else
-            {
-                AssertIsGeneric(
-                    modelBuilder
-                        .Entity<Customer>()
-                        .IsMemoryOptimized());
-            }
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .IsMemoryOptimized());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void SqlServer_entity_methods_have_non_generic_overloads(bool obsolete)
+        [ConditionalFact]
+        public void SqlServer_entity_methods_have_non_generic_overloads()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .ForSqlServerIsMemoryOptimized();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .IsMemoryOptimized();
-            }
+            modelBuilder
+                .Entity(typeof(Customer))
+                .IsMemoryOptimized();
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void SqlServer_property_methods_dont_break_out_of_the_generics(bool obsolete)
+        [ConditionalFact]
+        public void SqlServer_property_methods_dont_break_out_of_the_generics()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                AssertIsGeneric(
-                    modelBuilder
-                        .Entity<Customer>()
-                        .Property(e => e.Id)
-                        .ForSqlServerUseSequenceHiLo());
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Id)
+                    .UseHiLo());
 
-                AssertIsGeneric(
-                    modelBuilder
-                        .Entity<Customer>()
-                        .Property(e => e.Id)
-                        .UseSqlServerIdentityColumn());
-#pragma warning restore 618
-            }
-            else
-            {
-                AssertIsGeneric(
-                    modelBuilder
-                        .Entity<Customer>()
-                        .Property(e => e.Id)
-                        .UseHiLo());
-
-                AssertIsGeneric(
-                    modelBuilder
-                        .Entity<Customer>()
-                        .Property(e => e.Id)
-                        .UseIdentityColumn());
-            }
+            AssertIsGeneric(
+                modelBuilder
+                    .Entity<Customer>()
+                    .Property(e => e.Id)
+                    .UseIdentityColumn());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void SqlServer_property_methods_have_non_generic_overloads(bool obsolete)
+        [ConditionalFact]
+        public void SqlServer_property_methods_have_non_generic_overloads()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .Property(typeof(int), "Id")
-                    .ForSqlServerUseSequenceHiLo();
+            modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(int), "Id")
+                .UseHiLo();
 
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .Property(typeof(int), "Id")
-                    .UseSqlServerIdentityColumn();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .Property(typeof(int), "Id")
-                    .UseHiLo();
-
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .Property(typeof(int), "Id")
-                    .UseIdentityColumn();
-            }
+            modelBuilder
+                .Entity(typeof(Customer))
+                .Property(typeof(int), "Id")
+                .UseIdentityColumn();
         }
 
         [ConditionalFact]
@@ -1169,6 +736,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
             Assert.Equal("[Id] % 2 = 0", index.GetFilter());
+        }
+
+
+        [ConditionalFact]
+        public void Can_set_index_with_fillfactor()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasIndex(e => e.Name)
+                .HasFillFactor(90);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal(90, index.GetFillFactor());
+        }
+
+        [ConditionalFact]
+        public void Can_set_index_with_fillfactor_non_generic()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasIndex("Name")
+                .HasFillFactor(90);
+
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+            Assert.Equal(90, index.GetFillFactor());
+        }
+
+        [ConditionalTheory]
+        [InlineData(0)]
+        [InlineData(101)]
+        public void Throws_if_attempt_to_set_fillfactor_with_argument_out_of_range(int fillFactor)
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                modelBuilder
+                    .Entity(typeof(Customer))
+                    .HasIndex("Name")
+                    .HasFillFactor(fillFactor);
+            });
         }
 
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)

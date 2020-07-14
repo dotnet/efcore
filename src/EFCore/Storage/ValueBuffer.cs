@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="values"> The list of values for this buffer. </param>
         public ValueBuffer([NotNull] object[] values)
         {
-            Debug.Assert(values != null);
+            Check.DebugAssert(values != null, "values is null");
 
             _values = values;
         }
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The object to compare this value buffer to.
         /// </param>
         /// <returns>
-        ///     True if the object is a <see cref="ValueBuffer" /> and contains the same values, otherwise false.
+        ///     <see langword="true"/> if the object is a <see cref="ValueBuffer" /> and contains the same values, otherwise <see langword="false"/>. 
         /// </returns>
         public override bool Equals(object obj)
             => !(obj is null)

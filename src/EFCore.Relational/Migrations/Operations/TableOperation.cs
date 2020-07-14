@@ -9,8 +9,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on tables.
     ///     See also <see cref="CreateTableOperation" /> and <see cref="AlterTableOperation" />.
     /// </summary>
-    public class TableOperation : MigrationOperation
+    public abstract class TableOperation : MigrationOperation
     {
+        /// <summary>
+        ///     The name of the table.
+        /// </summary>
+        public virtual string Name { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
+        /// </summary>
+        public virtual string Schema { get; [param: CanBeNull] set; }
+
         /// <summary>
         ///     Comment for this table
         /// </summary>

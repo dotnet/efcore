@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -31,6 +33,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             return annotation;
+        }
+
+        /// <summary>
+        ///     Gets the debug string for all annotations declared on the object.
+        /// </summary>
+        /// <param name="annotatable"> The object to get the annotations to print in debug string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> Debug string representation of all annotations. </returns>
+        public static string AnnotationsToDebugString([NotNull] this IAnnotatable annotatable, int indent = 0)
+        {
+            var annotations = annotatable.GetAnnotations().ToList();
+            if (annotations.Count == 0)
+            {
+                return "";
+            }
+
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder.AppendLine().Append(indentString).Append("Annotations: ");
+            foreach (var annotation in annotations)
+            {
+                builder
+                    .AppendLine()
+                    .Append(indentString)
+                    .Append("  ")
+                    .Append(annotation.Name)
+                    .Append(": ")
+                    .Append(annotation.Value);
+            }
+
+            return builder.ToString();
         }
     }
 }

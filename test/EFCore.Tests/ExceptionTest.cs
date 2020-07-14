@@ -170,6 +170,9 @@ namespace Microsoft.EntityFrameworkCore
             public TProperty GetOriginalValue<TProperty>(IProperty property) => throw new NotImplementedException();
             public void SetStoreGeneratedValue(IProperty property, object value) => throw new NotImplementedException();
             public EntityEntry ToEntityEntry() => new EntityEntry(new FakeInternalEntityEntry());
+            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
+            public bool IsConceptualNull(IProperty property) => throw new NotImplementedException();
         }
 
         private class FakeInternalEntityEntry : InternalEntityEntry

@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         private static readonly LongTypeMapping _integer = new LongTypeMapping(IntegerTypeName);
         private static readonly DoubleTypeMapping _real = new DoubleTypeMapping(RealTypeName);
         private static readonly ByteArrayTypeMapping _blob = new ByteArrayTypeMapping(BlobTypeName);
-        private static readonly StringTypeMapping _text = new StringTypeMapping(TextTypeName);
+        private static readonly SqliteStringTypeMapping _text = new SqliteStringTypeMapping(TextTypeName);
 
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings
             = new Dictionary<Type, RelationalTypeMapping>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsSpatialiteType(string columnType)
+        public static bool IsSpatialiteType([NotNull] string columnType)
             => _spatialiteTypes.Contains(columnType);
 
         /// <summary>

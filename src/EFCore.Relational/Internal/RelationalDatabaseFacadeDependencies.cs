@@ -9,7 +9,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
-    public class RelationalDatabaseFacadeDependencies : DatabaseFacadeDependencies, IRelationalDatabaseFacadeDependencies
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public class RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDependencies
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,17 +32,65 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] IRelationalConnection relationalConnection,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
-            : base(
-                transactionManager,
-                databaseCreator,
-                executionStrategyFactory,
-                databaseProviders,
-                commandLogger,
-                concurrencyDetector)
         {
+            TransactionManager = transactionManager;
+            DatabaseCreator = databaseCreator;
+            ExecutionStrategyFactory = executionStrategyFactory;
+            DatabaseProviders = databaseProviders;
+            CommandLogger = commandLogger;
+            ConcurrencyDetector = concurrencyDetector;
             RelationalConnection = relationalConnection;
             RawSqlCommandBuilder = rawSqlCommandBuilder;
         }
+
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IDbContextTransactionManager TransactionManager { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IDatabaseCreator DatabaseCreator { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<IDatabaseProvider> DatabaseProviders { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConcurrencyDetector ConcurrencyDetector { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

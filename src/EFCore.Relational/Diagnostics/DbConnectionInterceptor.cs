@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData"> Contextual information about the connection. </param>
         /// <param name="result">
         ///     Represents the current result if one exists.
-        ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to true if some previous
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true"/> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData"> Contextual information about the connection. </param>
         /// <param name="result">
         ///     Represents the current result if one exists.
-        ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to true if some previous
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true"/> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
@@ -58,12 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual Task<InterceptionResult> ConnectionOpeningAsync(
+        public virtual ValueTask<InterceptionResult> ConnectionOpeningAsync(
             DbConnection connection,
             ConnectionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult>(result);
 
         /// <summary>
         ///     Called just after EF has called <see cref="DbConnection.Open()" />.
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData"> Contextual information about the connection. </param>
         /// <param name="result">
         ///     Represents the current result if one exists.
-        ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to true if some previous
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true"/> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
@@ -112,13 +112,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     Called just before EF intends to call <see cref="M:System.Data.Common.DbConnection.CloseAsync" /> in an async context.
+        ///     Called just before EF intends to call <see cref="DbConnection.CloseAsync()" /> in an async context.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
         /// <param name="result">
         ///     Represents the current result if one exists.
-        ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to true if some previous
+        ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true"/> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
@@ -129,11 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        public virtual Task<InterceptionResult> ConnectionClosingAsync(
+        public virtual ValueTask<InterceptionResult> ConnectionClosingAsync(
             DbConnection connection,
             ConnectionEventData eventData,
             InterceptionResult result)
-            => Task.FromResult(result);
+            => new ValueTask<InterceptionResult>(result);
 
         /// <summary>
         ///     Called just after EF has called <see cref="DbConnection.Close()" /> in an async context.
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Called just after EF has called <see cref="M:System.Data.Common.DbConnection.CloseAsync" />.
+        ///     Called just after EF has called <see cref="DbConnection.CloseAsync()" />.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => Task.CompletedTask;
 
         /// <summary>
-        ///     Called when opening of a connection has failed with an exception. />.
+        ///     Called when opening of a connection has failed with an exception.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Called when opening of a connection has failed with an exception. />.
+        ///     Called when opening of a connection has failed with an exception.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>

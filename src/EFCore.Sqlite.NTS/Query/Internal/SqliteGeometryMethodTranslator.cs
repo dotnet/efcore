@@ -5,12 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SqliteGeometryMethodTranslator : IMethodCallTranslator
     {
         private static readonly IDictionary<MethodInfo, string> _methodToFunctionName = new Dictionary<MethodInfo, string>
@@ -50,28 +58,63 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqliteGeometryMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public SqliteGeometryMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_methodToFunctionName.TryGetValue(method, out var functionName))
             {
-                SqlExpression translation = _sqlExpressionFactory.Function(
-                    functionName,
-                    new[] { instance }.Concat(arguments),
-                    method.ReturnType);
+                var finalArguments = new[] { instance }.Concat(arguments);
 
                 if (method.ReturnType == typeof(bool))
                 {
-                    translation = _sqlExpressionFactory.Case(
-                        new[] { new CaseWhenClause(_sqlExpressionFactory.IsNotNull(instance), translation) },
-                        null);
+                    var nullCheck = (SqlExpression)_sqlExpressionFactory.IsNotNull(instance);
+                    foreach (var argument in arguments)
+                    {
+                        nullCheck = _sqlExpressionFactory.AndAlso(
+                            nullCheck,
+                            _sqlExpressionFactory.IsNotNull(argument));
+                    }
+
+                    return _sqlExpressionFactory.Case(
+                            new[]
+                            {
+                            new CaseWhenClause(
+                                nullCheck,
+                                _sqlExpressionFactory.Function(
+                                    functionName,
+                                    finalArguments,
+                                    nullable: false,
+                                    finalArguments.Select(a => false),
+                                    method.ReturnType))
+                            },
+                            null);
                 }
 
-                return translation;
+                return _sqlExpressionFactory.Function(
+                        functionName,
+                        finalArguments,
+                        nullable: true,
+                        finalArguments.Select(a => true),
+                        method.ReturnType);
             }
 
             if (Equals(method, _getGeometryN))
@@ -85,6 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
                     },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true },
                     method.ReturnType);
             }
 
@@ -94,6 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     _sqlExpressionFactory.Function(
                         "Distance",
                         new[] { instance, arguments[0] },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
                         typeof(double)),
                     arguments[1]);
             }

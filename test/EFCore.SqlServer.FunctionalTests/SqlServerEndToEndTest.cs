@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -34,93 +33,91 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_use_decimal_and_byte_as_identity_columns()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var nownNum1 = new NownNum { Id = 77.0m, TheWalrus = "Crying" };
+            var nownNum2 = new NownNum { Id = 78.0m, TheWalrus = "Walrus" };
+
+            var numNum1 = new NumNum { TheWalrus = "I" };
+            var numNum2 = new NumNum { TheWalrus = "Am" };
+
+            var anNum1 = new AnNum { TheWalrus = "Goo goo" };
+            var anNum2 = new AnNum { TheWalrus = "g'joob" };
+
+            var adNum1 = new AdNum { TheWalrus = "Eggman" };
+            var adNum2 = new AdNum { TheWalrus = "Eggmen" };
+
+            var byteNownNum1 = new ByteNownNum { Id = 77, Lucy = "Tangerine" };
+            var byteNownNum2 = new ByteNownNum { Id = 78, Lucy = "Trees" };
+
+            var byteNum1 = new ByteNum { Lucy = "Marmalade" };
+            var byteNum2 = new ByteNum { Lucy = "Skies" };
+
+            var byteAnNum1 = new ByteAnNum { Lucy = "Cellophane" };
+            var byteAnNum2 = new ByteAnNum { Lucy = "Flowers" };
+
+            var byteAdNum1 = new ByteAdNum { Lucy = "Kaleidoscope" };
+            var byteAdNum2 = new ByteAdNum { Lucy = "Eyes" };
+
+            decimal[] preSaveValues;
+            byte[] preSaveByteValues;
+
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new NumNumContext(options))
             {
-                var nownNum1 = new NownNum { Id = 77.0m, TheWalrus = "Crying" };
-                var nownNum2 = new NownNum { Id = 78.0m, TheWalrus = "Walrus" };
+                context.Database.EnsureCreatedResiliently();
 
-                var numNum1 = new NumNum { TheWalrus = "I" };
-                var numNum2 = new NumNum { TheWalrus = "Am" };
+                context.AddRange(
+                    nownNum1, nownNum2, numNum1, numNum2, adNum1, adNum2, anNum1, anNum2,
+                    byteNownNum1, byteNownNum2, byteNum1, byteNum2, byteAdNum1, byteAdNum2, byteAnNum1, byteAnNum2);
 
-                var anNum1 = new AnNum { TheWalrus = "Goo goo" };
-                var anNum2 = new AnNum { TheWalrus = "g'joob" };
+                preSaveValues = new[] { numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id };
 
-                var adNum1 = new AdNum { TheWalrus = "Eggman" };
-                var adNum2 = new AdNum { TheWalrus = "Eggmen" };
+                preSaveByteValues = new[] { byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id };
 
-                var byteNownNum1 = new ByteNownNum { Id = 77, Lucy = "Tangerine" };
-                var byteNownNum2 = new ByteNownNum { Id = 78, Lucy = "Trees" };
+                context.SaveChanges();
+            }
 
-                var byteNum1 = new ByteNum { Lucy = "Marmalade" };
-                var byteNum2 = new ByteNum { Lucy = "Skies" };
+            using (var context = new NumNumContext(options))
+            {
+                Assert.Equal(nownNum1.Id, context.NownNums.Single(e => e.TheWalrus == "Crying").Id);
+                Assert.Equal(nownNum2.Id, context.NownNums.Single(e => e.TheWalrus == "Walrus").Id);
+                Assert.Equal(77.0m, nownNum1.Id);
+                Assert.Equal(78.0m, nownNum2.Id);
 
-                var byteAnNum1 = new ByteAnNum { Lucy = "Cellophane" };
-                var byteAnNum2 = new ByteAnNum { Lucy = "Flowers" };
+                Assert.Equal(numNum1.Id, context.NumNums.Single(e => e.TheWalrus == "I").Id);
+                Assert.Equal(numNum2.Id, context.NumNums.Single(e => e.TheWalrus == "Am").Id);
+                Assert.NotEqual(numNum1.Id, preSaveValues[0]);
+                Assert.NotEqual(numNum2.Id, preSaveValues[1]);
 
-                var byteAdNum1 = new ByteAdNum { Lucy = "Kaleidoscope" };
-                var byteAdNum2 = new ByteAdNum { Lucy = "Eyes" };
+                Assert.Equal(anNum1.Id, context.AnNums.Single(e => e.TheWalrus == "Goo goo").Id);
+                Assert.Equal(anNum2.Id, context.AnNums.Single(e => e.TheWalrus == "g'joob").Id);
+                Assert.NotEqual(adNum1.Id, preSaveValues[2]);
+                Assert.NotEqual(adNum2.Id, preSaveValues[3]);
 
-                decimal[] preSaveValues;
-                byte[] preSaveByteValues;
+                Assert.Equal(adNum1.Id, context.AdNums.Single(e => e.TheWalrus == "Eggman").Id);
+                Assert.Equal(adNum2.Id, context.AdNums.Single(e => e.TheWalrus == "Eggmen").Id);
+                Assert.NotEqual(anNum1.Id, preSaveValues[4]);
+                Assert.NotEqual(anNum2.Id, preSaveValues[5]);
 
-                var options = Fixture.CreateOptions(testDatabase);
-                using (var context = new NumNumContext(options))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                Assert.Equal(byteNownNum1.Id, context.ByteNownNums.Single(e => e.Lucy == "Tangerine").Id);
+                Assert.Equal(byteNownNum2.Id, context.ByteNownNums.Single(e => e.Lucy == "Trees").Id);
+                Assert.Equal(77, byteNownNum1.Id);
+                Assert.Equal(78, byteNownNum2.Id);
 
-                    context.AddRange(
-                        nownNum1, nownNum2, numNum1, numNum2, adNum1, adNum2, anNum1, anNum2,
-                        byteNownNum1, byteNownNum2, byteNum1, byteNum2, byteAdNum1, byteAdNum2, byteAnNum1, byteAnNum2);
+                Assert.Equal(byteNum1.Id, context.ByteNums.Single(e => e.Lucy == "Marmalade").Id);
+                Assert.Equal(byteNum2.Id, context.ByteNums.Single(e => e.Lucy == "Skies").Id);
+                Assert.NotEqual(byteNum1.Id, preSaveByteValues[0]);
+                Assert.NotEqual(byteNum2.Id, preSaveByteValues[1]);
 
-                    preSaveValues = new[] { numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id };
+                Assert.Equal(byteAnNum1.Id, context.ByteAnNums.Single(e => e.Lucy == "Cellophane").Id);
+                Assert.Equal(byteAnNum2.Id, context.ByteAnNums.Single(e => e.Lucy == "Flowers").Id);
+                Assert.NotEqual(byteAdNum1.Id, preSaveByteValues[2]);
+                Assert.NotEqual(byteAdNum2.Id, preSaveByteValues[3]);
 
-                    preSaveByteValues = new[] { byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id };
-
-                    context.SaveChanges();
-                }
-
-                using (var context = new NumNumContext(options))
-                {
-                    Assert.Equal(nownNum1.Id, context.NownNums.Single(e => e.TheWalrus == "Crying").Id);
-                    Assert.Equal(nownNum2.Id, context.NownNums.Single(e => e.TheWalrus == "Walrus").Id);
-                    Assert.Equal(77.0m, nownNum1.Id);
-                    Assert.Equal(78.0m, nownNum2.Id);
-
-                    Assert.Equal(numNum1.Id, context.NumNums.Single(e => e.TheWalrus == "I").Id);
-                    Assert.Equal(numNum2.Id, context.NumNums.Single(e => e.TheWalrus == "Am").Id);
-                    Assert.NotEqual(numNum1.Id, preSaveValues[0]);
-                    Assert.NotEqual(numNum2.Id, preSaveValues[1]);
-
-                    Assert.Equal(anNum1.Id, context.AnNums.Single(e => e.TheWalrus == "Goo goo").Id);
-                    Assert.Equal(anNum2.Id, context.AnNums.Single(e => e.TheWalrus == "g'joob").Id);
-                    Assert.NotEqual(adNum1.Id, preSaveValues[2]);
-                    Assert.NotEqual(adNum2.Id, preSaveValues[3]);
-
-                    Assert.Equal(adNum1.Id, context.AdNums.Single(e => e.TheWalrus == "Eggman").Id);
-                    Assert.Equal(adNum2.Id, context.AdNums.Single(e => e.TheWalrus == "Eggmen").Id);
-                    Assert.NotEqual(anNum1.Id, preSaveValues[4]);
-                    Assert.NotEqual(anNum2.Id, preSaveValues[5]);
-
-                    Assert.Equal(byteNownNum1.Id, context.ByteNownNums.Single(e => e.Lucy == "Tangerine").Id);
-                    Assert.Equal(byteNownNum2.Id, context.ByteNownNums.Single(e => e.Lucy == "Trees").Id);
-                    Assert.Equal(77, byteNownNum1.Id);
-                    Assert.Equal(78, byteNownNum2.Id);
-
-                    Assert.Equal(byteNum1.Id, context.ByteNums.Single(e => e.Lucy == "Marmalade").Id);
-                    Assert.Equal(byteNum2.Id, context.ByteNums.Single(e => e.Lucy == "Skies").Id);
-                    Assert.NotEqual(byteNum1.Id, preSaveByteValues[0]);
-                    Assert.NotEqual(byteNum2.Id, preSaveByteValues[1]);
-
-                    Assert.Equal(byteAnNum1.Id, context.ByteAnNums.Single(e => e.Lucy == "Cellophane").Id);
-                    Assert.Equal(byteAnNum2.Id, context.ByteAnNums.Single(e => e.Lucy == "Flowers").Id);
-                    Assert.NotEqual(byteAdNum1.Id, preSaveByteValues[2]);
-                    Assert.NotEqual(byteAdNum2.Id, preSaveByteValues[3]);
-
-                    Assert.Equal(byteAdNum1.Id, context.ByteAdNums.Single(e => e.Lucy == "Kaleidoscope").Id);
-                    Assert.Equal(byteAdNum2.Id, context.ByteAdNums.Single(e => e.Lucy == "Eyes").Id);
-                    Assert.NotEqual(byteAnNum1.Id, preSaveByteValues[4]);
-                    Assert.NotEqual(byteAnNum2.Id, preSaveByteValues[5]);
-                }
+                Assert.Equal(byteAdNum1.Id, context.ByteAdNums.Single(e => e.Lucy == "Kaleidoscope").Id);
+                Assert.Equal(byteAdNum2.Id, context.ByteAdNums.Single(e => e.Lucy == "Eyes").Id);
+                Assert.NotEqual(byteAnNum1.Id, preSaveByteValues[4]);
+                Assert.NotEqual(byteAnNum2.Id, preSaveByteValues[5]);
             }
         }
 
@@ -228,68 +225,64 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_use_string_enum_or_byte_array_as_key()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var sNum1 = new SNum { TheWalrus = "I" };
+            var sNum2 = new SNum { TheWalrus = "Am" };
+
+            var enNum1 = new EnNum { TheWalrus = "Goo goo", Id = ENum.BNum };
+            var enNum2 = new EnNum { TheWalrus = "g'joob", Id = ENum.CNum };
+
+            var bNum1 = new BNum { TheWalrus = "Eggman" };
+            var bNum2 = new BNum { TheWalrus = "Eggmen" };
+
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new ENumContext(options))
             {
-                var sNum1 = new SNum { TheWalrus = "I" };
-                var sNum2 = new SNum { TheWalrus = "Am" };
+                context.Database.EnsureCreatedResiliently();
 
-                var enNum1 = new EnNum { TheWalrus = "Goo goo", Id = ENum.BNum };
-                var enNum2 = new EnNum { TheWalrus = "g'joob", Id = ENum.CNum };
+                context.AddRange(sNum1, sNum2, enNum1, enNum2, bNum1, bNum2);
 
-                var bNum1 = new BNum { TheWalrus = "Eggman" };
-                var bNum2 = new BNum { TheWalrus = "Eggmen" };
+                context.SaveChanges();
+            }
 
-                var options = Fixture.CreateOptions(testDatabase);
-                using (var context = new ENumContext(options))
-                {
-                    context.Database.EnsureCreatedResiliently();
+            using (var context = new ENumContext(options))
+            {
+                Assert.Equal(sNum1.Id, context.SNums.Single(e => e.TheWalrus == "I").Id);
+                Assert.Equal(sNum2.Id, context.SNums.Single(e => e.TheWalrus == "Am").Id);
 
-                    context.AddRange(sNum1, sNum2, enNum1, enNum2, bNum1, bNum2);
+                Assert.Equal(enNum1.Id, context.EnNums.Single(e => e.TheWalrus == "Goo goo").Id);
+                Assert.Equal(enNum2.Id, context.EnNums.Single(e => e.TheWalrus == "g'joob").Id);
 
-                    context.SaveChanges();
-                }
-
-                using (var context = new ENumContext(options))
-                {
-                    Assert.Equal(sNum1.Id, context.SNums.Single(e => e.TheWalrus == "I").Id);
-                    Assert.Equal(sNum2.Id, context.SNums.Single(e => e.TheWalrus == "Am").Id);
-
-                    Assert.Equal(enNum1.Id, context.EnNums.Single(e => e.TheWalrus == "Goo goo").Id);
-                    Assert.Equal(enNum2.Id, context.EnNums.Single(e => e.TheWalrus == "g'joob").Id);
-
-                    Assert.Equal(bNum1.Id, context.BNums.Single(e => e.TheWalrus == "Eggman").Id);
-                    Assert.Equal(bNum2.Id, context.BNums.Single(e => e.TheWalrus == "Eggmen").Id);
-                }
+                Assert.Equal(bNum1.Id, context.BNums.Single(e => e.TheWalrus == "Eggman").Id);
+                Assert.Equal(bNum2.Id, context.BNums.Single(e => e.TheWalrus == "Eggmen").Id);
             }
         }
 
         [ConditionalFact]
         public void Can_remove_multiple_byte_array_as_key()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var bNum1 = new BNum { TheWalrus = "Eggman" };
+            var bNum2 = new BNum { TheWalrus = "Eggmen" };
+
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new ENumContext(options))
             {
-                var bNum1 = new BNum { TheWalrus = "Eggman" };
-                var bNum2 = new BNum { TheWalrus = "Eggmen" };
+                context.Database.EnsureCreatedResiliently();
 
-                var options = Fixture.CreateOptions(testDatabase);
-                using (var context = new ENumContext(options))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.AddRange(bNum1, bNum2);
 
-                    context.AddRange(bNum1, bNum2);
+                context.SaveChanges();
+            }
 
-                    context.SaveChanges();
-                }
+            using (var context = new ENumContext(options))
+            {
+                Assert.Equal(bNum1.Id, context.BNums.Single(e => e.TheWalrus == "Eggman").Id);
+                Assert.Equal(bNum2.Id, context.BNums.Single(e => e.TheWalrus == "Eggmen").Id);
 
-                using (var context = new ENumContext(options))
-                {
-                    Assert.Equal(bNum1.Id, context.BNums.Single(e => e.TheWalrus == "Eggman").Id);
-                    Assert.Equal(bNum2.Id, context.BNums.Single(e => e.TheWalrus == "Eggmen").Id);
+                context.RemoveRange(context.BNums);
 
-                    context.RemoveRange(context.BNums);
-
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
             }
         }
 
@@ -339,383 +332,357 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_run_linq_query_on_entity_set()
         {
-            using (var testStore = SqlServerTestStore.GetNorthwindStore())
-            {
-                using (var db = new NorthwindContext(Fixture.CreateOptions(testStore)))
-                {
-                    var results = db.Customers
-                        .Where(c => c.CompanyName.StartsWith("A"))
-                        .OrderByDescending(c => c.CustomerID)
-                        .ToList();
+            using var testStore = SqlServerTestStore.GetNorthwindStore();
+            using var db = new NorthwindContext(Fixture.CreateOptions(testStore));
+            var results = db.Customers
+                .Where(c => c.CompanyName.StartsWith("A"))
+                .OrderByDescending(c => c.CustomerID)
+                .ToList();
 
-                    Assert.Equal(4, results.Count);
-                    Assert.Equal("AROUT", results[0].CustomerID);
-                    Assert.Equal("ANTON", results[1].CustomerID);
-                    Assert.Equal("ANATR", results[2].CustomerID);
-                    Assert.Equal("ALFKI", results[3].CustomerID);
+            Assert.Equal(4, results.Count);
+            Assert.Equal("AROUT", results[0].CustomerID);
+            Assert.Equal("ANTON", results[1].CustomerID);
+            Assert.Equal("ANATR", results[2].CustomerID);
+            Assert.Equal("ALFKI", results[3].CustomerID);
 
-                    Assert.Equal("(171) 555-6750", results[0].Fax);
-                    Assert.Null(results[1].Fax);
-                    Assert.Equal("(5) 555-3745", results[2].Fax);
-                    Assert.Equal("030-0076545", results[3].Fax);
-                }
-            }
+            Assert.Equal("(171) 555-6750", results[0].Fax);
+            Assert.Null(results[1].Fax);
+            Assert.Equal("(5) 555-3745", results[2].Fax);
+            Assert.Equal("030-0076545", results[3].Fax);
         }
 
         [ConditionalFact]
         public void Can_run_linq_query_on_entity_set_with_value_buffer_reader()
         {
-            using (var testStore = SqlServerTestStore.GetNorthwindStore())
-            {
-                using (var db = new NorthwindContext(Fixture.CreateOptions(testStore)))
-                {
-                    var results = db.Customers
-                        .Where(c => c.CompanyName.StartsWith("A"))
-                        .OrderByDescending(c => c.CustomerID)
-                        .ToList();
+            using var testStore = SqlServerTestStore.GetNorthwindStore();
+            using var db = new NorthwindContext(Fixture.CreateOptions(testStore));
+            var results = db.Customers
+                .Where(c => c.CompanyName.StartsWith("A"))
+                .OrderByDescending(c => c.CustomerID)
+                .ToList();
 
-                    Assert.Equal(4, results.Count);
-                    Assert.Equal("AROUT", results[0].CustomerID);
-                    Assert.Equal("ANTON", results[1].CustomerID);
-                    Assert.Equal("ANATR", results[2].CustomerID);
-                    Assert.Equal("ALFKI", results[3].CustomerID);
+            Assert.Equal(4, results.Count);
+            Assert.Equal("AROUT", results[0].CustomerID);
+            Assert.Equal("ANTON", results[1].CustomerID);
+            Assert.Equal("ANATR", results[2].CustomerID);
+            Assert.Equal("ALFKI", results[3].CustomerID);
 
-                    Assert.Equal("(171) 555-6750", results[0].Fax);
-                    Assert.Null(results[1].Fax);
-                    Assert.Equal("(5) 555-3745", results[2].Fax);
-                    Assert.Equal("030-0076545", results[3].Fax);
-                }
-            }
+            Assert.Equal("(171) 555-6750", results[0].Fax);
+            Assert.Null(results[1].Fax);
+            Assert.Equal("(5) 555-3745", results[2].Fax);
+            Assert.Equal("030-0076545", results[3].Fax);
         }
 
         [ConditionalFact]
         public void Can_enumerate_entity_set()
         {
-            using (var testStore = SqlServerTestStore.GetNorthwindStore())
+            using var testStore = SqlServerTestStore.GetNorthwindStore();
+            using var db = new NorthwindContext(Fixture.CreateOptions(testStore));
+            var results = new List<Customer>();
+            foreach (var item in db.Customers)
             {
-                using (var db = new NorthwindContext(Fixture.CreateOptions(testStore)))
-                {
-                    var results = new List<Customer>();
-                    foreach (var item in db.Customers)
-                    {
-                        results.Add(item);
-                    }
-
-                    Assert.Equal(91, results.Count);
-                    Assert.Equal("ALFKI", results[0].CustomerID);
-                    Assert.Equal("Alfreds Futterkiste", results[0].CompanyName);
-                }
+                results.Add(item);
             }
+
+            Assert.Equal(91, results.Count);
+            Assert.Equal("ALFKI", results[0].CustomerID);
+            Assert.Equal("Alfreds Futterkiste", results[0].CompanyName);
         }
 
         [ConditionalFact]
         public async Task Can_save_changes()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var db = new BloggingContext(options))
             {
-                var options = Fixture.CreateOptions(testDatabase);
-                using (var db = new BloggingContext(options))
-                {
-                    await CreateBlogDatabaseAsync<Blog>(db);
-                }
+                await CreateBlogDatabaseAsync<Blog>(db);
+            }
 
-                Fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
 
-                using (var db = new BloggingContext(options))
-                {
-                    var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
-                    toUpdate.Name = "Blog is Updated";
-                    var updatedId = toUpdate.Id;
-                    var toDelete = db.Blogs.Single(b => b.Name == "Blog2");
-                    toDelete.Name = "Blog to delete";
-                    var deletedId = toDelete.Id;
+            using (var db = new BloggingContext(options))
+            {
+                var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
+                toUpdate.Name = "Blog is Updated";
+                var updatedId = toUpdate.Id;
+                var toDelete = db.Blogs.Single(b => b.Name == "Blog2");
+                toDelete.Name = "Blog to delete";
+                var deletedId = toDelete.Id;
 
-                    db.Entry(toUpdate).State = EntityState.Modified;
-                    db.Entry(toDelete).State = EntityState.Deleted;
+                db.Entry(toUpdate).State = EntityState.Modified;
+                db.Entry(toDelete).State = EntityState.Deleted;
 
-                    var toAdd = db.Add(
-                        new Blog
-                        {
-                            Name = "Blog to Insert",
-                            George = true,
-                            TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                            ToEat = 64,
-                            OrNothing = 0.123456789,
-                            Fuse = 777,
-                            WayRound = 9876543210,
-                            Away = 0.12345f,
-                            AndChew = new byte[16]
-                        }).Entity;
+                var toAdd = db.Add(
+                    new Blog
+                    {
+                        Name = "Blog to Insert",
+                        George = true,
+                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                        ToEat = 64,
+                        OrNothing = 0.123456789,
+                        Fuse = 777,
+                        WayRound = 9876543210,
+                        Away = 0.12345f,
+                        AndChew = new byte[16]
+                    }).Entity;
 
-                    await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
-                    var addedId = toAdd.Id;
-                    Assert.NotEqual(0, addedId);
+                var addedId = toAdd.Id;
+                Assert.NotEqual(0, addedId);
 
-                    Assert.Equal(EntityState.Unchanged, db.Entry(toUpdate).State);
-                    Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
-                    Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
+                Assert.Equal(EntityState.Unchanged, db.Entry(toUpdate).State);
+                Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
+                Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(5, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
-                    Assert.Contains("SELECT", Fixture.TestSqlLoggerFactory.SqlStatements[0]);
-                    Assert.Contains("SELECT", Fixture.TestSqlLoggerFactory.SqlStatements[1]);
-                    Assert.Contains("@p0='" + deletedId, Fixture.TestSqlLoggerFactory.SqlStatements[2]);
-                    Assert.Contains("DELETE", Fixture.TestSqlLoggerFactory.SqlStatements[2]);
-                    Assert.Contains("UPDATE", Fixture.TestSqlLoggerFactory.SqlStatements[3]);
-                    Assert.Contains("INSERT", Fixture.TestSqlLoggerFactory.SqlStatements[4]);
+                Assert.Equal(5, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
+                Assert.Contains("SELECT", Fixture.TestSqlLoggerFactory.SqlStatements[0]);
+                Assert.Contains("SELECT", Fixture.TestSqlLoggerFactory.SqlStatements[1]);
+                Assert.Contains("@p0='" + deletedId, Fixture.TestSqlLoggerFactory.SqlStatements[2]);
+                Assert.Contains("DELETE", Fixture.TestSqlLoggerFactory.SqlStatements[2]);
+                Assert.Contains("UPDATE", Fixture.TestSqlLoggerFactory.SqlStatements[3]);
+                Assert.Contains("INSERT", Fixture.TestSqlLoggerFactory.SqlStatements[4]);
 
-                    var rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'");
+                var rows = await testDatabase.ExecuteScalarAsync<int>(
+                    $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'");
 
-                    Assert.Equal(1, rows);
+                Assert.Equal(1, rows);
 
-                    rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {deletedId}");
+                rows = await testDatabase.ExecuteScalarAsync<int>(
+                    $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {deletedId}");
 
-                    Assert.Equal(0, rows);
+                Assert.Equal(0, rows);
 
-                    rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {addedId} AND Name = 'Blog to Insert'");
+                rows = await testDatabase.ExecuteScalarAsync<int>(
+                    $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {addedId} AND Name = 'Blog to Insert'");
 
-                    Assert.Equal(1, rows);
-                }
+                Assert.Equal(1, rows);
             }
         }
 
         [ConditionalFact]
         public async Task Can_save_changes_in_tracked_entities()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            int updatedId;
+            int deletedId;
+            int addedId;
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var db = new BloggingContext(options))
             {
-                int updatedId;
-                int deletedId;
-                int addedId;
-                var options = Fixture.CreateOptions(testDatabase);
-                using (var db = new BloggingContext(options))
-                {
-                    var blogs = await CreateBlogDatabaseAsync<Blog>(db);
+                var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
-                    var toAdd = db.Blogs.Add(
-                        new Blog
-                        {
-                            Name = "Blog to Insert",
-                            George = true,
-                            TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                            ToEat = 64,
-                            OrNothing = 0.123456789,
-                            Fuse = 777,
-                            WayRound = 9876543210,
-                            Away = 0.12345f,
-                            AndChew = new byte[16]
-                        }).Entity;
-                    db.Entry(toAdd).State = EntityState.Detached;
+                var toAdd = db.Blogs.Add(
+                    new Blog
+                    {
+                        Name = "Blog to Insert",
+                        George = true,
+                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                        ToEat = 64,
+                        OrNothing = 0.123456789,
+                        Fuse = 777,
+                        WayRound = 9876543210,
+                        Away = 0.12345f,
+                        AndChew = new byte[16]
+                    }).Entity;
+                db.Entry(toAdd).State = EntityState.Detached;
 
-                    var toUpdate = blogs[0];
-                    toUpdate.Name = "Blog is Updated";
-                    updatedId = toUpdate.Id;
-                    var toDelete = blogs[1];
-                    toDelete.Name = "Blog to delete";
-                    deletedId = toDelete.Id;
+                var toUpdate = blogs[0];
+                toUpdate.Name = "Blog is Updated";
+                updatedId = toUpdate.Id;
+                var toDelete = blogs[1];
+                toDelete.Name = "Blog to delete";
+                deletedId = toDelete.Id;
 
-                    db.Remove(toDelete);
-                    db.Entry(toAdd).State = EntityState.Added;
+                db.Remove(toDelete);
+                db.Entry(toAdd).State = EntityState.Added;
 
-                    await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
-                    addedId = toAdd.Id;
-                    Assert.NotEqual(0, addedId);
+                addedId = toAdd.Id;
+                Assert.NotEqual(0, addedId);
 
-                    Assert.Equal(EntityState.Unchanged, db.Entry(toUpdate).State);
-                    Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
-                    Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
-                }
+                Assert.Equal(EntityState.Unchanged, db.Entry(toUpdate).State);
+                Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
+                Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
+            }
 
-                using (var db = new BloggingContext(options))
-                {
-                    var toUpdate = db.Blogs.Single(b => b.Id == updatedId);
-                    Assert.Equal("Blog is Updated", toUpdate.Name);
-                    Assert.Equal(0, db.Blogs.Count(b => b.Id == deletedId));
-                    Assert.Equal("Blog to Insert", db.Blogs.Single(b => b.Id == addedId).Name);
-                }
+            using (var db = new BloggingContext(options))
+            {
+                var toUpdate = db.Blogs.Single(b => b.Id == updatedId);
+                Assert.Equal("Blog is Updated", toUpdate.Name);
+                Assert.Equal(0, db.Blogs.Count(b => b.Id == deletedId));
+                Assert.Equal("Blog to Insert", db.Blogs.Single(b => b.Id == addedId).Name);
             }
         }
 
         [ConditionalFact]
         public void Can_track_an_entity_with_more_than_10_properties()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new GameDbContext(options))
             {
-                var options = Fixture.CreateOptions(testDatabase);
-                using (var context = new GameDbContext(options))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                context.Database.EnsureCreatedResiliently();
 
-                    context.Characters.Add(
-                        new PlayerCharacter(
-                            new Level { Game = new Game() }));
+                context.Characters.Add(
+                    new PlayerCharacter(
+                        new Level { Game = new Game() }));
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
+            }
 
-                using (var context = new GameDbContext(options))
-                {
-                    var character = context.Characters
-                        .Include(c => c.Level.Game)
-                        .OrderBy(c => c.Id)
-                        .First();
+            using (var context = new GameDbContext(options))
+            {
+                var character = context.Characters
+                    .Include(c => c.Level.Game)
+                    .OrderBy(c => c.Id)
+                    .First();
 
-                    Assert.NotNull(character.Game);
-                    Assert.NotNull(character.Level);
-                    Assert.NotNull(character.Level.Game);
-                }
+                Assert.NotNull(character.Game);
+                Assert.NotNull(character.Level);
+                Assert.NotNull(character.Level.Game);
             }
         }
 
         [ConditionalFact]
         public void Adding_an_item_to_a_collection_marks_it_as_modified()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
-            {
-                var options = Fixture.CreateOptions(testDatabase);
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testDatabase);
 
-                using (var context = new GameDbContext(options))
-                {
-                    context.Database.EnsureCreatedResiliently();
+            using var context = new GameDbContext(options);
+            context.Database.EnsureCreatedResiliently();
 
-                    var player = new PlayerCharacter(
-                        new Level { Game = new Game() });
+            var player = new PlayerCharacter(
+                new Level { Game = new Game() });
 
-                    var weapon = new Item { Id = 1, Game = player.Game };
+            var weapon = new Item { Id = 1, Game = player.Game };
 
-                    context.Characters.Add(player);
+            context.Characters.Add(player);
 
-                    context.SaveChanges();
+            context.SaveChanges();
 
-                    player.Items.Add(weapon);
+            player.Items.Add(weapon);
 
-                    context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                    Assert.True(context.Entry(player).Collection(p => p.Items).IsModified);
-                }
-            }
+            Assert.True(context.Entry(player).Collection(p => p.Items).IsModified);
         }
 
         [ConditionalFact]
         public void Can_set_reference_twice()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testDatabase);
+
+            using (var context = new GameDbContext(options))
             {
-                var options = Fixture.CreateOptions(testDatabase);
+                context.Database.EnsureCreatedResiliently();
 
-                using (var context = new GameDbContext(options))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                var player = new PlayerCharacter(
+                    new Level { Game = new Game() });
 
-                    var player = new PlayerCharacter(
-                        new Level { Game = new Game() });
+                var weapon = new Item { Id = 1, Game = player.Game };
 
-                    var weapon = new Item { Id = 1, Game = player.Game };
+                player.Items.Add(weapon);
+                context.Characters.Add(player);
 
-                    player.Items.Add(weapon);
-                    context.Characters.Add(player);
+                context.SaveChanges();
 
-                    context.SaveChanges();
+                player.CurrentWeapon = weapon;
+                context.SaveChanges();
 
-                    player.CurrentWeapon = weapon;
-                    context.SaveChanges();
+                player.CurrentWeapon = null;
+                context.SaveChanges();
 
-                    player.CurrentWeapon = null;
-                    context.SaveChanges();
+                player.CurrentWeapon = weapon;
+                context.SaveChanges();
+            }
 
-                    player.CurrentWeapon = weapon;
-                    context.SaveChanges();
-                }
+            using (var context = new GameDbContext(options))
+            {
+                var player = context.Characters
+                    .Include(c => c.Items)
+                    .ToList().Single();
 
-                using (var context = new GameDbContext(options))
-                {
-                    var player = context.Characters
-                        .Include(c => c.Items)
-                        .ToList().Single();
-
-                    Assert.Equal(player.Items.Single(), player.CurrentWeapon);
-                }
+                Assert.Equal(player.Items.Single(), player.CurrentWeapon);
             }
         }
 
         [ConditionalFact]
         public void Can_include_on_loaded_entity()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testDatabase);
+
+            using (var context = new GameDbContext(options))
             {
-                var options = Fixture.CreateOptions(testDatabase);
+                context.Database.EnsureCreatedResiliently();
 
-                using (var context = new GameDbContext(options))
-                {
-                    context.Database.EnsureCreatedResiliently();
+                var player = new PlayerCharacter(
+                    new Level { Game = new Game() });
 
-                    var player = new PlayerCharacter(
-                        new Level { Game = new Game() });
+                var weapon = new Item { Id = 1, Game = player.Game };
 
-                    var weapon = new Item { Id = 1, Game = player.Game };
+                player.Items.Add(weapon);
 
-                    player.Items.Add(weapon);
+                player.Items.Add(
+                    new Item { Id = 2, Game = player.Game });
 
-                    player.Items.Add(
-                        new Item { Id = 2, Game = player.Game });
+                context.Characters.Add(player);
 
-                    context.Characters.Add(player);
+                context.SaveChanges();
 
-                    context.SaveChanges();
+                player.CurrentWeapon = weapon;
 
-                    player.CurrentWeapon = weapon;
+                context.SaveChanges();
+            }
 
-                    context.SaveChanges();
-                }
+            using (var context = new GameDbContext(options))
+            {
+                var player = context.Characters
+                    .Include(p => p.CurrentWeapon)
+                    .Single();
 
-                using (var context = new GameDbContext(options))
-                {
-                    var player = context.Characters
-                        .Include(p => p.CurrentWeapon)
-                        .Single();
+                Assert.Equal(1, player.Items.Count);
 
-                    Assert.Equal(1, player.Items.Count);
+                context.Attach(player);
 
-                    context.Attach(player);
+                Assert.Equal(1, player.Items.Count);
 
-                    Assert.Equal(1, player.Items.Count);
+                context.Levels
+                    .Include(l => l.Actors)
+                    .ThenInclude(a => a.Items)
+                    .Load();
 
-                    context.Levels
-                        .Include(l => l.Actors)
-                        .ThenInclude(a => a.Items)
-                        .Load();
+                Assert.Equal(2, player.Items.Count);
+            }
 
-                    Assert.Equal(2, player.Items.Count);
-                }
+            using (var context = new GameDbContext(options))
+            {
+                var player = context.Characters
+                    .Include(p => p.CurrentWeapon)
+                    .AsNoTracking()
+                    .Single();
 
-                using (var context = new GameDbContext(options))
-                {
-                    var player = context.Characters
-                        .Include(p => p.CurrentWeapon)
-                        .AsNoTracking()
-                        .Single();
+                Assert.Equal(0, player.Items.Count);
 
-                    Assert.Equal(0, player.Items.Count);
+                context.Entry(player.CurrentWeapon).Property("ActorId").CurrentValue = 0;
 
-                    context.Entry(player.CurrentWeapon).Property("ActorId").CurrentValue = 0;
+                context.Attach(player);
 
-                    context.Attach(player);
+                Assert.Equal(1, player.Items.Count);
 
-                    Assert.Equal(1, player.Items.Count);
+                context.Levels
+                    .Include(l => l.Actors)
+                    .ThenInclude(a => a.Items)
+                    .Load();
 
-                    context.Levels
-                        .Include(l => l.Actors)
-                        .ThenInclude(a => a.Items)
-                        .Load();
-
-                    Assert.Equal(2, player.Items.Count);
-                }
+                Assert.Equal(2, player.Items.Count);
             }
         }
 
@@ -879,46 +846,40 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
-            using (var testStore = SqlServerTestStore.GetNorthwindStore())
-            {
-                using (var db = new NorthwindContext(Fixture.CreateOptions(testStore)))
-                {
-                    var customer = await db.Customers.OrderBy(c => c.CustomerID).FirstOrDefaultAsync();
+            using var testStore = SqlServerTestStore.GetNorthwindStore();
+            using var db = new NorthwindContext(Fixture.CreateOptions(testStore));
+            var customer = await db.Customers.OrderBy(c => c.CustomerID).FirstOrDefaultAsync();
 
-                    var trackedCustomerEntry = db.ChangeTracker.Entries().Single();
-                    Assert.Same(trackedCustomerEntry.Entity, customer);
+            var trackedCustomerEntry = db.ChangeTracker.Entries().Single();
+            Assert.Same(trackedCustomerEntry.Entity, customer);
 
-                    // if references are different this will throw
-                    db.Customers.Remove(customer);
-                }
-            }
+            // if references are different this will throw
+            db.Customers.Remove(customer);
         }
 
         [ConditionalFact] // Issue #931
         public async Task Can_save_and_query_with_schema()
         {
-            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testStore);
+
+            await testStore.ExecuteNonQueryAsync("CREATE SCHEMA Apple");
+            await testStore.ExecuteNonQueryAsync("CREATE TABLE Apple.Jack (MyKey int)");
+            await testStore.ExecuteNonQueryAsync("CREATE TABLE Apple.Black (MyKey int)");
+
+            using (var context = new SchemaContext(options))
             {
-                var options = Fixture.CreateOptions(testStore);
+                context.Add(
+                    new Jack { MyKey = 1 });
+                context.Add(
+                    new Black { MyKey = 2 });
+                context.SaveChanges();
+            }
 
-                await testStore.ExecuteNonQueryAsync("CREATE SCHEMA Apple");
-                await testStore.ExecuteNonQueryAsync("CREATE TABLE Apple.Jack (MyKey int)");
-                await testStore.ExecuteNonQueryAsync("CREATE TABLE Apple.Black (MyKey int)");
-
-                using (var context = new SchemaContext(options))
-                {
-                    context.Add(
-                        new Jack { MyKey = 1 });
-                    context.Add(
-                        new Black { MyKey = 2 });
-                    context.SaveChanges();
-                }
-
-                using (var context = new SchemaContext(options))
-                {
-                    Assert.Equal(1, context.Jacks.Count());
-                    Assert.Equal(1, context.Blacks.Count());
-                }
+            using (var context = new SchemaContext(options))
+            {
+                Assert.Equal(1, context.Jacks.Count());
+                Assert.Equal(1, context.Blacks.Count());
             }
         }
 
@@ -977,78 +938,76 @@ namespace Microsoft.EntityFrameworkCore
         private async Task RoundTripChanges<TBlog>()
             where TBlog : class, IBlog, new()
         {
-            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testDatabase);
+
+            int blog1Id;
+            int blog2Id;
+            int blog3Id;
+
+            using (var context = new BloggingContext<TBlog>(options))
             {
-                var options = Fixture.CreateOptions(testDatabase);
+                var blogs = await CreateBlogDatabaseAsync<TBlog>(context);
+                blog1Id = blogs[0].Id;
+                blog2Id = blogs[1].Id;
 
-                int blog1Id;
-                int blog2Id;
-                int blog3Id;
+                Assert.NotEqual(0, blog1Id);
+                Assert.NotEqual(0, blog2Id);
+                Assert.NotEqual(blog1Id, blog2Id);
+            }
 
-                using (var context = new BloggingContext<TBlog>(options))
-                {
-                    var blogs = await CreateBlogDatabaseAsync<TBlog>(context);
-                    blog1Id = blogs[0].Id;
-                    blog2Id = blogs[1].Id;
+            using (var context = new BloggingContext<TBlog>(options))
+            {
+                var blogs = context.Blogs.ToList();
+                Assert.Equal(2, blogs.Count);
 
-                    Assert.NotEqual(0, blog1Id);
-                    Assert.NotEqual(0, blog2Id);
-                    Assert.NotEqual(blog1Id, blog2Id);
-                }
+                var blog1 = blogs.Single(b => b.Name == "Blog1");
+                Assert.Equal(blog1Id, blog1.Id);
 
-                using (var context = new BloggingContext<TBlog>(options))
-                {
-                    var blogs = context.Blogs.ToList();
-                    Assert.Equal(2, blogs.Count);
+                Assert.Equal("Blog1", blog1.Name);
+                Assert.True(blog1.George);
+                Assert.Equal(new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"), blog1.TheGu);
+                Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 33, 777), blog1.NotFigTime);
+                Assert.Equal(64, blog1.ToEat);
+                Assert.Equal(0.123456789, blog1.OrNothing);
+                Assert.Equal(777, blog1.Fuse);
+                Assert.Equal(9876543210, blog1.WayRound);
+                Assert.Equal(0.12345f, blog1.Away);
+                Assert.Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, blog1.AndChew);
 
-                    var blog1 = blogs.Single(b => b.Name == "Blog1");
-                    Assert.Equal(blog1Id, blog1.Id);
+                blog1.Name = "New Name";
 
-                    Assert.Equal("Blog1", blog1.Name);
-                    Assert.True(blog1.George);
-                    Assert.Equal(new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"), blog1.TheGu);
-                    Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 33, 777), blog1.NotFigTime);
-                    Assert.Equal(64, blog1.ToEat);
-                    Assert.Equal(0.123456789, blog1.OrNothing);
-                    Assert.Equal(777, blog1.Fuse);
-                    Assert.Equal(9876543210, blog1.WayRound);
-                    Assert.Equal(0.12345f, blog1.Away);
-                    Assert.Equal(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, blog1.AndChew);
+                var blog2 = blogs.Single(b => b.Name == "Blog2");
+                Assert.Equal(blog2Id, blog2.Id);
 
-                    blog1.Name = "New Name";
+                blog2.Name = null;
+                blog2.NotFigTime = new DateTime();
+                blog2.AndChew = null;
 
-                    var blog2 = blogs.Single(b => b.Name == "Blog2");
-                    Assert.Equal(blog2Id, blog2.Id);
+                var blog3 = context.Add(new TBlog()).Entity;
 
-                    blog2.Name = null;
-                    blog2.NotFigTime = new DateTime();
-                    blog2.AndChew = null;
+                await context.SaveChangesAsync();
 
-                    var blog3 = context.Add(new TBlog()).Entity;
+                blog3Id = blog3.Id;
+                Assert.NotEqual(0, blog3Id);
+            }
 
-                    await context.SaveChangesAsync();
+            using (var context = new BloggingContext<TBlog>(options))
+            {
+                var blogs = context.Blogs.ToList();
+                Assert.Equal(3, blogs.Count);
 
-                    blog3Id = blog3.Id;
-                    Assert.NotEqual(0, blog3Id);
-                }
+                Assert.Equal("New Name", blogs.Single(b => b.Id == blog1Id).Name);
 
-                using (var context = new BloggingContext<TBlog>(options))
-                {
-                    var blogs = context.Blogs.ToList();
-                    Assert.Equal(3, blogs.Count);
+                var blog2 = blogs.Single(b => b.Id == blog2Id);
+                Assert.Null(blog2.Name);
+                Assert.Equal(blog2.NotFigTime, new DateTime());
+                Assert.Null(blog2.AndChew);
 
-                    Assert.Equal("New Name", blogs.Single(b => b.Id == blog1Id).Name);
-
-                    var blog2 = blogs.Single(b => b.Id == blog2Id);
-                    Assert.Null(blog2.Name);
-                    Assert.Equal(blog2.NotFigTime, new DateTime());
-                    Assert.Null(blog2.AndChew);
-
-                    var blog3 = blogs.Single(b => b.Id == blog3Id);
-                    Assert.Null(blog3.Name);
-                    Assert.Equal(blog3.NotFigTime, new DateTime());
-                    Assert.Null(blog3.AndChew);
-                }
+                var blog3 = blogs.Single(b => b.Id == blog3Id);
+                Assert.Null(blog3.Name);
+                Assert.Equal(blog3.NotFigTime, new DateTime());
+                Assert.Null(blog3.AndChew);
             }
         }
 
@@ -1171,11 +1130,11 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                if (typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(typeof(TBlog).GetTypeInfo()))
+                if (typeof(INotifyPropertyChanging).IsAssignableFrom(typeof(TBlog)))
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
                 }
-                else if (typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(typeof(TBlog).GetTypeInfo()))
+                else if (typeof(INotifyPropertyChanged).IsAssignableFrom(typeof(TBlog)))
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
                 }

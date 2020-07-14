@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -13,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the table name based on the <see cref="DbSet{TEntity}" /> property name.
     /// </summary>
-    public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention
+    public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
     {
-        private readonly IDictionary<Type, DbSetProperty> _sets;
+        private readonly IDictionary<Type, string> _sets;
 
         /// <summary>
         ///     Creates a new instance of <see cref="TableNameFromDbSetConvention" />.
@@ -26,7 +25,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
-            _sets = dependencies.SetFinder.CreateClrTypeDbSetMapping(dependencies.ContextType);
+            _sets = new Dictionary<Type, string>();
+            List<Type> ambiguousTypes = null;
+            foreach (var set in dependencies.SetFinder.FindSets(dependencies.ContextType))
+            {
+                if (!_sets.ContainsKey(set.ClrType))
+                {
+                    _sets.Add(set.ClrType, set.Name);
+                }
+                else
+                {
+                    if(ambiguousTypes == null)
+                    {
+                        ambiguousTypes = new List<Type>();
+                    }
+                    ambiguousTypes.Add(set.ClrType);
+                }
+            }
+
+            if (ambiguousTypes != null)
+            {
+                foreach (var type in ambiguousTypes)
+                {
+                    _sets.Remove(type);
+                }
+            }
 
             Dependencies = dependencies;
         }
@@ -49,22 +72,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityType oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
-            if (_sets != null)
-            {
-                var entityType = entityTypeBuilder.Metadata;
+            var entityType = entityTypeBuilder.Metadata;
 
-                if (oldBaseType == null
-                    && newBaseType != null)
-                {
-                    entityTypeBuilder.ToTable(null);
-                }
-                else if (oldBaseType != null
-                    && newBaseType == null
-                    && entityType.ClrType != null
-                    && _sets.ContainsKey(entityType.ClrType))
-                {
-                    entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
-                }
+            if (oldBaseType == null
+                && newBaseType != null)
+            {
+                entityTypeBuilder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+            }
+            else if (oldBaseType != null
+                && newBaseType == null
+                && entityType.ClrType != null
+                && _sets.ContainsKey(entityType.ClrType))
+            {
+                entityTypeBuilder.ToTable(_sets[entityType.ClrType]);
             }
         }
 
@@ -82,7 +102,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && entityType.ClrType != null
                 && _sets.ContainsKey(entityType.ClrType))
             {
-                entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
+                entityTypeBuilder.ToTable(_sets[entityType.ClrType]);
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        {
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            {
+                if (entityType.GetTableName() != null
+                    && entityType.GetViewNameConfigurationSource() != null
+                    && _sets.ContainsKey(entityType.ClrType))
+                {
+                    // Undo the convention change if the entity type is mapped to a view
+                    entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+                }
             }
         }
     }

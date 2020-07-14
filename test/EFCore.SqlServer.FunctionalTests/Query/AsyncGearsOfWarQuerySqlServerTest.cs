@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class AsyncGearsOfWarQuerySqlServerTest : AsyncGearsOfWarQueryTestBase<GearsOfWarQuerySqlServerFixture>
+    public class AsyncGearsOfWarQuerySqlServerTest : AsyncGearsOfWarQueryRelationalTestBase<GearsOfWarQuerySqlServerFixture>
     {
         public AsyncGearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -13,5 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected override bool CanExecuteQueryString => true;
     }
 }

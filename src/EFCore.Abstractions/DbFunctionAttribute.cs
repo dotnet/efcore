@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private string _name;
         private string _schema;
+        private bool _builtIn;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbFunctionAttribute" /> class.
@@ -32,12 +33,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="name">The name of the function in the database.</param>
         /// <param name="schema">The schema of the function in the database.</param>
-        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string schema = null)
+        /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
+        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string schema = null, bool builtIn = false)
         {
             Check.NotEmpty(name, nameof(name));
 
             _name = name;
             _schema = schema;
+            _builtIn = builtIn;
         }
 
         /// <summary>
@@ -62,6 +65,15 @@ namespace Microsoft.EntityFrameworkCore
         {
             get => _schema;
             [param: CanBeNull] set => _schema = value;
+        }
+
+        /// <summary>
+        ///     The value indicating wheather the database function is built-in or not.
+        /// </summary>
+        public virtual bool IsBuiltIn
+        {
+            get => _builtIn;
+            set => _builtIn = value;
         }
     }
 }

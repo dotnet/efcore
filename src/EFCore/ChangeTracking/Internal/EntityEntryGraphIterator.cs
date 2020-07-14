@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var internalEntityEntry = node.GetInfrastructure();
-            var navigations = ((EntityType)internalEntityEntry.EntityType).GetNavigations();
+            var navigations = internalEntityEntry.EntityType.GetNavigations();
             var stateManager = internalEntityEntry.StateManager;
 
             foreach (var navigation in navigations)
@@ -52,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (navigationValue != null)
                 {
-                    var targetEntityType = navigation.GetTargetType();
-                    if (navigation.IsCollection())
+                    var targetEntityType = navigation.TargetEntityType;
+                    if (navigation.IsCollection)
                     {
                         foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,
             CancellationToken cancellationToken = default)
         {
-            if (!await handleNode(node, cancellationToken))
+            if (!await handleNode(node, cancellationToken).ConfigureAwait(false))
             {
                 return;
             }
@@ -100,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (navigationValue != null)
                 {
-                    var targetType = navigation.GetTargetType();
-                    if (navigation.IsCollection())
+                    var targetType = navigation.TargetEntityType;
+                    if (navigation.IsCollection)
                     {
                         foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
@@ -109,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             await TraverseGraphAsync(
                                 (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                                 handleNode,
-                                cancellationToken);
+                                cancellationToken)
+                                .ConfigureAwait(false);
                         }
                     }
                     else
@@ -118,7 +118,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         await TraverseGraphAsync(
                             (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                             handleNode,
-                            cancellationToken);
+                            cancellationToken)
+                            .ConfigureAwait(false);
                     }
                 }
             }

@@ -42,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType == null
-                && !entityType.GetDerivedTypes().Any()
                 && entityType.IsDocumentRoot())
             {
                 entityTypeBuilder.HasDiscriminator(typeof(string))
@@ -56,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyOwnershipChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(context, nameof(context));
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && entityType.BaseType == null
                 && !entityType.GetDerivedTypes().Any())
             {
-                entityType.Builder.HasNoDeclaredDiscriminator();
+                entityType.Builder.HasNoDiscriminator();
             }
         }
 
@@ -89,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && entityType.BaseType == null
                 && !entityType.GetDerivedTypes().Any())
             {
-                entityType.Builder.HasNoDeclaredDiscriminator();
+                entityType.Builder.HasNoDiscriminator();
             }
         }
 
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                discriminator = newBaseType.Builder?.HasDiscriminator(typeof(string));
+                discriminator = newBaseType.GetRootType().Builder?.HasDiscriminator(typeof(string));
 
                 if (newBaseType.BaseType == null)
                 {

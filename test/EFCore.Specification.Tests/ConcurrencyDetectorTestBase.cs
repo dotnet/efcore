@@ -160,22 +160,20 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual async Task ConcurrencyDetectorTest(Func<NorthwindContext, Task> test)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            context.Products.Add(
+                new Product { ProductID = 10001 });
+
+            var concurrencyDetector = context.GetService<IConcurrencyDetector>();
+            IDisposable disposer = null;
+
+            Task.Run(() => disposer = concurrencyDetector.EnterCriticalSection()).Wait();
+
+            using (disposer)
             {
-                context.Products.Add(
-                    new Product { ProductID = 10001 });
+                Exception ex = await Assert.ThrowsAsync<InvalidOperationException>(() => test(context));
 
-                var concurrencyDetector = context.GetService<IConcurrencyDetector>();
-                IDisposable disposer = null;
-
-                Task.Run(() => disposer = concurrencyDetector.EnterCriticalSection()).Wait();
-
-                using (disposer)
-                {
-                    Exception ex = await Assert.ThrowsAsync<InvalidOperationException>(() => test(context));
-
-                    Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);
-                }
+                Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);
             }
         }
 

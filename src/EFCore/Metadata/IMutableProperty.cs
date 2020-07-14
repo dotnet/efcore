@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether this property can contain <c>null</c>.
+        ///     Gets or sets a value indicating whether this property can contain <see langword="null" />.
         /// </summary>
         new bool IsNullable { get; set; }
 

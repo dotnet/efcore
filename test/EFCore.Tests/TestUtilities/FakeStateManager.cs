@@ -68,6 +68,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
+        public void Clear() => throw new NotImplementedException();
+
         public bool SavingChanges => throw new NotImplementedException();
 
         public IEnumerable<TEntity> GetNonDeletedEntities<TEntity>()
@@ -78,13 +80,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void UpdateIdentityMap(InternalEntityEntry entry, IKey principalKey) => throw new NotImplementedException();
         public void UpdateDependentMap(InternalEntityEntry entry, IForeignKey foreignKey) => throw new NotImplementedException();
 
-        public IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry, IForeignKey foreignKey) =>
+        public IEnumerable<IUpdateEntry> GetDependents(IUpdateEntry principalEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
-        public IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
-            InternalEntityEntry principalEntry, IForeignKey foreignKey) => throw new NotImplementedException();
+        public IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(
+            IUpdateEntry principalEntry, IForeignKey foreignKey) => throw new NotImplementedException();
 
-        public IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey) =>
+        public IEnumerable<IUpdateEntry> GetDependentsFromNavigation(IUpdateEntry principalEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
         public IList<IUpdateEntry> GetEntriesToSave(bool cascadeChanges) => Enumerable.Empty<IUpdateEntry>().ToList();
@@ -121,10 +123,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void StopTracking(InternalEntityEntry entry, EntityState oldState) => throw new NotImplementedException();
 
         public void RecordReferencedUntrackedEntity(
-            object referencedEntity, INavigation navigation, InternalEntityEntry referencedFromEntry) =>
+            object referencedEntity, INavigationBase navigation, InternalEntityEntry referencedFromEntry) =>
             throw new NotImplementedException();
 
-        public IEnumerable<Tuple<INavigation, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear) =>
+        public IEnumerable<Tuple<INavigationBase, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear) =>
             throw new NotImplementedException();
 
         public InternalEntityEntry FindPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>

@@ -28,40 +28,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(nameof(PropertyEntry.OriginalValue), true)]
         public void Row_version_is_marked_as_modified_only_if_it_really_changed(string mode, bool changeValue)
         {
-            using (var context = new OptimisticContext())
+            using var context = new OptimisticContext();
+            var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
+
+            var entity = context.Attach(
+                new WithRowVersion { Id = 789, Version = token.ToArray() }).Entity;
+
+            var propertyEntry = context.Entry(entity).Property(e => e.Version);
+
+            Assert.Equal(token, propertyEntry.CurrentValue);
+            Assert.Equal(token, propertyEntry.OriginalValue);
+            Assert.False(propertyEntry.IsModified);
+            Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
+
+            switch (mode)
             {
-                var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-                var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
-
-                var entity = context.Attach(
-                    new WithRowVersion { Id = 789, Version = token.ToArray() }).Entity;
-
-                var propertyEntry = context.Entry(entity).Property(e => e.Version);
-
-                Assert.Equal(token, propertyEntry.CurrentValue);
-                Assert.Equal(token, propertyEntry.OriginalValue);
-                Assert.False(propertyEntry.IsModified);
-                Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
-
-                switch (mode)
-                {
-                    case nameof(ChangeTracker.DetectChanges):
-                        entity.Version = newToken.ToArray();
-                        context.ChangeTracker.DetectChanges();
-                        break;
-                    case nameof(PropertyEntry.CurrentValue):
-                        propertyEntry.CurrentValue = newToken.ToArray();
-                        break;
-                    case nameof(PropertyEntry.OriginalValue):
-                        propertyEntry.OriginalValue = newToken.ToArray();
-                        break;
-                    default:
-                        throw new NotImplementedException("Unexpected test mode.");
-                }
-
-                Assert.Equal(changeValue, propertyEntry.IsModified);
-                Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
+                case nameof(ChangeTracker.DetectChanges):
+                    entity.Version = newToken.ToArray();
+                    context.ChangeTracker.DetectChanges();
+                    break;
+                case nameof(PropertyEntry.CurrentValue):
+                    propertyEntry.CurrentValue = newToken.ToArray();
+                    break;
+                case nameof(PropertyEntry.OriginalValue):
+                    propertyEntry.OriginalValue = newToken.ToArray();
+                    break;
+                default:
+                    throw new NotImplementedException("Unexpected test mode.");
             }
+
+            Assert.Equal(changeValue, propertyEntry.IsModified);
+            Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
         }
 
         private class WithRowVersion
@@ -285,21 +283,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
-
-        [ConditionalTheory]
-        [InlineData("Microsoft.SqlServer.Types.SqlHierarchyId", "hierarchyid")]
-        [InlineData("Microsoft.SqlServer.Types.SqlGeography", "geography")]
-        [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]
-        public virtual void Get_named_mappings_for_sql_type(string typeName, string udtName)
-        {
-            var type = new FakeType(typeName);
-
-            var mapping = GetMapping(type);
-
-            Assert.Equal(udtName, mapping.StoreType);
-            Assert.Equal(udtName, ((SqlServerUdtTypeMapping)mapping).UdtTypeName);
-            Assert.Same(type, mapping.ClrType);
-        }
 
         private class FakeType : Type
         {

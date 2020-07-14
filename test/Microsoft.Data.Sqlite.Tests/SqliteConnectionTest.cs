@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Globalization;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
+using Microsoft.Data.Sqlite.Utilities;
 using Xunit;
 using static SQLitePCL.raw;
 
@@ -25,6 +25,25 @@ namespace Microsoft.Data.Sqlite
             var connection = new SqliteConnection(connectionString);
 
             Assert.Equal(connectionString, connection.ConnectionString);
+        }
+
+        [Fact]
+        public void ConnectionString_defaults_to_empty()
+        {
+            var connection = new SqliteConnection();
+
+            Assert.Empty(connection.ConnectionString);
+        }
+
+        [Fact]
+        public void ConnectionString_coalesces_to_empty()
+        {
+            var connection = new SqliteConnection
+            {
+                ConnectionString = null
+            };
+
+            Assert.Empty(connection.ConnectionString);
         }
 
         [Fact]
@@ -260,20 +279,18 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Open_works_when_password()
         {
-            switch (GetNativeLibraryName())
-            {
-                case "e_sqlite3":
-                    Open_works_when_password_e_sqlite3();
-                    break;
-
-                // NB: Change project dependencies to test this
-                case "e_sqlcipher":
-                    Open_works_when_password_sqlcipher();
-                    break;
-            }
+#if E_SQLITE3 || WINSQLITE3
+            Open_works_when_password_unsupported();
+#elif E_SQLCIPHER || SQLCIPHER
+            Open_works_when_password_supported();
+#elif SQLITE3
+            Open_works_when_password_might_be_supported();
+#else
+#error Unexpected native library
+#endif
         }
 
-        private void Open_works_when_password_e_sqlite3()
+        private void Open_works_when_password_unsupported()
         {
             using (var connection = new SqliteConnection("Data Source=encrypted.db;Password=password"))
             {
@@ -288,12 +305,8 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        private void Open_works_when_password_sqlcipher()
+        private void Open_works_when_password_supported()
         {
-            var es = new CultureInfo("es");
-            Thread.CurrentThread.CurrentCulture = es;
-            Thread.CurrentThread.CurrentUICulture = es;
-
             using (var connection1 = new SqliteConnection("Data Source=encrypted.db;Password=password"))
             {
                 connection1.Open();
@@ -313,6 +326,12 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal(ConnectionState.Closed, connection2.State);
                 }
             }
+        }
+
+        private void Open_works_when_password_might_be_supported()
+        {
+            using var connection = new SqliteConnection("Data Source=encrypted.db;Password=password");
+            connection.Open();
         }
 
         [Theory]

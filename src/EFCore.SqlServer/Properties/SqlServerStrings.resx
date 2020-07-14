@@ -142,7 +142,7 @@
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure()' to the 'UseSqlServer' call.</value>
   </data>
   <data name="LogDefaultDecimalTypeColumn" xml:space="preserve">
-    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()'.</value>
+    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()' or specify a ValueConverter.</value>
     <comment>Warning SqlServerEventId.DecimalTypeDefaultWarning string string</comment>
   </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">
@@ -167,8 +167,8 @@
     <comment>Debug SqlServerEventId.TypeAliasFound string string</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
-    <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}</value>
-    <comment>Debug SqlServerEventId.ColumnFound string string int string int int int bool bool string string</comment>
+    <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}</value>
+    <comment>Debug SqlServerEventId.ColumnFound string string int string int int int bool bool string string bool?</comment>
   </data>
   <data name="LogFoundForeignKey" xml:space="preserve">
     <value>Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.</value>
@@ -238,7 +238,35 @@
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
     <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.</value>
   </data>
-  <data name="FunctionOnClient" xml:space="preserve">
-    <value>The '{methodName}' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
+  <data name="LogConflictingValueGenerationStrategies" xml:space="preserve">
+    <value>Both the SqlServerValueGenerationStrategy {generationStrategy} and {otherGenerationStrategy} have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.</value>
+    <comment>Warning SqlServerEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
+  </data>
+  <data name="UnknownOperatorTypeInSqlUnaryExpression" xml:space="preserve">
+    <value>Unknown operator type encountered in SqlUnaryExpression.</value>
+  </data>
+  <data name="CannotProduceUnterminatedSQLWithComments" xml:space="preserve">
+    <value>When generating migrations SQL for {operation}, can't produce unterminated SQL with comments.</value>
+  </data>
+  <data name="DuplicateColumnIdentityIncrementMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity increment.</value>
+  </data>
+  <data name="DuplicateColumnIdentitySeedMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity seed.</value>
+  </data>
+  <data name="DuplicateColumnSequenceMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different hi-lo sequences.</value>
+  </data>
+  <data name="DuplicateIndexClusteredMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different clustered configuration.</value>
+  </data>
+  <data name="DuplicateIndexIncludedMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different included columns {includedColumns1} and {includedColumns2}.</value>
+  </data>
+  <data name="DuplicateIndexOnlineMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different online configuration.</value>
+  </data>
+  <data name="DuplicateIndexFillFactorMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different fill factor configuration.</value>
   </data>
 </root>

@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -39,7 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="reader"> The data reader. </param>
         protected override void Consume(RelationalDataReader reader)
         {
-            Debug.Assert(CommandResultSet.Count == ModificationCommands.Count);
+            Check.DebugAssert(
+                CommandResultSet.Count == ModificationCommands.Count,
+                $"CommandResultSet.Count of {CommandResultSet.Count} != ModificationCommands.Count of {ModificationCommands.Count}");
+
             var commandIndex = 0;
 
             try
@@ -71,13 +74,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     commandIndex++;
                 }
 
-                Debug.Assert(
+                Check.DebugAssert(
                     commandIndex == ModificationCommands.Count,
                     "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
 
                 var expectedResultSetCount = CommandResultSet.Count(e => e == ResultSetMapping.LastInResultSet);
 
-                Debug.Assert(
+                Check.DebugAssert(
                     actualResultSetCount == expectedResultSetCount,
                     "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
 #endif
@@ -101,7 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             RelationalDataReader reader,
             CancellationToken cancellationToken = default)
         {
-            Debug.Assert(CommandResultSet.Count == ModificationCommands.Count);
+            Check.DebugAssert(
+                CommandResultSet.Count == ModificationCommands.Count,
+                $"CommandResultSet.Count of {CommandResultSet.Count} != ModificationCommands.Count of {ModificationCommands.Count}");
+
             var commandIndex = 0;
 
             try
@@ -118,13 +124,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     if (commandIndex < CommandResultSet.Count)
                     {
                         commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
-                            ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, cancellationToken)
-                            : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, cancellationToken);
+                            ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false)
+                            : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false);
                         actualResultSetCount++;
                     }
                 }
                 while (commandIndex < CommandResultSet.Count
-                    && await reader.DbDataReader.NextResultAsync(cancellationToken));
+                    && await reader.DbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false));
 
 #if DEBUG
                 while (commandIndex < CommandResultSet.Count
@@ -133,13 +139,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     commandIndex++;
                 }
 
-                Debug.Assert(
+                Check.DebugAssert(
                     commandIndex == ModificationCommands.Count,
                     "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
 
                 var expectedResultSetCount = CommandResultSet.Count(e => e == ResultSetMapping.LastInResultSet);
 
-                Debug.Assert(
+                Check.DebugAssert(
                     actualResultSetCount == expectedResultSetCount,
                     "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
 #endif
@@ -166,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             do
             {
                 var tableModification = ModificationCommands[commandIndex];
-                Debug.Assert(tableModification.RequiresResultPropagation);
+                Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
 
                 if (!reader.Read())
                 {
@@ -209,9 +215,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             do
             {
                 var tableModification = ModificationCommands[commandIndex];
-                Debug.Assert(tableModification.RequiresResultPropagation);
+                Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
 
-                if (!await reader.ReadAsync(cancellationToken))
+                if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {
                     var expectedRowsAffected = rowsAffected + 1;
                     while (++commandIndex < CommandResultSet.Count
@@ -247,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             while (++commandIndex < CommandResultSet.Count
                 && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
             {
-                Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
+                Check.DebugAssert(!ModificationCommands[commandIndex].RequiresResultPropagation, "RequiresResultPropagation is true");
 
                 expectedRowsAffected++;
             }
@@ -286,12 +292,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             while (++commandIndex < CommandResultSet.Count
                 && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
             {
-                Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
+                Check.DebugAssert(!ModificationCommands[commandIndex].RequiresResultPropagation, "RequiresResultPropagation is true");
 
                 expectedRowsAffected++;
             }
 
-            if (await reader.ReadAsync(cancellationToken))
+            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
                 var rowsAffected = reader.DbDataReader.GetInt32(0);
                 if (rowsAffected != expectedRowsAffected)

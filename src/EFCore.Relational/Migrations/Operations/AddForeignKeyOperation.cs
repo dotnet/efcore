@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 
         /// <summary>
         ///     The schema that contains the table to which this foreign key is constrained,
-        ///     or <c>null</c> if the default schema should be used.
+        ///     or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string PrincipalSchema { get; [param: CanBeNull] set; }
 

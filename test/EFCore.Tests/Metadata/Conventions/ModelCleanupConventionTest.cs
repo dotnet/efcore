@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var context = new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher);
 
             new ModelCleanupConvention(CreateDependencies())
-                .ProcessModelFinalized(modelBuilder, context);
+                .ProcessModelFinalizing(modelBuilder, context);
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()

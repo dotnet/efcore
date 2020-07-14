@@ -23,71 +23,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class TestHelpers
     {
-        /// <summary>
-        ///     Tests that calling the 'With' method for each constructor-injected service creates a clone
-        ///     of TDependencies with only that service replaced.
-        /// </summary>
-        public void TestDependenciesClone<TDependencies>(params string[] ignoreProperties)
-        {
-            var customServices = new ServiceCollection()
-                .AddScoped<IDbContextOptions>(CreateOptions)
-                .AddScoped<ICurrentDbContext, FakeCurrentDbContext>()
-                .AddScoped<IModel, Model>();
-
-            var services1 = CreateServiceProvider(customServices).CreateScope().ServiceProvider;
-            var services2 = CreateServiceProvider(customServices).CreateScope().ServiceProvider;
-
-            var dependencies = services1.GetService<TDependencies>();
-
-            var serviceProperties = typeof(TDependencies).GetTypeInfo()
-                .DeclaredProperties
-                .Where(p => !ignoreProperties.Contains(p.Name))
-                .ToList();
-
-            var obsoleteTypes = serviceProperties
-                .Where(p => p.CustomAttributes.Any(a => a.AttributeType == typeof(ObsoleteAttribute)))
-                .Select(p => p.PropertyType)
-                .ToList();
-
-            serviceProperties = serviceProperties.Where(p => !obsoleteTypes.Contains(p.PropertyType)).ToList();
-
-            var constructor = typeof(TDependencies).GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length)
-                .First();
-            var constructorParameters = constructor.GetParameters().Where(p => !obsoleteTypes.Contains(p.ParameterType)).ToList();
-
-            Assert.Equal(constructorParameters.Count, serviceProperties.Count);
-
-            foreach (var serviceType in constructorParameters.Where(p => !ignoreProperties.Contains(p.Name)).Select(p => p.ParameterType))
-            {
-                var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
-                    .Single(
-                        m => m.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute))
-                            && m.Name == "With"
-                            && m.GetParameters()[0].ParameterType == serviceType);
-
-                var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
-
-                foreach (var property in serviceProperties)
-                {
-                    if (property.PropertyType == serviceType)
-                    {
-                        Assert.NotSame(property.GetValue(clone), property.GetValue(dependencies));
-                    }
-                    else
-                    {
-                        Assert.Equal(property.GetValue(clone), property.GetValue(dependencies));
-                    }
-                }
-            }
-        }
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private class FakeCurrentDbContext : ICurrentDbContext
-        {
-            // ReSharper disable once UnassignedGetOnlyAutoProperty
-            public DbContext Context { get; }
-        }
-
         public DbContextOptions CreateOptions(IModel model, IServiceProvider serviceProvider = null)
         {
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -137,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return optionsBuilder;
         }
 
-        protected abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
+        public abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
             => new DbContext(CreateOptions(model, serviceProvider));
@@ -204,8 +139,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public ModelBuilder CreateConventionBuilder(bool skipValidation = false)
         {
-            var conventionSet = CreateContextServices().GetRequiredService<IConventionSetBuilder>()
-                .CreateConventionSet();
+            var conventionSet = CreateConventionSetBuilder().CreateConventionSet();
 
             if (skipValidation)
             {
@@ -215,7 +149,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return new ModelBuilder(conventionSet);
         }
 
+        public virtual IConventionSetBuilder CreateConventionSetBuilder()
+            => CreateContextServices().GetRequiredService<IConventionSetBuilder>();
+
         public ModelBuilder CreateConventionBuilder(
+            DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
+            DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+                => new ModelBuilder(CreateConventionalConventionSet(modelLogger, validationLogger));
+
+        public ConventionSet CreateConventionalConventionSet(
             DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
             DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
         {
@@ -224,9 +166,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => modelLogger)
                     .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(_ => validationLogger));
 
-            var conventionSet = contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
-
-            return new ModelBuilder(conventionSet);
+            return contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
         }
 
         public virtual LoggingDefinitions LoggingDefinitions { get; } = new TestLoggingDefinitions();
@@ -244,33 +184,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return entry;
         }
 
-        public static int AssertResults<T>(
-            IList<T> expected,
-            IList<T> actual,
-            bool assertOrder,
-            Action<IList<T>, IList<T>> asserter = null)
+        private static int AssertResults<T>(IList<T> expected, IList<T> actual)
         {
             Assert.Equal(expected.Count, actual.Count);
 
-            if (asserter != null)
+            foreach (var expectedItem in expected)
             {
-                asserter(expected, actual);
-            }
-            else
-            {
-                if (assertOrder)
-                {
-                    Assert.Equal(expected, actual);
-                }
-                else
-                {
-                    foreach (var expectedItem in expected)
-                    {
-                        Assert.True(
-                            actual.Contains(expectedItem),
-                            $"\r\nExpected item: [{expectedItem}] not found in results: [{string.Join(", ", actual.Take(10))}]...");
-                    }
-                }
+                Assert.True(
+                    actual.Contains(expectedItem),
+                    $"\r\nExpected item: [{expectedItem}] not found in results: [{string.Join(", ", actual.Take(10))}]...");
             }
 
             return actual.Count;
@@ -286,18 +208,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(expected.Count, actual.Count);
 
             if (elementSorter == null
-                && !verifyOrdered)
+                && !verifyOrdered
+                && expected.Count > 1 // If there is only 1 element then sorting is not necessary
+                && expected.FirstOrDefault(e => e != null) is T nonNullElement
+                    && nonNullElement.GetType().GetInterface(nameof(IComparable)) == null)
             {
-                if (ShouldPerformUnsortedVerification(expected))
+                if (elementAsserter != null)
                 {
-                    if (elementAsserter != null)
-                    {
-                        throw new InvalidOperationException(
-                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
-                    }
-
-                    return AssertResults(expected, actual, assertOrder: false);
+                    throw new InvalidOperationException(
+                        "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
                 }
+
+                return AssertResults(expected, actual);
             }
 
             elementSorter ??= (e => e);
@@ -316,97 +238,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return actual.Count;
         }
 
-        public static int AssertResults<T>(
-            IList<T> expected,
-            IList<T> actual,
-            Func<T, T> elementSorter,
-            Action<T, T> elementAsserter,
-            bool verifyOrdered)
-        {
-            Assert.Equal(expected.Count, actual.Count);
-
-            if (elementSorter == null
-                && !verifyOrdered)
-            {
-                if (ShouldPerformUnsortedVerification(expected))
-                {
-                    if (elementAsserter != null)
-                    {
-                        throw new InvalidOperationException(
-                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
-                    }
-
-                    return AssertResults(expected, actual, assertOrder: false);
-                }
-            }
-
-            elementAsserter ??= Assert.Equal;
-            if (!verifyOrdered)
-            {
-                expected = expected.OrderBy(elementSorter).ToList();
-                actual = actual.OrderBy(elementSorter).ToList();
-            }
-
-            for (var i = 0; i < expected.Count; i++)
-            {
-                elementAsserter(expected[i], actual[i]);
-            }
-
-            return actual.Count;
-        }
-
-        public static int AssertResultsNullable<T>(
-            IList<T?> expected,
-            IList<T?> actual,
-            Func<T?, T?> elementSorter,
-            Action<T?, T?> elementAsserter,
-            bool verifyOrdered)
-            where T : struct
-        {
-            Assert.Equal(expected.Count, actual.Count);
-
-            if (elementSorter == null
-                && !verifyOrdered)
-            {
-                if (ShouldPerformUnsortedVerification(expected))
-                {
-                    if (elementAsserter != null)
-                    {
-                        throw new InvalidOperationException(
-                            "Element asserter will not be used because results are not properly ordered - either remove asserter from the AssertQuery, add element sorter or set assertOrder to 'true'.");
-                    }
-
-                    return AssertResults(expected, actual, assertOrder: false);
-                }
-            }
-
-            elementAsserter ??= Assert.Equal;
-            if (!verifyOrdered)
-            {
-                expected = expected.OrderBy(elementSorter).ToList();
-                actual = actual.OrderBy(elementSorter).ToList();
-            }
-
-            for (var i = 0; i < expected.Count; i++)
-            {
-                elementAsserter(expected[i], actual[i]);
-            }
-
-            return actual.Count;
-        }
-
-        private static bool ShouldPerformUnsortedVerification<T>(IList<T> expected)
-        {
-            if (expected.Count > 1)
-            {
-                var nonNullElement = expected.FirstOrDefault(e => e != null);
-
-                return nonNullElement != null && nonNullElement.GetType().GetInterface(nameof(IComparable)) == null;
-            }
-
-            return false;
-        }
-
         public static void ExecuteWithStrategyInTransaction<TContext>(
             Func<TContext> createContext,
             Action<DatabaseFacade, IDbContextTransaction> useTransaction,
@@ -416,54 +247,48 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Action<TContext> nestedTestOperation3 = null)
             where TContext : DbContext
         {
-            using (var c = createContext())
-            {
-                c.Database.CreateExecutionStrategy().Execute(
-                    c, context =>
+            using var c = createContext();
+            c.Database.CreateExecutionStrategy().Execute(
+                c, context =>
+                {
+                    using var transaction = context.Database.BeginTransaction();
+                    using (var innerContext = createContext())
                     {
-                        using (var transaction = context.Database.BeginTransaction())
-                        {
-                            using (var innerContext = createContext())
-                            {
-                                useTransaction(innerContext.Database, transaction);
-                                testOperation(innerContext);
-                            }
+                        useTransaction(innerContext.Database, transaction);
+                        testOperation(innerContext);
+                    }
 
-                            if (nestedTestOperation1 == null)
-                            {
-                                return;
-                            }
+                    if (nestedTestOperation1 == null)
+                    {
+                        return;
+                    }
 
-                            using (var innerContext1 = createContext())
-                            {
-                                useTransaction(innerContext1.Database, transaction);
-                                nestedTestOperation1(innerContext1);
-                            }
+                    using (var innerContext1 = createContext())
+                    {
+                        useTransaction(innerContext1.Database, transaction);
+                        nestedTestOperation1(innerContext1);
+                    }
 
-                            if (nestedTestOperation2 == null)
-                            {
-                                return;
-                            }
+                    if (nestedTestOperation2 == null)
+                    {
+                        return;
+                    }
 
-                            using (var innerContext2 = createContext())
-                            {
-                                useTransaction(innerContext2.Database, transaction);
-                                nestedTestOperation2(innerContext2);
-                            }
+                    using (var innerContext2 = createContext())
+                    {
+                        useTransaction(innerContext2.Database, transaction);
+                        nestedTestOperation2(innerContext2);
+                    }
 
-                            if (nestedTestOperation3 == null)
-                            {
-                                return;
-                            }
+                    if (nestedTestOperation3 == null)
+                    {
+                        return;
+                    }
 
-                            using (var innerContext3 = createContext())
-                            {
-                                useTransaction(innerContext3.Database, transaction);
-                                nestedTestOperation3(innerContext3);
-                            }
-                        }
-                    });
-            }
+                    using var innerContext3 = createContext();
+                    useTransaction(innerContext3.Database, transaction);
+                    nestedTestOperation3(innerContext3);
+                });
         }
 
         public static async Task ExecuteWithStrategyInTransactionAsync<TContext>(
@@ -475,54 +300,48 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<TContext, Task> nestedTestOperation3 = null)
             where TContext : DbContext
         {
-            using (var c = createContext())
-            {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(
-                    c, async context =>
+            using var c = createContext();
+            await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                c, async context =>
+                {
+                    using var transaction = await context.Database.BeginTransactionAsync();
+                    using (var innerContext = createContext())
                     {
-                        using (var transaction = await context.Database.BeginTransactionAsync())
-                        {
-                            using (var innerContext = createContext())
-                            {
-                                useTransaction(innerContext.Database, transaction);
-                                await testOperation(innerContext);
-                            }
+                        useTransaction(innerContext.Database, transaction);
+                        await testOperation(innerContext);
+                    }
 
-                            if (nestedTestOperation1 == null)
-                            {
-                                return;
-                            }
+                    if (nestedTestOperation1 == null)
+                    {
+                        return;
+                    }
 
-                            using (var innerContext1 = createContext())
-                            {
-                                useTransaction(innerContext1.Database, transaction);
-                                await nestedTestOperation1(innerContext1);
-                            }
+                    using (var innerContext1 = createContext())
+                    {
+                        useTransaction(innerContext1.Database, transaction);
+                        await nestedTestOperation1(innerContext1);
+                    }
 
-                            if (nestedTestOperation2 == null)
-                            {
-                                return;
-                            }
+                    if (nestedTestOperation2 == null)
+                    {
+                        return;
+                    }
 
-                            using (var innerContext2 = createContext())
-                            {
-                                useTransaction(innerContext2.Database, transaction);
-                                await nestedTestOperation2(innerContext2);
-                            }
+                    using (var innerContext2 = createContext())
+                    {
+                        useTransaction(innerContext2.Database, transaction);
+                        await nestedTestOperation2(innerContext2);
+                    }
 
-                            if (nestedTestOperation3 == null)
-                            {
-                                return;
-                            }
+                    if (nestedTestOperation3 == null)
+                    {
+                        return;
+                    }
 
-                            using (var innerContext3 = createContext())
-                            {
-                                useTransaction(innerContext3.Database, transaction);
-                                await nestedTestOperation3(innerContext3);
-                            }
-                        }
-                    });
-            }
+                    using var innerContext3 = createContext();
+                    useTransaction(innerContext3.Database, transaction);
+                    await nestedTestOperation3(innerContext3);
+                });
         }
     }
 }

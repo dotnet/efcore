@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="exception"> The exception object to be verified. </param>
         /// <returns>
-        ///     <c>true</c> if the specified exception is considered as transient, otherwise <c>false</c>.
+        ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
         protected override bool ShouldRetryOn(Exception exception)
         {
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="lastException"> The exception thrown during the last execution attempt. </param>
         /// <returns>
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
-        ///     <c>null</c> otherwise
+        ///     <see langword="null" /> otherwise
         /// </returns>
         protected override TimeSpan? GetNextDelay(Exception lastException)
         {

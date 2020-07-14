@@ -16,14 +16,15 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Template method to be overridden by implementations to perform value generation.
         /// </summary>
-        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
+        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The generated value. </returns>
         public new abstract TValue Next([NotNull] EntityEntry entry);
 
         /// <summary>
         ///     Template method to be overridden by implementations to perform value generation.
         /// </summary>
-        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
+        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The generated value. </returns>
         public new virtual ValueTask<TValue> NextAsync(
             [NotNull] EntityEntry entry,
@@ -33,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
+        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The value to be assigned to a property. </returns>
         protected override object NextValue(EntityEntry entry)
             => Next(entry);
@@ -41,11 +42,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <para>The change tracking entry of the entity for which the value is being generated.</para>
+        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>
-        protected override ValueTask<object> NextValueAsync(
+        protected override async ValueTask<object> NextValueAsync(
             EntityEntry entry,
             CancellationToken cancellationToken = default)
-            => new ValueTask<object>(Next(entry));
+            => await NextAsync(entry, cancellationToken).ConfigureAwait(false);
     }
 }

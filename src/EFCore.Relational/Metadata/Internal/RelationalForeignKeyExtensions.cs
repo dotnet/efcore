@@ -23,7 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool AreCompatible([NotNull] this IForeignKey foreignKey, [NotNull] IForeignKey duplicateForeignKey, bool shouldThrow)
+        public static bool AreCompatible(
+            [NotNull] this IForeignKey foreignKey,
+            [NotNull] IForeignKey duplicateForeignKey,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
+            bool shouldThrow)
         {
             var principalType = foreignKey.PrincipalEntityType;
             var duplicatePrincipalType = duplicateForeignKey.PrincipalEntityType;
@@ -38,17 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
-                            foreignKey.GetConstraintName(),
-                            Format(principalType),
-                            Format(duplicatePrincipalType)));
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            foreignKey.GetConstraintName(tableName, schema,
+                                foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()),
+                            principalType.GetSchemaQualifiedTableName(),
+                            duplicatePrincipalType.GetSchemaQualifiedTableName()));
                 }
 
                 return false;
             }
 
-            if (!foreignKey.Properties.Select(p => p.GetColumnName())
-                .SequenceEqual(duplicateForeignKey.Properties.Select(p => p.GetColumnName())))
+            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
+            if (!foreignKey.Properties.Select(p => p.GetColumnName(storeObject))
+                .SequenceEqual(duplicateForeignKey.Properties.Select(p => p.GetColumnName(storeObject))))
             {
                 if (shouldThrow)
                 {
@@ -58,20 +65,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
-                            foreignKey.GetConstraintName(),
-                            foreignKey.Properties.FormatColumns(),
-                            duplicateForeignKey.Properties.FormatColumns()));
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            foreignKey.GetConstraintName(tableName, schema,
+                                foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()),
+                            foreignKey.Properties.FormatColumns(storeObject),
+                            duplicateForeignKey.Properties.FormatColumns(storeObject)));
                 }
 
                 return false;
             }
 
-            if (!foreignKey.PrincipalKey.Properties
-                .Select(p => p.GetColumnName())
-                .SequenceEqual(
-                    duplicateForeignKey.PrincipalKey.Properties
-                        .Select(p => p.GetColumnName())))
+            if (!foreignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(storeObject))
+                .SequenceEqual(duplicateForeignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(storeObject))))
             {
                 if (shouldThrow)
                 {
@@ -81,10 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
-                            foreignKey.GetConstraintName(),
-                            foreignKey.PrincipalKey.Properties.FormatColumns(),
-                            duplicateForeignKey.PrincipalKey.Properties.FormatColumns()));
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            foreignKey.GetConstraintName(tableName, schema,
+                                foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()),
+                            foreignKey.PrincipalKey.Properties.FormatColumns(storeObject),
+                            duplicateForeignKey.PrincipalKey.Properties.FormatColumns(storeObject)));
                 }
 
                 return false;
@@ -100,8 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
-                            foreignKey.GetConstraintName()));
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            foreignKey.GetConstraintName(tableName, schema,
+                                foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema())));
                 }
 
                 return false;
@@ -117,8 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            Format(foreignKey.DeclaringEntityType),
-                            foreignKey.GetConstraintName(),
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            foreignKey.GetConstraintName(tableName, schema,
+                                foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()),
                             foreignKey.DeleteBehavior,
                             duplicateForeignKey.DeleteBehavior));
                 }
@@ -128,8 +136,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return true;
         }
-
-        private static string Format(IEntityType entityType)
-            => (string.IsNullOrEmpty(entityType.GetSchema()) ? "" : entityType.GetSchema() + ".") + entityType.GetTableName();
     }
 }

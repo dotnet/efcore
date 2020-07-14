@@ -60,11 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var conventionSet = base.CreateConventionSet();
 
             var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(Dependencies, RelationalDependencies);
+            var relationalCommentAttributeConvention = new RelationalColumnCommentAttributeConvention(Dependencies, RelationalDependencies);
 
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(relationalCommentAttributeConvention);
 
             var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
+            conventionSet.EntityTypeAddedConventions.Add(new RelationalTableCommentAttributeConvention(Dependencies, RelationalDependencies));
             conventionSet.EntityTypeAddedConventions.Add(tableNameFromDbSetConvention);
 
             ValueGenerationConvention valueGenerationConvention =
@@ -80,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
+            conventionSet.PropertyFieldChangedConventions.Add(relationalCommentAttributeConvention);
 
             var storeGenerationConvention = new StoreGenerationConvention(Dependencies, RelationalDependencies);
             conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
@@ -87,24 +91,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
-            conventionSet.ModelAnnotationChangedConventions.Add(dbFunctionAttributeConvention);
 
+            // Use TypeMappingConvention to add the relational store type mapping
+            // to the generated concurrency token property
             ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                storeGenerationConvention,
-                typeof(ValidatingConvention));
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                new SharedTableConvention(Dependencies, RelationalDependencies),
-                typeof(ValidatingConvention));
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies),
-                typeof(ValidatingConvention));
+                conventionSet.ModelFinalizingConventions,
+                new TableSharingConcurrencyTokenConvention(Dependencies, RelationalDependencies),
+                typeof(TypeMappingConvention));
+            // ModelCleanupConvention would remove the entity types added by TableValuedDbFunctionConvention #15898
+            ConventionSet.AddAfter(
+                conventionSet.ModelFinalizingConventions,
+                new TableValuedDbFunctionConvention(Dependencies, RelationalDependencies),
+                typeof(ModelCleanupConvention));
+            conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
+            conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);
+            conventionSet.ModelFinalizingConventions.Add(storeGenerationConvention);
+            conventionSet.ModelFinalizingConventions.Add(new EntityTypeHierarchyMappingConvention(Dependencies, RelationalDependencies));
+            conventionSet.ModelFinalizingConventions.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
+            conventionSet.ModelFinalizingConventions.Add(new SharedTableConvention(Dependencies, RelationalDependencies));
+            conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies));
             ReplaceConvention(
-                conventionSet.ModelFinalizedConventions,
+                conventionSet.ModelFinalizingConventions,
                 (QueryFilterDefiningQueryRewritingConvention)new RelationalQueryFilterDefiningQueryRewritingConvention(
                     Dependencies, RelationalDependencies));
+
+            ConventionSet.AddAfter(
+                conventionSet.ModelFinalizedConventions,
+                new RelationalModelConvention(Dependencies, RelationalDependencies),
+                typeof(ValidatingConvention));
 
             return conventionSet;
         }

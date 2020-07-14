@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///         to manually force the deletes to have at a time controlled by the application.
         ///     </para>
         ///     <para>
-        ///         If <see cref="ChangeTracker.AutoDetectChangesEnabled" /> is <code>true</code> then this method
+        ///         If <see cref="ChangeTracker.AutoDetectChangesEnabled" /> is <see langword="null" /> then this method
         ///         will call <see cref="DetectChanges" />.
         ///     </para>
         /// </summary>

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that indicate
     ///     a collection navigation property has had entities added and/or removed.
     /// </summary>
-    public class CollectionChangedEventData : NavigationEventData
+    public class CollectionChangedEventData : NavigationEventData, ICollectionChangedEventData
     {
         /// <summary>
         ///     Constructs the event payload.

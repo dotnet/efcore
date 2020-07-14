@@ -119,12 +119,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object GetOrCreateCollection(INavigation navigation, bool forMaterialization)
-            => navigation.IsShadowProperty()
-                ? GetOrCreateCollectionTyped(navigation)
-                : base.GetOrCreateCollection(navigation, forMaterialization);
+        public override object GetOrCreateCollection(INavigationBase navigationBase, bool forMaterialization)
+            => navigationBase.IsShadowProperty()
+                ? GetOrCreateCollectionTyped(navigationBase)
+                : base.GetOrCreateCollection(navigationBase, forMaterialization);
 
-        private ICollection<object> GetOrCreateCollectionTyped(INavigation navigation)
+        private ICollection<object> GetOrCreateCollectionTyped(INavigationBase navigation)
         {
             if (!(_shadowValues[navigation.GetShadowIndex()] is ICollection<object> collection))
             {
@@ -141,10 +141,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool CollectionContains(INavigation navigation, InternalEntityEntry value)
-            => navigation.IsShadowProperty()
-                ? GetOrCreateCollectionTyped(navigation).Contains(value.Entity)
-                : base.CollectionContains(navigation, value);
+        public override bool CollectionContains(INavigationBase navigationBase, InternalEntityEntry value)
+            => navigationBase.IsShadowProperty()
+                ? GetOrCreateCollectionTyped(navigationBase).Contains(value.Entity)
+                : base.CollectionContains(navigationBase, value);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -152,19 +152,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool AddToCollection(INavigation navigation, InternalEntityEntry value, bool forMaterialization)
+        public override bool AddToCollection(INavigationBase navigationBase, InternalEntityEntry value, bool forMaterialization)
         {
-            if (!navigation.IsShadowProperty())
+            if (!navigationBase.IsShadowProperty())
             {
-                return base.AddToCollection(navigation, value, forMaterialization);
+                return base.AddToCollection(navigationBase, value, forMaterialization);
             }
 
-            if (navigation.GetTargetType().ClrType == null)
+            if (navigationBase.TargetEntityType.ClrType == null)
             {
                 return false;
             }
 
-            var collection = GetOrCreateCollectionTyped(navigation);
+            var collection = GetOrCreateCollectionTyped(navigationBase);
             if (!collection.Contains(value.Entity))
             {
                 collection.Add(value.Entity);
@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool RemoveFromCollection(INavigation navigation, InternalEntityEntry value)
-            => navigation.IsShadowProperty()
-                ? GetOrCreateCollectionTyped(navigation).Remove(value.Entity)
-                : base.RemoveFromCollection(navigation, value);
+        public override bool RemoveFromCollection(INavigationBase navigationBase, InternalEntityEntry value)
+            => navigationBase.IsShadowProperty()
+                ? GetOrCreateCollectionTyped(navigationBase).Remove(value.Entity)
+                : base.RemoveFromCollection(navigationBase, value);
     }
 }

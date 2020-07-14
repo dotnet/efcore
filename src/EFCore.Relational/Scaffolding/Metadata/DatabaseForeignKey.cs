@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
@@ -16,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The table that contains the foreign key constraint.
         /// </summary>
-        public virtual DatabaseTable Table { get; [param: CanBeNull] set; }
+        public virtual DatabaseTable? Table { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The table to which the columns are constrained.
         /// </summary>
-        public virtual DatabaseTable PrincipalTable { get; [param: CanBeNull] set; }
+        public virtual DatabaseTable? PrincipalTable { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The ordered list of columns that are constrained.
@@ -37,12 +40,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The foreign key constraint name.
         /// </summary>
-        public virtual string Name { get; [param: CanBeNull] set; }
+        public virtual string? Name { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The action performed by the database when a row constrained by this foreign key
-        ///     is deleted, or <c>null</c> if there is no action defined.
+        ///     is deleted, or <see langword="null" /> if there is no action defined.
         /// </summary>
         public virtual ReferentialAction? OnDelete { get; set; }
+
+        /// <inheritdoc />
+        public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }

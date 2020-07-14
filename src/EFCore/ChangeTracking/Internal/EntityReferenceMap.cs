@@ -81,48 +81,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     switch (state)
                     {
                         case EntityState.Detached:
-                            if (_detachedReferenceMap == null)
-                            {
-                                _detachedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _detachedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Unchanged:
-                            if (_unchangedReferenceMap == null)
-                            {
-                                _unchangedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _unchangedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _unchangedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Deleted:
-                            if (_deletedReferenceMap == null)
-                            {
-                                _deletedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _deletedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Modified:
-                            if (_modifiedReferenceMap == null)
-                            {
-                                _modifiedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _modifiedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Added:
-                            if (_addedReferenceMap == null)
-                            {
-                                _addedReferenceMap =
-                                    new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                            }
-
+                            _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _addedReferenceMap[mapKey] = entry;
                             break;
                     }

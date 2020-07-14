@@ -240,9 +240,6 @@
   <data name="NoProjectInDirectory" xml:space="preserve">
     <value>No project was found in directory '{projectDir}'.</value>
   </data>
-  <data name="NoStartupProject" xml:space="preserve">
-    <value>No project was found. Change the current working directory or use the --startup-project option.</value>
-  </data>
   <data name="OutputDescription" xml:space="preserve">
     <value>The file to write the result to.</value>
   </data>
@@ -305,5 +302,38 @@
   </data>
   <data name="BuildSucceeded" xml:space="preserve">
     <value>Build succeeded.</value>
+  </data>
+  <data name="LastArgumentHasMultipleValues" xml:space="preserve">
+    <value>The last argument '{argumentName}' accepts multiple values. No more argument can be added.</value>
+  </data>
+  <data name="UnexpectedOptionValue" xml:space="preserve">
+    <value>Unexpected value '{optionValue}' for option '{optionName}'.</value>
+  </data>
+  <data name="UnexpectedArgument" xml:space="preserve">
+    <value>Unrecognized {argumentName} '{argumentValue}'.</value>
+  </data>
+  <data name="ResponseFileMissing" xml:space="preserve">
+    <value>Response file '{fileName}' doesn't exist.</value>
+  </data>
+  <data name="InvalidTemplatePattern" xml:space="preserve">
+    <value>Invalid template pattern '{template}'.</value>
+  </data>
+  <data name="DbContextConnectionDescription" xml:space="preserve">
+    <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
+  </data>
+  <data name="NamespaceDescription" xml:space="preserve">
+    <value>Specify to override the namespace for the generated entity types.</value>
+  </data>
+  <data name="ContextNamespaceDescription" xml:space="preserve">
+    <value>Specify to override the namespace for the DbContext class.</value>
+  </data>
+  <data name="MigrationsNamespaceDescription" xml:space="preserve">
+    <value>Specify to override the namespace for the migration.</value>
+  </data>
+  <data name="SuppressOnConfiguringDescription" xml:space="preserve">
+    <value>Suppress generation of the DbContext.OnConfiguring() method.</value>
+  </data>
+  <data name="NoPluralizeDescription" xml:space="preserve">
+    <value>Don't use the pluralizer.</value>
   </data>
 </root>

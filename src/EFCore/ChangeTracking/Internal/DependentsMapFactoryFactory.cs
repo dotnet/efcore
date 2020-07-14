@@ -5,7 +5,6 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DependentsMapFactoryFactory : IdentityMapFactoryFactoryBase
+    public class DependentsMapFactoryFactory
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual Func<IDependentsMap> Create([NotNull] IForeignKey foreignKey)
             => (Func<IDependentsMap>)typeof(DependentsMapFactoryFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))
-                .MakeGenericMethod(GetKeyType(foreignKey.PrincipalKey))
+                .MakeGenericMethod(foreignKey.PrincipalKey.GetKeyType())
                 .Invoke(null, new object[] { foreignKey });
 
         [UsedImplicitly]

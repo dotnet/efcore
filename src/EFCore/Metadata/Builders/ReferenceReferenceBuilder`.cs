@@ -43,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
-            InternalRelationshipBuilder builder,
-            ReferenceReferenceBuilder oldBuilder,
+            [NotNull] InternalForeignKeyBuilder builder,
+            [CanBeNull] ReferenceReferenceBuilder oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 HasForeignKeyBuilder(
                     ResolveEntityType(typeof(TDependentEntity)),
                     typeof(TDependentEntity).ShortDisplayName(),
-                    Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
+                    Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != typeof(TDependentEntity),
                 foreignKeySet: true);
@@ -314,14 +314,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(typeof(TPrincipalEntity)),
                     typeof(TPrincipalEntity).ShortDisplayName(),
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList()),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != typeof(TPrincipalEntity),
                 principalKeySet: true);
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned <c>null</c>).
+        ///     be assigned <see langword="null" />).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>

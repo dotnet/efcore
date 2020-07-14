@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         void NavigationCollectionChanged(
             [NotNull] InternalEntityEntry entry,
-            [NotNull] INavigation navigation,
+            [NotNull] INavigationBase navigationBase,
             [NotNull] IEnumerable<object> added,
             [NotNull] IEnumerable<object> removed);
 
@@ -81,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         void KeyPropertyChanged(
             [NotNull] InternalEntityEntry entry,
             [NotNull] IProperty property,
-            [NotNull] IReadOnlyList<IKey> keys,
-            [NotNull] IReadOnlyList<IForeignKey> foreignKeys,
+            [NotNull] IEnumerable<IKey> keys,
+            [NotNull] IEnumerable<IForeignKey> foreignKeys,
             [CanBeNull] object oldValue,
             [CanBeNull] object newValue);
 

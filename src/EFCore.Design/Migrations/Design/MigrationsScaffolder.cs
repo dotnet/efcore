@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
             [NotNull] string migrationName,
-            [NotNull] string rootNamespace,
+            [CanBeNull] string rootNamespace,
             [CanBeNull] string subNamespace)
             => ScaffoldMigration(migrationName, rootNamespace, subNamespace, language: null);
 
@@ -62,8 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Scaffolds a new migration.
         /// </summary>
         /// <param name="migrationName"> The migration's name. </param>
-        /// <param name="rootNamespace"> The project's root namespace. </param>
-        /// <param name="subNamespace"> The migration's sub-namespace. </param>
+        /// <param name="rootNamespace">
+        ///     The project's root namespace, <see langword="null" /> to indicate no automatic
+        ///     namespace generation, just use sub-namespace as is.
+        /// </param>
+        /// <param name="subNamespace">
+        ///     The migration's sub-namespace. Note: the root-namespace and
+        ///     the sub-namespace should not both be empty.
+        /// </param>
         /// <param name="language"> The project's language. </param>
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
@@ -73,15 +78,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             string language = null)
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
-            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
 
             if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
             {
                 throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
             }
 
+            var overrideNamespace = rootNamespace == null;
             var subNamespaceDefaulted = false;
-            if (string.IsNullOrEmpty(subNamespace))
+            if (string.IsNullOrEmpty(subNamespace) && !overrideNamespace)
             {
                 subNamespaceDefaulted = true;
                 subNamespace = "Migrations";
@@ -89,7 +94,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var lastMigration = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
 
-            var migrationNamespace = rootNamespace + "." + subNamespace;
+            var migrationNamespace =
+                (!string.IsNullOrEmpty(rootNamespace)
+                    && !string.IsNullOrEmpty(subNamespace))
+                ? rootNamespace + "." + subNamespace
+                : !string.IsNullOrEmpty(rootNamespace)
+                    ? rootNamespace
+                    : subNamespace;
+
             if (subNamespaceDefaulted)
             {
                 migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), migrationNamespace);
@@ -106,9 +118,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 if (subNamespaceDefaulted)
                 {
-                    var builder = new StringBuilder()
-                        .Append(rootNamespace)
-                        .Append(".Migrations.");
+                    var builder = new StringBuilder();
+                    if (!string.IsNullOrEmpty(rootNamespace))
+                    {
+                        builder.Append(rootNamespace);
+                        builder.Append(".");
+                    }
+
+                    builder.Append("Migrations.");
 
                     if (sanitizedContextName.EndsWith("Context", StringComparison.Ordinal))
                     {
@@ -130,13 +147,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
-            var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model);
-            var upOperations = Dependencies.MigrationsModelDiffer.GetDifferences(lastModel, Dependencies.Model);
+            var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model)?.GetRelationalModel();
+            var upOperations = Dependencies.MigrationsModelDiffer
+                .GetDifferences(lastModel, Dependencies.Model.GetRelationalModel());
             var downOperations = upOperations.Count > 0
-                ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model, lastModel)
+                ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model.GetRelationalModel(), lastModel)
                 : new List<MigrationOperation>();
             var migrationId = Dependencies.MigrationsIdGenerator.GenerateId(migrationName);
-            var modelSnapshotNamespace = GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
+            var modelSnapshotNamespace = overrideNamespace
+                ? migrationNamespace
+                : GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
 
             var modelSnapshotName = sanitizedContextName + "ModelSnapshot";
             if (modelSnapshot != null)
@@ -243,10 +263,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (migrations.Count != 0)
             {
                 var migration = migrations[migrations.Count - 1];
-                model = migration.TargetModel;
+                model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
                 if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
+                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
                 {
                     var applied = false;
                     try
@@ -304,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
 
                     model = migrations.Count > 1
-                        ? migrations[migrations.Count - 2].TargetModel
+                        ? Dependencies.SnapshotModelProcessor.Process(migrations[migrations.Count - 2].TargetModel)
                         : null;
                 }
                 else
@@ -335,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             else
             {
                 var modelSnapshotNamespace = modelSnapshot.GetType().Namespace;
-                Debug.Assert(!string.IsNullOrEmpty(modelSnapshotNamespace));
+                Check.DebugAssert(!string.IsNullOrEmpty(modelSnapshotNamespace), "modelSnapshotNamespace is null or empty");
                 var modelSnapshotCode = codeGenerator.GenerateSnapshot(
                     modelSnapshotNamespace,
                     _contextType,

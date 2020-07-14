@@ -48,26 +48,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
+        public virtual IClrCollectionAccessor Create([NotNull] INavigationBase navigation)
+            => !navigation.IsCollection || navigation.IsShadowProperty() ? null : Create(navigation, navigation.TargetEntityType);
+
+        private IClrCollectionAccessor Create(IPropertyBase navigation, IEntityType targetType)
         {
-            MemberInfo GetMostDerivedMemberInfo()
-            {
-                var propertyInfo = navigation.PropertyInfo;
-                var fieldInfo = navigation.FieldInfo;
-
-                return fieldInfo == null
-                    ? propertyInfo
-                    : propertyInfo == null
-                        ? fieldInfo
-                        : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
-                            ? (MemberInfo)propertyInfo
-                            : fieldInfo;
-            }
-
             // ReSharper disable once SuspiciousTypeConversion.Global
             if (navigation is IClrCollectionAccessor accessor)
             {
                 return accessor;
+            }
+
+            if (targetType == null)
+            {
+                return null;
             }
 
             var memberInfo = GetMostDerivedMemberInfo();
@@ -79,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
                         navigation.Name,
-                        navigation.DeclaringEntityType.DisplayName(),
+                        navigation.DeclaringType.DisplayName(),
                         propertyType.ShortDisplayName(),
-                        navigation.GetTargetType().DisplayName()));
+                        targetType.DisplayName()));
             }
 
             if (propertyType.IsArray)
@@ -89,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.NavigationArray(
                         navigation.Name,
-                        navigation.DeclaringEntityType.DisplayName(),
+                        navigation.DeclaringType.DisplayName(),
                         propertyType.ShortDisplayName()));
             }
 
@@ -105,28 +99,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 throw invocationException.InnerException;
             }
+
+            MemberInfo GetMostDerivedMemberInfo()
+            {
+                var propertyInfo = navigation.PropertyInfo;
+                var fieldInfo = navigation.FieldInfo;
+
+                return fieldInfo == null
+                    ? propertyInfo
+                    : propertyInfo == null
+                        ? fieldInfo
+                        : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
+                            ? (MemberInfo)propertyInfo
+                            : fieldInfo;
+            }
         }
 
         [UsedImplicitly]
-        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigation navigation)
+        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(INavigationBase navigation)
             where TEntity : class
             where TCollection : class, IEnumerable<TElement>
             where TElement : class
         {
-            Action<TEntity, TCollection> CreateSetterDelegate(
-                ParameterExpression parameterExpression,
-                MemberInfo memberInfo,
-                ParameterExpression valueParameter1)
-                => Expression.Lambda<Action<TEntity, TCollection>>(
-                    Expression.MakeMemberAccess(
-                        parameterExpression,
-                        memberInfo).Assign(
-                        Expression.Convert(
-                            valueParameter1,
-                            memberInfo.GetMemberType())),
-                    parameterExpression,
-                    valueParameter1).Compile();
-
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
@@ -213,6 +207,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 setterDelegateForMaterialization,
                 createAndSetDelegate,
                 createDelegate);
+
+            static Action<TEntity, TCollection> CreateSetterDelegate(
+                ParameterExpression parameterExpression,
+                MemberInfo memberInfo,
+                ParameterExpression valueParameter1)
+                => Expression.Lambda<Action<TEntity, TCollection>>(
+                    Expression.MakeMemberAccess(
+                        parameterExpression,
+                        memberInfo).Assign(
+                        Expression.Convert(
+                            valueParameter1,
+                            memberInfo.GetMemberType())),
+                    parameterExpression,
+                    valueParameter1).Compile();
         }
 
         private static bool IsObservableHashSet(Type type)
@@ -245,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             where TCollection : class
             where TElement : class
         {
-            var collection = (TCollection)(ICollection<TElement>)new HashSet<TElement>(ReferenceEqualityComparer.Instance);
+            var collection = (TCollection)(ICollection<TElement>)new HashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
             setterDelegate(entity, collection);
             return collection;
         }
@@ -254,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static TCollection CreateHashSet<TCollection, TElement>()
             where TCollection : class
             where TElement : class
-            => (TCollection)(ICollection<TElement>)new HashSet<TElement>(ReferenceEqualityComparer.Instance);
+            => (TCollection)(ICollection<TElement>)new HashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
 
         [UsedImplicitly]
         private static TCollection CreateAndSetObservableHashSet<TEntity, TCollection, TElement>(
@@ -264,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             where TCollection : class
             where TElement : class
         {
-            var collection = (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(ReferenceEqualityComparer.Instance);
+            var collection = (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
             setterDelegate(entity, collection);
             return collection;
         }
@@ -273,6 +281,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static TCollection CreateObservableHashSet<TCollection, TElement>()
             where TCollection : class
             where TElement : class
-            => (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(ReferenceEqualityComparer.Instance);
+            => (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
     }
 }

@@ -18,6 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         protected void Test(
             Action<ModelBuilder> buildModel,
             ModelCodeGenerationOptions options,
+            Action<ScaffoldedModel> assertScaffold)
+        {
+            Test(buildModel, options, assertScaffold, null);
+        }
+
+        protected void Test(
+            Action<ModelBuilder> buildModel,
+            ModelCodeGenerationOptions options,
             Action<ScaffoldedModel> assertScaffold,
             Action<IModel> assertModel)
         {
@@ -49,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 References =
                 {
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer")
@@ -60,8 +69,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var assembly = build.BuildInMemory();
             var context = (DbContext)assembly.CreateInstance("TestNamespace.TestDbContext");
-            var compiledModel = context.Model;
-            assertModel(compiledModel);
+
+            if (assertModel != null)
+            {
+                var compiledModel = context.Model;
+                assertModel(compiledModel);
+            }
         }
     }
 }

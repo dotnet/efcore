@@ -4,40 +4,55 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     {
         private bool _isSearchCondition;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SearchConditionConvertingExpressionVisitor(
-            ISqlExpressionFactory sqlExpressionFactory)
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        private Expression ApplyConversion(SqlExpression sqlExpression, bool condition)
+        private SqlExpression ApplyConversion(SqlExpression sqlExpression, bool condition)
             => _isSearchCondition
                 ? ConvertToSearchCondition(sqlExpression, condition)
                 : ConvertToValue(sqlExpression, condition);
 
-        private Expression ConvertToSearchCondition(SqlExpression sqlExpression, bool condition)
+        private SqlExpression ConvertToSearchCondition(SqlExpression sqlExpression, bool condition)
             => condition
                 ? sqlExpression
                 : BuildCompareToExpression(sqlExpression);
 
-        private Expression ConvertToValue(SqlExpression sqlExpression, bool condition)
+        private SqlExpression ConvertToValue(SqlExpression sqlExpression, bool condition)
         {
             return condition
                 ? _sqlExpressionFactory.Case(
                     new[]
                     {
                         new CaseWhenClause(
-                            sqlExpression,
+                            SimplifyNegatedBinary(sqlExpression),
                             _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(true)))
                     },
                     _sqlExpressionFactory.Constant(false))
@@ -45,12 +60,44 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         private SqlExpression BuildCompareToExpression(SqlExpression sqlExpression)
-        {
-            return _sqlExpressionFactory.Equal(sqlExpression, _sqlExpressionFactory.Constant(true));
-        }
+            => sqlExpression is SqlConstantExpression sqlConstantExpression
+                && sqlConstantExpression.Value is bool boolValue
+                ? _sqlExpressionFactory.Equal(
+                    boolValue
+                        ? _sqlExpressionFactory.Constant(1)
+                        : _sqlExpressionFactory.Constant(0),
+                    _sqlExpressionFactory.Constant(1))
+                : _sqlExpressionFactory.Equal(
+                    sqlExpression,
+                    _sqlExpressionFactory.Constant(true));
 
+        // !(a == b) -> (a != b)
+        // !(a != b) -> (a == b)
+        private SqlExpression SimplifyNegatedBinary(SqlExpression sqlExpression)
+            => sqlExpression is SqlUnaryExpression sqlUnaryExpression
+                && sqlUnaryExpression.OperatorType == ExpressionType.Not
+                && sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool)
+                && sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
+                && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual)
+                ? _sqlExpressionFactory.MakeBinary(
+                    sqlBinaryOperand.OperatorType == ExpressionType.Equal
+                        ? ExpressionType.NotEqual
+                        : ExpressionType.Equal,
+                    sqlBinaryOperand.Left,
+                    sqlBinaryOperand.Right,
+                    sqlBinaryOperand.TypeMapping)
+                : sqlExpression;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitCase(CaseExpression caseExpression)
         {
+            Check.NotNull(caseExpression, nameof(caseExpression));
+
             var parentSearchCondition = _isSearchCondition;
 
             var testIsCondition = caseExpression.Operand == null;
@@ -74,13 +121,47 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(caseExpression.Update(operand, whenClauses, elseResult), condition: false);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitCollate(CollateExpression collateExpression)
+        {
+            Check.NotNull(collateExpression, nameof(collateExpression));
+
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+            var operand = (SqlExpression)Visit(collateExpression.Operand);
+            _isSearchCondition = parentSearchCondition;
+
+            return ApplyConversion(collateExpression.Update(operand), condition: false);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitColumn(ColumnExpression columnExpression)
         {
+            Check.NotNull(columnExpression, nameof(columnExpression));
+
             return ApplyConversion(columnExpression, condition: false);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitExists(ExistsExpression existsExpression)
         {
+            Check.NotNull(existsExpression, nameof(existsExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var subquery = (SelectExpression)Visit(existsExpression.Subquery);
@@ -89,11 +170,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(existsExpression.Update(subquery), condition: true);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
-            => fromSqlExpression;
+        {
+            Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
 
+            return fromSqlExpression;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitIn(InExpression inExpression)
         {
+            Check.NotNull(inExpression, nameof(inExpression));
+
             var parentSearchCondition = _isSearchCondition;
 
             _isSearchCondition = false;
@@ -105,8 +204,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(inExpression.Update(item, values, subquery), condition: true);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitLike(LikeExpression likeExpression)
         {
+            Check.NotNull(likeExpression, nameof(likeExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var match = (SqlExpression)Visit(likeExpression.Match);
@@ -117,8 +224,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(likeExpression.Update(match, pattern, escapeChar), condition: true);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitSelect(SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             var changed = false;
             var parentSearchCondition = _isSearchCondition;
 
@@ -175,13 +290,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             return changed
                 ? selectExpression.Update(
-                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset, selectExpression.IsDistinct,
-                    selectExpression.Alias)
+                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset)
                 : selectExpression;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
         {
+            Check.NotNull(sqlBinaryExpression, nameof(sqlBinaryExpression));
+
             var parentIsSearchCondition = _isSearchCondition;
 
             switch (sqlBinaryExpression.OperatorType)
@@ -214,15 +336,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(sqlBinaryExpression, condition);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
         {
+            Check.NotNull(sqlUnaryExpression, nameof(sqlUnaryExpression));
+
             var parentSearchCondition = _isSearchCondition;
             bool resultCondition;
             switch (sqlUnaryExpression.OperatorType)
             {
-                case ExpressionType.Not:
+                case ExpressionType.Not
+                    when sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool):
+                {
                     _isSearchCondition = true;
                     resultCondition = true;
+                    break;
+                }
+
+                case ExpressionType.Not:
+                    _isSearchCondition = false;
+                    resultCondition = false;
                     break;
 
                 case ExpressionType.Convert:
@@ -238,32 +376,66 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException("Unknown operator type encountered in SqlUnaryExpression.");
+                    throw new InvalidOperationException(SqlServerStrings.UnknownOperatorTypeInSqlUnaryExpression);
             }
 
             var operand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
+
             _isSearchCondition = parentSearchCondition;
 
-            return ApplyConversion(sqlUnaryExpression.Update(operand), condition: resultCondition);
+            return SimplifyNegatedBinary(
+                ApplyConversion(
+                    sqlUnaryExpression.Update(operand),
+                    condition: resultCondition));
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
         {
+            Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
+
             return ApplyConversion(sqlConstantExpression, condition: false);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
-            => sqlFragmentExpression;
+        {
+            Check.NotNull(sqlFragmentExpression, nameof(sqlFragmentExpression));
 
+            return sqlFragmentExpression;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
+            Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var instance = (SqlExpression)Visit(sqlFunctionExpression.Instance);
-            var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
-            for (var i = 0; i < arguments.Length; i++)
+            SqlExpression[] arguments = default;
+            if (!sqlFunctionExpression.IsNiladic)
             {
-                arguments[i] = (SqlExpression)Visit(sqlFunctionExpression.Arguments[i]);
+                arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    arguments[i] = (SqlExpression)Visit(sqlFunctionExpression.Arguments[i]);
+                }
             }
 
             _isSearchCondition = parentSearchCondition;
@@ -275,30 +447,95 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(newFunction, condition);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
+        {
+            Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
+
+            var parentSearchCondition = _isSearchCondition;
+            _isSearchCondition = false;
+
+            var arguments = new SqlExpression[tableValuedFunctionExpression.Arguments.Count];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                arguments[i] = (SqlExpression)Visit(tableValuedFunctionExpression.Arguments[i]);
+            }
+
+            _isSearchCondition = parentSearchCondition;
+            return tableValuedFunctionExpression.Update(arguments);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
         {
+            Check.NotNull(sqlParameterExpression, nameof(sqlParameterExpression));
+
             return ApplyConversion(sqlParameterExpression, condition: false);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitTable(TableExpression tableExpression)
-            => tableExpression;
+        {
+            Check.NotNull(tableExpression, nameof(tableExpression));
 
+            return tableExpression;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
+            Check.NotNull(projectionExpression, nameof(projectionExpression));
+
             var expression = (SqlExpression)Visit(projectionExpression.Expression);
 
             return projectionExpression.Update(expression);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitOrdering(OrderingExpression orderingExpression)
         {
+            Check.NotNull(orderingExpression, nameof(orderingExpression));
+
             var expression = (SqlExpression)Visit(orderingExpression.Expression);
 
             return orderingExpression.Update(expression);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression)
         {
+            Check.NotNull(crossJoinExpression, nameof(crossJoinExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var table = (TableExpressionBase)Visit(crossJoinExpression.Table);
@@ -307,8 +544,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return crossJoinExpression.Update(table);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
         {
+            Check.NotNull(crossApplyExpression, nameof(crossApplyExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var table = (TableExpressionBase)Visit(crossApplyExpression.Table);
@@ -317,8 +562,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return crossApplyExpression.Update(table);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
         {
+            Check.NotNull(outerApplyExpression, nameof(outerApplyExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var table = (TableExpressionBase)Visit(outerApplyExpression.Table);
@@ -327,8 +580,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return outerApplyExpression.Update(table);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
         {
+            Check.NotNull(innerJoinExpression, nameof(innerJoinExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var table = (TableExpressionBase)Visit(innerJoinExpression.Table);
@@ -339,8 +600,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return innerJoinExpression.Update(table, joinPredicate);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression)
         {
+            Check.NotNull(leftJoinExpression, nameof(leftJoinExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var table = (TableExpressionBase)Visit(leftJoinExpression.Table);
@@ -351,8 +620,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return leftJoinExpression.Update(table, joinPredicate);
         }
 
-        protected override Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
         {
+            Check.NotNull(scalarSubqueryExpression, nameof(scalarSubqueryExpression));
+
             var parentSearchCondition = _isSearchCondition;
             var subquery = (SelectExpression)Visit(scalarSubqueryExpression.Subquery);
             _isSearchCondition = parentSearchCondition;
@@ -360,8 +637,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(scalarSubqueryExpression.Update(subquery), condition: false);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
         {
+            Check.NotNull(rowNumberExpression, nameof(rowNumberExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var changed = false;
@@ -386,8 +671,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return ApplyConversion(rowNumberExpression.Update(partitions, orderings), condition: false);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitExcept(ExceptExpression exceptExpression)
         {
+            Check.NotNull(exceptExpression, nameof(exceptExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var source1 = (SelectExpression)Visit(exceptExpression.Source1);
@@ -397,8 +690,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return exceptExpression.Update(source1, source2);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitIntersect(IntersectExpression intersectExpression)
         {
+            Check.NotNull(intersectExpression, nameof(intersectExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var source1 = (SelectExpression)Visit(intersectExpression.Source1);
@@ -408,8 +709,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return intersectExpression.Update(source1, source2);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitUnion(UnionExpression unionExpression)
         {
+            Check.NotNull(unionExpression, nameof(unionExpression));
+
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
             var source1 = (SelectExpression)Visit(unionExpression.Source1);

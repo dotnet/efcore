@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                         foreach (var entity in entities.Take(100))
                         {
                             Assert.Equal(0, entity.Id);
+                            Assert.Null(entity._id);
                         }
 
                         Assert.Equal(1777, entities[100].Id);
@@ -70,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore
                         foreach (var entity in entities.Take(100))
                         {
                             Assert.Equal(0, entity.Id);
+                            Assert.Null(entity._id);
                         }
 
                         Assert.Equal(1777, entities[100].Id);
@@ -172,8 +174,19 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<WithNullableBackingFields>(
                     b =>
                     {
-                        b.Property(e => e.NullableBackedBool).HasDefaultValue(true);
-                        b.Property(e => e.NullableBackedInt).HasDefaultValue(-1);
+                        b.Property(e => e.NullableBackedBoolTrueDefault).HasDefaultValue(true);
+                        b.Property(e => e.NullableBackedIntNonZeroDefault).HasDefaultValue(-1);
+                        b.Property(e => e.NullableBackedBoolFalseDefault).HasDefaultValue(false);
+                        b.Property(e => e.NullableBackedIntZeroDefault).HasDefaultValue(0);
+                    });
+
+                modelBuilder.Entity<WithObjectBackingFields>(
+                    b =>
+                    {
+                        b.Property(e => e.NullableBackedBoolTrueDefault).HasDefaultValue(true);
+                        b.Property(e => e.NullableBackedIntNonZeroDefault).HasDefaultValue(-1);
+                        b.Property(e => e.NullableBackedBoolFalseDefault).HasDefaultValue(false);
+                        b.Property(e => e.NullableBackedIntZeroDefault).HasDefaultValue(0);
                     });
 
                 base.OnModelCreating(modelBuilder, context);

@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -59,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IComparer<ModificationCommand>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsIdGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlGenerationHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationCommandExecutor), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalTypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -72,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IMethodCallTranslatorProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemberTranslatorProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalQueryStringFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -89,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalTypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IMethodCallTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
-
+                { typeof(IRelationalParameterBasedSqlProcessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) }
             };
 
         /// <summary>
@@ -103,18 +107,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="serviceType"> The type that defines the service API. </param>
+        /// <returns> The <see cref="ServiceCharacteristics" /> for the type. </returns>
+        /// <exception cref="InvalidOperationException"> when the type is not an EF service. </exception>
         protected override ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
-        {
-            return RelationalServices.TryGetValue(serviceType, out var characteristics)
+            => RelationalServices.TryGetValue(serviceType, out var characteristics)
                 ? characteristics
                 : base.GetServiceCharacteristics(serviceType);
-        }
 
         /// <summary>
         ///     Registers default implementations of all services, including relational services, not already
@@ -129,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
             TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
             TryAdd<IModelCustomizer, RelationalModelCustomizer>();
+            TryAdd<IRelationalAnnotationProvider, RelationalAnnotationProvider>();
             TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
             TryAdd<IModelValidator, RelationalModelValidator>();
             TryAdd<IMigrator, Migrator>();
@@ -166,12 +168,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, RelationalSqlTranslatingExpressionVisitorFactory>();
             TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
             TryAdd<IQueryTranslationPreprocessorFactory, RelationalQueryTranslationPreprocessorFactory>();
+            TryAdd<IRelationalParameterBasedSqlProcessorFactory, RelationalParameterBasedSqlProcessorFactory>();
+            TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
+            TryAdd<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
                 .AddDependencySingleton<RelationalTypeMappingSourceDependencies>()
                 .AddDependencySingleton<RelationalModelValidatorDependencies>()
                 .AddDependencySingleton<UpdateSqlGeneratorDependencies>()
+                .AddDependencySingleton<RelationalAnnotationProviderDependencies>()
                 .AddDependencySingleton<MigrationsAnnotationProviderDependencies>()
                 .AddDependencySingleton<ParameterNameGeneratorDependencies>()
                 .AddDependencySingleton<RelationalValueBufferFactoryDependencies>()
@@ -187,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalQueryTranslationPostprocessorDependencies>()
                 .AddDependencySingleton<RelationalEvaluatableExpressionFilterDependencies>()
                 .AddDependencySingleton<RelationalQueryTranslationPreprocessorDependencies>()
+                .AddDependencySingleton<RelationalParameterBasedSqlProcessorDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()
@@ -196,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalCompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
-                .AddDependencyScoped<RelationalQueryContextDependencies>();
+                .AddDependencyScoped<RelationalQueryContextDependencies>()
+                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
 
             return base.TryAddCoreServices();
         }

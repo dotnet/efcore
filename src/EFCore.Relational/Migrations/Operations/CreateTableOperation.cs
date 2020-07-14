@@ -14,16 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     public class CreateTableOperation : TableOperation
     {
         /// <summary>
-        ///     The name of the table.
-        /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
-        /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
-
-        /// <summary>
         ///     The <see cref="AddPrimaryKeyOperation" /> representing the creation of the primary key for the table.
         /// </summary>
         public virtual AddPrimaryKeyOperation PrimaryKey { get; [param: CanBeNull] set; }
@@ -44,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual List<AddUniqueConstraintOperation> UniqueConstraints { get; } = new List<AddUniqueConstraintOperation>();
 
         /// <summary>
-        ///     A list of <see cref="CreateCheckConstraintOperation" /> for creating check constraints in the table.
+        ///     A list of <see cref="AddCheckConstraintOperation" /> for creating check constraints in the table.
         /// </summary>
-        public virtual List<CreateCheckConstraintOperation> CheckConstraints { get; } = new List<CreateCheckConstraintOperation>();
+        public virtual List<AddCheckConstraintOperation> CheckConstraints { get; } = new List<AddCheckConstraintOperation>();
     }
 }

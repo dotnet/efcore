@@ -39,23 +39,48 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 
             conventionSet.ModelInitializedConventions.Add(new ContextContainerConvention(Dependencies));
 
-            var discriminatorConvention = new CosmosDiscriminatorConvention(Dependencies);
+            conventionSet.ModelFinalizingConventions.Add(new ETagPropertyConvention());
+
             var storeKeyConvention = new StoreKeyConvention(Dependencies);
+            var discriminatorConvention = new CosmosDiscriminatorConvention(Dependencies);
+            var keyDiscoveryConvention = new CosmosKeyDiscoveryConvention(Dependencies);
             conventionSet.EntityTypeAddedConventions.Add(storeKeyConvention);
             conventionSet.EntityTypeAddedConventions.Add(discriminatorConvention);
+            ReplaceConvention(conventionSet.EntityTypeAddedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
 
             ReplaceConvention(conventionSet.EntityTypeRemovedConventions, (DiscriminatorConvention)discriminatorConvention);
 
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(storeKeyConvention);
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, (DiscriminatorConvention)discriminatorConvention);
+            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
+
+            conventionSet.EntityTypePrimaryKeyChangedConventions.Add(storeKeyConvention);
+
+            conventionSet.KeyAddedConventions.Add(storeKeyConvention);
+
+            conventionSet.KeyRemovedConventions.Add(storeKeyConvention);
+            ReplaceConvention(conventionSet.KeyRemovedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
 
             conventionSet.ForeignKeyRemovedConventions.Add(discriminatorConvention);
             conventionSet.ForeignKeyRemovedConventions.Add(storeKeyConvention);
+            ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyPropertiesChangedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyUniquenessChangedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
 
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(discriminatorConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(storeKeyConvention);
+            ReplaceConvention(conventionSet.ForeignKeyOwnershipChangedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
 
             conventionSet.EntityTypeAnnotationChangedConventions.Add(storeKeyConvention);
+            conventionSet.EntityTypeAnnotationChangedConventions.Add(keyDiscoveryConvention);
+
+            ReplaceConvention(conventionSet.PropertyAddedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
+
+            conventionSet.PropertyAnnotationChangedConventions.Add(storeKeyConvention);
 
             return conventionSet;
         }

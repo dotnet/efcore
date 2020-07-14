@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Connection, b =>
                 {
                     b.CommandTimeout(CommandTimeout);
+                    b.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
                     configureSqlite?.Invoke(b);
                 });
 
@@ -72,16 +73,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return;
             }
 
-            using (var context = createContext())
+            using var context = createContext();
+            if (!context.Database.EnsureCreated())
             {
-                if (!context.Database.EnsureCreated())
-                {
-                    clean?.Invoke(context);
-                    Clean(context);
-                }
-
-                seed?.Invoke(context);
+                clean?.Invoke(context);
+                Clean(context);
             }
+
+            seed?.Invoke(context);
         }
 
         public override void Clean(DbContext context)
@@ -89,18 +88,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public int ExecuteNonQuery(string sql, params object[] parameters)
         {
-            using (var command = CreateCommand(sql, parameters))
-            {
-                return command.ExecuteNonQuery();
-            }
+            using var command = CreateCommand(sql, parameters);
+            return command.ExecuteNonQuery();
         }
 
         public T ExecuteScalar<T>(string sql, params object[] parameters)
         {
-            using (var command = CreateCommand(sql, parameters))
-            {
-                return (T)command.ExecuteScalar();
-            }
+            using var command = CreateCommand(sql, parameters);
+            return (T)command.ExecuteScalar();
         }
 
         private DbCommand CreateCommand(string commandText, object[] parameters)

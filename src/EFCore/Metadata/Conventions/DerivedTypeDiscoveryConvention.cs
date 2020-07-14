@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -48,8 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         && !t.HasDefiningNavigation()
                         && t.FindDeclaredOwnership() == null
                         && model.FindIsOwnedConfigurationSource(t.ClrType) == null
-                        && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
-                            || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
+                        && ((t.BaseType == null && clrType.IsAssignableFrom(t.ClrType))
+                            || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType))
+                        && !t.HasSharedClrType)
                 .ToList();
 
             foreach (var directlyDerivedType in directlyDerivedTypes)

@@ -745,636 +745,630 @@ namespace Microsoft.EntityFrameworkCore
 
         protected void SimpleVerification()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    new[] { "Eeky Bear", "Sheila Koalie", "Sue Pandy", "Tarquin Tiger" },
-                    context.Customers.Select(c => c.Name).OrderBy(n => n));
+            using var context = CreateContext();
+            Assert.Equal(
+                new[] { "Eeky Bear", "Sheila Koalie", "Sue Pandy", "Tarquin Tiger" },
+                context.Customers.Select(c => c.Name).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Assorted Dog Treats", "Chocolate Donuts", "Mrs Koalie's Famous Waffles" },
-                    context.Products.Select(c => c.Description).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Assorted Dog Treats", "Chocolate Donuts", "Mrs Koalie's Famous Waffles" },
+                context.Products.Select(c => c.Description).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Barcode 1 2 3 4", "Barcode 2 2 3 4", "Barcode 3 2 3 4" },
-                    context.Barcodes.Select(c => c.Text).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Barcode 1 2 3 4", "Barcode 2 2 3 4", "Barcode 3 2 3 4" },
+                context.Barcodes.Select(c => c.Text).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Barcode 1 2 3 4", "Barcode 2 2 3 4", "Barcode 3 2 3 4" },
-                    context.Barcodes.Select(c => c.Text).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Barcode 1 2 3 4", "Barcode 2 2 3 4", "Barcode 3 2 3 4" },
+                context.Barcodes.Select(c => c.Text).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Eeky Bear", "Trent" },
-                    context.BarcodeDetails.Select(c => c.RegisteredTo).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Eeky Bear", "Trent" },
+                context.BarcodeDetails.Select(c => c.RegisteredTo).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Treats not Donuts", "Wot no waffles?" },
-                    context.IncorrectScans.Select(c => c.Details).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Treats not Donuts", "Wot no waffles?" },
+                context.IncorrectScans.Select(c => c.Details).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Don't give coffee to Eeky!", "Really! Don't give coffee to Eeky!" },
-                    context.Complaints.Select(c => c.Details).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Don't give coffee to Eeky!", "Really! Don't give coffee to Eeky!" },
+                context.Complaints.Select(c => c.Details).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Destroyed all coffee in Redmond area." },
-                    context.Resolutions.Select(c => c.Details).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Destroyed all coffee in Redmond area." },
+                context.Resolutions.Select(c => c.Details).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "MrsBossyPants", "MrsKoalie73", "TheStripedMenace" },
-                    context.Logins.Select(c => c.Username).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "MrsBossyPants", "MrsKoalie73", "TheStripedMenace" },
+                context.Logins.Select(c => c.Username).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Crumbs in the cupboard", "Donuts gone missing", "Pig prints on keyboard" },
-                    context.SuspiciousActivities.Select(c => c.Activity).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Crumbs in the cupboard", "Donuts gone missing", "Pig prints on keyboard" },
+                context.SuspiciousActivities.Select(c => c.Activity).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "1234", "2234" },
-                    context.RsaTokens.Select(c => c.Serial).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "1234", "2234" },
+                context.RsaTokens.Select(c => c.Serial).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "MrsBossyPants", "MrsKoalie73" },
-                    context.SmartCards.Select(c => c.Username).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "MrsBossyPants", "MrsKoalie73" },
+                context.SmartCards.Select(c => c.Username).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Rent-A-Mole" },
-                    context.PasswordResets.Select(c => c.TempPassword).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Rent-A-Mole" },
+                context.PasswordResets.Select(c => c.TempPassword).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "somePage1", "somePage2", "somePage3" },
-                    context.PageViews.Select(c => c.PageUrl).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "somePage1", "somePage2", "somePage3" },
+                context.PageViews.Select(c => c.PageUrl).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "MrsBossyPants", "MrsKoalie73" },
-                    context.LastLogins.Select(c => c.Username).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "MrsBossyPants", "MrsKoalie73" },
+                context.LastLogins.Select(c => c.Username).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Fancy a cup of tea?", "I'll put the kettle on.", "Love one!" },
-                    context.Messages.Select(c => c.Body).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Fancy a cup of tea?", "I'll put the kettle on.", "Love one!" },
+                context.Messages.Select(c => c.Body).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "MrsBossyPants", "MrsKoalie73", "TheStripedMenace" },
-                    context.Orders.Select(c => c.Username).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "MrsBossyPants", "MrsKoalie73", "TheStripedMenace" },
+                context.Orders.Select(c => c.Username).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "And donuts!", "But no coffee. :-(", "Must have tea!" },
-                    context.OrderNotes.Select(c => c.Note).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "And donuts!", "But no coffee. :-(", "Must have tea!" },
+                context.OrderNotes.Select(c => c.Note).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Eeky Bear", "Eeky Bear", "Eeky Bear" },
-                    context.OrderQualityChecks.Select(c => c.CheckedBy).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Eeky Bear", "Eeky Bear", "Eeky Bear" },
+                context.OrderQualityChecks.Select(c => c.CheckedBy).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { 1, 2, 3, 4, 5, 7 },
-                    context.OrderLines.Select(c => c.Quantity).OrderBy(n => n));
+            Assert.Equal(
+                new[] { 1, 2, 3, 4, 5, 7 },
+                context.OrderLines.Select(c => c.Quantity).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "A Waffle Cart specialty!", "Eeky Bear's favorite!" },
-                    context.ProductDetails.Select(c => c.Details).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "A Waffle Cart specialty!", "Eeky Bear's favorite!" },
+                context.ProductDetails.Select(c => c.Details).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Better than Tarqies!", "Eeky says yes!", "Good with maple syrup." },
-                    context.ProductReviews.Select(c => c.Review).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Better than Tarqies!", "Eeky says yes!", "Good with maple syrup." },
+                context.ProductReviews.Select(c => c.Review).OrderBy(n => n));
 
-                // Issue #16428
-                Assert.Equal(
-                    new[] { "101", "103", "105" },
-                    context.ProductPhotos.ToList().Select(c => c.Photo.First().ToString()).OrderBy(n => n));
+            // Issue #16428
+            Assert.Equal(
+                new[] { "101", "103", "105" },
+                context.ProductPhotos.ToList().Select(c => c.Photo.First().ToString()).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Waffle Style", "What does the waffle say?" },
-                    context.ProductWebFeatures.Select(c => c.Heading).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Waffle Style", "What does the waffle say?" },
+                context.ProductWebFeatures.Select(c => c.Heading).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Ants By Boris", "Trading As Trent" },
-                    context.Suppliers.Select(c => c.Name).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Ants By Boris", "Trading As Trent" },
+                context.Suppliers.Select(c => c.Name).OrderBy(n => n));
 
-                // Issue #16428
-                Assert.Equal(
-                    new[] { "201", "202" },
-                    context.SupplierLogos.ToList().SelectMany(c => c.Logo).Select(l => l.ToString()).OrderBy(n => n));
+            // Issue #16428
+            Assert.Equal(
+                new[] { "201", "202" },
+                context.SupplierLogos.ToList().SelectMany(c => c.Logo).Select(l => l.ToString()).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Orange fur?", "Seems a bit dodgy.", "Very expensive!" },
-                    context.SupplierInformation.Select(c => c.Information).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Orange fur?", "Seems a bit dodgy.", "Very expensive!" },
+                context.SupplierInformation.Select(c => c.Information).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Mrs Bossy Pants!", "Really likes tea." },
-                    context.CustomerInformation.Select(c => c.Information).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Mrs Bossy Pants!", "Really likes tea." },
+                context.CustomerInformation.Select(c => c.Information).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "markash420", "unicorns420" },
-                    context.Computers.Select(c => c.Name).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "markash420", "unicorns420" },
+                context.Computers.Select(c => c.Name).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "It's a Dell!", "It's not a Dell!" },
-                    context.ComputerDetails.Select(c => c.Specifications).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "It's a Dell!", "It's not a Dell!" },
+                context.ComputerDetails.Select(c => c.Specifications).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "Eeky Bear", "Splash Bear" },
-                    context.Drivers.Select(c => c.Name).OrderBy(n => n));
+            Assert.Equal(
+                new[] { "Eeky Bear", "Splash Bear" },
+                context.Drivers.Select(c => c.Name).OrderBy(n => n));
 
-                Assert.Equal(
-                    new[] { "10", "11" },
-                    context.Licenses.Select(c => c.LicenseNumber).OrderBy(n => n));
-            }
+            Assert.Equal(
+                new[] { "10", "11" },
+                context.Licenses.Select(c => c.LicenseNumber).OrderBy(n => n));
         }
 
         protected void FkVerification()
         {
-            using (var context = CreateContext())
-            {
-                var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
-                var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
-                var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
-                var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
+            using var context = CreateContext();
+            var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
+            var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
+            var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
+            var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
 
-                Assert.Null(customer0.HusbandId);
-                Assert.Null(customer1.HusbandId);
-                Assert.Equal(customer0.CustomerId, customer2.HusbandId);
-                Assert.Null(customer3.HusbandId);
+            Assert.Null(customer0.HusbandId);
+            Assert.Null(customer1.HusbandId);
+            Assert.Equal(customer0.CustomerId, customer2.HusbandId);
+            Assert.Null(customer3.HusbandId);
 
-                var product1 = context.Products.Single(e => e.Description.StartsWith("Mrs"));
-                var product2 = context.Products.Single(e => e.Description.StartsWith("Chocolate"));
-                var product3 = context.Products.Single(e => e.Description.StartsWith("Assorted"));
+            var product1 = context.Products.Single(e => e.Description.StartsWith("Mrs"));
+            var product2 = context.Products.Single(e => e.Description.StartsWith("Chocolate"));
+            var product3 = context.Products.Single(e => e.Description.StartsWith("Assorted"));
 
-                var barcode1 = context.Barcodes.Single(e => e.Text == "Barcode 1 2 3 4");
-                var barcode2 = context.Barcodes.Single(e => e.Text == "Barcode 2 2 3 4");
-                var barcode3 = context.Barcodes.Single(e => e.Text == "Barcode 3 2 3 4");
+            var barcode1 = context.Barcodes.Single(e => e.Text == "Barcode 1 2 3 4");
+            var barcode2 = context.Barcodes.Single(e => e.Text == "Barcode 2 2 3 4");
+            var barcode3 = context.Barcodes.Single(e => e.Text == "Barcode 3 2 3 4");
 
-                Assert.Equal(product1.ProductId, barcode1.ProductId);
-                Assert.Equal(product2.ProductId, barcode2.ProductId);
-                Assert.Equal(product3.ProductId, barcode3.ProductId);
+            Assert.Equal(product1.ProductId, barcode1.ProductId);
+            Assert.Equal(product2.ProductId, barcode2.ProductId);
+            Assert.Equal(product3.ProductId, barcode3.ProductId);
 
-                var barcodeDetails1 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Eeky Bear");
-                var barcodeDetails2 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Trent");
+            var barcodeDetails1 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Eeky Bear");
+            var barcodeDetails2 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Trent");
 
-                Assert.Equal(barcode1.Code, barcodeDetails1.Code);
-                Assert.Equal(barcode2.Code, barcodeDetails2.Code);
+            Assert.Equal(barcode1.Code, barcodeDetails1.Code);
+            Assert.Equal(barcode2.Code, barcodeDetails2.Code);
 
-                var incorrectScan1 = context.IncorrectScans.Single(e => e.Details.StartsWith("Treats"));
-                var incorrectScan2 = context.IncorrectScans.Single(e => e.Details.StartsWith("Wot"));
+            var incorrectScan1 = context.IncorrectScans.Single(e => e.Details.StartsWith("Treats"));
+            var incorrectScan2 = context.IncorrectScans.Single(e => e.Details.StartsWith("Wot"));
 
-                Assert.Equal(barcode3.Code, incorrectScan1.ActualCode);
-                Assert.Equal(barcode2.Code, incorrectScan1.ExpectedCode);
-                Assert.Equal(barcode2.Code, incorrectScan2.ActualCode);
-                Assert.Equal(barcode1.Code, incorrectScan2.ExpectedCode);
+            Assert.Equal(barcode3.Code, incorrectScan1.ActualCode);
+            Assert.Equal(barcode2.Code, incorrectScan1.ExpectedCode);
+            Assert.Equal(barcode2.Code, incorrectScan2.ActualCode);
+            Assert.Equal(barcode1.Code, incorrectScan2.ExpectedCode);
 
-                var complaint1 = context.Complaints.Single(e => e.Details.StartsWith("Don't"));
-                var complaint2 = context.Complaints.Single(e => e.Details.StartsWith("Really"));
+            var complaint1 = context.Complaints.Single(e => e.Details.StartsWith("Don't"));
+            var complaint2 = context.Complaints.Single(e => e.Details.StartsWith("Really"));
 
-                Assert.Equal(customer2.CustomerId, complaint1.CustomerId);
-                Assert.Equal(customer2.CustomerId, complaint2.CustomerId);
+            Assert.Equal(customer2.CustomerId, complaint1.CustomerId);
+            Assert.Equal(customer2.CustomerId, complaint2.CustomerId);
 
-                var resolution = context.Resolutions.Single(e => e.Details.StartsWith("Destroyed"));
+            var resolution = context.Resolutions.Single(e => e.Details.StartsWith("Destroyed"));
 
-                Assert.Equal(complaint2.AlternateId, resolution.ResolutionId);
+            Assert.Equal(complaint2.AlternateId, resolution.ResolutionId);
 
-                var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
-                var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
-                var login3 = context.Logins.Single(e => e.Username == "TheStripedMenace");
+            var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
+            var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
+            var login3 = context.Logins.Single(e => e.Username == "TheStripedMenace");
 
-                Assert.Equal(customer1.CustomerId, login1.CustomerId);
-                Assert.Equal(customer2.CustomerId, login2.CustomerId);
-                Assert.Equal(customer3.CustomerId, login3.CustomerId);
+            Assert.Equal(customer1.CustomerId, login1.CustomerId);
+            Assert.Equal(customer2.CustomerId, login2.CustomerId);
+            Assert.Equal(customer3.CustomerId, login3.CustomerId);
 
-                var suspiciousActivity1 = context.SuspiciousActivities.Single(e => e.Activity.StartsWith("Pig"));
-                var suspiciousActivity2 = context.SuspiciousActivities.Single(e => e.Activity.StartsWith("Crumbs"));
-                var suspiciousActivity3 = context.SuspiciousActivities.Single(e => e.Activity.StartsWith("Donuts"));
+            var suspiciousActivity1 = context.SuspiciousActivities.Single(e => e.Activity.StartsWith("Pig"));
+            var suspiciousActivity2 = context.SuspiciousActivities.Single(e => e.Activity.StartsWith("Crumbs"));
+            var suspiciousActivity3 = context.SuspiciousActivities.Single(e => e.Activity.StartsWith("Donuts"));
 
-                Assert.Equal(login3.Username, suspiciousActivity1.Username);
-                Assert.Equal(login3.Username, suspiciousActivity2.Username);
-                Assert.Equal(login3.Username, suspiciousActivity3.Username);
+            Assert.Equal(login3.Username, suspiciousActivity1.Username);
+            Assert.Equal(login3.Username, suspiciousActivity2.Username);
+            Assert.Equal(login3.Username, suspiciousActivity3.Username);
 
-                var rsaToken1 = context.RsaTokens.Single(e => e.Serial == "1234");
-                var rsaToken2 = context.RsaTokens.Single(e => e.Serial == "2234");
+            var rsaToken1 = context.RsaTokens.Single(e => e.Serial == "1234");
+            var rsaToken2 = context.RsaTokens.Single(e => e.Serial == "2234");
 
-                Assert.Equal(login1.Username, rsaToken1.Username);
-                Assert.Equal(login2.Username, rsaToken2.Username);
+            Assert.Equal(login1.Username, rsaToken1.Username);
+            Assert.Equal(login2.Username, rsaToken2.Username);
 
-                var smartCard1 = context.SmartCards.Single(e => e.Username == "MrsKoalie73");
-                var smartCard2 = context.SmartCards.Single(e => e.Username == "MrsBossyPants");
+            var smartCard1 = context.SmartCards.Single(e => e.Username == "MrsKoalie73");
+            var smartCard2 = context.SmartCards.Single(e => e.Username == "MrsBossyPants");
 
-                Assert.Equal(rsaToken1.Serial, smartCard1.CardSerial);
-                Assert.Equal(rsaToken2.Serial, smartCard2.CardSerial);
-                Assert.Equal(rsaToken1.Issued, smartCard1.Issued);
-                Assert.Equal(rsaToken2.Issued, smartCard2.Issued);
+            Assert.Equal(rsaToken1.Serial, smartCard1.CardSerial);
+            Assert.Equal(rsaToken2.Serial, smartCard2.CardSerial);
+            Assert.Equal(rsaToken1.Issued, smartCard1.Issued);
+            Assert.Equal(rsaToken2.Issued, smartCard2.Issued);
 
-                var reset1 = context.PasswordResets.Single(e => e.EmailedTo == "trent@example.com");
+            var reset1 = context.PasswordResets.Single(e => e.EmailedTo == "trent@example.com");
 
-                Assert.Equal(login3.AlternateUsername, reset1.Username);
+            Assert.Equal(login3.AlternateUsername, reset1.Username);
 
-                var pageView1 = context.PageViews.Single(e => e.PageUrl == "somePage1");
-                var pageView2 = context.PageViews.Single(e => e.PageUrl == "somePage1");
-                var pageView3 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+            var pageView1 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+            var pageView2 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+            var pageView3 = context.PageViews.Single(e => e.PageUrl == "somePage1");
 
-                Assert.Equal(login1.Username, pageView1.Username);
-                Assert.Equal(login1.Username, pageView2.Username);
-                Assert.Equal(login1.Username, pageView3.Username);
+            Assert.Equal(login1.Username, pageView1.Username);
+            Assert.Equal(login1.Username, pageView2.Username);
+            Assert.Equal(login1.Username, pageView3.Username);
 
-                var lastLogin1 = context.LastLogins.Single(e => e.Username == "MrsKoalie73");
-                var lastLogin2 = context.LastLogins.Single(e => e.Username == "MrsBossyPants");
+            var lastLogin1 = context.LastLogins.Single(e => e.Username == "MrsKoalie73");
+            var lastLogin2 = context.LastLogins.Single(e => e.Username == "MrsBossyPants");
 
-                Assert.Equal(smartCard1.Username, lastLogin1.SmartcardUsername);
-                Assert.Equal(smartCard2.Username, lastLogin2.SmartcardUsername);
+            Assert.Equal(smartCard1.Username, lastLogin1.SmartcardUsername);
+            Assert.Equal(smartCard2.Username, lastLogin2.SmartcardUsername);
 
-                var message1 = context.Messages.Single(e => e.Body.StartsWith("Fancy"));
-                var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
-                var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
+            var message1 = context.Messages.Single(e => e.Body.StartsWith("Fancy"));
+            var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
+            var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
 
-                Assert.Equal(login1.Username, message1.FromUsername);
-                Assert.Equal(login2.Username, message1.ToUsername);
-                Assert.Equal(login2.Username, message2.FromUsername);
-                Assert.Equal(login1.Username, message2.ToUsername);
-                Assert.Equal(login1.Username, message3.FromUsername);
-                Assert.Equal(login2.Username, message3.ToUsername);
+            Assert.Equal(login1.Username, message1.FromUsername);
+            Assert.Equal(login2.Username, message1.ToUsername);
+            Assert.Equal(login2.Username, message2.FromUsername);
+            Assert.Equal(login1.Username, message2.ToUsername);
+            Assert.Equal(login1.Username, message3.FromUsername);
+            Assert.Equal(login2.Username, message3.ToUsername);
 
-                var order1 = context.Orders.Single(e => e.Username == "MrsKoalie73");
-                var order2 = context.Orders.Single(e => e.Username == "MrsBossyPants");
-                var order3 = context.Orders.Single(e => e.Username == "TheStripedMenace");
+            var order1 = context.Orders.Single(e => e.Username == "MrsKoalie73");
+            var order2 = context.Orders.Single(e => e.Username == "MrsBossyPants");
+            var order3 = context.Orders.Single(e => e.Username == "TheStripedMenace");
 
-                Assert.Equal(customer1.CustomerId, order1.CustomerId);
-                Assert.Equal(customer2.CustomerId, order2.CustomerId);
-                Assert.Equal(customer3.CustomerId, order3.CustomerId);
+            Assert.Equal(customer1.CustomerId, order1.CustomerId);
+            Assert.Equal(customer2.CustomerId, order2.CustomerId);
+            Assert.Equal(customer3.CustomerId, order3.CustomerId);
 
-                var orderLine1 = context.OrderLines.Single(e => e.Quantity == 7);
-                var orderLine2 = context.OrderLines.Single(e => e.Quantity == 1);
-                var orderLine3 = context.OrderLines.Single(e => e.Quantity == 2);
-                var orderLine4 = context.OrderLines.Single(e => e.Quantity == 3);
-                var orderLine5 = context.OrderLines.Single(e => e.Quantity == 4);
-                var orderLine6 = context.OrderLines.Single(e => e.Quantity == 5);
+            var orderLine1 = context.OrderLines.Single(e => e.Quantity == 7);
+            var orderLine2 = context.OrderLines.Single(e => e.Quantity == 1);
+            var orderLine3 = context.OrderLines.Single(e => e.Quantity == 2);
+            var orderLine4 = context.OrderLines.Single(e => e.Quantity == 3);
+            var orderLine5 = context.OrderLines.Single(e => e.Quantity == 4);
+            var orderLine6 = context.OrderLines.Single(e => e.Quantity == 5);
 
-                Assert.Equal(product1.ProductId, orderLine1.ProductId);
-                Assert.Equal(product2.ProductId, orderLine2.ProductId);
-                Assert.Equal(product3.ProductId, orderLine3.ProductId);
-                Assert.Equal(product2.ProductId, orderLine4.ProductId);
-                Assert.Equal(product1.ProductId, orderLine5.ProductId);
-                Assert.Equal(product2.ProductId, orderLine6.ProductId);
-                Assert.Equal(order1.AnOrderId, orderLine1.OrderId);
-                Assert.Equal(order1.AnOrderId, orderLine2.OrderId);
-                Assert.Equal(order2.AnOrderId, orderLine3.OrderId);
-                Assert.Equal(order2.AnOrderId, orderLine4.OrderId);
-                Assert.Equal(order2.AnOrderId, orderLine5.OrderId);
-                Assert.Equal(order3.AnOrderId, orderLine6.OrderId);
+            Assert.Equal(product1.ProductId, orderLine1.ProductId);
+            Assert.Equal(product2.ProductId, orderLine2.ProductId);
+            Assert.Equal(product3.ProductId, orderLine3.ProductId);
+            Assert.Equal(product2.ProductId, orderLine4.ProductId);
+            Assert.Equal(product1.ProductId, orderLine5.ProductId);
+            Assert.Equal(product2.ProductId, orderLine6.ProductId);
+            Assert.Equal(order1.AnOrderId, orderLine1.OrderId);
+            Assert.Equal(order1.AnOrderId, orderLine2.OrderId);
+            Assert.Equal(order2.AnOrderId, orderLine3.OrderId);
+            Assert.Equal(order2.AnOrderId, orderLine4.OrderId);
+            Assert.Equal(order2.AnOrderId, orderLine5.OrderId);
+            Assert.Equal(order3.AnOrderId, orderLine6.OrderId);
 
-                var productDetail1 = context.ProductDetails.Single(e => e.Details.StartsWith("A"));
-                var productDetail2 = context.ProductDetails.Single(e => e.Details.StartsWith("Eeky"));
+            var productDetail1 = context.ProductDetails.Single(e => e.Details.StartsWith("A"));
+            var productDetail2 = context.ProductDetails.Single(e => e.Details.StartsWith("Eeky"));
 
-                Assert.Equal(product1.ProductId, productDetail1.ProductId);
-                Assert.Equal(product2.ProductId, productDetail2.ProductId);
+            Assert.Equal(product1.ProductId, productDetail1.ProductId);
+            Assert.Equal(product2.ProductId, productDetail2.ProductId);
 
-                var productReview1 = context.ProductReviews.Single(e => e.Review.StartsWith("Better"));
-                var productReview2 = context.ProductReviews.Single(e => e.Review.StartsWith("Good"));
-                var productReview3 = context.ProductReviews.Single(e => e.Review.StartsWith("Eeky"));
+            var productReview1 = context.ProductReviews.Single(e => e.Review.StartsWith("Better"));
+            var productReview2 = context.ProductReviews.Single(e => e.Review.StartsWith("Good"));
+            var productReview3 = context.ProductReviews.Single(e => e.Review.StartsWith("Eeky"));
 
-                Assert.Equal(product1.ProductId, productReview1.ProductId);
-                Assert.Equal(product1.ProductId, productReview2.ProductId);
-                Assert.Equal(product2.ProductId, productReview3.ProductId);
+            Assert.Equal(product1.ProductId, productReview1.ProductId);
+            Assert.Equal(product1.ProductId, productReview2.ProductId);
+            Assert.Equal(product2.ProductId, productReview3.ProductId);
 
-                // Issue #16428
-                var productPhotos = context.ProductPhotos.ToList();
-                var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
-                var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
-                var productPhoto3 = productPhotos.Single(e => e.Photo[0] == 105);
+            // Issue #16428
+            var productPhotos = context.ProductPhotos.ToList();
+            var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
+            var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
+            var productPhoto3 = productPhotos.Single(e => e.Photo[0] == 105);
 
-                Assert.Equal(product1.ProductId, productPhoto1.ProductId);
-                Assert.Equal(product1.ProductId, productPhoto2.ProductId);
-                Assert.Equal(product3.ProductId, productPhoto3.ProductId);
+            Assert.Equal(product1.ProductId, productPhoto1.ProductId);
+            Assert.Equal(product1.ProductId, productPhoto2.ProductId);
+            Assert.Equal(product3.ProductId, productPhoto3.ProductId);
 
-                var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
-                var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
+            var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
+            var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
 
-                Assert.Equal(product1.ProductId, productWebFeature1.ProductId);
-                Assert.Equal(product2.ProductId, productWebFeature2.ProductId);
-                Assert.Equal(productPhoto1.PhotoId, productWebFeature1.PhotoId);
-                Assert.Null(productWebFeature2.PhotoId);
-                Assert.Equal(productReview1.ReviewId, productWebFeature1.ReviewId);
-                Assert.Equal(productReview3.ReviewId, productWebFeature2.ReviewId);
+            Assert.Equal(product1.ProductId, productWebFeature1.ProductId);
+            Assert.Equal(product2.ProductId, productWebFeature2.ProductId);
+            Assert.Equal(productPhoto1.PhotoId, productWebFeature1.PhotoId);
+            Assert.Null(productWebFeature2.PhotoId);
+            Assert.Equal(productReview1.ReviewId, productWebFeature1.ReviewId);
+            Assert.Equal(productReview3.ReviewId, productWebFeature2.ReviewId);
 
-                var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
-                var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
+            var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
+            var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
 
-                // Issue #16428
-                var supplierLogo1 = context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201);
+            // Issue #16428
+            var supplierLogo1 = context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201);
 
-                Assert.Equal(supplier1.SupplierId, supplierLogo1.SupplierId);
+            Assert.Equal(supplier1.SupplierId, supplierLogo1.SupplierId);
 
-                var supplierInfo1 = context.SupplierInformation.Single(e => e.Information.StartsWith("Seems"));
-                var supplierInfo2 = context.SupplierInformation.Single(e => e.Information.StartsWith("Orange"));
-                var supplierInfo3 = context.SupplierInformation.Single(e => e.Information.StartsWith("Very"));
+            var supplierInfo1 = context.SupplierInformation.Single(e => e.Information.StartsWith("Seems"));
+            var supplierInfo2 = context.SupplierInformation.Single(e => e.Information.StartsWith("Orange"));
+            var supplierInfo3 = context.SupplierInformation.Single(e => e.Information.StartsWith("Very"));
 
-                Assert.Equal(supplier1.SupplierId, supplierInfo1.SupplierId);
-                Assert.Equal(supplier1.SupplierId, supplierInfo2.SupplierId);
-                Assert.Equal(supplier2.SupplierId, supplierInfo3.SupplierId);
+            Assert.Equal(supplier1.SupplierId, supplierInfo1.SupplierId);
+            Assert.Equal(supplier1.SupplierId, supplierInfo2.SupplierId);
+            Assert.Equal(supplier2.SupplierId, supplierInfo3.SupplierId);
 
-                var customerInfo1 = context.CustomerInformation.Single(e => e.Information.StartsWith("Really"));
-                var customerInfo2 = context.CustomerInformation.Single(e => e.Information.StartsWith("Mrs"));
+            var customerInfo1 = context.CustomerInformation.Single(e => e.Information.StartsWith("Really"));
+            var customerInfo2 = context.CustomerInformation.Single(e => e.Information.StartsWith("Mrs"));
 
-                Assert.Equal(customer1.CustomerId, customerInfo1.CustomerInfoId);
-                Assert.Equal(customer2.CustomerId, customerInfo2.CustomerInfoId);
+            Assert.Equal(customer1.CustomerId, customerInfo1.CustomerInfoId);
+            Assert.Equal(customer2.CustomerId, customerInfo2.CustomerInfoId);
 
-                var computer1 = context.Computers.Single(e => e.Name == "markash420");
-                var computer2 = context.Computers.Single(e => e.Name == "unicorns420");
+            var computer1 = context.Computers.Single(e => e.Name == "markash420");
+            var computer2 = context.Computers.Single(e => e.Name == "unicorns420");
 
-                var computerDetail1 = context.ComputerDetails.Single(e => e.Specifications == "It's a Dell!");
-                var computerDetail2 = context.ComputerDetails.Single(e => e.Specifications == "It's not a Dell!");
+            var computerDetail1 = context.ComputerDetails.Single(e => e.Specifications == "It's a Dell!");
+            var computerDetail2 = context.ComputerDetails.Single(e => e.Specifications == "It's not a Dell!");
 
-                Assert.Equal(computer1.ComputerId, computerDetail1.ComputerDetailId);
-                Assert.Equal(computer2.ComputerId, computerDetail2.ComputerDetailId);
+            Assert.Equal(computer1.ComputerId, computerDetail1.ComputerDetailId);
+            Assert.Equal(computer2.ComputerId, computerDetail2.ComputerDetailId);
 
-                var driver1 = context.Drivers.Single(e => e.Name == "Eeky Bear");
-                var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
+            var driver1 = context.Drivers.Single(e => e.Name == "Eeky Bear");
+            var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
 
-                var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
-                var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
+            var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
+            var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
 
-                Assert.Equal(driver1.Name, license1.Name);
-                Assert.Equal(driver2.Name, license2.Name);
-            }
+            Assert.Equal(driver1.Name, license1.Name);
+            Assert.Equal(driver2.Name, license2.Name);
         }
 
         protected void NavigationVerification()
         {
-            using (var context = CreateContext())
-            {
-                var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
-                var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
-                var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
-                var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
+            using var context = CreateContext();
+            var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
+            var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
+            var customer2 = context.Customers.Single(e => e.Name == "Sue Pandy");
+            var customer3 = context.Customers.Single(e => e.Name == "Tarquin Tiger");
 
-                Assert.Null(customer0.Husband);
-                Assert.Same(customer2, customer0.Wife);
+            Assert.Null(customer0.Husband);
+            Assert.Same(customer2, customer0.Wife);
 
-                Assert.Null(customer1.Husband);
-                Assert.Null(customer1.Wife);
+            Assert.Null(customer1.Husband);
+            Assert.Null(customer1.Wife);
 
-                Assert.Same(customer0, customer2.Husband);
-                Assert.Null(customer2.Wife);
+            Assert.Same(customer0, customer2.Husband);
+            Assert.Null(customer2.Wife);
 
-                Assert.Null(customer3.Husband);
-                Assert.Null(customer3.Wife);
+            Assert.Null(customer3.Husband);
+            Assert.Null(customer3.Wife);
 
-                var product1 = context.Products.Single(e => e.Description.StartsWith("Mrs"));
-                var product2 = context.Products.Single(e => e.Description.StartsWith("Chocolate"));
-                var product3 = context.Products.Single(e => e.Description.StartsWith("Assorted"));
+            var product1 = context.Products.Single(e => e.Description.StartsWith("Mrs"));
+            var product2 = context.Products.Single(e => e.Description.StartsWith("Chocolate"));
+            var product3 = context.Products.Single(e => e.Description.StartsWith("Assorted"));
 
-                var barcode1 = context.Barcodes.Single(e => e.Text == "Barcode 1 2 3 4");
-                var barcode2 = context.Barcodes.Single(e => e.Text == "Barcode 2 2 3 4");
-                var barcode3 = context.Barcodes.Single(e => e.Text == "Barcode 3 2 3 4");
+            var barcode1 = context.Barcodes.Single(e => e.Text == "Barcode 1 2 3 4");
+            var barcode2 = context.Barcodes.Single(e => e.Text == "Barcode 2 2 3 4");
+            var barcode3 = context.Barcodes.Single(e => e.Text == "Barcode 3 2 3 4");
 
-                Assert.Same(barcode1, product1.Barcodes.Single());
-                Assert.Same(product1, barcode1.Product);
+            Assert.Same(barcode1, product1.Barcodes.Single());
+            Assert.Same(product1, barcode1.Product);
 
-                Assert.Same(barcode2, product2.Barcodes.Single());
-                Assert.Same(product2, barcode2.Product);
+            Assert.Same(barcode2, product2.Barcodes.Single());
+            Assert.Same(product2, barcode2.Product);
 
-                Assert.Same(barcode3, product3.Barcodes.Single());
-                Assert.Same(product3, barcode3.Product);
+            Assert.Same(barcode3, product3.Barcodes.Single());
+            Assert.Same(product3, barcode3.Product);
 
-                var barcodeDetails1 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Eeky Bear");
-                var barcodeDetails2 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Trent");
+            var barcodeDetails1 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Eeky Bear");
+            var barcodeDetails2 = context.BarcodeDetails.Single(e => e.RegisteredTo == "Trent");
 
-                Assert.Same(barcodeDetails1, barcode1.Detail);
-                Assert.Same(barcodeDetails2, barcode2.Detail);
+            Assert.Same(barcodeDetails1, barcode1.Detail);
+            Assert.Same(barcodeDetails2, barcode2.Detail);
 
-                var incorrectScan1 = context.IncorrectScans.Single(e => e.Details.StartsWith("Treats"));
-                var incorrectScan2 = context.IncorrectScans.Single(e => e.Details.StartsWith("Wot"));
+            var incorrectScan1 = context.IncorrectScans.Single(e => e.Details.StartsWith("Treats"));
+            var incorrectScan2 = context.IncorrectScans.Single(e => e.Details.StartsWith("Wot"));
 
-                Assert.Same(barcode3, incorrectScan1.ActualBarcode);
-                Assert.Same(barcode2, incorrectScan2.ActualBarcode);
+            Assert.Same(barcode3, incorrectScan1.ActualBarcode);
+            Assert.Same(barcode2, incorrectScan2.ActualBarcode);
 
-                Assert.Same(barcode2, incorrectScan1.ExpectedBarcode);
-                Assert.Same(incorrectScan1, barcode2.BadScans.Single());
+            Assert.Same(barcode2, incorrectScan1.ExpectedBarcode);
+            Assert.Same(incorrectScan1, barcode2.BadScans.Single());
 
-                Assert.Same(barcode1, incorrectScan2.ExpectedBarcode);
-                Assert.Same(incorrectScan2, barcode1.BadScans.Single());
+            Assert.Same(barcode1, incorrectScan2.ExpectedBarcode);
+            Assert.Same(incorrectScan2, barcode1.BadScans.Single());
 
-                Assert.True(barcode3.BadScans == null || barcode3.BadScans.Count == 0);
+            Assert.True(barcode3.BadScans == null || barcode3.BadScans.Count == 0);
 
-                var complaint1 = context.Complaints.Single(e => e.Details.StartsWith("Don't"));
-                var complaint2 = context.Complaints.Single(e => e.Details.StartsWith("Really"));
+            var complaint1 = context.Complaints.Single(e => e.Details.StartsWith("Don't"));
+            var complaint2 = context.Complaints.Single(e => e.Details.StartsWith("Really"));
 
-                Assert.Same(customer2, complaint1.Customer);
-                Assert.Same(customer2, complaint2.Customer);
+            Assert.Same(customer2, complaint1.Customer);
+            Assert.Same(customer2, complaint2.Customer);
 
-                var resolution = context.Resolutions.Single(e => e.Details.StartsWith("Destroyed"));
+            var resolution = context.Resolutions.Single(e => e.Details.StartsWith("Destroyed"));
 
-                Assert.Same(complaint2, resolution.Complaint);
-                Assert.Same(resolution, complaint2.Resolution);
+            Assert.Same(complaint2, resolution.Complaint);
+            Assert.Same(resolution, complaint2.Resolution);
 
-                Assert.Null(complaint1.Resolution);
+            Assert.Null(complaint1.Resolution);
 
-                var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
-                var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
-                var login3 = context.Logins.Single(e => e.Username == "TheStripedMenace");
+            var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
+            var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
+            var login3 = context.Logins.Single(e => e.Username == "TheStripedMenace");
 
-                Assert.Same(customer1, login1.Customer);
-                Assert.Same(login1, customer1.Logins.Single());
+            Assert.Same(customer1, login1.Customer);
+            Assert.Same(login1, customer1.Logins.Single());
 
-                Assert.Same(customer2, login2.Customer);
-                Assert.Same(login2, customer2.Logins.Single());
+            Assert.Same(customer2, login2.Customer);
+            Assert.Same(login2, customer2.Logins.Single());
 
-                Assert.Same(customer3, login3.Customer);
-                Assert.Same(login3, customer3.Logins.Single());
+            Assert.Same(customer3, login3.Customer);
+            Assert.Same(login3, customer3.Logins.Single());
 
-                Assert.True(customer0.Logins == null || customer0.Logins.Count == 0);
+            Assert.True(customer0.Logins == null || customer0.Logins.Count == 0);
 
-                var rsaToken1 = context.RsaTokens.Single(e => e.Serial == "1234");
-                var rsaToken2 = context.RsaTokens.Single(e => e.Serial == "2234");
+            var rsaToken1 = context.RsaTokens.Single(e => e.Serial == "1234");
+            var rsaToken2 = context.RsaTokens.Single(e => e.Serial == "2234");
 
-                Assert.Same(login1, rsaToken1.Login);
-                Assert.Same(login2, rsaToken2.Login);
+            Assert.Same(login1, rsaToken1.Login);
+            Assert.Same(login2, rsaToken2.Login);
 
-                var smartCard1 = context.SmartCards.Single(e => e.Username == "MrsKoalie73");
-                var smartCard2 = context.SmartCards.Single(e => e.Username == "MrsBossyPants");
+            var smartCard1 = context.SmartCards.Single(e => e.Username == "MrsKoalie73");
+            var smartCard2 = context.SmartCards.Single(e => e.Username == "MrsBossyPants");
 
-                Assert.Same(login1, smartCard1.Login);
-                Assert.Same(login2, smartCard2.Login);
+            Assert.Same(login1, smartCard1.Login);
+            Assert.Same(login2, smartCard2.Login);
 
-                var reset1 = context.PasswordResets.Single(e => e.EmailedTo == "trent@example.com");
+            var reset1 = context.PasswordResets.Single(e => e.EmailedTo == "trent@example.com");
 
-                Assert.Same(login3, reset1.Login);
+            Assert.Same(login3, reset1.Login);
 
-                var pageView1 = context.PageViews.Single(e => e.PageUrl == "somePage1");
-                var pageView2 = context.PageViews.Single(e => e.PageUrl == "somePage1");
-                var pageView3 = context.PageViews.Single(e => e.PageUrl == "somePage1");
-
-                Assert.Same(login1, pageView1.Login);
-                Assert.Same(login1, pageView2.Login);
-                Assert.Same(login1, pageView3.Login);
-
-                var lastLogin1 = context.LastLogins.Single(e => e.Username == "MrsKoalie73");
-                var lastLogin2 = context.LastLogins.Single(e => e.Username == "MrsBossyPants");
-
-                Assert.Same(login1, lastLogin1.Login);
-                Assert.Same(login2, lastLogin2.Login);
-
-                var message1 = context.Messages.Single(e => e.Body.StartsWith("Fancy"));
-                var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
-                var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
-
-                Assert.Same(login1, message1.Sender);
-                Assert.Same(login1, message3.Sender);
-                Assert.Equal(
-                    new[] { "Fanc", "I'll" },
-                    login1.SentMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
+            var pageView1 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+            var pageView2 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+            var pageView3 = context.PageViews.Single(e => e.PageUrl == "somePage1");
+
+            Assert.Same(login1, pageView1.Login);
+            Assert.Same(login1, pageView2.Login);
+            Assert.Same(login1, pageView3.Login);
+
+            var lastLogin1 = context.LastLogins.Single(e => e.Username == "MrsKoalie73");
+            var lastLogin2 = context.LastLogins.Single(e => e.Username == "MrsBossyPants");
+
+            Assert.Same(login1, lastLogin1.Login);
+            Assert.Same(login2, lastLogin2.Login);
+
+            var message1 = context.Messages.Single(e => e.Body.StartsWith("Fancy"));
+            var message2 = context.Messages.Single(e => e.Body.StartsWith("Love"));
+            var message3 = context.Messages.Single(e => e.Body.StartsWith("I'll"));
 
-                Assert.Same(login2, message2.Sender);
-                Assert.Same(message2, login2.SentMessages.Single());
+            Assert.Same(login1, message1.Sender);
+            Assert.Same(login1, message3.Sender);
+            Assert.Equal(
+                new[] { "Fanc", "I'll" },
+                login1.SentMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
 
-                Assert.Same(login2, message1.Recipient);
-                Assert.Same(login2, message3.Recipient);
-                Assert.Equal(
-                    new[] { "Fanc", "I'll" },
-                    login2.ReceivedMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
+            Assert.Same(login2, message2.Sender);
+            Assert.Same(message2, login2.SentMessages.Single());
 
-                Assert.Same(login1, message2.Recipient);
-                Assert.Same(message2, login1.ReceivedMessages.Single());
+            Assert.Same(login2, message1.Recipient);
+            Assert.Same(login2, message3.Recipient);
+            Assert.Equal(
+                new[] { "Fanc", "I'll" },
+                login2.ReceivedMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
 
-                var order1 = context.Orders.Single(e => e.Username == "MrsKoalie73");
-                var order2 = context.Orders.Single(e => e.Username == "MrsBossyPants");
-                var order3 = context.Orders.Single(e => e.Username == "TheStripedMenace");
+            Assert.Same(login1, message2.Recipient);
+            Assert.Same(message2, login1.ReceivedMessages.Single());
 
-                Assert.Same(customer1, order1.Customer);
-                Assert.Same(order1, customer1.Orders.Single());
+            var order1 = context.Orders.Single(e => e.Username == "MrsKoalie73");
+            var order2 = context.Orders.Single(e => e.Username == "MrsBossyPants");
+            var order3 = context.Orders.Single(e => e.Username == "TheStripedMenace");
 
-                Assert.Same(customer2, order2.Customer);
-                Assert.Same(order2, customer2.Orders.Single());
+            Assert.Same(customer1, order1.Customer);
+            Assert.Same(order1, customer1.Orders.Single());
 
-                Assert.Same(customer3, order3.Customer);
-                Assert.Same(order3, customer3.Orders.Single());
+            Assert.Same(customer2, order2.Customer);
+            Assert.Same(order2, customer2.Orders.Single());
 
-                var orderLine1 = context.OrderLines.Single(e => e.Quantity == 7);
-                var orderLine2 = context.OrderLines.Single(e => e.Quantity == 1);
-                var orderLine3 = context.OrderLines.Single(e => e.Quantity == 2);
-                var orderLine4 = context.OrderLines.Single(e => e.Quantity == 3);
-                var orderLine5 = context.OrderLines.Single(e => e.Quantity == 4);
-                var orderLine6 = context.OrderLines.Single(e => e.Quantity == 5);
+            Assert.Same(customer3, order3.Customer);
+            Assert.Same(order3, customer3.Orders.Single());
 
-                Assert.Same(product1, orderLine1.Product);
-                Assert.Same(product2, orderLine2.Product);
-                Assert.Same(product3, orderLine3.Product);
-                Assert.Same(product2, orderLine4.Product);
-                Assert.Same(product1, orderLine5.Product);
-                Assert.Same(product2, orderLine6.Product);
+            var orderLine1 = context.OrderLines.Single(e => e.Quantity == 7);
+            var orderLine2 = context.OrderLines.Single(e => e.Quantity == 1);
+            var orderLine3 = context.OrderLines.Single(e => e.Quantity == 2);
+            var orderLine4 = context.OrderLines.Single(e => e.Quantity == 3);
+            var orderLine5 = context.OrderLines.Single(e => e.Quantity == 4);
+            var orderLine6 = context.OrderLines.Single(e => e.Quantity == 5);
 
-                Assert.Same(order1, orderLine1.Order);
-                Assert.Same(order1, orderLine2.Order);
-                Assert.Same(order2, orderLine3.Order);
-                Assert.Same(order2, orderLine4.Order);
-                Assert.Same(order2, orderLine5.Order);
-                Assert.Same(order3, orderLine6.Order);
+            Assert.Same(product1, orderLine1.Product);
+            Assert.Same(product2, orderLine2.Product);
+            Assert.Same(product3, orderLine3.Product);
+            Assert.Same(product2, orderLine4.Product);
+            Assert.Same(product1, orderLine5.Product);
+            Assert.Same(product2, orderLine6.Product);
 
-                Assert.Equal(
-                    new[] { orderLine2, orderLine1 },
-                    order1.OrderLines.OrderBy(e => e.Quantity).ToArray());
+            Assert.Same(order1, orderLine1.Order);
+            Assert.Same(order1, orderLine2.Order);
+            Assert.Same(order2, orderLine3.Order);
+            Assert.Same(order2, orderLine4.Order);
+            Assert.Same(order2, orderLine5.Order);
+            Assert.Same(order3, orderLine6.Order);
 
-                Assert.Equal(
-                    new[] { orderLine3, orderLine4, orderLine5 },
-                    order2.OrderLines.OrderBy(e => e.Quantity).ToArray());
+            Assert.Equal(
+                new[] { orderLine2, orderLine1 },
+                order1.OrderLines.OrderBy(e => e.Quantity).ToArray());
 
-                Assert.Same(orderLine6, order3.OrderLines.Single());
+            Assert.Equal(
+                new[] { orderLine3, orderLine4, orderLine5 },
+                order2.OrderLines.OrderBy(e => e.Quantity).ToArray());
 
-                var productDetail1 = context.ProductDetails.Single(e => e.Details.StartsWith("A"));
-                var productDetail2 = context.ProductDetails.Single(e => e.Details.StartsWith("Eeky"));
+            Assert.Same(orderLine6, order3.OrderLines.Single());
 
-                Assert.Same(product1, productDetail1.Product);
-                Assert.Same(productDetail1, product1.Detail);
+            var productDetail1 = context.ProductDetails.Single(e => e.Details.StartsWith("A"));
+            var productDetail2 = context.ProductDetails.Single(e => e.Details.StartsWith("Eeky"));
 
-                Assert.Same(product2, productDetail2.Product);
-                Assert.Same(productDetail2, product2.Detail);
+            Assert.Same(product1, productDetail1.Product);
+            Assert.Same(productDetail1, product1.Detail);
 
-                var productReview1 = context.ProductReviews.Single(e => e.Review.StartsWith("Better"));
-                var productReview2 = context.ProductReviews.Single(e => e.Review.StartsWith("Good"));
-                var productReview3 = context.ProductReviews.Single(e => e.Review.StartsWith("Eeky"));
+            Assert.Same(product2, productDetail2.Product);
+            Assert.Same(productDetail2, product2.Detail);
 
-                Assert.Same(product1, productReview1.Product);
-                Assert.Same(product1, productReview2.Product);
-                Assert.Equal(
-                    new[] { productReview1, productReview2 },
-                    product1.Reviews.OrderBy(r => r.Review).ToArray());
+            var productReview1 = context.ProductReviews.Single(e => e.Review.StartsWith("Better"));
+            var productReview2 = context.ProductReviews.Single(e => e.Review.StartsWith("Good"));
+            var productReview3 = context.ProductReviews.Single(e => e.Review.StartsWith("Eeky"));
 
-                Assert.Same(product2, productReview3.Product);
-                Assert.Same(productReview3, product2.Reviews.Single());
+            Assert.Same(product1, productReview1.Product);
+            Assert.Same(product1, productReview2.Product);
+            Assert.Equal(
+                new[] { productReview1, productReview2 },
+                product1.Reviews.OrderBy(r => r.Review).ToArray());
 
-                Assert.True(product3.Reviews == null || product3.Reviews.Count == 0);
+            Assert.Same(product2, productReview3.Product);
+            Assert.Same(productReview3, product2.Reviews.Single());
 
-                // Issue #16428
-                var productPhotos = context.ProductPhotos.ToList();
-                var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
-                var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
-                var productPhoto3 = productPhotos.Single(e => e.Photo[0] == 105);
+            Assert.True(product3.Reviews == null || product3.Reviews.Count == 0);
 
-                Assert.Equal(
-                    new[] { productPhoto1, productPhoto2 },
-                    product1.Photos.OrderBy(r => r.Photo.First()).ToArray());
+            // Issue #16428
+            var productPhotos = context.ProductPhotos.ToList();
+            var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
+            var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
+            var productPhoto3 = productPhotos.Single(e => e.Photo[0] == 105);
 
-                Assert.Same(productPhoto3, product3.Photos.Single());
-                Assert.True(product2.Photos == null || product2.Photos.Count == 0);
+            Assert.Equal(
+                new[] { productPhoto1, productPhoto2 },
+                product1.Photos.OrderBy(r => r.Photo.First()).ToArray());
 
-                var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
-                var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
+            Assert.Same(productPhoto3, product3.Photos.Single());
+            Assert.True(product2.Photos == null || product2.Photos.Count == 0);
 
-                Assert.Same(productPhoto1, productWebFeature1.Photo);
-                Assert.Same(productWebFeature1, productPhoto1.Features.Single());
+            var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
+            var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
 
-                Assert.Same(productReview1, productWebFeature1.Review);
-                Assert.Same(productWebFeature1, productReview1.Features.Single());
+            Assert.Same(productPhoto1, productWebFeature1.Photo);
+            Assert.Same(productWebFeature1, productPhoto1.Features.Single());
 
-                Assert.Null(productWebFeature2.Photo);
-                Assert.True(productPhoto2.Features == null || productPhoto2.Features.Count == 0);
+            Assert.Same(productReview1, productWebFeature1.Review);
+            Assert.Same(productWebFeature1, productReview1.Features.Single());
 
-                Assert.Same(productReview3, productWebFeature2.Review);
-                Assert.Same(productWebFeature2, productReview3.Features.Single());
+            Assert.Null(productWebFeature2.Photo);
+            Assert.True(productPhoto2.Features == null || productPhoto2.Features.Count == 0);
 
-                Assert.True(productPhoto3.Features == null || productPhoto3.Features.Count == 0);
-                Assert.True(productReview2.Features == null || productReview2.Features.Count == 0);
+            Assert.Same(productReview3, productWebFeature2.Review);
+            Assert.Same(productWebFeature2, productReview3.Features.Single());
 
-                var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
-                var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
+            Assert.True(productPhoto3.Features == null || productPhoto3.Features.Count == 0);
+            Assert.True(productReview2.Features == null || productReview2.Features.Count == 0);
 
-                // Issue #16428
-                var supplierLogo1 = context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201);
+            var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
+            var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
 
-                Assert.Same(supplierLogo1, supplier1.Logo);
+            // Issue #16428
+            var supplierLogo1 = context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201);
 
-                var supplierInfo1 = context.SupplierInformation.Single(e => e.Information.StartsWith("Seems"));
-                var supplierInfo2 = context.SupplierInformation.Single(e => e.Information.StartsWith("Orange"));
-                var supplierInfo3 = context.SupplierInformation.Single(e => e.Information.StartsWith("Very"));
+            Assert.Same(supplierLogo1, supplier1.Logo);
 
-                Assert.Same(supplier1, supplierInfo1.Supplier);
-                Assert.Same(supplier1, supplierInfo2.Supplier);
-                Assert.Same(supplier2, supplierInfo3.Supplier);
+            var supplierInfo1 = context.SupplierInformation.Single(e => e.Information.StartsWith("Seems"));
+            var supplierInfo2 = context.SupplierInformation.Single(e => e.Information.StartsWith("Orange"));
+            var supplierInfo3 = context.SupplierInformation.Single(e => e.Information.StartsWith("Very"));
 
-                var customerInfo1 = context.CustomerInformation.Single(e => e.Information.StartsWith("Really"));
-                var customerInfo2 = context.CustomerInformation.Single(e => e.Information.StartsWith("Mrs"));
+            Assert.Same(supplier1, supplierInfo1.Supplier);
+            Assert.Same(supplier1, supplierInfo2.Supplier);
+            Assert.Same(supplier2, supplierInfo3.Supplier);
 
-                Assert.Same(customerInfo1, customer1.Info);
-                Assert.Same(customerInfo2, customer2.Info);
+            var customerInfo1 = context.CustomerInformation.Single(e => e.Information.StartsWith("Really"));
+            var customerInfo2 = context.CustomerInformation.Single(e => e.Information.StartsWith("Mrs"));
 
-                var computer1 = context.Computers.Single(e => e.Name == "markash420");
-                var computer2 = context.Computers.Single(e => e.Name == "unicorns420");
+            Assert.Same(customerInfo1, customer1.Info);
+            Assert.Same(customerInfo2, customer2.Info);
 
-                var computerDetail1 = context.ComputerDetails.Single(e => e.Specifications == "It's a Dell!");
-                var computerDetail2 = context.ComputerDetails.Single(e => e.Specifications == "It's not a Dell!");
+            var computer1 = context.Computers.Single(e => e.Name == "markash420");
+            var computer2 = context.Computers.Single(e => e.Name == "unicorns420");
 
-                Assert.Same(computer1, computerDetail1.Computer);
-                Assert.Same(computerDetail1, computer1.ComputerDetail);
+            var computerDetail1 = context.ComputerDetails.Single(e => e.Specifications == "It's a Dell!");
+            var computerDetail2 = context.ComputerDetails.Single(e => e.Specifications == "It's not a Dell!");
 
-                Assert.Same(computer2, computerDetail2.Computer);
-                Assert.Same(computerDetail2, computer2.ComputerDetail);
+            Assert.Same(computer1, computerDetail1.Computer);
+            Assert.Same(computerDetail1, computer1.ComputerDetail);
 
-                var driver1 = context.Drivers.Single(e => e.Name == "Eeky Bear");
-                var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
+            Assert.Same(computer2, computerDetail2.Computer);
+            Assert.Same(computerDetail2, computer2.ComputerDetail);
 
-                var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
-                var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
+            var driver1 = context.Drivers.Single(e => e.Name == "Eeky Bear");
+            var driver2 = context.Drivers.Single(e => e.Name == "Splash Bear");
 
-                Assert.Same(driver1, license1.Driver);
-                Assert.Same(license1, driver1.License);
+            var license1 = context.Licenses.Single(e => e.LicenseNumber == "10");
+            var license2 = context.Licenses.Single(e => e.LicenseNumber == "11");
 
-                Assert.Same(driver2, license2.Driver);
-                Assert.Same(license2, driver2.License);
-            }
+            Assert.Same(driver1, license1.Driver);
+            Assert.Same(license1, driver1.License);
+
+            Assert.Same(driver2, license2.Driver);
+            Assert.Same(license2, driver2.License);
         }
 
         protected bool UseDetectChanges => Fixture.UseDetectChanges;

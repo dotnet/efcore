@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -36,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         #region Sequences
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Create_sequences_with_facets()
         {
             Test(
@@ -81,7 +81,6 @@ DROP SEQUENCE db2.CustomFacetsSequence");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_min_max_start_values_are_null_if_default()
         {
             Test(
@@ -117,7 +116,6 @@ DROP SEQUENCE [BigIntSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_min_max_start_values_are_not_null_if_decimal()
         {
             Test(
@@ -145,7 +143,6 @@ DROP SEQUENCE [NumericSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_using_type_alias()
         {
             Fixture.TestStore.ExecuteNonQuery(
@@ -176,7 +173,6 @@ DROP TYPE [dbo].[TestTypeAlias];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_using_type_with_facets()
         {
             Test(
@@ -199,7 +195,6 @@ DROP SEQUENCE [TypeFacetSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Filter_sequences_based_on_schema()
         {
             Test(
@@ -1339,7 +1334,8 @@ CREATE TABLE DefaultComputedValues (
     ComputedValue AS GETDATE(),
     A int NOT NULL,
     B int NOT NULL,
-    SumOfAAndB AS A + B PERSISTED,
+    SumOfAAndB AS A + B,
+    SumOfAAndBPersisted AS A + B PERSISTED,
 );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -1347,14 +1343,23 @@ CREATE TABLE DefaultComputedValues (
                 {
                     var columns = dbModel.Tables.Single().Columns;
 
-                    Assert.Equal("('October 20, 2015 11am')", columns.Single(c => c.Name == "FixedDefaultValue").DefaultValueSql);
-                    Assert.Null(columns.Single(c => c.Name == "FixedDefaultValue").ComputedColumnSql);
+                    var fixedDefaultValue = columns.Single(c => c.Name == "FixedDefaultValue");
+                    Assert.Equal("('October 20, 2015 11am')", fixedDefaultValue.DefaultValueSql);
+                    Assert.Null(fixedDefaultValue.ComputedColumnSql);
 
-                    Assert.Null(columns.Single(c => c.Name == "ComputedValue").DefaultValueSql);
-                    Assert.Equal("(getdate())", columns.Single(c => c.Name == "ComputedValue").ComputedColumnSql);
+                    var computedValue = columns.Single(c => c.Name == "ComputedValue");
+                    Assert.Null(computedValue.DefaultValueSql);
+                    Assert.Equal("(getdate())", computedValue.ComputedColumnSql);
 
-                    Assert.Null(columns.Single(c => c.Name == "SumOfAAndB").DefaultValueSql);
-                    Assert.Equal("([A]+[B])", columns.Single(c => c.Name == "SumOfAAndB").ComputedColumnSql);
+                    var sumOfAAndB = columns.Single(c => c.Name == "SumOfAAndB");
+                    Assert.Null(sumOfAAndB.DefaultValueSql);
+                    Assert.Equal("([A]+[B])", sumOfAAndB.ComputedColumnSql);
+                    Assert.False(sumOfAAndB.IsStored);
+
+                    var sumOfAAndBPersisted = columns.Single(c => c.Name == "SumOfAAndBPersisted");
+                    Assert.Null(sumOfAAndBPersisted.DefaultValueSql);
+                    Assert.Equal("([A]+[B])", sumOfAAndBPersisted.ComputedColumnSql);
+                    Assert.True(sumOfAAndBPersisted.IsStored);
                 },
                 "DROP TABLE DefaultComputedValues;");
         }
@@ -1493,6 +1498,28 @@ CREATE TABLE NullableColumns (
                     Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
                 },
                 "DROP TABLE NullableColumns;");
+        }
+
+        [ConditionalFact]
+        public void Column_collation_is_set()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnsWithCollation (
+    Id int,
+    DefaultCollation nvarchar(max),
+    NonDefaultCollation nvarchar(max) COLLATE German_PhoneBook_CI_AS,
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Null(columns.Single(c => c.Name == "DefaultCollation").Collation);
+                        Assert.Equal("German_PhoneBook_CI_AS", columns.Single(c => c.Name == "NonDefaultCollation").Collation);
+                    },
+                "DROP TABLE ColumnsWithCollation;");
         }
 
         [ConditionalFact]
@@ -1863,6 +1890,26 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                 "DROP TABLE FilteredIndexTable;");
         }
 
+        [ConditionalFact]
+        public void Ignore_hypothetical_index()
+        {
+            Test(
+                @"
+CREATE TABLE HypotheticalIndexTable (
+    Id1 int,
+    Id2 int NULL,
+);
+
+CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.Empty(dbModel.Tables.Single().Indexes);
+                },
+                "DROP TABLE HypotheticalIndexTable;");
+        }
+
         #endregion
 
         #region ForeignKeyFacets
@@ -2201,7 +2248,8 @@ DROP TABLE PrincipalTable;");
                         Fixture.ListLoggerFactory,
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"),
-                        new SqlServerLoggingDefinitions()));
+                        new SqlServerLoggingDefinitions(),
+                        new NullDbContextLogger()));
 
                 var databaseModel = databaseModelFactory.Create(
                     Fixture.TestStore.ConnectionString,

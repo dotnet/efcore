@@ -3,7 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -68,6 +68,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         // SQL Error Code: 40197
                         // The service has encountered an error processing your request. Please try again.
                         case 40197:
+                        // SQL Error Code: 10936
+                        // Resource ID : %d. The request limit for the elastic pool is %d and has been reached.
+                        // See 'http://go.microsoft.com/fwlink/?LinkId=267637' for assistance.
+                        case 10936:
                         // SQL Error Code: 10929
                         // Resource ID: %d. The %s minimum guarantee is %d, maximum limit is %d and the current usage for the database is %d.
                         // However, the server is currently too busy to support requests greater than %d for this database.

@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                await connection.OpenAsync(cancellationToken);
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
                 try
                 {
@@ -112,38 +112,43 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             if (transaction == null
                                 && !command.TransactionSuppressed)
                             {
-                                transaction = await connection.BeginTransactionAsync(cancellationToken);
+                                transaction = await connection.BeginTransactionAsync(cancellationToken)
+                                    .ConfigureAwait(false);
                             }
 
                             if (transaction != null
                                 && command.TransactionSuppressed)
                             {
-                                transaction.Commit();
-                                await transaction.DisposeAsync();
+                                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                                await transaction.DisposeAsync().ConfigureAwait(false);
                                 transaction = null;
                             }
 
-                            await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken);
+                            await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken)
+                                .ConfigureAwait(false);
                         }
 
-                        transaction?.Commit();
+                        if (transaction != null)
+                        {
+                            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                        }
                     }
                     finally
                     {
                         if (transaction != null)
                         {
-                            await transaction.DisposeAsync();
+                            await transaction.DisposeAsync().ConfigureAwait(false);
                         }
                     }
                 }
                 finally
                 {
-                    await connection.CloseAsync();
+                    await connection.CloseAsync().ConfigureAwait(false);
                 }
             }
             finally
             {
-                await transactionScope.DisposeAsyncIfAvailable();
+                await transactionScope.DisposeAsyncIfAvailable().ConfigureAwait(false);
             }
         }
     }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A valid name based on the candidate name.
         /// </returns>
         public virtual string GenerateParameterName(string name)
-            => name.StartsWith("@")
+            => name.StartsWith("@", StringComparison.Ordinal)
                 ? name
                 : "@" + name;
 

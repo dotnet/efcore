@@ -51,13 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
             if (internalServiceProvider != null)
             {
-                using (var scope = internalServiceProvider.CreateScope())
+                using var scope = internalServiceProvider.CreateScope();
+                var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
+                if (plugins?.Any(s => s is SqliteNetTopologySuiteTypeMappingSourcePlugin) != true)
                 {
-                    var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
-                    if (plugins?.Any(s => s is SqliteNetTopologySuiteTypeMappingSourcePlugin) != true)
-                    {
-                        throw new InvalidOperationException(SqliteNTSStrings.NTSServicesMissing);
-                    }
+                    throw new InvalidOperationException(SqliteNTSStrings.NTSServicesMissing);
                 }
             }
         }

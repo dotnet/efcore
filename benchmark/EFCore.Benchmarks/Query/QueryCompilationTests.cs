@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             public string Description { get; set; }
             public int ActualStockLevel { get; set; }
             public string SKU { get; set; }
-            public decimal Savings { get; set; }
+            public double Savings { get; set; }
             public int Surplus { get; set; }
         }
 

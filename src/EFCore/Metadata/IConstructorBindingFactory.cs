@@ -27,10 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="constructor"> The constructor to use. </param>
-        /// <param name="binding"> The binding, or <c>null</c> if <c>null</c> could be created. </param>
+        /// <param name="binding"> The binding, or <see langword="null" /> if <see langword="null" /> could be created. </param>
         /// <param name="unboundParameters"> The parameters that could not be bound. </param>
-        /// <returns> <c>true</c> if a binding was created; <c>false</c> otherwise. </returns>
-        [ContractAnnotation("=>true, binding:notnull, failedBindings:null; =>false, binding:null, failedBindings:notnull")]
+        /// <returns> <see langword="true" /> if a binding was created; <see langword="false" /> otherwise. </returns>
         bool TryBindConstructor(
             [NotNull] IConventionEntityType entityType,
             [NotNull] ConstructorInfo constructor,
@@ -43,10 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="constructor"> The constructor to use. </param>
-        /// <param name="binding"> The binding, or <c>null</c> if <c>null</c> could be created. </param>
+        /// <param name="binding"> The binding, or <see langword="null" /> if <see langword="null" /> could be created. </param>
         /// <param name="unboundParameters"> The parameters that could not be bound. </param>
-        /// <returns> <c>true</c> if a binding was created; <c>false</c> otherwise. </returns>
-        [ContractAnnotation("=>true, binding:notnull, failedBindings:null; =>false, binding:null, failedBindings:notnull")]
+        /// <returns> <see langword="true" /> if a binding was created; <see langword="false" /> otherwise. </returns>
         bool TryBindConstructor(
             [NotNull] IMutableEntityType entityType,
             [NotNull] ConstructorInfo constructor,

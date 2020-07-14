@@ -21,9 +21,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public interface IConcurrencyDetector
     {
         /// <summary>
-        ///     Call to enter the critical section.
+        ///     Enters a critical section.
         /// </summary>
         /// <returns> A disposer that will exit the critical section when disposed. </returns>
-        IDisposable EnterCriticalSection();
+        ConcurrencyDetectorCriticalSectionDisposer EnterCriticalSection();
+
+        /// <summary>
+        ///     Exits the critical section.
+        /// </summary>
+        void ExitCriticalSection();
     }
 }

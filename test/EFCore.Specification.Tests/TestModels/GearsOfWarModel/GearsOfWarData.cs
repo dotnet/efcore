@@ -105,7 +105,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         }
 
         public static IReadOnlyList<Squad> CreateSquads()
-            => new List<Squad> { new Squad { Id = 1, Name = "Delta" }, new Squad { Id = 2, Name = "Kilo" } };
+            => new List<Squad>
+            {
+                new Squad { Id = 1, Name = "Delta", Banner = new byte[] { 0x00, 0x01 }, Banner5 = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 } },
+                new Squad { Id = 2, Name = "Kilo", Banner = new byte[] { 0x02, 0x03 }, Banner5 = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 } }
+            };
 
         public static IReadOnlyList<Mission> CreateMissions()
             => new List<Mission>
@@ -115,21 +119,24 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Id = 1,
                     CodeName = "Lightmass Offensive",
                     Rating = 2.1,
-                    Timeline = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0))
+                    Timeline = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0)),
+                    Duration = new TimeSpan(1, 2, 3)
                 },
                 new Mission
                 {
                     Id = 2,
                     CodeName = "Hollow Storm",
                     Rating = 4.2,
-                    Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0))
+                    Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)),
+                    Duration = new TimeSpan(0, 1, 2, 3, 456)
                 },
                 new Mission
                 {
                     Id = 3,
                     CodeName = "Halvo Bay defense",
                     Rating = null,
-                    Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan())
+                    Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan()),
+                    Duration = new TimeSpan(0, 1, 0, 15, 456)
                 }
             };
 
@@ -317,12 +324,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<LocustLeader> CreateLocustLeaders()
             => new List<LocustLeader>
             {
-                new LocustLeader { Name = "General Karn", ThreatLevel = 3 },
-                new LocustLeader { Name = "General RAAM", ThreatLevel = 4 },
-                new LocustLeader { Name = "High Priest Skorge", ThreatLevel = 1 },
-                new LocustCommander { Name = "Queen Myrrah", ThreatLevel = 5 },
-                new LocustLeader { Name = "The Speaker", ThreatLevel = 3 },
-                new LocustCommander { Name = "Unknown", ThreatLevel = 0 }
+                new LocustLeader { Name = "General Karn", ThreatLevel = 3, ThreatLevelByte = 3, ThreatLevelNullableByte = 3 },
+                new LocustLeader { Name = "General RAAM", ThreatLevel = 4, ThreatLevelByte = 4, ThreatLevelNullableByte = 4 },
+                new LocustLeader { Name = "High Priest Skorge", ThreatLevel = 1, ThreatLevelByte = 1, ThreatLevelNullableByte = 1 },
+                new LocustCommander { Name = "Queen Myrrah", ThreatLevel = 5, ThreatLevelByte = 5, ThreatLevelNullableByte = 5 },
+                new LocustLeader { Name = "The Speaker", ThreatLevel = 3, ThreatLevelByte = 3, ThreatLevelNullableByte = 3 },
+                new LocustCommander { Name = "Unknown", ThreatLevel = 0, ThreatLevelByte = 0, ThreatLevelNullableByte = null }
             };
 
         public static IReadOnlyList<Faction> CreateFactions()

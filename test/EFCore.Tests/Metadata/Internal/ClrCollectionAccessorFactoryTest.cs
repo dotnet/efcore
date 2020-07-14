@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -33,6 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var navigation = new FakeNavigation();
 
+            var fk = new FakeForeignKey() { PrincipalToDependent = navigation };
+            navigation.ForeignKey = fk;
+            navigation.PropertyInfo = MyEntity.AsICollectionProperty;
+
             Assert.Same(navigation, new ClrCollectionAccessorFactory().Create(navigation));
         }
 
@@ -44,16 +49,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
-            public PropertyInfo PropertyInfo { get; }
+            public PropertyInfo PropertyInfo { get; set; }
             public FieldInfo FieldInfo { get; }
             public IEntityType DeclaringEntityType { get; }
-            public IForeignKey ForeignKey { get; }
+            public IForeignKey ForeignKey { get; set; }
             public bool Add(object entity, object value, bool forMaterialization) => throw new NotImplementedException();
             public bool Contains(object entity, object value) => throw new NotImplementedException();
             public bool Remove(object entity, object value) => throw new NotImplementedException();
             public object Create() => throw new NotImplementedException();
             public object GetOrCreate(object entity, bool forMaterialization) => throw new NotImplementedException();
             public Type CollectionType { get; }
+        }
+
+        private class FakeForeignKey : IForeignKey
+        {
+            public object this[string name] => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public IEntityType DeclaringEntityType { get; }
+            public IReadOnlyList<IProperty> Properties { get; }
+            public IEntityType PrincipalEntityType { get; }
+            public IKey PrincipalKey { get; }
+            public INavigation DependentToPrincipal { get; set; }
+            public INavigation PrincipalToDependent { get; set; }
+            public bool IsUnique { get; }
+            public bool IsRequired { get; }
+            public bool IsOwnership { get; }
+            public DeleteBehavior DeleteBehavior { get; }
         }
 
         [ConditionalFact]
@@ -246,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
-            var navigation = foreignKey.HasPrincipalToDependent(
+            var navigation = foreignKey.SetPrincipalToDependent(
                 typeof(MyEntity).GetProperty(
                     nameof(MyEntity.AsICollectionWithCustomComparer),
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
@@ -404,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
-            var navigation = foreignKey.HasPrincipalToDependent(
+            var navigation = foreignKey.SetPrincipalToDependent(
                 typeof(MyEntity).GetProperty(navigationName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
 
             RunConvention(navigation);
@@ -414,12 +436,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void RunConvention(IMutableNavigation navigation)
         {
-            var foreignKey = navigation.ForeignKey;
-            var context = new ConventionContext<IConventionNavigation>(
-                ((ForeignKey)foreignKey).DeclaringEntityType.Model.ConventionDispatcher);
+            var context = new ConventionContext<IConventionNavigationBuilder>(
+                ((ForeignKey)navigation.ForeignKey).DeclaringEntityType.Model.ConventionDispatcher);
 
             new BackingFieldConvention(CreateDependencies())
-                .ProcessNavigationAdded(((ForeignKey)foreignKey).Builder, (Navigation)navigation, context);
+                .ProcessNavigationAdded(((IConventionNavigation)navigation).Builder, context);
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
@@ -427,6 +448,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class MyEntity
         {
+            public static readonly PropertyInfo AsICollectionProperty = typeof(MyEntity).GetProperty(nameof(AsICollection), BindingFlags.NonPublic | BindingFlags.Instance);
+
             private ICollection<MyOtherEntity> _asICollection;
             private ICollection<MyEntityWithCustomComparer> _asICollectionOfEntitiesWithCustomComparer;
             private IList<MyOtherEntity> _asIList;

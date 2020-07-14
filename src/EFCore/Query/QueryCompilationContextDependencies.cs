@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -37,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public sealed class QueryCompilationContextDependencies
     {
         private readonly IExecutionStrategyFactory _executionStrategyFactory;
+        private readonly ICurrentDbContext _currentContext;
 
         /// <summary>
         ///     <para>
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(contextOptions, nameof(contextOptions));
             Check.NotNull(logger, nameof(logger));
 
-            CurrentContext = currentContext;
+            _currentContext = currentContext;
             Model = model;
             QueryTranslationPreprocessorFactory = queryTranslationPreprocessorFactory;
             QueryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
@@ -92,9 +94,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     The cache being used to store value generator instances.
+        ///     The CLR type of DbContext.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public Type ContextType => _currentContext.Context.GetType();
+
+        /// <summary>
+        ///     The flag indicating if default query tracking behavior is tracking.
+        /// </summary>
+        [Obsolete("Use " + nameof(QueryTrackingBehavior) + " instead.")]
+        public bool IsTracking => _currentContext.Context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+
+        /// <summary>
+        ///     The default query tracking behavior.
+        /// </summary>
+        public QueryTrackingBehavior QueryTrackingBehavior => _currentContext.Context.ChangeTracker.QueryTrackingBehavior;
 
         /// <summary>
         ///     The model.
@@ -149,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryTranslationPostprocessorFactory,
                 ShapedQueryCompilingExpressionVisitorFactory,
                 _executionStrategyFactory,
-                CurrentContext,
+                _currentContext,
                 ContextOptions,
                 Logger);
 
@@ -166,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryTranslationPostprocessorFactory,
                 ShapedQueryCompilingExpressionVisitorFactory,
                 _executionStrategyFactory,
-                CurrentContext,
+                _currentContext,
                 ContextOptions,
                 Logger);
 
@@ -184,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryTranslationPostprocessorFactory,
                 ShapedQueryCompilingExpressionVisitorFactory,
                 _executionStrategyFactory,
-                CurrentContext,
+                _currentContext,
                 ContextOptions,
                 Logger);
 
@@ -202,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 queryTranslationPostprocessorFactory,
                 ShapedQueryCompilingExpressionVisitorFactory,
                 _executionStrategyFactory,
-                CurrentContext,
+                _currentContext,
                 ContextOptions,
                 Logger);
 
@@ -220,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryTranslationPostprocessorFactory,
                 shapedQueryCompilingExpressionVisitorFactory,
                 _executionStrategyFactory,
-                CurrentContext,
+                _currentContext,
                 ContextOptions,
                 Logger);
 
@@ -237,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryTranslationPostprocessorFactory,
                 ShapedQueryCompilingExpressionVisitorFactory,
                 executionStrategyFactory,
-                CurrentContext,
+                _currentContext,
                 ContextOptions,
                 Logger);
 
@@ -271,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryTranslationPostprocessorFactory,
                 ShapedQueryCompilingExpressionVisitorFactory,
                 _executionStrategyFactory,
-                CurrentContext,
+                _currentContext,
                 contextOptions,
                 Logger);
 
@@ -288,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryTranslationPostprocessorFactory,
                 ShapedQueryCompilingExpressionVisitorFactory,
                 _executionStrategyFactory,
-                CurrentContext,
+                _currentContext,
                 ContextOptions,
                 logger);
     }

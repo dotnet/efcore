@@ -289,7 +289,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                if (!bothStatesEquivalent)
+                if (!bothStatesEquivalent
+                    && Key.IsPrimaryKey())
                 {
                     entry.SharedIdentityEntry = existingEntry;
                     existingEntry.SharedIdentityEntry = entry;
@@ -330,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_dependentMaps == null)
             {
-                _dependentMaps = new Dictionary<IForeignKey, IDependentsMap>(ReferenceEqualityComparer.Instance);
+                _dependentMaps = new Dictionary<IForeignKey, IDependentsMap>(LegacyReferenceEqualityComparer.Instance);
             }
 
             if (!_dependentMaps.TryGetValue(foreignKey, out var map))
@@ -413,7 +414,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (otherEntry == null)
             {
-                _identityMap.Remove(key);
+                if (_identityMap.TryGetValue(key, out var existingEntry)
+                    && existingEntry == entry)
+                {
+                    _identityMap.Remove(key);
+                }
             }
             else
             {

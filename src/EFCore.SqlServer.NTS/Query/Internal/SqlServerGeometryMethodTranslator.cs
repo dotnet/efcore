@@ -3,16 +3,23 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
     {
         private static readonly IDictionary<MethodInfo, string> _methodToFunctionName = new Dictionary<MethodInfo, string>
@@ -52,23 +59,38 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SqlServerGeometryMethodTranslator(
-            IRelationalTypeMappingSource typeMappingSource,
-            ISqlExpressionFactory sqlExpressionFactory)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (typeof(Geometry).IsAssignableFrom(method.DeclaringType))
             {
                 var geometryExpressions = new[] { instance }.Concat(
                     arguments.Where(e => typeof(Geometry).IsAssignableFrom(e.Type)));
                 var typeMapping = ExpressionExtensions.InferTypeMapping(geometryExpressions.ToArray());
 
-                Debug.Assert(typeMapping != null, "At least one argument must have typeMapping.");
+                Check.DebugAssert(typeMapping != null, "At least one argument must have typeMapping.");
                 var storeType = typeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
@@ -93,10 +115,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         ? _typeMappingSource.FindMapping(method.ReturnType, storeType)
                         : _typeMappingSource.FindMapping(method.ReturnType);
 
+                    var finalArguments = Simplify(typeMappedArguments, isGeography);
+
+                    var argumentsPropagateNullability = functionName == "STBuffer"
+                        ? new[] { false }
+                        : functionName == "STRelate"
+                            ? new[] { true, false }
+                            : finalArguments.Select(a => true).ToArray();
+
                     return _sqlExpressionFactory.Function(
                         instance,
                         functionName,
-                        Simplify(typeMappedArguments, isGeography),
+                        finalArguments,
+                        nullable: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability,
                         method.ReturnType,
                         resultTypeMapping);
                 }
@@ -112,6 +145,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 arguments[0],
                                 _sqlExpressionFactory.Constant(1))
                         },
+                        nullable: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability: new[] { false },
                         method.ReturnType,
                         _typeMappingSource.FindMapping(method.ReturnType, storeType));
                 }
@@ -132,11 +168,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                     : _typeMappingSource.FindMapping(argument.Type)));
                     }
 
+                    var finalArguments = Simplify(new[] { typeMappedArguments[0] }, isGeography);
+
                     return _sqlExpressionFactory.LessThanOrEqual(
                         _sqlExpressionFactory.Function(
                             instance,
                             "STDistance",
-                            Simplify(new[] { typeMappedArguments[0] }, isGeography),
+                            finalArguments,
+                            nullable: true,
+                            instancePropagatesNullability: true,
+                            argumentsPropagateNullability: finalArguments.Select(a => true),
                             typeof(double)),
                         typeMappedArguments[1]);
                 }

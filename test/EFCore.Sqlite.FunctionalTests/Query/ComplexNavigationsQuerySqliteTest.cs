@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryTestBase<ComplexNavigationsQuerySqliteFixture>
+    public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqliteFixture>
     {
         public ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture)
             : base(fixture)
@@ -14,24 +14,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(bool isAsync)
+        public override Task Include_inside_subquery(bool async)
         {
-            return base.SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Project_collection_navigation_nested_with_take(bool isAsync)
-        {
-            return base.Project_collection_navigation_nested_with_take(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Include_inside_subquery(bool isAsync)
-        {
-            return base.Include_inside_subquery(isAsync);
+            return base.Include_inside_subquery(async);
         }
 
         // Sqlite does not support cross/outer apply
-        public override Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async) => null;
+        public override Task Filtered_include_after_different_filtered_include_different_level(bool async) => null;
+        public override void Filtered_include_outer_parameter_used_inside_filter() { }
+        public override Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation(bool async) => null;
+        public override Task Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only(bool async) => null;
+        public override Task Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes(bool async) => null;
+        public override Task Filtered_include_complex_three_level_with_middle_having_filter1(bool async) => null;
+        public override Task Filtered_include_complex_three_level_with_middle_having_filter2(bool async) => null;
+
+        public override Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation_split(bool async) => null;
+        public override Task Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only_split(bool async) => null;
+        public override Task Filtered_include_same_filter_set_on_same_navigation_twice_followed_by_ThenIncludes_split(bool async) => null;
     }
 }

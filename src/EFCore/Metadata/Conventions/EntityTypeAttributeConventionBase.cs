@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var attributes = type.GetTypeInfo().GetCustomAttributes<TAttribute>(true);
+            var attributes = type.GetCustomAttributes<TAttribute>(true);
 
             foreach (var attribute in attributes)
             {

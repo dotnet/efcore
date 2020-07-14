@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Checks whether or not the given string is a valid migration identifier.
         /// </summary>
         /// <param name="value"> The candidate string. </param>
-        /// <returns> <c>True</c> if the string is a valid migration identifier; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the string is a valid migration identifier; <see langword="false" /> otherwise. </returns>
         bool IsValidId([NotNull] string value);
     }
 }

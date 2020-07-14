@@ -188,11 +188,36 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     }
 
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
 
                     return new ByteArrayTypeMapping(
-                        storeTypeName ?? "just_binary(" + (size == null ? "max" : size.ToString()) + ")",
+                        storeTypeName ?? (isFixedLength ? "just_binary_fixed(" : "just_binary(") + (size == null ? "max" : size.ToString()) + ")",
                         DbType.Binary,
                         size);
+                }
+
+                if (clrType == typeof(decimal)
+                    && !string.Equals("money", storeTypeName, StringComparison.Ordinal))
+                {
+                    var precision = mappingInfo.Precision;
+                    var scale = mappingInfo.Scale;
+                    if (precision == _defaultDecimalMapping.Precision
+                        && scale == _defaultDecimalMapping.Scale)
+                    {
+                        return _defaultDecimalMapping;
+                    }
+
+                    if (scale == null || scale == 0)
+                    {
+                        return new DecimalTypeMapping(
+                            "decimal_mapping(" + precision + ")",
+                            precision: precision);
+                    }
+
+                    return new DecimalTypeMapping(
+                        "decimal_mapping(" + precision + "," + scale + ")",
+                        precision: precision,
+                        scale: scale);
                 }
 
                 if (_simpleMappings.TryGetValue(clrType, out var mapping))
@@ -210,5 +235,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ? mappingFromName
                     : null;
         }
+
+        protected override bool StoreTypeNameBaseUsesPrecision(string storeTypeNameBase)
+            => "default_decimal_mapping" == storeTypeNameBase;
     }
 }

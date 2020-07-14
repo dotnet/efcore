@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.False(property.IsFixedLength());
+            Assert.Null(property.IsFixedLength());
 
             property.SetIsFixedLength(true);
 
@@ -30,6 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             property.SetIsFixedLength(false);
 
             Assert.False(property.IsFixedLength());
+
+            property.SetIsFixedLength(null);
+
+            Assert.Null(property.IsFixedLength());
         }
 
         [ConditionalFact]
@@ -37,17 +42,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            var property = modelBuilder
+            var index = modelBuilder
                 .Entity<Customer>()
                 .HasIndex(e => e.Id)
                 .HasFilter("[Id] % 2 = 0")
                 .Metadata;
 
-            Assert.Equal("[Id] % 2 = 0", property.GetFilter());
+            Assert.Equal("[Id] % 2 = 0", index.GetFilter());
 
-            property.SetFilter("[Id] % 3 = 0");
+            index.SetFilter("[Id] % 3 = 0");
 
-            Assert.Equal("[Id] % 3 = 0", property.GetFilter());
+            Assert.Equal("[Id] % 3 = 0", index.GetFilter());
         }
 
         [ConditionalFact]
@@ -90,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             entityType.SetTableName(null);
 
-            Assert.Equal("Customer", entityType.GetTableName());
+            Assert.Null(entityType.GetTableName());
         }
 
         [ConditionalFact]
@@ -111,6 +116,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityType.SetSchema(null);
 
             Assert.Null(entityType.GetSchema());
+        }
+
+        [ConditionalFact]
+        public void Can_get_table_and_schema_name_for_non_owned_entity_types_with_defining_navigation()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var orderType = modelBuilder
+                .Entity<Order>()
+                .Metadata;
+
+            var customerType = modelBuilder.Model.AddEntityType(typeof(Customer), nameof(Order.Customer), orderType);
+
+            Assert.Equal("Order_Customer", customerType.GetTableName());
+
+            orderType.SetTableName(null);
+
+            Assert.Equal("Customer_Customer", customerType.GetTableName());
+
+            customerType.SetTableName("Customizer");
+
+            Assert.Equal("Customizer", customerType.GetTableName());
         }
 
         [ConditionalFact]
@@ -319,6 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasIndex(e => e.Id)
                 .Metadata;
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Equal("IX_Customer_Id", index.GetName());
 
             index.SetName("MyIndex");
@@ -328,6 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             index.SetName(null);
 
             Assert.Equal("IX_Customer_Id", index.GetName());
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [ConditionalFact]
@@ -384,6 +413,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(dbFunc);
             Assert.NotNull(dbFunc.Name);
             Assert.Null(dbFunc.Schema);
+            Assert.NotNull(((IConventionDbFunction)dbFunc).Builder);
+
+            Assert.Same(dbFunc, model.RemoveDbFunction(testMethod));
+
+            Assert.Null(((IConventionDbFunction)dbFunc).Builder);
         }
 
         [ConditionalFact]
@@ -405,8 +439,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
+            Assert.False(sequence.IsCyclic);
+            Assert.NotNull(((IConventionSequence)sequence).Builder);
 
-            var sequence2 = model.FindSequence("Foo");
+            Assert.Same(sequence, model.FindSequence("Foo"));
 
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
@@ -422,13 +458,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.ClrType);
 
-            Assert.Equal(sequence2.Name, sequence.Name);
-            Assert.Equal(sequence2.Schema, sequence.Schema);
-            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
-            Assert.Equal(sequence2.StartValue, sequence.StartValue);
-            Assert.Equal(sequence2.MinValue, sequence.MinValue);
-            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
-            Assert.Same(sequence2.ClrType, sequence.ClrType);
+            Assert.Same(sequence, model.RemoveSequence("Foo"));
+
+            Assert.Null(((IConventionSequence)sequence).Builder);
         }
 
         [ConditionalFact]
@@ -452,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.ClrType);
 
-            var sequence2 = model.FindSequence("Foo", "Smoo");
+            Assert.Same(sequence, model.FindSequence("Foo", "Smoo"));
 
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
@@ -467,14 +499,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.ClrType);
-
-            Assert.Equal(sequence2.Name, sequence.Name);
-            Assert.Equal(sequence2.Schema, sequence.Schema);
-            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
-            Assert.Equal(sequence2.StartValue, sequence.StartValue);
-            Assert.Equal(sequence2.MinValue, sequence.MinValue);
-            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
-            Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
         [ConditionalFact]
@@ -488,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var sequence = model.AddSequence("Foo");
 
-            Assert.Equal("Foo", model.FindSequence("Foo").Name);
+            Assert.Same(sequence, model.FindSequence("Foo"));
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -509,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var sequence = model.AddSequence("Foo");
 
-            Assert.Equal("Foo", model.FindSequence("Foo").Name);
+            Assert.Same(sequence, model.FindSequence("Foo"));
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -521,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             model.SetDefaultSchema("Smoo");
 
-            var sequence2 = model.FindSequence("Foo");
+            Assert.Same(sequence, model.FindSequence("Foo"));
 
             sequence.StartValue = 1729;
             sequence.IncrementBy = 11;
@@ -536,14 +560,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
             Assert.Same(typeof(int), sequence.ClrType);
-
-            Assert.Equal(sequence2.Name, sequence.Name);
-            Assert.Equal(sequence2.Schema, sequence.Schema);
-            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
-            Assert.Equal(sequence2.StartValue, sequence.StartValue);
-            Assert.Equal(sequence2.MinValue, sequence.MinValue);
-            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
-            Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
         [ConditionalFact]
@@ -557,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var sequences = model.GetSequences();
 
-            Assert.Equal(2, sequences.Count);
+            Assert.Equal(2, sequences.Count());
             Assert.Contains(sequences, s => s.Name == "Fibonacci");
             Assert.Contains(sequences, s => s.Name == "Golomb");
         }
@@ -585,6 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public int OrderId { get; set; }
             public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
         }
     }
 }

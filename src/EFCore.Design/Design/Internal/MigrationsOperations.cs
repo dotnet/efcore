@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _language;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
         private readonly DbContextOperations _contextOperations;
+        private readonly string[] _args;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,20 +54,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
-            Check.NotNull(args, nameof(args));
+            // Note: cannot assert that args is not null - as old versions of
+            // tools can still pass null.
 
             _reporter = reporter;
             _assembly = assembly;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _language = language;
+            _args = args ?? Array.Empty<string>();
             _contextOperations = new DbContextOperations(
                 reporter,
                 assembly,
                 startupAssembly,
-                args);
+                _args);
 
-            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
+            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
         }
 
         /// <summary>
@@ -78,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public virtual MigrationFiles AddMigration(
             [NotNull] string name,
             [CanBeNull] string outputDir,
-            [CanBeNull] string contextType)
+            [CanBeNull] string contextType,
+            [CanBeNull] string @namespace)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -89,18 +93,26 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var subNamespace = SubnamespaceFromOutputPath(outputDir);
 
-            using (var context = _contextOperations.CreateContext(contextType))
+            using var context = _contextOperations.CreateContext(contextType);
+            var contextClassName = context.GetType().Name;
+            if (string.Equals(name, contextClassName, StringComparison.Ordinal))
             {
-                var services = _servicesBuilder.Build(context);
-                EnsureServices(services);
-                EnsureMigrationsAssembly(services);
-
-                var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
-                var migration = scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language);
-                var files = scaffolder.Save(_projectDir, migration, outputDir);
-
-                return files;
+                throw new OperationException(
+                    DesignStrings.ConflictingContextAndMigrationName(name));
             }
+
+            var services = _servicesBuilder.Build(context);
+            EnsureServices(services);
+            EnsureMigrationsAssembly(services);
+
+            var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
+            var migration =
+                string.IsNullOrEmpty(@namespace)
+                ? scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language)
+                : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
+            var files = scaffolder.Save(_projectDir, migration, outputDir);
+
+            return files;
         }
 
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
@@ -133,17 +145,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public virtual IEnumerable<MigrationInfo> GetMigrations(
             [CanBeNull] string contextType)
         {
-            using (var context = _contextOperations.CreateContext(contextType))
-            {
-                var services = _servicesBuilder.Build(context);
-                EnsureServices(services);
+            using var context = _contextOperations.CreateContext(contextType);
+            var services = _servicesBuilder.Build(context);
+            EnsureServices(services);
 
-                var migrationsAssembly = services.GetRequiredService<IMigrationsAssembly>();
-                var idGenerator = services.GetRequiredService<IMigrationsIdGenerator>();
+            var migrationsAssembly = services.GetRequiredService<IMigrationsAssembly>();
+            var idGenerator = services.GetRequiredService<IMigrationsIdGenerator>();
 
-                return from id in migrationsAssembly.Migrations.Keys
-                       select new MigrationInfo { Id = id, Name = idGenerator.GetName(id) };
-            }
+            return from id in migrationsAssembly.Migrations.Keys
+                   select new MigrationInfo { Id = id, Name = idGenerator.GetName(id) };
         }
 
         /// <summary>
@@ -158,15 +168,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             bool idempotent,
             [CanBeNull] string contextType)
         {
-            using (var context = _contextOperations.CreateContext(contextType))
-            {
-                var services = _servicesBuilder.Build(context);
-                EnsureServices(services);
+            using var context = _contextOperations.CreateContext(contextType);
+            var services = _servicesBuilder.Build(context);
+            EnsureServices(services);
 
-                var migrator = services.GetRequiredService<IMigrator>();
+            var migrator = services.GetRequiredService<IMigrator>();
 
-                return migrator.GenerateScript(fromMigration, toMigration, idempotent);
-            }
+            return migrator.GenerateScript(fromMigration, toMigration, idempotent);
         }
 
         /// <summary>
@@ -177,10 +185,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual void UpdateDatabase(
             [CanBeNull] string targetMigration,
+            [CanBeNull] string connectionString,
             [CanBeNull] string contextType)
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
+                if (connectionString != null)
+                {
+                    context.Database.SetConnectionString(connectionString);
+                }
+
                 var services = _servicesBuilder.Build(context);
                 EnsureServices(services);
 
@@ -201,20 +215,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public virtual MigrationFiles RemoveMigration(
             [CanBeNull] string contextType, bool force)
         {
-            using (var context = _contextOperations.CreateContext(contextType))
-            {
-                var services = _servicesBuilder.Build(context);
-                EnsureServices(services);
-                EnsureMigrationsAssembly(services);
+            using var context = _contextOperations.CreateContext(contextType);
+            var services = _servicesBuilder.Build(context);
+            EnsureServices(services);
+            EnsureMigrationsAssembly(services);
 
-                var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
+            var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
 
-                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language);
+            var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language);
 
-                _reporter.WriteInformation(DesignStrings.Done);
+            _reporter.WriteInformation(DesignStrings.Done);
 
-                return files;
-            }
+            return files;
         }
 
         private static void EnsureServices(IServiceProvider services)
@@ -233,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var options = services.GetRequiredService<IDbContextOptions>();
             var contextType = services.GetRequiredService<ICurrentDbContext>().Context.GetType();
             var migrationsAssemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly
-                                         ?? contextType.GetTypeInfo().Assembly.GetName().Name;
+                                         ?? contextType.Assembly.GetName().Name;
             if (assemblyName.Name != migrationsAssemblyName
                 && assemblyName.FullName != migrationsAssemblyName)
             {

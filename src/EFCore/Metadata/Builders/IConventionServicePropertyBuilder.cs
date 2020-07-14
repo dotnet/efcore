@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionServicePropertyBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The service property being configured.
+        ///     Gets the service property being configured.
         /// </summary>
         new IConventionServiceProperty Metadata { get; }
 
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionServicePropertyBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
 
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionServicePropertyBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
 
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The field name. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the backing field can be set for this property. </returns>
+        /// <returns> <see langword="true" /> if the backing field can be set for this property. </returns>
         bool CanSetField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldInfo"> The field. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the backing field can be set for this property. </returns>
+        /// <returns> <see langword="true" /> if the backing field can be set for this property. </returns>
         bool CanSetField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionServicePropertyBuilder HasParameterBinding(
             [CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="parameterBinding"> The parameter binding. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the <see cref="ServiceParameterBinding" /> can be set for this property. </returns>
+        /// <returns> <see langword="true" /> if the <see cref="ServiceParameterBinding" /> can be set for this property. </returns>
         bool CanSetParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
     }
 }

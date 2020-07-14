@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         model externally and set it on a <see cref="DbContextOptions" /> instance that is passed to the context constructor.
     ///     </para>
     /// </summary>
-    public class ModelBuilder : IInfrastructure<InternalModelBuilder>
+    public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         private readonly InternalModelBuilder _builder;
 
@@ -45,12 +45,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="ModelBuilder" /> class with no conventions.
+        ///     </para>
+        ///     <para>
+        ///         Warning: conventions are typically needed to build a correct model.
+        ///     </para>
+        /// </summary>
+        public ModelBuilder()
+        {
+            _builder = new Model().Builder;
+        }
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
+        [Obsolete]
         public ModelBuilder([NotNull] IMutableModel model)
         {
             Check.NotNull(model, nameof(model));
@@ -89,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         application code.
         ///     </para>
         /// </summary>
-        InternalModelBuilder IInfrastructure<InternalModelBuilder>.Instance => _builder;
+        IConventionModelBuilder IInfrastructure<IConventionModelBuilder>.Instance => _builder;
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -208,96 +222,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns an object that can be used to configure a given query type in the model.
-        ///     If the query type is not already part of the model, it will be added to the model.
-        /// </summary>
-        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
-        /// <returns> An object that can be used to configure the query type. </returns>
-        [Obsolete("Use Entity<TEntity>().HasNoKey() instead")]
-        public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
-            where TQuery : class
-        {
-            var builder = Builder.Entity(typeof(TQuery), ConfigurationSource.Explicit);
-            if (builder.Metadata.BaseType == null)
-            {
-                builder.HasNoKey(ConfigurationSource.Explicit);
-            }
-
-            return new QueryTypeBuilder<TQuery>(builder.Metadata);
-        }
-
-        /// <summary>
-        ///     Returns an object that can be used to configure a given query type in the model.
-        ///     If the query type is not already part of the model, it will be added to the model.
-        /// </summary>
-        /// <param name="type"> The query type to be configured. </param>
-        /// <returns> An object that can be used to configure the query type. </returns>
-        [Obsolete("Use Entity(type).HasNoKey() instead")]
-        public virtual EntityTypeBuilder Query([NotNull] Type type)
-        {
-            var builder = Builder.Entity(Check.NotNull(type, nameof(type)), ConfigurationSource.Explicit);
-            if (builder.Metadata.BaseType == null)
-            {
-                builder.HasNoKey(ConfigurationSource.Explicit);
-            }
-
-            return new EntityTypeBuilder(builder.Metadata);
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Performs configuration of a given query type in the model. If the query type is not already part
-        ///         of the model, it will be added to the model.
-        ///     </para>
-        ///     <para>
-        ///         This overload allows configuration of the query type to be done in line in the method call rather
-        ///         than being chained after a call to <see cref="Query{TQuery}()" />. This allows additional
-        ///         configuration at the model level to be chained after configuration for the query type.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
-        /// <param name="buildAction"> An action that performs configuration of the query type. </param>
-        /// <returns>
-        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        /// </returns>
-        [Obsolete("Use Entity<TEntity>().HasNoKey() instead")]
-        public virtual ModelBuilder Query<TQuery>([NotNull] Action<QueryTypeBuilder<TQuery>> buildAction)
-            where TQuery : class
-        {
-            Check.NotNull(buildAction, nameof(buildAction));
-
-            buildAction(Query<TQuery>());
-
-            return this;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Performs configuration of a given query type in the model. If the query type is not already part
-        ///         of the model, it will be added to the model.
-        ///     </para>
-        ///     <para>
-        ///         This overload allows configuration of the query type to be done in line in the method call rather
-        ///         than being chained after a call to <see cref="Query{TQuery}()" />. This allows additional
-        ///         configuration at the model level to be chained after configuration for the query type.
-        ///     </para>
-        /// </summary>
-        /// <param name="type"> The query type to be configured. </param>
-        /// <param name="buildAction"> An action that performs configuration of the query type. </param>
-        /// <returns>
-        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        /// </returns>
-        [Obsolete("Use Entity(type).HasNoKey() instead")]
-        public virtual ModelBuilder Query([NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
-        {
-            Check.NotNull(buildAction, nameof(buildAction));
-
-            buildAction(Query(type));
-
-            return this;
-        }
-
-        /// <summary>
         ///     Excludes the given entity type from the model. This method is typically used to remove types from
         ///     the model that were added by convention.
         /// </summary>
@@ -345,26 +269,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Applies configuration that is defined in an <see cref="IQueryTypeConfiguration{TQuery}" /> instance.
-        /// </summary>
-        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
-        /// <param name="configuration"> The configuration to be applied. </param>
-        /// <returns>
-        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        /// </returns>
-        [Obsolete("Use IEntityTypeConfiguration<TEntity> instead")]
-        public virtual ModelBuilder ApplyConfiguration<TQuery>([NotNull] IQueryTypeConfiguration<TQuery> configuration)
-            where TQuery : class
-        {
-            Check.NotNull(configuration, nameof(configuration));
-
-            configuration.Configure(Query<TQuery>());
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> and <see cref="IQueryTypeConfiguration{TEntity}" />
+        ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> />
         ///     instances that are defined in provided assembly.
         /// </summary>
         /// <param name="assembly"> The assembly to scan. </param>
@@ -382,12 +287,7 @@ namespace Microsoft.EntityFrameworkCore
                         && e.ContainsGenericParameters
                         && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
                         == typeof(IEntityTypeConfiguration<>));
-            var applyQueryConfigurationMethod = typeof(ModelBuilder).GetMethods().Single(
-                e => e.Name == nameof(ApplyConfiguration)
-                    && e.ContainsGenericParameters
-#pragma warning disable CS0618 // Type or member is obsolete
-                    && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>));
-#pragma warning restore CS0618 // Type or member is obsolete
+
             foreach (var type in assembly.GetConstructibleTypes())
             {
                 // Only accept types that contain a parameterless constructor, are not abstract and satisfy a predicate if it was used.
@@ -407,13 +307,6 @@ namespace Microsoft.EntityFrameworkCore
                     if (@interface.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
                     {
                         var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
-                        target.Invoke(this, new[] { Activator.CreateInstance(type) });
-                    }
-#pragma warning disable CS0618 // Type or member is obsolete
-                    else if (@interface.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>))
-#pragma warning restore CS0618 // Type or member is obsolete
-                    {
-                        var target = applyQueryConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
                         target.Invoke(this, new[] { Activator.CreateInstance(type) });
                     }
                 }
@@ -494,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The finalized <see cref="IModel" />. </returns>
         public virtual IModel FinalizeModel() => Builder.Metadata.FinalizeModel();
 
-        private InternalModelBuilder Builder => this.GetInfrastructure();
+        private InternalModelBuilder Builder => (InternalModelBuilder)this.GetInfrastructure();
 
         #region Hidden System.Object members
 
@@ -509,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => base.Equals(obj);
 

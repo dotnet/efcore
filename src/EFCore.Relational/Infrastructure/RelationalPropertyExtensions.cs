@@ -8,14 +8,20 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
+    /// <summary>
+    ///     Relational extension methods for <see cref="IProperty" />.
+    /// </summary>
     public static class RelationalPropertyExtensions
     {
         /// <summary>
-        ///     Creates a comma-separated list of property names.
+        ///     Creates a comma-separated list of column names.
         /// </summary>
         /// <param name="properties"> The properties to format. </param>
-        /// <returns> A comma-separated list of property names. </returns>
-        public static string FormatColumns([NotNull] this IEnumerable<IProperty> properties)
-            => "{" + string.Join(", ", properties.Select(p => "'" + p.GetColumnName() + "'")) + "}";
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> A comma-separated list of column names. </returns>
+        public static string FormatColumns(
+            [NotNull] this IEnumerable<IProperty> properties,
+            StoreObjectIdentifier storeObject)
+            => "{" + string.Join(", ", properties.Select(p => "'" + p.GetColumnName(storeObject) + "'")) + "}";
     }
 }

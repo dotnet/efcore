@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 output, new CandidateNamingService().GenerateCandidateIdentifier(
-                    new DatabaseTable { Name = input }));
+                    new DatabaseTable { Database = new DatabaseModel(), Name = input }));
         }
     }
 }

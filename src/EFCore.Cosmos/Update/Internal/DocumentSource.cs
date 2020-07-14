@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -33,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
+        public DocumentSource([NotNull] IEntityType entityType, [NotNull] CosmosDatabaseWrapper database)
         {
             _collectionId = entityType.GetContainer();
             _database = database;
-            _idProperty = entityType.FindProperty(StoreKeyConvention.IdPropertyName);
+            _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
             _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
         }
 
@@ -56,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetId(IUpdateEntry entry)
-            => entry.GetCurrentValue<string>(_idProperty);
+        public virtual string GetId([NotNull] IUpdateEntry entry)
+            => (string)entry.GetCurrentProviderValue(_idProperty);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject CreateDocument(IUpdateEntry entry)
+        public virtual JObject CreateDocument([NotNull] IUpdateEntry entry)
             => CreateDocument(entry, null);
 
         /// <summary>
@@ -74,24 +75,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject CreateDocument(IUpdateEntry entry, int? ordinal)
+        public virtual JObject CreateDocument([NotNull] IUpdateEntry entry, int? ordinal)
         {
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var storeName = property.GetPropertyName();
+                var storeName = property.GetJsonPropertyName();
                 if (storeName.Length != 0)
                 {
-                    document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
+                    document[storeName] = ConvertPropertyValue(property, entry);
                 }
                 else if (entry.HasTemporaryValue(property))
                 {
-                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18948", out var isEnabled) && isEnabled)
-                    {
-                        ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
-                    }
-                    else if (ordinal != null
-                      && property.IsOrdinalKeyProperty())
+                    if (ordinal != null
+                        && property.IsOrdinalKeyProperty())
                     {
                         entry.SetStoreGeneratedValue(property, ordinal.Value);
                     }
@@ -102,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             {
                 var fk = embeddedNavigation.ForeignKey;
                 if (!fk.IsOwnership
-                    || embeddedNavigation.IsDependentToPrincipal()
+                    || embeddedNavigation.IsOnDependent
                     || fk.DeclaringEntityType.IsDocumentRoot())
                 {
                     continue;
@@ -116,8 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else if (fk.IsUnique)
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    // #16707
                     var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
                     document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
                 else
                 {
@@ -125,8 +125,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     var array = new JArray();
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        // #16707
                         var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
                         array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         embeddedOrdinal++;
                     }
 
@@ -143,44 +146,40 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject UpdateDocument(JObject document, IUpdateEntry entry)
+        public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry)
             => UpdateDocument(document, entry, null);
-        
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject UpdateDocument(JObject document, IUpdateEntry entry, int? ordinal)
+        public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry, int? ordinal)
         {
             var anyPropertyUpdated = false;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            // #16707
             var stateManager = ((InternalEntityEntry)entry).StateManager;
+#pragma warning restore EF1001 // Internal EF Core API usage.
             foreach (var property in entry.EntityType.GetProperties())
             {
                 if (entry.EntityState == EntityState.Added
                     || entry.IsModified(property))
                 {
-                    var storeName = property.GetPropertyName();
+                    var storeName = property.GetJsonPropertyName();
                     if (storeName.Length != 0)
                     {
-                        document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
+                        document[storeName] = ConvertPropertyValue(property, entry);
                         anyPropertyUpdated = true;
-                        continue;
                     }
                 }
 
-                if (entry.HasTemporaryValue(property))
+                if (ordinal != null
+                    && entry.HasTemporaryValue(property)
+                    && property.IsOrdinalKeyProperty())
                 {
-                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18948", out var isEnabled) && isEnabled)
-                    {
-                        ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
-                    }
-                    else if (ordinal != null
-                        && property.IsOrdinalKeyProperty())
-                    {
-                        entry.SetStoreGeneratedValue(property, ordinal.Value);
-                    }
+                    entry.SetStoreGeneratedValue(property, ordinal.Value);
                 }
             }
 
@@ -188,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             {
                 var fk = ownedNavigation.ForeignKey;
                 if (!fk.IsOwnership
-                    || ownedNavigation.IsDependentToPrincipal()
+                    || ownedNavigation.IsOnDependent
                     || fk.DeclaringEntityType.IsDocumentRoot())
                 {
                     continue;
@@ -207,7 +206,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else if (fk.IsUnique)
                 {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    // #16707
                     var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     if (embeddedEntry == null)
                     {
                         continue;
@@ -227,44 +229,47 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 else
                 {
                     var embeddedOrdinal = 0;
-                    if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18948", out var isEnabled) || !isEnabled)
+                    var ordinalKeyProperty = GetOrdinalKeyProperty(fk.DeclaringEntityType);
+                    if (ordinalKeyProperty != null)
                     {
-                        var ordinalKeyProperty = GetOrdinalKeyProperty(fk.DeclaringEntityType);
-                        if (ordinalKeyProperty != null)
+                        var shouldSetTemporaryKeys = false;
+                        foreach (var dependent in (IEnumerable)embeddedValue)
                         {
-                            var shouldSetTemporaryKeys = false;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                            // #16707
+                            var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+                            if (embeddedEntry == null)
+                            {
+                                continue;
+                            }
+
+                            if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty) != embeddedOrdinal)
+                            {
+                                shouldSetTemporaryKeys = true;
+                                break;
+                            }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                            embeddedOrdinal++;
+                        }
+
+                        if (shouldSetTemporaryKeys)
+                        {
+                            var temporaryOrdinal = -1;
                             foreach (var dependent in (IEnumerable)embeddedValue)
                             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                                // #16707
                                 var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
                                 if (embeddedEntry == null)
                                 {
                                     continue;
                                 }
 
-                                if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty) != embeddedOrdinal)
-                                {
-                                    shouldSetTemporaryKeys = true;
-                                    break;
-                                }
+                                embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
-                                embeddedOrdinal++;
-                            }
-
-                            if (shouldSetTemporaryKeys)
-                            {
-                                var temporaryOrdinal = -1;
-                                foreach (var dependent in (IEnumerable)embeddedValue)
-                                {
-                                    var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
-                                    if (embeddedEntry == null)
-                                    {
-                                        continue;
-                                    }
-
-                                    embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
-
-                                    temporaryOrdinal--;
-                                }
+                                temporaryOrdinal--;
                             }
                         }
                     }
@@ -273,7 +278,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     var array = new JArray();
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        // #16707
                         var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         if (embeddedEntry == null)
                         {
                             continue;
@@ -298,27 +306,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
         private IProperty GetOrdinalKeyProperty(IEntityType entityType)
             => entityType.FindPrimaryKey().Properties.FirstOrDefault(p =>
-                p.GetPropertyName().Length == 0 && p.IsOrdinalKeyProperty());
+                p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());
 
-        public virtual JObject GetCurrentDocument(IUpdateEntry entry)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual JObject GetCurrentDocument([NotNull] IUpdateEntry entry)
             => _jObjectProperty != null
                 ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
                 : null;
 
-        private static JToken ConvertPropertyValue(IProperty property, object value)
+        private static JToken ConvertPropertyValue(IProperty property, IUpdateEntry entry)
         {
-            if (value == null)
-            {
-                return null;
-            }
-
-            var converter = property.GetTypeMapping().Converter;
-            if (converter != null)
-            {
-                value = converter.ConvertToProvider(value);
-            }
-
-            return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
+            var value = entry.GetCurrentProviderValue(property);
+            return value == null
+                ? null
+                : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
         }
     }
 }

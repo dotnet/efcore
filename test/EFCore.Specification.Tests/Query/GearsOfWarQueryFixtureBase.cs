@@ -14,26 +14,30 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override string StoreName { get; } = "GearsOfWarQueryTest";
 
-        protected GearsOfWarQueryFixtureBase()
-        {
-            var entitySorters = new Dictionary<Type, Func<dynamic, object>>
+        public Func<DbContext> GetContextCreator() => () => CreateContext();
+
+        public ISetSource GetExpectedData() => new GearsOfWarData();
+
+        public IReadOnlyDictionary<Type, object> GetEntitySorters()
+            => new Dictionary<Type, Func<object, object>>
             {
-                { typeof(City), e => e?.Name },
-                { typeof(CogTag), e => e?.Id },
-                { typeof(Faction), e => e?.Id },
-                { typeof(LocustHorde), e => e?.Id },
-                { typeof(Gear), e => e?.SquadId + " " + e?.Nickname },
-                { typeof(Officer), e => e?.SquadId + " " + e?.Nickname },
-                { typeof(LocustLeader), e => e?.Name },
-                { typeof(LocustCommander), e => e?.Name },
-                { typeof(Mission), e => e?.Id },
-                { typeof(Squad), e => e?.Id },
-                { typeof(SquadMission), e => e?.SquadId + " " + e?.MissionId },
-                { typeof(Weapon), e => e?.Id },
-                { typeof(LocustHighCommand), e => e?.Id }
+                { typeof(City), e => ((City)e)?.Name },
+                { typeof(CogTag), e => ((CogTag)e)?.Id },
+                { typeof(Faction), e => ((Faction)e)?.Id },
+                { typeof(LocustHorde), e => ((LocustHorde)e)?.Id },
+                { typeof(Gear), e => (((Gear)e)?.SquadId, ((Gear)e)?.Nickname) },
+                { typeof(Officer), e => (((Officer)e)?.SquadId, ((Officer)e)?.Nickname) },
+                { typeof(LocustLeader), e => ((LocustLeader)e)?.Name },
+                { typeof(LocustCommander), e => ((LocustCommander)e)?.Name },
+                { typeof(Mission), e => ((Mission)e)?.Id },
+                { typeof(Squad), e => ((Squad)e)?.Id },
+                { typeof(SquadMission), e => (((SquadMission)e)?.SquadId, ((SquadMission)e)?.MissionId) },
+                { typeof(Weapon), e => ((Weapon)e)?.Id },
+                { typeof(LocustHighCommand), e => ((LocustHighCommand)e)?.Id }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+            => new Dictionary<Type, Action<object, object>>
             {
                 {
                     typeof(City), (e, a) =>
@@ -42,9 +46,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.Location, a.Location);
-                            Assert.Equal(e.Nation, a.Nation);
+                            var ee = (City)e;
+                            var aa = (City)a;
+
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.Location, aa.Location);
+                            Assert.Equal(ee.Nation, aa.Nation);
                         }
                     }
                 },
@@ -55,10 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Note, a.Note);
-                            Assert.Equal(e.GearNickName, a.GearNickName);
-                            Assert.Equal(e.GearSquadId, a.GearSquadId);
+                            var ee = (CogTag)e;
+                            var aa = (CogTag)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Note, aa.Note);
+                            Assert.Equal(ee.GearNickName, aa.GearNickName);
+                            Assert.Equal(ee.GearSquadId, aa.GearSquadId);
                         }
                     }
                 },
@@ -69,13 +79,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.CapitalName, a.CapitalName);
-                            if (e is LocustHorde locustHorde)
+                            var ee = (Faction)e;
+                            var aa = (Faction)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.CapitalName, aa.CapitalName);
+                            if (ee is LocustHorde locustHorde)
                             {
-                                Assert.Equal(e.CommanderName, a.CommanderName);
-                                Assert.Equal(e.Eradicated, a.Eradicated);
+                                var actualLocustHorde = (LocustHorde)aa;
+                                Assert.Equal(locustHorde.CommanderName, actualLocustHorde.CommanderName);
+                                Assert.Equal(locustHorde.Eradicated, actualLocustHorde.Eradicated);
                             }
                         }
                     }
@@ -87,11 +101,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.CapitalName, a.CapitalName);
-                            Assert.Equal(e.CommanderName, a.CommanderName);
-                            Assert.Equal(e.Eradicated, a.Eradicated);
+                            var ee = (LocustHorde)e;
+                            var aa = (LocustHorde)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.CapitalName, aa.CapitalName);
+                            Assert.Equal(ee.CommanderName, aa.CommanderName);
+                            Assert.Equal(ee.Eradicated, aa.Eradicated);
                         }
                     }
                 },
@@ -102,14 +119,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Nickname, a.Nickname);
-                            Assert.Equal(e.SquadId, a.SquadId);
-                            Assert.Equal(e.CityOfBirthName, a.CityOfBirthName);
-                            Assert.Equal(e.FullName, a.FullName);
-                            Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
-                            Assert.Equal(e.LeaderNickname, a.LeaderNickname);
-                            Assert.Equal(e.LeaderSquadId, a.LeaderSquadId);
-                            Assert.Equal(e.Rank, a.Rank);
+                            var ee = (Gear)e;
+                            var aa = (Gear)a;
+
+                            Assert.Equal(ee.Nickname, aa.Nickname);
+                            Assert.Equal(ee.SquadId, aa.SquadId);
+                            Assert.Equal(ee.CityOfBirthName, aa.CityOfBirthName);
+                            Assert.Equal(ee.FullName, aa.FullName);
+                            Assert.Equal(ee.HasSoulPatch, aa.HasSoulPatch);
+                            Assert.Equal(ee.LeaderNickname, aa.LeaderNickname);
+                            Assert.Equal(ee.LeaderSquadId, aa.LeaderSquadId);
+                            Assert.Equal(ee.Rank, aa.Rank);
                         }
                     }
                 },
@@ -120,14 +140,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Nickname, a.Nickname);
-                            Assert.Equal(e.SquadId, a.SquadId);
-                            Assert.Equal(e.CityOfBirthName, a.CityOfBirthName);
-                            Assert.Equal(e.FullName, a.FullName);
-                            Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
-                            Assert.Equal(e.LeaderNickname, a.LeaderNickname);
-                            Assert.Equal(e.LeaderSquadId, a.LeaderSquadId);
-                            Assert.Equal(e.Rank, a.Rank);
+                            var ee = (Officer)e;
+                            var aa = (Officer)a;
+
+                            Assert.Equal(ee.Nickname, aa.Nickname);
+                            Assert.Equal(ee.SquadId, aa.SquadId);
+                            Assert.Equal(ee.CityOfBirthName, aa.CityOfBirthName);
+                            Assert.Equal(ee.FullName, aa.FullName);
+                            Assert.Equal(ee.HasSoulPatch, aa.HasSoulPatch);
+                            Assert.Equal(ee.LeaderNickname, aa.LeaderNickname);
+                            Assert.Equal(ee.LeaderSquadId, aa.LeaderSquadId);
+                            Assert.Equal(ee.Rank, aa.Rank);
                         }
                     }
                 },
@@ -138,12 +161,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.ThreatLevel, a.ThreatLevel);
+                            var ee = (LocustLeader)e;
+                            var aa = (LocustLeader)a;
+
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.ThreatLevel, aa.ThreatLevel);
+                            Assert.Equal(ee.ThreatLevelByte, aa.ThreatLevelByte);
+                            Assert.Equal(ee.ThreatLevelNullableByte, aa.ThreatLevelNullableByte);
+
                             if (e is LocustCommander locustCommander)
                             {
-                                Assert.Equal(e.DefeatedByNickname, a.DefeatedByNickname);
-                                Assert.Equal(e.DefeatedBySquadId, a.DefeatedBySquadId);
+                                var actualLocustCommander = (LocustCommander)aa;
+                                Assert.Equal(locustCommander.DefeatedByNickname, actualLocustCommander.DefeatedByNickname);
+                                Assert.Equal(locustCommander.DefeatedBySquadId, actualLocustCommander.DefeatedBySquadId);
                             }
                         }
                     }
@@ -155,10 +185,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.ThreatLevel, a.ThreatLevel);
-                            Assert.Equal(e.DefeatedByNickname, a.DefeatedByNickname);
-                            Assert.Equal(e.DefeatedBySquadId, a.DefeatedBySquadId);
+                            var ee = (LocustCommander)e;
+                            var aa = (LocustCommander)a;
+
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.ThreatLevel, aa.ThreatLevel);
+                            Assert.Equal(ee.ThreatLevelByte, aa.ThreatLevelByte);
+                            Assert.Equal(ee.ThreatLevelNullableByte, aa.ThreatLevelNullableByte);
+                            Assert.Equal(ee.DefeatedByNickname, aa.DefeatedByNickname);
+                            Assert.Equal(ee.DefeatedBySquadId, aa.DefeatedBySquadId);
                         }
                     }
                 },
@@ -169,10 +204,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.CodeName, a.CodeName);
-                            Assert.Equal(e.Rating, a.Rating);
-                            Assert.Equal(e.Timeline, a.Timeline);
+                            var ee = (Mission)e;
+                            var aa = (Mission)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.CodeName, aa.CodeName);
+                            Assert.Equal(ee.Rating, aa.Rating);
+                            Assert.Equal(ee.Timeline, aa.Timeline);
                         }
                     }
                 },
@@ -183,8 +221,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
+                            var ee = (Squad)e;
+                            var aa = (Squad)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.Banner == null, aa.Banner == null);
+                            if (ee.Banner != null)
+                            {
+                                Assert.True(Enumerable.SequenceEqual(ee.Banner, aa.Banner));
+                            }
+                            Assert.Equal(ee.Banner5 == null, aa.Banner5 == null);
+                            if (ee.Banner5 != null)
+                            {
+                                Assert.True(Enumerable.SequenceEqual(ee.Banner5, aa.Banner5));
+                            }
                         }
                     }
                 },
@@ -195,8 +246,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.SquadId, a.SquadId);
-                            Assert.Equal(e.MissionId, a.MissionId);
+                            var ee = (SquadMission)e;
+                            var aa = (SquadMission)a;
+
+                            Assert.Equal(ee.SquadId, aa.SquadId);
+                            Assert.Equal(ee.MissionId, aa.MissionId);
                         }
                     }
                 },
@@ -207,28 +261,26 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         if (a != null)
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.IsAutomatic, a.IsAutomatic);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.OwnerFullName, a.OwnerFullName);
-                            Assert.Equal(e.SynergyWithId, a.SynergyWithId);
+                            var ee = (Weapon)e;
+                            var aa = (Weapon)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.IsAutomatic, aa.IsAutomatic);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.OwnerFullName, aa.OwnerFullName);
+                            Assert.Equal(ee.SynergyWithId, aa.SynergyWithId);
                         }
                     }
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            QueryAsserter = new QueryAsserter<GearsOfWarContext>(
-                CreateContext,
-                new GearsOfWarData(),
-                entitySorters,
-                entityAsserters);
-        }
-
-        public QueryAsserterBase QueryAsserter { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<City>().HasKey(c => c.Name);
+            modelBuilder.Entity<City>(
+                b =>
+                {
+                    b.HasKey(c => c.Name);
+                });
 
             modelBuilder.Entity<Gear>(
                 b =>
@@ -250,6 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     b.HasKey(s => s.Id);
                     b.Property(s => s.Id).ValueGeneratedNever();
+                    b.Property(s => s.Banner5).HasMaxLength(5);
                     b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
                 });
 

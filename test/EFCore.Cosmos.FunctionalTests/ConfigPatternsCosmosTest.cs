@@ -3,8 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
+using Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -25,32 +24,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Cosmos_client_instance_is_shared_between_contexts()
         {
-            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
+            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
+            var options = CreateOptions(testDatabase);
+
+            CosmosClient client;
+            using (var context = new CustomerContext(options))
             {
-                var options = CreateOptions(testDatabase);
+                client = context.Database.GetCosmosClient();
+                Assert.NotNull(client);
+                Assert.True(context.Database.IsCosmos());
+            }
 
-                CosmosClient client;
-                using (var context = new CustomerContext(options))
-                {
-                    client = context.Database.GetCosmosClient();
-                    Assert.NotNull(client);
-                    Assert.True(context.Database.IsCosmos());
-                }
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Same(client, context.Database.GetCosmosClient());
+            }
 
-                using (var context = new CustomerContext(options))
-                {
-                    Assert.Same(client, context.Database.GetCosmosClient());
-                }
+            await using var testDatabase2 = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(Regions.AustraliaCentral));
+            options = CreateOptions(testDatabase2);
 
-                await using (var testDatabase2 = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(Regions.AustraliaCentral)))
-                {
-                    options = CreateOptions(testDatabase2);
-
-                    using (var context = new CustomerContext(options))
-                    {
-                        Assert.NotSame(client, context.Database.GetCosmosClient());
-                    }
-                }
+            using (var context = new CustomerContext(options))
+            {
+                Assert.NotSame(client, context.Database.GetCosmosClient());
             }
         }
 
@@ -59,21 +54,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var regionName = Regions.AustraliaCentral;
 
-            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
-            {
-                var options = CreateOptions(testDatabase);
+            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName));
+            var options = CreateOptions(testDatabase);
 
-                var customer = new Customer { Id = 42, Name = "Theon" };
+            var customer = new Customer { Id = 42, Name = "Theon" };
 
-                using (var context = new CustomerContext(options))
-                {
-                    context.Database.EnsureCreated();
+            using var context = new CustomerContext(options);
+            context.Database.EnsureCreated();
 
-                    context.Add(customer);
+            context.Add(customer);
 
-                    context.SaveChanges();
-                }
-            }
+            context.SaveChanges();
         }
 
         [ConditionalFact]
@@ -82,21 +73,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             var exception = await Assert.ThrowsAsync<ArgumentException>(
                 async () =>
                 {
-                    await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region("FakeRegion")))
-                    {
-                        var options = CreateOptions(testDatabase);
+                    await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region("FakeRegion"));
+                    var options = CreateOptions(testDatabase);
 
-                        var customer = new Customer { Id = 42, Name = "Theon" };
+                    var customer = new Customer { Id = 42, Name = "Theon" };
 
-                        using (var context = new CustomerContext(options))
-                        {
-                            context.Database.EnsureCreated();
+                    using var context = new CustomerContext(options);
+                    context.Database.EnsureCreated();
 
-                            context.Add(customer);
+                    context.Add(customer);
 
-                            context.SaveChanges();
-                        }
-                    }
+                    context.SaveChanges();
                 });
             Assert.Equal("Current location is not a valid Azure region.", exception.Message);
         }
@@ -106,21 +93,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var connectionMode = ConnectionMode.Direct;
 
-            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.ConnectionMode(connectionMode)))
-            {
-                var options = CreateOptions(testDatabase);
+            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.ConnectionMode(connectionMode));
+            var options = CreateOptions(testDatabase);
 
-                var customer = new Customer { Id = 42, Name = "Theon" };
+            var customer = new Customer { Id = 42, Name = "Theon" };
 
-                using (var context = new CustomerContext(options))
-                {
-                    context.Database.EnsureCreated();
+            using var context = new CustomerContext(options);
+            context.Database.EnsureCreated();
 
-                    context.Add(customer);
+            context.Add(customer);
 
-                    context.SaveChanges();
-                }
-            }
+            context.SaveChanges();
         }
 
         [ConditionalFact]
@@ -129,22 +112,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
                 async () =>
                 {
-                    await using (var testDatabase = CosmosTestStore.CreateInitialized(
-                        DatabaseName, o => o.ConnectionMode((ConnectionMode)123456)))
-                    {
-                        var options = CreateOptions(testDatabase);
+                    await using var testDatabase = CosmosTestStore.CreateInitialized(
+                        DatabaseName, o => o.ConnectionMode((ConnectionMode)123456));
+                    var options = CreateOptions(testDatabase);
 
-                        var customer = new Customer { Id = 42, Name = "Theon" };
+                    var customer = new Customer { Id = 42, Name = "Theon" };
 
-                        using (var context = new CustomerContext(options))
-                        {
-                            context.Database.EnsureCreated();
+                    using var context = new CustomerContext(options);
+                    context.Database.EnsureCreated();
 
-                            context.Add(customer);
+                    context.Add(customer);
 
-                            context.SaveChanges();
-                        }
-                    }
+                    context.SaveChanges();
                 });
         }
 

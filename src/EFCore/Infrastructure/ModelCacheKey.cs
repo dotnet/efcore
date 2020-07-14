@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The key to compare this key to.
         /// </param>
         /// <returns>
-        ///     True if the key is for the same context type, otherwise false.
+        ///     <see langword="true"/> if the key is for the same context type, otherwise <see langword="false"/>. 
         /// </returns>
         protected virtual bool Equals([NotNull] ModelCacheKey other) => _dbContextType == other._dbContextType;
 
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The object to compare this key to.
         /// </param>
         /// <returns>
-        ///     True if the object is a <see cref="ModelCacheKey" /> and is for the same context type, otherwise false.
+        ///     <see langword="true"/> if the object is a <see cref="ModelCacheKey" /> and is for the same context type, otherwise <see langword="false"/>. 
         /// </returns>
         public override bool Equals(object obj) => (obj is ModelCacheKey otherAsKey) && Equals(otherAsKey);
 

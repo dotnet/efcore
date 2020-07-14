@@ -36,6 +36,25 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void CommandText_defaults_to_empty()
+        {
+            var command = new SqliteCommand();
+
+            Assert.Empty(command.CommandText);
+        }
+
+        [Fact]
+        public void CommandText_coalesces_to_empty()
+        {
+            var command = new SqliteCommand
+            {
+                CommandText = null
+            };
+
+            Assert.Empty(command.CommandText);
+        }
+
+        [Fact]
         public void CommandText_throws_when_set_when_open_reader()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -587,6 +606,30 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 Assert.Equal(-1, command.ExecuteNonQuery());
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_works_on_EXPLAIN()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = " EXPLAIN SELECT 1 WHERE 1 = @a;";
+                connection.Open();
+
+                if (new Version(connection.ServerVersion) < new Version(3, 28, 0))
+                {
+                    command.Parameters.AddWithValue("@a", 1);
+                }
+
+                using (var reader = command.ExecuteReader())
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+                    Assert.Equal(8, reader.FieldCount);
+                    Assert.Equal("Init", reader.GetString(1));
+                }
             }
         }
 

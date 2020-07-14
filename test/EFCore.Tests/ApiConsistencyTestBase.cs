@@ -4,34 +4,30 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class ApiConsistencyTestBase
+    public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : ApiConsistencyTestBase<TFixture>.ApiConsistencyFixtureBase, new()
     {
-        private readonly Dictionary<Type, Type> _mutableMetadataTypes = new Dictionary<Type, Type>();
-
-        public ApiConsistencyTestBase()
+        protected ApiConsistencyTestBase(TFixture fixture)
         {
-            foreach (var typeTuple in MetadataTypes)
-            {
-                _mutableMetadataTypes[typeTuple.Value.Mutable] = typeTuple.Value.Convention;
-            }
+            Fixture = fixture;
         }
 
         protected const BindingFlags PublicInstance
@@ -40,16 +36,15 @@ namespace Microsoft.EntityFrameworkCore
         protected const BindingFlags AnyInstance
             = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-        protected virtual IEnumerable<Type> FluentApiTypes
-            => Enumerable.Empty<Type>();
+        protected virtual TFixture Fixture { get; }
 
         [ConditionalFact]
         public void Fluent_api_methods_should_not_return_void()
         {
             var voidMethods
-                = (from type in GetAllTypes(FluentApiTypes)
-                   where type.GetTypeInfo().IsVisible
-                   from method in type.GetMethods(PublicInstance | BindingFlags.Static)
+                = (from type in GetAllTypes(Fixture.FluentApiTypes)
+                   where type.IsVisible
+                   from method in type.GetMethods(PublicInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                    where method.ReturnType == typeof(void)
                    select type.Name + "." + method.Name)
                 .ToList();
@@ -59,57 +54,111 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Missing fluent returns --\r\n" + string.Join(Environment.NewLine, voidMethods));
         }
 
-        protected virtual Dictionary<Type, (Type Mutable, Type Convention)> MetadataTypes
-            => new Dictionary<Type, (Type, Type)>();
-
-        private static readonly HashSet<Type> _ignoredMetadataReturnTypes = new HashSet<Type>
+        [ConditionalFact]
+        public void Metadata_types_have_expected_structure()
         {
-            typeof(bool),
-            typeof(bool?),
-            typeof(int),
-            typeof(int?),
-            typeof(string),
-            typeof(object),
-            typeof(Type),
-            typeof(DeleteBehavior),
-            typeof(ValueGenerated),
-            typeof(PropertyAccessMode),
-            typeof(PropertySaveBehavior),
-            typeof(ChangeTrackingStrategy),
-            typeof(ValueComparer),
-            typeof(ValueConverter),
-            typeof(Func<IProperty, IEntityType, ValueGenerator>),
-            typeof(IClrCollectionAccessor),
-            typeof(IClrPropertyGetter),
-            typeof(IClrPropertySetter),
-            typeof(LambdaExpression),
-            typeof(ServiceParameterBinding),
-            typeof(PropertyInfo),
-            typeof(FieldInfo),
-            typeof(MemberInfo),
-            typeof(CoreTypeMapping),
-            typeof(IAnnotation),
-            typeof(IEnumerable<IAnnotation>),
-            typeof(IEnumerable<IDictionary<string, object>>)
-        };
+            var errors = Fixture.MetadataTypes.Select(ValidateMetadata)
+                    .Where(e => e != null)
+                    .ToList();
 
-        protected virtual HashSet<Type> IgnoredMetadataReturnTypes => _ignoredMetadataReturnTypes;
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        private static readonly string MetadataNamespace = typeof(IModel).Namespace;
+        private static readonly string MetadataBuilderNamespace = typeof(IConventionModelBuilder).Namespace;
+
+        private string ValidateMetadata(KeyValuePair<Type, (Type, Type, Type)> types)
+        {
+            var readonlyType = types.Key;
+            var (mutableType, conventionType, conventionBuilderType) = types.Value;
+
+            if (!readonlyType.IsAssignableFrom(mutableType))
+            {
+                return $"{mutableType.Name} should derive from {readonlyType.Name}";
+            }
+
+            if (!readonlyType.IsAssignableFrom(conventionType))
+            {
+                return $"{mutableType.Name} should derive from {readonlyType.Name}";
+            }
+
+            if (typeof(IAnnotation) != readonlyType
+                && typeof(IAnnotatable) != readonlyType)
+            {
+                if (!typeof(IAnnotatable).IsAssignableFrom(readonlyType))
+                {
+                    return $"{readonlyType.Name} should derive from IAnnotatable";
+                }
+
+                if (!typeof(IMutableAnnotatable).IsAssignableFrom(mutableType))
+                {
+                    return $"{mutableType.Name} should derive from IMutableAnnotatable";
+                }
+
+                if (!typeof(IConventionAnnotatable).IsAssignableFrom(conventionType))
+                {
+                    return $"{conventionType.Name} should derive from IConventionAnnotatable";
+                }
+
+                if (conventionBuilderType != null
+                    && !typeof(IConventionAnnotatableBuilder).IsAssignableFrom(conventionBuilderType))
+                {
+                    return $"{conventionBuilderType.Name} should derive from IConventionAnnotatableBuilder";
+                }
+
+                if (readonlyType.Namespace != MetadataNamespace)
+                {
+                    return $"{readonlyType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (mutableType.Namespace != MetadataNamespace)
+                {
+                    return $"{mutableType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (conventionType.Namespace != MetadataNamespace)
+                {
+                    return $"{conventionType.Name} is expected to be in the {MetadataNamespace} namespace";
+                }
+
+                if (conventionBuilderType != null
+                    && conventionBuilderType.Namespace != MetadataBuilderNamespace)
+                {
+                    return $"{conventionBuilderType.Name} is expected to be in the {MetadataBuilderNamespace} namespace";
+                }
+            }
+
+            if (conventionBuilderType != null)
+            {
+                var builderProperty = conventionType.GetProperty("Builder");
+                if (builderProperty == null
+                    || builderProperty.PropertyType != conventionBuilderType)
+                {
+                    return $"{conventionType.Name} expected to have a '{conventionBuilderType.Name} Builder' property";
+                }
+
+                var metadataProperty = conventionBuilderType.GetProperty("Metadata");
+                if (metadataProperty == null
+                    || metadataProperty.PropertyType != conventionType)
+                {
+                    return $"{conventionBuilderType.Name} expected to have a '{conventionType.Name} Metadata' property";
+                }
+            }
+
+            return null;
+        }
 
         [ConditionalFact]
         public void Mutable_metadata_types_have_matching_methods()
         {
             var errors =
-                MetadataTypes.Select(
+                Fixture.MetadataMethods.Select(
                         typeTuple =>
-                            from readonlyMethod in typeTuple.Key.GetMethods(PublicInstance | BindingFlags.Static)
-                            where readonlyMethod.Name != "get_Item"
-                                && readonlyMethod.Name != "FindRuntimeEntityType"
-                                && readonlyMethod.Name != "GetConcreteDerivedTypesInclusive"
-                                && readonlyMethod.Name != "GetClosestCommonParent"
-                                && readonlyMethod.Name != "LeastDerivedType"
-                                && readonlyMethod.Name != "GetAllBaseTypesInclusive"
-                                && readonlyMethod.Name != "GetAllBaseTypesInclusiveAscending"
-                            join mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
+                            from readonlyMethod in typeTuple.ReadOnly
+                            where !Fixture.UnmatchedMetadataMethods.Contains(readonlyMethod)
+                            join mutableMethod in typeTuple.Mutable
                                 on readonlyMethod.Name equals mutableMethod.Name into mutableGroup
                             from mutableMethod in mutableGroup.DefaultIfEmpty()
                             select (readonlyMethod, mutableMethod))
@@ -126,38 +175,37 @@ namespace Microsoft.EntityFrameworkCore
         {
             var (readonlyMethod, mutableMethod) = methodTuple;
 
-            if (IgnoredMetadataReturnTypes.Contains(readonlyMethod.ReturnType))
+            (Type Mutable, Type Convention, Type _) expectedReturnTypes;
+            if (Fixture.MetadataTypes.TryGetValue(readonlyMethod.ReturnType, out expectedReturnTypes))
             {
-                return null;
-            }
-
-            if (mutableMethod == null)
-            {
-                return $"No IMutable equivalent of {readonlyMethod.DeclaringType.Name}.{readonlyMethod.Name}";
-            }
-
-            if (readonlyMethod.ReturnType != null)
-            {
-                (Type Mutable, Type Convention) expectedReturnTypes;
-                if (MetadataTypes.TryGetValue(readonlyMethod.ReturnType, out expectedReturnTypes))
+                if (mutableMethod == null)
                 {
-                    if (mutableMethod.ReturnType != expectedReturnTypes.Mutable)
-                    {
-                        return
-                            $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have {expectedReturnTypes.Mutable} return type";
-                    }
+                    return $"No IMutable equivalent of " +
+                        $"{readonlyMethod.DeclaringType.Name}.{readonlyMethod.Name}({Format(readonlyMethod.GetParameters())})";
                 }
-                else
+
+                if (mutableMethod.ReturnType != expectedReturnTypes.Mutable)
                 {
-                    var sequenceType = readonlyMethod.ReturnType.TryGetSequenceType();
-                    if (sequenceType != null
-                        && MetadataTypes.TryGetValue(sequenceType, out expectedReturnTypes))
+                    return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})"
+                        + $" expected to have {expectedReturnTypes.Mutable.ShortDisplayName()} return type";
+                }
+            }
+            else
+            {
+                var sequenceType = readonlyMethod.ReturnType.TryGetSequenceType();
+                if (sequenceType != null
+                    && Fixture.MetadataTypes.TryGetValue(sequenceType, out expectedReturnTypes))
+                {
+                    if (mutableMethod == null)
                     {
-                        if (mutableMethod.ReturnType.TryGetSequenceType() != expectedReturnTypes.Mutable)
-                        {
-                            return
-                                $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";
-                        }
+                        return $"No IMutable equivalent of " +
+                            $"{readonlyMethod.DeclaringType.Name}.{readonlyMethod.Name}({Format(readonlyMethod.GetParameters())})";
+                    }
+
+                    if (mutableMethod.ReturnType.TryGetSequenceType() != expectedReturnTypes.Mutable)
+                    {
+                        return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})"
+                            + $" expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";
                     }
                 }
             }
@@ -169,17 +217,14 @@ namespace Microsoft.EntityFrameworkCore
         public void Convention_metadata_types_have_matching_methods()
         {
             var errors =
-                MetadataTypes.Select(
-                        typeTuple =>
-                            from mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
-                            where !mutableMethod.Name.StartsWith("set_")
-                                && mutableMethod.Name != "get_Item"
-                                && mutableMethod.Name != "RemoveIgnored"
-                                && mutableMethod.Name != "GetContainingPrimaryKey"
-                            join conventionMethod in typeTuple.Value.Convention.GetMethods(PublicInstance | BindingFlags.Static)
-                                on mutableMethod.Name equals conventionMethod.Name into conventionGroup
-                            from conventionMethod in conventionGroup.DefaultIfEmpty()
-                            select (mutableMethod, conventionMethod))
+                Fixture.MetadataMethods.Select(
+                    typeTuple =>
+                        from mutableMethod in typeTuple.Mutable
+                        where !Fixture.UnmatchedMetadataMethods.Contains(mutableMethod)
+                        join conventionMethod in typeTuple.Convention
+                            on GetConventionName(mutableMethod) equals conventionMethod.Name into conventionGroup
+                        from conventionMethod in conventionGroup.DefaultIfEmpty()
+                        select (mutableMethod, conventionMethod))
                     .SelectMany(m => m.Select(MatchConvention))
                     .Where(e => e != null)
                     .ToList();
@@ -187,49 +232,438 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(
                 errors.Count > 0,
                 "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
+
+            static string GetConventionName(MethodInfo mutableMethod)
+            {
+                var name = mutableMethod.Name;
+                if(mutableMethod.Name.StartsWith("set_", StringComparison.Ordinal))
+                {
+                    name = "Set" + name[4..];
+                }
+                return name;
+            }
         }
 
         private string MatchConvention((MethodInfo Mutable, MethodInfo Convention) methodTuple)
         {
             var (mutableMethod, conventionMethod) = methodTuple;
 
-            if (IgnoredMetadataReturnTypes.Contains(mutableMethod.ReturnType))
+            Type expectedReturnType;
+            if (mutableMethod.ReturnType == typeof(void))
             {
-                return null;
-            }
-
-            if (conventionMethod == null)
-            {
-                return $"No IConvention equivalent of {mutableMethod.DeclaringType.Name}.{mutableMethod.Name}";
-            }
-
-            if (mutableMethod.ReturnType != null)
-            {
-                Type expectedReturnType;
-                if (_mutableMetadataTypes.TryGetValue(mutableMethod.ReturnType, out expectedReturnType))
+                if (conventionMethod == null)
                 {
-                    if (conventionMethod.ReturnType != expectedReturnType)
-                    {
-                        return
-                            $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name} expected to have {expectedReturnType} return type";
-                    }
+                    return $"No IConvention equivalent of " +
+                        $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
                 }
-                else
+            }
+            else if (Fixture.MutableMetadataTypes.TryGetValue(mutableMethod.ReturnType, out expectedReturnType))
+            {
+                if (conventionMethod == null)
                 {
-                    var sequenceType = mutableMethod.ReturnType.TryGetSequenceType();
-                    if (sequenceType != null
-                        && _mutableMetadataTypes.TryGetValue(sequenceType, out expectedReturnType))
+                    return $"No IConvention equivalent of " +
+                        $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
+                }
+
+                if (conventionMethod.ReturnType != expectedReturnType)
+                {
+                    return $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name}({Format(conventionMethod.GetParameters())})" +
+                        $" expected to have {expectedReturnType.ShortDisplayName()} return type";
+                }
+            }
+            else
+            {
+                var sequenceType = mutableMethod.ReturnType.TryGetSequenceType();
+                if (sequenceType != null
+                    && Fixture.MutableMetadataTypes.TryGetValue(sequenceType, out expectedReturnType))
+                {
+                    if (conventionMethod == null)
                     {
-                        if (conventionMethod.ReturnType.TryGetSequenceType() != expectedReturnType)
-                        {
-                            return
-                                $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnType}>.";
-                        }
+                        return $"No IConvention equivalent of " +
+                            $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
+                    }
+
+                    if (conventionMethod.ReturnType.TryGetSequenceType() != expectedReturnType)
+                    {
+                        return $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name}({Format(conventionMethod.GetParameters())})" +
+                            $" expected to have a return type that derives from IEnumerable<{expectedReturnType.Name}>.";
                     }
                 }
             }
 
             return null;
+        }
+
+        [ConditionalFact]
+        public void Convention_metadata_types_have_expected_methods()
+        {
+            var errors =
+                Fixture.MetadataMethods.Select(t => ValidateConventionMethods(t.Convention))
+                    .Where(e => e != null)
+                    .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        private string ValidateConventionMethods(IReadOnlyList<MethodInfo> methods)
+        {
+            if (methods.Count == 0)
+            {
+                return null;
+            }
+
+            var type = methods[0].DeclaringType;
+            var methodLookup = new Dictionary<string, MethodInfo>();
+            foreach (var method in methods)
+            {
+                methodLookup[method.Name] = method;
+            }
+
+            foreach (var methodTuple in methodLookup)
+            {
+                if (!Fixture.UnmatchedMetadataMethods.Contains(methodTuple.Value)
+                        && methodTuple.Key.StartsWith("Set", StringComparison.Ordinal))
+                {
+                    var expectedName = "Get" + methodTuple.Key[3..] + "ConfigurationSource";
+                    if (!methodLookup.TryGetValue(expectedName, out var getAspectConfigurationSource))
+                    {
+                        return $"{type.Name} expected to have a {expectedName}() method";
+                    }
+
+                    if (getAspectConfigurationSource.ReturnType != typeof(ConfigurationSource?))
+                    {
+                        return $"{type.Name}.{getAspectConfigurationSource.Name}({Format(getAspectConfigurationSource.GetParameters())})" +
+                            $" expected to have ConfigurationSource? return type";
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        [ConditionalFact]
+        public void Convention_builder_types_have_expected_methods()
+        {
+            var errors =
+                Fixture.MetadataMethods.Select(t => ValidateConventionBuilderMethods(t.ConventionBuilder))
+                .Where(e => e != null)
+                .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        private string ValidateConventionBuilderMethods(IReadOnlyList<MethodInfo> methods)
+        {
+            if (methods == null
+                || methods.Count == 0)
+            {
+                return null;
+            }
+
+            var declaringType = methods[0].DeclaringType;
+            var builderType = methods[0].IsStatic ? methods[0].GetParameters()[0].ParameterType : declaringType;
+            var methodLookup = new Dictionary<string, MethodInfo>();
+            foreach (var method in methods)
+            {
+                methodLookup[method.Name] = method;
+            }
+
+            foreach (var method in methodLookup.Values)
+            {
+                if (Fixture.UnmatchedMetadataMethods.Contains(method)
+                    || method.ReturnType != builderType)
+                {
+                    continue;
+                }
+
+                var expectedName = method.Name.StartsWith("HasNo", StringComparison.Ordinal)
+                    ? "CanRemove" + method.Name[5..]
+                    : "CanSet"
+                        + (method.Name.StartsWith("Has", StringComparison.Ordinal)
+                            || method.Name.StartsWith("Use", StringComparison.Ordinal)
+                        ? method.Name[3..]
+                        : method.Name.StartsWith("To", StringComparison.Ordinal)
+                            ? method.Name[2..]
+                            : method.Name);
+                if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
+                {
+                    return $"{declaringType.Name} expected to have a {expectedName} method";
+                }
+
+                var parameterIndex = method.IsStatic ? 1 : 0;
+                var parameters = method.GetParameters();
+                if (parameters.Length > parameterIndex
+                    && parameters[parameterIndex].ParameterType != canSetMethod.GetParameters()[parameterIndex].ParameterType)
+                {
+                    return $"{declaringType.Name}.{canSetMethod.Name}({Format(canSetMethod.GetParameters())})" +
+                        $" expected to have the first parameter of type {parameters[parameterIndex].ParameterType.ShortDisplayName()}";
+                }
+            }
+
+            return null;
+        }
+
+        [ConditionalFact]
+        public void Readonly_metadata_methods_have_expected_name()
+        {
+            var errors =
+                Fixture.MetadataMethods
+                .SelectMany(m => m.ReadOnly.Select(ValidateMethodName))
+                .Where(e => e != null)
+                .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        protected string ValidateMethodName(MethodInfo method)
+        {
+            var name = method.Name;
+            if (name.StartsWith("get_", StringComparison.Ordinal))
+            {
+                name = name[4..];
+                if (name.StartsWith("Get", StringComparison.Ordinal)
+                    && !Fixture.MetadataMethodExceptions.Contains(method))
+                {
+                    return $"{method.DeclaringType.ShortDisplayName()}.{name}({Format(method.GetParameters())}) expected to not have " +
+                        $"Get prefix";
+                }
+            }
+
+            return null;
+        }
+
+        [ConditionalFact]
+        public void Mutable_metadata_methods_have_expected_shape()
+        {
+            var errors =
+                Fixture.MetadataMethods
+                    .SelectMany(m => m.Mutable.Select(ValidateMutableMethod))
+                    .Where(e => e != null)
+                    .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        private string ValidateMutableMethod(MethodInfo mutableMethod)
+        {
+            var message = ValidateMethodName(mutableMethod);
+            if (message != null)
+            {
+                return message;
+            }
+
+            var parameters = mutableMethod.GetParameters();
+            var parameterIndex = mutableMethod.IsStatic ? 1 : 0;
+            var firstParameter = parameters.Length > parameterIndex ? parameters[parameterIndex] : null;
+            var name = mutableMethod.Name;
+            if (firstParameter != null
+                && (name.StartsWith("Add", StringComparison.Ordinal)
+                    || name.StartsWith("Remove", StringComparison.Ordinal)
+                    || name.StartsWith("Set", StringComparison.Ordinal))
+                && !Fixture.MetadataMethodExceptions.Contains(mutableMethod)
+                && mutableMethod.ReturnType != firstParameter.ParameterType
+                && (firstParameter.ParameterType != typeof(Type) || mutableMethod.ReturnType != typeof(string))
+                && (firstParameter.ParameterType != typeof(string) || mutableMethod.ReturnType != typeof(FieldInfo))
+                && !Fixture.MutableMetadataTypes.ContainsKey(mutableMethod.ReturnType))
+            {
+                if (name.StartsWith("Set", StringComparison.Ordinal))
+                {
+                    if (mutableMethod.ReturnType != typeof(void))
+                    {
+                        return $"{mutableMethod.DeclaringType.Name}.{name}({Format(parameters)}) expected to have a void return type";
+                    }
+                }
+                else
+                {
+                    return $"{mutableMethod.DeclaringType.Name}.{name}({Format(parameters)}) expected to have an IMutable or " +
+                        $"{firstParameter.ParameterType.ShortDisplayName()} return type";
+                }
+            }
+
+            return null;
+        }
+
+        [ConditionalFact]
+        public void Convention_metadata_methods_have_expected_shape()
+        {
+            var errors =
+                Fixture.MetadataMethods
+                .SelectMany(m => m.Convention.Select(ValidateConventionMethod))
+                .Where(e => e != null)
+                .ToList();
+
+            Assert.False(
+                errors.Count > 0,
+                "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
+        }
+
+        private string ValidateConventionMethod(MethodInfo conventionMethod)
+        {
+            var message = ValidateMethodName(conventionMethod);
+            if (message != null)
+            {
+                return message;
+            }
+
+            var parameters = conventionMethod.GetParameters();
+            var parameterIndex = conventionMethod.IsStatic ? 1 : 0;
+            var firstParameter = parameters.Length > parameterIndex ? parameters[parameterIndex] : null;
+            var name = conventionMethod.Name;
+            if (firstParameter != null
+                && (name.StartsWith("Add", StringComparison.Ordinal)
+                    || name.StartsWith("Remove", StringComparison.Ordinal)
+                    || name.StartsWith("Set", StringComparison.Ordinal))
+                && !Fixture.MetadataMethodExceptions.Contains(conventionMethod)
+                && conventionMethod.ReturnType != firstParameter.ParameterType
+                && (firstParameter.ParameterType != typeof(Type) || conventionMethod.ReturnType != typeof(string))
+                && (firstParameter.ParameterType != typeof(string) || conventionMethod.ReturnType != typeof(FieldInfo))
+                && (parameters.Length <= parameterIndex + 2
+                    || (conventionMethod.ReturnType != parameters[parameterIndex + 1].ParameterType
+                        && !typeof(ITuple).IsAssignableFrom(conventionMethod.ReturnType)))
+                && !Fixture.ConventionMetadataTypes.ContainsKey(conventionMethod.ReturnType))
+            {
+                return $"{conventionMethod.DeclaringType.ShortDisplayName()}.{name}({Format(parameters)}) expected to have an IConvention or " +
+                    $"{firstParameter.ParameterType.ShortDisplayName()} return type";
+            }
+
+            if (parameters.Length > parameterIndex
+                && !Fixture.MetadataMethodExceptions.Contains(conventionMethod)
+                && !name.StartsWith("Remove", StringComparison.Ordinal)
+                && !name.StartsWith("Find", StringComparison.Ordinal)
+                && !name.StartsWith("Get", StringComparison.Ordinal)
+                && name != "IsOwned"
+                && name != "IsIgnored")
+            {
+                var lastParameter = conventionMethod.GetParameters()[^1];
+                if (lastParameter.Name != "fromDataAnnotation"
+                    || !Equals(lastParameter.DefaultValue, false))
+                {
+                    return $"{conventionMethod.DeclaringType.ShortDisplayName()}.{name}({Format(parameters)}) expected to have a 'bool fromDataAnnotation = false' parameter";
+                }
+            }
+
+            return null;
+        }
+
+        [ConditionalFact]
+        public virtual void Ensure_dependency_objects_are_consistent()
+        {
+            var serviceCollection = new ServiceCollection();
+
+            AddServices(serviceCollection);
+
+            var dependencyServices = serviceCollection.Where(
+                    sd => sd.ServiceType.Namespace.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
+                        && sd.ServiceType.Name.EndsWith("Dependencies", StringComparison.Ordinal)
+                && sd.ImplementationType == sd.ServiceType)
+                .ToList();
+
+            foreach (var service in dependencyServices)
+            {
+                TestDependenciesObject(service.ImplementationType);
+            }
+        }
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class FakeCurrentDbContext : ICurrentDbContext
+        {
+            // ReSharper disable once UnassignedGetOnlyAutoProperty
+            public DbContext Context { get; }
+        }
+
+        private void TestDependenciesObject(Type dependenciesType)
+        {
+            if (!TryCreateProviderServices(out var serviceCollection1))
+            {
+                return;
+            }
+
+            AddServices(serviceCollection1);
+            var services1 = serviceCollection1.BuildServiceProvider();
+
+            TryCreateProviderServices(out var serviceCollection2);
+            AddServices(serviceCollection2);
+            var services2 = serviceCollection2.BuildServiceProvider();
+
+            var dependencies = services1.GetService(dependenciesType);
+
+            var serviceProperties = dependenciesType.GetTypeInfo()
+                .DeclaredProperties
+                .Where(p => !Fixture.ComputedDependencyProperties.Contains(p))
+                .ToList();
+
+            var obsoleteTypes = serviceProperties
+                .Where(p => p.CustomAttributes.Any(a => a.AttributeType == typeof(ObsoleteAttribute)))
+                .Select(p => p.PropertyType)
+                .ToList();
+
+            serviceProperties = serviceProperties.Where(p => !obsoleteTypes.Contains(p.PropertyType)).ToList();
+
+            var constructor = dependenciesType.GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length).First();
+            var constructorParameters = constructor.GetParameters().Where(p => !obsoleteTypes.Contains(p.ParameterType)).ToList();
+
+            foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
+            {
+                var withMethod = dependenciesType.GetTypeInfo().DeclaredMethods
+                    .FirstOrDefault(
+                        m => m.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute))
+                            && m.Name == "With"
+                            && m.GetParameters()[0].ParameterType == serviceType);
+
+                if (withMethod == null)
+                {
+                    throw new Exception(
+                        $"Expected 'With' method for service type '{serviceType.ShortDisplayName()}' on '{dependenciesType.ShortDisplayName()}'");
+                }
+
+                var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
+
+                foreach (var property in serviceProperties)
+                {
+                    if (property.PropertyType == serviceType)
+                    {
+                        Assert.NotSame(property.GetValue(clone), property.GetValue(dependencies));
+                    }
+                    else
+                    {
+                        Assert.Equal(property.GetValue(clone), property.GetValue(dependencies));
+                    }
+                }
+            }
+
+            bool TryCreateProviderServices(out ServiceCollection services)
+            {
+                if (!Fixture.TryGetProviderOptionsDelegate(out var optionsDelegate))
+                {
+                    services = null;
+                    return false;
+                }
+
+                services = (ServiceCollection)new ServiceCollection()
+                    .AddScoped<IDbContextOptions>(p => CreateOptions(p, optionsDelegate))
+                    .AddScoped<ICurrentDbContext, FakeCurrentDbContext>()
+                    .AddScoped<IModel, Model>();
+
+                return true;
+            }
+
+            DbContextOptions CreateOptions(IServiceProvider serviceProvider, Action<DbContextOptionsBuilder> optionsDelegate)
+            {
+                var optionsBuilder = new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(serviceProvider);
+
+                optionsDelegate(optionsBuilder);
+
+                return optionsBuilder.Options;
+            }
         }
 
         [ConditionalFact]
@@ -266,26 +700,40 @@ namespace Microsoft.EntityFrameworkCore
         private static Type TryGetImplementationType(ServiceDescriptor descriptor)
             => descriptor.ImplementationType
                 ?? descriptor.ImplementationInstance?.GetType()
-                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
+                ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1];
+
+        [ConditionalFact]
+        public virtual void Private_classes_should_be_sealed()
+        {
+            var nonSealedPrivates
+                = (from type in GetAllTypes(TargetAssembly.GetTypes())
+                   where type.IsNestedPrivate
+                       && !type.IsSealed
+                       && !type.IsAbstract
+                       && !type.DeclaringType.GetNestedTypes(BindingFlags.NonPublic).Any(t => t.BaseType == type)
+                   select type.FullName)
+                .ToList();
+
+            Assert.False(
+                nonSealedPrivates.Count > 0,
+                "\r\n-- Private class is not sealed --\r\n" + string.Join(Environment.NewLine, nonSealedPrivates));
+        }
 
         [ConditionalFact]
         public virtual void Public_inheritable_apis_should_be_virtual()
         {
             var nonVirtualMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.GetTypeInfo().IsVisible
-                       && !type.GetTypeInfo().IsSealed
-                       && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
-                       && type.Namespace?.EndsWith(".Compiled", StringComparison.Ordinal) == false
-                       && ShouldHaveVirtualMethods(type)
+                   where type.IsVisible
+                       && !type.IsSealed
                    from method in type.GetMethods(AnyInstance)
                    where method.DeclaringType == type
-                       && !(method.IsVirtual && !method.IsFinal)
+                       && !Fixture.NonVirtualMethods.Contains(method)
+                       && (!method.IsVirtual || method.IsFinal)
                        && !method.Name.StartsWith("add_", StringComparison.Ordinal)
                        && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
                        && !method.Name.Equals("get_NodeType", StringComparison.Ordinal)
                        && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                       && method.Name != "GenerateCacheKeyCore"
                    select type.FullName + "." + method.Name)
                 .ToList();
 
@@ -294,37 +742,33 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
         }
 
-        protected virtual bool ShouldHaveVirtualMethods(Type type)
-            => true;
-
         [ConditionalFact]
         public virtual void Public_api_arguments_should_have_not_null_annotation()
         {
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.GetTypeInfo().IsVisible
-                       && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
-                       && !type.Namespace.Contains("Internal", StringComparison.Ordinal)
+                   where type.IsVisible
+                       && !typeof(Delegate).IsAssignableFrom(type)
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
-                       .Concat<MethodBase>(type.GetConstructors())
+                       .Concat<MethodBase>(type.GetConstructors(
+                           BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static))
                    where (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                       && ShouldHaveNotNullAnnotation(method, type)
-                       && !method.DeclaringType.Namespace.Contains("Query", StringComparison.Ordinal)
-                   where type.GetTypeInfo().IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
-                   where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
+                       && !Fixture.NotAnnotatedMethods.Contains(method)
+                       && (method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
+                       && (type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method)))
+                       && (!events.Any(e => e.AddMethod == method || e.RemoveMethod == method))
                    from parameter in method.GetParameters()
                    where !parameter.IsOut
                    let parameterType = parameter.ParameterType.IsByRef
                        ? parameter.ParameterType.GetElementType()
                        : parameter.ParameterType
-                   where !parameterType.GetTypeInfo().IsValueType
+                   where !parameterType.IsValueType
                        && !parameter.GetCustomAttributes()
-                           .Any(
-                               a => a.GetType().Name == nameof(NotNullAttribute)
+                           .Any(a => a.GetType().Name == nameof(NotNullAttribute)
                                    || a.GetType().Name == nameof(CanBeNullAttribute))
-                   select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
+                   select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();
 
             Assert.False(
@@ -332,15 +776,12 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Missing NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersMissingAttribute));
         }
 
-        protected virtual bool ShouldHaveNotNullAnnotation(MethodBase method, Type type)
-            => method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType;
-
         [ConditionalFact]
         public virtual void Public_api_arguments_should_not_have_redundant_not_null_annotation()
         {
             var parametersWithRedundantAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.GetTypeInfo().IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
+                   where type.IsVisible && !typeof(Delegate).IsAssignableFrom(type)
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
@@ -349,45 +790,35 @@ namespace Microsoft.EntityFrameworkCore
                    from parameter in method.GetParameters()
                    let parameterType = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType() : parameter.ParameterType
                    let attributes = parameter.GetCustomAttributes(inherit: false)
-                   where (!ShouldHaveNotNullAnnotation(method, type)
-                           || !type.GetTypeInfo().IsInterface && interfaceMappings.Any(im => im.TargetMethods.Contains(method))
+                   where (!(method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
+                           || !type.IsInterface && interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                            || events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
-                           || parameterType.GetTypeInfo().IsValueType && !parameterType.GetTypeInfo().IsNullableType())
+                           || parameterType.IsValueType && !parameterType.IsNullableType())
                        && attributes.Any(
                            a => a.GetType().Name == nameof(NotNullAttribute) || a.GetType().Name == nameof(CanBeNullAttribute))
-                       || parameterType.GetTypeInfo().IsValueType
-                       && parameterType.GetTypeInfo().IsNullableType()
+                       || parameterType.IsValueType
+                       && parameterType.IsNullableType()
                        && attributes.Any(a => a.GetType().Name == nameof(CanBeNullAttribute))
-                   select type.FullName + "." + method.Name + "[" + parameter.Name + "]").ToList();
+                   select $"{type.FullName}.{method.Name}[{parameter.Name}]").ToList();
 
             Assert.False(
                 parametersWithRedundantAttribute.Count > 0,
                 "\r\n-- Redundant NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersWithRedundantAttribute));
         }
 
+        private static readonly HashSet<MethodInfo> _nonCancellableAsyncMethods = new HashSet<MethodInfo>();
+        protected virtual HashSet<MethodInfo> NonCancellableAsyncMethods => _nonCancellableAsyncMethods;
+
         [ConditionalFact]
         public virtual void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
-            var withoutCancellationToken = new HashSet<string>
-            {
-                "RelationalDatabaseFacadeExtensions.CloseConnectionAsync",
-                "IRelationalConnection.CloseAsync",
-                "RelationalConnection.CloseAsync",
-                "DbConnectionInterceptor.ConnectionClosingAsync",
-                "DbConnectionInterceptor.ConnectionClosedAsync",
-                "IDbConnectionInterceptor.ConnectionClosingAsync",
-                "IDbConnectionInterceptor.ConnectionClosedAsync",
-                "RelationalLoggerExtensions.ConnectionClosingAsync",
-                "RelationalLoggerExtensions.ConnectionClosedAsync"
-            };
-
             var asyncMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.GetTypeInfo().IsVisible
+                   where type.IsVisible
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
                    where method.DeclaringType == type
                        && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                   where typeof(Task).GetTypeInfo().IsAssignableFrom(method.ReturnType.GetTypeInfo())
+                   where typeof(Task).IsAssignableFrom(method.ReturnType)
                    select method).ToList();
 
             var asyncMethodsWithToken
@@ -397,19 +828,18 @@ namespace Microsoft.EntityFrameworkCore
 
             var asyncMethodsWithoutToken
                 = (from method in asyncMethods
-                   where !withoutCancellationToken.Contains(method.DeclaringType.Name + "." + method.Name)
+                   where !NonCancellableAsyncMethods.Contains(method)
                        && method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
                    select method).ToList();
 
             var missingOverloads
                 = (from methodWithoutToken in asyncMethodsWithoutToken
                    where !asyncMethodsWithToken
-                       .Any(
-                           methodWithToken => methodWithoutToken.Name == methodWithToken.Name
+                       .Any(methodWithToken => methodWithoutToken.Name == methodWithToken.Name
                                && methodWithoutToken.DeclaringType == methodWithToken.DeclaringType)
+                       && !Fixture.AsyncMethodExceptions.Contains(methodWithoutToken)
                    // ReSharper disable once PossibleNullReferenceException
                    select methodWithoutToken.DeclaringType.Name + "." + methodWithoutToken.Name)
-                .Except(GetCancellationTokenExceptions())
                 .ToList();
 
             Assert.False(
@@ -418,9 +848,9 @@ namespace Microsoft.EntityFrameworkCore
 
             var missingSuffixMethods
                 = asyncMethods
-                    .Where(method => !method.Name.EndsWith("Async", StringComparison.Ordinal) && method.DeclaringType != null)
+                    .Where(method => !method.Name.EndsWith("Async", StringComparison.Ordinal) && method.DeclaringType != null
+                        && !Fixture.AsyncMethodExceptions.Contains(method))
                     .Select(method => method.DeclaringType.Name + "." + method.Name)
-                    .Except(GetAsyncSuffixExceptions())
                     .ToList();
 
             Assert.False(
@@ -440,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore
                     where !method.IsPrivate
                     from parameter in method.GetParameters()
                     where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
-                        && prefixes.Any(parameter.Name.StartsWith)
+                        && prefixes.Any(p => parameter.Name.StartsWith(p, StringComparison.Ordinal))
                     select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();
 
@@ -448,10 +878,6 @@ namespace Microsoft.EntityFrameworkCore
                 parameters.Count > 0,
                 "\r\n-- Prefixed bool parameters --\r\n" + string.Join(Environment.NewLine, parameters));
         }
-
-        protected virtual IEnumerable<string> GetCancellationTokenExceptions() => Enumerable.Empty<string>();
-
-        protected virtual IEnumerable<string> GetAsyncSuffixExceptions() => Enumerable.Empty<string>();
 
         protected abstract Assembly TargetAssembly { get; }
 
@@ -466,6 +892,114 @@ namespace Microsoft.EntityFrameworkCore
                     yield return nestedType;
                 }
             }
+        }
+
+        private static string Format(ParameterInfo[] parameters)
+            => string.Join(", ", parameters.Select(p => p.ParameterType.Name));
+
+        public abstract class ApiConsistencyFixtureBase
+        {
+            protected ApiConsistencyFixtureBase()
+            {
+                Initialize();
+            }
+
+            public abstract bool TryGetProviderOptionsDelegate (out Action<DbContextOptionsBuilder> configureOptions);
+
+            public virtual HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>();
+            public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = new HashSet<MethodInfo>();
+            public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new HashSet<MethodInfo>();
+            public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>();
+            public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>();
+            public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = new HashSet<MethodInfo>();
+
+            public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; }
+                = new HashSet<PropertyInfo>
+                {
+                    typeof(ProviderConventionSetBuilderDependencies).GetProperty(nameof(ProviderConventionSetBuilderDependencies.ContextType)),
+                    typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
+                    typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.QueryTrackingBehavior)),
+#pragma warning disable CS0618 // Type or member is obsolete
+                    typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.IsTracking)),
+#pragma warning restore CS0618 // Type or member is obsolete
+                    typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager)),
+#pragma warning disable CS0618 // Type or member is obsolete
+                    typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.QueryProvider))
+#pragma warning restore CS0618 // Type or member is obsolete
+                };
+
+
+            public Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> MetadataTypes { get; }
+                = new Dictionary<Type, (Type, Type, Type)>
+                {
+                    { typeof(IModel), (typeof(IMutableModel), typeof(IConventionModel), typeof(IConventionModelBuilder)) },
+                    { typeof(IAnnotatable), (typeof(IMutableAnnotatable), typeof(IConventionAnnotatable), typeof(IConventionAnnotatableBuilder)) },
+                    { typeof(IAnnotation), (typeof(IAnnotation), typeof(IConventionAnnotation), null) },
+                    { typeof(IEntityType), (typeof(IMutableEntityType), typeof(IConventionEntityType), typeof(IConventionEntityTypeBuilder)) },
+                    { typeof(ITypeBase), (typeof(IMutableTypeBase), typeof(IConventionTypeBase), null) },
+                    { typeof(IKey), (typeof(IMutableKey), typeof(IConventionKey), typeof(IConventionKeyBuilder)) },
+                    { typeof(IForeignKey), (typeof(IMutableForeignKey), typeof(IConventionForeignKey), typeof(IConventionForeignKeyBuilder)) },
+                    { typeof(IIndex), (typeof(IMutableIndex), typeof(IConventionIndex), typeof(IConventionIndexBuilder)) },
+                    { typeof(IProperty), (typeof(IMutableProperty), typeof(IConventionProperty), typeof(IConventionPropertyBuilder)) },
+                    { typeof(INavigation), (typeof(IMutableNavigation), typeof(IConventionNavigation), typeof(IConventionNavigationBuilder)) },
+                    { typeof(ISkipNavigation), (typeof(IMutableSkipNavigation), typeof(IConventionSkipNavigation), typeof(IConventionSkipNavigationBuilder)) },
+                    { typeof(IServiceProperty), (typeof(IMutableServiceProperty), typeof(IConventionServiceProperty), typeof(IConventionServicePropertyBuilder)) },
+                    { typeof(INavigationBase), (typeof(IMutableNavigationBase), typeof(IConventionNavigationBase), null) },
+                    { typeof(IPropertyBase), (typeof(IMutablePropertyBase), typeof(IConventionPropertyBase), null) }
+                };
+
+            public Dictionary<Type, Type> MutableMetadataTypes { get; } = new Dictionary<Type, Type>();
+            public Dictionary<Type, Type> ConventionMetadataTypes { get; } = new Dictionary<Type, Type>();
+
+            public virtual List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+                = new List<(Type, Type, Type, Type, Type)>();
+
+            public List<(IReadOnlyList<MethodInfo> ReadOnly, IReadOnlyList<MethodInfo> Mutable, IReadOnlyList<MethodInfo> Convention, IReadOnlyList<MethodInfo> ConventionBuilder)>
+                MetadataMethods { get; }
+                = new List<(IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>, IReadOnlyList<MethodInfo>)>();
+
+            protected virtual void Initialize()
+            {
+                foreach (var typeTuple in MetadataTypes.Values)
+                {
+                    MutableMetadataTypes[typeTuple.Mutable] = typeTuple.Convention;
+                    ConventionMetadataTypes[typeTuple.Convention] = typeTuple.ConventionBuilder;
+                }
+
+                foreach (var extensionTypeTuple in MetadataExtensionTypes)
+                {
+                    var type = extensionTypeTuple.Type;
+                    var (mutableType, conventionType, conventionBuilderType) = MetadataTypes[type];
+                    var readOnlyMethods = extensionTypeTuple.ReadonlyExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == type).ToArray();
+                    var mutableMethods = extensionTypeTuple.MutableExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == mutableType).ToArray();
+                    var conventionMethods = extensionTypeTuple.ConventionExtensions.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionType).ToArray();
+                    var conventionBuilderMethods = extensionTypeTuple.ConventionBuilderExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionBuilderType).ToArray();
+                    MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods));
+                }
+            }
+
+            protected void AddInstanceMethods(Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> types)
+            {
+                foreach (var typeTuple in types)
+                {
+                    var readOnlyMethods = typeTuple.Key.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
+                    var mutableMethods = typeTuple.Value.Mutable.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
+                    var conventionMethods = typeTuple.Value.Convention.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
+                    var conventionBuilderMethods = typeTuple.Value.ConventionBuilder?.GetMethods(PublicInstance)
+                        .Where(m => !IsObsolete(m)).ToArray();
+                    MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods));
+                }
+            }
+
+            protected bool IsObsolete(MethodInfo method)
+                => Attribute.IsDefined(method, typeof(ObsoleteAttribute), inherit: false);
         }
     }
 }

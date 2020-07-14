@@ -11,9 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     // ReSharper disable once ArrangeTypeModifiers
     internal partial class DbContextListCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var types = CreateExecutor().GetContextTypes().ToList();
+            var types = CreateExecutor(args).GetContextTypes().ToList();
 
             if (_json.HasValue())
             {
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 ReportResults(types);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
 
         private static void ReportJsonResults(IReadOnlyList<IDictionary> contextTypes)

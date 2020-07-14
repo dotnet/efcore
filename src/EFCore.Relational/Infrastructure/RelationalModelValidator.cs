@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -57,10 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             base.Validate(model, logger);
 
             ValidateSharedTableCompatibility(model, logger);
-            ValidateInheritanceMapping(model, logger);
+            ValidatePropertyOverrides(model, logger);
             ValidateDefaultValuesOnKeys(model, logger);
             ValidateBoolsWithDefaults(model, logger);
             ValidateDbFunctions(model, logger);
+            ValidateIndexProperties(model, logger);
         }
 
         /// <summary>
@@ -73,20 +75,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var dbFunction in model.GetDbFunctions())
             {
-                var methodInfo = dbFunction.MethodInfo;
-
-                if (string.IsNullOrEmpty(dbFunction.Name))
+                if (dbFunction.IsScalar)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()));
+                    if (dbFunction.TypeMapping == null)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.DbFunctionInvalidReturnType(
+                                dbFunction.ModelName,
+                                dbFunction.ReturnType.ShortDisplayName()));
+                    }
                 }
-
-                if (dbFunction.TypeMapping == null)
+                else
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DbFunctionInvalidReturnType(
-                            methodInfo.DisplayName(),
-                            methodInfo.ReturnType.ShortDisplayName()));
+                    var elementType = dbFunction.ReturnType.GetGenericArguments()[0];
+                    var entityType = model.FindEntityType(elementType);
+                    if (entityType?.IsOwned() == true
+                        || ((IConventionModel)model).IsOwned(elementType)
+                        || (entityType == null && model.GetEntityTypes().Any(e => e.ClrType == elementType)))
+                    {
+                        throw new InvalidOperationException(RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
+                            dbFunction.ModelName, elementType.ShortDisplayName()));
+                    }
+
+                    if (entityType == null)
+                    {
+                        throw new InvalidOperationException(RelationalStrings.DbFunctionInvalidReturnEntityType(
+                            dbFunction.ModelName, dbFunction.ReturnType.ShortDisplayName(), elementType.ShortDisplayName()));
+                    }
                 }
 
                 foreach (var parameter in dbFunction.Parameters)
@@ -96,9 +111,55 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         throw new InvalidOperationException(
                             RelationalStrings.DbFunctionInvalidParameterType(
                                 parameter.Name,
-                                methodInfo.DisplayName(),
+                                dbFunction.ModelName,
                                 parameter.ClrType.ShortDisplayName()));
                     }
+                }
+            }
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var mappedFunctionName = entityType.GetFunctionName();
+                if (mappedFunctionName == null)
+                {
+                    continue;
+                }
+
+                var mappedFunction = model.FindDbFunction(mappedFunctionName);
+                if (mappedFunction == null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.MappedFunctionNotFound(entityType.DisplayName(), mappedFunctionName));
+                }
+
+                if (entityType.BaseType != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.InvalidMappedFunctionDerivedType(
+                            entityType.DisplayName(), mappedFunctionName, entityType.BaseType.DisplayName()));
+                }
+
+                if (mappedFunction.IsScalar
+                    || mappedFunction.ReturnType.GetGenericArguments()[0] != entityType.ClrType)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.InvalidMappedFunctionUnmatchedReturn(
+                            entityType.DisplayName(),
+                            mappedFunctionName,
+                            mappedFunction.ReturnType.ShortDisplayName(),
+                            entityType.ClrType.ShortDisplayName()));
+                }
+
+                if (mappedFunction.Parameters.Count > 0)
+                {
+                    var parameters = "{"
+                        + string.Join(
+                            ", ",
+                            mappedFunction.Parameters.Select(p => "'" + p.Name + "'"))
+                        + "}";
+                    throw new InvalidOperationException(
+                        RelationalStrings.InvalidMappedFunctionWithParameters(
+                            entityType.DisplayName(), mappedFunctionName, parameters));
                 }
             }
         }
@@ -113,21 +174,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            foreach (var property in model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
+            foreach (var entityType in model.GetEntityTypes())
             {
-                if (property.ClrType == typeof(bool)
-                    && property.ValueGenerated != ValueGenerated.Never
-                    && (IsNotNullAndFalse(property.GetDefaultValue())
-                        || property.GetDefaultValueSql() != null))
+                foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    logger.BoolWithDefaultWarning(property);
+                    if (property.ClrType != typeof(bool)
+                        || property.ValueGenerated == ValueGenerated.Never)
+                    {
+                        continue;
+                    }
+
+                    var table = StoreObjectIdentifier.Table(
+                        property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema());
+                    if (IsNotNullAndFalse(property.GetDefaultValue(table))
+                        || property.GetDefaultValueSql(table) != null)
+                    {
+                        logger.BoolWithDefaultWarning(property);
+                    }
                 }
             }
-        }
 
-        private static bool IsNotNullAndFalse(object value)
-            => value != null
-                && (!(value is bool asBool) || asBool);
+            static bool IsNotNullAndFalse(object value)
+                => value != null
+                    && (!(value is bool asBool) || asBool);
+        }
 
         /// <summary>
         ///     Validates the mapping/configuration of default values in the model.
@@ -137,11 +207,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateDefaultValuesOnKeys(
             [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            foreach (var property in model.GetEntityTypes().SelectMany(
-                    t => t.GetDeclaredKeys().SelectMany(k => k.Properties))
-                .Where(p => p.GetDefaultValue() != null))
+            foreach (var entityType in ((IConventionModel)model).GetEntityTypes())
             {
-                logger.ModelValidationKeyDefaultValueWarning(property);
+                foreach (var key in entityType.GetDeclaredKeys())
+                {
+                    foreach (var property in key.Properties)
+                    {
+                        var defaultValue = property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
+                        if (defaultValue?.Value != null
+                            && defaultValue.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
+                        {
+                            logger.ModelValidationKeyDefaultValueWarning(property);
+                        }
+                    }
+                }
             }
         }
 
@@ -154,15 +233,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IModel model,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            var tables = new Dictionary<string, List<IEntityType>>();
+            var tables = new Dictionary<StoreObjectIdentifier, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
             {
-                var tableName = Format(entityType.GetSchema(), entityType.GetTableName());
+                var tableName = entityType.GetTableName();
+                if (tableName == null)
+                {
+                    continue;
+                }
 
-                if (!tables.TryGetValue(tableName, out var mappedTypes))
+                var table = StoreObjectIdentifier.Table(tableName, entityType.GetSchema());
+                if (!tables.TryGetValue(table, out var mappedTypes))
                 {
                     mappedTypes = new List<IEntityType>();
-                    tables[tableName] = mappedTypes;
+                    tables[table] = mappedTypes;
                 }
 
                 mappedTypes.Add(entityType);
@@ -171,12 +255,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var tableMapping in tables)
             {
                 var mappedTypes = tableMapping.Value;
-                var tableName = tableMapping.Key;
-                ValidateSharedTableCompatibility(mappedTypes, tableName, logger);
-                ValidateSharedColumnsCompatibility(mappedTypes, tableName, logger);
-                ValidateSharedKeysCompatibility(mappedTypes, tableName, logger);
-                ValidateSharedForeignKeysCompatibility(mappedTypes, tableName, logger);
-                ValidateSharedIndexesCompatibility(mappedTypes, tableName, logger);
+                var table = tableMapping.Key;
+                ValidateSharedTableCompatibility(mappedTypes, table.Name, table.Schema, logger);
+                ValidateSharedColumnsCompatibility(mappedTypes, table, logger);
+                ValidateSharedKeysCompatibility(mappedTypes, table.Name, table.Schema, logger);
+                ValidateSharedForeignKeysCompatibility(mappedTypes, table.Name, table.Schema, logger);
+                ValidateSharedIndexesCompatibility(mappedTypes, table.Name, table.Schema, logger);
             }
         }
 
@@ -185,9 +269,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
         /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedTableCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (mappedTypes.Count == 1)
@@ -199,14 +286,29 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IEntityType root = null;
             foreach (var mappedType in mappedTypes)
             {
-                if (mappedType.BaseType != null
-                    || (mappedType.FindPrimaryKey() != null
-                        && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
-                            .Any(
-                                fk => fk.PrincipalKey.IsPrimaryKey()
-                                    && fk.PrincipalEntityType.GetRootType() != mappedType
-                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType))))
+                if (mappedType.BaseType != null && unvalidatedTypes.Contains(mappedType.BaseType))
                 {
+                    continue;
+                }
+
+                if (mappedType.FindPrimaryKey() != null
+                        && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                            .Any(fk => fk.PrincipalKey.IsPrimaryKey()
+                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
+                {
+                    if (mappedType.BaseType != null)
+                    {
+                        var principalType = mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                            .First(fk => fk.PrincipalKey.IsPrimaryKey()
+                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType))
+                            .PrincipalEntityType;
+                        throw new InvalidOperationException(
+                            RelationalStrings.IncompatibleTableDerivedRelationship(
+                                Format(tableName, schema),
+                                mappedType.DisplayName(),
+                                principalType.DisplayName()));
+                    }
+
                     continue;
                 }
 
@@ -214,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.IncompatibleTableNoRelationship(
-                            tableName,
+                            Format(tableName, schema),
                             mappedType.DisplayName(),
                             root.DisplayName()));
                 }
@@ -222,6 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 root = mappedType;
             }
 
+            Check.DebugAssert(root != null, "root != null");
             unvalidatedTypes.Remove(root);
             var typesToValidate = new Queue<IEntityType>();
             typesToValidate.Enqueue(root);
@@ -229,7 +332,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             while (typesToValidate.Count > 0)
             {
                 var entityType = typesToValidate.Dequeue();
+                var key = entityType.FindPrimaryKey();
                 var comment = entityType.GetComment();
+                var isExcluded = entityType.IsTableExcludedFromMigrations();
                 var typesToValidateLeft = typesToValidate.Count;
                 var directlyConnectedTypes = unvalidatedTypes.Where(
                     unvalidatedType =>
@@ -238,18 +343,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var nextEntityType in directlyConnectedTypes)
                 {
-                    var key = entityType.FindPrimaryKey();
                     var otherKey = nextEntityType.FindPrimaryKey();
-                    if (key?.GetName() != otherKey?.GetName())
+                    if (key?.GetName(tableName, schema) != otherKey?.GetName(tableName, schema))
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.IncompatibleTableKeyNameMismatch(
-                                tableName,
+                                Format(tableName, schema),
                                 entityType.DisplayName(),
                                 nextEntityType.DisplayName(),
-                                key?.GetName(),
+                                key?.GetName(tableName, schema),
                                 key?.Properties.Format(),
-                                otherKey?.GetName(),
+                                otherKey?.GetName(tableName, schema),
                                 otherKey?.Properties.Format()));
                     }
 
@@ -261,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         {
                             throw new InvalidOperationException(
                                 RelationalStrings.IncompatibleTableCommentMismatch(
-                                    tableName,
+                                    Format(tableName, schema),
                                     entityType.DisplayName(),
                                     nextEntityType.DisplayName(),
                                     comment,
@@ -271,6 +375,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     else
                     {
                         comment = nextComment;
+                    }
+
+                    if (isExcluded.Equals(!nextEntityType.IsTableExcludedFromMigrations()))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.IncompatibleTableExcludedMismatch(
+                                Format(tableName, schema),
+                                entityType.DisplayName(),
+                                nextEntityType.DisplayName()));
                     }
 
                     typesToValidate.Enqueue(nextEntityType);
@@ -289,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var invalidEntityType in unvalidatedTypes)
             {
-                Debug.Assert(root != null);
+                Check.DebugAssert(root != null, "root is null");
                 throw new InvalidOperationException(
                     RelationalStrings.IncompatibleTableNoRelationship(
                         tableName,
@@ -300,21 +413,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
             => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
-                .Any(
-                    fk => fk.PrincipalKey.IsPrimaryKey()
+                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
                         && fk.PrincipalEntityType == principalEntityType);
 
         /// <summary>
-        ///     Validates the compatibility of properties sharing columns in a given table.
+        ///     Validates the compatibility of properties sharing columns in a given table-like object.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
-        /// <param name="tableName"> The table name. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedColumnsCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             Dictionary<string, IProperty> storeConcurrencyTokens = null;
+            HashSet<string> missingConcurrencyTokens = null;
             if (mappedTypes.Count > 1)
             {
                 foreach (var property in mappedTypes.SelectMany(et => et.GetDeclaredProperties()))
@@ -327,7 +441,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             storeConcurrencyTokens = new Dictionary<string, IProperty>();
                         }
 
-                        storeConcurrencyTokens[property.GetColumnName()] = property;
+                        var columnName = property.GetColumnName(storeObject);
+                        if (columnName == null)
+                        {
+                            continue;
+                        }
+
+                        storeConcurrencyTokens[columnName] = property;
+                        if (missingConcurrencyTokens == null)
+                        {
+                            missingConcurrencyTokens = new HashSet<string>();
+                        }
                     }
                 }
             }
@@ -335,10 +459,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var propertyMappings = new Dictionary<string, IProperty>();
             foreach (var entityType in mappedTypes)
             {
-                HashSet<string> missingConcurrencyTokens = null;
-                if ((storeConcurrencyTokens?.Count ?? 0) != 0)
+                if (missingConcurrencyTokens != null)
                 {
-                    missingConcurrencyTokens = new HashSet<string>();
+                    missingConcurrencyTokens.Clear();
                     foreach (var tokenPair in storeConcurrencyTokens)
                     {
                         var declaringType = tokenPair.Value.DeclaringEntityType;
@@ -353,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    var columnName = property.GetColumnName();
+                    var columnName = property.GetColumnName(storeObject);
                     missingConcurrencyTokens?.Remove(columnName);
                     if (!propertyMappings.TryGetValue(columnName, out var duplicateProperty))
                     {
@@ -361,110 +484,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         continue;
                     }
 
-                    var currentTypeString = property.GetColumnType()
-                        ?? property.GetRelationalTypeMapping().StoreType;
-                    var previousTypeString = duplicateProperty.GetColumnType()
-                        ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
-                    if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousTypeString,
-                                currentTypeString));
-                    }
-
-                    if (property.IsNullable != duplicateProperty.IsNullable)
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName));
-                    }
-
-                    var currentComputedColumnSql = property.GetComputedColumnSql() ?? "";
-                    var previousComputedColumnSql = duplicateProperty.GetComputedColumnSql() ?? "";
-                    if (!currentComputedColumnSql.Equals(previousComputedColumnSql, StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousComputedColumnSql,
-                                currentComputedColumnSql));
-                    }
-
-                    var currentDefaultValue = property.GetDefaultValue();
-                    var previousDefaultValue = duplicateProperty.GetDefaultValue();
-                    if (!Equals(currentDefaultValue, previousDefaultValue))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousDefaultValue ?? "NULL",
-                                currentDefaultValue ?? "NULL"));
-                    }
-
-                    var currentDefaultValueSql = property.GetDefaultValueSql() ?? "";
-                    var previousDefaultValueSql = duplicateProperty.GetDefaultValueSql() ?? "";
-                    if (!currentDefaultValueSql.Equals(previousDefaultValueSql, StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousDefaultValueSql,
-                                currentDefaultValueSql));
-                    }
-
-                    var currentComment = property.GetComment() ?? "";
-                    var previousComment = duplicateProperty.GetComment() ?? "";
-                    if (!currentComment.Equals(previousComment, StringComparison.Ordinal))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.DuplicateColumnNameCommentMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
-                                duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                columnName,
-                                tableName,
-                                previousComment,
-                                currentComment));
-                    }
+                    ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
                 }
 
-                if ((missingConcurrencyTokens?.Count ?? 0) != 0)
+                if (missingConcurrencyTokens != null)
                 {
                     foreach (var missingColumn in missingConcurrencyTokens)
                     {
                         if (entityType.GetAllBaseTypes().SelectMany(t => t.GetDeclaredProperties())
-                            .All(p => p.GetColumnName() != missingColumn))
+                            .All(p => p.GetColumnName(storeObject) != missingColumn))
                         {
                             throw new InvalidOperationException(
-                                RelationalStrings.MissingConcurrencyColumn(entityType.DisplayName(), missingColumn, tableName));
+                                RelationalStrings.MissingConcurrencyColumn(entityType.DisplayName(), missingColumn, storeObject.DisplayName()));
                         }
                     }
                 }
@@ -472,71 +503,334 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     Validates the compatibility of two properties mapped to the same column.
+        /// </summary>
+        /// <param name="property"> A property. </param>
+        /// <param name="duplicateProperty"> Another property. </param>
+        /// <param name="columnName"> The column name. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateCompatible(
+            [NotNull] IProperty property,
+            [NotNull] IProperty duplicateProperty,
+            [NotNull] string columnName,
+            StoreObjectIdentifier storeObject,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            if (property.IsNullable != duplicateProperty.IsNullable)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameNullabilityMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName()));
+            }
+
+            var currentMaxLength = property.GetMaxLength();
+            var previousMaxLength = duplicateProperty.GetMaxLength();
+            if (currentMaxLength != previousMaxLength)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameMaxLengthMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousMaxLength,
+                        currentMaxLength));
+            }
+
+            if (property.IsUnicode() != duplicateProperty.IsUnicode())
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameUnicodenessMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName()));
+            }
+
+            if (property.IsFixedLength(storeObject) != duplicateProperty.IsFixedLength(storeObject))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameFixedLengthMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName()));
+            }
+
+            if (property.IsConcurrencyToken != duplicateProperty.IsConcurrencyToken)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameConcurrencyTokenMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName()));
+            }
+
+            var currentTypeString = property.GetColumnType(storeObject)
+                ?? property.GetRelationalTypeMapping().StoreType;
+            var previousTypeString = duplicateProperty.GetColumnType(storeObject)
+                ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
+            if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousTypeString,
+                        currentTypeString));
+            }
+
+            var currentComputedColumnSql = property.GetComputedColumnSql(storeObject) ?? "";
+            var previousComputedColumnSql = duplicateProperty.GetComputedColumnSql(storeObject) ?? "";
+            if (!currentComputedColumnSql.Equals(previousComputedColumnSql, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousComputedColumnSql,
+                        currentComputedColumnSql));
+            }
+
+            var currentStored = property.GetIsStored(storeObject);
+            var previousStored = duplicateProperty.GetIsStored(storeObject);
+            if (currentStored != previousStored)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameIsStoredMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousStored,
+                        currentStored));
+            }
+
+            var currentDefaultValue = property.GetDefaultValue(storeObject);
+            var previousDefaultValue = duplicateProperty.GetDefaultValue(storeObject);
+            if (!Equals(currentDefaultValue, previousDefaultValue))
+            {
+                currentDefaultValue = GetDefaultColumnValue(property, storeObject);
+                previousDefaultValue = GetDefaultColumnValue(duplicateProperty, storeObject);
+
+                if (!Equals(currentDefaultValue, previousDefaultValue))
+                {
+                    throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousDefaultValue ?? "NULL",
+                        currentDefaultValue ?? "NULL"));
+                }
+            }
+
+            var currentDefaultValueSql = property.GetDefaultValueSql(storeObject) ?? "";
+            var previousDefaultValueSql = duplicateProperty.GetDefaultValueSql(storeObject) ?? "";
+            if (!currentDefaultValueSql.Equals(previousDefaultValueSql, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousDefaultValueSql,
+                        currentDefaultValueSql));
+            }
+
+            var currentComment = property.GetComment(storeObject) ?? "";
+            var previousComment = duplicateProperty.GetComment(storeObject) ?? "";
+            if (!currentComment.Equals(previousComment, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameCommentMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousComment,
+                        currentComment));
+            }
+
+            var currentCollation = property.GetCollation(storeObject) ?? "";
+            var previousCollation = duplicateProperty.GetCollation(storeObject) ?? "";
+            if (!currentCollation.Equals(previousCollation, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameCollationMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousCollation,
+                        currentCollation));
+            }
+        }
+
+        /// <summary>
+        ///     Returns the object that is used as the default value for the column the property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property to get the default value for. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> The object that is used as the default value for the column the property is mapped to. </returns>
+        protected virtual object GetDefaultColumnValue(
+            [NotNull] IProperty property,
+            StoreObjectIdentifier storeObject)
+        {
+            var value = property.GetDefaultValue(storeObject);
+            var converter = property.GetValueConverter() ?? property.FindRelationalTypeMapping(storeObject)?.Converter;
+
+            return converter != null
+                ? converter.ConvertToProvider(value)
+                : value;
+        }
+
+        /// <summary>
         ///     Validates the compatibility of foreign keys in a given shared table.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
         /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedForeignKeysCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var foreignKeyMappings = new Dictionary<string, IForeignKey>();
 
             foreach (var foreignKey in mappedTypes.SelectMany(et => et.GetDeclaredForeignKeys()))
             {
-                var foreignKeyName = foreignKey.GetConstraintName();
+                var foreignKeyName = foreignKey.GetConstraintName(
+                    tableName, schema, foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema());
                 if (!foreignKeyMappings.TryGetValue(foreignKeyName, out var duplicateForeignKey))
                 {
                     foreignKeyMappings[foreignKeyName] = foreignKey;
                     continue;
                 }
 
-                foreignKey.AreCompatible(duplicateForeignKey, shouldThrow: true);
+                ValidateCompatible(foreignKey, duplicateForeignKey, foreignKeyName, tableName, schema, logger);
             }
         }
+
+        /// <summary>
+        ///     Validates the compatibility of two foreign keys mapped to the same foreign key constraint.
+        /// </summary>
+        /// <param name="foreignKey"> A foreign key. </param>
+        /// <param name="duplicateForeignKey"> Another foreign key. </param>
+        /// <param name="foreignKeyName"> The foreign key constraint name. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateCompatible(
+            [NotNull] IForeignKey foreignKey,
+            [NotNull] IForeignKey duplicateForeignKey,
+            [NotNull] string foreignKeyName,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            => foreignKey.AreCompatible(duplicateForeignKey, tableName, schema, shouldThrow: true);
 
         /// <summary>
         ///     Validates the compatibility of indexes in a given shared table.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
         /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedIndexesCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var indexMappings = new Dictionary<string, IIndex>();
 
             foreach (var index in mappedTypes.SelectMany(et => et.GetDeclaredIndexes()))
             {
-                var indexName = index.GetName();
+                var indexName = index.GetDatabaseName(tableName, schema);
                 if (!indexMappings.TryGetValue(indexName, out var duplicateIndex))
                 {
                     indexMappings[indexName] = index;
                     continue;
                 }
 
-                index.AreCompatible(duplicateIndex, shouldThrow: true);
+                ValidateCompatible(index, duplicateIndex, indexName, tableName, schema, logger);
             }
         }
+
+        /// <summary>
+        ///     Validates the compatibility of two indexes mapped to the same table index.
+        /// </summary>
+        /// <param name="index"> An index. </param>
+        /// <param name="duplicateIndex"> Another index. </param>
+        /// <param name="indexName"> The name of the index. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateCompatible(
+            [NotNull] IIndex index,
+            [NotNull] IIndex duplicateIndex,
+            [NotNull] string indexName,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            => index.AreCompatible(duplicateIndex, tableName, schema, shouldThrow: true);
 
         /// <summary>
         ///     Validates the compatibility of primary and alternate keys in a given shared table.
         /// </summary>
         /// <param name="mappedTypes"> The mapped entity types. </param>
         /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedKeysCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes,
             [NotNull] string tableName,
+            [CanBeNull] string schema,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var keyMappings = new Dictionary<string, IKey>();
 
             foreach (var key in mappedTypes.SelectMany(et => et.GetDeclaredKeys()))
             {
-                var keyName = key.GetName();
+                var keyName = key.GetName(tableName, schema);
 
                 if (!keyMappings.TryGetValue(keyName, out var duplicateKey))
                 {
@@ -544,21 +838,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     continue;
                 }
 
-                if (!key.Properties.Select(p => p.GetColumnName())
-                    .SequenceEqual(duplicateKey.Properties.Select(p => p.GetColumnName())))
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DuplicateKeyColumnMismatch(
-                            key.Properties.Format(),
-                            key.DeclaringEntityType.DisplayName(),
-                            duplicateKey.Properties.Format(),
-                            duplicateKey.DeclaringEntityType.DisplayName(),
-                            tableName,
-                            keyName,
-                            key.Properties.FormatColumns(),
-                            duplicateKey.Properties.FormatColumns()));
-                }
+                ValidateCompatible(key, duplicateKey, keyName, tableName, schema, logger);
             }
+        }
+
+        /// <summary>
+        ///     Validates the compatibility of two keys mapped to the same unique constraint.
+        /// </summary>
+        /// <param name="key"> A key. </param>
+        /// <param name="duplicateKey"> Another key. </param>
+        /// <param name="keyName"> The name of the unique constraint. </param>
+        /// <param name="tableName"> The table name. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateCompatible(
+            [NotNull] IKey key,
+            [NotNull] IKey duplicateKey,
+            [NotNull] string keyName,
+            [NotNull] string tableName,
+            [CanBeNull] string schema,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            key.AreCompatible(duplicateKey, tableName, schema, shouldThrow: true);
         }
 
         /// <summary>
@@ -566,23 +867,290 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateInheritanceMapping(
-            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        protected override void ValidateInheritanceMapping(
+            IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            foreach (var entityType in model.GetEntityTypes())
+            foreach (var rootEntityType in model.GetEntityTypes())
             {
-                if (entityType.BaseType != null
-                    && entityType[RelationalAnnotationNames.TableName] != null
-                    && ((EntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName).GetConfigurationSource()
-                    == ConfigurationSource.Explicit)
+                if (rootEntityType.BaseType != null)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.DerivedTypeTable(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                    continue;
+                }
+
+                // Hierarchy mapping strategy must be the same across all types of mappings
+                var isTPH = rootEntityType.FindPrimaryKey() == null
+                    || rootEntityType.GetDiscriminatorProperty() != null;
+                if (isTPH)
+                {
+                    ValidateTPHMapping(rootEntityType, forTables: false);
+                    ValidateTPHMapping(rootEntityType, forTables: true);
+                    ValidateDiscriminatorValues(rootEntityType);
+                }
+                else
+                {
+                    ValidateTPTMapping(rootEntityType, forTables: false);
+                    ValidateTPTMapping(rootEntityType, forTables: true);
                 }
             }
         }
 
-        private static string Format(string schema, string name)
-            => (string.IsNullOrEmpty(schema) ? "" : schema + ".") + name;
+        private void ValidateTPTMapping(IEntityType rootEntityType, bool forTables)
+        {
+            var derivedTypes = new Dictionary<(string, string), IEntityType>();
+            foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
+            {
+                var name = forTables ? entityType.GetTableName() : entityType.GetViewName();
+                if (name == null)
+                {
+                    continue;
+                }
+
+                var schema = forTables ? entityType.GetSchema() : entityType.GetViewSchema();
+                if (derivedTypes.TryGetValue((name, schema), out var otherType))
+                {
+                    throw new InvalidOperationException(forTables
+                        ? RelationalStrings.NonTPHTableClash(
+                            entityType.DisplayName(), otherType.DisplayName(), entityType.GetSchemaQualifiedTableName())
+                        : RelationalStrings.NonTPHViewClash(
+                             entityType.DisplayName(), otherType.DisplayName(), entityType.GetSchemaQualifiedViewName()));
+                }
+
+                derivedTypes[(name, schema)] = entityType;
+            }
+        }
+
+        private void ValidateTPHMapping(IEntityType rootEntityType, bool forTables)
+        {
+            string firstName = null;
+            string firstSchema = null;
+            IEntityType firstType = null;
+            foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
+            {
+                var name = forTables ? entityType.GetTableName() : entityType.GetViewName();
+                if (name == null)
+                {
+                    continue;
+                }
+
+                if (firstType == null)
+                {
+                    firstType = entityType;
+                    firstName = forTables ? firstType.GetTableName() : firstType.GetViewName();
+                    firstSchema = forTables ? firstType.GetSchema() : firstType.GetViewSchema();
+                    continue;
+                }
+
+                var schema = forTables ? entityType.GetSchema() : entityType.GetViewSchema();
+                if (name != firstName || schema != firstSchema)
+                {
+                    throw new InvalidOperationException(forTables
+                        ? RelationalStrings.TPHTableMismatch(
+                            entityType.DisplayName(), entityType.GetSchemaQualifiedTableName(),
+                            firstType.DisplayName(), firstType.GetSchemaQualifiedTableName())
+                        : RelationalStrings.TPHViewMismatch(
+                            entityType.DisplayName(), entityType.GetSchemaQualifiedViewName(),
+                            firstType.DisplayName(), firstType.GetSchemaQualifiedViewName()));
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Validates the table-specific property overrides.
+        /// </summary>
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidatePropertyOverrides(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetDeclaredProperties())
+                {
+                    var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
+                        property[RelationalAnnotationNames.RelationalOverrides];
+                    if (tableOverrides == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var storeOverride in tableOverrides.Keys)
+                    {
+                        var name = storeOverride.Name;
+                        var schema = storeOverride.Schema;
+                        switch (storeOverride.StoreObjectType)
+                        {
+                            case StoreObjectType.Table:
+                                if (entityType.GetTableName() == name
+                                    && entityType.GetSchema() == schema)
+                                {
+                                    throw new InvalidOperationException(RelationalStrings.TableOverrideDeclaredTable(
+                                        property.Name,
+                                        (schema == null ? "" : schema + ".") + name,
+                                        entityType.DisplayName()));
+                                }
+
+                                if (!entityType.GetDerivedTypes().Any(d =>
+                                    d.GetTableName() == name
+                                    && d.GetSchema() == schema))
+                                {
+                                    throw new InvalidOperationException(RelationalStrings.TableOverrideMismatch(
+                                        entityType.DisplayName() + "." + property.Name,
+                                        (schema == null ? "" : schema + ".") + name));
+                                }
+                                break;
+                            case StoreObjectType.View:
+                                if (entityType.GetViewName() == name
+                                    && entityType.GetViewSchema() == schema)
+                                {
+                                    throw new InvalidOperationException(RelationalStrings.TableOverrideDeclaredTable(
+                                        property.Name,
+                                        (schema == null ? "" : schema + ".") + name,
+                                        entityType.DisplayName()));
+                                }
+
+                                if (!entityType.GetDerivedTypes().Any(d =>
+                                    d.GetViewName() == name
+                                    && d.GetViewSchema() == schema))
+                                {
+                                    throw new InvalidOperationException(RelationalStrings.TableOverrideMismatch(
+                                        entityType.DisplayName() + "." + property.Name,
+                                        (schema == null ? "" : schema + ".") + name));
+                                }
+                                break;
+                            case StoreObjectType.Function:
+                                if (entityType.GetFunctionName() == name)
+                                {
+                                    throw new InvalidOperationException(RelationalStrings.TableOverrideDeclaredTable(
+                                        property.Name,
+                                        name,
+                                        entityType.DisplayName()));
+                                }
+
+                                if (!entityType.GetDerivedTypes().Any(d => d.GetFunctionName() == name))
+                                {
+                                    throw new InvalidOperationException(RelationalStrings.TableOverrideMismatch(
+                                        entityType.DisplayName() + "." + property.Name,
+                                        (schema == null ? "" : schema + ".") + name));
+                                }
+                                break;
+                            default:
+                                throw new NotImplementedException(storeOverride.StoreObjectType.ToString());
+                        }
+                    }
+                }
+            }
+        }
+
+        private static string Format(string tableName, string schema)
+            => schema == null ? tableName : schema + "." + tableName;
+
+        /// <summary>
+        ///     Validates that the properties of any one index are
+        ///     all mapped to columns on at least one common table.
+        /// </summary>
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateIndexProperties(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var index in entityType.GetDeclaredIndexes()
+                    .Where(i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
+                {
+                    IProperty propertyNotMappedToAnyTable = null;
+                    Tuple<string, List<(string Table, string Schema)>> firstPropertyTables = null;
+                    Tuple<string, List<(string Table, string Schema)>> lastPropertyTables = null;
+                    HashSet<(string Table, string Schema)> overlappingTables = null;
+                    foreach (var property in index.Properties)
+                    {
+                        var tablesMappedToProperty = property.DeclaringEntityType.GetDerivedTypesInclusive()
+                            .Select(t => (t.GetTableName(), t.GetSchema())).Distinct()
+                            .Where(n => n.Item1 != null && property.GetColumnName(StoreObjectIdentifier.Table(n.Item1, n.Item2)) != null)
+                            .ToList<(string Table, string Schema)>();
+                        if (tablesMappedToProperty.Count == 0)
+                        {
+                            propertyNotMappedToAnyTable = property;
+                            overlappingTables = null;
+
+                            if (firstPropertyTables != null)
+                            {
+                                // Property is not mapped but we already found
+                                // a property that is mapped.
+                                break;
+                            }
+
+                            continue;
+                        }
+
+                        if (firstPropertyTables == null)
+                        {
+                            // store off which tables the first member maps to
+                            firstPropertyTables =
+                                new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
+                        }
+                        else
+                        {
+                            // store off which tables the last member we encountered maps to
+                            lastPropertyTables =
+                                new Tuple<string, List<(string Table, string Schema)>>(property.Name, tablesMappedToProperty);
+                        }
+
+                        if (propertyNotMappedToAnyTable != null)
+                        {
+                            // Property is mapped but we already found
+                            // a property that is not mapped.
+                            overlappingTables = null;
+                            break;
+                        }
+
+                        if (overlappingTables == null)
+                        {
+                            overlappingTables = new HashSet<(string Table, string Schema)>(tablesMappedToProperty);
+                        }
+                        else
+                        {
+                            overlappingTables.IntersectWith(tablesMappedToProperty);
+                            if (overlappingTables.Count == 0)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (overlappingTables == null)
+                    {
+                        if (firstPropertyTables == null)
+                        {
+                            logger.AllIndexPropertiesNotToMappedToAnyTable(
+                                entityType,
+                                index);
+                        }
+                        else
+                        {
+                            logger.IndexPropertiesBothMappedAndNotMappedToTable(
+                                entityType,
+                                index,
+                                propertyNotMappedToAnyTable.Name);
+                        }
+                    }
+                    else if (overlappingTables.Count == 0)
+                    {
+                        Debug.Assert(firstPropertyTables != null, nameof(firstPropertyTables));
+                        Debug.Assert(lastPropertyTables != null, nameof(lastPropertyTables));
+
+                        logger.IndexPropertiesMappedToNonOverlappingTables(
+                            entityType,
+                            index,
+                            firstPropertyTables.Item1,
+                            firstPropertyTables.Item2,
+                            lastPropertyTables.Item1,
+                            lastPropertyTables.Item2);
+                    }
+                }
+            }
+        }
     }
 }

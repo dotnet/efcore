@@ -263,11 +263,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
 
                 Assert.Equal(
-                    nameof(Book.Label) + "_" + nameof(BookLabel.Id),
-                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
+                    nameof(BookLabel.Id),
+                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
                 Assert.Equal(
-                    nameof(Book.AlternateLabel) + "_" + nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
-                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
+                    nameof(BookLabel.Id),
+                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label).ToTable("Label");
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).ToTable("AlternateLabel");
@@ -276,10 +278,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     nameof(BookLabel.Id),
-                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
+                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
                 Assert.Equal(
                     nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
-                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
+                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
             }
 
             [ConditionalFact]
@@ -491,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 Assert.Equal("blah", owned.GetTableName());
-                Assert.Equal("foo", owned.GetSchema());
+                Assert.Null(owned.GetSchema());
             }
 
             [ConditionalFact]

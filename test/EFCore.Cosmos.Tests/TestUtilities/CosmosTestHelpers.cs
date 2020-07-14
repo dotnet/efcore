@@ -1,10 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class CosmosTestHelpers : TestHelpers
     {
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkCosmos();
 
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseCosmos(
                 TestEnvironment.DefaultConnection,
                 TestEnvironment.AuthToken,

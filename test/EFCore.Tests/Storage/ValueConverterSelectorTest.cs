@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Xunit;
@@ -695,6 +696,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
             AssertConverters(
                 _selector.Select(typeof(Uri), typeof(string)).ToList(),
                 (typeof(UriToStringConverter), default));
+        }
+
+        [ConditionalFact]
+        public void Can_get_converters_for_IPAddress_to_string()
+        {
+            AssertConverters(
+                _selector.Select(typeof(IPAddress), typeof(string)).ToList(),
+                (typeof(IPAddressToStringConverter), new ConverterMappingHints(size: 45)));
+        }
+
+        [ConditionalFact]
+        public void Can_get_converters_for_IPAddress_to_bytes()
+        {
+            AssertConverters(
+                _selector.Select(typeof(IPAddress), typeof(byte[])).ToList(),
+                (typeof(IPAddressToBytesConverter), new ConverterMappingHints(size: 16)));
         }
 
         private static void AssertConverters(

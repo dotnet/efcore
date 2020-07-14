@@ -88,11 +88,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.PropertyAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                valueGenerationStrategyConvention,
-                typeof(ValidatingConvention));
-            ReplaceConvention(conventionSet.ModelFinalizedConventions, storeGenerationConvention);
+            conventionSet.ModelFinalizingConventions.Add(valueGenerationStrategyConvention);
+            ReplaceConvention(conventionSet.ModelFinalizingConventions, storeGenerationConvention);
+            ReplaceConvention(conventionSet.ModelFinalizingConventions,
+                (SharedTableConvention)new SqlServerSharedTableConvention(Dependencies, RelationalDependencies));
+            conventionSet.ModelFinalizingConventions.Add(new SqlServerDbFunctionConvention(Dependencies, RelationalDependencies));
 
             return conventionSet;
         }
@@ -118,13 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
-                {
-                    return ConventionSet.CreateConventionSet(context);
-                }
-            }
+            using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            return ConventionSet.CreateConventionSet(context);
         }
     }
 }

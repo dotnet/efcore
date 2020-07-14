@@ -9,10 +9,10 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -39,9 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
         private readonly int _minBatchSize;
         private readonly bool _sensitiveLoggingEnabled;
-
-        private IReadOnlyDictionary<(string Schema, string Name), SharedTableEntryMapFactory<ModificationCommand>>
-            _sharedTableEntryMapFactories;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,7 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var commands = CreateModificationCommands(entries, updateAdapter, parameterNameGenerator.GenerateNext);
             var sortedCommandSets = TopologicalSort(commands);
 
-            // TODO: Enable batching of dependent commands by passing through the dependency graph
             foreach (var independentCommandSet in sortedCommandSets)
             {
                 independentCommandSet.Sort(_modificationCommandComparer);
@@ -90,6 +86,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var batch = _modificationCommandBatchFactory.Create();
                 foreach (var modificationCommand in independentCommandSet)
                 {
+                    modificationCommand.AssertColumnsNotInitialized();
+                    if (modificationCommand.EntityState == EntityState.Modified
+                        && !modificationCommand.ColumnModifications.Any(m => m.IsWrite))
+                    {
+                        continue;
+                    }
+
                     if (!batch.AddCommand(modificationCommand))
                     {
                         if (batch.ModificationCommands.Count == 1
@@ -163,13 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
-            if (_sharedTableEntryMapFactories == null)
-            {
-                _sharedTableEntryMapFactories = SharedTableEntryMap<ModificationCommand>
-                    .CreateSharedTableEntryMapFactories(updateAdapter.Model, updateAdapter);
-            }
-
-            Dictionary<(string Schema, string Name), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap =
+            Dictionary<(string Name, string Schema), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap =
                 null;
             foreach (var entry in entries)
             {
@@ -179,57 +176,90 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var entityType = entry.EntityType;
-                var table = entityType.GetTableName();
-                var schema = entityType.GetSchema();
-                var tableKey = (schema, table);
-
-                ModificationCommand command;
-                var isMainEntry = true;
-                if (_sharedTableEntryMapFactories.TryGetValue(tableKey, out var commandIdentityMapFactory))
+                var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
+                var mappingCount = mappings.Count;
+                ModificationCommand firstCommand = null;
+                var relatedCommands = mappingCount > 1 ? new List<ModificationCommand>(mappingCount) : null;
+                foreach (var mapping in mappings)
                 {
-                    if (sharedTablesCommandsMap == null)
+                    var table = mapping.Table;
+                    var tableKey = (table.Name, table.Schema);
+
+                    ModificationCommand command;
+                    var isMainEntry = true;
+                    if (table.IsShared)
                     {
-                        sharedTablesCommandsMap =
-                            new Dictionary<(string Schema, string Name), SharedTableEntryMap<ModificationCommand>>();
+                        if (sharedTablesCommandsMap == null)
+                        {
+                            sharedTablesCommandsMap = new Dictionary<(string, string), SharedTableEntryMap<ModificationCommand>>();
+                        }
+
+                        if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
+                        {
+                            sharedCommandsMap = new SharedTableEntryMap<ModificationCommand>(table, updateAdapter);
+                            sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
+                        }
+
+                        command = sharedCommandsMap.GetOrAddValue(entry,
+                            (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
+                        isMainEntry = sharedCommandsMap.IsMainEntry(entry);
+                    }
+                    else
+                    {
+                        command = new ModificationCommand(
+                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
                     }
 
-                    if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
+                    command.AddEntry(entry, isMainEntry);
+                    commands.Add(command);
+
+                    if (firstCommand == null)
                     {
-                        sharedCommandsMap = commandIdentityMapFactory(
-                            (t, s, c) => new ModificationCommand(
-                                t, s, generateParameterName, _sensitiveLoggingEnabled, c));
-                        sharedTablesCommandsMap.Add((schema, table), sharedCommandsMap);
+                        Check.DebugAssert(firstCommand == null, "firstCommand == null");
+                        firstCommand = command;
                     }
 
-                    command = sharedCommandsMap.GetOrAddValue(entry);
-                    isMainEntry = sharedCommandsMap.GetPrincipals(entry.EntityType.GetRootType()).Count == 0;
-                }
-                else
-                {
-                    command = new ModificationCommand(
-                        table, schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
+                    if (relatedCommands != null)
+                    {
+                        relatedCommands.Add(command);
+                    }
                 }
 
-                command.AddEntry(entry, isMainEntry);
-                commands.Add(command);
+                if (firstCommand == null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.ReadonlyEntitySaved(entry.EntityType.DisplayName()));
+                }
+
+                if (relatedCommands != null)
+                {
+                    if (firstCommand.EntityState == EntityState.Deleted)
+                    {
+                        relatedCommands.Reverse();
+                    }
+
+                    var previousCommand = relatedCommands[0];
+                    for (var i = 1; i < relatedCommands.Count; i++)
+                    {
+                        var relatedCommand = relatedCommands[i];
+                        relatedCommand.Predecessor = previousCommand;
+                        previousCommand = relatedCommand;
+                    }
+                }
             }
 
             if (sharedTablesCommandsMap != null)
             {
-                AddUnchangedSharingEntries(sharedTablesCommandsMap, entries);
+                AddUnchangedSharingEntries(sharedTablesCommandsMap.Values, entries);
             }
 
-            return commands.Where(
-                c => c.EntityState != EntityState.Modified
-                    || c.ColumnModifications.Any(m => m.IsWrite));
+            return commands;
         }
 
         private void AddUnchangedSharingEntries(
-            Dictionary<(string Schema, string Name), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap,
+            IEnumerable<SharedTableEntryMap<ModificationCommand>> sharedTablesCommands,
             IList<IUpdateEntry> entries)
         {
-            foreach (var sharedCommandsMap in sharedTablesCommandsMap.Values)
+            foreach (var sharedCommandsMap in sharedTablesCommands)
             {
                 foreach (var command in sharedCommandsMap.Values)
                 {
@@ -247,8 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         entry.EntityState = EntityState.Modified;
 
-                        var isMainEntry = sharedCommandsMap.GetPrincipals(entry.EntityType.GetRootType()).Count == 0;
-                        command.AddEntry(entry, isMainEntry);
+                        command.AddEntry(entry, sharedCommandsMap.IsMainEntry(entry));
                         entries.Add(entry);
                     }
                 }
@@ -263,9 +292,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         // 2. Commands deleting rows or modifying the foreign key values must precede
         //     commands deleting rows or modifying the candidate key values (when supported) of rows
         //     that are currently being referenced by the former
-        // 3. Commands deleting rows or modifying the foreign key values must precede
-        //     commands adding or modifying the foreign key values to the same values
-        //     if foreign key is unique
+        // 3. Commands deleting rows or modifying unique constraint values must precede
+        //     commands adding or modifying unique constraint values to the same values
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -456,12 +484,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         // Builds a map from foreign key values to list of modification commands, with an entry for every command
         // that may need to precede some other command involving that foreign key value.
         private Dictionary<IKeyValueIndex, List<ModificationCommand>> CreateKeyValuePredecessorMap(
-            Graph<ModificationCommand> commandGraph)
+            Multigraph<ModificationCommand, IAnnotatable> commandGraph)
         {
             var predecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
             {
-                var columnModifications = command.ColumnModifications;
                 if (command.EntityState == EntityState.Modified
                     || command.EntityState == EntityState.Added)
                 {
@@ -469,33 +496,31 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     for (var i = 0; i < command.Entries.Count; i++)
                     {
                         var entry = command.Entries[i];
-                        // TODO: Perf: Consider only adding foreign keys defined on entity types involved in a modification
                         foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
                         {
-                            var keyValueIndexFactory =
-                                _keyValueIndexFactorySource.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
+                            var constraints = foreignKey.GetMappedConstraints()
+                                .Where(c => c.PrincipalTable.Name == command.TableName && c.PrincipalTable.Schema == command.Schema);
 
-                            var candidateKeyValueColumnModifications = columnModifications.Where(
-                                cm =>
-                                    foreignKey.PrincipalKey.Properties.Contains(cm.Property)
-                                    && (cm.IsWrite || cm.IsRead));
-
-                            if (command.EntityState == EntityState.Added
-                                || candidateKeyValueColumnModifications.Any())
+                            if (!constraints.Any()
+                                || (command.EntityState == EntityState.Modified
+                                    && !foreignKey.PrincipalKey.Properties.Any(p => entry.IsModified(p))))
                             {
-                                var principalKeyValue =
-                                    keyValueIndexFactory.CreatePrincipalKeyValue((InternalEntityEntry)entry, foreignKey);
+                                continue;
+                            }
 
-                                if (principalKeyValue != null)
+                            var principalKeyValue = _keyValueIndexFactorySource
+                                .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
+                                .CreatePrincipalKeyValue(entry, foreignKey);
+
+                            if (principalKeyValue != null)
+                            {
+                                if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
                                 {
-                                    if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
-                                    {
-                                        predecessorCommands = new List<ModificationCommand>();
-                                        predecessorsMap.Add(principalKeyValue, predecessorCommands);
-                                    }
-
-                                    predecessorCommands.Add(command);
+                                    predecessorCommands = new List<ModificationCommand>();
+                                    predecessorsMap.Add(principalKeyValue, predecessorCommands);
                                 }
+
+                                predecessorCommands.Add(command);
                             }
                         }
                     }
@@ -508,29 +533,29 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     {
                         foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                         {
-                            var keyValueIndexFactory = _keyValueIndexFactorySource.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
+                            var constraints = foreignKey.GetMappedConstraints()
+                                .Where(c => c.Table.Name == command.TableName && c.Table.Schema == command.Schema);
 
-                            var currentForeignKey = foreignKey;
-                            var foreignKeyValueColumnModifications = columnModifications.Where(
-                                cm =>
-                                    currentForeignKey.Properties.Contains(cm.Property) && (cm.IsWrite || cm.IsRead));
-
-                            if (command.EntityState == EntityState.Deleted
-                                || foreignKeyValueColumnModifications.Any())
+                            if (!constraints.Any()
+                                || (command.EntityState == EntityState.Modified
+                                    && !foreignKey.Properties.Any(p => entry.IsModified(p))))
                             {
-                                var dependentKeyValue =
-                                    keyValueIndexFactory.CreateDependentKeyValueFromOriginalValues((InternalEntityEntry)entry, foreignKey);
+                                continue;
+                            }
 
-                                if (dependentKeyValue != null)
+                            var dependentKeyValue = _keyValueIndexFactorySource
+                                .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
+                                .CreateDependentKeyValueFromOriginalValues(entry, foreignKey);
+
+                            if (dependentKeyValue != null)
+                            {
+                                if (!predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
                                 {
-                                    if (!predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
-                                    {
-                                        predecessorCommands = new List<ModificationCommand>();
-                                        predecessorsMap.Add(dependentKeyValue, predecessorCommands);
-                                    }
-
-                                    predecessorCommands.Add(command);
+                                    predecessorCommands = new List<ModificationCommand>();
+                                    predecessorsMap.Add(dependentKeyValue, predecessorCommands);
                                 }
+
+                                predecessorCommands.Add(command);
                             }
                         }
                     }
@@ -546,6 +571,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         {
             foreach (var command in commandGraph.Vertices)
             {
+                if (command.Predecessor != null)
+                {
+                    // This is usually an implicit relationship between TPT rows for the same entity
+                    commandGraph.AddEdge(command.Predecessor, command, null);
+                }
+
                 switch (command.EntityState)
                 {
                     case EntityState.Modified:
@@ -556,34 +587,46 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             var entry = command.Entries[entryIndex];
                             foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                             {
-                                var keyValueIndexFactory =
-                                    _keyValueIndexFactorySource.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
-                                var dependentKeyValue =
-                                    keyValueIndexFactory.CreateDependentKeyValue((InternalEntityEntry)entry, foreignKey);
+                                var constraints = foreignKey.GetMappedConstraints();
+
+                                if (!constraints.Any()
+                                    || (command.EntityState == EntityState.Modified
+                                        && !foreignKey.Properties.Any(p => entry.IsModified(p))))
+                                {
+                                    continue;
+                                }
+
+                                var dependentKeyValue = _keyValueIndexFactorySource
+                                    .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
+                                    .CreateDependentKeyValue(entry, foreignKey);
                                 if (dependentKeyValue == null)
                                 {
                                     continue;
                                 }
 
                                 AddMatchingPredecessorEdge(
-                                    predecessorsMap, dependentKeyValue, commandGraph, command,
-                                    foreignKey);
+                                    predecessorsMap, dependentKeyValue, commandGraph, command, foreignKey);
                             }
                         }
 
                         break;
                     case EntityState.Deleted:
-                        // TODO: also examine modified entities here when principal key modification is supported
                         // ReSharper disable once ForCanBeConvertedToForeach
                         for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
                         {
                             var entry = command.Entries[entryIndex];
                             foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
                             {
-                                var keyValueIndexFactory =
-                                    _keyValueIndexFactorySource.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
-                                var principalKeyValue = keyValueIndexFactory.CreatePrincipalKeyValueFromOriginalValues(
-                                    (InternalEntityEntry)entry, foreignKey);
+                                var constraints = foreignKey.GetMappedConstraints()
+                                    .Where(c => c.PrincipalTable.Name == command.TableName && c.PrincipalTable.Schema == command.Schema);
+                                if (!constraints.Any())
+                                {
+                                    continue;
+                                }
+
+                                var principalKeyValue = _keyValueIndexFactorySource
+                                    .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
+                                    .CreatePrincipalKeyValueFromOriginalValues(entry, foreignKey);
                                 if (principalKeyValue != null)
                                 {
                                     AddMatchingPredecessorEdge(
@@ -602,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IKeyValueIndex dependentKeyValue,
             Multigraph<ModificationCommand, IAnnotatable> commandGraph,
             ModificationCommand command,
-            IForeignKey foreignKey)
+            IAnnotatable edge)
         {
             if (predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
             {
@@ -610,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     if (predecessor != command)
                     {
-                        commandGraph.AddEdge(predecessor, command, foreignKey);
+                        commandGraph.AddEdge(predecessor, command, edge);
                     }
                 }
             }
@@ -618,7 +661,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private void AddUniqueValueEdges(Multigraph<ModificationCommand, IAnnotatable> commandGraph)
         {
-            Dictionary<IIndex, Dictionary<object[], ModificationCommand>> predecessorsMap = null;
+            Dictionary<IIndex, Dictionary<object[], ModificationCommand>> indexPredecessorsMap = null;
+            var keyPredecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
             {
                 if (command.EntityState != EntityState.Modified
@@ -630,40 +674,22 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
                 {
                     var entry = command.Entries[entryIndex];
-                    foreach (var index in entry.EntityType.GetIndexes().Where(i => i.IsUnique))
+                    foreach (var index in entry.EntityType.GetIndexes().Where(i => i.IsUnique && i.GetMappedTableIndexes().Any()))
                     {
-                        if (command.EntityState != EntityState.Deleted)
+                        if (command.EntityState == EntityState.Modified
+                            && !index.Properties.Any(p => entry.IsModified(p)))
                         {
-                            var indexColumnModifications = false;
-                            // ReSharper disable once ForCanBeConvertedToForeach
-                            // ReSharper disable once LoopCanBeConvertedToQuery
-                            for (var indexIndex = 0; indexIndex < command.ColumnModifications.Count; indexIndex++)
-                            {
-                                var cm = command.ColumnModifications[indexIndex];
-                                if (index.Properties.Contains(cm.Property)
-                                    && (cm.IsWrite || cm.IsRead))
-                                {
-                                    indexColumnModifications = true;
-                                    break;
-                                }
-                            }
-
-                            if (!indexColumnModifications)
-                            {
-                                continue;
-                            }
+                            continue;
                         }
 
                         var valueFactory = index.GetNullableValueFactory<object[]>();
-                        if (valueFactory.TryCreateFromOriginalValues(
-                            (InternalEntityEntry)entry, out var indexValue))
+                        if (valueFactory.TryCreateFromOriginalValues(entry, out var indexValue))
                         {
-                            predecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
-                            if (!predecessorsMap.TryGetValue(index, out var predecessorCommands))
+                            indexPredecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], ModificationCommand>>();
+                            if (!indexPredecessorsMap.TryGetValue(index, out var predecessorCommands))
                             {
-                                predecessorCommands =
-                                    new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
-                                predecessorsMap.Add(index, predecessorCommands);
+                                predecessorCommands = new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
+                                indexPredecessorsMap.Add(index, predecessorCommands);
                             }
 
                             if (!predecessorCommands.ContainsKey(indexValue))
@@ -672,39 +698,85 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             }
                         }
                     }
+
+                    if (command.EntityState != EntityState.Deleted)
+                    {
+                        continue;
+                    }
+
+                    foreach (var key in entry.EntityType.GetKeys().Where(k => k.GetMappedConstraints().Any()))
+                    {
+                        var principalKeyValue = _keyValueIndexFactorySource
+                            .GetKeyValueIndexFactory(key)
+                            .CreatePrincipalKeyValue(entry, null);
+
+                        if (principalKeyValue != null)
+                        {
+                            if (!keyPredecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
+                            {
+                                predecessorCommands = new List<ModificationCommand>();
+                                keyPredecessorsMap.Add(principalKeyValue, predecessorCommands);
+                            }
+
+                            predecessorCommands.Add(command);
+                        }
+                    }
                 }
             }
 
-            if (predecessorsMap == null)
+            if (indexPredecessorsMap != null)
             {
-                return;
-            }
-
-            foreach (var command in commandGraph.Vertices)
-            {
-                if (command.EntityState == EntityState.Modified
-                    || command.EntityState == EntityState.Added)
+                foreach (var command in commandGraph.Vertices)
                 {
+                    if (command.EntityState == EntityState.Deleted)
+                    {
+                        continue;
+                    }
+
                     foreach (var entry in command.Entries)
                     {
-                        foreach (var index in entry.EntityType.GetIndexes().Where(i => i.IsUnique))
+                        foreach (var index in entry.EntityType.GetIndexes().Where(i => i.IsUnique && i.GetMappedTableIndexes().Any()))
                         {
-                            var indexColumnModifications =
-                                command.ColumnModifications.Where(
-                                    cm => index.Properties.Contains(cm.Property)
-                                        && cm.IsWrite);
-
-                            if (command.EntityState == EntityState.Added
-                                || indexColumnModifications.Any())
+                            if (command.EntityState == EntityState.Modified
+                                && !index.Properties.Any(p => entry.IsModified(p)))
                             {
-                                var valueFactory = index.GetNullableValueFactory<object[]>();
-                                if (valueFactory.TryCreateFromCurrentValues((InternalEntityEntry)entry, out var indexValue)
-                                    && predecessorsMap.TryGetValue(index, out var predecessorCommands)
-                                    && predecessorCommands.TryGetValue(indexValue, out var predecessor)
-                                    && predecessor != command)
-                                {
-                                    commandGraph.AddEdge(predecessor, command, index);
-                                }
+                                continue;
+                            }
+
+                            var valueFactory = index.GetNullableValueFactory<object[]>();
+                            if (valueFactory.TryCreateFromCurrentValues(entry, out var indexValue)
+                                && indexPredecessorsMap.TryGetValue(index, out var predecessorCommands)
+                                && predecessorCommands.TryGetValue(indexValue, out var predecessor)
+                                && predecessor != command)
+                            {
+                                commandGraph.AddEdge(predecessor, command, index);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (keyPredecessorsMap != null)
+            {
+                foreach (var command in commandGraph.Vertices)
+                {
+                    if (command.EntityState != EntityState.Added)
+                    {
+                        continue;
+                    }
+
+                    foreach (var entry in command.Entries)
+                    {
+                        foreach (var key in entry.EntityType.GetKeys().Where(k => k.GetMappedConstraints().Any()))
+                        {
+                            var principalKeyValue = _keyValueIndexFactorySource
+                                .GetKeyValueIndexFactory(key)
+                                .CreatePrincipalKeyValue(entry, null);
+
+                            if (principalKeyValue != null)
+                            {
+                                AddMatchingPredecessorEdge(
+                                    keyPredecessorsMap, principalKeyValue, commandGraph, command, key);
                             }
                         }
                     }

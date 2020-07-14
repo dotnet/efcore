@@ -6,18 +6,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Threading;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         A query SQL generator to get <see cref="IRelationalCommand"/> for given <see cref="SelectExpression"/>.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
-        private static readonly Regex _composableSql
-            = new Regex(@"^\s*?SELECT\b", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(value: 1000.0));
-
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
@@ -41,18 +50,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             { ExpressionType.Or, " | " }
         };
 
-        public QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+        /// <summary>
+        ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        public QuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+
             Dependencies = dependencies;
 
             _relationalCommandBuilderFactory = dependencies.RelationalCommandBuilderFactory;
             _sqlGenerationHelper = dependencies.SqlGenerationHelper;
         }
 
+        /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
         protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
-        public virtual IRelationalCommand GetCommand(SelectExpression selectExpression)
+        /// <summary>
+        ///     Gets a relational command for a <see cref="SelectExpression"/>.
+        /// </summary>
+        /// <param name="selectExpression"> A select expression to print in command text. </param>
+        /// <returns> A relational command with a SQL represented by the select expression. </returns>
+        public virtual IRelationalCommand GetCommand([NotNull] SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
             GenerateTagsHeaderComment(selectExpression);
@@ -74,10 +99,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         protected virtual string AliasSeparator { get; } = " AS ";
 
+        /// <summary>
+        ///     The current SQL command builder.
+        /// </summary>
         protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
 
-        protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
+        /// <summary>
+        ///     Generates the head comment for tags.
+        /// </summary>
+        /// <param name="selectExpression"> A select expression to generate tags for. </param>
+        protected virtual void GenerateTagsHeaderComment([NotNull] SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             if (selectExpression.Tags.Count > 0)
             {
                 foreach (var tag in selectExpression.Tags)
@@ -89,8 +123,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <inheritdoc />
         protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
         {
+            Check.NotNull(sqlFragmentExpression, nameof(sqlFragmentExpression));
+
             _relationalCommandBuilder.Append(sqlFragmentExpression.Sql);
 
             return sqlFragmentExpression;
@@ -114,8 +151,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
                     .All(e => e);
 
+        /// <inheritdoc />
         protected override Expression VisitSelect(SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             if (IsNonComposedSetOperation(selectExpression))
             {
                 // Naked set operation
@@ -156,6 +196,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
             }
+            else
+            {
+                GeneratePseudoFromClause();
+            }
 
             if (selectExpression.Predicate != null)
             {
@@ -192,8 +236,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             return selectExpression;
         }
 
+        /// <summary>
+        ///     Generates a pseudo FROM clause. Required by some providers when a query has no actual FROM clause.
+        /// </summary>
+        protected virtual void GeneratePseudoFromClause()
+        {
+        }
+
+        /// <inheritdoc />
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
+            Check.NotNull(projectionExpression, nameof(projectionExpression));
+
             Visit(projectionExpression.Expression);
 
             if (!string.Equals(string.Empty, projectionExpression.Alias)
@@ -206,8 +260,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return projectionExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
+            Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
+
             if (sqlFunctionExpression.IsBuiltIn)
             {
                 if (sqlFunctionExpression.Instance != null)
@@ -241,8 +298,37 @@ namespace Microsoft.EntityFrameworkCore.Query
             return sqlFunctionExpression;
         }
 
+        /// <inheritdoc />
+        protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
+        {
+            Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
+
+            if (!string.IsNullOrEmpty(tableValuedFunctionExpression.Schema))
+            {
+                _relationalCommandBuilder
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Schema))
+                    .Append(".");
+            }
+
+            _relationalCommandBuilder
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Name))
+                .Append("(");
+
+            GenerateList(tableValuedFunctionExpression.Arguments, e => Visit(e));
+
+            _relationalCommandBuilder
+                .Append(")")
+                .Append(AliasSeparator)
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Alias));
+
+            return tableValuedFunctionExpression;
+        }
+
+        /// <inheritdoc />
         protected override Expression VisitColumn(ColumnExpression columnExpression)
         {
+            Check.NotNull(columnExpression, nameof(columnExpression));
+
             _relationalCommandBuilder
                 .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias))
                 .Append(".")
@@ -251,8 +337,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return columnExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitTable(TableExpression tableExpression)
         {
+            Check.NotNull(tableExpression, nameof(tableExpression));
+
             _relationalCommandBuilder
                 .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema))
                 .Append(AliasSeparator)
@@ -315,14 +404,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             _relationalCommandBuilder.AppendLines(sql);
         }
 
+        /// <inheritdoc />
         protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
         {
+            Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
+
             _relationalCommandBuilder.AppendLine("(");
 
-            if (!_composableSql.IsMatch(fromSqlExpression.Sql))
-            {
-                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
-            }
+            CheckComposableSql(fromSqlExpression.Sql);
 
             using (_relationalCommandBuilder.Indent())
             {
@@ -336,69 +425,144 @@ namespace Microsoft.EntityFrameworkCore.Query
             return fromSqlExpression;
         }
 
+        /// <summary>
+        ///     Checks whether a given SQL string is composable, i.e. can be embedded as a subquery within a
+        ///     larger SQL query.
+        /// </summary>
+        /// <param name="sql"> An SQL string to be checked for composability. </param>
+        /// <exception cref="InvalidOperationException"> The given SQL isn't composable. </exception>
+        protected virtual void CheckComposableSql([NotNull] string sql)
+        {
+            Check.NotNull(sql, nameof(sql));
+
+            var pos = -1;
+            char c;
+
+            while (true)
+            {
+                c = NextChar();
+
+                if (char.IsWhiteSpace(c))
+                {
+                    continue;
+                }
+
+                // SQL -- comment
+                if (c == '-')
+                {
+                    if (NextChar() != '-')
+                    {
+                        throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+                    }
+
+                    while (NextChar() != '\n') { }
+
+                    continue;
+                }
+
+                // SQL /* */ comment
+                if (c == '/')
+                {
+                    if (NextChar() != '*')
+                    {
+                        throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+                    }
+
+                    while (true)
+                    {
+                        while (NextChar() != '*') { }
+
+                        if (NextChar() == '/')
+                        {
+                            break;
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (char.ToLowerInvariant(c) == 's' &&
+                    char.ToLowerInvariant(NextChar()) == 'e' &&
+                    char.ToLowerInvariant(NextChar()) == 'l' &&
+                    char.ToLowerInvariant(NextChar()) == 'e' &&
+                    char.ToLowerInvariant(NextChar()) == 'c' &&
+                    char.ToLowerInvariant(NextChar()) == 't')
+                {
+                    var (c1, c2) = (NextChar(), NextChar());
+                    if (char.IsWhiteSpace(c1)
+                        || c1 == '-' && c2 == '-'
+                        || c1 == '/' && c2 == '*')
+                    {
+                        return;
+                    }
+                }
+
+                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+            }
+
+            char NextChar()
+                => ++pos < sql.Length
+                    ? sql[pos]
+                    : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+        }
+
+        /// <inheritdoc />
         protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
         {
-            if (sqlBinaryExpression.OperatorType == ExpressionType.Coalesce)
+            Check.NotNull(sqlBinaryExpression, nameof(sqlBinaryExpression));
+
+            var requiresBrackets = RequiresBrackets(sqlBinaryExpression.Left);
+
+            if (requiresBrackets)
             {
-                _relationalCommandBuilder.Append("COALESCE(");
-                Visit(sqlBinaryExpression.Left);
-                _relationalCommandBuilder.Append(", ");
-                Visit(sqlBinaryExpression.Right);
+                _relationalCommandBuilder.Append("(");
+            }
+
+            Visit(sqlBinaryExpression.Left);
+
+            if (requiresBrackets)
+            {
                 _relationalCommandBuilder.Append(")");
             }
-            else
+
+            _relationalCommandBuilder.Append(GetOperator(sqlBinaryExpression));
+
+            requiresBrackets = RequiresBrackets(sqlBinaryExpression.Right);
+
+            if (requiresBrackets)
             {
-                var requiresBrackets = RequiresBrackets(sqlBinaryExpression.Left);
+                _relationalCommandBuilder.Append("(");
+            }
 
-                if (requiresBrackets)
-                {
-                    _relationalCommandBuilder.Append("(");
-                }
+            Visit(sqlBinaryExpression.Right);
 
-                Visit(sqlBinaryExpression.Left);
-
-                if (requiresBrackets)
-                {
-                    _relationalCommandBuilder.Append(")");
-                }
-
-                _relationalCommandBuilder.Append(GenerateOperator(sqlBinaryExpression));
-
-                requiresBrackets = RequiresBrackets(sqlBinaryExpression.Right);
-
-                if (requiresBrackets)
-                {
-                    _relationalCommandBuilder.Append("(");
-                }
-
-                Visit(sqlBinaryExpression.Right);
-
-                if (requiresBrackets)
-                {
-                    _relationalCommandBuilder.Append(")");
-                }
+            if (requiresBrackets)
+            {
+                _relationalCommandBuilder.Append(")");
             }
 
             return sqlBinaryExpression;
         }
 
-        private bool RequiresBrackets(SqlExpression expression)
-        {
-            return expression is SqlBinaryExpression sqlBinary
-                && sqlBinary.OperatorType != ExpressionType.Coalesce
-                || expression is LikeExpression;
-        }
+        private static bool RequiresBrackets(SqlExpression expression)
+            => expression is SqlBinaryExpression || expression is LikeExpression;
 
+        /// <inheritdoc />
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
         {
+            Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
+
             _relationalCommandBuilder
                 .Append(sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value));
 
             return sqlConstantExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
         {
+            Check.NotNull(sqlParameterExpression, nameof(sqlParameterExpression));
+
             var parameterNameInCommand = _sqlGenerationHelper.GenerateParameterName(sqlParameterExpression.Name);
 
             if (_relationalCommandBuilder.Parameters
@@ -417,8 +581,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return sqlParameterExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitOrdering(OrderingExpression orderingExpression)
         {
+            Check.NotNull(orderingExpression, nameof(orderingExpression));
+
             if (orderingExpression.Expression is SqlConstantExpression
                 || orderingExpression.Expression is SqlParameterExpression)
             {
@@ -437,8 +604,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return orderingExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitLike(LikeExpression likeExpression)
         {
+            Check.NotNull(likeExpression, nameof(likeExpression));
+
             Visit(likeExpression.Match);
             _relationalCommandBuilder.Append(" LIKE ");
             Visit(likeExpression.Pattern);
@@ -452,8 +622,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             return likeExpression;
         }
 
+        /// <inheritdoc />
+        protected override Expression VisitCollate(CollateExpression collateExpresion)
+        {
+            Check.NotNull(collateExpresion, nameof(collateExpresion));
+
+            Visit(collateExpresion.Operand);
+
+            _relationalCommandBuilder
+                .Append(" COLLATE ")
+                .Append(collateExpresion.Collation);
+
+            return collateExpresion;
+        }
+
+        /// <inheritdoc />
         protected override Expression VisitCase(CaseExpression caseExpression)
         {
+            Check.NotNull(caseExpression, nameof(caseExpression));
+
             _relationalCommandBuilder.Append("CASE");
 
             if (caseExpression.Operand != null)
@@ -490,8 +677,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return caseExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
         {
+            Check.NotNull(sqlUnaryExpression, nameof(sqlUnaryExpression));
+
             switch (sqlUnaryExpression.OperatorType)
             {
                 case ExpressionType.Convert:
@@ -515,11 +705,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
                 }
 
-                case ExpressionType.Not:
+                case ExpressionType.Not
+                    when sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool):
                 {
                     _relationalCommandBuilder.Append("NOT (");
                     Visit(sqlUnaryExpression.Operand);
                     _relationalCommandBuilder.Append(")");
+                    break;
+                }
+
+                case ExpressionType.Not:
+                {
+                    _relationalCommandBuilder.Append("~");
+                    Visit(sqlUnaryExpression.Operand);
                     break;
                 }
 
@@ -540,7 +738,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Negate:
                 {
                     _relationalCommandBuilder.Append("-");
+                    var requiresBrackets = RequiresBrackets(sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append("(");
+                    }
+
                     Visit(sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append(")");
+                    }
                     break;
                 }
             }
@@ -548,8 +756,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return sqlUnaryExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitExists(ExistsExpression existsExpression)
         {
+            Check.NotNull(existsExpression, nameof(existsExpression));
+
             if (existsExpression.IsNegated)
             {
                 _relationalCommandBuilder.Append("NOT ");
@@ -567,8 +778,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return existsExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitIn(InExpression inExpression)
         {
+            Check.NotNull(inExpression, nameof(inExpression));
+
             if (inExpression.Values != null)
             {
                 Visit(inExpression.Item);
@@ -591,21 +805,54 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Visit(inExpression.Subquery);
                 }
 
-                _relationalCommandBuilder.AppendLine().AppendLine(")");
+                _relationalCommandBuilder.AppendLine().Append(")");
             }
 
             return inExpression;
         }
 
-        protected virtual string GenerateOperator(SqlBinaryExpression binaryExpression)
-            => _operatorMap[binaryExpression.OperatorType];
-
-        protected virtual void GenerateTop(SelectExpression selectExpression)
+        /// <summary>
+        ///     Generates a SQL operator for a SQL binary operation.
+        /// </summary>
+        /// <param name="binaryExpression"> A SQL binary operation. </param>
+        /// <returns> A string representation of the binary operator. </returns>
+        [Obsolete("Use GetOperator instead.")]
+        protected virtual string GenerateOperator([NotNull] SqlBinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
+            return _operatorMap[binaryExpression.OperatorType];
         }
 
-        protected virtual void GenerateOrderings(SelectExpression selectExpression)
+        /// <summary>
+        ///     Gets a SQL operator for a SQL binary operation.
+        /// </summary>
+        /// <param name="binaryExpression"> A SQL binary operation. </param>
+        /// <returns> A string representation of the binary operator. </returns>
+        protected virtual string GetOperator([NotNull] SqlBinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
+            return _operatorMap[binaryExpression.OperatorType];
+        }
+
+        /// <summary>
+        ///     Generates a TOP construct in the relational command
+        /// </summary>
+        /// <param name="selectExpression"> A select expression to use. </param>
+        protected virtual void GenerateTop([NotNull] SelectExpression selectExpression)
+        {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+        }
+
+        /// <summary>
+        ///     Generates an ORDER BY clause in the relational command
+        /// </summary>
+        /// <param name="selectExpression"> A select expression to use. </param>
+        protected virtual void GenerateOrderings([NotNull] SelectExpression selectExpression)
+        {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             if (selectExpression.Orderings.Any())
             {
                 var orderings = selectExpression.Orderings.ToList();
@@ -624,14 +871,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     GenerateList(orderings, e => Visit(e));
                 }
             }
-            else if (selectExpression.Offset != null)
-            {
-                _relationalCommandBuilder.AppendLine().Append("ORDER BY (SELECT 1)");
-            }
         }
 
-        protected virtual void GenerateLimitOffset(SelectExpression selectExpression)
+        /// <summary>
+        ///     Generates a LIMIT...OFFSET... construct in the relational command
+        /// </summary>
+        /// <param name="selectExpression"> A select expression to use. </param>
+        protected virtual void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             if (selectExpression.Offset != null)
             {
                 _relationalCommandBuilder.AppendLine()
@@ -679,32 +928,44 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        /// <inheritdoc />
         protected override Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression)
         {
+            Check.NotNull(crossJoinExpression, nameof(crossJoinExpression));
+
             _relationalCommandBuilder.Append("CROSS JOIN ");
             Visit(crossJoinExpression.Table);
 
             return crossJoinExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
         {
+            Check.NotNull(crossApplyExpression, nameof(crossApplyExpression));
+
             _relationalCommandBuilder.Append("CROSS APPLY ");
             Visit(crossApplyExpression.Table);
 
             return crossApplyExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
         {
+            Check.NotNull(outerApplyExpression, nameof(outerApplyExpression));
+
             _relationalCommandBuilder.Append("OUTER APPLY ");
             Visit(outerApplyExpression.Table);
 
             return outerApplyExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
         {
+            Check.NotNull(innerJoinExpression, nameof(innerJoinExpression));
+
             _relationalCommandBuilder.Append("INNER JOIN ");
             Visit(innerJoinExpression.Table);
             _relationalCommandBuilder.Append(" ON ");
@@ -713,8 +974,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return innerJoinExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression)
         {
+            Check.NotNull(leftJoinExpression, nameof(leftJoinExpression));
+
             _relationalCommandBuilder.Append("LEFT JOIN ");
             Visit(leftJoinExpression.Table);
             _relationalCommandBuilder.Append(" ON ");
@@ -723,8 +987,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return leftJoinExpression;
         }
 
-        protected override Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression)
+        /// <inheritdoc />
+        protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
         {
+            Check.NotNull(scalarSubqueryExpression, nameof(scalarSubqueryExpression));
+
             _relationalCommandBuilder.AppendLine("(");
             using (_relationalCommandBuilder.Indent())
             {
@@ -736,8 +1003,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return scalarSubqueryExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
         {
+            Check.NotNull(rowNumberExpression, nameof(rowNumberExpression));
+
             _relationalCommandBuilder.Append("ROW_NUMBER() OVER(");
             if (rowNumberExpression.Partitions.Any())
             {
@@ -753,24 +1023,38 @@ namespace Microsoft.EntityFrameworkCore.Query
             return rowNumberExpression;
         }
 
-        protected virtual void GenerateSetOperation(SetOperationBase setOperation)
+        /// <summary>
+        ///     Generates a set operation in the relational command.
+        /// </summary>
+        /// <param name="setOperation"> A set operation to print. </param>
+        protected virtual void GenerateSetOperation([NotNull] SetOperationBase setOperation)
         {
-            string getSetOperation() => setOperation switch
+            Check.NotNull(setOperation, nameof(setOperation));
+
+            GenerateSetOperationOperand(setOperation, setOperation.Source1);
+            _relationalCommandBuilder.AppendLine();
+            _relationalCommandBuilder.AppendLine($"{GetSetOperation(setOperation)}{(setOperation.IsDistinct ? "" : " ALL")}");
+            GenerateSetOperationOperand(setOperation, setOperation.Source2);
+
+            static string GetSetOperation(SetOperationBase operation) => operation switch
             {
                 ExceptExpression _ => "EXCEPT",
                 IntersectExpression _ => "INTERSECT",
                 UnionExpression _ => "UNION",
-                _ => throw new InvalidOperationException("Unknown SetOperationType."),
+                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType")),
             };
-
-            GenerateSetOperationOperand(setOperation, setOperation.Source1);
-            _relationalCommandBuilder.AppendLine();
-            _relationalCommandBuilder.AppendLine($"{getSetOperation()}{(setOperation.IsDistinct ? "" : " ALL")}");
-            GenerateSetOperationOperand(setOperation, setOperation.Source2);
         }
 
-        protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
+        /// <summary>
+        ///     Generates an operand for a given set operation in the relational command.
+        /// </summary>
+        /// <param name="setOperation"> A set operation to use. </param>
+        /// <param name="operand"> A set operation operand to print. </param>
+        protected virtual void GenerateSetOperationOperand([NotNull] SetOperationBase setOperation, [NotNull] SelectExpression operand)
         {
+            Check.NotNull(setOperation, nameof(setOperation));
+            Check.NotNull(operand, nameof(operand));
+
             // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
             // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
             if (IsNonComposedSetOperation(operand)
@@ -804,22 +1088,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Append(_sqlGenerationHelper.DelimitIdentifier(setOperation.Alias));
         }
 
+        /// <inheritdoc />
         protected override Expression VisitExcept(ExceptExpression exceptExpression)
         {
+            Check.NotNull(exceptExpression, nameof(exceptExpression));
+
             GenerateSetOperationHelper(exceptExpression);
 
             return exceptExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitIntersect(IntersectExpression intersectExpression)
         {
+            Check.NotNull(intersectExpression, nameof(intersectExpression));
+
             GenerateSetOperationHelper(intersectExpression);
 
             return intersectExpression;
         }
 
+        /// <inheritdoc />
         protected override Expression VisitUnion(UnionExpression unionExpression)
         {
+            Check.NotNull(unionExpression, nameof(unionExpression));
+
             GenerateSetOperationHelper(unionExpression);
 
             return unionExpression;

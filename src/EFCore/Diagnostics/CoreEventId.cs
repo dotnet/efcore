@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
@@ -58,15 +57,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             // Query events
             QueryIterationFailed = CoreBaseId + 100,
-            QueryModelCompiling,
-            RowLimitingOperationWithoutOrderByWarning,
-            FirstWithoutOrderByAndFilterWarning,
-            QueryModelOptimized,
-            NavigationIncluded,
-            IncludeIgnoredWarning,
+            Obsolete_QueryModelCompiling,
+            Obsolete_RowLimitingOperationWithoutOrderByWarning,
+            Obsolete_FirstWithoutOrderByAndFilterWarning,
+            Obsolete_QueryModelOptimized,
+            Obsolete_NavigationIncluded,
+            Obsolete_IncludeIgnoredWarning,
             QueryExecutionPlanned,
             PossibleUnintendedCollectionNavigationNullComparisonWarning,
             PossibleUnintendedReferenceComparisonWarning,
+            InvalidIncludePathError,
 
             // Infrastructure events
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ServiceProviderDebugInfo,
             RedundantAddServicesCallWarning,
 
-            // Model events
+            // Model and ModelValidation events
             ShadowPropertyCreated = CoreBaseId + 600,
             RedundantIndexRemoved,
             IncompatibleMatchingForeignKeyProperties,
@@ -103,6 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             RequiredAttributeInverted,
             RequiredAttributeOnCollection,
             CollectionWithoutComparer,
+            ConflictingKeylessAndKeyAttributesWarning,
+            PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -113,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ReferenceChangeDetected,
             StartedTracking,
             StateChanged,
-            ValueGenerated
+            ValueGenerated,
+            SkipCollectionChangeDetected,
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -157,73 +160,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A query model is being compiled.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId QueryModelCompiling = MakeQueryId(Id.QueryModelCompiling);
-
-        /// <summary>
-        ///     <para>
-        ///         A query uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId RowLimitingOperationWithoutOrderByWarning =
-            MakeQueryId(Id.RowLimitingOperationWithoutOrderByWarning);
-
-        /// <summary>
-        ///     <para>
-        ///         A query uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId FirstWithoutOrderByAndFilterWarning = MakeQueryId(Id.FirstWithoutOrderByAndFilterWarning);
-
-        /// <summary>
-        ///     <para>
-        ///         A query model was optimized.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId QueryModelOptimized = MakeQueryId(Id.QueryModelOptimized);
-
-        /// <summary>
-        ///     <para>
-        ///         A navigation was included in the query.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId NavigationIncluded = MakeQueryId(Id.NavigationIncluded);
-
-        /// <summary>
-        ///     <para>
-        ///         A navigation was ignored while compiling a query.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete]
-        public static readonly EventId IncludeIgnoredWarning = MakeQueryId(Id.IncludeIgnoredWarning);
-
-        /// <summary>
-        ///     <para>
         ///         A query is planned for execution.
         ///     </para>
         ///     <para>
@@ -262,6 +198,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId PossibleUnintendedReferenceComparisonWarning
             = MakeQueryId(Id.PossibleUnintendedReferenceComparisonWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="InvalidIncludePathEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId InvalidIncludePathError
+            = MakeQueryId(Id.InvalidIncludePathError);
 
         private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
         private static EventId MakeInfraId(Id id) => new EventId((int)id, _infraPrefix + id);
@@ -683,6 +633,37 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId RedundantForeignKeyWarning = MakeModelValidationId(Id.RedundantForeignKeyWarning);
 
+        /// <summary>
+        ///     <para>
+        ///         A <see cref="KeylessAttribute"/> attribute on the entity type is conflicting
+        ///         with a <see cref="KeyAttribute"/> attribute on at least one of its properties.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ConflictingKeylessAndKeyAttributesWarning = MakeModelId(Id.ConflictingKeylessAndKeyAttributesWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         Required navigation with principal entity having global query filter defined
+        ///         and the declaring entity not having a matching filter
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning
+            = MakeModelValidationId(Id.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning);
+
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
         private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);
 
@@ -756,6 +737,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId CollectionChangeDetected = MakeChangeTrackingId(Id.CollectionChangeDetected);
+
+        /// <summary>
+        ///     <para>
+        ///         DetectChanges has detected entities were added and/or removed from a collection skip navigation property.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="SkipCollectionChangedEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId SkipCollectionChangeDetected = MakeChangeTrackingId(Id.SkipCollectionChangeDetected);
 
         /// <summary>
         ///     <para>

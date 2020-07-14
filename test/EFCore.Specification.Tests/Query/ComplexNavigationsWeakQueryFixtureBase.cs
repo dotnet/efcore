@@ -11,15 +11,14 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsWeakQueryFixtureBase : ComplexNavigationsQueryFixtureBase
+    public abstract class ComplexNavigationsWeakQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
     {
         protected override string StoreName { get; } = "ComplexNavigationsOwned";
 
-        protected ComplexNavigationsWeakQueryFixtureBase()
-        {
-            QueryAsserter.SetSourceCreator = ctx => new ComplexNavigationsWeakSetExtractor(ctx);
-            QueryAsserter.ExpectedData = new ComplexNavigationsWeakData();
-        }
+        public override ISetSource GetExpectedData() => new ComplexNavigationsWeakData();
+
+        Func<DbContext, ISetSource> IQueryFixtureBase.GetSetSourceCreator()
+            => context => new ComplexNavigationsWeakSetExtractor(context);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level2Fk = (ForeignKey)level2.AddForeignKey(level2.FindProperty(nameof(Level2.Id)), level1.FindPrimaryKey(), level1);
                 level2Fk.IsUnique = true;
                 level2Fk.HasPrincipalToDependent(nameof(Level1.OneToOne_Required_PK1), ConfigurationSource.Explicit);
-                level2Fk.HasDependentToPrincipal(nameof(Level2.OneToOne_Required_PK_Inverse2), ConfigurationSource.Explicit);
+                level2Fk.SetDependentToPrincipal(nameof(Level2.OneToOne_Required_PK_Inverse2), ConfigurationSource.Explicit);
                 level2Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level2Fk = (ForeignKey)batch.Run(level2Fk);
             }
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level3Fk = (ForeignKey)level3.AddForeignKey(level3.FindProperty(nameof(Level3.Id)), level2.FindPrimaryKey(), level2);
                 level3Fk.IsUnique = true;
                 level3Fk.HasPrincipalToDependent(nameof(Level2.OneToOne_Required_PK2), ConfigurationSource.Explicit);
-                level3Fk.HasDependentToPrincipal(nameof(Level3.OneToOne_Required_PK_Inverse3), ConfigurationSource.Explicit);
+                level3Fk.SetDependentToPrincipal(nameof(Level3.OneToOne_Required_PK_Inverse3), ConfigurationSource.Explicit);
                 level3Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level3Fk = (ForeignKey)batch.Run(level3Fk);
             }
@@ -189,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level4Fk = (ForeignKey)level4.AddForeignKey(level4.FindProperty(nameof(Level4.Id)), level3.FindPrimaryKey(), level3);
                 level4Fk.IsUnique = true;
                 level4Fk.HasPrincipalToDependent(nameof(Level3.OneToOne_Required_PK3), ConfigurationSource.Explicit);
-                level4Fk.HasDependentToPrincipal(nameof(Level4.OneToOne_Required_PK_Inverse4), ConfigurationSource.Explicit);
+                level4Fk.SetDependentToPrincipal(nameof(Level4.OneToOne_Required_PK_Inverse4), ConfigurationSource.Explicit);
                 level4Fk.DeleteBehavior = DeleteBehavior.Restrict;
                 level4Fk = (ForeignKey)batch.Run(level4Fk);
             }

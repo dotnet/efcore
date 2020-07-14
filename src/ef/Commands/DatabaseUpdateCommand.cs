@@ -6,11 +6,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     // ReSharper disable once ArrangeTypeModifiers
     internal partial class DatabaseUpdateCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            CreateExecutor().UpdateDatabase(_migration.Value, Context.Value());
+            CreateExecutor(args).UpdateDatabase(_migration.Value, _connection.Value(), Context.Value());
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }

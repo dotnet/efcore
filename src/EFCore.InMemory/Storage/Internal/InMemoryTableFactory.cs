@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -18,14 +17,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InMemoryTableFactory
-        // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
-        : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
+    public class InMemoryTableFactory : IInMemoryTableFactory
     {
         private readonly bool _sensitiveLoggingEnabled;
 
-        private readonly ConcurrentDictionary<IKey, Func<IInMemoryTable>> _factories
-            = new ConcurrentDictionary<IKey, Func<IInMemoryTable>>();
+        private readonly ConcurrentDictionary<(IEntityType EntityType, IInMemoryTable BaseTable), Func<IInMemoryTable>> _factories
+            = new ConcurrentDictionary<(IEntityType, IInMemoryTable), Func<IInMemoryTable>>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,20 +43,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IInMemoryTable Create(IEntityType entityType)
-            => _factories.GetOrAdd(entityType.FindPrimaryKey(), Create)();
+        public virtual IInMemoryTable Create(IEntityType entityType, IInMemoryTable baseTable)
+            => _factories.GetOrAdd((entityType, baseTable), e => CreateTable(e.EntityType, e.BaseTable))();
 
-        private Func<IInMemoryTable> Create([NotNull] IKey key)
+        private Func<IInMemoryTable> CreateTable([NotNull] IEntityType entityType, IInMemoryTable baseTable)
             => (Func<IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))
-                .MakeGenericMethod(GetKeyType(key))
-                .Invoke(null, new object[] { key, _sensitiveLoggingEnabled });
+                .MakeGenericMethod(entityType.FindPrimaryKey().GetKeyType())
+                .Invoke(null, new object[] { entityType, baseTable, _sensitiveLoggingEnabled });
 
         [UsedImplicitly]
-        private static Func<IInMemoryTable> CreateFactory<TKey>(IKey key, bool sensitiveLoggingEnabled)
-            => () => new InMemoryTable<TKey>(
-                // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
-                EntityFrameworkCore.Metadata.Internal.KeyExtensions.GetPrincipalKeyValueFactory<TKey>(key),
-                sensitiveLoggingEnabled);
+        private static Func<IInMemoryTable> CreateFactory<TKey>(
+            IEntityType entityType, IInMemoryTable baseTable, bool sensitiveLoggingEnabled)
+            => () => new InMemoryTable<TKey>(entityType, baseTable, sensitiveLoggingEnabled);
     }
 }

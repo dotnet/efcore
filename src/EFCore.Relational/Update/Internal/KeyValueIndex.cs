@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public KeyValueIndex(
-            [NotNull] IForeignKey foreignKey,
+            [CanBeNull] IForeignKey foreignKey,
             [NotNull] TKey keyValue,
             [NotNull] IEqualityComparer<TKey> keyComparer,
             bool fromOriginalValues)

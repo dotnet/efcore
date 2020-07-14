@@ -4,11 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class EntityProjectionExpression : Expression, IPrintableExpression
     {
         private readonly IDictionary<IProperty, Expression> _readExpressionMap;
@@ -16,18 +25,48 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly IDictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache
             = new Dictionary<INavigation, EntityShaperExpression>();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public EntityProjectionExpression(
-            IEntityType entityType, IDictionary<IProperty, Expression> readExpressionMap)
+            [NotNull] IEntityType entityType, [NotNull] IDictionary<IProperty, Expression> readExpressionMap)
         {
             EntityType = entityType;
             _readExpressionMap = readExpressionMap;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IEntityType EntityType { get; }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Type Type => EntityType.ClrType;
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
-        public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual EntityProjectionExpression UpdateEntityType([NotNull] IEntityType derivedType)
         {
             var readExpressionMap = new Dictionary<IProperty, Expression>();
             foreach (var kvp in _readExpressionMap)
@@ -43,39 +82,58 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return new EntityProjectionExpression(derivedType, readExpressionMap);
         }
 
-        public virtual Expression BindProperty(IProperty property)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Expression BindProperty([NotNull] IProperty property)
         {
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.BindProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
+                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
+                        "BindProperty", nameof(IProperty), EntityType.DisplayName(), $"Property:{property.Name}"));
             }
 
             return _readExpressionMap[property];
         }
 
-        public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void AddNavigationBinding([NotNull] INavigation navigation, [NotNull] EntityShaperExpression entityShaper)
         {
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    "Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. "
-                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
+                        "AddNavigationBinding", nameof(INavigation), EntityType.DisplayName(), $"Property:{navigation.Name}"));
             }
 
             _navigationExpressionsCache[navigation] = entityShaper;
         }
 
-        public virtual EntityShaperExpression BindNavigation(INavigation navigation)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual EntityShaperExpression BindNavigation([NotNull] INavigation navigation)
         {
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    "Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. "
-                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
+                        "BindNavigation", nameof(INavigation), EntityType.DisplayName(), $"Property:{navigation.Name}"));
             }
 
             return _navigationExpressionsCache.TryGetValue(navigation, out var expression)
@@ -83,8 +141,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 : null;
         }
 
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine(nameof(EntityProjectionExpression) + ":");
             using (expressionPrinter.Indent())
             {

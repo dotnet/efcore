@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     /// <summary>
@@ -15,27 +17,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The database that contains the table.
         /// </summary>
-        public virtual DatabaseModel Database { get; [param: NotNull] set; }
+        public virtual DatabaseModel? Database { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The table name.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string? Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The table schema, or <c>null</c> to use the default schema.
+        ///     The table schema, or <see langword="null" /> to use the default schema.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The table comment, or <c>null</c> if none is set.
+        ///     The table comment, or <see langword="null" /> if none is set.
         /// </summary>
-        public virtual string Comment { get; [param: CanBeNull] set; }
+        public virtual string? Comment { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The primary key of the table.
         /// </summary>
-        public virtual DatabasePrimaryKey PrimaryKey { get; [param: CanBeNull] set; }
+        public virtual DatabasePrimaryKey? PrimaryKey { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The ordered list of columns in the table.
@@ -56,5 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         ///     The list of foreign key constraints defined on the table.
         /// </summary>
         public virtual IList<DatabaseForeignKey> ForeignKeys { get; } = new List<DatabaseForeignKey>();
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var name = Name ?? "<UNKNOWN>";
+            return Schema == null ? name : $"{Schema}.{name}";
+        }
     }
 }

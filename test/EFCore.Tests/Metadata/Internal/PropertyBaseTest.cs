@@ -922,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var propertyInfo = typeof(FullProp).GetAnyProperty("Reference");
 
             Properties_can_have_field_cleared_test(
-                foreignKey.HasDependentToPrincipal(propertyInfo), propertyInfo, "_reference");
+                foreignKey.SetDependentToPrincipal(propertyInfo), propertyInfo, "_reference");
         }
 
         private void Properties_can_have_field_cleared_test(IMutablePropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)

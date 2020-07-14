@@ -63,5 +63,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             Assert.False(valid);
         }
+
+        [ConditionalFact]
+        public void IsValidId_returns_false_when_supplied_format_is_too_long()
+        {
+            var valid = new MigrationsIdGenerator().IsValidId("123456789012345_InitialCreate");
+
+            Assert.False(valid);
+        }
+
+        [ConditionalFact]
+        public void IsValidId_returns_false_when_supplied_format_is_too_short()
+        {
+            var valid = new MigrationsIdGenerator().IsValidId("1234567890123_InitialCreate");
+
+            Assert.False(valid);
+        }
     }
 }

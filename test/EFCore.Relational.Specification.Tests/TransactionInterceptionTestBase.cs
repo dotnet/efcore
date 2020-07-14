@@ -25,20 +25,16 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task BeginTransaction_without_interceptor(bool async)
         {
-            using (var context = CreateContext(Enumerable.Empty<IInterceptor>()))
+            using var context = CreateContext(Enumerable.Empty<IInterceptor>());
+            using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+            using (var transaction = async
+                ? await context.Database.BeginTransactionAsync()
+                : context.Database.BeginTransaction())
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    using (var transaction = async
-                        ? await context.Database.BeginTransactionAsync()
-                        : context.Database.BeginTransaction())
-                    {
-                        Assert.NotNull(transaction.GetDbTransaction());
-                    }
-
-                    AssertBeginTransactionEvents(listener);
-                }
+                Assert.NotNull(transaction.GetDbTransaction());
             }
+
+            AssertBeginTransactionEvents(listener);
         }
 
         [ConditionalTheory]
@@ -46,25 +42,19 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task UseTransaction_without_interceptor(bool async)
         {
-            using (var context = CreateContext(Enumerable.Empty<IInterceptor>()))
+            using var context = CreateContext(Enumerable.Empty<IInterceptor>());
+            using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+            using var transaction = context.Database.GetDbConnection().BeginTransaction();
+            var contextTransaction = async
+                ? await context.Database.UseTransactionAsync(transaction)
+                : context.Database.UseTransaction(transaction);
+
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    using (var transaction = context.Database.GetDbConnection().BeginTransaction())
-                    {
-                        var contextTransaction = async
-                            ? await context.Database.UseTransactionAsync(transaction)
-                            : context.Database.UseTransaction(transaction);
-
-                        {
-                            Assert.NotNull(contextTransaction.GetDbTransaction());
-                            Assert.Same(transaction, contextTransaction.GetDbTransaction());
-                        }
-
-                        AssertUseTransactionEvents(listener);
-                    }
-                }
+                Assert.NotNull(contextTransaction.GetDbTransaction());
+                Assert.Same(transaction, contextTransaction.GetDbTransaction());
             }
+
+            AssertUseTransactionEvents(listener);
         }
 
         [ConditionalTheory]
@@ -75,17 +65,15 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<TransactionInterceptor>();
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                using (var _ = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction())
                 {
-                    using (var _ = async
-                        ? await context.Database.BeginTransactionAsync()
-                        : context.Database.BeginTransaction())
-                    {
-                        AssertBeginTransaction(context, interceptor, async);
-                    }
-
-                    AssertBeginTransactionEvents(listener);
+                    AssertBeginTransaction(context, interceptor, async);
                 }
+
+                AssertBeginTransactionEvents(listener);
             }
         }
 
@@ -97,17 +85,15 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<TransactionInterceptor>();
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                using (var _ = async
+                    ? await context.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted)
+                    : context.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    using (var _ = async
-                        ? await context.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted)
-                        : context.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
-                    {
-                        AssertBeginTransaction(context, interceptor, async);
-                    }
-
-                    AssertBeginTransactionEvents(listener);
+                    AssertBeginTransaction(context, interceptor, async);
                 }
+
+                AssertBeginTransactionEvents(listener);
             }
         }
 
@@ -119,22 +105,18 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<SuppressingTransactionInterceptor>();
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                using var _ = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+                AssertBeginTransaction(context, interceptor, async);
+
+                // Throws if a real transaction has been created
+                using (context.Database.GetDbConnection().BeginTransaction())
                 {
-                    using (var _ = async
-                        ? await context.Database.BeginTransactionAsync()
-                        : context.Database.BeginTransaction())
-                    {
-                        AssertBeginTransaction(context, interceptor, async);
-
-                        // Throws if a real transaction has been created
-                        using (context.Database.GetDbConnection().BeginTransaction())
-                        {
-                        }
-
-                        AssertBeginTransactionEvents(listener);
-                    }
                 }
+
+                AssertBeginTransactionEvents(listener);
             }
         }
 
@@ -150,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<DbTransaction>.SuppressWithResult(new FakeDbTransaction(connection, eventData.IsolationLevel));
             }
 
-            public override async Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+            public override async ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
                 InterceptionResult<DbTransaction> result,
@@ -170,19 +152,15 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<WrappingTransactionInterceptor>();
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    using (var transaction = async
-                        ? await context.Database.BeginTransactionAsync()
-                        : context.Database.BeginTransaction())
-                    {
-                        AssertBeginTransaction(context, interceptor, async);
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                using var transaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+                AssertBeginTransaction(context, interceptor, async);
 
-                        Assert.IsType<WrappedDbTransaction>(transaction.GetDbTransaction());
+                Assert.IsType<WrappedDbTransaction>(transaction.GetDbTransaction());
 
-                        AssertBeginTransactionEvents(listener);
-                    }
-                }
+                AssertBeginTransactionEvents(listener);
             }
         }
 
@@ -198,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new WrappedDbTransaction(result);
             }
 
-            public override async Task<DbTransaction> TransactionStartedAsync(
+            public override async ValueTask<DbTransaction> TransactionStartedAsync(
                 DbConnection connection,
                 TransactionEndEventData eventData,
                 DbTransaction result,
@@ -219,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new WrappedDbTransaction(result);
             }
 
-            public override async Task<DbTransaction> TransactionUsedAsync(
+            public override async ValueTask<DbTransaction> TransactionUsedAsync(
                 DbConnection connection,
                 TransactionEventData eventData,
                 DbTransaction result,
@@ -239,19 +217,17 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<TransactionInterceptor>();
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                using (var transaction = context.Database.GetDbConnection().BeginTransaction())
                 {
-                    using (var transaction = context.Database.GetDbConnection().BeginTransaction())
-                    {
-                        var contextTransaction = async
-                            ? await context.Database.UseTransactionAsync(transaction)
-                            : context.Database.UseTransaction(transaction);
+                    var contextTransaction = async
+                        ? await context.Database.UseTransactionAsync(transaction)
+                        : context.Database.UseTransaction(transaction);
 
-                        AssertUseTransaction(context, contextTransaction, interceptor, async);
-                    }
-
-                    AssertUseTransactionEvents(listener);
+                    AssertUseTransaction(context, contextTransaction, interceptor, async);
                 }
+
+                AssertUseTransactionEvents(listener);
             }
         }
 
@@ -263,21 +239,17 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<WrappingTransactionInterceptor>();
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    using (var transaction = context.Database.GetDbConnection().BeginTransaction())
-                    {
-                        var contextTransaction = async
-                            ? await context.Database.UseTransactionAsync(transaction)
-                            : context.Database.UseTransaction(transaction);
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                using var transaction = context.Database.GetDbConnection().BeginTransaction();
+                var contextTransaction = async
+                    ? await context.Database.UseTransactionAsync(transaction)
+                    : context.Database.UseTransaction(transaction);
 
-                        Assert.IsType<WrappedDbTransaction>(contextTransaction.GetDbTransaction());
+                Assert.IsType<WrappedDbTransaction>(contextTransaction.GetDbTransaction());
 
-                        AssertUseTransaction(context, contextTransaction, interceptor, async);
+                AssertUseTransaction(context, contextTransaction, interceptor, async);
 
-                        AssertUseTransactionEvents(listener);
-                    }
-                }
+                AssertUseTransactionEvents(listener);
             }
         }
 
@@ -289,28 +261,24 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<TransactionInterceptor>();
             using (context)
             {
-                using (var contextTransaction = async
+                using var contextTransaction = async
                     ? await context.Database.BeginTransactionAsync()
-                    : context.Database.BeginTransaction())
+                    : context.Database.BeginTransaction();
+                interceptor.Reset();
+
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                if (async)
                 {
-                    interceptor.Reset();
-
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        if (async)
-                        {
-                            await contextTransaction.CommitAsync();
-                        }
-                        else
-                        {
-                            contextTransaction.Commit();
-                        }
-
-                        AssertCommit(context, contextTransaction, interceptor, async);
-
-                        AssertCommitEvents(listener);
-                    }
+                    await contextTransaction.CommitAsync();
                 }
+                else
+                {
+                    contextTransaction.Commit();
+                }
+
+                AssertCommit(context, contextTransaction, interceptor, async);
+
+                AssertCommitEvents(listener);
             }
         }
 
@@ -322,31 +290,27 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<CommitSuppressingTransactionInterceptor>();
             using (context)
             {
-                using (var contextTransaction = async
+                using var contextTransaction = async
                     ? await context.Database.BeginTransactionAsync()
-                    : context.Database.BeginTransaction())
+                    : context.Database.BeginTransaction();
+                interceptor.Reset();
+
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                if (async)
                 {
-                    interceptor.Reset();
-
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        if (async)
-                        {
-                            await contextTransaction.CommitAsync();
-                        }
-                        else
-                        {
-                            contextTransaction.Commit();
-                        }
-
-                        // Will throw if Commit was already called
-                        contextTransaction.GetDbTransaction().Commit();
-
-                        AssertCommit(context, contextTransaction, interceptor, async);
-
-                        AssertCommitEvents(listener);
-                    }
+                    await contextTransaction.CommitAsync();
                 }
+                else
+                {
+                    contextTransaction.Commit();
+                }
+
+                // Will throw if Commit was already called
+                contextTransaction.GetDbTransaction().Commit();
+
+                AssertCommit(context, contextTransaction, interceptor, async);
+
+                AssertCommitEvents(listener);
             }
         }
 
@@ -358,28 +322,24 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<TransactionInterceptor>();
             using (context)
             {
-                using (var contextTransaction = async
+                using var contextTransaction = async
                     ? await context.Database.BeginTransactionAsync()
-                    : context.Database.BeginTransaction())
+                    : context.Database.BeginTransaction();
+                interceptor.Reset();
+
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                if (async)
                 {
-                    interceptor.Reset();
-
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        if (async)
-                        {
-                            await contextTransaction.RollbackAsync();
-                        }
-                        else
-                        {
-                            contextTransaction.Rollback();
-                        }
-
-                        AssertRollBack(context, contextTransaction, interceptor, async);
-
-                        AssertRollBackEvents(listener);
-                    }
+                    await contextTransaction.RollbackAsync();
                 }
+                else
+                {
+                    contextTransaction.Rollback();
+                }
+
+                AssertRollBack(context, contextTransaction, interceptor, async);
+
+                AssertRollBackEvents(listener);
             }
         }
 
@@ -391,31 +351,130 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<CommitSuppressingTransactionInterceptor>();
             using (context)
             {
-                using (var contextTransaction = async
+                using var contextTransaction = async
                     ? await context.Database.BeginTransactionAsync()
-                    : context.Database.BeginTransaction())
+                    : context.Database.BeginTransaction();
+                interceptor.Reset();
+
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                if (async)
                 {
-                    interceptor.Reset();
-
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        if (async)
-                        {
-                            await contextTransaction.RollbackAsync();
-                        }
-                        else
-                        {
-                            contextTransaction.Rollback();
-                        }
-
-                        // Will throw if Commit was already called
-                        contextTransaction.GetDbTransaction().Commit();
-
-                        AssertRollBack(context, contextTransaction, interceptor, async);
-
-                        AssertRollBackEvents(listener);
-                    }
+                    await contextTransaction.RollbackAsync();
                 }
+                else
+                {
+                    contextTransaction.Rollback();
+                }
+
+                // Will throw if Commit was already called
+                contextTransaction.GetDbTransaction().Commit();
+
+                AssertRollBack(context, contextTransaction, interceptor, async);
+
+                AssertRollBackEvents(listener);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Intercept_CreateSavepoint(bool async)
+        {
+            var (context, interceptor) = CreateContext<TransactionInterceptor>();
+            using (context)
+            {
+                using var contextTransaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+                interceptor.Reset();
+
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                if (async)
+                {
+                    await contextTransaction.CreateSavepointAsync("dummy");
+                }
+                else
+                {
+                    contextTransaction.CreateSavepoint("dummy");
+                }
+
+                AssertCreateSavepoint(context, contextTransaction, interceptor, async);
+
+                AssertCreateSavepointEvents(listener);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Intercept_RollbackToSavepoint(bool async)
+        {
+            var (context, interceptor) = CreateContext<TransactionInterceptor>();
+            using (context)
+            {
+                using var contextTransaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+                if (async)
+                {
+                    await contextTransaction.CreateSavepointAsync("dummy");
+                }
+                else
+                {
+                    contextTransaction.CreateSavepoint("dummy");
+                }
+                interceptor.Reset();
+
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                if (async)
+                {
+                    await contextTransaction.RollbackToSavepointAsync("dummy");
+                }
+                else
+                {
+                    contextTransaction.RollbackToSavepoint("dummy");
+                }
+
+                AssertRollbackToSavepoint(context, contextTransaction, interceptor, async);
+
+                AssertRollbackToSavepointEvents(listener);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Intercept_ReleaseSavepoint(bool async)
+        {
+            var (context, interceptor) = CreateContext<TransactionInterceptor>();
+            using (context)
+            {
+                using var contextTransaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+                if (async)
+                {
+                    await contextTransaction.CreateSavepointAsync("dummy");
+                }
+                else
+                {
+                    contextTransaction.CreateSavepoint("dummy");
+                }
+                interceptor.Reset();
+
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                if (async)
+                {
+                    await contextTransaction.ReleaseSavepointAsync("dummy");
+                }
+                else
+                {
+                    contextTransaction.ReleaseSavepoint("dummy");
+                }
+
+                AssertReleaseSavepoint(context, contextTransaction, interceptor, async);
+
+                AssertReleaseSavepointEvents(listener);
             }
         }
 
@@ -431,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult> TransactionCommittingAsync(
+            public override async ValueTask<InterceptionResult> TransactionCommittingAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -452,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult> TransactionRollingBackAsync(
+            public override async ValueTask<InterceptionResult> TransactionRollingBackAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -474,48 +533,46 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<TransactionInterceptor>();
             using (context)
             {
-                using (var contextTransaction = async
+                using var contextTransaction = async
                     ? await context.Database.BeginTransactionAsync()
-                    : context.Database.BeginTransaction())
+                    : context.Database.BeginTransaction();
+                interceptor.Reset();
+
+                contextTransaction.GetDbTransaction().Commit();
+
+                try
                 {
-                    interceptor.Reset();
-
-                    contextTransaction.GetDbTransaction().Commit();
-
-                    try
+                    if (async)
                     {
-                        if (async)
+                        if (commit)
                         {
-                            if (commit)
-                            {
-                                await contextTransaction.CommitAsync();
-                            }
-                            else
-                            {
-                                await contextTransaction.RollbackAsync();
-                            }
+                            await contextTransaction.CommitAsync();
                         }
                         else
                         {
-                            if (commit)
-                            {
-                                contextTransaction.Commit();
-                            }
-                            else
-                            {
-                                contextTransaction.Rollback();
-                            }
+                            await contextTransaction.RollbackAsync();
                         }
-
-                        Assert.False(true);
                     }
-                    catch (Exception exception)
+                    else
                     {
-                        Assert.Same(exception, interceptor.Exception);
+                        if (commit)
+                        {
+                            contextTransaction.Commit();
+                        }
+                        else
+                        {
+                            contextTransaction.Rollback();
+                        }
                     }
 
-                    AssertError(context, interceptor, async);
+                    Assert.False(true);
                 }
+                catch (Exception exception)
+                {
+                    Assert.Same(exception, interceptor.Exception);
+                }
+
+                AssertError(context, interceptor, async);
             }
         }
 
@@ -528,27 +585,21 @@ namespace Microsoft.EntityFrameworkCore
             var interceptor2 = new WrappingTransactionInterceptor();
             var interceptor3 = new TransactionInterceptor();
             var interceptor4 = new WrappingTransactionInterceptor();
-            using (var context = CreateContext(
+            using var context = CreateContext(
                 new IInterceptor[] { new NoOpTransactionInterceptor(), interceptor1, interceptor2 },
-                new IInterceptor[] { interceptor3, interceptor4, new NoOpTransactionInterceptor() }))
-            {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    using (var contextTransaction = async
-                        ? await context.Database.BeginTransactionAsync()
-                        : context.Database.BeginTransaction())
-                    {
-                        Assert.IsType<WrappedDbTransaction>(contextTransaction.GetDbTransaction());
+                new IInterceptor[] { interceptor3, interceptor4, new NoOpTransactionInterceptor() });
+            using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+            using var contextTransaction = async
+                ? await context.Database.BeginTransactionAsync()
+                : context.Database.BeginTransaction();
+            Assert.IsType<WrappedDbTransaction>(contextTransaction.GetDbTransaction());
 
-                        AssertBeginTransaction(context, interceptor1, async);
-                        AssertBeginTransaction(context, interceptor2, async);
-                        AssertBeginTransaction(context, interceptor3, async);
-                        AssertBeginTransaction(context, interceptor4, async);
+            AssertBeginTransaction(context, interceptor1, async);
+            AssertBeginTransaction(context, interceptor2, async);
+            AssertBeginTransaction(context, interceptor3, async);
+            AssertBeginTransaction(context, interceptor4, async);
 
-                        AssertBeginTransactionEvents(listener);
-                    }
-                }
-            }
+            AssertBeginTransactionEvents(listener);
         }
 
         protected class NoOpTransactionInterceptor : DbConnectionInterceptor
@@ -606,6 +657,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(interceptor.CommittedCalled);
             Assert.False(interceptor.RollingBackCalled);
             Assert.False(interceptor.RolledBackCalled);
+            Assert.False(interceptor.CreatingSavepointCalled);
+            Assert.False(interceptor.CreatedSavepointCalled);
+            Assert.False(interceptor.RollingBackToSavepointCalled);
+            Assert.False(interceptor.RolledBackToSavepointCalled);
+            Assert.False(interceptor.ReleasingSavepointCalled);
+            Assert.False(interceptor.ReleasedSavepointCalled);
             Assert.False(interceptor.FailedCalled);
             Assert.Same(context, interceptor.Context);
         }
@@ -625,6 +682,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(interceptor.CommittedCalled);
             Assert.False(interceptor.RollingBackCalled);
             Assert.False(interceptor.RolledBackCalled);
+            Assert.False(interceptor.CreatingSavepointCalled);
+            Assert.False(interceptor.CreatedSavepointCalled);
+            Assert.False(interceptor.RollingBackToSavepointCalled);
+            Assert.False(interceptor.RolledBackToSavepointCalled);
+            Assert.False(interceptor.ReleasingSavepointCalled);
+            Assert.False(interceptor.ReleasedSavepointCalled);
             Assert.False(interceptor.StartedCalled);
             Assert.False(interceptor.FailedCalled);
             Assert.Same(context, interceptor.Context);
@@ -644,6 +707,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(interceptor.CommittedCalled);
             Assert.False(interceptor.RollingBackCalled);
             Assert.False(interceptor.RolledBackCalled);
+            Assert.False(interceptor.CreatingSavepointCalled);
+            Assert.False(interceptor.CreatedSavepointCalled);
+            Assert.False(interceptor.RollingBackToSavepointCalled);
+            Assert.False(interceptor.RolledBackToSavepointCalled);
+            Assert.False(interceptor.ReleasingSavepointCalled);
+            Assert.False(interceptor.ReleasedSavepointCalled);
             Assert.False(interceptor.UsedCalled);
             Assert.False(interceptor.StartingCalled);
             Assert.False(interceptor.StartedCalled);
@@ -665,6 +734,93 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(interceptor.CommittedCalled);
             Assert.True(interceptor.RollingBackCalled);
             Assert.True(interceptor.RolledBackCalled);
+            Assert.False(interceptor.CreatingSavepointCalled);
+            Assert.False(interceptor.CreatedSavepointCalled);
+            Assert.False(interceptor.RollingBackToSavepointCalled);
+            Assert.False(interceptor.RolledBackToSavepointCalled);
+            Assert.False(interceptor.ReleasingSavepointCalled);
+            Assert.False(interceptor.ReleasedSavepointCalled);
+            Assert.False(interceptor.UsedCalled);
+            Assert.False(interceptor.StartingCalled);
+            Assert.False(interceptor.StartedCalled);
+            Assert.False(interceptor.FailedCalled);
+            Assert.Same(context, interceptor.Context);
+            Assert.Equal(contextTransaction.TransactionId, interceptor.TransactionId);
+        }
+
+        private static void AssertCreateSavepoint(
+            DbContext context,
+            IDbContextTransaction contextTransaction,
+            TransactionInterceptor interceptor,
+            bool async)
+        {
+            Assert.Equal(async, interceptor.AsyncCalled);
+            Assert.NotEqual(async, interceptor.SyncCalled);
+            Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
+            Assert.False(interceptor.CommittingCalled);
+            Assert.False(interceptor.CommittedCalled);
+            Assert.False(interceptor.RollingBackCalled);
+            Assert.False(interceptor.RolledBackCalled);
+            Assert.True(interceptor.CreatingSavepointCalled);
+            Assert.True(interceptor.CreatedSavepointCalled);
+            Assert.False(interceptor.RollingBackToSavepointCalled);
+            Assert.False(interceptor.RolledBackToSavepointCalled);
+            Assert.False(interceptor.ReleasingSavepointCalled);
+            Assert.False(interceptor.ReleasedSavepointCalled);
+            Assert.False(interceptor.UsedCalled);
+            Assert.False(interceptor.StartingCalled);
+            Assert.False(interceptor.StartedCalled);
+            Assert.False(interceptor.FailedCalled);
+            Assert.Same(context, interceptor.Context);
+            Assert.Equal(contextTransaction.TransactionId, interceptor.TransactionId);
+        }
+
+        private static void AssertRollbackToSavepoint(
+            DbContext context,
+            IDbContextTransaction contextTransaction,
+            TransactionInterceptor interceptor,
+            bool async)
+        {
+            Assert.Equal(async, interceptor.AsyncCalled);
+            Assert.NotEqual(async, interceptor.SyncCalled);
+            Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
+            Assert.False(interceptor.CommittingCalled);
+            Assert.False(interceptor.CommittedCalled);
+            Assert.False(interceptor.RollingBackCalled);
+            Assert.False(interceptor.RolledBackCalled);
+            Assert.False(interceptor.CreatingSavepointCalled);
+            Assert.False(interceptor.CreatedSavepointCalled);
+            Assert.True(interceptor.RollingBackToSavepointCalled);
+            Assert.True(interceptor.RolledBackToSavepointCalled);
+            Assert.False(interceptor.ReleasingSavepointCalled);
+            Assert.False(interceptor.ReleasedSavepointCalled);
+            Assert.False(interceptor.UsedCalled);
+            Assert.False(interceptor.StartingCalled);
+            Assert.False(interceptor.StartedCalled);
+            Assert.False(interceptor.FailedCalled);
+            Assert.Same(context, interceptor.Context);
+            Assert.Equal(contextTransaction.TransactionId, interceptor.TransactionId);
+        }
+
+        private static void AssertReleaseSavepoint(
+            DbContext context,
+            IDbContextTransaction contextTransaction,
+            TransactionInterceptor interceptor,
+            bool async)
+        {
+            Assert.Equal(async, interceptor.AsyncCalled);
+            Assert.NotEqual(async, interceptor.SyncCalled);
+            Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
+            Assert.False(interceptor.CommittingCalled);
+            Assert.False(interceptor.CommittedCalled);
+            Assert.False(interceptor.RollingBackCalled);
+            Assert.False(interceptor.RolledBackCalled);
+            Assert.False(interceptor.CreatingSavepointCalled);
+            Assert.False(interceptor.CreatedSavepointCalled);
+            Assert.False(interceptor.RollingBackToSavepointCalled);
+            Assert.False(interceptor.RolledBackToSavepointCalled);
+            Assert.True(interceptor.ReleasingSavepointCalled);
+            Assert.True(interceptor.ReleasedSavepointCalled);
             Assert.False(interceptor.UsedCalled);
             Assert.False(interceptor.StartingCalled);
             Assert.False(interceptor.StartedCalled);
@@ -703,6 +859,21 @@ namespace Microsoft.EntityFrameworkCore
                 RelationalEventId.TransactionRollingBack.Name,
                 RelationalEventId.TransactionRolledBack.Name);
 
+        private static void AssertCreateSavepointEvents(ITestDiagnosticListener listener)
+            => listener.AssertEventsInOrder(
+                RelationalEventId.CreatingTransactionSavepoint.Name,
+                RelationalEventId.CreatedTransactionSavepoint.Name);
+
+        private static void AssertRollbackToSavepointEvents(ITestDiagnosticListener listener)
+            => listener.AssertEventsInOrder(
+                RelationalEventId.RollingBackToTransactionSavepoint.Name,
+                RelationalEventId.RolledBackToTransactionSavepoint.Name);
+
+        private static void AssertReleaseSavepointEvents(ITestDiagnosticListener listener)
+            => listener.AssertEventsInOrder(
+                RelationalEventId.ReleasingTransactionSavepoint.Name,
+                RelationalEventId.ReleasedTransactionSavepoint.Name);
+
         protected class TransactionInterceptor : IDbTransactionInterceptor
         {
             public DbContext Context { get; set; }
@@ -719,6 +890,12 @@ namespace Microsoft.EntityFrameworkCore
             public bool CommittedCalled { get; set; }
             public bool RollingBackCalled { get; set; }
             public bool RolledBackCalled { get; set; }
+            public bool CreatingSavepointCalled { get; set; }
+            public bool CreatedSavepointCalled { get; set; }
+            public bool RollingBackToSavepointCalled { get; set; }
+            public bool RolledBackToSavepointCalled { get; set; }
+            public bool ReleasingSavepointCalled { get; set; }
+            public bool ReleasedSavepointCalled { get; set; }
             public bool FailedCalled { get; set; }
 
             public void Reset()
@@ -735,6 +912,12 @@ namespace Microsoft.EntityFrameworkCore
                 CommittedCalled = false;
                 RollingBackCalled = false;
                 RolledBackCalled = false;
+                CreatingSavepointCalled = false;
+                CreatedSavepointCalled = false;
+                RollingBackToSavepointCalled = false;
+                RolledBackToSavepointCalled = false;
+                ReleasingSavepointCalled = false;
+                ReleasedSavepointCalled = false;
                 FailedCalled = false;
             }
 
@@ -814,6 +997,72 @@ namespace Microsoft.EntityFrameworkCore
                 RolledBackCalled = true;
             }
 
+            protected virtual void AssertCreatingSavepoint(TransactionEventData eventData)
+            {
+                Assert.NotNull(eventData.Context);
+                Assert.NotEqual(default, eventData.ConnectionId);
+                Assert.NotEqual(default, eventData.TransactionId);
+
+                Context = eventData.Context;
+                TransactionId = eventData.TransactionId;
+                ConnectionId = eventData.ConnectionId;
+
+                CreatingSavepointCalled = true;
+            }
+
+            protected virtual void AssertCreatedSavepoint(TransactionEventData eventData)
+            {
+                Assert.Same(Context, eventData.Context);
+                Assert.Equal(TransactionId, eventData.TransactionId);
+                Assert.Equal(ConnectionId, eventData.ConnectionId);
+
+                CreatedSavepointCalled = true;
+            }
+
+            protected virtual void AssertRollingBackToSavepoint(TransactionEventData eventData)
+            {
+                Assert.NotNull(eventData.Context);
+                Assert.NotEqual(default, eventData.ConnectionId);
+                Assert.NotEqual(default, eventData.TransactionId);
+
+                Context = eventData.Context;
+                TransactionId = eventData.TransactionId;
+                ConnectionId = eventData.ConnectionId;
+
+                RollingBackToSavepointCalled = true;
+            }
+
+            protected virtual void AssertRolledBackToSavepoint(TransactionEventData eventData)
+            {
+                Assert.Same(Context, eventData.Context);
+                Assert.Equal(TransactionId, eventData.TransactionId);
+                Assert.Equal(ConnectionId, eventData.ConnectionId);
+
+                RolledBackToSavepointCalled = true;
+            }
+
+            protected virtual void AssertReleasingSavepoint(TransactionEventData eventData)
+            {
+                Assert.NotNull(eventData.Context);
+                Assert.NotEqual(default, eventData.ConnectionId);
+                Assert.NotEqual(default, eventData.TransactionId);
+
+                Context = eventData.Context;
+                TransactionId = eventData.TransactionId;
+                ConnectionId = eventData.ConnectionId;
+
+                ReleasingSavepointCalled = true;
+            }
+
+            protected virtual void AssertReleasedSavepoint(TransactionEventData eventData)
+            {
+                Assert.Same(Context, eventData.Context);
+                Assert.Equal(TransactionId, eventData.TransactionId);
+                Assert.Equal(ConnectionId, eventData.ConnectionId);
+
+                ReleasedSavepointCalled = true;
+            }
+
             protected virtual void AssertFailed(TransactionErrorEventData eventData)
             {
                 Assert.Same(Context, eventData.Context);
@@ -861,7 +1110,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+            public virtual ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
                 DbConnection connection,
                 TransactionStartingEventData eventData,
                 InterceptionResult<DbTransaction> result,
@@ -871,10 +1120,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertStarting(connection, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult<DbTransaction>>(Task.FromResult(result));
             }
 
-            public virtual Task<DbTransaction> TransactionStartedAsync(
+            public virtual ValueTask<DbTransaction> TransactionStartedAsync(
                 DbConnection connection,
                 TransactionEndEventData eventData,
                 DbTransaction result,
@@ -884,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertStarted(connection, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<DbTransaction>(Task.FromResult(result));
             }
 
             public virtual DbTransaction TransactionUsed(
@@ -899,7 +1148,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<DbTransaction> TransactionUsedAsync(
+            public virtual ValueTask<DbTransaction> TransactionUsedAsync(
                 DbConnection connection,
                 TransactionEventData eventData,
                 DbTransaction result,
@@ -909,7 +1158,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertUsed(connection, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<DbTransaction>(Task.FromResult(result));
             }
 
             public virtual InterceptionResult TransactionCommitting(
@@ -933,7 +1182,7 @@ namespace Microsoft.EntityFrameworkCore
                 AssertCommitted(eventData);
             }
 
-            public virtual Task<InterceptionResult> TransactionCommittingAsync(
+            public virtual ValueTask<InterceptionResult> TransactionCommittingAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -943,7 +1192,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertCommitting(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
             }
 
             public virtual Task TransactionCommittedAsync(
@@ -979,7 +1228,7 @@ namespace Microsoft.EntityFrameworkCore
                 AssertRolledBack(eventData);
             }
 
-            public virtual Task<InterceptionResult> TransactionRollingBackAsync(
+            public virtual ValueTask<InterceptionResult> TransactionRollingBackAsync(
                 DbTransaction transaction,
                 TransactionEventData eventData,
                 InterceptionResult result,
@@ -989,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertRollingBack(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
             }
 
             public virtual Task TransactionRolledBackAsync(
@@ -1000,6 +1249,144 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.True(eventData.IsAsync);
                 AsyncCalled = true;
                 AssertRolledBack(eventData);
+
+                return Task.CompletedTask;
+            }
+
+            public virtual InterceptionResult CreatingSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result)
+            {
+                Assert.False(eventData.IsAsync);
+                SyncCalled = true;
+                AssertCreatingSavepoint(eventData);
+
+                return result;
+            }
+
+            public virtual void CreatedSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData)
+            {
+                Assert.False(eventData.IsAsync);
+                SyncCalled = true;
+                AssertCreatedSavepoint(eventData);
+            }
+
+            public virtual ValueTask<InterceptionResult> CreatingSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result,
+                CancellationToken cancellationToken = default)
+            {
+                Assert.True(eventData.IsAsync);
+                AsyncCalled = true;
+                AssertCreatingSavepoint(eventData);
+
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
+            }
+
+            public virtual Task CreatedSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                CancellationToken cancellationToken = default)
+            {
+                Assert.True(eventData.IsAsync);
+                AsyncCalled = true;
+                AssertCreatedSavepoint(eventData);
+
+                return Task.CompletedTask;
+            }
+
+            public virtual InterceptionResult RollingBackToSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result)
+            {
+                Assert.False(eventData.IsAsync);
+                SyncCalled = true;
+                AssertRollingBackToSavepoint(eventData);
+
+                return result;
+            }
+
+            public virtual void RolledBackToSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData)
+            {
+                Assert.False(eventData.IsAsync);
+                SyncCalled = true;
+                AssertRolledBackToSavepoint(eventData);
+            }
+
+            public virtual ValueTask<InterceptionResult> RollingBackToSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result,
+                CancellationToken cancellationToken = default)
+            {
+                Assert.True(eventData.IsAsync);
+                AsyncCalled = true;
+                AssertRollingBackToSavepoint(eventData);
+
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
+            }
+
+            public virtual Task RolledBackToSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                CancellationToken cancellationToken = default)
+            {
+                Assert.True(eventData.IsAsync);
+                AsyncCalled = true;
+                AssertRolledBackToSavepoint(eventData);
+
+                return Task.CompletedTask;
+            }
+
+            public virtual InterceptionResult ReleasingSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result)
+            {
+                Assert.False(eventData.IsAsync);
+                SyncCalled = true;
+                AssertReleasingSavepoint(eventData);
+
+                return result;
+            }
+
+            public virtual void ReleasedSavepoint(
+                DbTransaction transaction,
+                TransactionEventData eventData)
+            {
+                Assert.False(eventData.IsAsync);
+                SyncCalled = true;
+                AssertReleasedSavepoint(eventData);
+            }
+
+            public virtual ValueTask<InterceptionResult> ReleasingSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                InterceptionResult result,
+                CancellationToken cancellationToken = default)
+            {
+                Assert.True(eventData.IsAsync);
+                AsyncCalled = true;
+                AssertReleasingSavepoint(eventData);
+
+                return new ValueTask<InterceptionResult>(Task.FromResult(result));
+            }
+
+            public virtual Task ReleasedSavepointAsync(
+                DbTransaction transaction,
+                TransactionEventData eventData,
+                CancellationToken cancellationToken = default)
+            {
+                Assert.True(eventData.IsAsync);
+                AsyncCalled = true;
+                AssertReleasedSavepoint(eventData);
 
                 return Task.CompletedTask;
             }

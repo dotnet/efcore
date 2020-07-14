@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public EmbeddedDocumentsTest(CosmosFixture fixture, ITestOutputHelper testOutputHelper)
         {
             Fixture = fixture;
-            TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         [ConditionalFact(Skip = "Issue #17670")]
@@ -339,14 +338,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual async Task Can_query_just_embedded_reference()
         {
             var options = Fixture.CreateOptions();
-            using (var context = new EmbeddedTransportationContext(options))
-            {
-                var firstOperator = await context.Set<Vehicle>().OrderBy(o => o.Name).Select(v => v.Operator)
-                    .AsNoTracking().FirstAsync();
+            using var context = new EmbeddedTransportationContext(options);
+            var firstOperator = await context.Set<Vehicle>().OrderBy(o => o.Name).Select(v => v.Operator)
+                .AsNoTracking().FirstAsync();
 
-                Assert.Equal("Albert Williams", firstOperator.Name);
-                Assert.Null(firstOperator.Vehicle);
-            }
+            Assert.Equal("Albert Williams", firstOperator.Name);
+            Assert.Null(firstOperator.Vehicle);
         }
 
         [ConditionalFact]
@@ -381,21 +378,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual async Task Inserting_dependent_without_principal_throws()
         {
             var options = Fixture.CreateOptions(seed: false);
-            using (var context = new EmbeddedTransportationContext(options))
-            {
-                context.Add(
-                    new LicensedOperator
-                    {
-                        Name = "Jack Jackson",
-                        LicenseType = "Class A CDC",
-                        VehicleName = "Fuel transport"
-                    });
+            using var context = new EmbeddedTransportationContext(options);
+            context.Add(
+                new LicensedOperator
+                {
+                    Name = "Jack Jackson",
+                    LicenseType = "Class A CDC",
+                    VehicleName = "Fuel transport"
+                });
 
-                Assert.Equal(
-                    CosmosStrings.OrphanedNestedDocumentSensitive(
-                        nameof(Operator), nameof(Vehicle), "{VehicleName: Fuel transport}"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
-            }
+            Assert.Equal(
+                CosmosStrings.OrphanedNestedDocumentSensitive(
+                    nameof(Operator), nameof(Vehicle), "{VehicleName: Fuel transport}"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
         }
 
         [ConditionalFact]

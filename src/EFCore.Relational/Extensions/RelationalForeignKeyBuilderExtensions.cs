@@ -123,10 +123,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
+        ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionRelationshipBuilder HasConstraintName(
-            [NotNull] this IConventionRelationshipBuilder relationship, [CanBeNull] string name, bool fromDataAnnotation = false)
+        public static IConventionForeignKeyBuilder HasConstraintName(
+            [NotNull] this IConventionForeignKeyBuilder relationship, [CanBeNull] string name, bool fromDataAnnotation = false)
         {
             if (!relationship.CanSetConstraintName(name, fromDataAnnotation))
             {
@@ -144,9 +144,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="relationship"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <c>true</c> if the configuration can be applied. </returns>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetConstraintName(
-            [NotNull] this IConventionRelationshipBuilder relationship, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionForeignKeyBuilder relationship, [CanBeNull] string name, bool fromDataAnnotation = false)
             => Check.NotNull(relationship, nameof(relationship))
                 .CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
     }

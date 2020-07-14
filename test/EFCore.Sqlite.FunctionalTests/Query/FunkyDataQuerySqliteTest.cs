@@ -12,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        protected virtual bool CanExecuteQueryString => false;
+
+        protected override QueryAsserter CreateQueryAsserter(FunkyDataQuerySqliteFixture fixture)
+            => new RelationalQueryAsserter(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+
         public class FunkyDataQuerySqliteFixture : FunkyDataQueryFixtureBase
         {
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;

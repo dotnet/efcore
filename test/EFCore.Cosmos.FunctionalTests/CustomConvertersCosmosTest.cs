@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -16,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public CustomConvertersCosmosTest(CustomConvertersCosmosFixture fixture)
             : base(fixture)
         {
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Can_perform_query_with_max_length()
@@ -36,30 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact(Skip = "Issue #16919")]
-        public override void Can_query_using_any_data_type()
-        {
-            base.Can_query_using_any_data_type();
-        }
-
-        [ConditionalFact(Skip = "Issue #16919")]
-        public override void Can_query_using_any_data_type_nullable_shadow()
-        {
-            base.Can_query_using_any_data_type_nullable_shadow();
-        }
-
-        [ConditionalFact(Skip = "Issue #16919")]
-        public override void Can_query_using_any_data_type_shadow()
-        {
-            base.Can_query_using_any_data_type_shadow();
-        }
-
-        [ConditionalFact(Skip = "Issue #16919")]
-        public override void Can_query_using_any_nullable_data_type()
-        {
-            base.Can_query_using_any_nullable_data_type();
-        }
-
-        [ConditionalFact(Skip = "Issue #16919")]
         public override void Can_query_using_any_nullable_data_type_as_literal()
         {
             base.Can_query_using_any_nullable_data_type_as_literal();
@@ -71,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Can_query_with_null_parameters_using_any_nullable_data_type();
         }
 
-        [ConditionalFact(Skip = "Issue #16919")]
+        [ConditionalFact(Skip = "Issue #16920")]
         public override void Can_insert_and_read_back_with_string_key()
         {
             base.Can_insert_and_read_back_with_string_key();
@@ -137,16 +113,45 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Value_conversion_is_appropriately_used_for_left_join_condition();
         }
 
-        [ConditionalFact(Skip = "Issue #18147")]
+        [ConditionalFact]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
         }
+
+        [ConditionalFact]
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
+        }
+
+        [ConditionalFact]
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisible""] = ""Aye"")))");
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class CustomConvertersCosmosFixture : CustomConvertersFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
-
             public override bool StrictEquality => true;
 
             public override int IntegerPrecision => 53;
@@ -162,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             public override bool SupportsDecimalComparisons => true;
 
             public override DateTime DefaultDateTime => new DateTime();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

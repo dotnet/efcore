@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,12 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         ///     <para>
         ///         The mapping info is populated with as much information about the required type mapping as
-        ///         is available. Use all the information necessary to create the best mapping. Return <c>null</c>
+        ///         is available. Use all the information necessary to create the best mapping. Return <see langword="null" />
         ///         if no mapping is available.
         ///     </para>
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
-        /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none could be found. </returns>
         protected virtual RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
             foreach (var plugin in RelationalDependencies.Plugins)
@@ -86,10 +86,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
-        /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none could be found. </returns>
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
             => throw new InvalidOperationException(
-                "FindMapping on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.");
+                RelationalStrings.NoneRelationalTypeMappingOnARelationalTypeMappingSource);
 
         private RelationalTypeMapping FindMappingWithConversion(
             in RelationalTypeMappingInfo mappingInfo,
@@ -194,10 +194,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping FindMapping(IProperty property)
         {
-            var mapping = property.FindRelationalMapping();
+            var mapping = property.FindRelationalTypeMapping();
             if (mapping != null)
             {
                 return mapping;
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping FindMapping(Type type)
             => FindMappingWithConversion(new RelationalTypeMappingInfo(type), null);
 
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping FindMapping(MemberInfo member)
         {
             if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="storeTypeName"> The database type name. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public virtual RelationalTypeMapping FindMapping(string storeTypeName)
         {
             var storeTypeBaseName = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
@@ -317,14 +317,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <param name="storeTypeName"> The database type name. </param>
-        /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
-        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
-        /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
-        /// <param name="rowVersion"> Specifies a row-version, or <c>null</c> for default. </param>
-        /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>
-        /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
-        /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
+        /// <param name="keyOrIndex"> If <see langword="true" />, then a special mapping for a key or index may be returned. </param>
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <see langword="null" /> for default. </param>
+        /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="rowVersion"> Specifies a row-version, or <see langword="null" /> for default. </param>
+        /// <param name="fixedLength"> Specifies a fixed length mapping, or <see langword="null" /> for default. </param>
+        /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public virtual RelationalTypeMapping FindMapping(
             Type type,
             string storeTypeName,
@@ -392,10 +392,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="storeTypeName"> A provider-specific relational type name, including facets. </param>
-        /// <param name="unicode"> The Unicode or ANSI setting parsed from the type name, or <c>null</c> if none was specified. </param>
-        /// <param name="size"> The size parsed from the type name, or <c>null</c> if none was specified. </param>
-        /// <param name="precision"> The precision parsed from the type name, or <c>null</c> if none was specified. </param>
-        /// <param name="scale"> The scale parsed from the type name, or <c>null</c> if none was specified. </param>
+        /// <param name="unicode"> The Unicode or ANSI setting parsed from the type name, or <see langword="null" /> if none was specified. </param>
+        /// <param name="size"> The size parsed from the type name, or <see langword="null" /> if none was specified. </param>
+        /// <param name="precision"> The precision parsed from the type name, or <see langword="null" /> if none was specified. </param>
+        /// <param name="scale"> The scale parsed from the type name, or <see langword="null" /> if none was specified. </param>
         /// <returns> The provider-specific relational type name, with any facets removed. </returns>
         protected virtual string ParseStoreTypeName(
             [CanBeNull] string storeTypeName,
@@ -414,6 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);
                 if (openParen > 0)
                 {
+                    string storeTypeNameBase = storeTypeName.Substring(0, openParen).Trim();
                     var closeParen = storeTypeName.IndexOf(")", openParen + 1, StringComparison.Ordinal);
                     if (closeParen > openParen)
                     {
@@ -434,16 +435,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         else if (int.TryParse(
                             storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim(), out var parsedSize))
                         {
-                            size = parsedSize;
-                            precision = parsedSize;
+                            if (StoreTypeNameBaseUsesPrecision(storeTypeNameBase))
+                            {
+                                precision = parsedSize;
+                                scale = 0;
+                            }
+                            else
+                            {
+                                size = parsedSize;
+                            }
                         }
 
-                        return storeTypeName.Substring(0, openParen).Trim();
+                        return storeTypeNameBase;
                     }
                 }
             }
 
             return storeTypeName;
         }
+
+        /// <summary>
+        /// Returns whether the store type name base interprets
+        /// nameBase(n) as a precision rather than a length
+        /// </summary>
+        /// <param name="storeTypeNameBase"> The name base of the store type </param>
+        /// <returns>
+        /// <see langword="true" /> if the store type name base interprets nameBase(n)
+        /// as a precision rather than a length, <see langword="false" /> otherwise.
+        /// </returns>
+        protected virtual bool StoreTypeNameBaseUsesPrecision([NotNull] string storeTypeNameBase)
+            => false;
     }
 }

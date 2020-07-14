@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -49,14 +50,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private void LocalDetectChanges()
         {
-            if (!Metadata.IsDependentToPrincipal())
+            if (!Metadata.IsOnDependent)
             {
                 var target = GetTargetEntry();
                 if (target != null)
                 {
                     var context = InternalEntry.StateManager.Context;
                     if (context.ChangeTracker.AutoDetectChangesEnabled
-                        && (string)context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
+                        && (string)context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true")
                     {
                         context.GetDependencies().ChangeDetector.DetectChanges(target);
                     }
@@ -87,6 +88,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         protected virtual InternalEntityEntry GetTargetEntry()
             => CurrentValue == null
                 ? null
-                : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.GetTargetType());
+                : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.TargetEntityType);
     }
 }

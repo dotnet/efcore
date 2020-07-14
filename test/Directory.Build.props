@@ -2,7 +2,12 @@
   <Import Project="..\Directory.Build.props" />
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);xUnit1003;xUnit1004;xUnit1010;xUnit1013</NoWarn>
+    <StandardTestTfms>$(DefaultNetCoreTargetFramework)</StandardTestTfms>
+    <StandardTestTfms Condition="'$(DeveloperBuild)' != 'True'">$(StandardTestTfms);netcoreapp3.1</StandardTestTfms>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);1591;xUnit1000;xUnit1003;xUnit1004;xUnit1010;xUnit1013;xUnit1026</NoWarn>
   </PropertyGroup>
 
 </Project>

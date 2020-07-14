@@ -27,11 +27,9 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             var options = new DbContextOptionsBuilder();
             options.UseSqlServer(connectionStringBuilder.ConnectionString, b => b.ApplyConfiguration());
 
-            using (var context = new AdventureWorksContext(options.Options))
-            {
-                context.Database.OpenConnection();
-                Assert.Equal(ConnectionState.Open, context.Database.GetDbConnection().State);
-            }
+            using var context = new AdventureWorksContext(options.Options);
+            context.Database.OpenConnection();
+            Assert.Equal(ConnectionState.Open, context.Database.GetDbConnection().State);
         }
     }
 }

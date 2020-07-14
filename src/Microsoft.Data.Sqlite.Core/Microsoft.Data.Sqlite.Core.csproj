@@ -4,7 +4,7 @@
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <PackageId>Microsoft.Data.Sqlite.Core</PackageId>
-    <Description>SQLite implementation of the System.Data.Common provider model.
+    <Description>Microsoft.Data.Sqlite is a lightweight ADO.NET provider for SQLite. This package does not include a copy of the native SQLite library.
 
 Commonly Used Types:
 Microsoft.Data.Sqlite.SqliteCommand
@@ -20,6 +20,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>Microsoft.Data.Sqlite.Core.ruleset</CodeAnalysisRuleSet>
     <PackageTags>SQLite;Data;ADO.NET</PackageTags>
+    <PackageProjectUrl>https://docs.microsoft.com/dotnet/standard/data/sqlite/</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,8 +39,8 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawCorePackageVersion)" />
-    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="2.0.3" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

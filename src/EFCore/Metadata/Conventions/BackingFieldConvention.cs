@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class BackingFieldConvention :
         IPropertyAddedConvention,
         INavigationAddedConvention,
-        IModelFinalizedConvention
+        ISkipNavigationAddedConvention,
+        IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="BackingFieldConvention" />.
@@ -63,28 +64,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after a navigation is added to the entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc/>
         public virtual void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
-            IConventionContext<IConventionNavigation> context)
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
         {
+            var navigation = navigationBuilder.Metadata;
             var field = GetFieldToSet(navigation);
             if (field != null)
             {
-                relationshipBuilder.HasField(field, navigation.IsDependentToPrincipal());
+                navigation.Builder.HasField(field);
             }
         }
 
         private FieldInfo GetFieldToSet(IConventionPropertyBase propertyBase)
         {
             if (propertyBase == null
-                || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource()))
+                || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource())
+                || propertyBase.IsIndexerProperty()
+                || propertyBase.IsShadowProperty())
             {
                 return null;
             }
@@ -99,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return fieldInfo;
                 }
 
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
 
             return null;
@@ -167,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return existingMatch;
             }
 
-            var typeInfo = propertyBase?.ClrType.GetTypeInfo();
+            var typeInfo = propertyBase?.ClrType;
             var length = prefix.Length + middle.Length + suffix.Length;
             var currentValue = array[index];
             while (true)
@@ -178,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     var newMatch = typeInfo == null
                         ? currentValue.Value
-                        : (IsConvertible(typeInfo, currentValue.Value)
+                        : (typeInfo.IsCompatibleWith(currentValue.Value.FieldType)
                             ? currentValue.Value
                             : null);
 
@@ -240,20 +238,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static bool IsConvertible(TypeInfo typeInfo, FieldInfo fieldInfo)
-        {
-            var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
-
-            return typeInfo.IsAssignableFrom(fieldTypeInfo)
-                || fieldTypeInfo.IsAssignableFrom(typeInfo);
-        }
-
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)
         {
@@ -272,6 +258,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);
                     }
                 }
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessSkipNavigationAdded(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            IConventionContext<IConventionSkipNavigationBuilder> context)
+        {
+            var field = GetFieldToSet(skipNavigationBuilder.Metadata);
+            if (field != null)
+            {
+                skipNavigationBuilder.HasField(field);
             }
         }
     }

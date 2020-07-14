@@ -2,14 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
@@ -17,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
     public partial class NorthwindData : ISetSource
     {
         private readonly Customer[] _customers;
-        private readonly CustomerView[] _customerViews;
+        private readonly CustomerQuery[] _customerQueries;
         private readonly Employee[] _employees;
         private readonly Product[] _products;
         private readonly Order[] _orders;
@@ -32,14 +28,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             _orders = CreateOrders();
             _orderDetails = CreateOrderDetails();
 
-            var customerViews = new List<CustomerView>();
+            var customerQueries = new List<CustomerQuery>();
+            var customerQueriesWithQueryFilter = new List<CustomerQueryWithQueryFilter>();
 
             foreach (var customer in _customers)
             {
                 customer.Orders = new List<Order>();
 
-                customerViews.Add(
-                    new CustomerView
+                customerQueries.Add(
+                    new CustomerQuery
                     {
                         Address = customer.Address,
                         City = customer.City,
@@ -49,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                     });
             }
 
-            _customerViews = customerViews.ToArray();
+            _customerQueries = customerQueries.ToArray();
 
             foreach (var product in _products)
             {
@@ -95,37 +92,37 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         {
             if (typeof(TEntity) == typeof(Customer))
             {
-                return new AsyncEnumerable<TEntity>(_customers.Cast<TEntity>());
+                return (IQueryable<TEntity>)_customers.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(Employee))
             {
-                return new AsyncEnumerable<TEntity>(_employees.Cast<TEntity>());
+                return (IQueryable<TEntity>)_employees.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(Order))
             {
-                return new AsyncEnumerable<TEntity>(_orders.Cast<TEntity>());
+                return (IQueryable<TEntity>)_orders.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(OrderDetail))
             {
-                return new AsyncEnumerable<TEntity>(_orderDetails.Cast<TEntity>());
+                return (IQueryable<TEntity>)_orderDetails.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(Product))
             {
-                return new AsyncEnumerable<TEntity>(_products.Cast<TEntity>());
+                return (IQueryable<TEntity>)_products.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(CustomerView))
+            if (typeof(TEntity) == typeof(CustomerQuery))
             {
-                return new AsyncEnumerable<TEntity>(_customerViews.Cast<TEntity>());
+                return (IQueryable<TEntity>)_customerQueries.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(OrderQuery))
             {
-                return new AsyncEnumerable<TEntity>(_orderQueries.Cast<TEntity>());
+                return (IQueryable<TEntity>)_orderQueries.AsQueryable();
             }
 
             throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
@@ -159,75 +156,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             context.Set<Order>().AddRange(CreateOrders());
             context.Set<Product>().AddRange(CreateProducts());
             context.Set<OrderDetail>().AddRange(CreateOrderDetails());
-        }
-
-        private class AsyncEnumerable<T> : IAsyncQueryProvider, IOrderedQueryable<T>
-        {
-            private readonly EnumerableQuery<T> _enumerableQuery;
-
-            public AsyncEnumerable(IEnumerable<T> enumerable)
-            {
-                _enumerableQuery = new EnumerableQuery<T>(enumerable);
-            }
-
-            private AsyncEnumerable(Expression expression)
-            {
-                _enumerableQuery = new EnumerableQuery<T>(expression);
-            }
-
-            public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
-                => new AsyncEnumerable<TElement>(RewriteShadowPropertyAccess(expression));
-
-            public TResult Execute<TResult>(Expression expression)
-                => ((IQueryProvider)_enumerableQuery)
-                    .Execute<TResult>(RewriteShadowPropertyAccess(expression));
-
-            public IEnumerator<T> GetEnumerator() => ((IQueryable<T>)_enumerableQuery).GetEnumerator();
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-            public Expression Expression => ((IQueryable)_enumerableQuery).Expression;
-            public Type ElementType => typeof(T);
-            public IQueryProvider Provider => this;
-
-            private static Expression RewriteShadowPropertyAccess(Expression expression)
-                => new ShadowStateAccessRewriter().Visit(expression);
-
-            private class ShadowStateAccessRewriter : ExpressionVisitor
-            {
-                protected override Expression VisitMethodCall(MethodCallExpression expression)
-                    => expression.Method.IsEFPropertyMethod()
-                        ? Expression.Property(
-                            RemoveConvert(expression.Arguments[0]),
-                            Expression.Lambda<Func<string>>(expression.Arguments[1]).Compile().Invoke())
-                        : base.VisitMethodCall(expression);
-            }
-
-            private static Expression RemoveConvert(Expression expression)
-            {
-                if (expression is UnaryExpression unaryExpression
-                    && (expression.NodeType == ExpressionType.Convert
-                        || expression.NodeType == ExpressionType.ConvertChecked))
-                {
-                    return RemoveConvert(unaryExpression.Operand);
-                }
-
-                return expression;
-            }
-
-            public IQueryable CreateQuery(Expression expression)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object Execute(Expression expression)
-            {
-                throw new NotImplementedException();
-            }
-
-            public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

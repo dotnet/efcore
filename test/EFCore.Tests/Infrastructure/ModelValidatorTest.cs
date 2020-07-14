@@ -22,6 +22,67 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class ModelValidatorTest : ModelValidatorTestBase
     {
         [ConditionalFact]
+        public virtual void Detects_key_property_which_cannot_be_compared()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityType = model.AddEntityType(typeof(WithNonComparableKey));
+            entityType.SetPrimaryKey(entityType.AddProperty(nameof(WithNonComparableKey.Id), typeof(NotComparable)));
+
+            VerifyError(
+                CoreStrings.NonComparableKeyType(nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id), nameof(NotComparable)),
+                model);
+        }
+
+        private class WithNonComparableKey
+        {
+            public NotComparable Id { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_unique_index_property_which_cannot_be_compared()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityType = model.AddEntityType(typeof(WithNonComparableUniqueIndex));
+            entityType.SetPrimaryKey(entityType.AddProperty(nameof(WithNonComparableUniqueIndex.Id), typeof(int)));
+            entityType.AddIndex(entityType.AddProperty(nameof(WithNonComparableUniqueIndex.Index), typeof(NotComparable))).IsUnique = true;
+
+            VerifyError(
+                CoreStrings.NonComparableKeyType(
+                    nameof(WithNonComparableUniqueIndex), nameof(WithNonComparableUniqueIndex.Index), nameof(NotComparable)),
+                model);
+        }
+
+        private class WithNonComparableUniqueIndex
+        {
+            public int Id { get; set; }
+            public NotComparable Index { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Ignores_normal__property_which_cannot_be_compared()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityType = model.AddEntityType(typeof(WithNonComparableNormalProperty));
+            entityType.SetPrimaryKey(entityType.AddProperty(nameof(WithNonComparableNormalProperty.Id), typeof(int)));
+            entityType.AddProperty(nameof(WithNonComparableNormalProperty.Foo), typeof(NotComparable));
+
+            Validate(model);
+        }
+
+        private class WithNonComparableNormalProperty
+        {
+            public int Id { get; set; }
+            public NotComparable Foo { get; set; }
+        }
+
+        private struct NotComparable
+        {
+        }
+
+        [ConditionalFact]
         public virtual void Detects_custom_converter_for_collection_type_without_comparer()
         {
             var convertedProperty = CreateConvertedCollectionProperty();
@@ -72,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Ignores_binary_keys_and_strings_without_custom__comparer()
+        public virtual void Ignores_binary_keys_and_strings_without_custom_comparer()
         {
             var model = CreateConventionlessModelBuilder().Model;
 
@@ -109,6 +170,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
             VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName()), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_filter_on_owned_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var queryFilter = (Expression<Func<ReferencedEntity, bool>>)(_ => true);
+            modelBuilder.Entity<SampleEntity>()
+                .OwnsOne(
+                    s => s.ReferencedEntity, eb =>
+                    {
+                        eb.OwnedEntityType.SetQueryFilter(queryFilter);
+                    });
+
+            VerifyError(CoreStrings.BadFilterOwnedType(queryFilter, nameof(ReferencedEntity)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -167,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_shadow_key_referenced_by_foreign_key_by_convention()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
             var dependentEntityBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
             dependentEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
             dependentEntityBuilder.Ignore(nameof(SampleEntityMinimal.ReferencedEntity), ConfigurationSource.Explicit);
@@ -479,9 +555,85 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_on_valid_many_to_many_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var productEntity = model.FindEntityType(typeof(Product));
+            var orderProductForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
+            var productOrderForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
+            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+
+            var productsNavigation = orderEntity.AddSkipNavigation(
+                nameof(Order.Products), null, productEntity, true, false);
+            productsNavigation.SetForeignKey(orderProductForeignKey);
+
+            var ordersNavigation = productEntity.AddSkipNavigation(
+                nameof(Product.Orders), null, orderEntity, true, false);
+            ordersNavigation.SetForeignKey(productOrderForeignKey);
+
+            productsNavigation.SetInverse(ordersNavigation);
+            ordersNavigation.SetInverse(productsNavigation);
+
+            Validate(model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_missing_foreign_key_for_skip_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var productEntity = model.FindEntityType(typeof(Product));
+            var orderProductForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
+            var productOrderForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
+            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+
+            var productsNavigation = orderEntity.AddSkipNavigation(
+                nameof(Order.Products), null, productEntity, true, false);
+
+            VerifyError(
+                CoreStrings.SkipNavigationNoForeignKey(nameof(Order.Products), nameof(Order)),
+                model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_missing_inverse_skip_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var productEntity = model.FindEntityType(typeof(Product));
+            var orderProductForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
+            var productOrderForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
+            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+
+            var productsNavigation = orderEntity.AddSkipNavigation(
+                nameof(Order.Products), null, productEntity, true, false);
+            productsNavigation.SetForeignKey(orderProductForeignKey);
+
+            VerifyError(
+                CoreStrings.SkipNavigationNoInverse(nameof(Order.Products), nameof(Order)),
+                model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_on_valid_owned_entity_types()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
             entityTypeBuilder.Ignore(nameof(SampleEntity.Name), ConfigurationSource.Explicit);
@@ -502,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_weak_entity_type_without_defining_navigation()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
 
@@ -534,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_entity_type_with_multiple_ownerships()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
 
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
@@ -563,7 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_weak_entity_type_with_non_defining_ownership()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
 
@@ -597,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_weak_entity_type_without_ownership()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntityMinimal), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntityMinimal.Id) }, ConfigurationSource.Convention);
 
@@ -627,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_principal_owned_entity_type()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
 
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
@@ -648,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             anotherEntityTypeBuilder.HasRelationship(
                 ownedTypeBuilder.Metadata, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention,
-                setTargetAsPrincipal: true);
+                targetIsPrincipal: true);
 
             VerifyError(
                 CoreStrings.PrincipalOwnedType(
@@ -661,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_non_owner_navigation_to_owned_entity_type()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
 
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(SampleEntity.Id) }, ConfigurationSource.Convention);
@@ -693,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_derived_owned_entity_type()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
 
             var entityTypeBuilder = modelBuilder.Entity(typeof(B), ConfigurationSource.Convention);
             entityTypeBuilder.PrimaryKey(new[] { nameof(B.Id) }, ConfigurationSource.Convention);
@@ -723,7 +875,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public virtual void Detects_owned_entity_type_without_ownership()
         {
-            var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
+            var modelBuilder = CreateConventionlessInternalModelBuilder();
             var aBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
             aBuilder.Ignore(nameof(A.Id), ConfigurationSource.Explicit);
             aBuilder.Ignore(nameof(A.P0), ConfigurationSource.Explicit);
@@ -1161,6 +1313,46 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var model = modelBuilder.Model;
             VerifyError(CoreStrings.DuplicateDiscriminatorValue(typeof(C).Name, 1, typeof(A).Name), model);
+        }
+
+        [ConditionalFact]
+        public virtual void Required_navigation_with_query_filter_on_one_side_issues_a_warning()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired();
+            modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
+
+            var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+                CreateValidationLogger()).GenerateMessage(nameof(Customer), nameof(Order));
+
+            VerifyWarning(message, modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_with_query_filter_on_one_side_doesnt_issue_a_warning()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired(false);
+            modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
+
+            var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+                CreateValidationLogger()).GenerateMessage(nameof(Customer), nameof(Order));
+
+            VerifyLogDoesNotContain(message, modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Required_navigation_with_query_filter_on_both_sides_doesnt_issue_a_warning()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired();
+            modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
+            modelBuilder.Entity<Order>().HasQueryFilter(x => x.Customer.Id > 5);
+
+            var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+                CreateValidationLogger()).GenerateMessage(nameof(Customer), nameof(Order));
+
+            VerifyLogDoesNotContain(message, modelBuilder.Model);
         }
 
         // INotify interfaces not really implemented; just marking the classes to test metadata construction

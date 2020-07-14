@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             base.Configure(command);
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
             _command.ShowHelp();
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }

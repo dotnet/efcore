@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -19,6 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public interface IConventionAnnotatable : IAnnotatable
     {
+        /// <summary>
+        ///     Gets the builder that can be used to configure this object.
+        /// </summary>
+        IConventionAnnotatableBuilder Builder { get; }
+
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
@@ -40,14 +46,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the annotation to be set. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetAnnotation([NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
+        /// <returns> The new annotation. </returns>
+        IConventionAnnotation SetAnnotation([NotNull] string name, [CanBeNull] object value, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the annotation with the given name, returning <c>null</c> if it does not exist.
+        ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
         /// </summary>
         /// <param name="name"> The name of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <c>null</c>.
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
         new IConventionAnnotation FindAnnotation([NotNull] string name);
 

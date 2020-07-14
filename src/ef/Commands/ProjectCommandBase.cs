@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         public override void Configure(CommandLineApplication command)
         {
+            command.AllowArgumentSeparator = true;
+
             _assembly = command.Option("-a|--assembly <PATH>", Resources.AssemblyDescription);
             _startupAssembly = command.Option("-s|--startup-assembly <PATH>", Resources.StartupAssemblyDescription);
             _dataDir = command.Option("--data-dir <PATH>", Resources.DataDirDescription);
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             }
         }
 
-        protected IOperationExecutor CreateExecutor()
+        protected IOperationExecutor CreateExecutor(string[] remainingArguments)
         {
             try
             {
@@ -56,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         _projectDir.Value(),
                         _dataDir.Value(),
                         _rootNamespace.Value(),
-                        _language.Value());
+                        _language.Value(),
+                        remainingArguments);
                 }
                 catch (MissingMethodException) // NB: Thrown with EF Core 3.1
                 {
@@ -70,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _projectDir.Value(),
                     _dataDir.Value(),
                     _rootNamespace.Value(),
-                    _language.Value());
+                    _language.Value(),
+                    remainingArguments);
             }
             catch (FileNotFoundException ex)
                 when (new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)

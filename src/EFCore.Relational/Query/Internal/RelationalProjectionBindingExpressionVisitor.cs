@@ -6,19 +6,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     {
         private readonly RelationalQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
 
         private SelectExpression _selectExpression;
+        private SqlExpression[] _existingProjections;
         private bool _clientEval;
 
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
@@ -26,15 +36,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public RelationalProjectionBindingExpressionVisitor(
-            RelationalQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-            RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
+            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+            [NotNull] RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTranslator = sqlTranslatingExpressionVisitor;
         }
 
-        public virtual Expression Translate(SelectExpression selectExpression, Expression expression)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
         {
             _selectExpression = selectExpression;
             _clientEval = false;
@@ -49,6 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _clientEval = true;
 
                 expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_selectExpression, expression);
+                _existingProjections = _selectExpression.Projection.Select(e => e.Expression).ToArray();
+                _selectExpression.ClearProjection();
                 result = Visit(expandedExpression);
 
                 _projectionMapping.Clear();
@@ -62,6 +86,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Expression Visit(Expression expression)
         {
             if (expression == null)
@@ -89,11 +119,36 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         case ConstantExpression _:
                             return expression;
 
+                        case ProjectionBindingExpression projectionBindingExpression:
+                            if (projectionBindingExpression.Index is int index)
+                            {
+                                var newIndex = _selectExpression.AddToProjection(_existingProjections[index]);
+
+                                return new ProjectionBindingExpression(_selectExpression, newIndex, expression.Type);
+                            }
+
+                            if (projectionBindingExpression.ProjectionMember != null)
+                            {
+                                // This would be SqlExpression. EntityProjectionExpression would be wrapped inside EntityShaperExpression.
+                                var mappedProjection = (SqlExpression)_selectExpression.GetMappedProjection(
+                                    projectionBindingExpression.ProjectionMember);
+
+                                return new ProjectionBindingExpression(
+                                    _selectExpression, _selectExpression.AddToProjection(mappedProjection), expression.Type);
+                            }
+
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
+
                         case ParameterExpression parameterExpression:
-                            return Expression.Call(
-                                _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                                QueryCompilationContext.QueryContextParameter,
-                                Expression.Constant(parameterExpression.Name));
+                            if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+                            {
+                                return Expression.Call(
+                                    _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    Expression.Constant(parameterExpression.Name));
+                            }
+
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                             return _selectExpression.AddCollectionProjection(
@@ -112,39 +167,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                     methodCallExpression.Arguments[0]);
 
-                                return _selectExpression.AddCollectionProjection(result, null, elementType);
-                            }
-
-                            var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-
-                            if (subquery != null)
-                            {
-                                if (subquery.ResultCardinality == ResultCardinality.Enumerable)
+                                if (result != null)
                                 {
-                                    return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                    return _selectExpression.AddCollectionProjection(result, null, elementType);
                                 }
-
-                                static bool IsAggregateResultWithCustomShaper(MethodInfo method)
+                            }
+                            else
+                            {
+                                var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+                                if (subquery != null)
                                 {
-                                    if (method.IsGenericMethod)
+                                    if (subquery.ResultCardinality == ResultCardinality.Enumerable)
                                     {
-                                        method = method.GetGenericMethodDefinition();
+                                        return _selectExpression.AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
                                     }
 
-                                    return QueryableMethods.IsAverageWithoutSelector(method)
-                                        || QueryableMethods.IsAverageWithSelector(method)
-                                        || method == QueryableMethods.MaxWithoutSelector
-                                        || method == QueryableMethods.MaxWithSelector
-                                        || method == QueryableMethods.MinWithoutSelector
-                                        || method == QueryableMethods.MinWithSelector
-                                        || QueryableMethods.IsSumWithoutSelector(method)
-                                        || QueryableMethods.IsSumWithSelector(method);
-                                }
+                                    static bool IsAggregateResultWithCustomShaper(MethodInfo method)
+                                    {
+                                        if (method.IsGenericMethod)
+                                        {
+                                            method = method.GetGenericMethodDefinition();
+                                        }
 
-                                if (!(subquery.ShaperExpression is ProjectionBindingExpression
-                                    || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
-                                {
-                                    return _selectExpression.AddSingleProjection(subquery);
+                                        return QueryableMethods.IsAverageWithoutSelector(method)
+                                            || QueryableMethods.IsAverageWithSelector(method)
+                                            || method == QueryableMethods.MaxWithoutSelector
+                                            || method == QueryableMethods.MaxWithSelector
+                                            || method == QueryableMethods.MinWithoutSelector
+                                            || method == QueryableMethods.MinWithSelector
+                                            || QueryableMethods.IsSumWithoutSelector(method)
+                                            || QueryableMethods.IsSumWithSelector(method);
+                                    }
+
+                                    if (!(subquery.ShaperExpression is ProjectionBindingExpression
+                                        || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
+                                    {
+                                        return _selectExpression.AddSingleProjection(subquery);
+                                    }
                                 }
                             }
 
@@ -184,52 +243,84 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 #pragma warning restore IDE0052 // Remove unread private members
             => (T)queryContext.ParameterValues[parameterName];
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is EntityShaperExpression entityShaperExpression)
-            {
-                EntityProjectionExpression entityProjectionExpression;
-                if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
-                {
-                    VerifySelectExpression(projectionBindingExpression);
-                    entityProjectionExpression = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
-                        projectionBindingExpression.ProjectionMember);
-                }
-                else
-                {
-                    entityProjectionExpression = (EntityProjectionExpression)entityShaperExpression.ValueBufferExpression;
-                }
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-                if (_clientEval)
+            switch (extensionExpression)
+            {
+
+                case EntityShaperExpression entityShaperExpression:
                 {
+                    // TODO: Make this easier to understand some day.
+                    EntityProjectionExpression entityProjectionExpression;
+                    if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
+                    {
+                        VerifySelectExpression(projectionBindingExpression);
+                        // If projectionBinding is not mapped then SelectExpression has client projection
+                        // Hence force client eval
+                        if (projectionBindingExpression.ProjectionMember == null)
+                        {
+                            if (_clientEval)
+                            {
+                                var indexMap = new Dictionary<IProperty, int>();
+                                foreach (var item in projectionBindingExpression.IndexMap)
+                                {
+                                    indexMap[item.Key] = _selectExpression.AddToProjection(_existingProjections[item.Value]);
+                                }
+
+                                return entityShaperExpression.Update(new ProjectionBindingExpression(_selectExpression, indexMap));
+                            }
+
+                            return null;
+                        }
+
+                        entityProjectionExpression = (EntityProjectionExpression)_selectExpression.GetMappedProjection(
+                            projectionBindingExpression.ProjectionMember);
+                    }
+                    else
+                    {
+                        entityProjectionExpression = (EntityProjectionExpression)entityShaperExpression.ValueBufferExpression;
+                    }
+
+                    if (_clientEval)
+                    {
+                        return entityShaperExpression.Update(
+                            new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
+                    }
+
+                    _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
+
                     return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
 
-                _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
+                case IncludeExpression _:
+                    return _clientEval ? base.VisitExtension(extensionExpression) : null;
 
-                return entityShaperExpression.Update(
-                    new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                case CollectionShaperExpression _:
+                    return _clientEval ? extensionExpression : null;
+
+                default:
+                    throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
             }
-
-            if (extensionExpression is IncludeExpression includeExpression)
-            {
-                return _clientEval
-                    ? base.VisitExtension(includeExpression)
-                    : null;
-            }
-
-            throw new InvalidOperationException(
-                CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-            if (newExpression.Constructor == null)
-            {
-                return newExpression;
-            }
+            Check.NotNull(newExpression, nameof(newExpression));
 
             if (newExpression.Arguments.Count == 0)
             {
@@ -266,8 +357,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return newExpression.Update(newArguments);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
+            Check.NotNull(memberInitExpression, nameof(memberInitExpression));
+
             var newExpression = Visit(memberInitExpression.NewExpression);
             if (newExpression == null)
             {
@@ -293,6 +392,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return memberInitExpression.Update((NewExpression)newExpression, newBindings);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
         {
             if (_clientEval)

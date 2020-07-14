@@ -54,11 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
-        /// </summary>
-        protected virtual EvaluatableExpressionFilterDependencies Dependencies { get; }
-
-        /// <summary>
         ///     <para>
         ///         Creates a new <see cref="EvaluatableExpressionFilter" /> instance.
         ///     </para>
@@ -77,13 +72,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
+        protected  virtual EvaluatableExpressionFilterDependencies Dependencies { get; }
+
+        /// <summary>
         ///     Checks whether the given expression can be evaluated.
         /// </summary>
         /// <param name="expression"> The expression. </param>
         /// <param name="model"> The model. </param>
-        /// <returns> True if the expression can be evaluated; false otherwise. </returns>
+        /// <returns> <see langword="true"/> if the expression can be evaluated; <see langword="false"/> otherwise. </returns>
         public virtual bool IsEvaluatableExpression(Expression expression, IModel model)
         {
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(model, nameof(model));
+
             switch (expression)
             {
                 case MemberExpression memberExpression:
@@ -111,6 +114,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     break;
+            }
+
+            foreach (var plugin in Dependencies.Plugins)
+            {
+                if (!plugin.IsEvaluatableExpression(expression))
+                {
+                    return false;
+                }
             }
 
             return true;

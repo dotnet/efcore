@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
-        ///     is created explicitly with <c>new</c> while at other times it is resolved using dependency injection.
+        ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
         /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
-        ///     is created explicitly with <c>new</c> while at other times it is resolved using dependency injection.
+        ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
         /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>

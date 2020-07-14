@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual TAccessor Create(MemberInfo memberInfo, IPropertyBase propertyBase)
+        protected virtual TAccessor Create([NotNull] MemberInfo memberInfo, [CanBeNull] IPropertyBase propertyBase)
         {
             var boundMethod = propertyBase != null
                 ? _genericCreate.MakeGenericMethod(

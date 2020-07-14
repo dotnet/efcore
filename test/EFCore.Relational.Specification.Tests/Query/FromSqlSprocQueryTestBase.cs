@@ -75,12 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                 .Select(mep => mep.TenMostExpensiveProducts);
 
-            var actual = async
-                ? await query.ToArrayAsync()
-                : query.ToArray();
-
-            Assert.Equal(10, actual.Length);
-            Assert.Contains(actual, r => r == "Côte de Blaye");
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]

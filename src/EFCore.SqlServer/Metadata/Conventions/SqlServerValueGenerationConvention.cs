@@ -59,16 +59,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
         protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
-            => GetValueGenerated(property);
+        {
+            var tableName = property.DeclaringEntityType.GetTableName();
+            if (tableName == null)
+            {
+                return null;
+            }
+
+            return GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+        }
 
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property)
-            => RelationalValueGenerationConvention.GetValueGenerated(property)
-                ?? (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None
+        public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property, StoreObjectIdentifier storeObject)
+            => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
+                ?? (property.GetValueGenerationStrategy(storeObject) != SqlServerValueGenerationStrategy.None
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null);
     }

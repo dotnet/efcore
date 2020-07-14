@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Gets or sets the generated file containing the <see cref="DbContext" />.
         /// </summary>
         /// <value> The generated file containing the <see cref="DbContext" />. </value>
-        public virtual ScaffoldedFile ContextFile { get; [param: NotNull] set; }
+        public virtual ScaffoldedFile? ContextFile { get; [param: NotNull] set; }
 
         /// <summary>
         ///     Gets any additional generated files for the model.

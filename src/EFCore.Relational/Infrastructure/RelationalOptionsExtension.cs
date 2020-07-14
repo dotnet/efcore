@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private int? _maxBatchSize;
         private int? _minBatchSize;
         private bool _useRelationalNulls;
+        private QuerySplittingBehavior? _querySplittingBehavior;
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
         private string _migrationsHistoryTableSchema;
@@ -60,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _maxBatchSize = copyFrom._maxBatchSize;
             _minBatchSize = copyFrom._minBatchSize;
             _useRelationalNulls = copyFrom._useRelationalNulls;
+            _querySplittingBehavior = copyFrom._querySplittingBehavior;
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
             _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected abstract RelationalOptionsExtension Clone();
 
         /// <summary>
-        ///     The connection string, or <c>null</c> if a <see cref="DbConnection" /> was used instead of
+        ///     The connection string, or <see langword="null" /> if a <see cref="DbConnection" /> was used instead of
         ///     a connection string.
         /// </summary>
         public virtual string ConnectionString => _connectionString;
@@ -101,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The <see cref="DbConnection" />, or <c>null</c> if a connection string was used instead of
+        ///     The <see cref="DbConnection" />, or <see langword="null" /> if a connection string was used instead of
         ///     the full connection object.
         /// </summary>
         public virtual DbConnection Connection => _connection;
@@ -124,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The command timeout, or <c>null</c> if none has been set.
+        ///     The command timeout, or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual int? CommandTimeout => _commandTimeout;
 
@@ -151,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     The maximum number of statements that will be included in commands sent to the database
-        ///     during <see cref="DbContext.SaveChanges()" /> or <c>null</c> if none has been set.
+        ///     during <see cref="DbContext.SaveChanges()" /> or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual int? MaxBatchSize => _maxBatchSize;
 
@@ -178,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     The minimum number of statements that are needed for a multi-statement command sent to the database
-        ///     during <see cref="DbContext.SaveChanges()" /> or <c>null</c> if none has been set.
+        ///     during <see cref="DbContext.SaveChanges()" /> or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual int? MinBatchSize => _minBatchSize;
 
@@ -226,7 +228,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The name of the assembly that contains migrations, or <c>null</c> if none has been set.
+        ///     The <see cref="QuerySplittingBehavior"/> to use when loading related collections in a query.
+        /// </summary>
+        public virtual QuerySplittingBehavior? QuerySplittingBehavior => _querySplittingBehavior;
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
+        /// <param name="querySplittingBehavior"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual RelationalOptionsExtension WithUseQuerySplittingBehavior(QuerySplittingBehavior querySplittingBehavior)
+        {
+            var clone = Clone();
+
+            clone._querySplittingBehavior = querySplittingBehavior;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     The name of the assembly that contains migrations, or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual string MigrationsAssembly => _migrationsAssembly;
 
@@ -246,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The table name to use for the migrations history table, or <c>null</c> if none has been set.
+        ///     The table name to use for the migrations history table, or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual string MigrationsHistoryTableName => _migrationsHistoryTableName;
 
@@ -266,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The schema to use for the migrations history table, or <c>null</c> if none has been set.
+        ///     The schema to use for the migrations history table, or <see langword="null" /> if none has been set.
         /// </summary>
         public virtual string MigrationsHistoryTableSchema => _migrationsHistoryTableSchema;
 
@@ -286,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <c>null</c> if none has been
+        ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <see langword="null" /> if none has been
         ///     configured.
         /// </summary>
         public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy> ExecutionStrategyFactory => _executionStrategyFactory;
@@ -415,6 +437,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if (Extension._useRelationalNulls)
                         {
                             builder.Append("UseRelationalNulls ");
+                        }
+
+                        if (Extension._querySplittingBehavior != null)
+                        {
+                            builder.Append("QuerySplittingBehavior=").Append(Extension._querySplittingBehavior).Append(' ');
                         }
 
                         if (Extension._migrationsAssembly != null)

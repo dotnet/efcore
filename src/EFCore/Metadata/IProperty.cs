@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether this property can contain <c>null</c>.
+        ///     Gets a value indicating whether this property can contain <see langword="null" />.
         /// </summary>
         bool IsNullable { get; }
 
@@ -35,5 +37,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     changes will not be applied to the database.
         /// </summary>
         bool IsConcurrencyToken { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
+        ///         <see langword="null" /> indicates that the default property access mode is being used.
+        ///     </para>
+        /// </summary>
+        /// <returns> The access mode being used, or <see langword="null" /> if the default access mode is being used. </returns>
+        PropertyAccessMode IPropertyBase.GetPropertyAccessMode()
+            => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
+                ?? DeclaringType.GetPropertyAccessMode());
     }
 }

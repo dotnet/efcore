@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InternalModelBuilder : InternalAnnotatableBuilder<Model>, IConventionModelBuilder
+    public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuilder>, IConventionModelBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalModelBuilder([NotNull] Model metadata)
-            : base(metadata)
+            : base(metadata, null)
         {
         }
 
@@ -157,10 +158,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var clrType = type.Type
                 ?? Metadata.FindClrType(type.Name);
 
-            var weakEntityType = clrType == null
+            var entityTypeWithDefiningNavigation = clrType == null
                 ? Metadata.FindEntityType(type.Name, definingNavigationName, definingEntityType)
                 : Metadata.FindEntityType(clrType, definingNavigationName, definingEntityType);
-            if (weakEntityType == null)
+            if (entityTypeWithDefiningNavigation == null)
             {
                 var entityType = clrType == null
                     ? Metadata.FindEntityType(type.Name)
@@ -185,27 +186,69 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Metadata.RemoveIgnored(type.Name);
 
-                    weakEntityType = Metadata.AddEntityType(type.Name, definingNavigationName, definingEntityType, configurationSource);
+                    entityTypeWithDefiningNavigation = Metadata.AddEntityType(
+                        type.Name, definingNavigationName, definingEntityType, configurationSource);
                 }
                 else
                 {
                     Metadata.RemoveIgnored(type.Name);
 
-                    weakEntityType = Metadata.AddEntityType(clrType, definingNavigationName, definingEntityType, configurationSource);
+                    entityTypeWithDefiningNavigation = Metadata.AddEntityType(
+                        clrType, definingNavigationName, definingEntityType, configurationSource);
                 }
 
                 if (batch != null)
                 {
-                    entityTypeSnapshot.Attach(weakEntityType.Builder);
+                    entityTypeSnapshot.Attach(entityTypeWithDefiningNavigation.Builder);
                     batch.Dispose();
                 }
             }
             else
             {
-                weakEntityType.UpdateConfigurationSource(configurationSource);
+                entityTypeWithDefiningNavigation.UpdateConfigurationSource(configurationSource);
             }
 
-            return weakEntityType?.Builder;
+            return entityTypeWithDefiningNavigation?.Builder;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalModelBuilder RemoveAssociationEntityIfCreatedImplicitly(
+            [NotNull] EntityType associationEntityType,
+            bool removeSkipNavigations,
+            ConfigurationSource configurationSource)
+        {
+            Check.NotNull(associationEntityType, nameof(associationEntityType));
+
+            if (!associationEntityType.IsImplicitlyCreatedAssociationEntityType)
+            {
+                return null;
+            }
+
+            Debug.Assert(associationEntityType.GetForeignKeys().Count() == 2,
+                "Implicitly created association entity types should have exactly 2 foreign keys");
+            foreach (var fk in associationEntityType.GetForeignKeys())
+            {
+                var skipNavigation = fk.GetReferencingSkipNavigations().FirstOrDefault();
+                if (skipNavigation != null)
+                {
+                    skipNavigation.SetForeignKey(null, configurationSource);
+                    skipNavigation.SetInverse(null, configurationSource);
+
+                    if (removeSkipNavigations
+                        && fk.PrincipalEntityType.Builder
+                            .CanRemoveSkipNavigation(skipNavigation, configurationSource))
+                    {
+                        fk.PrincipalEntityType.RemoveSkipNavigation(skipNavigation);
+                    }
+                }
+            }
+
+            return HasNoEntityType(associationEntityType, configurationSource);
         }
 
         /// <summary>
@@ -419,23 +462,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             using (Metadata.ConventionDispatcher.DelayConventions())
             {
                 var entityTypeBuilder = entityType.Builder;
-                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
-                {
-                    var removed = entityTypeBuilder.HasNoRelationship(foreignKey, configurationSource);
-                    Debug.Assert(removed != null);
-                }
-
                 foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
                 {
                     var removed = foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
-                    Debug.Assert(removed != null);
+                    Check.DebugAssert(removed != null, "removed is null");
+                }
+
+                foreach (var skipNavigation in entityType.GetDeclaredReferencingSkipNavigations().ToList())
+                {
+                    var removed = skipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(skipNavigation, configurationSource);
+                    Check.DebugAssert(removed != null, "removed is null");
                 }
 
                 foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
                 {
                     var derivedEntityTypeBuilder = directlyDerivedType.Builder
                         .HasBaseType(entityType.BaseType, configurationSource);
-                    Debug.Assert(derivedEntityTypeBuilder != null);
+                    Check.DebugAssert(derivedEntityTypeBuilder != null, "derivedEntityTypeBuilder is null");
                 }
 
                 foreach (var definedType in Metadata.GetEntityTypes().Where(e => e.DefiningEntityType == entityType).ToList())
@@ -515,7 +558,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionModel IConventionModelBuilder.Metadata => Metadata;
+        IConventionModel IConventionModelBuilder.Metadata
+        {
+            [DebuggerStepThrough] get => Metadata;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -523,6 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionEntityTypeBuilder IConventionModelBuilder.Entity(string name, bool? shouldBeOwned, bool fromDataAnnotation)
             => Entity(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, shouldBeOwned);
 
@@ -532,6 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionEntityTypeBuilder IConventionModelBuilder.Entity(Type type, bool? shouldBeOwned, bool fromDataAnnotation)
             => Entity(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, shouldBeOwned);
 
@@ -541,6 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionEntityTypeBuilder IConventionModelBuilder.Entity(
             string name, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
             => Entity(
@@ -555,6 +604,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionEntityTypeBuilder IConventionModelBuilder.Entity(
             Type type, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
             => Entity(
@@ -569,6 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionOwnedEntityTypeBuilder IConventionModelBuilder.Owned(Type type, bool fromDataAnnotation)
             => Owned(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -578,6 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         bool IConventionModelBuilder.IsIgnored(Type type, bool fromDataAnnotation)
             => IsIgnored(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -587,6 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         bool IConventionModelBuilder.IsIgnored(string name, bool fromDataAnnotation)
             => IsIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -596,6 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionModelBuilder IConventionModelBuilder.Ignore(Type type, bool fromDataAnnotation)
             => Ignore(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -605,6 +659,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionModelBuilder IConventionModelBuilder.Ignore(string name, bool fromDataAnnotation)
             => Ignore(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -614,6 +669,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionModelBuilder IConventionModelBuilder.HasNoEntityType(IConventionEntityType entityType, bool fromDataAnnotation)
             => HasNoEntityType(
                 (EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -624,6 +680,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         bool IConventionModelBuilder.CanIgnore(Type type, bool fromDataAnnotation)
             => CanIgnore(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -633,6 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         bool IConventionModelBuilder.CanIgnore(string name, bool fromDataAnnotation)
             => CanIgnore(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -642,6 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionModelBuilder IConventionModelBuilder.HasChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation)
             => UseChangeTrackingStrategy(
@@ -653,6 +712,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         bool IConventionModelBuilder.CanSetChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation)
             => CanSetChangeTrackingStrategy(
                 changeTrackingStrategy, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -663,6 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         IConventionModelBuilder IConventionModelBuilder.UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
             => UsePropertyAccessMode(
@@ -674,6 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         bool IConventionModelBuilder.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
             => CanSetPropertyAccessMode(
                 propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

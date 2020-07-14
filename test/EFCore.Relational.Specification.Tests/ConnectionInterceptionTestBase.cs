@@ -131,60 +131,58 @@ namespace Microsoft.EntityFrameworkCore
             var interceptor2 = new ConnectionOverridingInterceptor();
             var interceptor3 = new ConnectionInterceptor();
             var interceptor4 = new ConnectionOverridingInterceptor();
-            using (var context = CreateContext(
+            using var context = CreateContext(
                 new IInterceptor[] { new NoOpConnectionInterceptor(), interceptor1, interceptor2 },
-                new IInterceptor[] { interceptor3, interceptor4, new NoOpConnectionInterceptor() }))
+                new IInterceptor[] { interceptor3, interceptor4, new NoOpConnectionInterceptor() });
+            // Test infrastructure uses an open connection, so close it first.
+            var connection = context.Database.GetDbConnection();
+            var startedOpen = connection.State == ConnectionState.Open;
+            if (startedOpen)
             {
-                // Test infrastructure uses an open connection, so close it first.
-                var connection = context.Database.GetDbConnection();
-                var startedOpen = connection.State == ConnectionState.Open;
-                if (startedOpen)
+                connection.Close();
+            }
+
+            using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+            {
+                if (async)
                 {
-                    connection.Close();
+                    await context.Database.OpenConnectionAsync();
+                }
+                else
+                {
+                    context.Database.OpenConnection();
                 }
 
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
+                AssertNormalOpen(context, interceptor1, async);
+                AssertNormalOpen(context, interceptor2, async);
+                AssertNormalOpen(context, interceptor3, async);
+                AssertNormalOpen(context, interceptor4, async);
+
+                interceptor1.Reset();
+                interceptor2.Reset();
+                interceptor3.Reset();
+                interceptor4.Reset();
+
+                if (async)
                 {
-                    if (async)
-                    {
-                        await context.Database.OpenConnectionAsync();
-                    }
-                    else
-                    {
-                        context.Database.OpenConnection();
-                    }
-
-                    AssertNormalOpen(context, interceptor1, async);
-                    AssertNormalOpen(context, interceptor2, async);
-                    AssertNormalOpen(context, interceptor3, async);
-                    AssertNormalOpen(context, interceptor4, async);
-
-                    interceptor1.Reset();
-                    interceptor2.Reset();
-                    interceptor3.Reset();
-                    interceptor4.Reset();
-
-                    if (async)
-                    {
-                        await context.Database.CloseConnectionAsync();
-                    }
-                    else
-                    {
-                        context.Database.CloseConnection();
-                    }
-
-                    AssertNormalClose(context, interceptor1, async);
-                    AssertNormalClose(context, interceptor2, async);
-                    AssertNormalClose(context, interceptor3, async);
-                    AssertNormalClose(context, interceptor4, async);
-
-                    AsertOpenCloseEvents(listener);
+                    await context.Database.CloseConnectionAsync();
+                }
+                else
+                {
+                    context.Database.CloseConnection();
                 }
 
-                if (startedOpen)
-                {
-                    connection.Open();
-                }
+                AssertNormalClose(context, interceptor1, async);
+                AssertNormalClose(context, interceptor2, async);
+                AssertNormalClose(context, interceptor3, async);
+                AssertNormalClose(context, interceptor4, async);
+
+                AsertOpenCloseEvents(listener);
+            }
+
+            if (startedOpen)
+            {
+                connection.Open();
             }
         }
 
@@ -195,28 +193,26 @@ namespace Microsoft.EntityFrameworkCore
         {
             var interceptor = new ConnectionInterceptor();
 
-            using (var context = CreateBadUniverse(new DbContextOptionsBuilder().AddInterceptors(interceptor)))
+            using var context = CreateBadUniverse(new DbContextOptionsBuilder().AddInterceptors(interceptor));
+            try
             {
-                try
+                if (async)
                 {
-                    if (async)
-                    {
-                        await context.Database.OpenConnectionAsync();
-                    }
-                    else
-                    {
-                        context.Database.OpenConnection();
-                    }
-
-                    Assert.False(true);
+                    await context.Database.OpenConnectionAsync();
                 }
-                catch (Exception exception)
+                else
                 {
-                    Assert.Same(interceptor.Exception, exception);
+                    context.Database.OpenConnection();
                 }
 
-                AssertErrorOnOpen(context, interceptor, async);
+                Assert.False(true);
             }
+            catch (Exception exception)
+            {
+                Assert.Same(interceptor.Exception, exception);
+            }
+
+            AssertErrorOnOpen(context, interceptor, async);
         }
 
         protected abstract BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder);
@@ -250,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult.Suppress();
             }
 
-            public override async Task<InterceptionResult> ConnectionOpeningAsync(
+            public override async ValueTask<InterceptionResult> ConnectionOpeningAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
                 InterceptionResult result,
@@ -308,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult> ConnectionOpeningAsync(
+            public virtual ValueTask<InterceptionResult> ConnectionOpeningAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
                 InterceptionResult result,
@@ -318,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertOpening(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(result);
             }
 
             public virtual void ConnectionOpened(
@@ -354,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult> ConnectionClosingAsync(
+            public virtual ValueTask<InterceptionResult> ConnectionClosingAsync(
                 DbConnection connection,
                 ConnectionEventData eventData,
                 InterceptionResult result)
@@ -363,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertClosing(eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult>(result);
             }
 
             public virtual void ConnectionClosed(

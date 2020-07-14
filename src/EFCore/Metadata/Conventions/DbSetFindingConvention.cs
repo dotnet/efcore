@@ -37,14 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var setInfo in Dependencies.SetFinder.FindSets(Dependencies.ContextType))
             {
-                if (setInfo.IsKeyless)
-                {
-                    modelBuilder.Entity(setInfo.ClrType, fromDataAnnotation: true).HasNoKey(fromDataAnnotation: true);
-                }
-                else
-                {
-                    modelBuilder.Entity(setInfo.ClrType, fromDataAnnotation: true);
-                }
+                modelBuilder.Entity(setInfo.ClrType, fromDataAnnotation: true);
             }
         }
     }

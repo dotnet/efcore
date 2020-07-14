@@ -2,12 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -29,6 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IClrPropertySetter _materializationSetter;
         private PropertyAccessors _accessors;
         private PropertyIndexes _indexes;
+        private ConfigurationSource _configurationSource;
+        private IComparer<IUpdateEntry> _currentValueComparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,13 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected PropertyBase(
             [NotNull] string name,
             [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo)
+            [CanBeNull] FieldInfo fieldInfo,
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
 
             Name = name;
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;
+            _configurationSource = configurationSource;
         }
 
         /// <summary>
@@ -81,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual FieldInfo FieldInfo
         {
             [DebuggerStepThrough] get => _fieldInfo;
-            [DebuggerStepThrough] set => SetField(value, ConfigurationSource.Explicit);
+            [DebuggerStepThrough] set => SetFieldInfo(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -90,25 +97,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
+        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
+        {
+            _configurationSource = configurationSource.Max(_configurationSource);
+        }
+
+        // Needed for a workaround before reference counting is implemented
+        // Issue #15898
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetConfigurationSource(ConfigurationSource configurationSource)
+            => _configurationSource = configurationSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual FieldInfo SetField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
         {
             if (fieldName == null)
             {
-                SetField((FieldInfo)null, configurationSource);
-                return;
+                return SetFieldInfo(null, configurationSource);
             }
 
             if (FieldInfo?.GetSimpleMemberName() == fieldName)
             {
-                SetField(FieldInfo, configurationSource);
-                return;
+                return SetFieldInfo(FieldInfo, configurationSource);
             }
 
             var fieldInfo = GetFieldInfo(fieldName, DeclaringType, Name, shouldThrow: true);
-            if (fieldInfo != null)
-            {
-                SetField(fieldInfo, configurationSource);
-            }
+            return SetFieldInfo(fieldInfo, configurationSource);
         }
 
         /// <summary>
@@ -120,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static FieldInfo GetFieldInfo(
             [NotNull] string fieldName, [NotNull] TypeBase type, [CanBeNull] string propertyName, bool shouldThrow)
         {
-            Debug.Assert(propertyName != null || !shouldThrow);
+            Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
 
             if (!type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
                 && shouldThrow)
@@ -138,17 +170,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
+        public virtual FieldInfo SetFieldInfo([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
         {
             if (Equals(FieldInfo, fieldInfo))
             {
-                UpdateFieldInfoConfigurationSource(configurationSource);
-                return;
+                if (fieldInfo != null)
+                {
+                    UpdateFieldInfoConfigurationSource(configurationSource);
+                }
+
+                return fieldInfo;
             }
 
             if (fieldInfo != null)
             {
                 IsCompatible(fieldInfo, ClrType, DeclaringType.ClrType, Name, shouldThrow: true);
+
+                if (PropertyInfo != null
+                    && PropertyInfo.IsIndexerProperty())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.BackingFieldOnIndexer(fieldInfo.GetSimpleMemberName(), DeclaringType.DisplayName(), Name));
+                }
+                UpdateFieldInfoConfigurationSource(configurationSource);
+            }
+            else
+            {
+                _fieldInfoConfigurationSource = null;
             }
 
             if (PropertyInfo == null
@@ -158,12 +206,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     CoreStrings.FieldNameMismatch(fieldInfo?.GetSimpleMemberName(), DeclaringType.DisplayName(), Name));
             }
 
-            UpdateFieldInfoConfigurationSource(configurationSource);
-
             var oldFieldInfo = FieldInfo;
             _fieldInfo = fieldInfo;
 
-            OnFieldInfoSet(fieldInfo, oldFieldInfo);
+            return OnFieldInfoSet(fieldInfo, oldFieldInfo);
         }
 
         /// <summary>
@@ -172,8 +218,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+        public virtual PropertyAccessMode? SetPropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
+        {
+            this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
+
+            return propertyAccessMode;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -183,15 +234,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsCompatible(
             [NotNull] FieldInfo fieldInfo,
-            [NotNull] Type propertyType,
+            [CanBeNull] Type propertyType,
             [CanBeNull] Type entityClrType,
             [CanBeNull] string propertyName,
             bool shouldThrow)
         {
-            Debug.Assert(propertyName != null || !shouldThrow);
+            Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
 
             if (entityClrType == null
-                || !fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(entityClrType.GetTypeInfo()))
+                || !fieldInfo.DeclaringType.IsAssignableFrom(entityClrType))
             {
                 if (shouldThrow)
                 {
@@ -202,9 +253,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
-            if (!fieldTypeInfo.IsAssignableFrom(propertyType.GetTypeInfo())
-                && !propertyType.GetTypeInfo().IsAssignableFrom(fieldTypeInfo))
+            var fieldType = fieldInfo.FieldType;
+            if (propertyType != null
+                && !propertyType.IsCompatibleWith(fieldType))
             {
                 if (shouldThrow)
                 {
@@ -260,9 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void OnFieldInfoSet([CanBeNull] FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
-        {
-        }
+        protected virtual FieldInfo OnFieldInfoSet([CanBeNull] FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
+            => newFieldInfo;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -328,7 +378,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        ITypeBase IPropertyBase.DeclaringType => DeclaringType;
+        public virtual IComparer<IUpdateEntry> CurrentValueComparer =>
+            NonCapturingLazyInitializer.EnsureInitialized(
+                ref _currentValueComparer, this, p => new CurrentValueComparerFactory().Create(p));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -336,7 +388,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableTypeBase IMutablePropertyBase.DeclaringType => DeclaringType;
+        ITypeBase IPropertyBase.DeclaringType
+        {
+            [DebuggerStepThrough] get => DeclaringType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -344,7 +399,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionTypeBase IConventionPropertyBase.DeclaringType => DeclaringType;
+        IMutableTypeBase IMutablePropertyBase.DeclaringType
+        {
+            [DebuggerStepThrough] get => DeclaringType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -352,7 +410,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionPropertyBase.SetField(FieldInfo fieldInfo, bool fromDataAnnotation)
-            => SetField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        IConventionTypeBase IConventionPropertyBase.DeclaringType
+        {
+            [DebuggerStepThrough] get => DeclaringType;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        FieldInfo IConventionPropertyBase.SetFieldInfo(FieldInfo fieldInfo, bool fromDataAnnotation)
+            => SetFieldInfo(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

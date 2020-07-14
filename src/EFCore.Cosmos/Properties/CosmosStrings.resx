@@ -123,14 +123,20 @@
   <data name="DuplicateDiscriminatorValue" xml:space="preserve">
     <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' needs to have a unique discriminator value.</value>
   </data>
+  <data name="ETagNonStringStoreType" xml:space="preserve">
+    <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties need to be strings or have a string converter.</value>
+  </data>
   <data name="NoDiscriminatorProperty" xml:space="preserve">
     <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator property configured.</value>
   </data>
   <data name="NoDiscriminatorValue" xml:space="preserve">
     <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured.</value>
   </data>
+  <data name="NonETagConcurrencyToken" xml:space="preserve">
+    <value>The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.</value>
+  </data>
   <data name="NoPartitionKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys.</value>
+    <value>The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys. Configure a partition key on '{entityType}'.</value>
   </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -146,5 +152,50 @@
   </data>
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property.</value>
+  </data>
+  <data name="UpdateConflict" xml:space="preserve">
+    <value>Conflicts were detected for item with id '{itemId}'.</value>
+  </data>
+  <data name="NonEmbeddedIncludeNotSupported" xml:space="preserve">
+    <value>Non-embedded IncludeExpression is not supported: {expression}</value>
+  </data>
+  <data name="NavigationPropertyIsNotAnEmbeddedEntity" xml:space="preserve">
+    <value>Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.</value>
+  </data>
+  <data name="OffsetRequiresLimit" xml:space="preserve">
+    <value>Offset is not supported without Limit.</value>
+  </data>
+  <data name="ReverseRequiresOffsetOrLimit" xml:space="preserve">
+    <value>Reverse is not supported without Limit or Offset.</value>
+  </data>
+  <data name="InvalidResourceId" xml:space="preserve">
+    <value>Invalid 'id' value. Supply a string value that's not null or empty.</value>
+  </data>
+  <data name="ParitionKeyMissing" xml:space="preserve">
+    <value>A ReadItem query was detected, but the partition key value is missing.</value>
+  </data>
+  <data name="ResourceIdMissing" xml:space="preserve">
+    <value>A ReadItem query was detected, but the 'id' value is missing and cannot be generated.</value>
+  </data>
+  <data name="PartitionKeyMismatch" xml:space="preserve">
+    <value>Partition key specified in the WithPartitionKey call '{paritionKey1}' and the partition key specified in the Where predicate '{paritionKey2}' must be identical. Remove one of them .</value>
+  </data>
+  <data name="IdNonStringStoreType" xml:space="preserve">
+    <value>The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties need to be strings or have a string converter.</value>
+  </data>
+  <data name="NoIdKey" xml:space="preserve">
+    <value>The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.</value>
+  </data>
+  <data name="NoIdProperty" xml:space="preserve">
+    <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped as 'id'.</value>
+  </data>
+  <data name="NoPartitionKeyKey" xml:space="preserve">
+    <value>The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.</value>
+  </data>
+  <data name="JsonPropertyCollision" xml:space="preserve">
+    <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
+  </data>
+  <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
+    <value>Both the connection string and account key or account endpoint were specified. Only specify one set of connection details.</value>
   </data>
 </root>
