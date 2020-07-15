@@ -462,8 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             if (IsDistinct
                 || Limit != null
-                || Offset != null
-                || GroupBy.Count > 0)
+                || Offset != null)
             {
                 PushdownIntoSubquery();
             }
@@ -1652,7 +1651,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             bool allowNonEquality)
         {
             if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
-                || (allowNonEquality && 
+                || (allowNonEquality &&
                     (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
                     || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
                     || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual

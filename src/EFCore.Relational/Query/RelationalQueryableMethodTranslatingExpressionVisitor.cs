@@ -235,6 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
+            HandleGroupByForAggregate(selectExpression);
 
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
@@ -317,6 +318,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return null;
                 }
             }
+
+            HandleGroupByForAggregate(selectExpression, eraseProjection: true);
 
             var translation = _sqlTranslator.TranslateCount();
             if (translation == null)
@@ -668,6 +671,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
+            HandleGroupByForAggregate(selectExpression, eraseProjection: true);
+
             var translation = _sqlTranslator.TranslateLongCount();
             if (translation == null)
             {
@@ -688,6 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
+            HandleGroupByForAggregate(selectExpression);
 
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
@@ -713,6 +719,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
+            HandleGroupByForAggregate(selectExpression);
 
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
@@ -1048,6 +1055,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
+            HandleGroupByForAggregate(selectExpression);
 
             var newSelector = selector == null
                 || selector.Body == selector.Parameters[0]
@@ -1478,6 +1486,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression targetExpression,
             string fieldName)
             => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName));
+
+        private static void HandleGroupByForAggregate(SelectExpression selectExpression, bool eraseProjection = false)
+        {
+            if (selectExpression.GroupBy.Count > 0)
+            {
+                if (eraseProjection)
+                {
+                    selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
+                    selectExpression.AddToProjection(selectExpression.GroupBy[0]);
+                    selectExpression.PushdownIntoSubquery();
+                    selectExpression.ClearProjection();
+                }
+                else
+                {
+                    selectExpression.PushdownIntoSubquery();
+                }
+            }
+        }
 
         private ShapedQueryExpression AggregateResultShaper(
             ShapedQueryExpression source, Expression projection, bool throwWhenEmpty, Type resultType)

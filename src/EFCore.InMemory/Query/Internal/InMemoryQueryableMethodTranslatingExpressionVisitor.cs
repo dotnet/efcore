@@ -120,18 +120,26 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-            if (predicate == null)
+            predicate = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters);
+            source = TranslateWhere(source, predicate);
+            if (source == null)
             {
                 return null;
             }
 
+            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+            if (source.ShaperExpression is GroupByShaperExpression)
+            {
+                inMemoryQueryExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
+                inMemoryQueryExpression.PushdownIntoSubquery();
+            }
+
             inMemoryQueryExpression.UpdateServerQueryExpression(
-                Expression.Call(
-                    EnumerableMethods.All.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    predicate));
+                Expression.Not(
+                    Expression.Call(
+                        EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                        inMemoryQueryExpression.ServerQueryExpression)));
 
             return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
         }
@@ -144,29 +152,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate)
         {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            if (predicate == null)
+            if (predicate != null)
             {
-                inMemoryQueryExpression.UpdateServerQueryExpression(
-                    Expression.Call(
-                        EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression));
-            }
-            else
-            {
-                predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-                if (predicate == null)
+                source = TranslateWhere(source, predicate);
+                if (source == null)
                 {
                     return null;
                 }
-
-                inMemoryQueryExpression.UpdateServerQueryExpression(
-                    Expression.Call(
-                        EnumerableMethods.AnyWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        predicate));
             }
+
+            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+            if (source.ShaperExpression is GroupByShaperExpression)
+            {
+                inMemoryQueryExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
+                inMemoryQueryExpression.PushdownIntoSubquery();
+            }
+
+            inMemoryQueryExpression.UpdateServerQueryExpression(
+                    Expression.Call(
+                        EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                        inMemoryQueryExpression.ServerQueryExpression));
 
             return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
         }
@@ -256,29 +262,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(source, nameof(source));
 
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            if (predicate == null)
+            if (predicate != null)
             {
-                inMemoryQueryExpression.UpdateServerQueryExpression(
-                    Expression.Call(
-                        EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression));
-            }
-            else
-            {
-                predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-                if (predicate == null)
+                source = TranslateWhere(source, predicate);
+                if (source == null)
                 {
                     return null;
                 }
-
-                inMemoryQueryExpression.UpdateServerQueryExpression(
-                    Expression.Call(
-                        EnumerableMethods.CountWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        predicate));
             }
+
+            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+            if (source.ShaperExpression is GroupByShaperExpression)
+            {
+                inMemoryQueryExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
+                inMemoryQueryExpression.PushdownIntoSubquery();
+            }
+
+            inMemoryQueryExpression.UpdateServerQueryExpression(
+                Expression.Call(
+                    EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    inMemoryQueryExpression.ServerQueryExpression));
 
             return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
         }
@@ -720,36 +724,32 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateLongCount(
-            ShapedQueryExpression source, LambdaExpression predicate)
+        protected override ShapedQueryExpression TranslateLongCount(ShapedQueryExpression source, LambdaExpression predicate)
         {
             Check.NotNull(source, nameof(source));
 
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            if (predicate == null)
+            if (predicate != null)
             {
-                inMemoryQueryExpression.UpdateServerQueryExpression(
-                    Expression.Call(
-                        EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(
-                            inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression));
-            }
-            else
-            {
-                predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-                if (predicate == null)
+                source = TranslateWhere(source, predicate);
+                if (source == null)
                 {
                     return null;
                 }
-
-                inMemoryQueryExpression.UpdateServerQueryExpression(
-                    Expression.Call(
-                        EnumerableMethods.LongCountWithPredicate.MakeGenericMethod(
-                            inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        predicate));
             }
+
+            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+            if (source.ShaperExpression is GroupByShaperExpression)
+            {
+                inMemoryQueryExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
+                inMemoryQueryExpression.PushdownIntoSubquery();
+            }
+
+            inMemoryQueryExpression.UpdateServerQueryExpression(
+                Expression.Call(
+                    EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(
+                        inMemoryQueryExpression.CurrentParameter.Type),
+                    inMemoryQueryExpression.ServerQueryExpression));
 
             return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
         }

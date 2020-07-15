@@ -2518,7 +2518,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
         }
 
-        [ConditionalTheory(Skip = "Issue#15097")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Count_after_GroupBy_without_aggregate(bool async)
         {
@@ -2527,13 +2527,62 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID));
         }
 
-        [ConditionalTheory(Skip = "Issue#15097")]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Count_with_predicate_after_GroupBy_without_aggregate(bool async)
+        {
+            return AssertCount(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID),
+                g => g.Count() > 1);
+        }
+
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task LongCount_after_GroupBy_without_aggregate(bool async)
         {
             return AssertLongCount(
                 async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task LongCount_with_predicate_after_GroupBy_without_aggregate(bool async)
+        {
+            return AssertLongCount(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID),
+                g => g.Count() > 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Any_after_GroupBy_without_aggregate(bool async)
+        {
+            return AssertAny(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Any_with_predicate_after_GroupBy_without_aggregate(bool async)
+        {
+            return AssertAny(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID),
+                g => g.Count() > 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task All_with_predicate_after_GroupBy_without_aggregate(bool async)
+        {
+            return AssertAll(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID),
+                g => g.Count() > 1);
         }
 
         #endregion
@@ -2656,8 +2705,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }),
                 elementSorter: e => e.Key);
         }
-
-
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

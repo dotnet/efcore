@@ -400,9 +400,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected Task AssertLongCount<TResult>(
             bool async,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate)
+            => AssertLongCount(async, query, query, predicate, predicate);
+
+        protected Task AssertLongCount<TResult>(
+            bool async,
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery)
             => QueryAsserter.AssertLongCount(actualQuery, expectedQuery, async);
+
+        protected Task AssertLongCount<TResult>(
+            bool async,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate)
+            => QueryAsserter.AssertLongCount(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, async);
 
         protected Task AssertMin<TResult>(
             bool async,
