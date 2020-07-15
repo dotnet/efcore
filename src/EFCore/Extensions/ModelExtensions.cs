@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     Gets the entity that maps the given entity class. Returns <see langword="null" /> if no entity type with
-        ///     the given CLR type is found or the entity type has a defining navigation.
+        ///     the given CLR type is found or the given CLR type is being used by shared type entity type
+        ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
@@ -34,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the entity that maps the given entity class, where the class may be a proxy derived from the
         ///     actual entity type. Returns <see langword="null" /> if no entity type with the given CLR type is found
+        ///     or the given CLR type is being used by shared type entity type
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
@@ -118,6 +120,16 @@ namespace Microsoft.EntityFrameworkCore
         public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] string name)
             => Check.NotNull(model, nameof(model)).AsModel()
                 .HasEntityTypeWithDefiningNavigation(Check.NotNull(name, nameof(name)));
+
+        /// <summary>
+        ///     Gets whether the CLR type is used by shared type entities in the model.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="clrType"> The CLR type. </param>
+        /// <returns> Whether the CLR type is used by shared type entities in the model. </returns>
+        [DebuggerStepThrough]
+        public static bool IsShared([NotNull] this IModel model, [NotNull] Type clrType)
+            => Check.NotNull(model, nameof(model)).AsModel().IsShared(Check.NotNull(clrType, nameof(clrType)));
 
         /// <summary>
         ///     Gets the default change tracking strategy being used for entities in the model. This strategy indicates how the

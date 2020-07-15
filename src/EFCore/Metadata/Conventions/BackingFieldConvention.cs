@@ -87,10 +87,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return null;
             }
 
-            var type = propertyBase.DeclaringType.ClrType;
+            var entityType = (IConventionEntityType)propertyBase.DeclaringType;
+            var type = entityType.ClrType;
+            var baseTypes = entityType.GetAllBaseTypes().ToArray();
             while (type != null)
             {
-                var fieldInfo = TryMatchFieldName(propertyBase, type);
+                var fieldInfo = TryMatchFieldName(propertyBase, entityType, type);
                 if (fieldInfo != null
                     && (propertyBase.PropertyInfo != null || propertyBase.Name == fieldInfo.GetSimpleMemberName()))
                 {
@@ -98,18 +100,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 type = type.BaseType;
+                entityType = baseTypes.FirstOrDefault(et => et.ClrType == type);
+
             }
 
             return null;
         }
 
-        private static FieldInfo TryMatchFieldName(IConventionPropertyBase propertyBase, Type entityClrType)
+        private static FieldInfo TryMatchFieldName(IConventionPropertyBase propertyBase, IConventionEntityType entityType, Type entityClrType)
         {
-            var model = propertyBase.DeclaringType.Model;
             var propertyName = propertyBase.Name;
 
             IReadOnlyDictionary<string, FieldInfo> fields;
-            var entityType = model.FindEntityType(entityClrType);
             if (entityType == null)
             {
                 var newFields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);

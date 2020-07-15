@@ -116,7 +116,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 serviceCollection,
                 optionsAction == null
                     ? (Action<IServiceProvider, DbContextOptionsBuilder>)null
-                    : (p, b) => optionsAction.Invoke(b), contextLifetime, optionsLifetime);
+                    : (p, b) => optionsAction(b), contextLifetime, optionsLifetime);
 
         /// <summary>
         ///     <para>
@@ -672,7 +672,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 serviceCollection,
                 optionsAction == null
                     ? (Action<IServiceProvider, DbContextOptionsBuilder>)null
-                    : (p, b) => optionsAction.Invoke(b),
+                    : (p, b) => optionsAction(b),
                 lifetime);
 
         /// <summary>

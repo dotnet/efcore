@@ -207,6 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                     if (targetType?.IsValidEntityType() == true
                         && (isTargetWeakOrOwned
+                            || conventionModel.IsShared(targetType)
                             || conventionModel.FindEntityType(targetType) != null
                             || targetType.GetRuntimeProperties().Any(p => p.IsCandidateProperty())))
                     {
