@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore
     public static class MutableModelExtensions
     {
         /// <summary>
-        ///     Gets the entity that maps the given entity class. Returns <see langword="null" /> if no entity type with the given name is found.
+        ///     Gets the entity that maps the given entity class. Returns <see langword="null" /> if no entity type with
+        ///     the given CLR type is found or the given CLR type is being used by shared type entity type
+        ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>

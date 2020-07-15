@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private readonly IStateManager _stateManager;
         private readonly IDbSetSource _setSource;
         private readonly IDbSetCache _setCache;
-        private readonly IModel _model;
+        private readonly IEntityType _entityType;
         private readonly IQueryable<TEntity> _queryRoot;
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _stateManager = stateManager;
             _setSource = setSource;
             _setCache = setCache;
-            _model = entityType.Model;
+            _entityType = entityType;
             _queryRoot = (IQueryable<TEntity>)BuildQueryRoot(entityType);
         }
 
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {
-            var key = _model.FindEntityType(typeof(TEntity)).FindPrimaryKey();
+            var key = _entityType.FindPrimaryKey();
             keyProperties = key.Properties;
 
             if (keyProperties.Count != keyValues.Length)

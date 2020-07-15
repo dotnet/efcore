@@ -42,7 +42,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableEntityType AddEntityType([NotNull] Type clrType);
 
         /// <summary>
-        ///     Adds an entity type to the model.
+        ///     <para>
+        ///         Adds a shared type entity type to the model.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
         /// </summary>
         /// <param name="name"> The name of the entity to be added. </param>
         /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
@@ -75,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Gets the entity with the given name. Returns <see langword="null" /> if no entity type with the given name is found
+        ///     or the given CLR type is being used by shared type entity type
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>

@@ -114,6 +114,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Set_throws_for_shared_types()
+        {
+            var model = new Model(new ConventionSet());
+            var question = model.AddEntityType("SharedQuestion", typeof(Question), ConfigurationSource.Explicit);
+
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
+                .UseModel(model.FinalizeModel());
+            using var context = new DbContext(optionsBuilder.Options);
+            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Question>().Local);
+            Assert.Equal(CoreStrings.InvalidSetSharedType(typeof(Question).ShortDisplayName()), ex.Message);
+        }
+
+        [ConditionalFact]
         public void SaveChanges_calls_DetectChanges()
         {
             var services = new ServiceCollection()

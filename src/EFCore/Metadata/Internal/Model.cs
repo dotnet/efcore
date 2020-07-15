@@ -230,6 +230,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (entityType.HasSharedClrType)
                 {
+                    if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == entityType.ClrType))
+                    {
+                        throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(entityType.DisplayName()));
+                    }
+
                     _sharedEntityClrTypes.Add(entityType.ClrType);
                 }
                 else if (_sharedEntityClrTypes.Contains(entityType.ClrType))
@@ -249,15 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType FindEntityType([NotNull] Type type)
-        {
-            if (_sharedEntityClrTypes.Contains(type))
-            {
-                throw new InvalidOperationException(CoreStrings.CannotFindEntityWithClrTypeWhenShared(type.DisplayName()));
-            }
-
-            return FindEntityType(GetDisplayName(type));
-        }
+        public virtual EntityType FindEntityType([NotNull] Type type) => FindEntityType(GetDisplayName(type));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -713,6 +710,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             _ignoredTypeNames[name] = configurationSource;
+
+            if (type == null)
+            {
+                // This is to populate Type for convention when removing shared type entity type
+                type = _entityTypes.TryGetValue(name, out var existingEntityType)
+                    && existingEntityType.HasSharedClrType
+                    ? existingEntityType.ClrType
+                    : null;
+            }
 
             return ConventionDispatcher.OnEntityTypeIgnored(Builder, name, type);
         }
