@@ -45,6 +45,7 @@ stages:
         helixRepo: dotnet/efcore
         jobs:
           - job: Windows
+            timeoutInMinutes: 90
             enablePublishTestResults: true
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
