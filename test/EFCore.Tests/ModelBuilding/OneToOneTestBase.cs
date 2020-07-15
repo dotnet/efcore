@@ -3269,8 +3269,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Nob>()
                     .Ignore(e => e.Hobs)
                     .HasOne(e => e.Hob).WithOne(e => e.Nob)
-                    .HasForeignKey<Hob>(
-                        e => new { e.NobId1, e.NobId2 })
+                    .HasForeignKey<Hob>(e => new { e.NobId1, e.NobId2 })
                     .IsRequired(false);
 
                 modelBuilder.FinalizeModel();
@@ -3300,8 +3299,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Entity<Nob>()
                     .Ignore(e => e.Hobs)
                     .HasOne(e => e.Hob).WithOne(e => e.Nob)
-                    .HasForeignKey<Hob>(
-                        e => new { e.NobId1, e.NobId2 });
+                    .HasForeignKey<Hob>(e => new { e.NobId1, e.NobId2 });
 
                 modelBuilder
                     .Entity<Nob>()
@@ -3334,8 +3332,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
                     .IsRequired(false)
-                    .HasPrincipalKey<Nob>(
-                        e => new { e.Id1, e.Id2 });
+                    .HasPrincipalKey<Nob>(e => new { e.Id1, e.Id2 });
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.False(fk.IsRequired);
@@ -3356,8 +3353,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
-                    .HasPrincipalKey<Nob>(
-                        e => new { e.Id1, e.Id2 })
+                    .HasPrincipalKey<Nob>(e => new { e.Id1, e.Id2 })
                     .IsRequired(false);
 
                 var fk = dependentType.GetForeignKeys().Single();

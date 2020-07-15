@@ -556,6 +556,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="definingQuery"> The LINQ query used as the default source. </param>
+        [Obsolete("Use InMemoryEntityTypeExtensions.SetDefiningQuery")]
         public static void SetDefiningQuery(
             [NotNull] this IMutableEntityType entityType,
             [CanBeNull] LambdaExpression definingQuery)

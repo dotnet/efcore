@@ -39,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore
 
             return (entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null
                 && ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
+#pragma warning disable CS0618 // Type or member is obsolete
                 && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
+#pragma warning restore CS0618 // Type or member is obsolete
                 ? GetDefaultTableName(entityType)
                 : null;
         }
@@ -248,7 +250,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
+#pragma warning disable CS0618 // Type or member is obsolete
                 && (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
+#pragma warning restore CS0618 // Type or member is obsolete
                 ? GetDefaultViewName(entityType)
                 : null;
         }

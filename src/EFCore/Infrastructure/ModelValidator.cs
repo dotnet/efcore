@@ -69,9 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateChangeTrackingStrategy(model, logger);
             ValidateForeignKeys(model, logger);
             ValidateFieldMapping(model, logger);
-            ValidateKeylessTypes(model, logger);
             ValidateQueryFilters(model, logger);
-            ValidateDefiningQuery(model, logger);
             ValidateData(model, logger);
             ValidateTypeMappings(model, logger);
             LogShadowProperties(model, logger);
@@ -929,35 +927,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Validates the mapping/configuration of entity types without keys in the model.
-        /// </summary>
-        /// <param name="model"> The model to validate. </param>
-        /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateKeylessTypes(
-            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
-            Check.NotNull(model, nameof(model));
-
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                if (entityType.GetDefiningQuery() != null)
-                {
-                    if (entityType.BaseType != null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.DerivedTypeDefiningQuery(entityType.DisplayName(), entityType.BaseType.DisplayName()));
-                    }
-
-                    if (entityType.FindPrimaryKey() != null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.DefiningQueryWithKey(entityType.DisplayName()));
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         ///     Validates the mapping/configuration of query filters in the model.
         /// </summary>
         /// <param name="model"> The model to validate. </param>
@@ -994,27 +963,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 if (requiredNavigationWithQueryFilter != null)
                 {
                     logger.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(requiredNavigationWithQueryFilter.ForeignKey);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Validates the mapping/configuration of defining queries in the model.
-        /// </summary>
-        /// <param name="model"> The model to validate. </param>
-        /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateDefiningQuery(
-            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
-            Check.NotNull(model, nameof(model));
-
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                if (entityType.GetDefiningQuery() != null
-                    && entityType.FindPrimaryKey() != null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.DefiningQueryWithKey(entityType.DisplayName()));
                 }
             }
         }
