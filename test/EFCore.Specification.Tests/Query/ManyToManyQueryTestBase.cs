@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<EntityTwo>().OrderByDescending(e => e.SelfSkipSharedLeft.LongCount(e => e.Name.StartsWith("L"))),
+                ss => ss.Set<EntityTwo>().OrderByDescending(e => e.SelfSkipSharedLeft.LongCount(e => e.Name.StartsWith("L"))).ThenBy(e => e.Id),
                 assertOrder: true,
                 entryCount: 20);
         }
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from t in ss.Set<EntityTwo>()
                       join s in ss.Set<EntityTwo>()
-                        on t.Id equals s.SelfSkipSharedRight.FirstOrDefault().Id
+                        on t.Id equals s.SelfSkipSharedRight.OrderBy(e => e.Id).FirstOrDefault().Id
                       select new { t, s },
                 elementSorter: e => (e.t.Id, e.s.Id),
                 elementAsserter: (e, a) =>
@@ -268,13 +268,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from t in ss.Set<EntityCompositeKey>()
                       join s in ss.Set<EntityCompositeKey>()
-                        on t.TwoSkipShared.FirstOrDefault().Id equals s.ThreeSkipFull.FirstOrDefault().Id into grouping
+                        on t.TwoSkipShared.OrderBy(e => e.Id).FirstOrDefault().Id equals s.ThreeSkipFull.OrderBy(e => e.Id).FirstOrDefault().Id into grouping
                       from s in grouping.DefaultIfEmpty()
                       orderby t.Key1, s.Key1
                       select new { t, s },
                 ss => from t in ss.Set<EntityCompositeKey>()
                       join s in ss.Set<EntityCompositeKey>()
-                        on t.TwoSkipShared.FirstOrDefault().MaybeScalar(e => e.Id) equals s.ThreeSkipFull.FirstOrDefault().MaybeScalar(e => e.Id) into grouping
+                        on t.TwoSkipShared.OrderBy(e => e.Id).FirstOrDefault().MaybeScalar(e => e.Id) equals s.ThreeSkipFull.OrderBy(e => e.Id).FirstOrDefault().MaybeScalar(e => e.Id) into grouping
                       from s in grouping.DefaultIfEmpty()
                       orderby t.MaybeScalar(e => e.Key1), s.MaybeScalar(e => e.Key1)
                       select new { t, s },
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from r in ss.Set<EntityThree>()
                       orderby r.Id
-                      select r.CompositeKeySkipFull.FirstOrDefault(),
+                      select r.CompositeKeySkipFull.OrderBy(e => e.Key1).FirstOrDefault(),
                 assertOrder: true,
                 entryCount: 12);
         }
