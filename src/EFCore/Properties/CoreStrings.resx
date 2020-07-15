@@ -1063,7 +1063,7 @@
     <value>The owned entity type '{entityType}' cannot have a base type.</value>
   </data>
   <data name="InvalidSetTypeWeak" xml:space="preserve">
-    <value>Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types and should they should be accessed through the defining entities.</value>
+    <value>Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types and should be accessed through the defining entities.</value>
   </data>
   <data name="LogNonDefiningInverseNavigation" xml:space="preserve">
     <value>The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'</value>
@@ -1283,9 +1283,6 @@
   <data name="ClashingSharedType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because a shared entity type with the same clr type already exists.</value>
   </data>
-  <data name="CannotFindEntityWithClrTypeWhenShared" xml:space="preserve">
-    <value>Cannot find entity type with type '{clrType}' since model contains shared entity type(s) with same type.</value>
-  </data>
   <data name="SkipNavigationInUseBySkipNavigation" xml:space="preserve">
     <value>The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.</value>
   </data>
@@ -1428,6 +1425,15 @@
   </data>
   <data name="PrincipalKeylessType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be on the principal end of the relationship between '{firstNavigationSpecification}' and '{secondNavigationSpecification}'. The principal entity type must have a key.</value>
+  </data>
+  <data name="ClashingMismatchedSharedType" xml:space="preserve">
+    <value>The shared type entity type '{entityType}' cannot be added to the model because a shared entity type with the same name but different clr type already exists.</value>
+  </data>
+  <data name="ClashingNonSharedType" xml:space="preserve">
+    <value>The shared type entity type '{entityType}' cannot be added to the model because a non shared entity type with the same clr type already exists.</value>
+  </data>
+  <data name="InvalidSetSharedType" xml:space="preserve">
+    <value>Cannot create a DbSet for '{typeName}' because it is configured as an shared type entity type and should be accessed through entity type name based Set method.</value>
   </data>
   <data name="DoNotUseUsingEntityOnSharedClrType" xml:space="preserve">
     <value>Cannot use UsingEntity() passing type '{clrType}' because the model contains shared entity type(s) with same type. Use a type which uniquely defines an entity type.</value>

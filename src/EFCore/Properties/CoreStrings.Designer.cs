@@ -1877,7 +1877,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types and should they should be accessed through the defining entities.
+        ///     Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types and should be accessed through the defining entities.
         /// </summary>
         public static string InvalidSetTypeWeak([CanBeNull] object typeName)
             => string.Format(
@@ -2375,14 +2375,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot find entity type with type '{clrType}' since model contains shared entity type(s) with same type.
-        /// </summary>
-        public static string CannotFindEntityWithClrTypeWhenShared([CanBeNull] object clrType)
-            => string.Format(
-                GetString("CannotFindEntityWithClrTypeWhenShared", nameof(clrType)),
-                clrType);
-
-        /// <summary>
         ///     The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.
         /// </summary>
         public static string SkipNavigationInUseBySkipNavigation([CanBeNull] object skipNavigation, [CanBeNull] object inverseSkipNavigation, [CanBeNull] object referencingEntityType)
@@ -2707,6 +2699,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("PrincipalKeylessType", nameof(entityType), nameof(firstNavigationSpecification), nameof(secondNavigationSpecification)),
                 entityType, firstNavigationSpecification, secondNavigationSpecification);
+
+        /// <summary>
+        ///     The shared type entity type '{entityType}' cannot be added to the model because a shared entity type with the same name but different clr type already exists.
+        /// </summary>
+        public static string ClashingMismatchedSharedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingMismatchedSharedType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The shared type entity type '{entityType}' cannot be added to the model because a non shared entity type with the same clr type already exists.
+        /// </summary>
+        public static string ClashingNonSharedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingNonSharedType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Cannot create a DbSet for '{typeName}' because it is configured as an shared type entity type and should be accessed through entity type name based Set method.
+        /// </summary>
+        public static string InvalidSetSharedType([CanBeNull] object typeName)
+            => string.Format(
+                GetString("InvalidSetSharedType", nameof(typeName)),
+                typeName);
 
         /// <summary>
         ///     Cannot use UsingEntity() passing type '{clrType}' because the model contains shared entity type(s) with same type. Use a type which uniquely defines an entity type.

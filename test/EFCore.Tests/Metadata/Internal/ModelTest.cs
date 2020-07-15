@@ -123,10 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(((EntityType)entityType).Builder);
 
             Assert.Same(entityType, model.FindEntityType(entityTypeName));
-            Assert.Equal(
-                CoreStrings.CannotFindEntityWithClrTypeWhenShared(typeof(Customer).DisplayName()),
-                Assert.Throws<InvalidOperationException>(
-                    () => model.FindEntityType(typeof(Customer))).Message);
+            Assert.Null(model.FindEntityType(typeof(Customer)));
 
             Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
 
