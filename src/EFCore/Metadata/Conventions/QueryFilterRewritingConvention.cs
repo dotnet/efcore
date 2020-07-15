@@ -16,13 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
     ///     query pipeline.
     /// </summary>
-    public class QueryFilterDefiningQueryRewritingConvention : IModelFinalizingConvention
+    public class QueryFilterRewritingConvention : IModelFinalizingConvention
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="QueryFilterDefiningQueryRewritingConvention" />.
+        ///     Creates a new instance of <see cref="QueryFilterRewritingConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public QueryFilterDefiningQueryRewritingConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public QueryFilterRewritingConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
             DbSetAccessRewriter = new DbSetAccessRewritingExpressionVisitor(dependencies.ContextType);
@@ -49,12 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (queryFilter != null)
                 {
                     entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
-                }
-
-                var definingQuery = entityType.GetDefiningQuery();
-                if (definingQuery != null)
-                {
-                    entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
                 }
             }
         }

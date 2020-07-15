@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -12,19 +13,42 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <inheritdoc />
-    public class RelationalQueryFilterDefiningQueryRewritingConvention : QueryFilterDefiningQueryRewritingConvention
+    public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConvention
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="RelationalQueryFilterDefiningQueryRewritingConvention" />.
+        ///     Creates a new instance of <see cref="RelationalQueryFilterRewritingConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
-        public RelationalQueryFilterDefiningQueryRewritingConvention(
+        public RelationalQueryFilterRewritingConvention(
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
             DbSetAccessRewriter = new RelationalDbSetAccessRewritingExpressionVisitor(Dependencies.ContextType);
+        }
+
+        /// <inheritdoc />
+        public override void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
+        {
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            {
+                var queryFilter = entityType.GetQueryFilter();
+                if (queryFilter != null)
+                {
+                    entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
+                }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+                var definingQuery = entityType.GetDefiningQuery();
+                if (definingQuery != null)
+                {
+                    entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
+                }
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
         }
 
         /// <inheritdoc />

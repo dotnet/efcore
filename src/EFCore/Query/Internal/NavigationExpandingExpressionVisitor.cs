@@ -150,7 +150,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 case QueryRootExpression queryRootExpression:
                     var entityType = queryRootExpression.EntityType;
+#pragma warning disable CS0618 // Type or member is obsolete
                     var definingQuery = entityType.GetDefiningQuery();
+#pragma warning restore CS0618 // Type or member is obsolete
                     NavigationExpansionExpression navigationExpansionExpression;
                     if (definingQuery != null
                         // Apply defining query only when it is not custom query root
@@ -799,11 +801,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (source.PendingSelector is NavigationTreeExpression navigationTree
                 && navigationTree.Value is EntityReference entityReference)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 if (entityReference.EntityType.GetDefiningQuery() != null)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.IncludeOnEntityWithDefiningQueryNotSupported(entityReference.EntityType.DisplayName()));
                 }
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 if (expression is ConstantExpression includeConstant
                     && includeConstant.Value is string navigationChain)

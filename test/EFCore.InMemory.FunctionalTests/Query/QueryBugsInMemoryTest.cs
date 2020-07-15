@@ -709,7 +709,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 modelBuilder.Entity<CustomerView19708>().HasNoKey().ToQuery(Build_Customers_Sql_View_InMemory());
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             private Expression<Func<IQueryable<CustomerView19708>>> Build_Customers_Sql_View_InMemory()

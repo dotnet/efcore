@@ -32,10 +32,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder
+                InMemoryEntityTypeBuilderExtensions.ToQuery(
+                    modelBuilder
                     .Entity<BlogQuery>()
-                    .HasNoKey()
-                    .ToQuery(() => context.Set<Blog>().Select(b => new BlogQuery(b.Title, b.MonthlyRevenue)));
+                    .HasNoKey(),
+                    () => context.Set<Blog>().Select(b => new BlogQuery(b.Title, b.MonthlyRevenue)));
             }
         }
     }

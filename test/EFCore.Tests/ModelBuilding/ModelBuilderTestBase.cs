@@ -100,10 +100,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var builder = CreateModelBuilder();
 
-                builder.Entity<Hob>().HasKey(
-                    e => new { e.Id1, e.Id2 });
-                builder.Entity<Nob>().HasKey(
-                    e => new { e.Id1, e.Id2 });
+                builder.Entity<Hob>().HasKey(e => new { e.Id1, e.Id2 });
+                builder.Entity<Nob>().HasKey(e => new { e.Id1, e.Id2 });
 
                 return builder;
             }

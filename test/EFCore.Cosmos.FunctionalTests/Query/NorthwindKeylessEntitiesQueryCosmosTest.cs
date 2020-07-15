@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.KeylessEntity_simple(async);
 
             AssertSql(
-                @"SELECT c[""Address""], c[""City""], c[""CompanyName""], c[""ContactName""], c[""ContactTitle""]
+                @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -38,11 +38,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.KeylessEntity_where_simple(async);
 
             AssertSql(
-                @"SELECT c[""Address""], c[""City""], c[""CompanyName""], c[""ContactName""], c[""ContactTitle""]
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
-        
+
         [ConditionalFact] // views are not supported
         public override void KeylessEntity_by_database_view()
         {
@@ -93,7 +93,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
             await base.KeylessEntity_with_defining_query(async);
 
             AssertSql(
-                @"SELECT c[""CustomerID""]
+                @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
         }

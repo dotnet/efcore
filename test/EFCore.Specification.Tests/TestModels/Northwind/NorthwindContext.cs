@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                         od => new { od.OrderID, od.ProductID });
                 });
 
+#pragma warning disable CS0618 // Type or member is obsolete
             modelBuilder
                 .Entity<CustomerQuery>()
                 .HasNoKey()
@@ -127,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                                         OrderCount = c.Orders.Count(),
                                         SearchTerm = _searchTerm
                                     }));
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public string TenantPrefix { get; set; } = "B";

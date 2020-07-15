@@ -1687,14 +1687,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot use 'ToQuery' to create a defining query because it also defines a primary key. Defining queries can only be used to back entity types without keys.
-        /// </summary>
-        public static string DefiningQueryWithKey([CanBeNull] object entityType)
-            => string.Format(
-                GetString("DefiningQueryWithKey", nameof(entityType)),
-                entityType);
-
-        /// <summary>
         ///     Converter for model type '{converterType}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.
         /// </summary>
         public static string ConverterPropertyMismatch([CanBeNull] object converterType, [CanBeNull] object entityType, [CanBeNull] object propertyName, [CanBeNull] object propertyType)

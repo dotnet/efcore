@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies));
             ReplaceConvention(
                 conventionSet.ModelFinalizingConventions,
-                (QueryFilterDefiningQueryRewritingConvention)new RelationalQueryFilterDefiningQueryRewritingConvention(
+                (QueryFilterRewritingConvention)new RelationalQueryFilterRewritingConvention(
                     Dependencies, RelationalDependencies));
 
             ConventionSet.AddAfter(
