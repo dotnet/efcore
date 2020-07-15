@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public virtual CaseExpression Case(SqlExpression operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult)
+        public virtual CaseExpression Case(SqlExpression operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult = null)
         {
             Check.NotNull(operand, nameof(operand));
             Check.NotNull(whenClauses, nameof(whenClauses));
@@ -505,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public virtual CaseExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult)
+        public virtual CaseExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult = null)
         {
             Check.NotNull(whenClauses, nameof(whenClauses));
 

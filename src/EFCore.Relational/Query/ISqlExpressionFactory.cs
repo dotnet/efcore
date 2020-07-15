@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="whenClauses"> A list of <see cref="CaseWhenClause"/> to compare and get result from. </param>
         /// <param name="elseResult"> A value to return if no <paramref name="whenClauses"/> matches, if any. </param>
         /// <returns> An expression representing a CASE statement in a SQL tree. </returns>
-        CaseExpression Case([NotNull] SqlExpression operand, [NotNull] IReadOnlyList<CaseWhenClause> whenClauses, [CanBeNull] SqlExpression elseResult);
+        CaseExpression Case([NotNull] SqlExpression operand, [NotNull] IReadOnlyList<CaseWhenClause> whenClauses, [CanBeNull] SqlExpression elseResult = null);
 
         /// <summary>
         ///     Creates a new <see cref="CaseExpression"/> which represent a CASE statement in a SQL tree.
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="whenClauses"> A list of <see cref="CaseWhenClause"/> to evaluate condition and get result from. </param>
         /// <param name="elseResult"> A value to return if no <paramref name="whenClauses"/> matches, if any. </param>
         /// <returns> An expression representing a CASE statement in a SQL tree. </returns>
-        CaseExpression Case([NotNull] IReadOnlyList<CaseWhenClause> whenClauses, [CanBeNull] SqlExpression elseResult);
+        CaseExpression Case([NotNull] IReadOnlyList<CaseWhenClause> whenClauses, [CanBeNull] SqlExpression elseResult = null);
 
         /// <summary>
         ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a function call in a SQL tree.
