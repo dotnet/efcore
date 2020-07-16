@@ -94,7 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     case DropColumnOperation dropColumnOperation:
                     {
                         var rebuild = rebuilds.GetOrAddNew((dropColumnOperation.Table, dropColumnOperation.Schema));
-                        rebuild.OldColumns.Remove(dropColumnOperation.Name);
                         rebuild.OperationsToReplace.Add(dropColumnOperation);
                         rebuild.DropColumnsDeferred.Add(dropColumnOperation.Name);
 
@@ -128,13 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         var rebuild = rebuilds.GetOrAddNew((alterColumnOperation.Table, alterColumnOperation.Schema));
                         rebuild.OperationsToReplace.Add(alterColumnOperation);
-
-                        if (alterColumnOperation.OldColumn.IsNullable && !alterColumnOperation.IsNullable)
-                        {
-                            var overrides = rebuild.NewlyRequiredColumns.GetOrAddNew(alterColumnOperation.Name);
-                            overrides.DefaultValueSql = alterColumnOperation.DefaultValueSql;
-                            overrides.DefaultValue = alterColumnOperation.DefaultValue;
-                        }
+                        rebuild.AlterColumnsDeferred.Add(alterColumnOperation.Name, alterColumnOperation);
 
                         operations.Add(alterColumnOperation);
 
@@ -144,9 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     case CreateIndexOperation createIndexOperation:
                     {
                         if (rebuilds.TryGetValue((createIndexOperation.Table, createIndexOperation.Schema), out var rebuild)
-                            && rebuild.AddColumnsDeferred.Intersect(createIndexOperation.Columns).Any())
+                            && (rebuild.AddColumnsDeferred.Keys.Intersect(createIndexOperation.Columns).Any()
+                                || rebuild.RenameColumnsDeferred.Keys.Intersect(createIndexOperation.Columns).Any()))
                         {
                             rebuild.OperationsToReplace.Add(createIndexOperation);
+                            rebuild.CreateIndexesDeferred.Add(createIndexOperation.Name);
                         }
 
                         operations.Add(createIndexOperation);
@@ -168,14 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                     Name = renameIndexOperation.Name
                                 });
 
-                            var createOperation = CreateIndexOperation.For(index);
-                            operations.Add(createOperation);
-
-                            if (rebuilds.TryGetValue((renameIndexOperation.Table, renameIndexOperation.Schema), out var rebuild)
-                                && rebuild.AddColumnsDeferred.Intersect(index.Columns.Select(c => c.Name)).Any())
-                            {
-                                rebuild.OperationsToReplace.Add(createOperation);
-                            }
+                            operations.Add(CreateIndexOperation.For(index));
                         }
                         else
                         {
@@ -190,9 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         if (rebuilds.TryGetValue((addColumnOperation.Table, addColumnOperation.Schema), out var rebuild)
                             && rebuild.DropColumnsDeferred.Contains(addColumnOperation.Name))
                         {
-                            rebuild.OldColumns.Add(addColumnOperation.Name, null);
                             rebuild.OperationsToReplace.Add(addColumnOperation);
-                            rebuild.AddColumnsDeferred.Add(addColumnOperation.Name);
+                            rebuild.AddColumnsDeferred.Add(addColumnOperation.Name, addColumnOperation);
                         }
                         else if (addColumnOperation.Comment != null)
                         {
@@ -208,26 +195,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         if (rebuilds.TryGetValue((renameColumnOperation.Table, renameColumnOperation.Schema), out var rebuild))
                         {
-                            if (rebuild.AddColumnsDeferred.Contains(renameColumnOperation.Name))
+                            if (rebuild.DropColumnsDeferred.Contains(renameColumnOperation.NewName))
                             {
-                                rebuild.OldColumns.Add(
-                                    renameColumnOperation.NewName,
-                                    rebuild.OldColumns.Remove(renameColumnOperation.Name, out var oldName)
-                                        ? oldName
-                                        : renameColumnOperation.Name);
                                 rebuild.OperationsToReplace.Add(renameColumnOperation);
-                                rebuild.AddColumnsDeferred.Add(renameColumnOperation.NewName);
-                            }
-                            else if (rebuild.DropColumnsDeferred.Contains(renameColumnOperation.NewName))
-                            {
-                                rebuild.OldColumns.Add(
-                                    renameColumnOperation.NewName,
-                                    rebuild.OldColumns.Remove(renameColumnOperation.Name, out var oldName)
-                                        ? oldName
-                                        : renameColumnOperation.Name);
-                                rebuild.OperationsToReplace.Add(renameColumnOperation);
-                                rebuild.AddColumnsDeferred.Add(renameColumnOperation.NewName);
                                 rebuild.DropColumnsDeferred.Add(renameColumnOperation.Name);
+                                rebuild.RenameColumnsDeferred.Add(renameColumnOperation.NewName, renameColumnOperation);
                             }
                         }
 
@@ -254,25 +226,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     case DropIndexOperation _:
                     case DropSchemaOperation _:
                     case DropSequenceOperation _:
+                    case DropTableOperation _:
                     case EnsureSchemaOperation _:
                     case RenameSequenceOperation _:
                     case RestartSequenceOperation _:
                     {
-                        operations.Add(operation);
-
-                        break;
-                    }
-
-                    case DropTableOperation dropTableOperation:
-                    {
-                        if (rebuilds.Remove((dropTableOperation.Name, dropTableOperation.Schema), out var rebuild))
-                        {
-                            foreach (var operationToReplace in rebuild.OperationsToReplace)
-                            {
-                                operations.Remove(operationToReplace);
-                            }
-                        }
-
                         operations.Add(operation);
 
                         break;
@@ -307,12 +265,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
+            var skippedRebuilds = new List<(string Table, string Schema)>();
             var indexesToRebuild = new List<ITableIndex>();
             foreach (var rebuild in rebuilds)
             {
                 var table = model?.GetRelationalModel().FindTable(rebuild.Key.Table, rebuild.Key.Schema);
                 if (table == null)
                 {
+                    skippedRebuilds.Add(rebuild.Key);
+
                     continue;
                 }
 
@@ -348,7 +309,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         Name = column.Name,
                         ColumnType = column.StoreType,
                         IsNullable = column.IsNullable,
-                        DefaultValue = column.DefaultValue,
+                        DefaultValue = rebuild.Value.AddColumnsDeferred.TryGetValue(column.Name, out var originalOperation)
+                                && !originalOperation.IsNullable
+                            ? originalOperation.DefaultValue
+                            : column.DefaultValue,
                         DefaultValueSql = column.DefaultValueSql,
                         ComputedColumnSql = column.ComputedColumnSql,
                         IsStored = column.IsStored,
@@ -377,18 +341,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 createTableOperation.AddAnnotations(table.GetAnnotations());
                 operations.Add(createTableOperation);
 
-                indexesToRebuild.AddRange(table.Indexes);
+                foreach (var index in table.Indexes)
+                {
+                    if (index.IsUnique && rebuild.Value.CreateIndexesDeferred.Contains(index.Name))
+                    {
+                        var createIndexOperation = CreateIndexOperation.For(index);
+                        createIndexOperation.Table = createTableOperation.Name;
+                        operations.Add(createIndexOperation);
+                    }
+                    else
+                    {
+                        indexesToRebuild.Add(index);
+                    }
+                }
 
                 var intoBuilder = new StringBuilder();
                 var selectBuilder = new StringBuilder();
                 var first = true;
                 foreach (var column in table.Columns)
                 {
-                    var oldColumnName = rebuild.Value.OldColumns.TryGetValue(column.Name, out var value)
-                        ? value
-                        : column.Name;
                     if (column.ComputedColumnSql != null
-                        || oldColumnName == null)
+                        || rebuild.Value.AddColumnsDeferred.ContainsKey(column.Name))
                     {
                         continue;
                     }
@@ -405,54 +378,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     intoBuilder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name));
 
-                    var isNewlyRequired = rebuild.Value.NewlyRequiredColumns.TryGetValue(column.Name, out var overrides);
-                    if (isNewlyRequired)
+                    var defaultValue = rebuild.Value.AlterColumnsDeferred.TryGetValue(column.Name, out var alterColumnOperation)
+                            && !alterColumnOperation.IsNullable
+                            && alterColumnOperation.OldColumn.IsNullable
+                        ? alterColumnOperation.DefaultValue
+                        : null;
+                    if (defaultValue != null)
                     {
                         selectBuilder.Append("IFNULL(");
                     }
 
-                    selectBuilder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(oldColumnName));
+                    selectBuilder.Append(
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(
+                            rebuild.Value.RenameColumnsDeferred.TryGetValue(column.Name, out var renameColumnOperation)
+                                ? renameColumnOperation.Name
+                                : column.Name));
 
-                    if (isNewlyRequired)
+                    if (defaultValue != null)
                     {
-                        selectBuilder.Append(", ");
+                        var defaultValueTypeMapping = (column.StoreType == null
+                                ? null
+                                : Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), column.StoreType))
+                            ?? Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
 
-                        var defaultValueSql = overrides.DefaultValueSql
-                            ?? column.DefaultValueSql;
-                        if (defaultValueSql != null)
-                        {
-                            selectBuilder.Append(defaultValueSql);
-                        }
-                        else
-                        {
-                            var defaultValue = overrides.DefaultValue
-                                ?? column.DefaultValue;
-                            if (defaultValue == null)
-                            {
-                                var propertyMapping = column.PropertyMappings.First();
-                                var property = propertyMapping.Property;
-                                var typeMapping = propertyMapping.TypeMapping;
-                                var clrType = ((property.GetValueConverter() ?? (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter)?.ProviderClrType ?? typeMapping.ClrType).UnwrapNullableType();
-
-                                defaultValue = clrType == typeof(string)
-                                    ? string.Empty
-                                    : clrType.IsArray
-                                        ? Array.CreateInstance(clrType.GetElementType(), 0)
-                                        : clrType.UnwrapNullableType().GetDefaultValue();
-                            }
-
-                            var defaultValueTypeMapping = column.StoreType != null
-                                ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), column.StoreType)
-                                : null;
-                            if (defaultValueTypeMapping == null)
-                            {
-                                defaultValueTypeMapping = Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
-                            }
-
-                            selectBuilder.Append(defaultValueTypeMapping.GenerateSqlLiteral(defaultValue));
-                        }
-
-                        selectBuilder.Append(")");
+                        selectBuilder
+                            .Append(", ")
+                            .Append(defaultValueTypeMapping.GenerateSqlLiteral(defaultValue))
+                            .Append(")");
                     }
                 }
 
@@ -461,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         Sql = new StringBuilder()
                             .Append("INSERT INTO ")
-                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier("ef_temp_" + table.Name))
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(createTableOperation.Name))
                             .Append(" (")
                             .Append(intoBuilder)
                             .AppendLine(")")
@@ -470,9 +422,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             .AppendLine()
                             .Append("FROM ")
                             .Append(table.Name)
-                            .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                            .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
                             .ToString()
                     });
+            }
+
+            foreach (var skippedRebuild in skippedRebuilds)
+            {
+                rebuilds.Remove(skippedRebuild);
             }
 
             if (rebuilds.Any())
@@ -1095,19 +1052,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         #endregion
 
-        private sealed class RequiredColumnOverrides
-        {
-            public string DefaultValueSql { get; set; }
-            public object DefaultValue { get; set; }
-        }
-
         private sealed class RebuildContext
         {
             public ICollection<MigrationOperation> OperationsToReplace { get; } = new List<MigrationOperation>();
-            public IDictionary<string, string> OldColumns { get; } = new Dictionary<string, string>();
-            public IDictionary<string, RequiredColumnOverrides> NewlyRequiredColumns { get; } = new Dictionary<string, RequiredColumnOverrides>();
-            public ICollection<string> AddColumnsDeferred { get; } = new HashSet<string>();
+            public IDictionary<string, AddColumnOperation> AddColumnsDeferred { get; } = new Dictionary<string, AddColumnOperation>();
             public ICollection<string> DropColumnsDeferred { get; } = new HashSet<string>();
+            public IDictionary<string, AlterColumnOperation> AlterColumnsDeferred = new Dictionary<string, AlterColumnOperation>();
+            public IDictionary<string, RenameColumnOperation> RenameColumnsDeferred = new Dictionary<string, RenameColumnOperation>();
+            public ICollection<string> CreateIndexesDeferred { get; } = new HashSet<string>();
             public ICollection<MigrationOperation> OperationsToWarnFor { get; } = new List<MigrationOperation>();
         }
     }
