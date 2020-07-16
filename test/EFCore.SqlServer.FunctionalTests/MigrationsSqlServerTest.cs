@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -112,6 +112,21 @@ SET @description = CONCAT(N'This is a multi-line', CHAR(10), N'column comment.',
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';");
         }
 
+        public override async Task Create_table_with_computed_column(bool? stored)
+        {
+            await base.Create_table_with_computed_column(stored);
+
+            var storedSql = stored == true ? " PERSISTED" : "";
+
+            AssertSql(
+                $@"CREATE TABLE [People] (
+    [Id] int NOT NULL,
+    [Sum] AS [X] + [Y]{storedSql},
+    [X] int NOT NULL,
+    [Y] int NOT NULL
+);");
+        }
+
         public override async Task Drop_table()
         {
             await base.Drop_table();
@@ -171,7 +186,7 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE'
             await base.Rename_table();
 
             AssertSql(
-                @"EXEC sp_rename N'[People]', N'people';");
+                @"EXEC sp_rename N'[People]', N'Persons';");
         }
 
         public override async Task Rename_table_with_primary_key()
@@ -181,9 +196,9 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE'
             AssertSql(
                 @"ALTER TABLE [People] DROP CONSTRAINT [PK_People];",
                 //
-                @"EXEC sp_rename N'[People]', N'people';",
+                @"EXEC sp_rename N'[People]', N'Persons';",
                 //
-                @"ALTER TABLE [people] ADD CONSTRAINT [PK_people] PRIMARY KEY ([Id]);");
+                @"ALTER TABLE [Persons] ADD CONSTRAINT [PK_Persons] PRIMARY KEY ([Id]);");
         }
 
         public override async Task Move_table()
@@ -410,8 +425,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         {
             await base.Add_column_shared();
 
-            AssertSql(
-                @"ALTER TABLE [Base] ADD [Foo] nvarchar(max) NULL;");
+            AssertSql();
         }
 
         public override async Task Add_column_with_check_constraint()
@@ -892,7 +906,7 @@ ALTER TABLE [People] DROP COLUMN [Id];");
             await base.Rename_column();
 
             AssertSql(
-                @"EXEC sp_rename N'[People].[SomeColumn]', N'somecolumn', N'COLUMN';");
+                @"EXEC sp_rename N'[People].[SomeColumn]', N'SomeOtherColumn', N'COLUMN';");
         }
 
         public override async Task Create_index()
@@ -1433,14 +1447,6 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             await base.Add_primary_key();
 
             AssertSql(
-                @"DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
-ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
-                //
                 @"ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]);");
         }
 
@@ -1449,14 +1455,6 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
             await base.Add_primary_key_with_name();
 
             AssertSql(
-                @"DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
-ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
-                //
                 @"ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField]);");
         }
 
@@ -1465,22 +1463,6 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
             await base.Add_primary_key_composite_with_name();
 
             AssertSql(
-                @"DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField2');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
-ALTER TABLE [People] ALTER COLUMN [SomeField2] nvarchar(450) NOT NULL;",
-                //
-                @"DECLARE @var1 sysname;
-SELECT @var1 = [d].[name]
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField1');
-IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var1 + '];');
-ALTER TABLE [People] ALTER COLUMN [SomeField1] nvarchar(450) NOT NULL;",
-                //
                 @"ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField1], [SomeField2]);");
         }
 
@@ -1767,6 +1749,11 @@ WHERE name = '{connection.Database}';";
                 ? collation
                 : null;
         }
+
+        protected override ReferentialAction Normalize(ReferentialAction value)
+            => value == ReferentialAction.Restrict
+                ? ReferentialAction.NoAction
+                : value;
 
         public class MigrationsSqlServerFixture : MigrationsFixtureBase
         {

@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -10,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> to add a new foreign key.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} ADD CONSTRAINT {Name} FOREIGN KEY")]
-    public class AddForeignKeyOperation : MigrationOperation
+    public class AddForeignKeyOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the foreign key constraint.
@@ -57,5 +60,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     The <see cref="ReferentialAction" /> to use for deletes.
         /// </summary>
         public virtual ReferentialAction OnDelete { get; set; }
+
+        /// <summary>
+        ///     Creates a new <see cref="AddForeignKeyOperation"/> for the specified foreign key.
+        /// </summary>
+        /// <param name="foreignKey"> The foreign key. </param>
+        /// <returns> The operation. </returns>
+        public static AddForeignKeyOperation For([NotNull] IForeignKeyConstraint foreignKey)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            var operation = new AddForeignKeyOperation
+            {
+                Schema = foreignKey.Table.Schema,
+                Table = foreignKey.Table.Name,
+                Name = foreignKey.Name,
+                Columns = foreignKey.Columns.Select(c => c.Name).ToArray(),
+                PrincipalSchema = foreignKey.PrincipalTable.Schema,
+                PrincipalTable = foreignKey.PrincipalTable.Name,
+                PrincipalColumns = foreignKey.PrincipalColumns.Select(c => c.Name).ToArray(),
+                OnDelete = foreignKey.OnDeleteAction
+            };
+            operation.AddAnnotations(foreignKey.GetAnnotations());
+
+            return operation;
+        }
     }
 }

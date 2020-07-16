@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetDefaultValueSql([NotNull] this IMutableProperty property, [CanBeNull] string value)
             => property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.DefaultValueSql,
-                Check.NullButNotEmpty(value, nameof(value)));
+                value);
 
         /// <summary>
         ///     Sets the SQL expression that is used as the default value for the column this property is mapped to.
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.DefaultValueSql,
-                Check.NullButNotEmpty(value, nameof(value)),
+                value,
                 fromDataAnnotation);
 
             return value;
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetComputedColumnSql([NotNull] this IMutableProperty property, [CanBeNull] string value)
             => property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ComputedColumnSql,
-                Check.NullButNotEmpty(value, nameof(value)));
+                value);
 
         /// <summary>
         ///     Sets the SQL expression that is used as the computed value for the column this property is mapped to.
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             property.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.ComputedColumnSql,
-                Check.NullButNotEmpty(value, nameof(value)),
+                value,
                 fromDataAnnotation);
 
             return value;

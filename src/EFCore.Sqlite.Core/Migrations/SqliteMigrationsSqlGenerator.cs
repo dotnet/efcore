@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -67,44 +68,454 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IModel model)
         {
             var operations = new List<MigrationOperation>();
+            var rebuilds = new Dictionary<(string Table, string Schema), RebuildContext>();
             foreach (var operation in migrationOperations)
             {
-                if (operation is AddForeignKeyOperation foreignKeyOperation)
+                switch (operation)
                 {
-                    var table = migrationOperations
-                        .OfType<CreateTableOperation>()
-                        .FirstOrDefault(o => o.Name == foreignKeyOperation.Table);
-
-                    if (table != null)
+                    case AddPrimaryKeyOperation _:
+                    case AddUniqueConstraintOperation _:
+                    case AddCheckConstraintOperation _:
+                    case AlterTableOperation _:
+                    case DropCheckConstraintOperation _:
+                    case DropForeignKeyOperation _:
+                    case DropPrimaryKeyOperation _:
+                    case DropUniqueConstraintOperation _:
                     {
-                        table.ForeignKeys.Add(foreignKeyOperation);
+                        var tableOperation = (ITableMigrationOperation)operation;
+                        var rebuild = rebuilds.GetOrAddNew((tableOperation.Table, tableOperation.Schema));
+                        rebuild.OperationsToReplace.Add(operation);
+
+                        operations.Add(operation);
+
+                        break;
+                    }
+
+                    case DropColumnOperation dropColumnOperation:
+                    {
+                        var rebuild = rebuilds.GetOrAddNew((dropColumnOperation.Table, dropColumnOperation.Schema));
+                        rebuild.OldColumns.Remove(dropColumnOperation.Name);
+                        rebuild.OperationsToReplace.Add(dropColumnOperation);
+                        rebuild.DropColumnsDeferred.Add(dropColumnOperation.Name);
+
+                        operations.Add(dropColumnOperation);
+
+                        break;
+                    }
+
+                    case AddForeignKeyOperation foreignKeyOperation:
+                    {
+                        var table = operations
+                            .OfType<CreateTableOperation>()
+                            .FirstOrDefault(o => o.Name == foreignKeyOperation.Table);
+
+                        if (table != null)
+                        {
+                            table.ForeignKeys.Add(foreignKeyOperation);
+                        }
+                        else
+                        {
+                            var rebuild = rebuilds.GetOrAddNew((foreignKeyOperation.Table, foreignKeyOperation.Schema));
+                            rebuild.OperationsToReplace.Add(foreignKeyOperation);
+
+                            operations.Add(foreignKeyOperation);
+                        }
+
+                        break;
+                    }
+
+                    case AlterColumnOperation alterColumnOperation:
+                    {
+                        var rebuild = rebuilds.GetOrAddNew((alterColumnOperation.Table, alterColumnOperation.Schema));
+                        rebuild.OperationsToReplace.Add(alterColumnOperation);
+
+                        if (alterColumnOperation.OldColumn.IsNullable && !alterColumnOperation.IsNullable)
+                        {
+                            var overrides = rebuild.NewlyRequiredColumns.GetOrAddNew(alterColumnOperation.Name);
+                            overrides.DefaultValueSql = alterColumnOperation.DefaultValueSql;
+                            overrides.DefaultValue = alterColumnOperation.DefaultValue;
+                        }
+
+                        operations.Add(alterColumnOperation);
+
+                        break;
+                    }
+
+                    case CreateIndexOperation createIndexOperation:
+                    {
+                        if (rebuilds.TryGetValue((createIndexOperation.Table, createIndexOperation.Schema), out var rebuild)
+                            && rebuild.AddColumnsDeferred.Intersect(createIndexOperation.Columns).Any())
+                        {
+                            rebuild.OperationsToReplace.Add(createIndexOperation);
+                        }
+
+                        operations.Add(createIndexOperation);
+
+                        break;
+                    }
+
+                    case RenameIndexOperation renameIndexOperation:
+                    {
+                        var index = model?.GetRelationalModel().FindTable(renameIndexOperation.Table, renameIndexOperation.Schema)
+                            ?.Indexes.FirstOrDefault(i => i.Name == renameIndexOperation.NewName);
+                        if (index != null)
+                        {
+                            operations.Add(
+                                new DropIndexOperation
+                                {
+                                    Table = renameIndexOperation.Table,
+                                    Schema = renameIndexOperation.Schema,
+                                    Name = renameIndexOperation.Name
+                                });
+
+                            var createOperation = CreateIndexOperation.For(index);
+                            operations.Add(createOperation);
+
+                            if (rebuilds.TryGetValue((renameIndexOperation.Table, renameIndexOperation.Schema), out var rebuild)
+                                && rebuild.AddColumnsDeferred.Intersect(index.Columns.Select(c => c.Name)).Any())
+                            {
+                                rebuild.OperationsToReplace.Add(createOperation);
+                            }
+                        }
+                        else
+                        {
+                            operations.Add(renameIndexOperation);
+                        }
+
+                        break;
+                    }
+
+                    case AddColumnOperation addColumnOperation:
+                    {
+                        if (rebuilds.TryGetValue((addColumnOperation.Table, addColumnOperation.Schema), out var rebuild)
+                            && rebuild.DropColumnsDeferred.Contains(addColumnOperation.Name))
+                        {
+                            rebuild.OldColumns.Add(addColumnOperation.Name, null);
+                            rebuild.OperationsToReplace.Add(addColumnOperation);
+                            rebuild.AddColumnsDeferred.Add(addColumnOperation.Name);
+                        }
+                        else if (addColumnOperation.Comment != null)
+                        {
+                            rebuilds.GetOrAddNew((addColumnOperation.Table, addColumnOperation.Schema));
+                        }
+
+                        operations.Add(addColumnOperation);
+
+                        break;
+                    }
+
+                    case RenameColumnOperation renameColumnOperation:
+                    {
+                        if (rebuilds.TryGetValue((renameColumnOperation.Table, renameColumnOperation.Schema), out var rebuild))
+                        {
+                            if (rebuild.AddColumnsDeferred.Contains(renameColumnOperation.Name))
+                            {
+                                rebuild.OldColumns.Add(
+                                    renameColumnOperation.NewName,
+                                    rebuild.OldColumns.Remove(renameColumnOperation.Name, out var oldName)
+                                        ? oldName
+                                        : renameColumnOperation.Name);
+                                rebuild.OperationsToReplace.Add(renameColumnOperation);
+                                rebuild.AddColumnsDeferred.Add(renameColumnOperation.NewName);
+                            }
+                            else if (rebuild.DropColumnsDeferred.Contains(renameColumnOperation.NewName))
+                            {
+                                rebuild.OldColumns.Add(
+                                    renameColumnOperation.NewName,
+                                    rebuild.OldColumns.Remove(renameColumnOperation.Name, out var oldName)
+                                        ? oldName
+                                        : renameColumnOperation.Name);
+                                rebuild.OperationsToReplace.Add(renameColumnOperation);
+                                rebuild.AddColumnsDeferred.Add(renameColumnOperation.NewName);
+                                rebuild.DropColumnsDeferred.Add(renameColumnOperation.Name);
+                            }
+                        }
+
+                        operations.Add(renameColumnOperation);
+
+                        break;
+                    }
+
+                    case RenameTableOperation renameTableOperation:
+                    {
+                        if (rebuilds.Remove((renameTableOperation.Name, renameTableOperation.Schema), out var rebuild))
+                        {
+                            rebuilds.Add((renameTableOperation.NewName, renameTableOperation.NewSchema), rebuild);
+                        }
+
+                        operations.Add(renameTableOperation);
+
+                        break;
+                    }
+
+                    case AlterSequenceOperation _:
+                    case CreateSequenceOperation _:
+                    case CreateTableOperation _:
+                    case DropIndexOperation _:
+                    case DropSchemaOperation _:
+                    case DropSequenceOperation _:
+                    case EnsureSchemaOperation _:
+                    case RenameSequenceOperation _:
+                    case RestartSequenceOperation _:
+                    {
+                        operations.Add(operation);
+
+                        break;
+                    }
+
+                    case DropTableOperation dropTableOperation:
+                    {
+                        if (rebuilds.Remove((dropTableOperation.Name, dropTableOperation.Schema), out var rebuild))
+                        {
+                            foreach (var operationToReplace in rebuild.OperationsToReplace)
+                            {
+                                operations.Remove(operationToReplace);
+                            }
+                        }
+
+                        operations.Add(operation);
+
+                        break;
+                    }
+
+                    case DeleteDataOperation _:
+                    case InsertDataOperation _:
+                    case UpdateDataOperation _:
+                    {
+                        var tableOperation = (ITableMigrationOperation)operation;
+                        if (rebuilds.TryGetValue((tableOperation.Table, tableOperation.Schema), out var rebuild))
+                        {
+                            rebuild.OperationsToWarnFor.Add(operation);
+                        }
+
+                        operations.Add(operation);
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        foreach (var rebuild in rebuilds.Values)
+                        {
+                            rebuild.OperationsToWarnFor.Add(operation);
+                        }
+
+                        operations.Add(operation);
+
+                        break;
+                    }
+                }
+            }
+
+            var indexesToRebuild = new List<ITableIndex>();
+            foreach (var rebuild in rebuilds)
+            {
+                var table = model?.GetRelationalModel().FindTable(rebuild.Key.Table, rebuild.Key.Schema);
+                if (table == null)
+                {
+                    continue;
+                }
+
+                foreach (var operationToWarnFor in rebuild.Value.OperationsToWarnFor)
+                {
+                    // TODO: Consider warning once per table--list all operation types we're warning for
+                    // TODO: Consider listing which operations required a rebuild
+                    Dependencies.MigrationsLogger.TableRebuildPendingWarning(operationToWarnFor.GetType(), table.Name);
+                }
+
+                foreach (var operationToReplace in rebuild.Value.OperationsToReplace)
+                {
+                    operations.Remove(operationToReplace);
+                }
+
+                var createTableOperation = new CreateTableOperation
+                {
+                    Name = "ef_temp_" + table.Name,
+                    Schema = table.Schema,
+                    Comment = table.Comment
+                };
+
+                var primaryKey = table.PrimaryKey;
+                if (primaryKey != null)
+                {
+                    createTableOperation.PrimaryKey = AddPrimaryKeyOperation.For(primaryKey);
+                }
+
+                foreach (var column in table.Columns)
+                {
+                    var addColumnOperation = new AddColumnOperation
+                    {
+                        Name = column.Name,
+                        ColumnType = column.StoreType,
+                        IsNullable = column.IsNullable,
+                        DefaultValue = column.DefaultValue,
+                        DefaultValueSql = column.DefaultValueSql,
+                        ComputedColumnSql = column.ComputedColumnSql,
+                        IsStored = column.IsStored,
+                        Comment = column.Comment,
+                        Collation = column.Collation
+                    };
+                    addColumnOperation.AddAnnotations(column.GetAnnotations());
+                    createTableOperation.Columns.Add(addColumnOperation);
+                }
+
+                foreach (var foreignKey in table.ForeignKeyConstraints)
+                {
+                    createTableOperation.ForeignKeys.Add(AddForeignKeyOperation.For(foreignKey));
+                }
+
+                foreach (var uniqueConstraint in table.UniqueConstraints.Where(c => !c.GetIsPrimaryKey()))
+                {
+                    createTableOperation.UniqueConstraints.Add(AddUniqueConstraintOperation.For(uniqueConstraint));
+                }
+
+                foreach (var checkConstraint in table.CheckConstraints)
+                {
+                    createTableOperation.CheckConstraints.Add(AddCheckConstraintOperation.For(checkConstraint));
+                }
+
+                createTableOperation.AddAnnotations(table.GetAnnotations());
+                operations.Add(createTableOperation);
+
+                indexesToRebuild.AddRange(table.Indexes);
+
+                var intoBuilder = new StringBuilder();
+                var selectBuilder = new StringBuilder();
+                var first = true;
+                foreach (var column in table.Columns)
+                {
+                    var oldColumnName = rebuild.Value.OldColumns.TryGetValue(column.Name, out var value)
+                        ? value
+                        : column.Name;
+                    if (column.ComputedColumnSql != null
+                        || oldColumnName == null)
+                    {
+                        continue;
+                    }
+
+                    if (first)
+                    {
+                        first = false;
                     }
                     else
                     {
-                        operations.Add(operation);
+                        intoBuilder.Append(", ");
+                        selectBuilder.Append(", ");
                     }
-                }
-                else if (operation is CreateTableOperation createTableOperation)
-                {
-                    var spatialiteColumns = new Stack<AddColumnOperation>();
-                    for (var i = createTableOperation.Columns.Count - 1; i >= 0; i--)
+
+                    intoBuilder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name));
+
+                    var isNewlyRequired = rebuild.Value.NewlyRequiredColumns.TryGetValue(column.Name, out var overrides);
+                    if (isNewlyRequired)
                     {
-                        var addColumnOperation = createTableOperation.Columns[i];
-
-                        if (IsSpatialiteColumn(addColumnOperation, model))
-                        {
-                            spatialiteColumns.Push(addColumnOperation);
-                            createTableOperation.Columns.RemoveAt(i);
-                        }
+                        selectBuilder.Append("IFNULL(");
                     }
 
-                    operations.Add(operation);
-                    operations.AddRange(spatialiteColumns);
+                    selectBuilder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(oldColumnName));
+
+                    if (isNewlyRequired)
+                    {
+                        selectBuilder.Append(", ");
+
+                        var defaultValueSql = overrides.DefaultValueSql
+                            ?? column.DefaultValueSql;
+                        if (defaultValueSql != null)
+                        {
+                            selectBuilder.Append(defaultValueSql);
+                        }
+                        else
+                        {
+                            var defaultValue = overrides.DefaultValue
+                                ?? column.DefaultValue;
+                            if (defaultValue == null)
+                            {
+                                var propertyMapping = column.PropertyMappings.First();
+                                var property = propertyMapping.Property;
+                                var typeMapping = propertyMapping.TypeMapping;
+                                var clrType = ((property.GetValueConverter() ?? (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter)?.ProviderClrType ?? typeMapping.ClrType).UnwrapNullableType();
+
+                                defaultValue = clrType == typeof(string)
+                                    ? string.Empty
+                                    : clrType.IsArray
+                                        ? Array.CreateInstance(clrType.GetElementType(), 0)
+                                        : clrType.UnwrapNullableType().GetDefaultValue();
+                            }
+
+                            var defaultValueTypeMapping = column.StoreType != null
+                                ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), column.StoreType)
+                                : null;
+                            if (defaultValueTypeMapping == null)
+                            {
+                                defaultValueTypeMapping = Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
+                            }
+
+                            selectBuilder.Append(defaultValueTypeMapping.GenerateSqlLiteral(defaultValue));
+                        }
+
+                        selectBuilder.Append(")");
+                    }
                 }
-                else
+
+                operations.Add(
+                    new SqlOperation
+                    {
+                        Sql = new StringBuilder()
+                            .Append("INSERT INTO ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier("ef_temp_" + table.Name))
+                            .Append(" (")
+                            .Append(intoBuilder)
+                            .AppendLine(")")
+                            .Append("SELECT ")
+                            .Append(selectBuilder)
+                            .AppendLine()
+                            .Append("FROM ")
+                            .Append(table.Name)
+                            .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                            .ToString()
+                    });
+            }
+
+            if (rebuilds.Any())
+            {
+                operations.Add(
+                    new SqlOperation
+                    {
+                        Sql = "PRAGMA foreign_keys = 0;",
+                        SuppressTransaction = true
+                    });
+            }
+
+            foreach (var rebuild in rebuilds)
+            {
+                operations.Add(
+                    new DropTableOperation
+                    {
+                        Name = rebuild.Key.Table,
+                        Schema = rebuild.Key.Schema
+                    });
+                operations.Add(
+                    new RenameTableOperation
+                    {
+                        Name = "ef_temp_" + rebuild.Key.Table,
+                        Schema = rebuild.Key.Schema,
+                        NewName = rebuild.Key.Table,
+                        NewSchema = rebuild.Key.Schema
+                    });
+            }
+
+            if (rebuilds.Any())
+            {
+                operations.Add(
+                new SqlOperation
                 {
-                    operations.Add(operation);
-                }
+                    Sql = "PRAGMA foreign_keys = 1;",
+                    SuppressTransaction = true
+                });
+            }
+
+            foreach (var index in indexesToRebuild)
+            {
+                operations.Add(CreateIndexOperation.For(index));
             }
 
             return operations;
@@ -222,28 +633,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            var index = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema)
-                ?.Indexes.FirstOrDefault(i => i.Name == operation.NewName);
-            if (index == null)
-            {
-                throw new NotSupportedException(
-                    SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-            }
-
-            var dropOperation = new DropIndexOperation
-            {
-                Schema = operation.Schema,
-                Table = operation.Table,
-                Name = operation.Name
-            };
-            dropOperation.AddAnnotations(index.GetAnnotations());
-
-            Generate(dropOperation, model, builder, terminate: false);
-            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-
-            Generate(CreateIndexOperation.For(index), model, builder);
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Builds commands for the given <see cref="RenameTableOperation" />
@@ -310,6 +701,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            var spatialiteColumns = new Stack<AddColumnOperation>();
+            for (var i = operation.Columns.Count - 1; i >= 0; i--)
+            {
+                var addColumnOperation = operation.Columns[i];
+
+                if (IsSpatialiteColumn(addColumnOperation, model))
+                {
+                    spatialiteColumns.Push(addColumnOperation);
+                    operation.Columns.RemoveAt(i);
+                }
+            }
+
             // Lifts a primary key definition into the typename.
             // This handles the quirks of creating integer primary keys using autoincrement, not default rowid behavior.
             if (operation.PrimaryKey?.Columns.Length == 1)
@@ -327,34 +730,40 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            if (string.IsNullOrEmpty(operation.Comment))
-            {
-                base.Generate(operation, model, builder, terminate);
-            }
-            else
-            {
-                builder
-                    .Append("CREATE TABLE ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
-                    .AppendLine(" (");
+            builder
+                .Append("CREATE TABLE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
+                .AppendLine(" (");
 
-                using (builder.Indent())
+            using (builder.Indent())
+            {
+                if (!string.IsNullOrEmpty(operation.Comment))
                 {
                     builder
                         .AppendLines(Dependencies.SqlGenerationHelper.GenerateComment(operation.Comment))
                         .AppendLine();
-                    CreateTableColumns(operation, model, builder);
-                    CreateTableConstraints(operation, model, builder);
-                    builder.AppendLine();
                 }
 
-                builder.Append(")");
+                CreateTableColumns(operation, model, builder);
+                CreateTableConstraints(operation, model, builder);
+                builder.AppendLine();
+            }
 
-                if (terminate)
+            builder.Append(")");
+
+            if (spatialiteColumns.Any())
+            {
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+                while (spatialiteColumns.TryPop(out var spatialiteColumn))
                 {
-                    builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-                    EndStatement(builder);
+                    Generate(spatialiteColumn, model, builder, spatialiteColumns.Any() || terminate);
                 }
+            }
+            else if (terminate)
+            {
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                EndStatement(builder);
             }
         }
 
@@ -685,5 +1094,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
         #endregion
+
+        private sealed class RequiredColumnOverrides
+        {
+            public string DefaultValueSql { get; set; }
+            public object DefaultValue { get; set; }
+        }
+
+        private sealed class RebuildContext
+        {
+            public ICollection<MigrationOperation> OperationsToReplace { get; } = new List<MigrationOperation>();
+            public IDictionary<string, string> OldColumns { get; } = new Dictionary<string, string>();
+            public IDictionary<string, RequiredColumnOverrides> NewlyRequiredColumns { get; } = new Dictionary<string, RequiredColumnOverrides>();
+            public ICollection<string> AddColumnsDeferred { get; } = new HashSet<string>();
+            public ICollection<string> DropColumnsDeferred { get; } = new HashSet<string>();
+            public ICollection<MigrationOperation> OperationsToWarnFor { get; } = new List<MigrationOperation>();
+        }
     }
 }

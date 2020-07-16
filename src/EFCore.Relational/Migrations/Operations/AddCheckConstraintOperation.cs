@@ -3,6 +3,8 @@
 
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -10,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for creating a new check constraint.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} ADD CONSTRAINT {Name} CHECK")]
-    public class AddCheckConstraintOperation : MigrationOperation
+    public class AddCheckConstraintOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the check constraint.
@@ -34,5 +36,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     The expression cannot reference an alias data type.
         /// </summary>
         public virtual string Sql { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     Creates a new <see cref="AddCheckConstraintOperation"/> for the specified check constraint.
+        /// </summary>
+        /// <param name="checkConstraint"> The check constraint. </param>
+        /// <returns> The operation. </returns>
+        public static AddCheckConstraintOperation For([NotNull] ICheckConstraint checkConstraint)
+        {
+            Check.NotNull(checkConstraint, nameof(checkConstraint));
+
+            var operation = new AddCheckConstraintOperation
+            {
+                Name = checkConstraint.Name,
+                Sql = checkConstraint.Sql,
+                Schema = checkConstraint.EntityType.GetSchema(),
+                Table = checkConstraint.EntityType.GetTableName()
+            };
+            operation.AddAnnotations(checkConstraint.GetAnnotations());
+
+            return operation;
+        }
     }
 }

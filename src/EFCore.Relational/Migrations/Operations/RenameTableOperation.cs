@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for renaming an existing table.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Name} RENAME TO {NewName}")]
-    public class RenameTableOperation : MigrationOperation
+    public class RenameTableOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
@@ -31,5 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     The new table name or <see langword="null" /> if only the schema has changed.
         /// </summary>
         public virtual string NewName { get; [param: CanBeNull] set; }
+
+        /// <inheritdoc />
+        string ITableMigrationOperation.Table => Name;
     }
 }

@@ -722,14 +722,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 valuesCount, columnsCount, table);
 
         /// <summary>
-        ///     The operation for the column '{column}' targets the '{columnTable}' table, but is part of the create operation for table '{table}'. Make both operations use the same name.
-        /// </summary>
-        public static string MigrationColumnTableMismatch([CanBeNull] object column, [CanBeNull] object columnTable, [CanBeNull] object table)
-            => string.Format(
-                GetString("MigrationColumnTableMismatch", nameof(column), nameof(columnTable), nameof(table)),
-                column, columnTable, table);
-
-        /// <summary>
         ///     The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key column types and key columns.
         /// </summary>
         public static string UpdateDataOperationKeyTypesCountMismatch([CanBeNull] object typesCount, [CanBeNull] object columnsCount, [CanBeNull] object table)
@@ -926,6 +918,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string QueryUnableToIdentifyConcreteTypeInTPT
             => GetString("QueryUnableToIdentifyConcreteTypeInTPT");
+
+        /// <summary>
+        ///     The column '{column}' on table {table} has unspecified computed column SQL. Specify the SQL before using EF Core to create the database schema.
+        /// </summary>
+        public static string ComputedColumnSqlUnspecified([CanBeNull] object column, [CanBeNull] object table)
+            => string.Format(
+                GetString("ComputedColumnSqlUnspecified", nameof(column), nameof(table)),
+                column, table);
+
+        /// <summary>
+        ///     The column '{column}' on table {table} has an unspecified default value. Specify a value before using EF Core to create the database schema.
+        /// </summary>
+        public static string DefaultValueUnspecified([CanBeNull] object column, [CanBeNull] object table)
+            => string.Format(
+                GetString("DefaultValueUnspecified", nameof(column), nameof(table)),
+                column, table);
+
+        /// <summary>
+        ///     The column '{column}' on table {table} has unspecified default value SQL. Specify the SQL before using EF Core to create the database schema.
+        /// </summary>
+        public static string DefaultValueSqlUnspecified([CanBeNull] object column, [CanBeNull] object table)
+            => string.Format(
+                GetString("DefaultValueSqlUnspecified", nameof(column), nameof(table)),
+                column, table);
 
         private static string GetString(string name, params string[] formatterNames)
         {

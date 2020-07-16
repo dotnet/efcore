@@ -31,6 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Infrastructure events
             UnexpectedConnectionTypeWarning = CoreEventId.ProviderBaseId + 100,
 
+            // Migrations events
+            TableRebuildPendingWarning = CoreEventId.ProviderBaseId + 200,
+
             // Scaffolding events
             ColumnFound = CoreEventId.ProviderDesignBaseId,
             ForeignKeyFound,
@@ -89,6 +92,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId UnexpectedConnectionTypeWarning = MakeInfraId(Id.UnexpectedConnectionTypeWarning);
+
+        private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
+        private static EventId MakeMigrationsId(Id id) => new EventId((int)id, _migrationsPrefix + id);
+
+        /// <summary>
+        ///     An operation may fail due to a pending rebuild of the table.
+        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        /// </summary>
+        public static readonly EventId TableRebuildPendingWarning = MakeMigrationsId(Id.TableRebuildPendingWarning);
 
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
         private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);

@@ -436,6 +436,33 @@ CREATE TABLE DefaultValue (
                 "DROP TABLE DefaultValue;");
         }
 
+        [ConditionalFact]
+        public void Column_computed_column_sql_is_set()
+        {
+            Test(
+                @"
+CREATE TABLE ComputedColumnSql (
+    Id int,
+    GeneratedColumn AS (1 + 2),
+    GeneratedColumnStored AS (1 + 2) STORED
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    var generatedColumn = columns.Single(c => c.Name == "GeneratedColumn");
+                    Assert.NotNull(generatedColumn.ComputedColumnSql);
+                    Assert.Null(generatedColumn.IsStored);
+
+                    var generatedColumnStored = columns.Single(c => c.Name == "GeneratedColumnStored");
+                    Assert.NotNull(generatedColumnStored.ComputedColumnSql);
+                    Assert.True(generatedColumnStored.IsStored);
+                },
+                "DROP TABLE ComputedColumnSql;");
+        }
+
         [ConditionalTheory]
         [InlineData("DOUBLE NOT NULL DEFAULT 0")]
         [InlineData("FLOAT NOT NULL DEFAULT 0")]

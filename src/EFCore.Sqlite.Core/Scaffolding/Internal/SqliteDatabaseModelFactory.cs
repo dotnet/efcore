@@ -212,8 +212,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         {
             using var command = connection.CreateCommand();
             command.CommandText = new StringBuilder()
-                .AppendLine("SELECT \"name\", \"type\", \"notnull\", \"dflt_value\"")
-                .AppendLine("FROM pragma_table_info(@table)")
+                .AppendLine("SELECT \"name\", \"type\", \"notnull\", \"dflt_value\", \"hidden\"")
+                .AppendLine("FROM pragma_table_xinfo(@table)")
+                .AppendLine("WHERE \"hidden\" IN (0, 2, 3)")
                 .AppendLine("ORDER BY \"cid\";")
                 .ToString();
 
@@ -231,6 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 var defaultValue = !reader.IsDBNull(3)
                     ? FilterClrDefaults(dataType, notNull, reader.GetString(3))
                     : null;
+                var hidden = reader.GetInt64(4);
 
                 _logger.ColumnFound(table.Name, columnName, dataType, notNull, defaultValue);
 
@@ -261,7 +263,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     DefaultValueSql = defaultValue,
                     ValueGenerated = autoIncrement != 0
                         ? ValueGenerated.OnAdd
-                        : default(ValueGenerated?)
+                        : default(ValueGenerated?),
+                    ComputedColumnSql = hidden != 2L && hidden != 3L
+                        ? null
+                        : string.Empty,
+                    IsStored = hidden != 3L
+                        ? default(bool?)
+                        : true
                 });
             }
         }

@@ -36,25 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
-        public void CreateTableOperation_throws_for_column_mismatch()
-            => Assert.Equal(RelationalStrings.MigrationColumnTableMismatch("Id", "Blog", "Post"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    Generate(
-                        new CreateTableOperation
-                        {
-                            Name = "Post",
-                            Columns =
-                            {
-                                new AddColumnOperation
-                                {
-                                    Name = "Id",
-                                    Table = "Blog",
-                                    ClrType = typeof(int)
-                                }
-                            }
-                        })).Message);
-
-        [ConditionalFact]
         public virtual void AddColumnOperation_without_column_type()
             => Generate(
                 new AddColumnOperation

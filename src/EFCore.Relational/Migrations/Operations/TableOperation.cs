@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on tables.
     ///     See also <see cref="CreateTableOperation" /> and <see cref="AlterTableOperation" />.
     /// </summary>
-    public abstract class TableOperation : MigrationOperation
+    public abstract class TableOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the table.
@@ -25,5 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Comment for this table
         /// </summary>
         public virtual string Comment { get; [param: CanBeNull] set; }
+
+        /// <inheritdoc />
+        string ITableMigrationOperation.Table => Name;
     }
 }

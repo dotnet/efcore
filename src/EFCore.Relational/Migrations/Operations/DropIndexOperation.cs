@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing index.
     /// </summary>
     [DebuggerDisplay("DROP INDEX {Name}")]
-    public class DropIndexOperation : MigrationOperation
+    public class DropIndexOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the index.

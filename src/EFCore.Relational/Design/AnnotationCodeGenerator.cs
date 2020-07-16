@@ -145,15 +145,24 @@ namespace Microsoft.EntityFrameworkCore.Design
                 annotations,
                 RelationalAnnotationNames.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), methodCallCodeFragments);
 
-            GenerateSimpleFluentApiCall(
-                annotations,
-                RelationalAnnotationNames.DefaultValueSql, nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
-                methodCallCodeFragments);
-
-            if (TryGetAndRemove(annotations, RelationalAnnotationNames.ComputedColumnSql, out object computedColumnSql))
+            if (TryGetAndRemove(annotations, RelationalAnnotationNames.DefaultValueSql, out string defaultValueSql))
             {
                 methodCallCodeFragments.Add(
-                    TryGetAndRemove(annotations, RelationalAnnotationNames.IsStored, out bool isStored)
+                    defaultValueSql?.Length == 0
+                        ? new MethodCallCodeFragment(
+                            nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql))
+                        : new MethodCallCodeFragment(
+                            nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
+                            defaultValueSql));
+            }
+
+            if (TryGetAndRemove(annotations, RelationalAnnotationNames.ComputedColumnSql, out string computedColumnSql))
+            {
+                methodCallCodeFragments.Add(
+                    computedColumnSql?.Length == 0
+                    ? new MethodCallCodeFragment(
+                        nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))
+                    : TryGetAndRemove(annotations, RelationalAnnotationNames.IsStored, out bool isStored)
                         ? new MethodCallCodeFragment(
                             nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
                             computedColumnSql,

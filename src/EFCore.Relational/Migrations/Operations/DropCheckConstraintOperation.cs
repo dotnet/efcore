@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing check constraint.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
-    public class DropCheckConstraintOperation : MigrationOperation
+    public class DropCheckConstraintOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the constraint.

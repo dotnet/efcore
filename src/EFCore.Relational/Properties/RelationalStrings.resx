@@ -576,9 +576,6 @@
   <data name="InsertDataOperationValuesCountMismatch" xml:space="preserve">
     <value>The number of values ({valuesCount}) doesn't match the number of columns ({columnsCount}) for the data insertion operation on '{table}'. Provide the same number of values and columns.</value>
   </data>
-  <data name="MigrationColumnTableMismatch" xml:space="preserve">
-    <value>The operation for the column '{column}' targets the '{columnTable}' table, but is part of the create operation for table '{table}'. Make both operations use the same name.</value>
-  </data>
   <data name="UpdateDataOperationKeyTypesCountMismatch" xml:space="preserve">
     <value>The number of key column types ({typesCount}) doesn't match the number of key columns ({columnsCount}) for the data modification operation on '{table}'. Provide the same number of key column types and key columns.</value>
   </data>
@@ -681,5 +678,14 @@
   </data>
   <data name="QueryUnableToIdentifyConcreteTypeInTPT" xml:space="preserve">
     <value>Unable to identify the concrete entity type to materialize in TPT hierarchy.</value>
+  </data>
+  <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
+    <value>The column '{column}' on table {table} has unspecified computed column SQL. Specify the SQL before using EF Core to create the database schema.</value>
+  </data>
+  <data name="DefaultValueUnspecified" xml:space="preserve">
+    <value>The column '{column}' on table {table} has an unspecified default value. Specify a value before using EF Core to create the database schema.</value>
+  </data>
+  <data name="DefaultValueSqlUnspecified" xml:space="preserve">
+    <value>The column '{column}' on table {table} has unspecified default value SQL. Specify the SQL before using EF Core to create the database schema.</value>
   </data>
 </root>

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping a primary key.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
-    public class DropPrimaryKeyOperation : MigrationOperation
+    public class DropPrimaryKeyOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the primary key constraint.

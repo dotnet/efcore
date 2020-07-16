@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing table.
     /// </summary>
     [DebuggerDisplay("DROP TABLE {Name}")]
-    public class DropTableOperation : MigrationOperation
+    public class DropTableOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     Creates a new <see cref="DropTableOperation" />.
@@ -27,5 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
+
+        /// <inheritdoc />
+        string ITableMigrationOperation.Table => Name;
     }
 }

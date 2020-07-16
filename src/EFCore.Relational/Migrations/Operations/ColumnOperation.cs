@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on columns.
     ///     See also <see cref="AddColumnOperation" /> and <see cref="AlterColumnOperation" />.
     /// </summary>
-    public abstract class ColumnOperation : MigrationOperation
+    public abstract class ColumnOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the column.

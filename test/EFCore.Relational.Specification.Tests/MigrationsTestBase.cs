@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -99,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore
                     var peopleTable = Assert.Single(model.Tables, t => t.Name == "People");
 
                     Assert.Equal("People", peopleTable.Name);
-                    Assert.Equal("dbo2", peopleTable.Schema);
+                    if (AssertSchemaNames)
+                        Assert.Equal("dbo2", peopleTable.Schema);
 
                     Assert.Collection(
                         peopleTable.Columns.OrderBy(c => c.Name),
@@ -115,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal("EmployerId", c.Name);
                             Assert.False(c.IsNullable);
                             Assert.Equal(intStoreType, c.StoreType);
-                            Assert.Equal("Employer ID comment", c.Comment);
+                            if (AssertComments)
+                                Assert.Equal("Employer ID comment", c.Comment);
                         },
                         c =>
                         {
@@ -139,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(employersTable, foreignKey.PrincipalTable);
                     Assert.Same(employersTable.Columns.Single(), Assert.Single(foreignKey.PrincipalColumns));
 
-                    Assert.Equal("Table comment", peopleTable.Comment);
+                    if (AssertComments)
+                        Assert.Equal("Table comment", peopleTable.Comment);
                 });
         }
 
@@ -168,9 +172,12 @@ namespace Microsoft.EntityFrameworkCore
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
-                    Assert.Equal("Table comment", table.Comment);
                     var column = Assert.Single(table.Columns, c => c.Name == "Name");
-                    Assert.Equal("Column comment", column.Comment);
+                    if (AssertComments)
+                    {
+                        Assert.Equal("Table comment", table.Comment);
+                        Assert.Equal("Column comment", column.Comment);
+                    }
                 });
 
         [ConditionalFact]
@@ -191,9 +198,43 @@ namespace Microsoft.EntityFrameworkCore
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
-                    Assert.Equal(tableComment, table.Comment);
                     var column = Assert.Single(table.Columns, c => c.Name == "Name");
-                    Assert.Equal(columnComment, column.Comment);
+                    if (AssertComments)
+                    {
+                        Assert.Equal(tableComment, table.Comment);
+                        Assert.Equal(columnComment, column.Comment);
+                    }
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        [InlineData(null)]
+        public virtual Task Create_table_with_computed_column(bool? stored)
+        {
+            return Test(
+                builder => { },
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
+                        e.Property<string>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}",
+                            stored);
+                    }),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    if (AssertComputedColumns)
+                    {
+                        Assert.Contains("X", sumColumn.ComputedColumnSql);
+                        Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                        if (stored != null)
+                            Assert.Equal(stored, sumColumn.IsStored);
+                    }
                 });
         }
 
@@ -203,7 +244,12 @@ namespace Microsoft.EntityFrameworkCore
                 builder => builder.Entity("People").Property<int>("Id"),
                 builder => { },
                 builder => builder.Entity("People").HasComment("Table comment"),
-                model => Assert.Equal("Table comment", Assert.Single(model.Tables).Comment));
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    if (AssertComments)
+                        Assert.Equal("Table comment", table.Comment);
+                });
 
         [ConditionalFact]
         public virtual Task Alter_table_add_comment_non_default_schema()
@@ -215,7 +261,12 @@ namespace Microsoft.EntityFrameworkCore
                 builder => builder.Entity("People")
                     .ToTable("People", "SomeOtherSchema")
                     .HasComment("Table comment"),
-                model => Assert.Equal("Table comment", Assert.Single(model.Tables).Comment));
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    if (AssertComments)
+                        Assert.Equal("Table comment", table.Comment);
+                });
 
         [ConditionalFact]
         public virtual Task Alter_table_change_comment()
@@ -223,7 +274,12 @@ namespace Microsoft.EntityFrameworkCore
                 builder => builder.Entity("People").Property<int>("Id"),
                 builder => builder.Entity("People").HasComment("Table comment1"),
                 builder => builder.Entity("People").HasComment("Table comment2"),
-                model => Assert.Equal("Table comment2", Assert.Single(model.Tables).Comment));
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    if (AssertComments)
+                        Assert.Equal("Table comment2", table.Comment);
+                });
 
         [ConditionalFact]
         public virtual Task Alter_table_remove_comment()
@@ -244,11 +300,11 @@ namespace Microsoft.EntityFrameworkCore
         public virtual Task Rename_table()
             => Test(
                 builder => builder.Entity("People").Property<int>("Id"),
-                builder => builder.Entity("people").Property<int>("Id"),
+                builder => builder.Entity("People").ToTable("Persons").Property<int>("Id"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
-                    Assert.Equal("people", table.Name);
+                    Assert.Equal("Persons", table.Name);
                 });
 
         [ConditionalFact]
@@ -261,15 +317,16 @@ namespace Microsoft.EntityFrameworkCore
                         e.HasKey("Id");
                     }),
                 builder => builder.Entity(
-                    "people", e =>
+                    "People", e =>
                     {
+                        e.ToTable("Persons");
                         e.Property<int>("Id");
                         e.HasKey("Id");
                     }),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
-                    Assert.Equal("people", table.Name);
+                    Assert.Equal("Persons", table.Name);
                 });
 
         [ConditionalFact]
@@ -281,7 +338,8 @@ namespace Microsoft.EntityFrameworkCore
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
-                    Assert.Equal("TestTableSchema", table.Schema);
+                    if (AssertSchemaNames)
+                        Assert.Equal("TestTableSchema", table.Schema);
                     Assert.Equal("TestTable", table.Name);
                 });
 
@@ -292,7 +350,12 @@ namespace Microsoft.EntityFrameworkCore
                 builder => builder.Entity("People")
                     .ToTable("People", "SomeOtherSchema")
                     .Property<int>("Id"),
-                model => Assert.Equal("SomeOtherSchema", Assert.Single(model.Tables).Schema));
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    if (AssertSchemaNames)
+                        Assert.Equal("SomeOtherSchema", table.Schema);
+                });
 
         [ConditionalFact]
         public virtual Task Add_column_with_defaultValue_string()
@@ -343,6 +406,28 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Contains("2", sumColumn.DefaultValueSql);
                 });
 
+        [ConditionalFact]
+        public virtual async Task Add_column_with_defaultValueSql_unspecified()
+        {
+            var ex = await TestThrows<InvalidOperationException>(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<int?>("Sum")
+                    .HasDefaultValueSql());
+            Assert.Equal(RelationalStrings.DefaultValueSqlUnspecified("Sum", "'People'"), ex.Message);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Add_column_with_defaultValue_unspecified()
+        {
+            var ex = await TestThrows<InvalidOperationException>(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<int?>("Sum")
+                    .HasDefaultValue());
+            Assert.Equal(RelationalStrings.DefaultValueUnspecified("Sum", "'People'"), ex.Message);
+        }
+
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
@@ -363,13 +448,26 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var table = Assert.Single(model.Tables);
                     var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
-                    Assert.Contains("X", sumColumn.ComputedColumnSql);
-                    Assert.Contains("Y", sumColumn.ComputedColumnSql);
-                    if (stored != null)
-                        Assert.Equal(stored, sumColumn.IsStored);
+                    if (AssertComputedColumns)
+                    {
+                        Assert.Contains("X", sumColumn.ComputedColumnSql);
+                        Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                        if (stored != null)
+                            Assert.Equal(stored, sumColumn.IsStored);
+                    }
                 });
 
-        // TODO: Check this out
+        [ConditionalFact]
+        public virtual async Task Add_column_with_computedSql_unspecified()
+        {
+            var ex = await TestThrows<InvalidOperationException>(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<int?>("Sum")
+                    .HasComputedColumnSql());
+            Assert.Equal(RelationalStrings.ComputedColumnSqlUnspecified("Sum", "'People'"), ex.Message);
+        }
+
         [ConditionalFact]
         public virtual Task Add_column_with_required()
             => Test(
@@ -475,7 +573,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var table = Assert.Single(model.Tables);
                     var column = Assert.Single(table.Columns, c => c.Name == "FullName");
-                    Assert.Equal("My comment", column.Comment);
+                    if (AssertComments)
+                        Assert.Equal("My comment", column.Comment);
                 });
 
         [ConditionalFact]
@@ -490,7 +589,8 @@ namespace Microsoft.EntityFrameworkCore
                     var table = Assert.Single(model.Tables);
                     Assert.Equal(2, table.Columns.Count);
                     var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
-                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                    if (AssertCollations)
+                        Assert.Equal(NonDefaultCollation, nameColumn.Collation);
                 });
 
         [ConditionalFact]
@@ -506,8 +606,10 @@ namespace Microsoft.EntityFrameworkCore
                     var table = Assert.Single(model.Tables);
                     Assert.Equal(2, table.Columns.Count);
                     var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
-                    Assert.Contains("hello", nameColumn.ComputedColumnSql);
-                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                    if (AssertComputedColumns)
+                        Assert.Contains("hello", nameColumn.ComputedColumnSql);
+                    if (AssertCollations)
+                        Assert.Equal(NonDefaultCollation, nameColumn.Collation);
                 });
 
         [ConditionalFact]
@@ -516,16 +618,15 @@ namespace Microsoft.EntityFrameworkCore
                 builder =>
                 {
                     builder.Entity("Base").Property<int>("Id");
-                    builder.Entity("Derived1").Property<string>("Foo");
-                    builder.Entity("Derived2").Property<string>("Foo");
+                    builder.Entity("Derived1").HasBaseType("Base").Property<string>("Foo");
+                    builder.Entity("Derived2").HasBaseType("Base").Property<string>("Foo");
                 },
                 builder => { },
                 builder => builder.Entity("Base").Property<string>("Foo"),
                 model =>
                 {
-                    // var table = Assert.Single(model.Tables);
-                    // var column = Assert.Single(table.Columns, c => c.Name == "Name");
-                    // Assert.Equal("nvarchar(30)", column.StoreType);
+                    var table = Assert.Single(model.Tables);
+                    var column = Assert.Single(table.Columns, c => c.Name == "Foo");
                 });
 
         [ConditionalFact]
@@ -640,11 +741,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var table = Assert.Single(model.Tables);
                     var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
-                    Assert.Contains("X", sumColumn.ComputedColumnSql);
-                    Assert.Contains("Y", sumColumn.ComputedColumnSql);
-                    Assert.Contains("+", sumColumn.ComputedColumnSql);
-                    if (stored != null)
-                        Assert.Equal(stored, sumColumn.IsStored);
+                    if (AssertComputedColumns)
+                    {
+                        Assert.Contains("X", sumColumn.ComputedColumnSql);
+                        Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                        Assert.Contains("+", sumColumn.ComputedColumnSql);
+                        if (stored != null)
+                            Assert.Equal(stored, sumColumn.IsStored);
+                    }
                 });
 
         [ConditionalFact]
@@ -664,9 +768,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var table = Assert.Single(model.Tables);
                     var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
-                    Assert.Contains("X", sumColumn.ComputedColumnSql);
-                    Assert.Contains("Y", sumColumn.ComputedColumnSql);
-                    Assert.Contains("-", sumColumn.ComputedColumnSql);
+                    if (AssertComputedColumns)
+                    {
+                        Assert.Contains("X", sumColumn.ComputedColumnSql);
+                        Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                        Assert.Contains("-", sumColumn.ComputedColumnSql);
+                    }
                 });
 
         [ConditionalFact]
@@ -688,7 +795,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var table = Assert.Single(model.Tables);
                         var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
-                        Assert.True(sumColumn.IsStored);
+                        if (AssertComputedColumns)
+                            Assert.True(sumColumn.IsStored);
                     });
 
         [ConditionalFact]
@@ -700,7 +808,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var table = Assert.Single(model.Tables);
                     var column = Assert.Single(table.Columns);
-                    Assert.Equal("Some comment", column.Comment);
+                    if (AssertComments)
+                        Assert.Equal("Some comment", column.Comment);
                 });
 
         [ConditionalFact]
@@ -712,7 +821,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var table = Assert.Single(model.Tables);
                     var column = Assert.Single(table.Columns);
-                    Assert.Equal("Some comment2", column.Comment);
+                    if (AssertComments)
+                        Assert.Equal("Some comment2", column.Comment);
                 });
 
         [ConditionalFact]
@@ -737,7 +847,8 @@ namespace Microsoft.EntityFrameworkCore
                 model =>
                     {
                         var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
-                        Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                        if (AssertCollations)
+                            Assert.Equal(NonDefaultCollation, nameColumn.Collation);
                     });
 
         [Fact]
@@ -787,12 +898,12 @@ namespace Microsoft.EntityFrameworkCore
             => Test(
                 builder => builder.Entity("People").Property<int>("Id"),
                 builder => builder.Entity("People").Property<string>("SomeColumn"),
-                builder => builder.Entity("People").Property<string>("somecolumn"),
+                builder => builder.Entity("People").Property<string>("SomeColumn").HasColumnName("SomeOtherColumn"),
                 model =>
                 {
                     var table = Assert.Single(model.Tables);
                     Assert.Equal(2, table.Columns.Count);
-                    Assert.Single(table.Columns, c => c.Name == "somecolumn");
+                    Assert.Single(table.Columns, c => c.Name == "SomeOtherColumn");
                 });
 
         [ConditionalFact]
@@ -853,7 +964,8 @@ namespace Microsoft.EntityFrameworkCore
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
                     Assert.Same(table.Columns.Single(c => c.Name == "Name"), Assert.Single(index.Columns));
-                    Assert.Contains("Name", index.Filter);
+                    if (AssertIndexFilters)
+                        Assert.Contains("Name", index.Filter);
                 });
 
         [ConditionalFact]
@@ -868,7 +980,13 @@ namespace Microsoft.EntityFrameworkCore
                 builder => { },
                 builder => builder.Entity("People").HasIndex("Name").IsUnique()
                     .HasFilter($"{DelimitIdentifier("Name")} IS NOT NULL AND {DelimitIdentifier("Name")} <> ''"),
-                model => Assert.Contains("Name", model.Tables.Single().Indexes.Single().Filter));
+                model =>
+                {
+                    var index = model.Tables.Single().Indexes.Single();
+                    Assert.True(index.IsUnique);
+                    if (AssertIndexFilters)
+                        Assert.Contains("Name", index.Filter);
+                });
 
         [ConditionalFact]
         public virtual Task Drop_index()
@@ -904,7 +1022,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual Task Add_primary_key()
             => Test(
-                builder => builder.Entity("People").Property<string>("SomeField"),
+                builder => builder.Entity("People").Property<int>("SomeField"),
                 builder => { },
                 builder => builder.Entity("People").HasKey("SomeField"),
                 model =>
@@ -914,13 +1032,14 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotNull(primaryKey);
                     Assert.Same(table, primaryKey!.Table);
                     Assert.Same(table.Columns.Single(), Assert.Single(primaryKey.Columns));
-                    Assert.Equal("PK_People", primaryKey.Name);
+                    if (AssertConstraintNames)
+                        Assert.Equal("PK_People", primaryKey.Name);
                 });
 
         [ConditionalFact]
         public virtual Task Add_primary_key_with_name()
             => Test(
-                builder => builder.Entity("People").Property<string>("SomeField"),
+                builder => builder.Entity("People").Property<int>("SomeField"),
                 builder => { },
                 builder => builder.Entity("People").HasKey("SomeField").HasName("PK_Foo"),
                 model =>
@@ -930,7 +1049,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotNull(primaryKey);
                     Assert.Same(table, primaryKey!.Table);
                     Assert.Same(table.Columns.Single(), Assert.Single(primaryKey.Columns));
-                    Assert.Equal("PK_Foo", primaryKey.Name);
+                    if (AssertConstraintNames)
+                        Assert.Equal("PK_Foo", primaryKey.Name);
                 });
 
         [ConditionalFact]
@@ -939,8 +1059,8 @@ namespace Microsoft.EntityFrameworkCore
                 builder => builder.Entity(
                     "People", e =>
                     {
-                        e.Property<string>("SomeField1");
-                        e.Property<string>("SomeField2");
+                        e.Property<int>("SomeField1");
+                        e.Property<int>("SomeField2");
                     }),
                 builder => { },
                 builder => builder.Entity("People").HasKey("SomeField1", "SomeField2").HasName("PK_Foo"),
@@ -954,7 +1074,8 @@ namespace Microsoft.EntityFrameworkCore
                         primaryKey.Columns,
                         c => Assert.Same(table.Columns[0], c),
                         c => Assert.Same(table.Columns[1], c));
-                    Assert.Equal("PK_Foo", primaryKey.Name);
+                    if (AssertConstraintNames)
+                        Assert.Equal("PK_Foo", primaryKey.Name);
                 });
 
         [ConditionalFact]
@@ -991,8 +1112,9 @@ namespace Microsoft.EntityFrameworkCore
                     var customersTable = Assert.Single(model.Tables, t => t.Name == "Customers");
                     var ordersTable = Assert.Single(model.Tables, t => t.Name == "Orders");
                     var foreignKey = ordersTable.ForeignKeys.Single();
-                    Assert.Equal("FK_Orders_Customers_CustomerId", foreignKey.Name);
-                    Assert.Equal(ReferentialAction.NoAction, foreignKey.OnDelete);
+                    if (AssertConstraintNames)
+                        Assert.Equal("FK_Orders_Customers_CustomerId", foreignKey.Name);
+                    Assert.Equal(Normalize(ReferentialAction.Restrict), foreignKey.OnDelete);
                     Assert.Same(customersTable, foreignKey.PrincipalTable);
                     Assert.Same(customersTable.Columns.Single(), Assert.Single(foreignKey.PrincipalColumns));
                     Assert.Equal("CustomerId", Assert.Single(foreignKey.Columns).Name);
@@ -1023,7 +1145,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var table = Assert.Single(model.Tables, t => t.Name == "Orders");
                     var foreignKey = table.ForeignKeys.Single();
-                    Assert.Equal("FK_Foo", foreignKey.Name);
+                    if (AssertConstraintNames)
+                        Assert.Equal("FK_Foo", foreignKey.Name);
                 });
 
         [ConditionalFact]
@@ -1069,7 +1192,8 @@ namespace Microsoft.EntityFrameworkCore
                     var uniqueConstraint = table.UniqueConstraints.Single();
                     Assert.Same(table, uniqueConstraint.Table);
                     Assert.Same(table.Columns.Single(c => c.Name == "AlternateKeyColumn"), Assert.Single(uniqueConstraint.Columns));
-                    Assert.Equal("AK_People_AlternateKeyColumn", uniqueConstraint.Name);
+                    if (AssertConstraintNames)
+                        Assert.Equal("AK_People_AlternateKeyColumn", uniqueConstraint.Name);
                 });
 
         [ConditionalFact]
@@ -1093,7 +1217,8 @@ namespace Microsoft.EntityFrameworkCore
                         uniqueConstraint.Columns,
                         c => Assert.Same(table.Columns.Single(c => c.Name == "AlternateKeyColumn1"), c),
                         c => Assert.Same(table.Columns.Single(c => c.Name == "AlternateKeyColumn2"), c));
-                    Assert.Equal("AK_Foo", uniqueConstraint.Name);
+                    if (AssertConstraintNames)
+                        Assert.Equal("AK_Foo", uniqueConstraint.Name);
                 });
 
         [ConditionalFact]
@@ -1128,21 +1253,21 @@ namespace Microsoft.EntityFrameworkCore
                     // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
                 });
 
-            [ConditionalFact]
-            public virtual Task Alter_check_constraint()
-                => Test(
-                    builder => builder.Entity(
-                        "People", e =>
-                        {
-                            e.Property<int>("Id");
-                            e.Property<int>("DriverLicense");
-                        }),
-                    builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
-                    builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 1"),
-                    model =>
+        [ConditionalFact]
+        public virtual Task Alter_check_constraint()
+            => Test(
+                builder => builder.Entity(
+                    "People", e =>
                     {
-                        // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
-                    });
+                        e.Property<int>("Id");
+                        e.Property<int>("DriverLicense");
+                    }),
+                builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
+                builder => builder.Entity("People").HasCheckConstraint("CK_Foo", $"{DelimitIdentifier("DriverLicense")} > 1"),
+                model =>
+                {
+                    // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
+                });
 
         [ConditionalFact]
         public virtual Task Drop_check_constraint()
@@ -1426,7 +1551,16 @@ namespace Microsoft.EntityFrameworkCore
             public int Age { get; set; }
         }
 
+        protected virtual bool AssertSchemaNames => true;
+        protected virtual bool AssertComments => true;
+        protected virtual bool AssertComputedColumns => true;
+        protected virtual bool AssertCollations => true;
+        protected virtual bool AssertIndexFilters => true;
+        protected virtual bool AssertConstraintNames => true;
+
         protected abstract string NonDefaultCollation { get; }
+
+        protected virtual ReferentialAction Normalize(ReferentialAction value) => value;
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 

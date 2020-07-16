@@ -340,5 +340,42 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 
             return d.GenerateMessage(p.ConnectionType.ShortDisplayName());
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static void TableRebuildPendingWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            [NotNull] Type operationType,
+            [NotNull] string tableName)
+        {
+            var definition = SqliteResources.LogTableRebuildPendingWarning(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, operationType.ShortDisplayName(), tableName);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new TableRebuildEventData(
+                    definition,
+                    TableRebuildPendingWarning,
+                    operationType,
+                    tableName);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string TableRebuildPendingWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (TableRebuildEventData)payload;
+            return d.GenerateMessage(p.OperationType.ShortDisplayName(), p.TableName);
+        }
     }
 }

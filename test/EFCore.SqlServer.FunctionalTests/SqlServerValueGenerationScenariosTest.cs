@@ -370,8 +370,6 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
                 Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
-                Assert.Null(blogs[0].OtherId);
-                Assert.Null(blogs[1].OtherId);
             }
 
             using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
@@ -410,9 +408,6 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.CreatedOn)
                             .HasDefaultValueSql("getdate()");
-
-                        b.Property(e => e.OtherId)
-                            .HasDefaultValue();
                     });
             }
         }

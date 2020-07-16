@@ -1299,15 +1299,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.Columns.Count; i++)
             {
-                var column = operation.Columns[i];
-                if (column.Table != operation.Name
-                    || column.Schema != operation.Schema)
-                {
-                    throw new InvalidOperationException(RelationalStrings.MigrationColumnTableMismatch(
-                        column.Name, FormatTable(column.Table, column.Schema), FormatTable(operation.Name, operation.Schema)));
-                }
-
-                ColumnDefinition(column, model, builder);
+                ColumnDefinition(operation.Columns[i], model, builder);
 
                 if (i != operation.Columns.Count - 1)
                 {

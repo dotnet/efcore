@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -37,28 +36,29 @@ namespace Microsoft.EntityFrameworkCore
 );");
         }
 
-        // SQLite does not support schemas, check constraints, etc.
-        public override Task Create_table_all_settings() => Task.CompletedTask;
+        public override async Task Create_table_all_settings()
+        {
+            await base.Create_table_all_settings();
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    -- Table comment
+
+    ""CustomId"" INTEGER NOT NULL CONSTRAINT ""PK_People"" PRIMARY KEY,
+
+    -- Employer ID comment
+    ""EmployerId"" INTEGER NOT NULL,
+
+    ""SSN"" TEXT COLLATE NOCASE NOT NULL,
+    CONSTRAINT ""AK_People_SSN"" UNIQUE (""SSN""),
+    CONSTRAINT ""CK_EmployerId"" CHECK (""EmployerId"" > 0),
+    CONSTRAINT ""FK_People_Employers_EmployerId"" FOREIGN KEY (""EmployerId"") REFERENCES ""Employers"" (""Id"") ON DELETE RESTRICT
+);");
+        }
 
         public override async Task Create_table_with_comments()
         {
-            await Test(
-                builder => { },
-                builder => builder.Entity(
-                    "People", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.Property<string>("Name").HasComment("Column comment");
-                        e.HasComment("Table comment");
-                    }),
-                model =>
-                {
-                    // Reverse-engineering of comments isn't supported in Sqlite
-                    var table = Assert.Single(model.Tables);
-                    Assert.Null(table.Comment);
-                    var column = Assert.Single(table.Columns, c => c.Name == "Name");
-                    Assert.Null(column.Comment);
-                });
+            await base.Create_table_with_comments();
 
             AssertSql(
                 @"CREATE TABLE ""People"" (
@@ -71,35 +71,9 @@ namespace Microsoft.EntityFrameworkCore
 );");
         }
 
-        [ConditionalFact]
         public override async Task Create_table_with_multiline_comments()
         {
-            var tableComment = @"This is a multi-line
-table comment.
-More information can
-be found in the docs.";
-            var columnComment = @"This is a multi-line
-column comment.
-More information can
-be found in the docs.";
-
-            await Test(
-                builder => { },
-                builder => builder.Entity(
-                    "People", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.Property<string>("Name").HasComment(columnComment);
-                        e.HasComment(tableComment);
-                    }),
-                model =>
-                {
-                    // Reverse-engineering of comments isn't supported in Sqlite
-                    var table = Assert.Single(model.Tables);
-                    Assert.Null(table.Comment);
-                    var column = Assert.Single(table.Columns, c => c.Name == "Name");
-                    Assert.Null(column.Comment);
-                });
+            await base.Create_table_with_multiline_comments();
 
             AssertSql(
                 @"CREATE TABLE ""People"" (
@@ -118,24 +92,9 @@ be found in the docs.";
 );");
         }
 
-        [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        [InlineData(null)]
-        public virtual async Task Create_table_with_computed_column(bool? stored)
+        public override async Task Create_table_with_computed_column(bool? stored)
         {
-            await Test(
-                builder => { },
-                builder => builder.Entity(
-                    "People", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.Property<int>("X");
-                        e.Property<int>("Y");
-                        e.Property<string>("Sum").HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}",
-                            stored);
-                    }),
-                model => { /* Scaffolding computed columns isn't supported in Sqlite */ });
+            await base.Create_table_with_computed_column(stored);
 
             var computedColumnTypeSql = stored == true ? " STORED" : "";
 
@@ -148,85 +107,130 @@ be found in the docs.";
 );");
         }
 
-        // In Sqlite, comments are only generated when creating a table
         public override async Task Alter_table_add_comment()
         {
-            await Test(
-                builder => builder.Entity("People").Property<int>("Id"),
-                builder => builder.Entity("People").HasComment("Table comment").Property<int>("Id"),
-                model => Assert.Null(Assert.Single(model.Tables).Comment));
+            await base.Alter_table_add_comment();
 
-            AssertSql();
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    -- Table comment
+
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
         }
 
-        // In Sqlite, comments are only generated when creating a table
         public override async Task Alter_table_add_comment_non_default_schema()
         {
-            await Test(
-                builder => builder.Entity("People")
-                    .ToTable("People", "SomeOtherSchema")
-                    .Property<int>("Id"),
-                builder => { },
-                builder => builder.Entity("People")
-                    .ToTable("People", "SomeOtherSchema")
-                    .HasComment("Table comment"),
-                model => Assert.Null(Assert.Single(model.Tables).Comment));
+            await base.Alter_table_add_comment_non_default_schema();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    -- Table comment
+
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
         }
 
-        // In Sqlite, comments are only generated when creating a table
         public override async Task Alter_table_change_comment()
         {
-            await Test(
-                builder => builder.Entity("People").HasComment("Table comment1").Property<int>("Id"),
-                builder => builder.Entity("People").HasComment("Table comment2").Property<int>("Id"),
-                model => Assert.Null(Assert.Single(model.Tables).Comment));
+            await base.Alter_table_change_comment();
 
-            AssertSql();
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    -- Table comment2
+
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
         }
 
-        // In Sqlite, comments are only generated when creating a table
         public override async Task Alter_table_remove_comment()
         {
-            await Test(
-                builder => builder.Entity("People").Property<int>("Id"),
-                builder => builder.Entity("People").HasComment("Table comment1"),
-                builder => builder.Entity("People").HasComment("Table comment2"),
-                model => Assert.Null(Assert.Single(model.Tables).Comment));
+            await base.Alter_table_remove_comment();
 
-            AssertSql();
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
         }
 
         public override async Task Rename_table()
         {
-            var ex = await Assert.ThrowsAsync<SqliteException>(base.Rename_table);
-            Assert.Contains("there is already another table or index with this name", ex.Message);
+            await base.Rename_table();
+
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME TO ""Persons"";");
         }
 
-        public override Task Rename_table_with_primary_key()
-            => AssertNotSupportedAsync(
-                base.Rename_table_with_primary_key, SqliteStrings.InvalidMigrationOperation("DropPrimaryKeyOperation"));
+        public override async Task Rename_table_with_primary_key()
+        {
+            await base.Rename_table_with_primary_key();
+
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME TO ""Persons"";",
+                //
+                @"CREATE TABLE ""ef_temp_Persons"" (
+    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Persons"" PRIMARY KEY
+);",
+                //
+                @"INSERT INTO ""ef_temp_Persons"" (""Id"")
+SELECT ""Id""
+FROM Persons;",
+                //
+                @"PRAGMA foreign_keys = 0;",
+                //
+                @"DROP TABLE ""Persons"";",
+                //
+                @"ALTER TABLE ""ef_temp_Persons"" RENAME TO ""Persons"";",
+                //
+                @"PRAGMA foreign_keys = 1;");
+        }
 
         // SQLite does not support schemas.
-        public override Task Move_table()
-            => Test(
-                builder => builder.Entity("TestTable").Property<int>("Id"),
-                builder => { },
-                builder => builder.Entity("TestTable").ToTable("TestTable", "TestTableSchema"),
-                model =>
-                {
-                    var table = Assert.Single(model.Tables);
-                    Assert.Null(table.Schema);
-                    Assert.Equal("TestTable", table.Name);
-                });
+        public override async Task Move_table()
+        {
+            await base.Move_table();
+
+            AssertSql();
+        }
 
         // SQLite does not support schemas
-        public override Task Create_schema()
-            => Test(
-                builder => { },
-                builder => builder.Entity("People")
-                    .ToTable("People", "SomeOtherSchema")
-                    .Property<int>("Id"),
-                model => Assert.Null(Assert.Single(model.Tables).Schema));
+        public override async Task Create_schema()
+        {
+            await base.Create_schema();
+
+            AssertSql(
+                @"CREATE TABLE ""People"" (
+    ""Id"" INTEGER NOT NULL
+);");
+        }
 
         public override async Task Add_column_with_defaultValue_datetime()
         {
@@ -238,13 +242,23 @@ be found in the docs.";
 
         public override async Task Add_column_with_defaultValueSql()
         {
-            var ex = await Assert.ThrowsAsync<SqliteException>(base.Add_column_with_defaultValueSql);
-            Assert.Contains("Cannot add a column with non-constant default", ex.Message);
+            if (new Version(new SqliteConnection().ServerVersion) < new Version(3, 32, 0))
+            {
+                var ex = await Assert.ThrowsAsync<SqliteException>(base.Add_column_with_defaultValueSql);
+                Assert.Contains("Cannot add a column with non-constant default", ex.Message);
+
+                return;
+            }
+
+            await base.Add_column_with_defaultValueSql();
+
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Sum"" INTEGER NULL DEFAULT (1 + 2);");
         }
 
         public override async Task Add_column_with_computedSql(bool? stored)
         {
-            if (stored == true)
+            if (stored == true && new Version(new SqliteConnection().ServerVersion) < new Version(3, 32, 0))
             {
                 var ex = await Assert.ThrowsAsync<SqliteException>
                     (() => base.Add_column_with_computedSql(stored));
@@ -252,21 +266,12 @@ be found in the docs.";
                 return;
             }
 
-            await Test(
-                builder => builder.Entity(
-                    "People", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.Property<int>("X");
-                        e.Property<int>("Y");
-                    }),
-                builder => { },
-                builder => builder.Entity("People").Property<string>("Sum")
-                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}", stored),
-                model => { /* Scaffolding computed columns isn't supported in Sqlite */ });
+            await base.Add_column_with_computedSql(stored);
+
+            var storedSql = stored == true ? " STORED" : "";
 
             AssertSql(
-                @"ALTER TABLE ""People"" ADD ""Sum"" AS (""X"" + ""Y"");");
+                $@"ALTER TABLE ""People"" ADD ""Sum"" AS (""X"" + ""Y""){storedSql};");
         }
 
         public override async Task Add_column_with_max_length()
@@ -278,35 +283,36 @@ be found in the docs.";
                 @"ALTER TABLE ""People"" ADD ""Name"" TEXT NULL;");
         }
 
-        // In Sqlite, comments are only generated when creating a table
         public override async Task Add_column_with_comment()
         {
-            await Test(
-                builder => builder.Entity("People").Property<int>("Id"),
-                builder => { },
-                builder => builder.Entity("People").Property<string>("FullName").HasComment("My comment"),
-                model =>
-                {
-                    var table = Assert.Single(model.Tables);
-                    var column = Assert.Single(table.Columns, c => c.Name == "FullName");
-                    Assert.Null(column.Comment);
-                });
+            await base.Add_column_with_comment();
 
             AssertSql(
-                @"ALTER TABLE ""People"" ADD ""FullName"" TEXT NULL;");
+                @"ALTER TABLE ""People"" ADD ""FullName"" TEXT NULL;",
+                //
+                @"CREATE TABLE ""ef_temp_People"" (
+    -- My comment
+    ""FullName"" TEXT NULL,
+
+    ""Id"" INTEGER NOT NULL
+);",
+                //
+                @"INSERT INTO ""ef_temp_People"" (""FullName"", ""Id"")
+SELECT ""FullName"", ""Id""
+FROM People;",
+                //
+                @"PRAGMA foreign_keys = 0;",
+                //
+                @"DROP TABLE ""People"";",
+                //
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                //
+                @"PRAGMA foreign_keys = 1;");
         }
 
         public override async Task Add_column_with_collation()
         {
-            await Test(
-                builder => builder.Entity("People").Property<int>("Id"),
-                builder => { },
-                builder => builder.Entity("People").Property<string>("Name")
-                    .UseCollation(NonDefaultCollation),
-                model =>
-                {
-                    // Our current version Sqlite doesn't seem to support scaffolding collations
-                });
+            await base.Add_column_with_collation();
 
             AssertSql(
                 @"ALTER TABLE ""People"" ADD ""Name"" TEXT COLLATE NOCASE NULL;");
@@ -314,156 +320,544 @@ be found in the docs.";
 
         public override async Task Add_column_computed_with_collation()
         {
-            await Test(
-                builder => builder.Entity("People").Property<int>("Id"),
-                builder => { },
-                builder => builder.Entity("People").Property<string>("Name")
-                    .HasComputedColumnSql("'hello'")
-                    .UseCollation(NonDefaultCollation),
-                model => { /* Scaffolding computed columns isn't supported in Sqlite */ });
+            await base.Add_column_computed_with_collation();
 
             AssertSql(
                 @"ALTER TABLE ""People"" ADD ""Name"" AS ('hello') COLLATE NOCASE;");
         }
 
-        [ConditionalFact]
-        public override Task Add_column_with_check_constraint()
-            => AssertNotSupportedAsync(base.Add_column_with_check_constraint, SqliteStrings.InvalidMigrationOperation("AddCheckConstraintOperation"));
+        public override async Task Add_column_with_check_constraint()
+        {
+            await base.Add_column_with_check_constraint();
 
-        public override Task Alter_column_make_required()
-            => AssertNotSupportedAsync(base.Alter_column_make_required, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""DriverLicense"" INTEGER NOT NULL DEFAULT 0;",
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""DriverLicense"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL,
+    CONSTRAINT ""CK_Foo"" CHECK (""DriverLicense"" > 0)
+);",
+                @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
+SELECT ""DriverLicense"", ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Alter_column_make_required_with_index()
-            => AssertNotSupportedAsync(
-                base.Alter_column_make_required_with_index, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+        public override async Task Alter_column_make_required()
+        {
+            await base.Alter_column_make_required();
 
-        public override Task Alter_column_make_required_with_composite_index()
-            => AssertNotSupportedAsync(
-                base.Alter_column_make_required_with_composite_index, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""SomeColumn"" TEXT NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""SomeColumn"")
+SELECT ""Id"", IFNULL(""SomeColumn"", '')
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Alter_column_make_computed(bool? stored)
-            => AssertNotSupportedAsync(
-                () => base.Alter_column_make_computed(stored),
-                SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+        public override async Task Alter_column_make_required_with_index()
+        {
+            await base.Alter_column_make_required_with_index();
 
-        public override Task Alter_column_change_computed()
-            => AssertNotSupportedAsync(
-                () => base.Alter_column_change_computed(),
-                SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""SomeColumn"" TEXT NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""SomeColumn"")
+SELECT ""Id"", IFNULL(""SomeColumn"", '')
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;",
+                @"CREATE INDEX ""IX_People_SomeColumn"" ON ""People"" (""SomeColumn"");");
+        }
 
-        public override Task Alter_column_change_computed_type()
-            => AssertNotSupportedAsync(
-                () => base.Alter_column_change_computed_type(),
-                SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+        public override async Task Alter_column_make_required_with_composite_index()
+        {
+            await base.Alter_column_make_required_with_composite_index();
 
-        public override Task Alter_column_add_comment()
-            => AssertNotSupportedAsync(base.Alter_column_add_comment, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""FirstName"" TEXT NOT NULL,
+    ""Id"" INTEGER NOT NULL,
+    ""LastName"" TEXT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""FirstName"", ""Id"", ""LastName"")
+SELECT IFNULL(""FirstName"", ''), ""Id"", ""LastName""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;",
+                @"CREATE INDEX ""IX_People_FirstName_LastName"" ON ""People"" (""FirstName"", ""LastName"");");
+        }
 
-        public override Task Alter_column_change_comment()
-            => AssertNotSupportedAsync(base.Alter_column_change_comment, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+        public override async Task Alter_column_make_computed(bool? stored)
+        {
+            await base.Alter_column_make_computed(stored);
 
-        public override Task Alter_column_remove_comment()
-            => AssertNotSupportedAsync(base.Alter_column_remove_comment, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+            var storedSql = stored == true ? " STORED" : "";
 
-        public override Task Alter_column_set_collation()
-            => AssertNotSupportedAsync(base.Alter_column_set_collation, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+            AssertSql(
+                $@"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Sum"" AS (""X"" + ""Y""){storedSql},
+    ""X"" INTEGER NOT NULL,
+    ""Y"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""X"", ""Y"")
+SELECT ""Id"", ""X"", ""Y""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Alter_column_reset_collation()
-            => AssertNotSupportedAsync(base.Alter_column_reset_collation, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+        public override async Task Alter_column_change_computed()
+        {
+            await base.Alter_column_change_computed();
 
-        public override Task Drop_column()
-            => AssertNotSupportedAsync(base.Drop_column, SqliteStrings.InvalidMigrationOperation("DropColumnOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Sum"" AS (""X"" - ""Y""),
+    ""X"" INTEGER NOT NULL,
+    ""Y"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""X"", ""Y"")
+SELECT ""Id"", ""X"", ""Y""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Drop_column_primary_key()
-            => AssertNotSupportedAsync(base.Drop_column_primary_key, SqliteStrings.InvalidMigrationOperation("DropPrimaryKeyOperation"));
+        public override async Task Alter_column_change_computed_type()
+        {
+            await base.Alter_column_change_computed_type();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Sum"" AS (""X"" + ""Y"") STORED,
+    ""X"" INTEGER NOT NULL,
+    ""Y"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""X"", ""Y"")
+SELECT ""Id"", ""X"", ""Y""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_column_add_comment()
+        {
+            await base.Alter_column_add_comment();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    -- Some comment
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_column_change_comment()
+        {
+            await base.Alter_column_change_comment();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    -- Some comment2
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_column_remove_comment()
+        {
+            await base.Alter_column_remove_comment();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_column_set_collation()
+        {
+            await base.Alter_column_set_collation();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Name"" TEXT COLLATE NOCASE NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Name"")
+SELECT ""Name""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_column_reset_collation()
+        {
+            await base.Alter_column_reset_collation();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Name"" TEXT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Name"")
+SELECT ""Name""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Drop_column()
+        {
+            await base.Drop_column();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Drop_column_primary_key()
+        {
+            await base.Drop_column_primary_key();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""SomeColumn"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""SomeColumn"")
+SELECT ""SomeColumn""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
         public override async Task Rename_column()
         {
             await base.Rename_column();
 
             AssertSql(
-                @"ALTER TABLE ""People"" RENAME COLUMN ""SomeColumn"" TO ""somecolumn"";");
+                @"ALTER TABLE ""People"" RENAME COLUMN ""SomeColumn"" TO ""SomeOtherColumn"";");
         }
 
-        public override Task Create_index_with_filter()
-            => Test(
-                builder => builder.Entity(
-                    "People", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.Property<string>("Name");
-                    }),
-                builder => { },
-                builder => builder.Entity("People").HasIndex("Name").HasFilter($"{DelimitIdentifier("Name")} IS NOT NULL"),
-                // Reverse engineering of index filters isn't supported in SQLite
-                model => Assert.Null(model.Tables.Single().Indexes.Single().Filter));
+        public override async Task Create_index_with_filter()
+        {
+            await base.Create_index_with_filter();
 
-        public override Task Create_unique_index_with_filter()
-            => Test(
-                builder => builder.Entity(
-                    "People", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.Property<string>("Name");
-                    }),
-                builder => { },
-                builder => builder.Entity("People").HasIndex("Name").IsUnique()
-                    .HasFilter($"{DelimitIdentifier("Name")} IS NOT NULL AND {DelimitIdentifier("Name")} <> ''"),
-                // Reverse engineering of index filters isn't supported in SQLite
-                model => Assert.Null(model.Tables.Single().Indexes.Single().Filter));
+            AssertSql(
+                @"CREATE INDEX ""IX_People_Name"" ON ""People"" (""Name"") WHERE ""Name"" IS NOT NULL;");
+        }
+
+        public override async Task Create_unique_index_with_filter()
+        {
+            await base.Create_unique_index_with_filter();
+
+            AssertSql(
+                @"CREATE UNIQUE INDEX ""IX_People_Name"" ON ""People"" (""Name"") WHERE ""Name"" IS NOT NULL AND ""Name"" <> '';");
+        }
 
         public override async Task Rename_index()
         {
             await base.Rename_index();
 
             AssertSql(
-                @"DROP INDEX ""Foo"";
-CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
+                @"DROP INDEX ""Foo"";",
+                //
+                @"CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
         }
 
-        public override Task Add_primary_key()
-            => AssertNotSupportedAsync(base.Add_primary_key, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+        public override async Task Add_primary_key()
+        {
+            await base.Add_primary_key();
 
-        public override Task Add_primary_key_with_name()
-            => AssertNotSupportedAsync(base.Add_primary_key_with_name, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""SomeField"" INTEGER NOT NULL CONSTRAINT ""PK_People"" PRIMARY KEY
+);",
+                @"INSERT INTO ""ef_temp_People"" (""SomeField"")
+SELECT ""SomeField""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Add_primary_key_composite_with_name()
-            => AssertNotSupportedAsync(
-                base.Add_primary_key_composite_with_name, SqliteStrings.InvalidMigrationOperation("AlterColumnOperation"));
+        public override async Task Add_primary_key_with_name()
+        {
+            await base.Add_primary_key_with_name();
 
-        public override Task Drop_primary_key()
-            => AssertNotSupportedAsync(base.Drop_primary_key, SqliteStrings.InvalidMigrationOperation("DropPrimaryKeyOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""SomeField"" INTEGER NOT NULL CONSTRAINT ""PK_Foo"" PRIMARY KEY
+);",
+                @"INSERT INTO ""ef_temp_People"" (""SomeField"")
+SELECT ""SomeField""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Add_foreign_key()
-            => AssertNotSupportedAsync(base.Add_foreign_key, SqliteStrings.InvalidMigrationOperation("AddForeignKeyOperation"));
+        public override async Task Add_primary_key_composite_with_name()
+        {
+            await base.Add_primary_key_composite_with_name();
 
-        public override Task Add_foreign_key_with_name()
-            => AssertNotSupportedAsync(base.Add_foreign_key_with_name, SqliteStrings.InvalidMigrationOperation("AddForeignKeyOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""SomeField1"" INTEGER NOT NULL,
+    ""SomeField2"" INTEGER NOT NULL,
+    CONSTRAINT ""PK_Foo"" PRIMARY KEY (""SomeField1"", ""SomeField2"")
+);",
+                @"INSERT INTO ""ef_temp_People"" (""SomeField1"", ""SomeField2"")
+SELECT ""SomeField1"", ""SomeField2""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Drop_foreign_key()
-            => AssertNotSupportedAsync(base.Drop_foreign_key, SqliteStrings.InvalidMigrationOperation("DropForeignKeyOperation"));
+        public override async Task Drop_primary_key()
+        {
+            await base.Drop_primary_key();
 
-        public override Task Add_unique_constraint()
-            => AssertNotSupportedAsync(base.Add_unique_constraint, SqliteStrings.InvalidMigrationOperation("AddUniqueConstraintOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""SomeField"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""SomeField"")
+SELECT ""SomeField""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Add_unique_constraint_composite_with_name()
-            => AssertNotSupportedAsync(
-                base.Add_unique_constraint_composite_with_name, SqliteStrings.InvalidMigrationOperation("AddUniqueConstraintOperation"));
+        public override async Task Add_foreign_key()
+        {
+            await base.Add_foreign_key();
 
-        public override Task Drop_unique_constraint()
-            => AssertNotSupportedAsync(
-                base.Drop_unique_constraint, SqliteStrings.InvalidMigrationOperation("DropUniqueConstraintOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_Orders"" (
+    ""CustomerId"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL,
+    CONSTRAINT ""FK_Orders_Customers_CustomerId"" FOREIGN KEY (""CustomerId"") REFERENCES ""Customers"" (""Id"") ON DELETE RESTRICT
+);",
+                @"INSERT INTO ""ef_temp_Orders"" (""CustomerId"", ""Id"")
+SELECT ""CustomerId"", ""Id""
+FROM Orders;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""Orders"";",
+                @"ALTER TABLE ""ef_temp_Orders"" RENAME TO ""Orders"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Add_check_constraint_with_name()
-            => AssertNotSupportedAsync(
-                base.Add_check_constraint_with_name, SqliteStrings.InvalidMigrationOperation("AddCheckConstraintOperation"));
+        public override async Task Add_foreign_key_with_name()
+        {
+            await base.Add_foreign_key_with_name();
 
-        public override Task Alter_check_constraint()
-            => AssertNotSupportedAsync(
-                base.Alter_check_constraint, SqliteStrings.InvalidMigrationOperation("DropCheckConstraintOperation"));
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_Orders"" (
+    ""CustomerId"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL,
+    CONSTRAINT ""FK_Foo"" FOREIGN KEY (""CustomerId"") REFERENCES ""Customers"" (""Id"") ON DELETE RESTRICT
+);",
+                @"INSERT INTO ""ef_temp_Orders"" (""CustomerId"", ""Id"")
+SELECT ""CustomerId"", ""Id""
+FROM Orders;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""Orders"";",
+                @"ALTER TABLE ""ef_temp_Orders"" RENAME TO ""Orders"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
-        public override Task Drop_check_constraint()
-            => AssertNotSupportedAsync(base.Drop_check_constraint, SqliteStrings.InvalidMigrationOperation("DropCheckConstraintOperation"));
+        public override async Task Drop_foreign_key()
+        {
+            await base.Drop_foreign_key();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_Orders"" (
+    ""CustomerId"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_Orders"" (""CustomerId"", ""Id"")
+SELECT ""CustomerId"", ""Id""
+FROM Orders;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""Orders"";",
+                @"ALTER TABLE ""ef_temp_Orders"" RENAME TO ""Orders"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Add_unique_constraint()
+        {
+            await base.Add_unique_constraint();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""AlternateKeyColumn"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL,
+    CONSTRAINT ""AK_People_AlternateKeyColumn"" UNIQUE (""AlternateKeyColumn"")
+);",
+                @"INSERT INTO ""ef_temp_People"" (""AlternateKeyColumn"", ""Id"")
+SELECT ""AlternateKeyColumn"", ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Add_unique_constraint_composite_with_name()
+        {
+            await base.Add_unique_constraint_composite_with_name();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""AlternateKeyColumn1"" INTEGER NOT NULL,
+    ""AlternateKeyColumn2"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL,
+    CONSTRAINT ""AK_Foo"" UNIQUE (""AlternateKeyColumn1"", ""AlternateKeyColumn2"")
+);",
+                @"INSERT INTO ""ef_temp_People"" (""AlternateKeyColumn1"", ""AlternateKeyColumn2"", ""Id"")
+SELECT ""AlternateKeyColumn1"", ""AlternateKeyColumn2"", ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Drop_unique_constraint()
+        {
+            await base.Drop_unique_constraint();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""AlternateKeyColumn"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""AlternateKeyColumn"", ""Id"")
+SELECT ""AlternateKeyColumn"", ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Add_check_constraint_with_name()
+        {
+            await base.Add_check_constraint_with_name();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""DriverLicense"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL,
+    CONSTRAINT ""CK_Foo"" CHECK (""DriverLicense"" > 0)
+);",
+                @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
+SELECT ""DriverLicense"", ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_check_constraint()
+        {
+            await base.Alter_check_constraint();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""DriverLicense"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL,
+    CONSTRAINT ""CK_Foo"" CHECK (""DriverLicense"" > 1)
+);",
+                @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
+SELECT ""DriverLicense"", ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Drop_check_constraint()
+        {
+            await base.Drop_check_constraint();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""DriverLicense"" INTEGER NOT NULL,
+    ""Id"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
+SELECT ""DriverLicense"", ""Id""
+FROM People;",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
 
         public override Task Create_sequence()
             => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
@@ -485,6 +879,24 @@ CREATE INDEX ""foo"" ON ""People"" (""FirstName"");");
 
         public override Task Move_sequence()
             => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
+
+        // SQLite does not support schemas
+        protected override bool AssertSchemaNames => false;
+
+        // Reverse-engineering of comments isn't supported in Sqlite
+        protected override bool AssertComments => false;
+
+        // Reverse engineering of computed columns isn't fully supported on SQLite
+        protected override bool AssertComputedColumns => false;
+
+        // Our current version Sqlite doesn't seem to support scaffolding collations
+        protected override bool AssertCollations => false;
+
+        // Reverse engineering of index filters isn't supported in SQLite
+        protected override bool AssertIndexFilters => false;
+
+        // Reverse engineering of constraint names isn't supported in SQLite
+        protected override bool AssertConstraintNames => false;
 
         protected override string NonDefaultCollation => "NOCASE";
 

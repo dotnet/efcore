@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing foreign key.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
-    public class DropForeignKeyOperation : MigrationOperation
+    public class DropForeignKeyOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the foreign key constraint.

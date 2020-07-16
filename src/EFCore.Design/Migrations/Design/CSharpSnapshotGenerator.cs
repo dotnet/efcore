@@ -1290,18 +1290,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] IProperty property,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
-            if (property.GetDefaultValue() is object defaultValue)
+            var defaultValue = property.GetDefaultValue();
+            if (defaultValue == null)
+            {
+                return;
+            }
+
+            stringBuilder
+                .AppendLine()
+                .Append(".")
+                .Append(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))
+                .Append("(");
+
+            if (defaultValue != DBNull.Value)
             {
                 stringBuilder
-                    .AppendLine()
-                    .Append(".")
-                    .Append(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))
-                    .Append("(")
                     .Append(Code.UnknownLiteral(FindValueConverter(property) is ValueConverter valueConverter
                         ? valueConverter.ConvertToProvider(defaultValue)
-                        : defaultValue))
-                    .Append(")");
+                        : defaultValue));
             }
+
+            stringBuilder
+                .Append(")");
         }
 
         /// <summary>
