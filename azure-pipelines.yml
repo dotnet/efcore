@@ -24,10 +24,13 @@ variables:
       value: ''
 
 trigger:
-  - master
-  - release/*
-  - feature/*
-  - internal/release/3.*
+  batch: true
+  branches:
+    include:
+      - master
+      - release/*
+      - feature/*
+      - internal/release/3.*
 
 pr: ['*']
 
