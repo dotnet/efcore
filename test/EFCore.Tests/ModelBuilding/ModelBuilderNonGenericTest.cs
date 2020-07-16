@@ -75,6 +75,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 => new NonGenericTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity(typeof(TEntity)));
 
+            public override TestEntityTypeBuilder<TEntity> SharedEntity<TEntity>(string name)
+                => new NonGenericTestEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity(name, typeof(TEntity)));
+
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
                 ModelBuilder.Entity(
@@ -83,8 +86,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return this;
             }
 
+            public override TestModelBuilder SharedEntity<TEntity>(string name, Action<TestEntityTypeBuilder<TEntity>> buildAction)
+            {
+                ModelBuilder.SharedEntity(
+                    name,
+                    typeof(TEntity), entityTypeBuilder =>
+                        buildAction(new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                return this;
+            }
+
             public override TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
                 => new NonGenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned(typeof(TEntity)));
+
+            public override TestSharedEntityTypeBuilder<TEntity> SharedEntity<TEntity>()
+                => new NonGenericTestSharedEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity(typeof(TEntity)));
 
             public override TestModelBuilder Ignore<TEntity>()
             {
@@ -330,6 +345,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected OwnedEntityTypeBuilder OwnedEntityTypeBuilder { get; }
 
             public OwnedEntityTypeBuilder Instance => OwnedEntityTypeBuilder;
+        }
+
+        protected class NonGenericTestSharedEntityTypeBuilder<TEntity> : TestSharedEntityTypeBuilder<TEntity>,
+            IInfrastructure<SharedEntityTypeBuilder>
+            where TEntity : class
+        {
+            public NonGenericTestSharedEntityTypeBuilder(SharedEntityTypeBuilder sharedEntityTypeBuilder)
+            {
+                SharedEntityTypeBuilder = sharedEntityTypeBuilder;
+            }
+
+            protected SharedEntityTypeBuilder SharedEntityTypeBuilder { get; }
+
+            public SharedEntityTypeBuilder Instance => SharedEntityTypeBuilder;
         }
 
         protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder>
@@ -646,6 +675,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
                         new NonGenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder));
 
+            public override TestEntityTypeBuilder<TAssociationEntity> UsingEntity<TAssociationEntity>(
+                string joinEntityName,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
+                => new NonGenericTestEntityTypeBuilder<TAssociationEntity>(CollectionCollectionBuilder.UsingEntity(
+                    joinEntityName,
+                    typeof(TAssociationEntity),
+                    l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
+                        new NonGenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,
+                    r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
+                        new NonGenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder));
+
             public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
                 Func<TestEntityTypeBuilder<TAssociationEntity>,
                     TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
@@ -654,6 +697,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
                 where TAssociationEntity : class
                 => new NonGenericTestEntityTypeBuilder<TRightEntity>(CollectionCollectionBuilder.UsingEntity(
+                    typeof(TAssociationEntity),
+                    l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
+                        new NonGenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,
+                    r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
+                        new NonGenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder,
+                    e => configureAssociation(new NonGenericTestEntityTypeBuilder<TAssociationEntity>(e))));
+
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
+                string joinEntityName,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
+                Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
+                where TAssociationEntity : class
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(CollectionCollectionBuilder.UsingEntity(
+                    joinEntityName,
                     typeof(TAssociationEntity),
                     l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
                         new NonGenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,

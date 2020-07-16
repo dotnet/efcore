@@ -284,8 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
             where TNewDependentEntity : class
             => OwnsOneBuilder<TNewDependentEntity>(
-                new MemberIdentity(
-                    Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+                new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
         /// <summary>
         ///     <para>
@@ -319,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsOneBuilder<TNewDependentEntity>(new MemberIdentity(navigationName)));
+            buildAction(OwnsOneBuilder<TNewDependentEntity>(new MemberIdentity(navigationName)));
             return this;
         }
 
@@ -356,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsOneBuilder<TNewDependentEntity>(new MemberIdentity(navigationExpression.GetMemberAccess())));
+            buildAction(OwnsOneBuilder<TNewDependentEntity>(new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
@@ -367,10 +366,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             InternalForeignKeyBuilder relationship;
             using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                relationship = navigation.MemberInfo == null
-                    ? DependentEntityType.Builder.HasOwnership(typeof(TNewDependentEntity), navigation.Name, ConfigurationSource.Explicit)
-                    : DependentEntityType.Builder.HasOwnership(
-                        typeof(TNewDependentEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
+                relationship = DependentEntityType.Builder.HasOwnership(typeof(TNewDependentEntity), navigation, ConfigurationSource.Explicit);
+
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
                 relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
@@ -470,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                buildAction.Invoke(OwnsManyBuilder<TNewDependentEntity>(new MemberIdentity(navigationName)));
+                buildAction(OwnsManyBuilder<TNewDependentEntity>(new MemberIdentity(navigationName)));
                 return this;
             }
         }
@@ -509,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                buildAction.Invoke(OwnsManyBuilder<TNewDependentEntity>(new MemberIdentity(navigationExpression.GetMemberAccess())));
+                buildAction(OwnsManyBuilder<TNewDependentEntity>(new MemberIdentity(navigationExpression.GetMemberAccess())));
                 return this;
             }
         }
@@ -520,10 +517,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             InternalForeignKeyBuilder relationship;
             using (var batch = DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                relationship = navigation.MemberInfo == null
-                    ? DependentEntityType.Builder.HasOwnership(typeof(TNewRelatedEntity), navigation.Name, ConfigurationSource.Explicit)
-                    : DependentEntityType.Builder.HasOwnership(
-                        typeof(TNewRelatedEntity), (PropertyInfo)navigation.MemberInfo, ConfigurationSource.Explicit);
+                relationship = DependentEntityType.Builder.HasOwnership(typeof(TNewRelatedEntity), navigation, ConfigurationSource.Explicit);
+
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
                 relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }

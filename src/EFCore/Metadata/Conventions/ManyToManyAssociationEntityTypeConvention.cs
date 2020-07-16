@@ -106,12 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     inverseEntityType.ShortName()),
                 otherIdentifiers,
                 int.MaxValue);
-            //TODO #9914 - when the shared-type entity type version of model.Entity() is available call that instead
-            var associationEntityTypeBuilder =
-                model.AddEntityType(
-                    associationEntityTypeName,
-                    Model.DefaultPropertyBagType,
-                    ConfigurationSource.Convention).Builder;
+
+            var associationEntityTypeBuilder = model.Builder.SharedEntity(
+                associationEntityTypeName, Model.DefaultPropertyBagType, ConfigurationSource.Convention);
 
             // Create left and right foreign keys from the outer entity types to
             // the association entity type and configure the skip navigations.

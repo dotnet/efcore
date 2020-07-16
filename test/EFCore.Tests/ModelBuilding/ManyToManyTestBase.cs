@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -355,6 +356,107 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindSkipNavigation("Dependents").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindSkipNavigation("ManyToManyPrincipals").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Can_use_shared_Type_as_join_entity()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "Shared1",
+                        e => e.HasOne<NavDependent>().WithMany(),
+                        e => e.HasOne<ManyToManyNavPrincipal>().WithMany());
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "Shared2",
+                        e => e.HasOne<DependentWithField>().WithMany(),
+                        e => e.HasOne<ManyToManyPrincipalWithField>().WithMany(),
+                        e => e.IndexerProperty<int>("Payload"));
+
+                var shared1 = modelBuilder.Model.FindEntityType("Shared1");
+                Assert.NotNull(shared1);
+                Assert.Equal(2, shared1.GetForeignKeys().Count());
+                Assert.True(shared1.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
+
+                var shared2 = modelBuilder.Model.FindEntityType("Shared2");
+                Assert.NotNull(shared2);
+                Assert.Equal(2, shared2.GetForeignKeys().Count());
+                Assert.True(shared2.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared2.ClrType);
+                Assert.NotNull(shared2.FindProperty("Payload"));
+
+                Assert.Equal(
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void UsingEntity_with_shared_type_fails_when_not_marked()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                Assert.Equal(
+                    CoreStrings.TypeNotMarkedAsShared(typeof(ManyToManyJoinWithFields).DisplayName()),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                            .HasMany(e => e.Dependents)
+                            .WithMany(e => e.ManyToManyPrincipals)
+                            .UsingEntity<ManyToManyJoinWithFields>(
+                                "Shared",
+                                r => r.HasOne<DependentWithField>().WithMany(),
+                                l => l.HasOne<ManyToManyPrincipalWithField>().WithMany())).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void UsingEntity_with_shared_type_passed_when_marked_as_shared_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.SharedEntity<ManyToManyJoinWithFields>();
+
+                var associationEntityType = modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<ManyToManyJoinWithFields>(
+                        "Shared",
+                        r => r.HasOne<DependentWithField>().WithMany(),
+                        l => l.HasOne<ManyToManyPrincipalWithField>().WithMany()).Metadata;
+
+                Assert.True(associationEntityType.HasSharedClrType);
+                Assert.Equal("Shared", associationEntityType.Name);
+                Assert.Equal(typeof(ManyToManyJoinWithFields), associationEntityType.ClrType);
+            }
+
+            [ConditionalFact]
+            public virtual void UsingEntity_with_shared_type_passes_when_configured_as_shared()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.SharedEntity<ManyToManyJoinWithFields>("Shared");
+
+                var associationEntityType = modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<ManyToManyJoinWithFields>(
+                        "Shared",
+                        r => r.HasOne<DependentWithField>().WithMany(),
+                        l => l.HasOne<ManyToManyPrincipalWithField>().WithMany()).Metadata;
+
+                Assert.True(associationEntityType.HasSharedClrType);
+                Assert.Equal("Shared", associationEntityType.Name);
+                Assert.Equal(typeof(ManyToManyJoinWithFields), associationEntityType.ClrType);
             }
         }
     }
