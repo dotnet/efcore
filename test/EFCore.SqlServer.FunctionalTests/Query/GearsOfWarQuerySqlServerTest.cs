@@ -529,29 +529,23 @@ WHERE (2 & [g].[Rank]) = [g].[Rank]");
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE (([g].[Rank] & (
+WHERE ([g].[Rank] & COALESCE((
     SELECT TOP(1) [g0].[Rank]
     FROM [Gears] AS [g0]
-    ORDER BY [g0].[Nickname], [g0].[SquadId])) = (
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)) = COALESCE((
     SELECT TOP(1) [g0].[Rank]
     FROM [Gears] AS [g0]
-    ORDER BY [g0].[Nickname], [g0].[SquadId])) OR (
-    SELECT TOP(1) [g0].[Rank]
-    FROM [Gears] AS [g0]
-    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL",
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)",
                 //
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE ((2 & (
+WHERE (2 & COALESCE((
     SELECT TOP(1) [g0].[Rank]
     FROM [Gears] AS [g0]
-    ORDER BY [g0].[Nickname], [g0].[SquadId])) = (
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)) = COALESCE((
     SELECT TOP(1) [g0].[Rank]
     FROM [Gears] AS [g0]
-    ORDER BY [g0].[Nickname], [g0].[SquadId])) OR (
-    SELECT TOP(1) [g0].[Rank]
-    FROM [Gears] AS [g0]
-    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL");
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)");
         }
 
         public override async Task Where_enum_has_flag_subquery_with_pushdown(bool async)
@@ -1263,11 +1257,11 @@ ORDER BY [w].[Id]");
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE (
+WHERE COALESCE((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]) = CAST(1 AS bit)");
+    ORDER BY [w].[Id]), CAST(0 AS bit)) = CAST(1 AS bit)");
         }
 
         public override async Task Where_subquery_boolean_with_pushdown(bool async)
@@ -1291,14 +1285,14 @@ WHERE (
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
+WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND (COALESCE((
     SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
         WHERE [g].[FullName] = [w].[OwnerFullName]
     ) AS [t]
-    ORDER BY [t].[Id]) = CAST(1 AS bit))");
+    ORDER BY [t].[Id]), CAST(0 AS bit)) = CAST(1 AS bit))");
         }
 
         public override async Task Where_subquery_distinct_firstordefault_boolean_with_pushdown(bool async)
@@ -1343,13 +1337,13 @@ ORDER BY [g].[Nickname]");
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
+WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND (COALESCE((
     SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
         WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')
-    ) AS [t]) = CAST(1 AS bit))
+    ) AS [t]), CAST(0 AS bit)) = CAST(1 AS bit))
 ORDER BY [g].[Nickname]");
         }
 
@@ -1360,10 +1354,10 @@ ORDER BY [g].[Nickname]");
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
+WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND (COALESCE((
     SELECT DISTINCT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
-    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')) = CAST(1 AS bit))
+    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')), CAST(0 AS bit)) = CAST(1 AS bit))
 ORDER BY [g].[Nickname]");
         }
 
@@ -1427,14 +1421,14 @@ ORDER BY [g].[Nickname]");
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND ((
+WHERE ([g].[HasSoulPatch] = CAST(1 AS bit)) AND (COALESCE((
     SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
         WHERE [g].[FullName] = [w].[OwnerFullName]
     ) AS [t]
-    ORDER BY [t].[Id]) = CAST(1 AS bit))");
+    ORDER BY [t].[Id]), CAST(0 AS bit)) = CAST(1 AS bit))");
         }
 
         public override async Task Where_subquery_distinct_orderby_firstordefault_boolean_with_pushdown(bool async)
@@ -4704,10 +4698,10 @@ ORDER BY [w].[Id]");
             await base.Project_one_value_type_from_empty_collection(async);
 
             AssertSql(
-                @"SELECT [s].[Name], (
+                @"SELECT [s].[Name], COALESCE((
     SELECT TOP(1) [g].[SquadId]
     FROM [Gears] AS [g]
-    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))) AS [SquadId]
+    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))), 0) AS [SquadId]
 FROM [Squads] AS [s]
 WHERE [s].[Name] = N'Kilo'");
         }
@@ -4763,10 +4757,10 @@ WHERE ([s].[Name] = N'Kilo') AND (COALESCE((
             await base.Select_subquery_projecting_single_constant_int(async);
 
             AssertSql(
-                @"SELECT [s].[Name], (
+                @"SELECT [s].[Name], COALESCE((
     SELECT TOP(1) 42
     FROM [Gears] AS [g]
-    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))) AS [Gear]
+    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))), 0) AS [Gear]
 FROM [Squads] AS [s]");
         }
 
@@ -4787,10 +4781,10 @@ FROM [Squads] AS [s]");
             await base.Select_subquery_projecting_single_constant_bool(async);
 
             AssertSql(
-                @"SELECT [s].[Name], (
+                @"SELECT [s].[Name], COALESCE((
     SELECT TOP(1) CAST(1 AS bit)
     FROM [Gears] AS [g]
-    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))) AS [Gear]
+    WHERE ([s].[Id] = [g].[SquadId]) AND ([g].[HasSoulPatch] = CAST(1 AS bit))), CAST(0 AS bit)) AS [Gear]
 FROM [Squads] AS [s]");
         }
 
@@ -4928,11 +4922,11 @@ ORDER BY (
 FROM [Gears] AS [g]
 LEFT JOIN [Gears] AS [g0] ON ([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId])
 WHERE [g].[Discriminator] = N'Officer'
-ORDER BY (
+ORDER BY COALESCE((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]");
+    ORDER BY [w].[Id]), CAST(0 AS bit)), [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]");
         }
 
         public override async Task Correlated_collection_with_complex_OrderBy(bool async)
@@ -4970,10 +4964,10 @@ WHERE [g].[Discriminator] = N'Officer'
 ORDER BY (
     SELECT COUNT(*)
     FROM [Weapons] AS [w]
-    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[IsAutomatic] = (
+    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[IsAutomatic] = COALESCE((
         SELECT TOP(1) [g1].[HasSoulPatch]
         FROM [Gears] AS [g1]
-        WHERE [g1].[Nickname] = N'Marcus'))), [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+        WHERE [g1].[Nickname] = N'Marcus'), CAST(0 AS bit)))), [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
         }
 
         public override async Task Cast_to_derived_type_after_OfType_works(bool async)
@@ -4991,11 +4985,11 @@ WHERE [g].[Discriminator] = N'Officer'");
             await base.Select_subquery_boolean(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id])
+    ORDER BY [w].[Id]), CAST(0 AS bit))
 FROM [Gears] AS [g]");
         }
 
@@ -5030,11 +5024,11 @@ FROM [Gears] AS [g]");
             await base.Select_subquery_int_with_outside_cast_and_coalesce(async);
 
             AssertSql(
-                @"SELECT COALESCE((
+                @"SELECT COALESCE(COALESCE((
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), 42)
+    ORDER BY [w].[Id]), 0), 42)
 FROM [Gears] AS [g]");
         }
 
@@ -5073,11 +5067,11 @@ FROM [Gears] AS [g]");
             await base.Select_subquery_boolean_empty(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] = N'BFG')
-    ORDER BY [w].[Id])
+    ORDER BY [w].[Id]), CAST(0 AS bit))
 FROM [Gears] AS [g]");
         }
 
@@ -5094,44 +5088,18 @@ FROM [Gears] AS [g]");
 FROM [Gears] AS [g]");
         }
 
-        public override async Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable1(bool async)
-        {
-            await base.Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable1(async);
-
-            AssertSql(
-                @"SELECT (
-    SELECT TOP(1) [w].[IsAutomatic]
-    FROM [Weapons] AS [w]
-    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] = N'BFG')
-    ORDER BY [w].[Id])
-FROM [Gears] AS [g]");
-        }
-
-        public override async Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable2(bool async)
-        {
-            await base.Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable2(async);
-
-            AssertSql(
-                @"SELECT (
-    SELECT TOP(1) [w].[Id]
-    FROM [Weapons] AS [w]
-    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] = N'BFG')
-    ORDER BY [w].[Id])
-FROM [Gears] AS [g]");
-        }
-
         public override async Task Select_subquery_distinct_singleordefault_boolean1(bool async)
         {
             await base.Select_subquery_distinct_singleordefault_boolean1(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
         WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')
-    ) AS [t])
+    ) AS [t]), CAST(0 AS bit))
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
         }
@@ -5141,10 +5109,10 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
             await base.Select_subquery_distinct_singleordefault_boolean2(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT DISTINCT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
-    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%'))
+    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] LIKE N'%Lancer%')), CAST(0 AS bit))
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
         }
@@ -5170,13 +5138,13 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
             await base.Select_subquery_distinct_singleordefault_boolean_empty1(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) [t].[IsAutomatic]
     FROM (
         SELECT DISTINCT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
         FROM [Weapons] AS [w]
         WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] = N'BFG')
-    ) AS [t])
+    ) AS [t]), CAST(0 AS bit))
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
         }
@@ -5186,10 +5154,10 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
             await base.Select_subquery_distinct_singleordefault_boolean_empty2(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT DISTINCT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
-    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] = N'BFG'))
+    WHERE ([g].[FullName] = [w].[OwnerFullName]) AND ([w].[Name] = N'BFG')), CAST(0 AS bit))
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit)");
         }

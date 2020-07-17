@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                         inMemoryQueryExpression.ServerQueryExpression)));
 
-            return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
+            return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(bool)));
         }
 
         /// <summary>
@@ -170,11 +170,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             inMemoryQueryExpression.UpdateServerQueryExpression(
-                    Expression.Call(
-                        EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression));
+                Expression.Call(
+                    EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    inMemoryQueryExpression.ServerQueryExpression));
 
-            return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
+            return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(bool)));
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(source, nameof(source));
             Check.NotNull(resultType, nameof(resultType));
 
-            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Average));
+            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Average), resultType);
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()), inMemoryQueryExpression.CurrentParameter)),
                     item));
 
-            return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
+            return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(bool)));
         }
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                     inMemoryQueryExpression.ServerQueryExpression));
 
-            return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
+            return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(int)));
         }
 
         /// <summary>
@@ -751,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         inMemoryQueryExpression.CurrentParameter.Type),
                     inMemoryQueryExpression.ServerQueryExpression));
 
-            return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
+            return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(long)));
         }
 
         /// <summary>
@@ -765,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(source, nameof(source));
 
-            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Max));
+            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Max), resultType);
         }
 
         /// <summary>
@@ -778,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(source, nameof(source));
 
-            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Min));
+            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Min), resultType);
         }
 
         /// <summary>
@@ -1095,7 +1095,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(source, nameof(source));
             Check.NotNull(resultType, nameof(resultType));
 
-            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Sum));
+            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Sum), resultType);
         }
 
         /// <summary>
@@ -1435,7 +1435,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private ShapedQueryExpression TranslateScalarAggregate(
-            ShapedQueryExpression source, LambdaExpression selector, string methodName)
+            ShapedQueryExpression source, LambdaExpression selector, string methodName, Type returnType)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
@@ -1459,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             inMemoryQueryExpression.UpdateServerQueryExpression(
                 Expression.Call(method, inMemoryQueryExpression.ServerQueryExpression, selector));
 
-            return source.UpdateShaperExpression(inMemoryQueryExpression.GetSingleScalarProjection());
+            return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), returnType));
 
             MethodInfo GetMethod()
                 => methodName switch

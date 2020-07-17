@@ -943,6 +943,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("DefaultValueSqlUnspecified", nameof(column), nameof(table)),
                 column, table);
 
+        /// <summary>
+        ///     Sequence contains no elements.
+        /// </summary>
+        public static string SequenceContainsNoElements
+            => GetString("SequenceContainsNoElements");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

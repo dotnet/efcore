@@ -262,19 +262,6 @@ END AS ""Disjoint""
 FROM ""PolygonEntity"" AS ""p""");
         }
 
-        public override async Task Disjoint_without_cast_to_nullable(bool async)
-        {
-            await base.Disjoint_without_cast_to_nullable(async);
-
-            AssertSql(
-                @"@__point_0='0x000100000000000000000000F03F000000000000F03F000000000000F03F0000...' (Size = 60) (DbType = String)
-
-SELECT ""p"".""Id"", CASE
-    WHEN ""p"".""Polygon"" IS NOT NULL THEN Disjoint(""p"".""Polygon"", @__point_0)
-END AS ""Disjoint""
-FROM ""PolygonEntity"" AS ""p""");
-        }
-
         public override async Task Disjoint_with_null_check(bool async)
         {
             await base.Disjoint_with_null_check(async);
@@ -287,17 +274,6 @@ SELECT ""p"".""Id"", CASE
     WHEN ""p"".""Polygon"" IS NOT NULL THEN Disjoint(""p"".""Polygon"", @__point_0)
 END AS ""Disjoint""
 FROM ""PolygonEntity"" AS ""p""");
-        }
-
-        public override async Task Distance_without_null_check(bool async)
-        {
-            await base.Distance_without_null_check(async);
-
-            AssertSql(
-                @"@__point_0='0x0001000000000000000000000000000000000000F03F00000000000000000000...' (Size = 60) (DbType = String)
-
-SELECT ""p"".""Id"", Distance(""p"".""Point"", @__point_0) AS ""Distance""
-FROM ""PointEntity"" AS ""p""");
         }
 
         public override async Task Distance_with_null_check(bool async)

@@ -896,11 +896,11 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"@__p_0='3'
 
-SELECT [t].[OrderID], (
+SELECT [t].[OrderID], COALESCE((
     SELECT TOP(1) [o].[OrderID]
     FROM [Order Details] AS [o]
     WHERE [t].[OrderID] = [o].[OrderID]
-    ORDER BY [o].[OrderID], [o].[ProductID]) AS [OrderDetail], [c].[City]
+    ORDER BY [o].[OrderID], [o].[ProductID]), 0) AS [OrderDetail], [c].[City]
 FROM (
     SELECT TOP(@__p_0) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM [Orders] AS [o0]

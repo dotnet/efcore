@@ -667,6 +667,26 @@ namespace Microsoft.EntityFrameworkCore
 
         public override void Object_to_string_conversion() {}
 
+        [ConditionalFact]
+        public virtual void Optional_owned_with_converter_reading_non_nullable_column()
+        {
+            using var context = CreateContext();
+            Assert.Equal(
+                "Nullable object must have a value.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Set<Parent>().Select(e => new { e.OwnedWithConverter.Value }).ToList()).Message);
+        }
+
+        protected class Parent
+        {
+            public int Id { get; set; }
+            public OwnedWithConverter OwnedWithConverter { get; set; }
+        }
+
+        protected class OwnedWithConverter
+        {
+            public int Value { get; set; }
+        }
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
@@ -1128,6 +1148,22 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 1,
                             Roles = new List<Roles> { Roles.Seller }
                         });
+                    });
+
+                modelBuilder.Entity<Parent>(
+                    b =>
+                    {
+                        b.OwnsOne(
+                            e => e.OwnedWithConverter,
+                            ob =>
+                            {
+                                ob.Property(i => i.Value).HasConversion<string>();
+                                ob.HasData(new { ParentId = 1, Value = 42 });
+                            });
+
+                        b.HasData(
+                            new Parent { Id = 1 },
+                            new Parent { Id = 2 });
                     });
             }
 

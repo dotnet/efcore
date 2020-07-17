@@ -885,8 +885,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => e.NullableStringA.IndexOf("oo")),
-                ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo")) ?? 0),
+                ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => (int?)e.NullableStringA.IndexOf("oo")),
+                ss => ss.Set<NullSemanticsEntity1>().OrderBy(e => e.Id).Select(e => e.NullableStringA.MaybeScalar(x => x.IndexOf("oo"))),
                 assertOrder: true);
         }
 

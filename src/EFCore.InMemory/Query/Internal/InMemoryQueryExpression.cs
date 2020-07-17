@@ -88,25 +88,30 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _valueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
             ServerQueryExpression = new InMemoryTableExpression(entityType);
             var readExpressionMap = new Dictionary<IProperty, Expression>();
+            var discriminatorProperty = entityType.GetDiscriminatorProperty();
             foreach (var property in entityType.GetAllBaseTypesInclusive().SelectMany(et => et.GetDeclaredProperties()))
             {
                 readExpressionMap[property] = CreateReadValueExpression(property.ClrType, property.GetIndex(), property);
             }
 
-            foreach (var property in entityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties()))
+            foreach (var derivedEntityType in entityType.GetDerivedTypes())
             {
-                readExpressionMap[property] = Condition(
-                    LessThan(
-                        Constant(property.GetIndex()),
-                        MakeMemberAccess(
-                            _valueBufferParameter,
-                            _valueBufferCountMemberInfo)),
-                    CreateReadValueExpression(property.ClrType, property.GetIndex(), property),
-                    Default(property.ClrType));
+                var entityCheck = derivedEntityType.GetConcreteDerivedTypesInclusive()
+                    .Select(e => Equal(readExpressionMap[discriminatorProperty], Constant(e.GetDiscriminatorValue())))
+                    .Aggregate((l, r) => OrElse(l, r));
+
+                foreach (var property in derivedEntityType.GetDeclaredProperties())
+                {
+                    readExpressionMap[property] = Condition(
+                        entityCheck,
+                        CreateReadValueExpression(property.ClrType, property.GetIndex(), property),
+                        Default(property.ClrType));
+                }
             }
 
             var entityProjection = new EntityProjectionExpression(entityType, readExpressionMap);
             _projectionMapping[new ProjectionMember()] = entityProjection;
+
         }
 
         /// <summary>
@@ -123,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             ConvertToEnumerable();
 
-            return new ProjectionBindingExpression(this, new ProjectionMember(), expression.Type);
+            return new ProjectionBindingExpression(this, new ProjectionMember(), expression.Type.MakeNullable());
         }
 
         /// <summary>

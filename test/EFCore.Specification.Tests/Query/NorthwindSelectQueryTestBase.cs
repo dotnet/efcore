@@ -946,10 +946,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Customer>()
                     .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault())
-                    .Select(e => e.Length),
+                    .Select(e => (int?)e.Length),
                 ss => ss.Set<Customer>()
                     .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault())
-                    .Select(e => e == null ? 0 : e.Length));
+                    .Select(e => e.MaybeScalar(e => e.Length)));
         }
 
         [ConditionalTheory]
@@ -1449,8 +1449,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
                 ss => ss.Set<Customer>().Select(
-                    c => ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length),
-                ss => ss.Set<Customer>().Select(c => 0));
+                    c => (int?)ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length),
+                ss => ss.Set<Customer>().Select(
+                    c => (int?)ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().MaybeScalar(e => e.Length)));
         }
 
         [ConditionalTheory]

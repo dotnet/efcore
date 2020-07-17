@@ -153,14 +153,14 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
             await base.Navigation_rewrite_on_owned_collection_with_composition(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) CASE
         WHEN [o].[Id] <> 42 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     FROM [Order] AS [o]
     WHERE [o0].[Id] = [o].[ClientId]
-    ORDER BY [o].[Id])
+    ORDER BY [o].[Id]), CAST(0 AS bit))
 FROM [OwnedPerson] AS [o0]
 ORDER BY [o0].[Id]");
         }

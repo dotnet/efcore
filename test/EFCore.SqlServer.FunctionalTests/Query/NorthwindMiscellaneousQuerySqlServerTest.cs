@@ -441,7 +441,7 @@ LEFT JOIN (
             await base.Default_if_empty_top_level_projection(async);
 
             AssertSql(
-                @"SELECT [t].[EmployeeID]
+                @"SELECT COALESCE([t].[EmployeeID], 0)
 FROM (
     SELECT NULL AS [empty]
 ) AS [empty]

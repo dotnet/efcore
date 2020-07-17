@@ -44,5 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Select_subquery_single_nested_subquery2(async);
         }
+
+        [ConditionalTheory(Skip = "issue #17539")]
+        public override Task Union_over_entities_with_different_nullability(bool async)
+        {
+            return base.Union_over_entities_with_different_nullability(async);
+        }
     }
 }

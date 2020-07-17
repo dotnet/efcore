@@ -80,6 +80,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
         }
 
+        [ConditionalFact(Skip = "Issue#21678")]
+        public override void Optional_datetime_reading_null_from_database()
+        {
+            base.Optional_datetime_reading_null_from_database();
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

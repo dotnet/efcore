@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
+using Xunit.Sdk;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
 
@@ -6021,7 +6022,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(e => new { Property = e.City.ToList() }),
                 assertOrder: true,
-                elementAsserter: (e,a) => Assert.True(e.Property.SequenceEqual(a.Property)));
+                elementAsserter: (e, a) => Assert.True(e.Property.SequenceEqual(a.Property)));
         }
 
         [ConditionalTheory]
@@ -6047,5 +6048,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static int ClientMethod(int s) => s;
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Non_nullable_property_through_optional_navigation(bool async)
+        {
+            Assert.Equal(
+                "Nullable object must have a value.",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQuery(
+                        async,
+                        ss => ss.Set<Customer>().Select(e => new { e.Region.Length })))).Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Max_on_empty_sequence_throws(bool async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<Customer>().Select(e => new { Max = e.Orders.Max(o => o.OrderID) });
+
+            var message = async
+                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
+                : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message;
+
+            Assert.Equal("Nullable object must have a value.", message);
+        }
     }
 }
