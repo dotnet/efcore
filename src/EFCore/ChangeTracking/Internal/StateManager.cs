@@ -242,17 +242,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = TryGetEntry(entity, entityType);
             if (entry == null)
             {
-                var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
-                if (runtimeEntityType != null)
+                if (!entityType.HasSharedClrType)
                 {
-                    if (!entityType.IsAssignableFrom(runtimeEntityType))
+                    var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
+                    if (runtimeEntityType != null)
                     {
-                        throw new InvalidOperationException(
-                            CoreStrings.TrackingTypeMismatch(
-                                runtimeEntityType.DisplayName(), entityType.DisplayName()));
-                    }
+                        if (!entityType.IsAssignableFrom(runtimeEntityType))
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.TrackingTypeMismatch(
+                                    runtimeEntityType.DisplayName(), entityType.DisplayName()));
+                        }
 
-                    entityType = runtimeEntityType;
+                        entityType = runtimeEntityType;
+                    }
                 }
 
                 if (entityType.FindPrimaryKey() == null)

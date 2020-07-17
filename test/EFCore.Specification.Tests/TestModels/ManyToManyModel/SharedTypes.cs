@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
@@ -45,5 +47,23 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public string CompositeId2 { get; set; }
         public DateTime CompositeId3 { get; set; }
         public int RootId { get; set; }
+    }
+
+    public class ImplicitManyToManyA
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public ICollection<ImplicitManyToManyB> Bs { get; set; }
+    }
+
+    public class ImplicitManyToManyB
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public ICollection<ImplicitManyToManyA> As { get; set; }
     }
 }
