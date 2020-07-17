@@ -109,6 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
+            if (methodCallExpression.Method.DeclaringType.IsGenericType
+                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
+                && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
+            {
+                visitedExpression = TryConvertListContainsToQueryableContains(methodCallExpression);
+            }
+
             visitedExpression ??= base.VisitMethodCall(methodCallExpression);
 
             if (visitedExpression is MethodCallExpression visitedMethodcall
