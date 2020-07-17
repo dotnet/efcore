@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -39,18 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<IColumnMapping> ColumnMappings { get; }
-            = new SortedSet<IColumnMapping>(ColumnMappingBaseComparer.Instance);
-
-        /// <inheritdoc/>
-        protected override IEnumerable<IColumnMappingBase> ProtectedColumnMappings => ColumnMappings;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc/>
@@ -64,14 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IColumnMapping> ITableMapping.ColumnMappings
         {
             [DebuggerStepThrough]
-            get => ColumnMappings;
-        }
-
-        /// <inheritdoc/>
-        IEnumerable<IColumnMappingBase> ITableMappingBase.ColumnMappings
-        {
-            [DebuggerStepThrough]
-            get => ColumnMappings;
+            get => ColumnMappings.Cast<IColumnMapping>();
         }
     }
 }

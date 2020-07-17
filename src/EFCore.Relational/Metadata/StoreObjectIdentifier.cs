@@ -40,6 +40,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
+        ///     Creates an id for the SQL query mapped using <see cref="M:RelationalEntityTypeBuilderExtensions.ToQuerySql" />.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The SQL query id. </returns>
+        public static StoreObjectIdentifier SqlQuery([NotNull] IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return new StoreObjectIdentifier { StoreObjectType = StoreObjectType.SqlQuery, Name = entityType.GetDefaultSqlQueryName() };
+        }
+
+        /// <summary>
+        ///     Creates a SQL query id.
+        /// </summary>
+        /// <param name="name"> The SQL query name. </param>
+        /// <returns> The SQL query id. </returns>
+        public static StoreObjectIdentifier SqlQuery([NotNull] string name)
+        {
+            Check.NotNull(name, nameof(name));
+
+            return new StoreObjectIdentifier { StoreObjectType = StoreObjectType.SqlQuery, Name = name };
+        }
+
+        /// <summary>
         ///     Creates a function id.
         /// </summary>
         /// <param name="modelName"> The function model name. </param>

@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"Column: {column.Table.Name}.");
+                builder.Append($"ViewColumn: {column.Table.Name}.");
             }
 
             builder.Append(column.Name).Append(" (");

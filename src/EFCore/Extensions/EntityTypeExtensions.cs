@@ -331,6 +331,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The display name. </returns>
         [DebuggerStepThrough]
         public static string DisplayName([NotNull] this ITypeBase type)
+            => type.FullName();
+
+        /// <summary>
+        ///     Gets the unique name for the given <see cref="ITypeBase" />.
+        /// </summary>
+        /// <param name="type"> The entity type. </param>
+        /// <returns> The display name. </returns>
+        [DebuggerStepThrough]
+        public static string FullName([NotNull] this ITypeBase type)
         {
             if (!(type is IEntityType entityType)
                 || !entityType.HasDefiningNavigation())

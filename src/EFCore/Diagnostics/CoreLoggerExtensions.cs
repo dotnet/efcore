@@ -496,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 definition.Log(
                     diagnostics,
-                    $"{navigation.DeclaringEntityType.Name}.{navigation.TargetEntityType.Name}");
+                    $"{navigation.DeclaringEntityType.DisplayName()}.{navigation.Name}");
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -514,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string>)definition;
             var p = (NavigationEventData)payload;
-            return d.GenerateMessage($"{p.Navigation.DeclaringEntityType.Name}.{p.Navigation.TargetEntityType.Name}");
+            return d.GenerateMessage($"{p.Navigation.DeclaringEntityType.DisplayName()}.{p.Navigation.Name}");
         }
 
         /// <summary>

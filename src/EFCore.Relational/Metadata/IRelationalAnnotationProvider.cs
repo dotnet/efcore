@@ -57,6 +57,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IAnnotation> For([NotNull] IViewColumn column);
 
         /// <summary>
+        ///     Gets provider-specific annotations for the given <see cref="ISqlQuery" />.
+        /// </summary>
+        /// <param name="sqlQuery"> The SQL query. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> For([NotNull] ISqlQuery sqlQuery);
+
+        /// <summary>
+        ///     Gets provider-specific annotations for the given <see cref="ISqlQueryColumn" />.
+        /// </summary>
+        /// <param name="column"> The column. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> For([NotNull] ISqlQueryColumn column);
+
+        /// <summary>
+        ///     Gets provider-specific annotations for the given <see cref="IStoreFunction" />.
+        /// </summary>
+        /// <param name="function"> The function. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> For([NotNull] IStoreFunction function);
+
+        /// <summary>
+        ///     Gets provider-specific annotations for the given <see cref="IFunctionColumn" />.
+        /// </summary>
+        /// <param name="column"> The column. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> For([NotNull] IFunctionColumn column);
+
+        /// <summary>
         ///     Gets provider-specific annotations for the given <see cref="IUniqueConstraint" />.
         /// </summary>
         /// <param name="constraint"> The unique constraint. </param>

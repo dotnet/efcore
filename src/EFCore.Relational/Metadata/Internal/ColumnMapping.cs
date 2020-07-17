@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ColumnMapping : Annotatable, IColumnMapping
+    public class ColumnMapping : ColumnMappingBase, IColumnMapping
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,24 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Column column,
             [CanBeNull] RelationalTypeMapping typeMapping,
             [NotNull] TableMapping tableMapping)
+            : base(property, column, typeMapping, tableMapping)
         {
-            Property = property;
-            Column = column;
-            TypeMapping = typeMapping;
-            TableMapping = tableMapping;
         }
 
         /// <inheritdoc/>
-        public virtual IProperty Property { get; }
-
-        /// <inheritdoc/>
-        public virtual IColumn Column { get; }
-
-        /// <inheritdoc/>
-        public virtual RelationalTypeMapping TypeMapping { get; }
-
-        /// <inheritdoc/>
-        public virtual ITableMapping TableMapping { get; }
+        public new virtual ITableMapping TableMapping => (ITableMapping)base.TableMapping;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -55,17 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc/>
-        IColumnBase IColumnMappingBase.Column
+        IColumn IColumnMapping.Column
         {
             [DebuggerStepThrough]
-            get => Column;
-        }
-
-        /// <inheritdoc/>
-        ITableMappingBase IColumnMappingBase.TableMapping
-        {
-            [DebuggerStepThrough]
-            get => TableMapping;
+            get => (IColumn)Column;
         }
     }
 }

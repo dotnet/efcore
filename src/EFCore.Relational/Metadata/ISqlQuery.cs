@@ -7,33 +7,33 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a view in the database.
+    ///     Represents a SQL query string.
     /// </summary>
-    public interface IView : ITableBase
+    public interface ISqlQuery : ITableBase
     {
         /// <summary>
         ///     Gets the entity type mappings.
         /// </summary>
-        new IEnumerable<IViewMapping> EntityTypeMappings { get; }
+        new IEnumerable<ISqlQueryMapping> EntityTypeMappings { get; }
 
         /// <summary>
-        ///     Gets the columns defined for this view.
+        ///     Gets the columns defined for this query.
         /// </summary>
-        new IEnumerable<IViewColumn> Columns { get; }
+        new IEnumerable<ISqlQueryColumn> Columns { get; }
 
         /// <summary>
         ///     Gets the column with the given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
-        new IViewColumn FindColumn([NotNull] string name);
+        new ISqlQueryColumn FindColumn([NotNull] string name);
 
         /// <summary>
         ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
         /// </summary>
-        new IViewColumn FindColumn([NotNull] IProperty property);
+        new ISqlQueryColumn FindColumn([NotNull] IProperty property);
 
         /// <summary>
-        ///     Gets the view definition or <see langword="null" /> if this view is not managed by migrations.
+        ///     Gets the SQL query string.
         /// </summary>
-        public string ViewDefinitionSql { get; }
+        public string Sql { get; }
     }
 }

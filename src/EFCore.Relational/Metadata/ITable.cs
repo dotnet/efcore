@@ -66,5 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the column with a given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
         new IColumn FindColumn([NotNull] string name);
+
+        /// <summary>
+        ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
+        /// </summary>
+        new IColumn FindColumn([NotNull] IProperty property);
     }
 }

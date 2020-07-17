@@ -29,6 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IView> Views { get; }
 
         /// <summary>
+        ///     Returns all the SQL queries mapped in the model.
+        /// </summary>
+        /// <returns> All the SQL queries mapped in the model. </returns>
+        IEnumerable<ISqlQuery> Queries { get; }
+
+        /// <summary>
         ///     Returns all sequences contained in the model.
         /// </summary>
         IEnumerable<ISequence> Sequences => Model.GetSequences();
@@ -58,6 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="schema"> The schema of the view. </param>
         /// <returns> The view with a given name or <see langword="null" /> if no view with the given name is defined. </returns>
         IView FindView([NotNull] string name, [CanBeNull] string schema);
+
+        /// <summary>
+        ///     Gets the SQL query with the given name. Returns <see langword="null" /> if no SQL query with the given name is defined.
+        /// </summary>
+        /// <param name="name"> The name of the SQL query. </param>
+        /// <returns> The SQL query with a given name or <see langword="null" /> if no SQL query with the given name is defined. </returns>
+        ISqlQuery FindQuery([NotNull] string name);
 
         /// <summary>
         ///     Finds an <see cref="ISequence" /> with the given name.

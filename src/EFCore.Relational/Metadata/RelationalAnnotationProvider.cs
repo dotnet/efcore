@@ -48,6 +48,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual IEnumerable<IAnnotation> For(IViewColumn column) => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> For(ISqlQuery sqlQuery) => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> For(ISqlQueryColumn column) => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> For(IStoreFunction function) => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> For(IFunctionColumn column) => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> For(IForeignKeyConstraint foreignKey) => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />

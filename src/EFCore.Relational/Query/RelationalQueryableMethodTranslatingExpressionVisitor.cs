@@ -90,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _sqlExpressionFactory.Select(
                             fromSqlQueryRootExpression.EntityType,
                             new FromSqlExpression(
-                                (fromSqlQueryRootExpression.EntityType.GetViewOrTableMappings().SingleOrDefault()?.Table.Name
-                                ?? fromSqlQueryRootExpression.EntityType.ShortName()).Substring(0, 1).ToLower(),
+                                fromSqlQueryRootExpression.EntityType.GetDefaultMappings().SingleOrDefault().Table.Name.Substring(0, 1).ToLower(),
                                 fromSqlQueryRootExpression.Sql,
                                 fromSqlQueryRootExpression.Argument)));
 
@@ -1450,14 +1449,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 foreach (var property in entityType
                     .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).SelectMany(EntityTypeExtensions.GetDeclaredProperties))
                 {
-                    var column = table is ITable
-                        ? (IColumnBase)property.GetTableColumnMappings().Where(cm => cm.TableMapping.Table == table
-                            && cm.TableMapping.EntityType == property.DeclaringEntityType).Single().Column
-                        : property.GetViewColumnMappings().Where(cm => cm.TableMapping.Table == table
-                            && cm.TableMapping.EntityType == property.DeclaringEntityType).Single().Column;
-
                     propertyExpressions[property] = new ColumnExpression(
-                        property, column, tableExpression, nullable || !property.IsPrimaryKey());
+                        property, table.FindColumn(property), tableExpression, nullable || !property.IsPrimaryKey());
                 }
 
                 return propertyExpressions;
@@ -1470,13 +1463,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 foreach (var property in entityType
                     .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).SelectMany(EntityTypeExtensions.GetDeclaredProperties))
                 {
-                    var column = table is ITable
-                        ? (IColumnBase)property.GetTableColumnMappings().Where(cm => cm.TableMapping.Table == table
-                            && cm.TableMapping.EntityType == property.DeclaringEntityType).Single().Column
-                        : property.GetViewColumnMappings().Where(cm => cm.TableMapping.Table == table
-                            && cm.TableMapping.EntityType == property.DeclaringEntityType).Single().Column;
-
-                    propertyExpressions[property] = new ColumnExpression(property, column, tableExpression, nullable: true);
+                    propertyExpressions[property] = new ColumnExpression(property, table.FindColumn(property), tableExpression, nullable: true);
                 }
 
                 return propertyExpressions;

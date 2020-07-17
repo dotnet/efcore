@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -282,8 +281,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
+        ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder ToTable(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
@@ -305,8 +303,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
+        ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder ToTable(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
@@ -325,11 +322,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns a value indicating whether the view or table name can be set for this entity type
+        ///     Returns a value indicating whether the table name can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the view or table. </param>
+        /// <param name="name"> The name of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetTable(
@@ -341,14 +338,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the schema of the view or table that the entity type maps to when targeting a relational database.
+        ///     Configures the schema of the table that the entity type maps to when targeting a relational database.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="schema"> The schema of the view or table. </param>
+        /// <param name="schema"> The schema of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
+        ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder ToSchema(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
@@ -365,11 +361,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns a value indicating whether the schema of the view or table name can be set for this entity type
+        ///     Returns a value indicating whether the schema of the table name can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="schema"> The schema of the view or table. </param>
+        /// <param name="schema"> The schema of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetSchema(
@@ -480,6 +476,167 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToView((EntityTypeBuilder)entityTypeBuilder, name, schema);
+
+        /// <summary>
+        ///     Configures the view that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the view. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder ToView(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            if (!entityTypeBuilder.CanSetView(name, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            entityTypeBuilder.Metadata.SetViewName(name, fromDataAnnotation);
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the view that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the view. </param>
+        /// <param name="schema"> The schema of the view. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder ToView(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name, [CanBeNull] string schema,
+            bool fromDataAnnotation = false)
+        {
+            if (!entityTypeBuilder.CanSetView(name, fromDataAnnotation)
+                || !entityTypeBuilder.CanSetViewSchema(schema, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            entityTypeBuilder.Metadata.SetViewName(name, fromDataAnnotation);
+            entityTypeBuilder.Metadata.SetViewSchema(schema, fromDataAnnotation);
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the view name can be set for this entity type
+        ///     using the specified configuration source.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the view. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        public static bool CanSetView(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+
+            return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.ViewName, name, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Configures the schema of the view that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="schema"> The schema of the view. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder ToViewSchema(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string schema,
+            bool fromDataAnnotation = false)
+        {
+            if (!entityTypeBuilder.CanSetSchema(schema, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            entityTypeBuilder.Metadata.SetViewSchema(schema, fromDataAnnotation);
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the schema of the view can be set for this entity type
+        ///     using the specified configuration source.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="schema"> The schema of the view. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        public static bool CanSetViewSchema(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string schema,
+            bool fromDataAnnotation = false)
+        {
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.ViewSchema, schema, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Configures a SQL string used to provide data for the entity type.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="query"> The SQL query that will provide the underlying data for the entity type. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ToQuerySql<TEntity>(
+            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            [NotNull] string query)
+            where TEntity : class
+        {
+            Check.NotNull(query, nameof(query));
+
+            entityTypeBuilder.Metadata.SetQuerySql(query);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures a SQL string used to provide data for the entity type.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The SQL query that will provide the underlying data for the entity type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder ToQuerySql(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            if (!entityTypeBuilder.CanSetQuerySql(name, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            var entityType = entityTypeBuilder.Metadata;
+            entityType.SetQuerySql(name, fromDataAnnotation);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the query SQL string can be set for this entity type
+        ///     using the specified configuration source.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The SQL query that will provide the underlying data for the entity type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        public static bool CanSetQuerySql(
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+
+            return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.QuerySql, name, fromDataAnnotation);
+        }
 
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.

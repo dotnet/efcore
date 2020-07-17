@@ -810,15 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, otherEntityType, view);
 
         /// <summary>
-        ///     The property '{property}' has configuration specific to the table or view '{table}', however that's the main table or view to which '{entityType}' is mapped. Remove the specific configuration or use the configuration that does not specify a table or view.
-        /// </summary>
-        public static string TableOverrideDeclaredTable([CanBeNull] object property, [CanBeNull] object table, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("TableOverrideDeclaredTable", nameof(property), nameof(table), nameof(entityType)),
-                property, table, entityType);
-
-        /// <summary>
-        ///     The property '{propertySpecification}' has specific configuration for the table or view '{table}', however it isn't mapped to a column on that table. Remove the specific configuration or map an entity type that contains this property to '{table}'.
+        ///     The property '{propertySpecification}' has specific configuration for the table '{table}', however it isn't mapped to a column on that table. Remove the specific configuration or map an entity type that contains this property to '{table}'.
         /// </summary>
         public static string TableOverrideMismatch([CanBeNull] object propertySpecification, [CanBeNull] object table)
             => string.Format(
@@ -942,6 +934,38 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DefaultValueSqlUnspecified", nameof(column), nameof(table)),
                 column, table);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to a SQL query and it's derived from '{baseEntityType}'. Derived entity types cannot be mapped to a different SQL query.
+        /// </summary>
+        public static string InvalidMappedSqlQueryDerivedType([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
+            => string.Format(
+                GetString("InvalidMappedSqlQueryDerivedType", nameof(entityType), nameof(baseEntityType)),
+                entityType, baseEntityType);
+
+        /// <summary>
+        ///     The property '{propertySpecification}' has specific configuration for the function '{function}', however it isn't mapped to a column on that function return. Remove the specific configuration or map an entity type that contains this property to '{function}'.
+        /// </summary>
+        public static string FunctionOverrideMismatch([CanBeNull] object propertySpecification, [CanBeNull] object function)
+            => string.Format(
+                GetString("FunctionOverrideMismatch", nameof(propertySpecification), nameof(function)),
+                propertySpecification, function);
+
+        /// <summary>
+        ///     The property '{propertySpecification}' has specific configuration for the SQL query '{query}', however it isn't mapped to a column on that query. Remove the specific configuration or map an entity type that contains this property to '{query}'.
+        /// </summary>
+        public static string SqlQueryOverrideMismatch([CanBeNull] object propertySpecification, [CanBeNull] object query)
+            => string.Format(
+                GetString("SqlQueryOverrideMismatch", nameof(propertySpecification), nameof(query)),
+                propertySpecification, query);
+
+        /// <summary>
+        ///     The property '{propertySpecification}' has specific configuration for the view '{table}', however it isn't mapped to a column on that view. Remove the specific configuration or map an entity type that contains this property to '{table}'.
+        /// </summary>
+        public static string ViewOverrideMismatch([CanBeNull] object propertySpecification, [CanBeNull] object table)
+            => string.Format(
+                GetString("ViewOverrideMismatch", nameof(propertySpecification), nameof(table)),
+                propertySpecification, table);
 
         /// <summary>
         ///     Sequence contains no elements.

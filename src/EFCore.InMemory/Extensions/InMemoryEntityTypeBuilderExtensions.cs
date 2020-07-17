@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder HasDefiningQuery(
+        public static IConventionEntityTypeBuilder ToQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] LambdaExpression query,
             bool fromDataAnnotation = false)

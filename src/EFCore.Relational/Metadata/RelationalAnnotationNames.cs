@@ -72,6 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string FunctionName = Prefix + "FunctionName";
 
         /// <summary>
+        ///     The name for mapped query sql annotations.
+        /// </summary>
+        public const string QuerySql = Prefix + "QuerySql";
+
+        /// <summary>
         ///     The name for comment annotations.
         /// </summary>
         public const string Comment = Prefix + "Comment";
@@ -149,6 +154,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string RelationalModel = Prefix + "RelationalModel";
 
         /// <summary>
+        ///     The name for view mappings annotations.
+        /// </summary>
+        public const string DefaultMappings = Prefix + "DefaultMappings";
+
+        /// <summary>
+        ///     The name for view column mappings annotations.
+        /// </summary>
+        public const string DefaultColumnMappings = Prefix + "DefaultColumnMappings";
+
+        /// <summary>
         ///     The name for table mappings annotations.
         /// </summary>
         public const string TableMappings = Prefix + "TableMappings";
@@ -177,6 +192,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for view column mappings annotations.
         /// </summary>
         public const string FunctionColumnMappings = Prefix + "FunctionColumnMappings";
+
+        /// <summary>
+        ///     The name for view mappings annotations.
+        /// </summary>
+        public const string SqlQueryMappings = Prefix + "SqlQueryMappings";
+
+        /// <summary>
+        ///     The name for view column mappings annotations.
+        /// </summary>
+        public const string SqlQueryColumnMappings = Prefix + "SqlQueryColumnMappings";
 
         /// <summary>
         ///     The name for foreign key mappings annotations.
