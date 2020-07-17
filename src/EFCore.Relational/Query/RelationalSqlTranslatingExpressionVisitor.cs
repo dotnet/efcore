@@ -146,24 +146,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Average over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="expression"> An expression to translate Average over. </param>
+        /// <param name="sqlExpression"> An expression to translate Average over. </param>
         /// <returns> A SQL translation of Average over the given expression. </returns>
-        public virtual SqlExpression TranslateAverage([NotNull] Expression expression)
+        public virtual SqlExpression TranslateAverage([NotNull] SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
-
-            if (!(expression is SqlExpression sqlExpression))
-            {
-                sqlExpression = TranslateInternal(expression);
-            }
-
-            if (sqlExpression == null)
-            {
-                throw new InvalidOperationException(
-                    TranslationErrorDetails == null
-                        ? CoreStrings.TranslationFailed(expression.Print())
-                        : CoreStrings.TranslationFailedWithDetails(expression.Print(), TranslationErrorDetails));
-            }
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             var inputType = sqlExpression.Type;
             if (inputType == typeof(int)
@@ -195,20 +182,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Count over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="expression"> An expression to translate Count over. </param>
+        /// <param name="sqlExpression"> An expression to translate Count over. </param>
         /// <returns> A SQL translation of Count over the given expression. </returns>
-        public virtual SqlExpression TranslateCount([CanBeNull] Expression expression = null)
+        public virtual SqlExpression TranslateCount([NotNull] SqlExpression sqlExpression)
         {
-            if (expression != null)
-            {
-                // TODO: Translate Count with predicate for GroupBy
-                return null;
-            }
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             return _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function(
                     "COUNT",
-                    new[] { _sqlExpressionFactory.Fragment("*") },
+                    new[] { sqlExpression },
                     nullable: false,
                     argumentsPropagateNullability: new[] { false },
                     typeof(int)));
@@ -217,20 +200,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates LongCount over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="expression"> An expression to translate LongCount over. </param>
+        /// <param name="sqlExpression"> An expression to translate LongCount over. </param>
         /// <returns> A SQL translation of LongCount over the given expression. </returns>
-        public virtual SqlExpression TranslateLongCount([CanBeNull] Expression expression = null)
+        public virtual SqlExpression TranslateLongCount([NotNull] SqlExpression sqlExpression)
         {
-            if (expression != null)
-            {
-                // TODO: Translate Count with predicate for GroupBy
-                return null;
-            }
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             return _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function(
                     "COUNT",
-                    new[] { _sqlExpressionFactory.Fragment("*") },
+                    new[] { sqlExpression },
                     nullable: false,
                     argumentsPropagateNullability: new[] { false },
                     typeof(long)));
@@ -239,16 +218,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Max over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="expression"> An expression to translate Max over. </param>
+        /// <param name="sqlExpression"> An expression to translate Max over. </param>
         /// <returns> A SQL translation of Max over the given expression. </returns>
-        public virtual SqlExpression TranslateMax([NotNull] Expression expression)
+        public virtual SqlExpression TranslateMax([NotNull] SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
-
-            if (!(expression is SqlExpression sqlExpression))
-            {
-                sqlExpression = TranslateInternal(expression);
-            }
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             return sqlExpression != null
                 ? _sqlExpressionFactory.Function(
@@ -264,16 +238,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Min over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="expression"> An expression to translate Min over. </param>
+        /// <param name="sqlExpression"> An expression to translate Min over. </param>
         /// <returns> A SQL translation of Min over the given expression. </returns>
-        public virtual SqlExpression TranslateMin([NotNull] Expression expression)
+        public virtual SqlExpression TranslateMin([NotNull] SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
-
-            if (!(expression is SqlExpression sqlExpression))
-            {
-                sqlExpression = TranslateInternal(expression);
-            }
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             return sqlExpression != null
                 ? _sqlExpressionFactory.Function(
@@ -289,24 +258,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Sum over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="expression"> An expression to translate Sum over. </param>
+        /// <param name="sqlExpression"> An expression to translate Sum over. </param>
         /// <returns> A SQL translation of Sum over the given expression. </returns>
-        public virtual SqlExpression TranslateSum([NotNull] Expression expression)
+        public virtual SqlExpression TranslateSum([NotNull] SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
-
-            if (!(expression is SqlExpression sqlExpression))
-            {
-                sqlExpression = TranslateInternal(expression);
-            }
-
-            if (sqlExpression == null)
-            {
-                throw new InvalidOperationException(
-                    TranslationErrorDetails == null
-                        ? CoreStrings.TranslationFailed(expression.Print())
-                        : CoreStrings.TranslationFailedWithDetails(expression.Print(), TranslationErrorDetails));
-            }
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             var inputType = sqlExpression.Type;
 
@@ -448,6 +404,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                         : null;
 
+                case GroupByShaperExpression groupByShaperExpression:
+                    return new GroupingElementExpression(groupByShaperExpression.ElementSelector);
+
                 default:
                     return null;
             }
@@ -498,29 +457,160 @@ namespace Microsoft.EntityFrameworkCore.Query
             // GroupBy Aggregate case
             if (methodCallExpression.Object == null
                 && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                && methodCallExpression.Arguments.Count > 0
-                && methodCallExpression.Arguments[0] is GroupByShaperExpression groupByShaperExpression)
+                && methodCallExpression.Arguments.Count > 0)
             {
-                var translatedAggregate = methodCallExpression.Method.Name switch
+                if (methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) == null
+                    && Visit(methodCallExpression.Arguments[0]) is GroupingElementExpression groupingElementExpression)
                 {
-                    nameof(Enumerable.Average) => TranslateAverage(GetSelectorOnGrouping(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.Count) => TranslateCount(GetPredicateOnGrouping(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.LongCount) => TranslateLongCount(GetPredicateOnGrouping(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.Max) => TranslateMax(GetSelectorOnGrouping(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.Min) => TranslateMin(GetSelectorOnGrouping(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.Sum) => TranslateSum(GetSelectorOnGrouping(methodCallExpression, groupByShaperExpression)),
-                    _ => null
-                };
+                    Expression result;
+                    switch (methodCallExpression.Method.Name)
+                    {
+                        case nameof(Enumerable.Average):
+                            if (methodCallExpression.Arguments.Count == 2)
+                            {
+                                groupingElementExpression = ApplySelector(
+                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            }
 
-                if (translatedAggregate == null)
-                {
-                    throw new InvalidOperationException(
-                        TranslationErrorDetails == null
-                            ? CoreStrings.TranslationFailed(methodCallExpression.Print())
-                            : CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
+                            result = GetExpressionForAggregation(groupingElementExpression) is SqlExpression averageExpression
+                                ? TranslateAverage(averageExpression)
+                                : null;
+                            break;
+
+                        case nameof(Enumerable.Count):
+                            if (methodCallExpression.Arguments.Count == 2)
+                            {
+                                groupingElementExpression = ApplyPredicate(
+                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                                if (groupingElementExpression == null)
+                                {
+                                    result = null;
+                                    break;
+                                }
+                            }
+
+                            result = TranslateCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true));
+                            break;
+
+                        case nameof(Enumerable.LongCount):
+                            if (methodCallExpression.Arguments.Count == 2)
+                            {
+                                groupingElementExpression = ApplyPredicate(
+                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                                if (groupingElementExpression == null)
+                                {
+                                    result = null;
+                                    break;
+                                }
+                            }
+
+                            result = TranslateLongCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true));
+                            break;
+
+                        case nameof(Enumerable.Max):
+                            if (methodCallExpression.Arguments.Count == 2)
+                            {
+                                groupingElementExpression = ApplySelector(
+                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            }
+
+                            result = GetExpressionForAggregation(groupingElementExpression) is SqlExpression maxExpression
+                                ? TranslateMax(maxExpression)
+                                : null;
+                            break;
+
+                        case nameof(Enumerable.Min):
+                            if (methodCallExpression.Arguments.Count == 2)
+                            {
+                                groupingElementExpression = ApplySelector(
+                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            }
+
+                            result = GetExpressionForAggregation(groupingElementExpression) is SqlExpression minExpression
+                                ? TranslateMin(minExpression)
+                                : null;
+                            break;
+
+                        case nameof(Enumerable.Select):
+                            result = ApplySelector(groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            break;
+
+                        case nameof(Enumerable.Sum):
+                            if (methodCallExpression.Arguments.Count == 2)
+                            {
+                                groupingElementExpression = ApplySelector(
+                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            }
+
+                            result = GetExpressionForAggregation(groupingElementExpression) is SqlExpression sumExpression
+                                ? TranslateSum(sumExpression)
+                                : null;
+                            break;
+
+                        case nameof(Enumerable.Where):
+                            result = ApplyPredicate(groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            break;
+
+                        default:
+                            result = null;
+                            break;
+                    }
+
+                    return result ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+
+                    GroupingElementExpression ApplyPredicate(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
+                    {
+                        var predicate = TranslateInternal(RemapLambda(groupingElement, lambdaExpression));
+
+                        return predicate == null
+                            ? null
+                            : groupingElement.ApplyPredicate(predicate);
+                    }
+
+                    static GroupingElementExpression ApplySelector(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
+                    {
+                        var selector = RemapLambda(groupingElement, lambdaExpression);
+
+                        return groupingElement.ApplySelector(selector);
+                    }
+
+                    static Expression RemapLambda(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
+                        => ReplacingExpressionVisitor.Replace(
+                            lambdaExpression.Parameters[0], groupingElement.Element, lambdaExpression.Body);
+
+                    SqlExpression GetExpressionForAggregation(GroupingElementExpression groupingElement, bool starProjection = false)
+                    {
+                        var selector = TranslateInternal(groupingElement.Element);
+                        if (selector == null)
+                        {
+                            if (starProjection)
+                            {
+                                selector = _sqlExpressionFactory.Fragment("*");
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }
+
+                        if (groupingElement.Predicate != null)
+                        {
+                            if (selector is SqlFragmentExpression)
+                            {
+                                selector = _sqlExpressionFactory.Constant(1);
+                            }
+
+                            return _sqlExpressionFactory.Case(
+                                new List<CaseWhenClause>
+                                {
+                                    new CaseWhenClause(groupingElement.Predicate, selector)
+                                },
+                                elseResult: null);
+                        }
+
+                        return selector;
+                    }
                 }
-
-                return translatedAggregate;
             }
 
             // Subquery case
@@ -990,46 +1080,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
-        private static Expression GetSelectorOnGrouping(
-            MethodCallExpression methodCallExpression, GroupByShaperExpression groupByShaperExpression)
-        {
-            if (methodCallExpression.Arguments.Count == 1)
-            {
-                return groupByShaperExpression.ElementSelector;
-            }
-
-            if (methodCallExpression.Arguments.Count == 2)
-            {
-                var selectorLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-                return ReplacingExpressionVisitor.Replace(
-                    selectorLambda.Parameters[0],
-                    groupByShaperExpression.ElementSelector,
-                    selectorLambda.Body);
-            }
-
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
-        }
-
-        private static Expression GetPredicateOnGrouping(
-            MethodCallExpression methodCallExpression, GroupByShaperExpression groupByShaperExpression)
-        {
-            if (methodCallExpression.Arguments.Count == 1)
-            {
-                return null;
-            }
-
-            if (methodCallExpression.Arguments.Count == 2)
-            {
-                var selectorLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-                return ReplacingExpressionVisitor.Replace(
-                    selectorLambda.Parameters[0],
-                    groupByShaperExpression.ElementSelector,
-                    selectorLambda.Body);
-            }
-
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
-        }
-
         private static Expression TryRemoveImplicitConvert(Expression expression)
         {
             if (expression is UnaryExpression unaryExpression
@@ -1410,6 +1460,56 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return derivedEntityType == null ? null : new EntityReferenceExpression(this, derivedEntityType);
             }
+        }
+
+        private sealed class GroupingElementExpression : Expression
+        {
+            public GroupingElementExpression(Expression element)
+            {
+                Element = element;
+            }
+            public Expression Element { get; private set; }
+            public bool IsDistinct { get; private set; }
+            public SqlExpression Predicate { get; private set; }
+
+            public GroupingElementExpression ApplyDistinct()
+            {
+                IsDistinct = true;
+
+                return this;
+            }
+
+            public GroupingElementExpression ApplySelector(Expression expression)
+            {
+                Element = expression;
+
+                return this;
+            }
+
+            public GroupingElementExpression ApplyPredicate(SqlExpression expression)
+            {
+                Check.NotNull(expression, nameof(expression));
+
+                if (expression is SqlConstantExpression sqlConstant
+                    && sqlConstant.Value is bool boolValue
+                    && boolValue)
+                {
+                    return this;
+                }
+
+                Predicate = Predicate == null
+                    ? expression
+                    : new SqlBinaryExpression(
+                        ExpressionType.AndAlso,
+                        Predicate,
+                        expression,
+                        typeof(bool),
+                        expression.TypeMapping);
+
+                return this;
+            }
+            public override Type Type => typeof(IEnumerable<>).MakeGenericType(Element.Type);
+            public override ExpressionType NodeType => ExpressionType.Extension;
         }
 
         private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor

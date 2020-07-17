@@ -221,7 +221,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             private bool ValidConstant(ConstantExpression constantExpression)
             {
                 return constantExpression.Value == null
-                    || _typeMappingSource.FindMapping(constantExpression.Type) != null;
+                    || _typeMappingSource.FindMapping(constantExpression.Type) != null
+                    || constantExpression.Value is Array array
+                        && array.Length == 0;
             }
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
