@@ -244,8 +244,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            var associationEntry = FindAssociationEntry(entry, oldTargetEntry, skipNavigation);
-                            associationEntry?.SetEntityState(EntityState.Deleted);
+                            FindAssociationEntry(entry, oldTargetEntry, skipNavigation)?.SetEntityState(EntityState.Deleted);
 
                             if (skipNavigation.Inverse.IsCollection)
                             {
@@ -299,7 +298,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             if (associationEntry.EntityState == EntityState.Detached)
                             {
-                                associationEntry.SetEntityState(EntityState.Added);
+                                try
+                                {
+                                    _inFixup = false;
+                                    associationEntry.SetEntityState(EntityState.Added);
+                                }
+                                finally
+                                {
+                                    _inFixup = true;
+                                }
                             }
 
                             if (skipNavigation.Inverse.IsCollection)
@@ -569,10 +576,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     DeleteFixup(entry);
                 }
-                else if (entry.EntityState == EntityState.Deleted)
-                {
-                    DeleteSkipNavigationFixup(entry);
-                }
             }
             finally
             {
@@ -626,12 +629,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
             }
-        }
-
-        private void DeleteSkipNavigationFixup(InternalEntityEntry entry)
-        {
-            var entityType = entry.EntityType;
-            var stateManager = entry.StateManager;
 
             foreach (var skipNavigation in entityType.GetSkipNavigations())
             {
@@ -644,11 +641,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         foreach (var otherEntity in others)
                         {
                             var otherEntry = stateManager.TryGetEntry(otherEntity, skipNavigation.Inverse.DeclaringEntityType);
-                            if (otherEntry != null)
+                            if (otherEntry != null
+                                && otherEntry.EntityState != EntityState.Deleted)
                             {
-                                FindAssociationEntry(entry, otherEntry, skipNavigation)?.SetEntityState(EntityState.Deleted);
-                                RemoveFromCollection(entry, skipNavigation, otherEntry);
-
                                 if (skipNavigation.Inverse.IsCollection)
                                 {
                                     RemoveFromCollection(otherEntry, skipNavigation.Inverse, entry);
@@ -867,7 +862,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                                     if (associationEntry.EntityState == EntityState.Detached)
                                     {
-                                        associationEntry.SetEntityState(EntityState.Added);
+                                        try
+                                        {
+                                            _inFixup = false;
+                                            associationEntry.SetEntityState(EntityState.Added);
+                                        }
+                                        finally
+                                        {
+                                            _inFixup = true;
+                                        }
                                     }
 
                                     if (skipNavigation.Inverse.IsCollection)
@@ -912,7 +915,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (associationEntry.EntityState == EntityState.Detached)
                     {
-                        associationEntry.SetEntityState(EntityState.Added);
+                        try
+                        {
+                            _inFixup = false;
+                            associationEntry.SetEntityState(EntityState.Added);
+                        }
+                        finally
+                        {
+                            _inFixup = true;
+                        }
                     }
 
                     AddToCollection(referencedEntry, skipNavigation.Inverse, entry, fromQuery);
@@ -1180,13 +1191,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     case EntityState.Added:
                         dependentEntry.SetEntityState(EntityState.Detached);
                         DeleteFixup(dependentEntry);
-                        DeleteSkipNavigationFixup(dependentEntry);
                         break;
                     case EntityState.Unchanged:
                     case EntityState.Modified:
                         dependentEntry.SetEntityState(EntityState.Deleted);
                         DeleteFixup(dependentEntry);
-                        DeleteSkipNavigationFixup(dependentEntry);
                         break;
                 }
             }
