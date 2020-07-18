@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -12,6 +13,12 @@ namespace Microsoft.EntityFrameworkCore
         public BuiltInDataTypesInMemoryTest(BuiltInDataTypesInMemoryFixture fixture)
             : base(fixture)
         {
+        }
+
+        [ConditionalFact(Skip = "Issue#21680")]
+        public override void Optional_datetime_reading_null_from_database()
+        {
+            base.Optional_datetime_reading_null_from_database();
         }
 
         public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase

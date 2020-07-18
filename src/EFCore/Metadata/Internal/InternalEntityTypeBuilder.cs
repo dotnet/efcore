@@ -2954,8 +2954,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
             => HasOwnership(
-                new TypeIdentity(targetEntityTypeName), MemberIdentity.Create(navigationName),
-                inverse: null, configurationSource);
+                new TypeIdentity(targetEntityTypeName), MemberIdentity.Create(navigationName), inverse: null, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2968,8 +2967,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
             => HasOwnership(
-                new TypeIdentity(targetEntityType, Metadata.Model), MemberIdentity.Create(navigationName),
-                inverse: null, configurationSource);
+                new TypeIdentity(targetEntityType, Metadata.Model), MemberIdentity.Create(navigationName), inverse: null, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2982,8 +2980,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] MemberInfo navigationMember,
             ConfigurationSource configurationSource)
             => HasOwnership(
-                new TypeIdentity(targetEntityType, Metadata.Model), MemberIdentity.Create(navigationMember),
-                inverse: null, configurationSource);
+                new TypeIdentity(targetEntityType, Metadata.Model), MemberIdentity.Create(navigationMember), inverse: null, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalForeignKeyBuilder HasOwnership(
+            [NotNull] Type targetEntityType,
+            MemberIdentity navigation,
+            ConfigurationSource configurationSource)
+            => HasOwnership(
+                new TypeIdentity(targetEntityType, Metadata.Model), navigation, inverse: null, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3035,6 +3045,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (existingNavigation.TargetEntityType.Name == targetEntityType.Name)
                     {
                         var existingOwnedEntityType = existingNavigation.ForeignKey.DeclaringEntityType;
+                        // Upgrade configurationSource for existing entity type
                         if (existingOwnedEntityType.HasDefiningNavigation())
                         {
                             if (targetEntityType.Type != null)
@@ -4246,7 +4257,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionEntityTypeBuilder.Metadata
         {
-            [DebuggerStepThrough] get => Metadata;
+            [DebuggerStepThrough]
+            get => Metadata;
         }
 
         /// <summary>

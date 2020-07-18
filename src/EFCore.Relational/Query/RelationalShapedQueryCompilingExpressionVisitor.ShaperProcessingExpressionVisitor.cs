@@ -413,11 +413,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var projection = _selectExpression.Projection[projectionIndex];
 
                         return CreateGetValueExpression(
-                                _dataReaderParameter,
-                                projectionIndex,
-                                IsNullableProjection(projection),
-                                projection.Expression.TypeMapping,
-                                projectionBindingExpression.Type);
+                            _dataReaderParameter,
+                            projectionIndex,
+                            IsNullableProjection(projection),
+                            projection.Expression.TypeMapping,
+                            projectionBindingExpression.Type);
                     }
 
                     case ProjectionBindingExpression projectionBindingExpression
@@ -429,19 +429,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                             return accessor;
                         }
 
-                        var valueParameter = Expression.Parameter(projectionBindingExpression.Type);
-                        _variables.Add(valueParameter);
-
                         var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
                         var projection = _selectExpression.Projection[projectionIndex];
+                        var nullable = IsNullableProjection(projection);
+
+                        var valueParameter = Expression.Parameter(projectionBindingExpression.Type);
+                        _variables.Add(valueParameter);
 
                         _expressions.Add(Expression.Assign(valueParameter,
                             CreateGetValueExpression(
                                 _dataReaderParameter,
                                 projectionIndex,
-                                IsNullableProjection(projection),
+                                nullable,
                                 projection.Expression.TypeMapping,
-                                projectionBindingExpression.Type)));
+                                valueParameter.Type)));
 
                         if (_containsCollectionMaterialization)
                         {
@@ -828,10 +829,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : _materializationContextBindings[mappingParameter][property];
                     var projection = _selectExpression.Projection[projectionIndex];
 
+                    var nullable = IsNullableProjection(projection);
+
+                    Check.DebugAssert(!nullable || property != null || methodCallExpression.Type.IsNullableType(),
+                        "For nullable reads the return type must be null unless property is specified.");
+
                     return CreateGetValueExpression(
                         _dataReaderParameter,
                         projectionIndex,
-                        IsNullableProjection(projection),
+                        nullable,
                         projection.Expression.TypeMapping,
                         methodCallExpression.Type,
                         property);
@@ -907,6 +913,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Type clrType,
                 IPropertyBase property = null)
             {
+                Check.DebugAssert(property != null || clrType.IsNullableType(), "Must read nullable value from database if property is not specified.");
+
                 var getMethod = typeMapping.GetDataReaderMethod();
 
                 Expression indexExpression = Expression.Constant(index);
@@ -923,35 +931,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                         getMethod,
                         indexExpression);
 
-                if (_readerColumns != null)
+                if (_readerColumns != null
+                    && _readerColumns[index] == null)
                 {
-                    var columnType = valueExpression.Type;
+                    var bufferedReaderLambdaExpression = valueExpression;
+                    var columnType = bufferedReaderLambdaExpression.Type;
                     if (!columnType.IsValueType
                         || !BufferedDataReader.IsSupportedValueType(columnType))
                     {
                         columnType = typeof(object);
-                        valueExpression = Expression.Convert(valueExpression, typeof(object));
+                        bufferedReaderLambdaExpression = Expression.Convert(bufferedReaderLambdaExpression, columnType);
                     }
 
-                    if (_readerColumns[index] == null)
-                    {
-                        _readerColumns[index] = ReaderColumn.Create(
-                            columnType,
-                            nullable,
-                            _indexMapParameter != null ? ((ColumnExpression)_selectExpression.Projection[index].Expression).Name : null,
-                            Expression.Lambda(
-                                valueExpression,
-                                dbDataReader,
-                                _indexMapParameter ?? Expression.Parameter(typeof(int[]))).Compile());
-                    }
+                    _readerColumns[index] = ReaderColumn.Create(
+                        columnType,
+                        nullable,
+                        _indexMapParameter != null ? ((ColumnExpression)_selectExpression.Projection[index].Expression).Name : null,
+                        Expression.Lambda(
+                            bufferedReaderLambdaExpression,
+                            dbDataReader,
+                            _indexMapParameter ?? Expression.Parameter(typeof(int[]))).Compile());
 
                     if (getMethod.DeclaringType != typeof(DbDataReader))
                     {
-                        valueExpression
-                            = Expression.Call(
-                                dbDataReader,
-                                RelationalTypeMapping.GetDataReaderMethod(columnType),
-                                indexExpression);
+                        valueExpression = Expression.Call(
+                            dbDataReader, RelationalTypeMapping.GetDataReaderMethod(columnType), indexExpression);
                     }
                 }
 
@@ -977,35 +981,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                     valueExpression = Expression.Convert(valueExpression, clrType);
                 }
 
-                var exceptionParameter
-                    = Expression.Parameter(typeof(Exception), name: "e");
+                if (nullable)
+                {
+                    valueExpression = Expression.Condition(
+                        Expression.Call(dbDataReader, _isDbNullMethod, indexExpression),
+                        Expression.Default(valueExpression.Type),
+                        valueExpression);
+                }
 
                 if (_detailedErrorsEnabled)
                 {
-                    var catchBlock
-                        = Expression
-                            .Catch(
-                                exceptionParameter,
-                                Expression.Call(
-                                    _throwReadValueExceptionMethod
-                                        .MakeGenericMethod(valueExpression.Type),
-                                    exceptionParameter,
-                                    Expression.Call(
-                                        dbDataReader,
-                                        _getFieldValueMethod.MakeGenericMethod(typeof(object)),
-                                        indexExpression),
-                                    Expression.Constant(property, typeof(IPropertyBase))));
+                    var exceptionParameter = Expression.Parameter(typeof(Exception), name: "e");
+
+                    var catchBlock = Expression.Catch(
+                        exceptionParameter,
+                        Expression.Call(
+                            _throwReadValueExceptionMethod.MakeGenericMethod(valueExpression.Type),
+                            exceptionParameter,
+                            Expression.Call(dbDataReader, _getFieldValueMethod.MakeGenericMethod(typeof(object)), indexExpression),
+                            Expression.Constant(valueExpression.Type.MakeNullable(nullable), typeof(Type)),
+                            Expression.Constant(property, typeof(IPropertyBase))));
 
                     valueExpression = Expression.TryCatch(valueExpression, catchBlock);
-                }
-
-                if (nullable)
-                {
-                    valueExpression
-                        = Expression.Condition(
-                            Expression.Call(dbDataReader, _isDbNullMethod, indexExpression),
-                            Expression.Default(valueExpression.Type),
-                            valueExpression);
                 }
 
                 return valueExpression;
@@ -1013,9 +1010,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private static TValue ThrowReadValueException<TValue>(
-                Exception exception, object value, IPropertyBase property = null)
+                Exception exception, object value, Type expectedType, IPropertyBase property = null)
             {
-                var expectedType = typeof(TValue);
                 var actualType = value?.GetType();
 
                 string message;

@@ -1199,23 +1199,32 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (!(innerExpression is EntityShaperExpression))
             {
                 var sentinelExpression = innerSelectExpression.Limit;
+                var sentinelNullableType = sentinelExpression.Type.MakeNullable();
                 ProjectionBindingExpression dummyProjection;
                 if (innerSelectExpression.Projection.Any())
                 {
                     var index = innerSelectExpression.AddToProjection(sentinelExpression);
                     dummyProjection = new ProjectionBindingExpression(
-                        innerSelectExpression, index, sentinelExpression.Type);
+                        innerSelectExpression, index, sentinelNullableType);
                 }
                 else
                 {
                     innerSelectExpression._projectionMapping[new ProjectionMember()] = sentinelExpression;
                     dummyProjection = new ProjectionBindingExpression(
-                        innerSelectExpression, new ProjectionMember(), sentinelExpression.Type);
+                        innerSelectExpression, new ProjectionMember(), sentinelNullableType);
                 }
 
+                var defaultResult = shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault
+                    ? (Expression)Default(shaperExpression.Type)
+                    : Block(
+                        Throw(New(
+                            typeof(InvalidOperationException).GetConstructors().Single(ci => ci.GetParameters().Count() == 1),
+                            Constant(RelationalStrings.SequenceContainsNoElements))),
+                        Default(shaperExpression.Type));
+
                 shaperExpression = Condition(
-                    Equal(dummyProjection, Default(dummyProjection.Type)),
-                    Default(shaperExpression.Type),
+                    Equal(dummyProjection, Default(sentinelNullableType)),
+                    defaultResult,
                     shaperExpression);
             }
 
@@ -2716,6 +2725,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return false;
             }
 
+            if (_projection.Count != selectExpression._projection.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < _projection.Count; i++)
+            {
+                if (!_projection[i].Equals(selectExpression._projection[i]))
+                {
+                    return false;
+                }
+            }
+
             if (_projectionMapping.Count != selectExpression._projectionMapping.Count)
             {
                 return false;
@@ -2888,6 +2910,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             var hash = new HashCode();
             hash.Add(base.GetHashCode());
+
+            foreach (var projection in _projection)
+            {
+                hash.Add(projection);
+            }
 
             foreach (var projectionMapping in _projectionMapping)
             {

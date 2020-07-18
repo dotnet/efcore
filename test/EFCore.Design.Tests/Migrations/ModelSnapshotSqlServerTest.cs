@@ -1238,6 +1238,138 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
+
+        [ConditionalFact]
+        public virtual void Can_override_table_name_for_many_to_many_join_table_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    var manyToMany = builder
+                        .Entity<ManyToManyLeft>()
+                        .HasMany(l => l.Rights)
+                        .WithMany(r => r.Lefts)
+                        .UsingEntity(a => a.ToTable("MyJoinTable"));
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""ManyToManyLeftManyToManyRight"", b =>
+                {
+                    b.Property<int?>(""ManyToManyLeft_Id"")
+                        .HasColumnType(""int"");
+
+                    b.Property<int?>(""ManyToManyRight_Id"")
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""ManyToManyLeft_Id"", ""ManyToManyRight_Id"");
+
+                    b.HasIndex(""ManyToManyRight_Id"");
+
+                    b.ToTable(""MyJoinTable"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""ManyToManyLeft"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .UseIdentityColumn();
+
+                    b.Property<string>(""Description"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""ManyToManyRight"");
+                });
+
+            modelBuilder.Entity(""ManyToManyLeftManyToManyRight"", b =>
+                {
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", null)
+                        .WithMany()
+                        .HasForeignKey(""ManyToManyLeft_Id"")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight"", null)
+                        .WithMany()
+                        .HasForeignKey(""ManyToManyRight_Id"")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });", usingSystem: true),
+                model =>
+                {
+                    var associationEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
+                    Assert.NotNull(associationEntity);
+                    Assert.Equal("MyJoinTable", associationEntity.GetTableName());
+                    Assert.Collection(associationEntity.GetDeclaredProperties(),
+                        p =>
+                        {
+                            Assert.Equal("ManyToManyLeft_Id", p.Name);
+                            Assert.True(p.IsShadowProperty());
+                        },
+                        p =>
+                        {
+                            Assert.Equal("ManyToManyRight_Id", p.Name);
+                            Assert.True(p.IsShadowProperty());
+                        });
+                    Assert.Collection(associationEntity.FindDeclaredPrimaryKey().Properties,
+                        p =>
+                        {
+                            Assert.Equal("ManyToManyLeft_Id", p.Name);
+                        },
+                        p =>
+                        {
+                            Assert.Equal("ManyToManyRight_Id", p.Name);
+                        });
+                    Assert.Collection(associationEntity.GetDeclaredForeignKeys(),
+                        fk =>
+                        {
+                            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft", fk.PrincipalEntityType.Name);
+                            Assert.Collection(fk.PrincipalKey.Properties,
+                                p =>
+                                {
+                                    Assert.Equal("Id", p.Name);
+                                });
+                            Assert.Collection(fk.Properties,
+                                p =>
+                                {
+                                    Assert.Equal("ManyToManyLeft_Id", p.Name);
+                                });
+                        },
+                        fk =>
+                        {
+                            Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight", fk.PrincipalEntityType.Name);
+                            Assert.Collection(fk.PrincipalKey.Properties,
+                                p =>
+                                {
+                                    Assert.Equal("Id", p.Name);
+                                });
+                            Assert.Collection(fk.Properties,
+                                p =>
+                                {
+                                    Assert.Equal("ManyToManyRight_Id", p.Name);
+                                });
+                        });
+                });
+        }
+
         [ConditionalFact]
         public virtual void TableName_preserved_when_generic()
         {

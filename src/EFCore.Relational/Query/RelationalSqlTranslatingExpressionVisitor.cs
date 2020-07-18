@@ -552,6 +552,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 if (!(subqueryTranslation.ShaperExpression is ProjectionBindingExpression
+                    || (subqueryTranslation.ShaperExpression is UnaryExpression unaryExpression
+                        && unaryExpression.NodeType == ExpressionType.Convert
+                        && unaryExpression.Type.MakeNullable() == unaryExpression.Operand.Type
+                        && unaryExpression.Operand is ProjectionBindingExpression)
                     || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
                 {
                     return null;
@@ -573,7 +577,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return subquery.Projection[0].Expression;
                 }
 
-                return new ScalarSubqueryExpression(subquery);
+                SqlExpression scalarSubqueryExpression = new ScalarSubqueryExpression(subquery);
+
+                if (subqueryTranslation.ResultCardinality == ResultCardinality.SingleOrDefault
+                    && !subqueryTranslation.ShaperExpression.Type.IsNullableType())
+                {
+                    scalarSubqueryExpression = _sqlExpressionFactory.Coalesce(
+                        scalarSubqueryExpression,
+                        (SqlExpression)Visit(subqueryTranslation.ShaperExpression.Type.GetDefaultValueConstant()));
+                }
+
+                return scalarSubqueryExpression;
             }
 
             SqlExpression sqlObject = null;

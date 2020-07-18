@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 _selectExpression = selectExpression;
             }
-            
+
             protected override ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
                 => _selectExpression.Projection[GetProjectionIndex(projectionBindingExpression)];
 

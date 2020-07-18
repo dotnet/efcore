@@ -116,6 +116,30 @@ namespace Microsoft.EntityFrameworkCore
             => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a given shared type entity type in the model.
+        ///     </para>
+        ///     <para>
+        ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
+        ///         type will be added to the model as shared type entity type.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The CLR type of the entity type to be configured. </typeparam>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual EntityTypeBuilder<TEntity> SharedEntity<TEntity>([NotNull] string name)
+            where TEntity : class
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return new EntityTypeBuilder<TEntity>(Builder.SharedEntity(name, typeof(TEntity), ConfigurationSource.Explicit).Metadata);
+        }
+
+        /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
         ///     If the entity type is not already part of the model, it will be added to the model.
         /// </summary>
@@ -144,6 +168,30 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Returns an object that can be used to configure a given shared type entity type in the model.
+        ///     </para>
+        ///     <para>
+        ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
+        ///         type will be added to the model as shared type entity type.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <param name="clrType"> The CLR type of the entity type to be configured. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual EntityTypeBuilder SharedEntity([NotNull] string name, [NotNull] Type clrType)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(clrType, nameof(clrType));
+
+            return new EntityTypeBuilder(Builder.SharedEntity(name, clrType, ConfigurationSource.Explicit).Metadata);
+        }
+
+        /// <summary>
+        ///     <para>
         ///         Performs configuration of a given entity type in the model. If the entity type is not already part
         ///         of the model, it will be added to the model.
         ///     </para>
@@ -164,6 +212,41 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity<TEntity>());
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a given shared type entity type in the model.
+        ///     </para>
+        ///     <para>
+        ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
+        ///         type will be added to the model as shared type entity type.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows configuration of the entity type to be done inline in the method call rather
+        ///         than being chained after a call to <see cref="Entity{TEntity}()" />. This allows additional
+        ///         configuration at the model level to be chained after configuration for the entity type.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The CLR type of the entity type to be configured. </typeparam>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder SharedEntity<TEntity>([NotNull] string name, [NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
+            where TEntity : class
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(SharedEntity<TEntity>(name));
 
             return this;
         }
@@ -222,10 +305,45 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a given shared type entity type in the model.
+        ///     </para>
+        ///     <para>
+        ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
+        ///         type will be added to the model as shared type entity type.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows configuration of the entity type to be done in line in the method call rather
+        ///         than being chained after a call to <see cref="Entity(string)" />. This allows additional
+        ///         configuration at the model level to be chained after configuration for the entity type.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <param name="clrType"> The CLR type of the entity type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder SharedEntity([NotNull] string name, [NotNull] Type clrType, [NotNull] Action<EntityTypeBuilder> buildAction)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(SharedEntity(name, clrType));
+
+            return this;
+        }
+
+        /// <summary>
         ///     Excludes the given entity type from the model. This method is typically used to remove types from
         ///     the model that were added by convention.
         /// </summary>
-        /// <typeparam name="TEntity"> The  entity type to be removed from the model. </typeparam>
+        /// <typeparam name="TEntity"> The entity type to be removed from the model. </typeparam>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
@@ -234,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore
             => Ignore(typeof(TEntity));
 
         /// <summary>
-        ///     Excludes the given entity type from the model. This method is typically used to remove types from
+        ///     Excludes an entity type with given CLR type from the model. This method is typically used to remove types from
         ///     the model that were added by convention.
         /// </summary>
         /// <param name="type"> The entity type to be removed from the model. </param>
@@ -246,6 +364,23 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(type, nameof(type));
 
             Builder.Ignore(type, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Excludes an entity type with the given name from the model. This method is typically used to remove types from
+        ///     the model that were added by convention.
+        /// </summary>
+        /// <param name="name"> The name of the entity type to be removed from the model. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder Ignore([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            Builder.Ignore(name, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -340,6 +475,43 @@ namespace Microsoft.EntityFrameworkCore
             Builder.Owned(type, ConfigurationSource.Explicit);
 
             return new OwnedEntityTypeBuilder();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Marks an entity type as shared type. All references to this type will be configured as separate entity types.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="T"> The entity type to be configured. </typeparam>
+        public virtual SharedEntityTypeBuilder<T> SharedEntity<T>()
+            where T : class
+        {
+            Builder.SharedEntity(typeof(T), ConfigurationSource.Explicit);
+
+            return new SharedEntityTypeBuilder<T>();
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Marks an entity type as shared type. All references to this type will be configured as separate entity types.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        /// </summary>
+        /// <param name="type"> The entity type to be configured. </param>
+        public virtual SharedEntityTypeBuilder SharedEntity([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            Builder.SharedEntity(type, ConfigurationSource.Explicit);
+
+            return new SharedEntityTypeBuilder();
         }
 
         /// <summary>

@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
+                buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
                 return this;
             }
         }
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)OwnedEntityType.Model), navigationName));
+                buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)OwnedEntityType.Model), navigationName));
                 return this;
             }
         }
@@ -551,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
+                buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
                 return this;
             }
         }
@@ -590,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (DependentEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedType, DependentEntityType.Model), navigationName));
+                buildAction(OwnsManyBuilder(new TypeIdentity(ownedType, DependentEntityType.Model), navigationName));
                 return this;
             }
         }

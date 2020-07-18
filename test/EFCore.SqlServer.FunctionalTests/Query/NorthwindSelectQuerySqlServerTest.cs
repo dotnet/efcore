@@ -371,13 +371,13 @@ WHERE [c].[CustomerID] LIKE N'A%'");
             base.Select_nested_collection_multi_level4();
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) (
         SELECT COUNT(*)
         FROM [Order Details] AS [o]
         WHERE ([o0].[OrderID] = [o].[OrderID]) AND ([o].[OrderID] > 10))
     FROM [Orders] AS [o0]
-    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] < 10500)) AS [Order]
+    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] < 10500)), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -387,8 +387,8 @@ WHERE [c].[CustomerID] LIKE N'A%'");
             base.Select_nested_collection_multi_level5();
 
             AssertSql(
-                @"SELECT (
-    SELECT TOP(1) (
+                @"SELECT COALESCE((
+    SELECT TOP(1) COALESCE((
         SELECT TOP(1) [o].[ProductID]
         FROM [Order Details] AS [o]
         WHERE ([o1].[OrderID] = [o].[OrderID]) AND (([o].[OrderID] <> (
@@ -397,9 +397,9 @@ WHERE [c].[CustomerID] LIKE N'A%'");
             WHERE [c].[CustomerID] = [o0].[CustomerID])) OR (
             SELECT COUNT(*)
             FROM [Orders] AS [o0]
-            WHERE [c].[CustomerID] = [o0].[CustomerID]) IS NULL))
+            WHERE [c].[CustomerID] = [o0].[CustomerID]) IS NULL)), 0)
     FROM [Orders] AS [o1]
-    WHERE ([c].[CustomerID] = [o1].[CustomerID]) AND ([o1].[OrderID] < 10500)) AS [Order]
+    WHERE ([c].[CustomerID] = [o1].[CustomerID]) AND ([o1].[OrderID] < 10500)), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -409,13 +409,13 @@ WHERE [c].[CustomerID] LIKE N'A%'");
             base.Select_nested_collection_multi_level6();
 
             AssertSql(
-                @"SELECT (
-    SELECT TOP(1) (
+                @"SELECT COALESCE((
+    SELECT TOP(1) COALESCE((
         SELECT TOP(1) [o].[ProductID]
         FROM [Order Details] AS [o]
-        WHERE ([o0].[OrderID] = [o].[OrderID]) AND ([o].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)))
+        WHERE ([o0].[OrderID] = [o].[OrderID]) AND ([o].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int))), 0)
     FROM [Orders] AS [o0]
-    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] < 10500)) AS [Order]
+    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] < 10500)), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -774,7 +774,7 @@ FROM [Customers] AS [c]");
             await base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT COALESCE((
     SELECT TOP(1) [t].[OrderID]
     FROM (
         SELECT TOP(1) [o].[OrderID], [o].[ProductID], [p].[ProductID] AS [ProductID0], [p].[ProductName]
@@ -783,7 +783,7 @@ FROM [Customers] AS [c]");
         WHERE [o0].[OrderID] = [o].[OrderID]
         ORDER BY [p].[ProductName]
     ) AS [t]
-    ORDER BY [t].[ProductName])
+    ORDER BY [t].[ProductName]), 0)
 FROM [Orders] AS [o0]
 WHERE [o0].[OrderID] < 10300");
         }
@@ -1127,11 +1127,11 @@ OUTER APPLY (
             await base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], (
+                @"SELECT [c].[CustomerID], COALESCE((
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderID]) AS [OrderId]
+    ORDER BY [o].[OrderID]), 0) AS [OrderId]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'FISSA'");
         }

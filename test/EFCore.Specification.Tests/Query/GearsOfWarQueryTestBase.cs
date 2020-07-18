@@ -5432,26 +5432,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable1(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => ss.Set<Gear>().Select(g => g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
-                ss => ss.Set<Gear>().Select(g => false));
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_subquery_boolean_empty_with_pushdown_without_convert_to_nullable2(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => ss.Set<Gear>().Select(g => g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault().Id),
-                ss => ss.Set<Gear>().Select(g => 0));
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_distinct_singleordefault_boolean1(bool async)
         {
             return AssertQueryScalar(
@@ -6801,13 +6781,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<CogTag>()
-                    .GroupBy(t => new { t.Gear.HasSoulPatch, t.Gear.Squad.Name })
+                    .GroupBy(t => new { HasSoulPatch = (bool?)t.Gear.HasSoulPatch, t.Gear.Squad.Name })
                     .Select(g => new { g.Key.HasSoulPatch, Name = g.Key.Name.ToLower() }),
                 ss => ss.Set<CogTag>()
                     .GroupBy(
                         t => new
                         {
-                            HasSoulPatch = t.Gear.MaybeScalar(x => x.HasSoulPatch) ?? false,
+                            HasSoulPatch = t.Gear.MaybeScalar(x => x.HasSoulPatch),
                             Name = t.Gear.Squad.Name
                         })
                     .Select(g => new { g.Key.HasSoulPatch, Name = g.Key.Name.Maybe(x => x.ToLower()) }),

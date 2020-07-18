@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -466,12 +467,6 @@ namespace System
             builder.Append('>');
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static IEnumerable<string> GetNamespaces([NotNull] this Type type)
         {
             if (_builtInTypeNames.ContainsKey(type))
@@ -492,5 +487,14 @@ namespace System
                 }
             }
         }
+
+        public static ConstantExpression GetDefaultValueConstant(this Type type)
+            => (ConstantExpression)_generateDefaultValueConstantMethod
+                .MakeGenericMethod(type).Invoke(null, Array.Empty<object>());
+
+        private static readonly MethodInfo _generateDefaultValueConstantMethod =
+            typeof(SharedTypeExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant));
+
+        private static ConstantExpression GenerateDefaultValueConstant<TDefault>() => Expression.Constant(default(TDefault));
     }
 }

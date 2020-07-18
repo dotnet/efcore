@@ -127,9 +127,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 => new GenericTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
 
+            public override TestEntityTypeBuilder<TEntity> SharedEntity<TEntity>(string name)
+                => new GenericTestEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity<TEntity>(name));
+            public override TestSharedEntityTypeBuilder<TEntity> SharedEntity<TEntity>()
+                => new GenericTestSharedEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity<TEntity>());
+
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
                 ModelBuilder.Entity<TEntity>(
+                    entityTypeBuilder =>
+                        buildAction(new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                return this;
+            }
+
+            public override TestModelBuilder SharedEntity<TEntity>(string name, Action<TestEntityTypeBuilder<TEntity>> buildAction)
+            {
+                ModelBuilder.SharedEntity<TEntity>(
+                    name,
                     entityTypeBuilder =>
                         buildAction(new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
                 return this;
@@ -347,6 +361,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected OwnedEntityTypeBuilder<TEntity> OwnedEntityTypeBuilder { get; }
 
             public OwnedEntityTypeBuilder<TEntity> Instance => OwnedEntityTypeBuilder;
+        }
+
+        protected class GenericTestSharedEntityTypeBuilder<TEntity> : TestSharedEntityTypeBuilder<TEntity>,
+            IInfrastructure<SharedEntityTypeBuilder<TEntity>>
+            where TEntity : class
+        {
+            public GenericTestSharedEntityTypeBuilder(SharedEntityTypeBuilder<TEntity> sharedEntityTypeBuilder)
+            {
+                SharedEntityTypeBuilder = sharedEntityTypeBuilder;
+            }
+
+            protected SharedEntityTypeBuilder<TEntity> SharedEntityTypeBuilder { get; }
+
+            public SharedEntityTypeBuilder<TEntity> Instance => SharedEntityTypeBuilder;
         }
 
         protected class GenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>
@@ -652,6 +680,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     r => ((GenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
                         new GenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder));
 
+            public override TestEntityTypeBuilder<TAssociationEntity> UsingEntity<TAssociationEntity>(
+                string joinEntityName,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
+                => new GenericTestEntityTypeBuilder<TAssociationEntity>(CollectionCollectionBuilder.UsingEntity<TAssociationEntity>(
+                    joinEntityName,
+                    l => ((GenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
+                        new GenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,
+                    r => ((GenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
+                        new GenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder));
+
             public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
                 Func<TestEntityTypeBuilder<TAssociationEntity>,
                     TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
@@ -660,6 +701,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
                 where TAssociationEntity : class
                 => new GenericTestEntityTypeBuilder<TRightEntity>(CollectionCollectionBuilder.UsingEntity<TAssociationEntity>(
+                    l => ((GenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
+                        new GenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,
+                    r => ((GenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
+                        new GenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder,
+                    e => configureAssociation(new GenericTestEntityTypeBuilder<TAssociationEntity>(e))));
+
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
+                string joinEntityName,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
+                Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
+                where TAssociationEntity : class
+                => new GenericTestEntityTypeBuilder<TRightEntity>(CollectionCollectionBuilder.UsingEntity<TAssociationEntity>(
+                    joinEntityName,
                     l => ((GenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
                         new GenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,
                     r => ((GenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(

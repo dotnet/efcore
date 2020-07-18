@@ -342,19 +342,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Disjoint_without_cast_to_nullable(bool async)
-        {
-            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(1, 1));
-
-            return AssertQuery(
-                async,
-                ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Disjoint = e.Polygon.Disjoint(point) }),
-                ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Disjoint = (e.Polygon == null ? false : e.Polygon.Disjoint(point)) }),
-                elementSorter: x => x.Id);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public virtual Task Disjoint_with_null_check(bool async)
         {
             var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(1, 1));
@@ -363,28 +350,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Disjoint = e.Polygon == null ? (bool?)null : e.Polygon.Disjoint(point) }),
                 elementSorter: x => x.Id);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Distance_without_null_check(bool async)
-        {
-            var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0, 1));
-
-            return AssertQuery(
-                async,
-                ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = e.Point.Distance(point) }),
-                ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = e.Point == null ? default : e.Point.Distance(point) }),
-                elementSorter: e => e.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-
-                    if (AssertDistances)
-                    {
-                        Assert.Equal(e.Distance, a.Distance);
-                    }
-                });
         }
 
         [ConditionalTheory]

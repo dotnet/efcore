@@ -2725,12 +2725,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     Cannot use UsingEntity() passing type '{clrType}' because the model contains shared entity type(s) with same type. Use a type which uniquely defines an entity type.
+        ///     Type '{type}' cannot be marked as shared type since entity type with same CLR type exists in the model.
         /// </summary>
-        public static string DoNotUseUsingEntityOnSharedClrType([CanBeNull] object clrType)
+        public static string CannotMarkShared([CanBeNull] object type)
             => string.Format(
-                GetString("DoNotUseUsingEntityOnSharedClrType", nameof(clrType)),
-                clrType);
+                GetString("CannotMarkShared", nameof(type)),
+                type);
+
+        /// <summary>
+        ///     Type '{type}' is not been configured as shared type in the model. Before calling 'UsingEntity', please mark the type as shared or add the entity type in the model as shared entity.
+        /// </summary>
+        public static string TypeNotMarkedAsShared([CanBeNull] object type)
+            => string.Format(
+                GetString("TypeNotMarkedAsShared", nameof(type)),
+                type);
 
         private static string GetString(string name, params string[] formatterNames)
         {

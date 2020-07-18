@@ -144,7 +144,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OrderCombination OrderCombination { get; set; }
             public OrderDetails Details { get; set; }
             public ICollection<Product> Products { get; set; }
-
             public event PropertyChangedEventHandler PropertyChanged;
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             {
@@ -930,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OneToManyNavPrincipalOwner OneToManyOwner { get; set; }
         }
 
-        public class OwnerOfOwnees
+        protected class OwnerOfOwnees
         {
             public string Id { get; private set; }
 
@@ -938,22 +937,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Ownee1 Ownee1 { get; private set; }
         }
 
-        public class Ownee1
+        protected class Ownee1
         {
             public Ownee3 NewOwnee3 { get; private set; }
         }
 
-        public class Ownee2
+        protected class Ownee2
         {
             public Ownee3 Ownee3 { get; private set; }
         }
 
-        public class Ownee3
+        protected class Ownee3
         {
             public string Name { get; private set; }
         }
 
-        public class OneToManyPrincipalWithField
+        protected class OneToManyPrincipalWithField
         {
             public int Id;
             public Guid AlternateKey;
@@ -962,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public IEnumerable<DependentWithField> Dependents;
         }
 
-        public class OneToOnePrincipalWithField
+        protected class OneToOnePrincipalWithField
         {
             public int Id;
             public string Name;
@@ -970,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public DependentWithField Dependent;
         }
 
-        public class ManyToManyPrincipalWithField
+        protected class ManyToManyPrincipalWithField
         {
             public int Id;
             public string Name;
@@ -987,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public DependentWithField DependentWithField { get; set; }
         }
 
-        public class DependentWithField
+        protected class DependentWithField
         {
             public int DependentWithFieldId;
 
@@ -999,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<ManyToManyPrincipalWithField> ManyToManyPrincipals { get; set; }
         }
 
-        public class OneToManyOwnerWithField
+        protected class OneToManyOwnerWithField
         {
             public int Id;
             public Guid AlternateKey;
@@ -1008,7 +1007,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<OneToManyOwnedWithField> OwnedDependents { get; set; }
         }
 
-        public class OneToManyOwnedWithField
+        protected class OneToManyOwnedWithField
         {
             public string FirstName;
             public string LastName;
@@ -1017,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OneToManyOwnerWithField OneToManyOwner { get; set; }
         }
 
-        public class OneToOneOwnerWithField
+        protected class OneToOneOwnerWithField
         {
             public int Id;
             public Guid AlternateKey;
@@ -1026,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OneToOneOwnedWithField OwnedDependent { get; set; }
         }
 
-        public class OneToOneOwnedWithField
+        protected class OneToOneOwnedWithField
         {
             public string FirstName;
             public string LastName;
@@ -1036,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         }
 
-        public class ImplicitManyToManyA
+        protected class ImplicitManyToManyA
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -1045,12 +1044,55 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
 
-        public class ImplicitManyToManyB
+        protected class ImplicitManyToManyB
         {
             public int Id { get; set; }
             public string Name { get; set; }
 
             public List<ImplicitManyToManyA> As { get; set; }
+        }
+
+        protected class SharedHolderAlpha
+        {
+            public int Id { get; set; }
+            [NotMapped]
+            public SharedTypeEntityType SharedReference { get; set; }
+            [NotMapped]
+            public List<SharedTypeEntityType> SharedCollection { get; set; }
+        }
+
+        protected class SharedHolderBeta
+        {
+            public int Id { get; set; }
+            [NotMapped]
+            public SharedTypeEntityType SharedReference { get; set; }
+            [NotMapped]
+            public List<SharedTypeEntityType> SharedCollection { get; set; }
+        }
+
+        protected class SharedTypeEntityType
+        {
+            [NotMapped]
+            public int Random { get; set; }
+            [NotMapped]
+            public SharedNestedOwnedEntityType NestedReference { get; set; }
+            [NotMapped]
+            public List<SharedNestedOwnedEntityType> NestedCollection { get; set; }
+            [NotMapped]
+            public NestedReference ReferenceNavigation { get; set; }
+        }
+
+        protected class SharedNestedOwnedEntityType
+        {
+            [NotMapped]
+            public int NestedRandom { get; set; }
+        }
+
+        protected class NestedReference
+        {
+            public int Id { get; set; }
+            [NotMapped]
+            public string Value { get; set; }
         }
     }
 }

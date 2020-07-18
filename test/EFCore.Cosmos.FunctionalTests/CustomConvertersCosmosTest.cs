@@ -146,6 +146,18 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisible""] = ""Aye"")))");
         }
 
+        [ConditionalFact(Skip = "Issue#27678")]
+        public override void Optional_owned_with_converter_reading_non_nullable_column()
+        {
+            base.Optional_owned_with_converter_reading_non_nullable_column();
+        }
+
+        [ConditionalFact(Skip = "Issue#21678")]
+        public override void Optional_datetime_reading_null_from_database()
+        {
+            base.Optional_datetime_reading_null_from_database();
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -147,6 +147,8 @@ BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable varbinar
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable varbinary] [MaxLength = 4]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable varbinary] [MaxLength = 8]
 BuiltInNullableDataTypesShadow.TestString ---> [nullable varbinary] [MaxLength = -1]
+DateTimeEnclosure.DateTimeOffset ---> [nullable varbinary] [MaxLength = 12]
+DateTimeEnclosure.Id ---> [varbinary] [MaxLength = 4]
 EmailTemplate.Id ---> [varbinary] [MaxLength = 16]
 EmailTemplate.TemplateType ---> [varbinary] [MaxLength = 4]
 MaxLengthDataTypes.ByteArray5 ---> [nullable varbinary] [MaxLength = 5]

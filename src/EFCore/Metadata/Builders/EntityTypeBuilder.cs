@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
+            buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
             return this;
         }
 
@@ -412,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
+            buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
             return this;
         }
 
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
+            buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
             return this;
         }
 
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction.Invoke(OwnsManyBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
+            buildAction(OwnsManyBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
             return this;
         }
 

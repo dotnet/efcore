@@ -1,15 +1,12 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class GetValueOrDefaultTranslator : IMethodCallTranslator
+    public class CosmosQueryTranslationPostprocessor : QueryTranslationPostprocessor
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -27,8 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public GetValueOrDefaultTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public CosmosQueryTranslationPostprocessor(
+            [NotNull] QueryTranslationPostprocessorDependencies dependencies,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] QueryCompilationContext queryCompilationContext)
+            : base(dependencies, queryCompilationContext)
         {
+            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
@@ -38,23 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
+        public override Expression Process(Expression query)
         {
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
+            query = base.Process(query);
+            query = new CosmosValueConverterCompensatingExpressionVisitor(_sqlExpressionFactory).Visit(query);
 
-            if (method.Name == nameof(Nullable<int>.GetValueOrDefault)
-                && method.ReturnType.IsNumeric())
-            {
-                return _sqlExpressionFactory.Coalesce(
-                    instance,
-                    arguments.Count == 0
-                        ? new SqlConstantExpression(method.ReturnType.GetDefaultValueConstant(), null)
-                        : arguments[0],
-                    instance.TypeMapping);
-            }
-
-            return null;
+            return query;
         }
     }
 }

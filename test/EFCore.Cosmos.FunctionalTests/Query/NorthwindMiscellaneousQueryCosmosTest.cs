@@ -4151,6 +4151,18 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.Select_distinct_Select_with_client_bindings(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#21678")]
+        public override Task Non_nullable_property_through_optional_navigation(bool async)
+        {
+            return base.Non_nullable_property_through_optional_navigation(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#21678")]
+        public override Task Max_on_empty_sequence_throws(bool async)
+        {
+            return base.Max_on_empty_sequence_throws(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -483,8 +483,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return new EntityReferenceExpression(subqueryTranslation);
                 }
 
+                var shaperExpression = subqueryTranslation.ShaperExpression;
+                if (shaperExpression is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert
+                    && unaryExpression.Type.MakeNullable() == unaryExpression.Operand.Type)
+                {
+                    shaperExpression = unaryExpression.Operand;
+                }
+
 #pragma warning disable IDE0046 // Convert to conditional expression
-                if (!(subqueryTranslation.ShaperExpression is ProjectionBindingExpression projectionBindingExpression))
+                if (!(shaperExpression is ProjectionBindingExpression projectionBindingExpression))
 #pragma warning restore IDE0046 // Convert to conditional expression
                 {
                     return null;
@@ -869,7 +877,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (property != null)
             {
                 return BindProperty(entityReferenceExpression, property, type);
-
             }
 
             AddTranslationErrorDetails(

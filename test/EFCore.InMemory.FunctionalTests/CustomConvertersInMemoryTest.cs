@@ -14,6 +14,12 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [ConditionalFact(Skip = "Issue#21680")]
+        public override void Optional_datetime_reading_null_from_database()
+        {
+            base.Optional_datetime_reading_null_from_database();
+        }
+
         // Disabled: In-memory database is case-sensitive
         public override void Can_insert_and_read_back_with_case_insensitive_string_key()
         {

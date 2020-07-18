@@ -43,6 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue#17539")]
+        public override Task Where_nav_prop_reference_optional2_via_DefaultIfEmpty(bool async)
+        {
+            return base.Where_nav_prop_reference_optional2_via_DefaultIfEmpty(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17539")]
         public override Task Optional_navigation_propagates_nullability_to_manually_created_left_join2(bool async)
         {
             return base.Optional_navigation_propagates_nullability_to_manually_created_left_join2(async);

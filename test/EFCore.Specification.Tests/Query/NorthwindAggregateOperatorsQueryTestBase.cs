@@ -392,8 +392,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Min_no_data_subquery()
         {
             using var context = CreateContext();
-            // Verify that it does not throw
-            context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList();
+
+            Assert.Equal(
+                "Nullable object must have a value.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList()).Message);
         }
 
         [ConditionalFact]
@@ -421,8 +424,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Max_no_data_subquery()
         {
             using var context = CreateContext();
-            // Verify that it does not throw
-            context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList();
+
+            Assert.Equal(
+                "Nullable object must have a value.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList()).Message);
         }
 
         [ConditionalFact]
@@ -450,8 +456,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Average_no_data_subquery()
         {
             using var context = CreateContext();
-            // Verify that it does not throw
-            context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList();
+
+            Assert.Equal(
+                "Nullable object must have a value.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList()).Message);
         }
 
         [ConditionalTheory]

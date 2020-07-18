@@ -2078,6 +2078,22 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(expected.Char, actual.Char);
         }
 
+        [ConditionalFact]
+        public virtual void Optional_datetime_reading_null_from_database()
+        {
+            using var context = CreateContext();
+            var expected = context.Set<DateTimeEnclosure>().ToList()
+                .Select(e => new { DT = e.DateTimeOffset == null ? (DateTime?)null : e.DateTimeOffset.Value.DateTime.Date }).ToList();
+
+            var actual = context.Set<DateTimeEnclosure>()
+                .Select(e => new { DT = e.DateTimeOffset == null ? (DateTime?)null : e.DateTimeOffset.Value.DateTime.Date }).ToList();
+
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert.Equal(expected[i].DT, actual[i].DT);
+            }
+        }
+
         public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";
@@ -2333,6 +2349,18 @@ namespace Microsoft.EntityFrameworkCore
                             Id = 1,
                             AnimalId = 1,
                             Method = IdentificationMethod.EarTag
+                        });
+
+                modelBuilder.Entity<DateTimeEnclosure>()
+                    .HasData(
+                        new DateTimeEnclosure
+                        {
+                            Id = 1,
+                            DateTimeOffset = new DateTimeOffset(2020, 3, 12, 1, 1, 1, new TimeSpan(3, 0, 0))
+                        },
+                        new DateTimeEnclosure
+                        {
+                            Id = 2
                         });
             }
 
@@ -3132,6 +3160,12 @@ namespace Microsoft.EntityFrameworkCore
             Notch,
             EarTag,
             Rfid
+        }
+
+        protected class DateTimeEnclosure
+        {
+            public int Id { get; set; }
+            public DateTimeOffset? DateTimeOffset { get; set; }
         }
     }
 }

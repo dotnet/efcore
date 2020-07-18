@@ -709,7 +709,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     QueryableMethods.DefaultIfEmptyWithoutArgument.MakeGenericMethod(source.SourceElementType),
                     source.Source));
 
-            _entityReferenceOptionalMarkingExpressionVisitor.Visit(source.PendingSelector);
+            var pendingSelector = source.PendingSelector;
+            _entityReferenceOptionalMarkingExpressionVisitor.Visit(pendingSelector);
+            if (!pendingSelector.Type.IsNullableType())
+            {
+                pendingSelector = Expression.Coalesce(
+                    Expression.Convert(pendingSelector, pendingSelector.Type.MakeNullable()), pendingSelector.Type.GetDefaultValueConstant());
+            }
+
+            source.ApplySelector(pendingSelector);
 
             return source;
         }
