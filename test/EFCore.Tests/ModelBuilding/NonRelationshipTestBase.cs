@@ -1540,6 +1540,44 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(2, data["Required"]);
                 Assert.False(data.ContainsKey("Optional"));
             }
+
+            [ConditionalFact]
+            public virtual void Can_add_shared_type_entity_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.SharedEntity<Dictionary<string, object>>("Shared1");
+
+                modelBuilder.SharedEntity<Dictionary<string, object>>("Shared2", b => b.IndexerProperty<int>("Id"));
+
+                var model = modelBuilder.Model;
+                Assert.Equal(2, model.GetEntityTypes().Count());
+
+                var shared1 = modelBuilder.Model.FindEntityType("Shared1");
+                Assert.NotNull(shared1);
+                Assert.True(shared1.HasSharedClrType);
+                Assert.Null(shared1.FindProperty("Id"));
+
+                var shared2 = modelBuilder.Model.FindEntityType("Shared2");
+                Assert.NotNull(shared2);
+                Assert.True(shared2.HasSharedClrType);
+                Assert.NotNull(shared2.FindProperty("Id"));
+
+                Assert.Equal(
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Cannot_add_shared_type_when_non_shared_exists()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SharedTypeEntityType>();
+
+                Assert.Equal(
+                    CoreStrings.ClashingNonSharedType("Shared1"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedEntity<SharedTypeEntityType>("Shared1")).Message);
+            }
         }
     }
 }

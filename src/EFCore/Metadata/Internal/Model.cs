@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
             = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 
-        private readonly HashSet<Type> _sharedEntityClrTypes = new HashSet<Type>();
+        private readonly Dictionary<Type, ConfigurationSource> _sharedEntityClrTypes = new Dictionary<Type, ConfigurationSource>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -235,9 +235,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(entityType.DisplayName()));
                     }
 
-                    _sharedEntityClrTypes.Add(entityType.ClrType);
+                    if (_sharedEntityClrTypes.TryGetValue(entityType.ClrType, out var existingConfigurationSource))
+                    {
+                        _sharedEntityClrTypes[entityType.ClrType] = entityType.GetConfigurationSource().Max(existingConfigurationSource);
+                    }
+                    else
+                    {
+                        _sharedEntityClrTypes.Add(entityType.ClrType, entityType.GetConfigurationSource());
+                    }
                 }
-                else if (_sharedEntityClrTypes.Contains(entityType.ClrType))
+                else if (entityType.ClrType != null
+                    && _sharedEntityClrTypes.ContainsKey(entityType.ClrType))
                 {
                     throw new InvalidOperationException(CoreStrings.ClashingSharedType(entityType.DisplayName()));
                 }
@@ -772,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsShared([NotNull] Type type)
-            => _sharedEntityClrTypes.Contains(type);
+            => _sharedEntityClrTypes.ContainsKey(type);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -875,6 +883,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var name = GetDisplayName(clrType);
             return ownedTypes.Remove(name) ? name : null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Type AddShared([NotNull] Type clrType, ConfigurationSource configurationSource)
+        {
+            if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == clrType))
+            {
+                throw new InvalidOperationException(CoreStrings.CannotMarkShared(clrType.ShortDisplayName()));
+            }
+
+            if (_sharedEntityClrTypes.TryGetValue(clrType, out var existingConfigurationSource))
+            {
+                _sharedEntityClrTypes[clrType] = configurationSource.Max(existingConfigurationSource);
+            }
+            else
+            {
+                _sharedEntityClrTypes.Add(clrType, configurationSource);
+            }
+
+            return clrType;
         }
 
         /// <summary>
