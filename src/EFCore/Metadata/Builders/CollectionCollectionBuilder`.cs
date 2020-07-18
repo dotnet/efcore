@@ -42,6 +42,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
+        ///     Configures the association entity type implementing the many-to-many relationship.
+        /// </summary>
+        /// <param name="configureAssociation"> The configuration of the association type. </param>
+        /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
+        public new virtual EntityTypeBuilder<TRightEntity> UsingEntity(
+            [NotNull] Action<EntityTypeBuilder> configureAssociation)
+        {
+            Check.DebugAssert(LeftNavigation.AssociationEntityType != null, "LeftNavigation.AssociationEntityType is null");
+            Check.DebugAssert(RightNavigation.AssociationEntityType != null, "RightNavigation.AssociationEntityType is null");
+            Check.DebugAssert(LeftNavigation.AssociationEntityType == RightNavigation.AssociationEntityType,
+                "LeftNavigation.AssociationEntityType != RightNavigation.AssociationEntityType");
+
+            var associationEntityTypeBuilder = new EntityTypeBuilder(LeftNavigation.AssociationEntityType);
+            configureAssociation(associationEntityTypeBuilder);
+
+            return new EntityTypeBuilder<TRightEntity>(RightEntityType);
+        }
+
+        /// <summary>
         ///     Configures the relationships to the entity types participating in the many-to-many relationship.
         /// </summary>
         /// <param name="configureRight"> The configuration for the relationship to the right entity type. </param>
