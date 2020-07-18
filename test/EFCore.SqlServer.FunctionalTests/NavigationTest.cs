@@ -9,8 +9,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-// ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore
 {
     public class NavigationTest : IClassFixture<NavigationTestFixture>
     {

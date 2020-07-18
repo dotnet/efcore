@@ -4709,14 +4709,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Concat(ss.Set<Level2>().GroupJoin(ss.Set<Level1>(), l2 => l2.Level1_Optional_Id, l1 => l1.Id, (l2, l1s) => new { l2, l1s })
                         .SelectMany(g => g.l1s.DefaultIfEmpty(), (g, l1) => new { l1, g.l2 })
                         .Where(e => e.l1.Equals(null)))
-                    .Select(e => e.l1.Id),
+                    .Select(e => (int?)e.l1.Id),
                 ss => ss.Set<Level1>()
                     .GroupJoin(ss.Set<Level2>(), l1 => l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2s) => new { l1, l2s })
                     .SelectMany(g => g.l2s.DefaultIfEmpty(), (g, l2) => new { g.l1, l2 })
                     .Concat(ss.Set<Level2>().GroupJoin(ss.Set<Level1>(), l2 => l2.Level1_Optional_Id, l1 => l1.Id, (l2, l1s) => new { l2, l1s })
                         .SelectMany(g => g.l1s.DefaultIfEmpty(), (g, l1) => new { l1, g.l2 })
                         .Where(e => e.l1 == null))
-                    .Select(e => e.l1.MaybeScalar(x => x.Id) ?? 0));
+                    .Select(e => e.l1.MaybeScalar(x => x.Id)));
         }
 
         [ConditionalTheory]

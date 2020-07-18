@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -69,6 +70,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         _materializationContextBindings[
                             (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
+                    Check.DebugAssert(property != null || methodCallExpression.Type.IsNullableType(), "Must read nullable value without property");
+
                     return Expression.Call(
                         methodCallExpression.Method,
                         valueBuffer,
@@ -88,11 +91,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var queryExpression = (InMemoryQueryExpression)projectionBindingExpression.QueryExpression;
                     var projectionIndex = (int)GetProjectionIndex(queryExpression, projectionBindingExpression);
                     var valueBuffer = queryExpression.CurrentParameter;
+                    var property = InferPropertyFromInner(queryExpression.Projection[projectionIndex]);
 
-                    return valueBuffer.CreateValueBufferReadValueExpression(
-                        projectionBindingExpression.Type,
-                        projectionIndex,
-                        InferPropertyFromInner(queryExpression.Projection[projectionIndex]));
+                    Check.DebugAssert(property != null || projectionBindingExpression.Type.IsNullableType()
+                        || projectionBindingExpression.Type == typeof(ValueBuffer), "Must read nullable value without property");
+
+                    return valueBuffer.CreateValueBufferReadValueExpression(projectionBindingExpression.Type, projectionIndex, property);
                 }
 
                 return base.VisitExtension(extensionExpression);

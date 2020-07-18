@@ -198,8 +198,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             translation = _sqlExpressionFactory.Exists(selectExpression, true);
-            return source.Update(_sqlExpressionFactory.Select(translation),
-                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool)));
+
+            return source.Update(
+                _sqlExpressionFactory.Select(translation),
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
+                    typeof(bool)));
         }
 
         /// <inheritdoc />
@@ -223,8 +227,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var translation = _sqlExpressionFactory.Exists(selectExpression, false);
-            return source.Update(_sqlExpressionFactory.Select(translation),
-                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool)));
+
+            return source.Update(
+                _sqlExpressionFactory.Select(translation),
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
+                    typeof(bool)));
         }
 
         /// <inheritdoc />
@@ -298,8 +306,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             selectExpression.ApplyProjection();
             translation = _sqlExpressionFactory.In(translation, selectExpression, false);
-            return source.Update(_sqlExpressionFactory.Select(translation),
-                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool)));
+
+            return source.Update(
+                _sqlExpressionFactory.Select(translation),
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
+                    typeof(bool)));
         }
 
         /// <inheritdoc />
@@ -331,7 +343,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
-            return source.UpdateShaperExpression(new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int)));
+
+            return source.UpdateShaperExpression(
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int?)),
+                    typeof(int)));
         }
 
         /// <inheritdoc />
@@ -683,7 +699,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
-            return source.UpdateShaperExpression(new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long)));
+
+            return source.UpdateShaperExpression(
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long?)),
+                    typeof(long)));
         }
 
         /// <inheritdoc />
@@ -1553,9 +1573,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else
             {
-                // Sum case. Projection is always non-null. We read non-nullable value (0 if empty)
-                shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
-                // Cast to nullable type if required
+                // Sum case. Projection is always non-null. We read nullable value.
+                shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type.MakeNullable());
+
                 if (resultType != shaper.Type)
                 {
                     shaper = Expression.Convert(shaper, resultType);

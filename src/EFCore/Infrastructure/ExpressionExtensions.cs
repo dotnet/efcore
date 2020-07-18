@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 #pragma warning disable IDE0060 // Remove unused parameter
             in ValueBuffer valueBuffer, int index, IPropertyBase property)
 #pragma warning restore IDE0060 // Remove unused parameter
-            => valueBuffer[index] is TValue value ? value : default;
+            => (TValue)valueBuffer[index];
 
         /// <summary>
         ///     <para>

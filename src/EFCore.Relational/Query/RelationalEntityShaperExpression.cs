@@ -80,7 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 for (var i = 0; i < concreteEntityTypes.Length; i++)
                 {
                     body = Condition(
-                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(bool), i, property: null),
+                        Equal(
+                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(bool?), i, property: null),
+                            Constant(true, typeof(bool?))),
                         Constant(concreteEntityTypes[i], typeof(IEntityType)),
                         body);
                 }

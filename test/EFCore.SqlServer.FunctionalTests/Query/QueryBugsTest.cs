@@ -6293,14 +6293,14 @@ ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
                     @"SELECT [a0].[Id], [a0].[ActivityTypeId], [a0].[DateTime], [a0].[Points], (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
-    WHERE ([c].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c].[EndDate])) AS [CompetitionSeasonId], COALESCE([a0].[Points], (
+    WHERE ([c].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c].[EndDate])) AS [CompetitionSeasonId], COALESCE([a0].[Points], COALESCE((
     SELECT TOP(1) [a].[Points]
     FROM [ActivityTypePoints12456] AS [a]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a].[CompetitionSeasonId] = [c0].[Id]
     WHERE ([a1].[Id] = [a].[ActivityTypeId]) AND ([c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate]))))) AS [Points]
+        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate])))), 0)) AS [Points]
 FROM [Activities] AS [a0]
 INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
             }

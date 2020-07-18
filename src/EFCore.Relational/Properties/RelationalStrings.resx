@@ -688,4 +688,7 @@
   <data name="DefaultValueSqlUnspecified" xml:space="preserve">
     <value>The column '{column}' on table {table} has unspecified default value SQL. Specify the SQL before using EF Core to create the database schema.</value>
   </data>
+  <data name="SequenceContainsNoElements" xml:space="preserve">
+    <value>Sequence contains no elements.</value>
+  </data>
 </root>

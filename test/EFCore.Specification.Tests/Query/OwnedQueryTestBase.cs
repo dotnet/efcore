@@ -810,6 +810,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+
+        public virtual async Task Non_nullable_property_through_optional_navigation(bool async)
+        {
+            Assert.Equal(
+                "Nullable object must have a value.",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQuery(
+                        async,
+                        ss => ss.Set<Barton>().Select(e => new { e.Throned.Value })))).Message);
+        }
+
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
@@ -1078,6 +1091,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
+                                Assert.Equal(((Throned)e).Value, ((Throned)a).Value);
                                 Assert.Equal(((Throned)e).Property, ((Throned)a).Property);
                             }
                         }
@@ -1291,9 +1305,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         b.OwnsOne(
                             e => e.Throned, b => b.HasData(
-                                new { BartonId = 1, Property = "Property" }));
+                                new { BartonId = 1, Property = "Property", Value = 42 }));
                         b.HasData(
-                            new Barton { Id = 1, Simple = "Simple" });
+                            new Barton { Id = 1, Simple = "Simple" },
+                            new Barton { Id = 2, Simple = "Not" });
                     });
 
                 modelBuilder.Entity<Fink>().HasData(
@@ -1509,7 +1524,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         Id = 1,
                         Simple = "Simple",
-                        Throned = new Throned { Property = "Property" }
+                        Throned = new Throned { Property = "Property", Value = 42 }
+                    },
+                    new Barton
+                    {
+                        Id = 2,
+                        Simple = "Not",
                     }
                 };
 
@@ -1744,6 +1764,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class Throned
         {
+            public int Value { get; set; }
             public string Property { get; set; }
         }
     }

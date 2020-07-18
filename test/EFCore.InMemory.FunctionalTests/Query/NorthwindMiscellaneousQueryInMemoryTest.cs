@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -105,5 +107,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "issue #17386")]
         public override Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
             => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async);
+
+        public override async Task Max_on_empty_sequence_throws(bool async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<Customer>().Select(e => new { Max = e.Orders.Max(o => o.OrderID) });
+
+            var message = async
+                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
+                : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message;
+
+            Assert.Equal("Sequence contains no elements", message);
+        }
     }
 }

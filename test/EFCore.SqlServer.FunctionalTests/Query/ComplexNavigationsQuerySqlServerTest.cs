@@ -2176,10 +2176,10 @@ INNER JOIN (
             AssertSql(
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
 FROM [LevelOne] AS [l]
-INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = (
+INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = COALESCE((
     SELECT TOP(1) [l1].[Id]
     FROM [LevelTwo] AS [l1]
-    ORDER BY [l1].[Id])");
+    ORDER BY [l1].[Id]), 0)");
         }
 
         public override async Task Contains_with_subquery_optional_navigation_and_constant_item(bool async)
