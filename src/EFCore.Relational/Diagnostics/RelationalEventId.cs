@@ -88,7 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             // Update events
             BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
-            BatchSmallerThanMinBatchSize
+            BatchSmallerThanMinBatchSize,
+            BatchExecutorFailedToRollbackToSavepoint,
+            BatchExecutorFailedToReleaseSavepoint,
         }
 
         private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
@@ -720,5 +722,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId BatchSmallerThanMinBatchSize = MakeUpdateId(Id.BatchSmallerThanMinBatchSize);
+
+        /// <summary>
+        ///     <para>
+        ///         An error occurred while the batch executor was rolling back the transaction to a savepoint, after an exception occured.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId BatchExecutorFailedToRollbackToSavepoint = MakeUpdateId(Id.BatchExecutorFailedToRollbackToSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         An error occurred while the batch executor was releasing a transaction savepoint.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId BatchExecutorFailedToReleaseSavepoint = MakeUpdateId(Id.BatchExecutorFailedToReleaseSavepoint);
     }
 }

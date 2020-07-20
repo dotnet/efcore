@@ -1,11 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,9 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public BatchExecutor([NotNull] ICurrentDbContext currentContext)
+        public BatchExecutor(
+            [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             CurrentContext = currentContext;
+            UpdateLogger = updateLogger;
         }
 
         /// <summary>
@@ -48,6 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ICurrentDbContext CurrentContext { get; }
+
+        /// <summary>
+        ///     The logger.
+        /// </summary>
+        protected virtual IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,25 +108,43 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
             catch
             {
-                if (createdSavepoint)
+                if (createdSavepoint && connection.DbConnection.State == ConnectionState.Open)
                 {
-                    transaction.RollbackToSavepoint(SavepointName);
+                    try
+                    {
+                        transaction.RollbackToSavepoint(SavepointName);
+                    }
+                    catch (Exception e)
+                    {
+                        UpdateLogger.BatchExecutorFailedToRollbackToSavepoint(CurrentContext.GetType(), e);
+                    }
                 }
 
                 throw;
             }
             finally
             {
-                if (createdSavepoint)
-                {
-                    transaction.ReleaseSavepoint(SavepointName);
-                }
-                else if (beganTransaction)
+                if (beganTransaction)
                 {
                     transaction.Dispose();
                 }
                 else
                 {
+                    if (createdSavepoint)
+                    {
+                        if (connection.DbConnection.State == ConnectionState.Open)
+                        {
+                            try
+                            {
+                                transaction.ReleaseSavepoint(SavepointName);
+                            }
+                            catch (Exception e)
+                            {
+                                UpdateLogger.BatchExecutorFailedToReleaseSavepoint(CurrentContext.GetType(), e);
+                            }
+                        }
+                    }
+
                     connection.Close();
                 }
             }
@@ -172,25 +201,43 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
             catch
             {
-                if (createdSavepoint)
+                if (createdSavepoint && connection.DbConnection.State == ConnectionState.Open)
                 {
-                    await transaction.RollbackToSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        await transaction.RollbackToSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception e)
+                    {
+                        UpdateLogger.BatchExecutorFailedToRollbackToSavepoint(CurrentContext.GetType(), e);
+                    }
                 }
 
                 throw;
             }
             finally
             {
-                if (createdSavepoint)
-                {
-                    await transaction.ReleaseSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
-                }
-                else if (beganTransaction)
+                if (beganTransaction)
                 {
                     await transaction.DisposeAsync().ConfigureAwait(false);
                 }
                 else
                 {
+                    if (createdSavepoint)
+                    {
+                        if (connection.DbConnection.State == ConnectionState.Open)
+                        {
+                            try
+                            {
+                                await transaction.ReleaseSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                            }
+                            catch (Exception e)
+                            {
+                                UpdateLogger.BatchExecutorFailedToReleaseSavepoint(CurrentContext.GetType(), e);
+                            }
+                        }
+                    }
+
                     await connection.CloseAsync().ConfigureAwait(false);
                 }
             }
