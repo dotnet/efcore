@@ -1015,6 +1015,14 @@
     <value>For the relationship between dependent '{dependentToPrincipalNavigationSpecification}' and principal '{principalToDependentNavigationSpecification}', the foreign key properties haven't been configured by convention because the best match {foreignKey} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified.</value>
     <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string string string</comment>
   </data>
+  <data name="LogRequiredAttributeInverted" xml:space="preserve">
+    <value>The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
+    <comment>Obsolete Debug CoreEventId.RequiredAttributeInverted string string</comment>
+  </data>
+  <data name="LogNonNullableInverted" xml:space="preserve">
+    <value>The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
+    <comment>Obsolete Debug CoreEventId.NonNullableInverted string string</comment>
+  </data>
   <data name="LogRequiredAttributeOnBothNavigations" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.</value>
     <comment>Debug CoreEventId.RequiredAttributeOnBothNavigations string string string string</comment>

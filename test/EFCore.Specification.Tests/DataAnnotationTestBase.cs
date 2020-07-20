@@ -2210,15 +2210,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void RequiredAttribute_does_nothing_when_specified_on_nav_to_dependent_per_convention()
+        public virtual void RequiredAttribute_throws_when_specified_on_nav_to_dependent_per_convention()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<AdditionalBookDetails>();
 
-            var relationship = modelBuilder.Model.FindEntityType(typeof(AdditionalBookDetails))
-                .FindNavigation(nameof(AdditionalBookDetails.BookDetails)).ForeignKey;
-            Assert.Equal(typeof(AdditionalBookDetails), relationship.PrincipalEntityType.ClrType);
-            Assert.False(relationship.IsRequired);
+            Assert.Equal(CoreStrings.WarningAsErrorTemplate(
+            CoreEventId.RequiredAttributeOnDependent.ToString(),
+            CoreResources.LogRequiredAttributeOnDependent(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage(nameof(AdditionalBookDetails), nameof(AdditionalBookDetails.BookDetails)),
+                "CoreEventId.RequiredAttributeOnDependent"),
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<AdditionalBookDetails>()).Message);
         }
 
         [ConditionalFact]

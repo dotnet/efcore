@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -1165,6 +1164,76 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 p.PrincipalToDependentNavigationSpecification,
                 p.FirstPropertyCollection.Format(includeTypes: true),
                 p.SecondPropertyCollection.Format(includeTypes: true));
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.RequiredAttributeInverted" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        [Obsolete]
+        public static void RequiredAttributeInverted(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] INavigation navigation)
+        {
+            var definition = CoreResources.LogRequiredAttributeInverted(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, navigation.Name, navigation.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new NavigationEventData(
+                    definition,
+                    RequiredAttributeInverted,
+                    navigation);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string RequiredAttributeInverted(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (NavigationEventData)payload;
+            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.NonNullableInverted" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        [Obsolete]
+        public static void NonNullableInverted(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] INavigation navigation)
+        {
+            var definition = CoreResources.LogNonNullableInverted(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, navigation.Name, navigation.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new NavigationEventData(
+                    definition,
+                    NonNullableInverted,
+                    navigation);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string NonNullableInverted(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (NavigationEventData)payload;
+            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
         }
 
         /// <summary>

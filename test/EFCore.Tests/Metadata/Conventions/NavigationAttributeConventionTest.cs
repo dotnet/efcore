@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(CoreStrings.WarningAsErrorTemplate(
                 CoreEventId.RequiredAttributeOnDependent.ToString(),
                 CoreResources.LogRequiredAttributeOnDependent(new TestLogger<TestLoggingDefinitions>())
-                .GenerateMessage(nameof(Dependent.Principal), nameof(Dependent)), CoreEventId.RequiredAttributeOnDependent),
+                .GenerateMessage(nameof(Principal), nameof(Principal.Dependent)), "CoreEventId.RequiredAttributeOnDependent"),
                 Assert.Throws<InvalidOperationException>(() => RunRequiredNavigationAttributeConvention(relationshipBuilder, navigation)).Message);
         }
 
