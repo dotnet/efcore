@@ -1,31 +1,23 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     The table-like store object type.
+    ///     Represents a column in a SQL query.
     /// </summary>
-    public enum StoreObjectType
+    public interface ISqlQueryColumn : IColumnBase
     {
         /// <summary>
-        ///     A table.
+        ///     Gets the containing SQL query.
         /// </summary>
-        Table,
+        ISqlQuery SqlQuery { get; }
 
         /// <summary>
-        ///     A view.
+        ///     Gets the property mappings.
         /// </summary>
-        View,
-
-        /// <summary>
-        ///     A SQL query.
-        /// </summary>
-        SqlQuery,
-
-        /// <summary>
-        ///     A table-valued function.
-        /// </summary>
-        Function
+        new IEnumerable<ISqlQueryColumnMapping> PropertyMappings { get; }
     }
 }

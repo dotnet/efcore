@@ -33,12 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Design
             RelationalAnnotationNames.CheckConstraints,
             RelationalAnnotationNames.Sequences,
             RelationalAnnotationNames.DbFunctions,
+            RelationalAnnotationNames.DefaultMappings,
+            RelationalAnnotationNames.DefaultColumnMappings,
             RelationalAnnotationNames.TableMappings,
             RelationalAnnotationNames.TableColumnMappings,
             RelationalAnnotationNames.ViewMappings,
             RelationalAnnotationNames.ViewColumnMappings,
             RelationalAnnotationNames.FunctionMappings,
             RelationalAnnotationNames.FunctionColumnMappings,
+            RelationalAnnotationNames.SqlQueryMappings,
+            RelationalAnnotationNames.SqlQueryColumnMappings,
             RelationalAnnotationNames.ForeignKeyMappings,
             RelationalAnnotationNames.TableIndexMappings,
             RelationalAnnotationNames.UniqueConstraintMappings,
@@ -83,7 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             IProperty property, IDictionary<string, IAnnotation> annotations)
         {
             var columnName = property.GetColumnName();
-
             if (columnName == property.Name)
             {
                 annotations.Remove(RelationalAnnotationNames.ColumnName);

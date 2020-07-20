@@ -1049,7 +1049,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var fk = newRelationshipBuilder.Metadata;
                     fk.DeclaringEntityType.Builder.HasNoRelationship(fk, fk.GetConfigurationSource());
 
-                    if (otherOwnership.Builder.IsWeakTypeDefinition(configurationSource) == null)
+                    if (otherOwnership.Builder.AddToDeclaringTypeDefinition(configurationSource) == null)
                     {
                         return null;
                     }
@@ -1117,7 +1117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalForeignKeyBuilder IsWeakTypeDefinition(ConfigurationSource configurationSource)
+        public virtual InternalForeignKeyBuilder AddToDeclaringTypeDefinition(ConfigurationSource configurationSource)
         {
             if (Metadata.DeclaringEntityType.HasDefiningNavigation())
             {

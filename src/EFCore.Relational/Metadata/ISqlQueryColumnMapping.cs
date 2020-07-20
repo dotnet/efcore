@@ -4,28 +4,18 @@
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     The table-like store object type.
+    ///     Represents property mapping to a SQL query column.
     /// </summary>
-    public enum StoreObjectType
+    public interface ISqlQueryColumnMapping : IColumnMappingBase
     {
         /// <summary>
-        ///     A table.
+        ///     Gets the target column.
         /// </summary>
-        Table,
+        new ISqlQueryColumn Column { get; }
 
         /// <summary>
-        ///     A view.
+        ///     Gets the containing SQL query mapping.
         /// </summary>
-        View,
-
-        /// <summary>
-        ///     A SQL query.
-        /// </summary>
-        SqlQuery,
-
-        /// <summary>
-        ///     A table-valued function.
-        /// </summary>
-        Function
+        ISqlQueryMapping SqlQueryMapping { get; }
     }
 }

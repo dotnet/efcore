@@ -609,11 +609,8 @@
   <data name="NonTPHViewClash" xml:space="preserve">
     <value>Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
-  <data name="TableOverrideDeclaredTable" xml:space="preserve">
-    <value>The property '{property}' has configuration specific to the table or view '{table}', however that's the main table or view to which '{entityType}' is mapped. Remove the specific configuration or use the configuration that does not specify a table or view.</value>
-  </data>
   <data name="TableOverrideMismatch" xml:space="preserve">
-    <value>The property '{propertySpecification}' has specific configuration for the table or view '{table}', however it isn't mapped to a column on that table. Remove the specific configuration or map an entity type that contains this property to '{table}'.</value>
+    <value>The property '{propertySpecification}' has specific configuration for the table '{table}', however it isn't mapped to a column on that table. Remove the specific configuration or map an entity type that contains this property to '{table}'.</value>
   </data>
   <data name="TPHTableMismatch" xml:space="preserve">
     <value>'{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table or remove the discriminator and map all of them to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
@@ -687,6 +684,18 @@
   </data>
   <data name="DefaultValueSqlUnspecified" xml:space="preserve">
     <value>The column '{column}' on table {table} has unspecified default value SQL. Specify the SQL before using EF Core to create the database schema.</value>
+  </data>
+  <data name="InvalidMappedSqlQueryDerivedType" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to a SQL query and it's derived from '{baseEntityType}'. Derived entity types cannot be mapped to a different SQL query.</value>
+  </data>
+  <data name="FunctionOverrideMismatch" xml:space="preserve">
+    <value>The property '{propertySpecification}' has specific configuration for the function '{function}', however it isn't mapped to a column on that function return. Remove the specific configuration or map an entity type that contains this property to '{function}'.</value>
+  </data>
+  <data name="SqlQueryOverrideMismatch" xml:space="preserve">
+    <value>The property '{propertySpecification}' has specific configuration for the SQL query '{query}', however it isn't mapped to a column on that query. Remove the specific configuration or map an entity type that contains this property to '{query}'.</value>
+  </data>
+  <data name="ViewOverrideMismatch" xml:space="preserve">
+    <value>The property '{propertySpecification}' has specific configuration for the view '{table}', however it isn't mapped to a column on that view. Remove the specific configuration or map an entity type that contains this property to '{table}'.</value>
   </data>
   <data name="SequenceContainsNoElements" xml:space="preserve">
     <value>Sequence contains no elements.</value>

@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -98,14 +98,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var model = declaringEntityType.Model;
 
             // create the association entity type
-            var otherIdentifiers = model.GetEntityTypes().ToDictionary(et => et.Name, et => 0);
-            var associationEntityTypeName = Uniquifier.Uniquify(
-                string.Format(
+            var associationEntityTypeName = string.Format(
                     AssociationEntityTypeNameTemplate,
                     declaringEntityType.ShortName(),
-                    inverseEntityType.ShortName()),
-                otherIdentifiers,
-                int.MaxValue);
+                    inverseEntityType.ShortName());
+            if (model.FindEntityType(associationEntityTypeName) != null)
+            {
+                var otherIdentifiers = model.GetEntityTypes().ToDictionary(et => et.Name, et => 0);
+                associationEntityTypeName = Uniquifier.Uniquify(
+                    associationEntityTypeName,
+                    otherIdentifiers,
+                    int.MaxValue);
+            }
 
             var associationEntityTypeBuilder = model.Builder.SharedEntity(
                 associationEntityTypeName, Model.DefaultPropertyBagType, ConfigurationSource.Convention);

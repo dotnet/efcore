@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class FunctionColumnMapping : ColumnMappingBase, IFunctionColumnMapping
+    public class SqlQueryColumnMapping : ColumnMappingBase, ISqlQueryColumnMapping
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,17 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public FunctionColumnMapping(
+        public SqlQueryColumnMapping(
             [NotNull] IProperty property,
-            [NotNull] FunctionColumn column,
+            [NotNull] SqlQueryColumn column,
             [NotNull] RelationalTypeMapping typeMapping,
-            [NotNull] FunctionMapping viewMapping)
-            : base(property, column, typeMapping, viewMapping)
+            [NotNull] SqlQueryMapping sqlQueryMapping)
+            : base(property, column, typeMapping, sqlQueryMapping)
         {
         }
 
         /// <inheritdoc/>
-        public virtual IFunctionMapping FunctionMapping => (IFunctionMapping)TableMapping;
+        public virtual ISqlQueryMapping SqlQueryMapping => (ISqlQueryMapping)TableMapping;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,10 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-        IFunctionColumn IFunctionColumnMapping.Column
+        /// <inheritdoc/>
+        ISqlQueryColumn ISqlQueryColumnMapping.Column
         {
             [DebuggerStepThrough]
-            get => (IFunctionColumn)Column;
+            get => (ISqlQueryColumn)Column;
         }
     }
 }

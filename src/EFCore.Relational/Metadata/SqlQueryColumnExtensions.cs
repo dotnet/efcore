@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Extension methods for <see cref="IFunctionColumn" />.
+    ///     Extension methods for <see cref="ISqlQueryColumn" />.
     /// </summary>
-    public static class FunctionColumnExtensions
+    public static class SqlQueryColumnExtensions
     {
         /// <summary>
         ///     <para>
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IFunctionColumn column,
+            [NotNull] this ISqlQueryColumn column,
             MetadataDebugStringOptions options,
             int indent = 0)
         {
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"FunctionColumn: {column.Table.Name}.");
+                builder.Append($"SqlQueryColumn: {column.Table.Name}.");
             }
 
             builder.Append(column.Name).Append(" (");

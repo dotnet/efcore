@@ -47,11 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Append(" ")
                 .Append(foreignKey.Table.Name)
                 .Append(" ")
-                .Append(Column.Format(foreignKey.Columns))
+                .Append(ColumnBase.Format(foreignKey.Columns))
                 .Append(" -> ")
                 .Append(foreignKey.PrincipalTable.Name)
                 .Append(" ")
-                .Append(Column.Format(foreignKey.PrincipalColumns));
+                .Append(ColumnBase.Format(foreignKey.PrincipalColumns));
 
             if (foreignKey.OnDeleteAction != ReferentialAction.NoAction)
             {

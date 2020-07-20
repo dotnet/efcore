@@ -1,10 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class FunctionColumnMapping : ColumnMappingBase, IFunctionColumnMapping
+    public class SqlQueryColumn : ColumnBase, ISqlQueryColumn
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,17 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public FunctionColumnMapping(
-            [NotNull] IProperty property,
-            [NotNull] FunctionColumn column,
-            [NotNull] RelationalTypeMapping typeMapping,
-            [NotNull] FunctionMapping viewMapping)
-            : base(property, column, typeMapping, viewMapping)
+        public SqlQueryColumn([NotNull] string name, [NotNull] string type, [NotNull] SqlQuery sqlQuery)
+            : base(name, type, sqlQuery)
         {
         }
 
         /// <inheritdoc/>
-        public virtual IFunctionMapping FunctionMapping => (IFunctionMapping)TableMapping;
+        public virtual ISqlQuery SqlQuery => (ISqlQuery)Table;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,10 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-        IFunctionColumn IFunctionColumnMapping.Column
+        /// <inheritdoc/>
+        IEnumerable<ISqlQueryColumnMapping> ISqlQueryColumn.PropertyMappings
         {
             [DebuggerStepThrough]
-            get => (IFunctionColumn)Column;
+            get => PropertyMappings.Cast<ISqlQueryColumnMapping>();
         }
     }
 }

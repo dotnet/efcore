@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class TableMappingBase : Annotatable, ITableMappingBase
+    public class TableMappingBase : Annotatable, ITableMappingBase
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract IEnumerable<IColumnMappingBase> ProtectedColumnMappings { get; }
+        public virtual SortedSet<IColumnMappingBase> ColumnMappings { get; }
+            = new SortedSet<IColumnMappingBase>(ColumnMappingBaseComparer.Instance);
 
         /// <inheritdoc/>
         public virtual bool IncludesDerivedTypes { get; }
@@ -55,11 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc/>
         public virtual bool IsSplitEntityTypePrincipal { get; set; }
 
-        /// <inheritdoc/>
         IEnumerable<IColumnMappingBase> ITableMappingBase.ColumnMappings
         {
             [DebuggerStepThrough]
-            get => ProtectedColumnMappings;
+            get => ColumnMappings;
         }
     }
 }

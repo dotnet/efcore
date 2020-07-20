@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             builder
                 .Append(uniqueConstraint.Name)
                 .Append(" ")
-                .Append(Column.Format(uniqueConstraint.Columns));
+                .Append(ColumnBase.Format(uniqueConstraint.Columns));
 
             if (uniqueConstraint.GetIsPrimaryKey())
             {

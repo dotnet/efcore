@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -58,31 +59,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<IFunctionMapping> EntityTypeMappings { get; }
-            = new SortedSet<IFunctionMapping>(TableMappingBaseComparer.Instance);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual SortedDictionary<string, FunctionColumn> Columns { get; }
-            = new SortedDictionary<string, FunctionColumn>(StringComparer.Ordinal);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual StoreFunctionParameter[] Parameters { get; }
 
         /// <inheritdoc/>
-        public virtual IFunctionColumn FindColumn(string name)
-            => Columns.TryGetValue(name, out var column)
-                ? column
-                : null;
+        public override IColumnBase FindColumn(IProperty property)
+            => property.GetFunctionColumnMappings()
+                .FirstOrDefault(cm => cm.TableMapping.Table == this)
+                ?.Column;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -96,28 +79,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IEnumerable<IFunctionMapping> IStoreFunction.EntityTypeMappings
         {
             [DebuggerStepThrough]
-            get => EntityTypeMappings;
-        }
-
-        /// <inheritdoc />
-        IEnumerable<ITableMappingBase> ITableBase.EntityTypeMappings
-        {
-            [DebuggerStepThrough]
-            get => EntityTypeMappings;
+            get => EntityTypeMappings.Cast<IFunctionMapping>();
         }
 
         /// <inheritdoc />
         IEnumerable<IFunctionColumn> IStoreFunction.Columns
         {
             [DebuggerStepThrough]
-            get => Columns.Values;
-        }
-
-        /// <inheritdoc />
-        IEnumerable<IColumnBase> ITableBase.Columns
-        {
-            [DebuggerStepThrough]
-            get => Columns.Values;
+            get => Columns.Values.Cast<IFunctionColumn>();
         }
 
         /// <inheritdoc />
@@ -134,9 +103,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => DbFunctions.Values;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         [DebuggerStepThrough]
-        IColumnBase ITableBase.FindColumn(string name)
-            => FindColumn(name);
+        IFunctionColumn IStoreFunction.FindColumn(string name)
+            => (IFunctionColumn)base.FindColumn(name);
+
+        /// <inheritdoc/>
+        [DebuggerStepThrough]
+        IFunctionColumn IStoreFunction.FindColumn(IProperty property)
+            => (IFunctionColumn)FindColumn(property);
     }
 }

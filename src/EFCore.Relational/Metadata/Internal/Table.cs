@@ -35,15 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<TableMapping> EntityTypeMappings { get; } = new SortedSet<TableMapping>(
-            TableMappingBaseComparer.Instance);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual SortedDictionary<string, ForeignKeyConstraint> ForeignKeyConstraints { get; }
             = new SortedDictionary<string, ForeignKeyConstraint>();
 
@@ -89,19 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc/>
         public virtual bool IsExcludedFromMigrations { get; set; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual SortedDictionary<string, Column> Columns { get; } = new SortedDictionary<string, Column>(StringComparer.Ordinal);
-
         /// <inheritdoc/>
-        public virtual IColumn FindColumn(string name)
-            => Columns.TryGetValue(name, out var column)
-                ? column
-                : null;
+        public override IColumnBase FindColumn(IProperty property)
+            => property.GetTableColumnMappings()
+                .FirstOrDefault(cm => cm.TableMapping.Table == this)
+                ?.Column;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,31 +95,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc/>
-        IEnumerable<IColumnBase> ITableBase.Columns
+        IEnumerable<ITableMapping> ITable.EntityTypeMappings
         {
             [DebuggerStepThrough]
-            get => Columns.Values;
+            get => base.EntityTypeMappings.Cast<ITableMapping>();
         }
 
         /// <inheritdoc/>
         IEnumerable<IColumn> ITable.Columns
         {
             [DebuggerStepThrough]
-            get => Columns.Values;
-        }
-
-        /// <inheritdoc/>
-        IEnumerable<ITableMapping> ITable.EntityTypeMappings
-        {
-            [DebuggerStepThrough]
-            get => EntityTypeMappings;
-        }
-
-        /// <inheritdoc/>
-        IEnumerable<ITableMappingBase> ITableBase.EntityTypeMappings
-        {
-            [DebuggerStepThrough]
-            get => EntityTypeMappings;
+            get => base.Columns.Values.Cast<IColumn>();
         }
 
         /// <inheritdoc/>
@@ -168,20 +137,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc/>
-        IColumnBase ITableBase.FindColumn(string name) => FindColumn(name);
+        [DebuggerStepThrough]
+        IColumn ITable.FindColumn(string name)
+            => (IColumn)base.FindColumn(name);
 
         /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetRowInternalForeignKeys(IEntityType entityType)
-            => RowInternalForeignKeys != null
-                && RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
-                ? foreignKeys
-                : Enumerable.Empty<IForeignKey>();
-
-        /// <inheritdoc/>
-        IEnumerable<IForeignKey> ITableBase.GetReferencingRowInternalForeignKeys(IEntityType entityType)
-            => ReferencingRowInternalForeignKeys != null
-                && ReferencingRowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
-                ? foreignKeys
-                : Enumerable.Empty<IForeignKey>();
+        [DebuggerStepThrough]
+        IColumn ITable.FindColumn(IProperty property)
+            => (IColumn)FindColumn(property);
     }
 }

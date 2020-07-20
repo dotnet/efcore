@@ -1177,7 +1177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var fk in FindDeclaredForeignKeys(properties))
             {
                 if (PropertyListComparer.Instance.Equals(fk.PrincipalKey.Properties, principalKey.Properties)
-                    && StringComparer.Ordinal.Equals(fk.PrincipalEntityType.Name, principalEntityType.Name))
+                    && fk.PrincipalEntityType == principalEntityType)
                 {
                     return fk;
                 }

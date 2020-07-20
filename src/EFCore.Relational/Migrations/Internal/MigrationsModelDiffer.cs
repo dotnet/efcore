@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sortedColumns = new List<IColumn>(columns.Count);
             foreach (var property in GetSortedProperties(GetMainType(table).GetRootType(), table))
             {
-                var column = property.GetTableColumnMappings().FirstOrDefault(m => m.TableMapping.Table == table)?.Column;
+                var column = table.FindColumn(property);
                 if (columns.Remove(column))
                 {
                     sortedColumns.Add(column);
@@ -1692,8 +1692,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var keyPropertiesMap = new List<(IProperty, ValueConverter, ValueConverter)>();
                         foreach (var keyProperty in targetKey.Properties)
                         {
-                            var targetColumnMapping = keyProperty.GetTableColumnMappings().First(m => m.TableMapping.Table == targetTable);
-                            var targetColumn = targetColumnMapping.Column;
+                            var targetColumn = targetTable.FindColumn(keyProperty);
                             var sourceColumn = diffContext.FindSource(targetColumn);
                             if (sourceColumn == null)
                             {
@@ -1919,8 +1918,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 continue;
                             }
 
-                            var targetColumn = targetProperty.GetTableColumnMappings()
-                                .FirstOrDefault(m => m.TableMapping.EntityType == entry.EntityType && m.TableMapping.Table == targetTable)?.Column;
+                            var targetColumn = targetTable.FindColumn(targetProperty);
                             var sourceColumn = diffContext.FindSource(targetColumn);
                             if (sourceColumn == null)
                             {

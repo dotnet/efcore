@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
         /// </returns>
-        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.HasDefiningQuery")]
+        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToQuery")]
         IConventionEntityTypeBuilder HasDefiningQuery([CanBeNull] LambdaExpression query, bool fromDataAnnotation = false);
 
         /// <summary>

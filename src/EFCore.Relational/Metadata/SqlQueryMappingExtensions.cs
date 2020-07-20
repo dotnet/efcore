@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Extension methods for <see cref="IFunctionColumn" />.
+    ///     Extension methods for <see cref="ISqlQueryMapping" />.
     /// </summary>
-    public static class FunctionColumnExtensions
+    public static class SqlQueryMappingExtensions
     {
         /// <summary>
         ///     <para>
@@ -21,12 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         It is designed for debugging only and may change arbitrarily between releases.
         ///     </para>
         /// </summary>
-        /// <param name="column"> The metadata item. </param>
+        /// <param name="sqlQueryMapping"> The metadata item. </param>
         /// <param name="options"> Options for generating the string. </param>
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IFunctionColumn column,
+            [NotNull] this ISqlQueryMapping sqlQueryMapping,
             MetadataDebugStringOptions options,
             int indent = 0)
         {
@@ -38,28 +38,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"FunctionColumn: {column.Table.Name}.");
+                builder.Append($"SqlQueryMapping: ");
             }
 
-            builder.Append(column.Name).Append(" (");
+            builder.Append(sqlQueryMapping.EntityType.Name).Append(" - ");
 
-            builder.Append(column.StoreType).Append(")");
+            builder.Append(sqlQueryMapping.Table.Name);
 
-            if (column.IsNullable)
+            if (sqlQueryMapping.IncludesDerivedTypes)
             {
-                builder.Append(" Nullable");
+                builder.Append($" IncludesDerivedTypes");
             }
-            else
-            {
-                builder.Append(" NonNullable");
-            }
-
-            builder.Append(")");
 
             if (!singleLine &&
                 (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
-                builder.Append(column.AnnotationsToDebugString(indent + 2));
+                builder.Append(sqlQueryMapping.AnnotationsToDebugString(indent + 2));
             }
 
             return builder.ToString();

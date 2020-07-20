@@ -242,21 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             static ColumnExpression GetColumn(
-                    IProperty property, IEntityType currentEntityType, ITableBase table, TableExpressionBase tableExpression, bool nullable)
-            {
-                var columnMappings = table switch
-                {
-                    IStoreFunction _ => property.GetFunctionColumnMappings().Cast<IColumnMappingBase>(),
-                    IView _ => property.GetViewColumnMappings().Cast<IColumnMappingBase>(),
-                    _ => property.GetTableColumnMappings().Cast<IColumnMappingBase>()
-                };
-
-                var column = columnMappings
-                    .Single(cm => cm.TableMapping.Table == table && cm.TableMapping.EntityType == currentEntityType)
-                    .Column;
-
-                return new ColumnExpression(property, column, tableExpression, nullable);
-            }
+                IProperty property, IEntityType currentEntityType, ITableBase table, TableExpressionBase tableExpression, bool nullable)
+                => new ColumnExpression(property, table.FindColumn(property), tableExpression, nullable);
         }
 
         internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpression)
@@ -265,9 +252,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _tables.Add(tableExpression);
 
             var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+            var defaultTable = entityType.GetDefaultMappings().Single().Table;
             foreach (var property in GetAllPropertiesInHierarchy(entityType))
             {
-                propertyExpressions[property] = new ColumnExpression(property, null, tableExpression, nullable: false);
+                propertyExpressions[property] = new ColumnExpression(
+                    property, defaultTable.FindColumn(property), tableExpression, nullable: false);
             }
 
             var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
