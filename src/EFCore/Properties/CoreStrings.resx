@@ -1017,11 +1017,11 @@
   </data>
   <data name="LogRequiredAttributeInverted" xml:space="preserve">
     <value>The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
-    <comment>Debug CoreEventId.RequiredAttributeInverted string string</comment>
+    <comment>Obsolete Debug CoreEventId.RequiredAttributeInverted string string</comment>
   </data>
   <data name="LogNonNullableInverted" xml:space="preserve">
     <value>The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
-    <comment>Debug CoreEventId.NonNullableInverted string string</comment>
+    <comment>Obsolete Debug CoreEventId.NonNullableInverted string string</comment>
   </data>
   <data name="LogRequiredAttributeOnBothNavigations" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.</value>
@@ -1221,8 +1221,8 @@
     <comment>Debug CoreEventId.RequiredAttributeOnCollection string string</comment>
   </data>
   <data name="LogRequiredAttributeOnDependent" xml:space="preserve">
-    <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is pointing to the dependent entity. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.</value>
-    <comment>Debug CoreEventId.RequiredAttributeOnDependent string string</comment>
+    <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' is invalid. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.</value>
+    <comment>Error CoreEventId.RequiredAttributeOnDependent string string</comment>
   </data>
   <data name="LogNonNullableReferenceOnDependent" xml:space="preserve">
     <value>'{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal can be configured as required.</value>

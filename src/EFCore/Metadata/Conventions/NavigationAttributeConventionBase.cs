@@ -22,8 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeAddedConvention,
         IEntityTypeIgnoredConvention,
         IEntityTypeBaseTypeChangedConvention,
+        IEntityTypeMemberIgnoredConvention,
         INavigationAddedConvention,
-        IEntityTypeMemberIgnoredConvention
+        IForeignKeyPrincipalEndChangedConvention
         where TAttribute : Attribute
     {
         /// <summary>
@@ -170,12 +171,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after an entity type member is ignored.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="name"> The name of the ignored member. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
+        public virtual void ProcessForeignKeyPrincipalEndChanged(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context)
+        {
+            var fk = relationshipBuilder.Metadata;
+            var dependentToPrincipalAttributes = fk.DependentToPrincipal == null
+                ? null
+                : GetAttributes<TAttribute>(fk.DeclaringEntityType, fk.DependentToPrincipal);
+            var principalToDependentAttributes = fk.PrincipalToDependent == null
+                ? null
+                : GetAttributes<TAttribute>(fk.PrincipalEntityType, fk.PrincipalToDependent);
+            ProcessForeignKeyPrincipalEndChanged(
+                relationshipBuilder, dependentToPrincipalAttributes, principalToDependentAttributes, context);
+        }
+
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeMemberIgnored(
             IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
         {
@@ -315,6 +327,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] Type targetClrType,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<string> context)
+            => throw new NotImplementedException();
+
+        /// <summary>
+        ///     Called after the principal end of a foreign key is changed.
+        /// </summary>
+        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="dependentToPrincipalAttributes"> The attributes on the dependent to principal navigation. </param>
+        /// <param name="principalToDependentAttributes"> The attributes on the principal to dependent navigation. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyPrincipalEndChanged(
+            [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
+            [CanBeNull] IEnumerable<TAttribute> dependentToPrincipalAttributes,
+            [CanBeNull] IEnumerable<TAttribute> principalToDependentAttributes,
+            [NotNull] IConventionContext<IConventionForeignKeyBuilder> context)
             => throw new NotImplementedException();
     }
 }
