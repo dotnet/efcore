@@ -1595,6 +1595,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                       .AsNoTrackingWithIdentityResolution());
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Outer_idenfier_correctly_determined_when_doing_include_on_right_side_of_left_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from cust in ss.Set<Customer>()
+                      join order in ss.Set<Order>().Include(f => f.OrderDetails)
+                        on cust.CustomerID equals order.CustomerID into group1
+                      from order in group1.DefaultIfEmpty()
+                      where cust.City == "Seattle"
+                      select new { cust, order },
+                elementSorter: e => (e.cust.CustomerID, e.order?.OrderID),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.cust, a.cust);
+                    AssertInclude(e.order, a.order, new ExpectedInclude<Order>(e => e.OrderDetails));
+                },
+                entryCount: 55);
+        }
+
+
         protected virtual void ClearLog()
         {
         }
