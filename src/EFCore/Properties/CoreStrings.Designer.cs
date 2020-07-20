@@ -3895,54 +3895,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
-        /// </summary>
-        public static EventDefinition<string, string> LogRequiredAttributeInverted([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeInverted;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeInverted,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.RequiredAttributeInverted,
-                        LogLevel.Debug,
-                        "CoreEventId.RequiredAttributeInverted",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.RequiredAttributeInverted,
-                            _resourceManager.GetString("LogRequiredAttributeInverted"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
-        /// </summary>
-        public static EventDefinition<string, string> LogNonNullableInverted([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableInverted;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogNonNullableInverted,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.NonNullableInverted,
-                        LogLevel.Debug,
-                        "CoreEventId.NonNullableInverted",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.NonNullableInverted,
-                            _resourceManager.GetString("LogNonNullableInverted"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
         ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations([NotNull] IDiagnosticsLogger logger)
@@ -4279,7 +4231,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is pointing to the dependent entity. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.
+        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' is invalid. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.
         /// </summary>
         public static EventDefinition<string, string> LogRequiredAttributeOnDependent([NotNull] IDiagnosticsLogger logger)
         {
@@ -4291,7 +4243,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         CoreEventId.RequiredAttributeOnDependent,
-                        LogLevel.Debug,
+                        LogLevel.Error,
                         "CoreEventId.RequiredAttributeOnDependent",
                         level => LoggerMessage.Define<string, string>(
                             level,

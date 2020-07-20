@@ -1168,74 +1168,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs for the <see cref="CoreEventId.RequiredAttributeInverted" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        public static void RequiredAttributeInverted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] INavigation navigation)
-        {
-            var definition = CoreResources.LogRequiredAttributeInverted(diagnostics);
-
-            if (diagnostics.ShouldLog(definition))
-            {
-                definition.Log(diagnostics,navigation.Name, navigation.DeclaringEntityType.DisplayName());
-            }
-
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-            {
-                var eventData = new NavigationEventData(
-                    definition,
-                    RequiredAttributeInverted,
-                    navigation);
-
-                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-            }
-        }
-
-        private static string RequiredAttributeInverted(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string, string>)definition;
-            var p = (NavigationEventData)payload;
-            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
-        }
-
-        /// <summary>
-        ///     Logs for the <see cref="CoreEventId.NonNullableInverted" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        public static void NonNullableInverted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] INavigation navigation)
-        {
-            var definition = CoreResources.LogNonNullableInverted(diagnostics);
-
-            if (diagnostics.ShouldLog(definition))
-            {
-                definition.Log(diagnostics,navigation.Name, navigation.DeclaringEntityType.DisplayName());
-            }
-
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-            {
-                var eventData = new NavigationEventData(
-                    definition,
-                    NonNullableInverted,
-                    navigation);
-
-                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-            }
-        }
-
-        private static string NonNullableInverted(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string, string>)definition;
-            var p = (NavigationEventData)payload;
-            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
-        }
-
-        /// <summary>
         ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnBothNavigations" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
@@ -1346,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 definition.Log(
                     diagnostics,
-                    navigation.Name, navigation.DeclaringEntityType.DisplayName());
+                    navigation.DeclaringEntityType.DisplayName(), navigation.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1364,7 +1296,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (NavigationEventData)payload;
-            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
+            return d.GenerateMessage(p.Navigation.DeclaringEntityType.DisplayName(), p.Navigation.Name);
         }
 
         /// <summary>
@@ -1382,8 +1314,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 definition.Log(
                     diagnostics,
-                    navigation.Name,
-                    navigation.DeclaringEntityType.DisplayName());
+                    navigation.DeclaringEntityType.DisplayName(),
+                    navigation.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1401,7 +1333,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (NavigationEventData)payload;
-            return d.GenerateMessage(p.Navigation.Name, p.Navigation.DeclaringEntityType.DisplayName());
+            return d.GenerateMessage(p.Navigation.DeclaringEntityType.DisplayName(), p.Navigation.Name);
         }
 
         /// <summary>

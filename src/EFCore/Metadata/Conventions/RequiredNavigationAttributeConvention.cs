@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using JetBrains.Annotations;
@@ -31,6 +32,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RequiredAttribute attribute,
             IConventionContext<IConventionNavigationBuilder> context)
         {
+            ProcessNavigation(navigationBuilder);
+            context.StopProcessingIfChanged(navigationBuilder.Metadata.Builder);
+        }
+
+        /// <inheritdoc />
+        public override void ProcessForeignKeyPrincipalEndChanged(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IEnumerable<RequiredAttribute> dependentToPrincipalAttributes,
+            IEnumerable<RequiredAttribute> principalToDependentAttributes,
+            IConventionContext<IConventionForeignKeyBuilder> context)
+        {
+            var fk = relationshipBuilder.Metadata;
+            if (dependentToPrincipalAttributes != null
+                && dependentToPrincipalAttributes.Any())
+            {
+                ProcessNavigation(fk.DependentToPrincipal.Builder);
+            }
+
+            if (principalToDependentAttributes != null
+                && principalToDependentAttributes.Any())
+            {
+                ProcessNavigation(fk.PrincipalToDependent.Builder);
+            }
+
+            context.StopProcessingIfChanged(relationshipBuilder.Metadata.Builder);
+        }
+
+        private void ProcessNavigation(IConventionNavigationBuilder navigationBuilder)
+        {
             var navigation = navigationBuilder.Metadata;
             var foreignKey = navigation.ForeignKey;
             if (navigation.IsCollection)
@@ -59,25 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return;
                 }
 
-                relationshipBuilder = relationshipBuilder.HasEntityTypes(
-                    foreignKey.DeclaringEntityType,
-                    foreignKey.PrincipalEntityType);
-
-                if (relationshipBuilder == null)
-                {
-                    return;
-                }
-
-                Dependencies.Logger.RequiredAttributeInverted(relationshipBuilder.Metadata.DependentToPrincipal);
-            }
-
-            relationshipBuilder = relationshipBuilder.IsRequired(true, fromDataAnnotation: true);
-            if (relationshipBuilder == null)
-            {
                 return;
             }
 
-            context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal?.Builder);
+            relationshipBuilder.IsRequired(true, fromDataAnnotation: true);
         }
     }
 }

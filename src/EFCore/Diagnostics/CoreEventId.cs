@@ -97,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ForeignKeyAttributesOnBothNavigationsWarning,
             ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
             RedundantForeignKeyWarning,
-            NonNullableInverted,
+            NonNullableInverted, // Unused
             NonNullableReferenceOnBothNavigations,
             NonNullableReferenceOnDependent,
-            RequiredAttributeInverted,
+            RequiredAttributeInverted, // Unused
             RequiredAttributeOnCollection,
             CollectionWithoutComparer,
             ConflictingKeylessAndKeyAttributesWarning,
@@ -392,34 +392,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId IncompatibleMatchingForeignKeyProperties = MakeModelId(Id.IncompatibleMatchingForeignKeyProperties);
-
-        /// <summary>
-        ///     <para>
-        ///         The entity type with the navigation property that has the <see cref="RequiredAttribute" />
-        ///         was configured as the dependent side in the relationship.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </summary>
-        public static readonly EventId RequiredAttributeInverted = MakeModelId(Id.RequiredAttributeInverted);
-
-        /// <summary>
-        ///     <para>
-        ///         The entity type with the navigation property that has non-nullability
-        ///         was configured as the dependent side in the relationship.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </summary>
-        public static readonly EventId NonNullableInverted = MakeModelId(Id.NonNullableInverted);
 
         /// <summary>
         ///     <para>
