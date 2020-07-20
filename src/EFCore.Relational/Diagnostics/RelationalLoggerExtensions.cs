@@ -4638,5 +4638,65 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         p.Property2Name,
                         p.TablesMappedToProperty2.FormatTables()));
         }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.BatchExecutorFailedToRollbackToSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="contextType"> The <see cref="DbContext" /> type being used. </param>
+        /// <param name="exception"> The exception that caused this failure. </param>
+        public static void BatchExecutorFailedToRollbackToSavepoint(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] Type contextType,
+            [NotNull] Exception exception)
+        {
+            var definition = RelationalResources.LogBatchExecutorFailedToRollbackToSavepoint(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new DbContextTypeErrorEventData(
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage(),
+                    contextType,
+                    exception);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="RelationalEventId.BatchExecutorFailedToReleaseSavepoint" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="contextType"> The <see cref="DbContext" /> type being used. </param>
+        /// <param name="exception"> The exception that caused this failure. </param>
+        public static void BatchExecutorFailedToReleaseSavepoint(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] Type contextType,
+            [NotNull] Exception exception)
+        {
+            var definition = RelationalResources.LogBatchExecutorFailedToReleaseSavepoint(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new DbContextTypeErrorEventData(
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage(),
+                    contextType,
+                    exception);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
     }
 }
