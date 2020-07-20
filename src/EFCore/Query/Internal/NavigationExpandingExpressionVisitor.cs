@@ -220,6 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 // This is FirstOrDefault.Member
                 // due to SubqueryMemberPushdown, this may be collection navigation which was not pushed down
+                navigationExpansionExpression = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(navigationExpansionExpression);
                 var expandedExpression = new ExpandingExpressionVisitor(this, navigationExpansionExpression).Visit(updatedExpression);
                 if (expandedExpression != updatedExpression)
                 {
