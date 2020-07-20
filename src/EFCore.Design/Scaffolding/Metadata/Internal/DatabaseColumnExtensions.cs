@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
 {
     /// <summary>
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         /// </summary>
         public static bool IsKeyOrIndex([NotNull] this DatabaseColumn column)
         {
-            var table = column.Table!;
+            var table = column.Table;
 
             if (table.PrimaryKey?.Columns.Contains(column) == true)
             {

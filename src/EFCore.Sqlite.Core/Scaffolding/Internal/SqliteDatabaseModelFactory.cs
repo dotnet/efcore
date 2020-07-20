@@ -22,8 +22,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 using static SQLitePCL.raw;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 {
     /// <summary>
@@ -274,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             }
         }
 
-        private string? FilterClrDefaults(string dataType, bool notNull, string defaultValue)
+        private string FilterClrDefaults(string dataType, bool notNull, string defaultValue)
         {
             if (string.Equals(defaultValue, "null", StringComparison.OrdinalIgnoreCase))
             {
@@ -567,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                         Check.DebugAssert(column != null, "column is null.");
 
                         var principalColumnName = reader2.IsDBNull(2) ? null : reader2.GetString(2);
-                        DatabaseColumn? principalColumn = null;
+                        DatabaseColumn principalColumn = null;
                         if (principalColumnName != null)
                         {
                             principalColumn =
