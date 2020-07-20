@@ -15,10 +15,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue#21680")]
         public override void Optional_datetime_reading_null_from_database()
         {
-            base.Optional_datetime_reading_null_from_database();
         }
 
         public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase
