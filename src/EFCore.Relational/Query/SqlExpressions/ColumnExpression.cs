@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     {
         internal ColumnExpression(IProperty property, IColumnBase column, TableExpressionBase table, bool nullable)
             : this(
-                column?.Name ?? property.GetColumnName(),
+                column.Name,
                 table,
                 property.ClrType,
-                property.GetRelationalTypeMapping(),
-                nullable || (column?.IsNullable ?? property.IsColumnNullable()))
+                column.PropertyMappings.First(m => m.Property == property).TypeMapping,
+                nullable || column.IsNullable)
         {
         }
 

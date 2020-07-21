@@ -48,6 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IColumnBase FindColumn([NotNull] string name);
 
         /// <summary>
+        ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
+        /// </summary>
+        IColumnBase FindColumn([NotNull] IProperty property);
+
+        /// <summary>
         ///     Gets the foreign keys for the given entity type that point to other entity types sharing this table.
         /// </summary>
         IEnumerable<IForeignKey> GetRowInternalForeignKeys([NotNull] IEntityType entityType);

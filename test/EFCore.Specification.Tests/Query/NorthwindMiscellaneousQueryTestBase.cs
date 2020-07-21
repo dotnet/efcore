@@ -6074,5 +6074,30 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal("Nullable object must have a value.", message);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                        .Where(c => c.CustomerID.StartsWith("F"))
+                        .OrderBy(c => c.CustomerID)
+                        .Select(c => new
+                        {
+                            Complex = (bool?)c.Orders.OrderBy(e => e.OrderDate).FirstOrDefault().Customer.Orders.Any(e => e.OrderID < 11000)
+                        }),
+                ss => ss.Set<Customer>()
+                        .Where(c => c.CustomerID.StartsWith("F"))
+                        .OrderBy(c => c.CustomerID)
+                        .Select(c => new
+                        {
+                            Complex = c.Orders.OrderBy(e => e.OrderDate).FirstOrDefault() != null
+                                ? c.Orders.OrderBy(e => e.OrderDate).FirstOrDefault().Customer.Orders.Any(e => e.OrderID < 11000)
+                                : (bool?)false
+                        }),
+                assertOrder: true);
+        }
     }
 }

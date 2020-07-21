@@ -305,6 +305,15 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(RelationalAnnotationNames.ColumnType)?.GetConfigurationSource();
 
         /// <summary>
+        ///     Returns the default columns to which the property would be mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The default columns to which the property would be mapped. </returns>
+        public static IEnumerable<IColumnMappingBase> GetDefaultColumnMappings([NotNull] this IProperty property) =>
+            (IEnumerable<IColumnMappingBase>)property[RelationalAnnotationNames.DefaultColumnMappings]
+                ?? Enumerable.Empty<IColumnMappingBase>();
+
+        /// <summary>
         ///     Returns the table columns to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
@@ -321,6 +330,15 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<IViewColumnMapping> GetViewColumnMappings([NotNull] this IProperty property) =>
             (IEnumerable<IViewColumnMapping>)property[RelationalAnnotationNames.ViewColumnMappings]
                 ?? Enumerable.Empty<IViewColumnMapping>();
+
+        /// <summary>
+        ///     Returns the SQL query columns to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The SQL query columns to which the property is mapped. </returns>
+        public static IEnumerable<ISqlQueryColumnMapping> GetSqlQueryColumnMappings([NotNull] this IProperty property) =>
+            (IEnumerable<ISqlQueryColumnMapping>)property[RelationalAnnotationNames.SqlQueryColumnMappings]
+                ?? Enumerable.Empty<ISqlQueryColumnMapping>();
 
         /// <summary>
         ///     Returns the function columns to which the property is mapped.
@@ -348,6 +366,10 @@ namespace Microsoft.EntityFrameworkCore
                 case StoreObjectType.View:
                     return property.GetViewColumnMappings()
                         .Where(m => m.ViewMapping.Table.Name == storeObject.Name && m.ViewMapping.Table.Schema == storeObject.Schema)
+                        .FirstOrDefault()?.Column;
+                case StoreObjectType.SqlQuery:
+                    return property.GetSqlQueryColumnMappings()
+                        .Where(m => m.SqlQueryMapping.SqlQuery.Name == storeObject.Name)
                         .FirstOrDefault()?.Column;
                 case StoreObjectType.Function:
                     return property.GetFunctionColumnMappings()
@@ -750,9 +772,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The <see cref="IProperty" />. </param>
         /// <returns> <see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IProperty property)
-            => !property.IsPrimaryKey()
-                && (property.IsNullable
-                    || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.GetDiscriminatorProperty() != null));
+            => property.IsNullable
+                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.GetDiscriminatorProperty() != null);
 
         /// <summary>
         ///     <para>

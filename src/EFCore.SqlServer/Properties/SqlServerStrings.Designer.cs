@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings", typeof(SqlServerResources).Assembly);
 
         /// <summary>
-        ///     No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()' or specify a ValueConverter.
+        ///     No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()', specify precision and scale using 'HasPrecision()' or configure a value converter using 'HasConversion()'.
         /// </summary>
         public static EventDefinition<string, string> LogDefaultDecimalTypeColumn([NotNull] IDiagnosticsLogger logger)
         {
@@ -657,6 +657,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             }
 
             return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The decimal property '{property}' is part of a key on entity type '{entityType}'. If the configured precision and scale don't match the column type in the database this will cause values to be silently truncated if they do not fit in the default precision and scale. Consider using a different property as the key or make sure that the database column type matches the model configuration and enable decimal rounding warnings using 'SET NUMERIC_ROUNDABORT ON'.
+        /// </summary>
+        public static EventDefinition<string, string> LogDecimalTypeKey([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDecimalTypeKey;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDecimalTypeKey,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.DecimalTypeKeyWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.DecimalTypeKeyWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.DecimalTypeKeyWarning,
+                            _resourceManager.GetString("LogDecimalTypeKey"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
     }
 }

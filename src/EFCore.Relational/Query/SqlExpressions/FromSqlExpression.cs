@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Sql = sql;
             Arguments = arguments;
         }
+
         /// <summary>
         ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
         /// </summary>
@@ -55,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The user-provided custom SQL for the table source.
         /// </summary>
         public virtual string Sql { get; }
+
         /// <summary>
         ///     The user-provided parameters passed to the custom SQL.
         /// </summary>

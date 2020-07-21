@@ -4163,6 +4163,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.Max_on_empty_sequence_throws(async);
         }
 
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(bool async)
+        {
+            return base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

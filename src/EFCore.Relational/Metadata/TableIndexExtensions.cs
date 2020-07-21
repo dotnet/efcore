@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             builder
                 .Append(index.Name)
                 .Append(" ")
-                .Append(Column.Format(index.Columns));
+                .Append(ColumnBase.Format(index.Columns));
 
             if (index.IsUnique)
             {

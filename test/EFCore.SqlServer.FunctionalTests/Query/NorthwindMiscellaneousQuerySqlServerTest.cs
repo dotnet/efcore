@@ -5190,6 +5190,38 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
+        public override async Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(bool async)
+        {
+            await base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE ((
+            SELECT TOP(1) [c].[CustomerID]
+            FROM [Orders] AS [o0]
+            LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+            WHERE [c1].[CustomerID] = [o0].[CustomerID]
+            ORDER BY [o0].[OrderDate]) IS NOT NULL AND (((
+            SELECT TOP(1) [c0].[CustomerID]
+            FROM [Orders] AS [o1]
+            LEFT JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
+            WHERE [c1].[CustomerID] = [o1].[CustomerID]
+            ORDER BY [o1].[OrderDate]) = [o].[CustomerID]) OR ((
+            SELECT TOP(1) [c0].[CustomerID]
+            FROM [Orders] AS [o1]
+            LEFT JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
+            WHERE [c1].[CustomerID] = [o1].[CustomerID]
+            ORDER BY [o1].[OrderDate]) IS NULL AND [o].[CustomerID] IS NULL))) AND ([o].[OrderID] < 11000)) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Complex]
+FROM [Customers] AS [c1]
+WHERE [c1].[CustomerID] LIKE N'F%'
+ORDER BY [c1].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

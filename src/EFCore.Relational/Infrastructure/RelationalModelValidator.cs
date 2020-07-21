@@ -57,12 +57,40 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             base.Validate(model, logger);
 
-            ValidateSharedTableCompatibility(model, logger);
             ValidatePropertyOverrides(model, logger);
+            ValidateSqlQueries(model, logger);
+            ValidateDbFunctions(model, logger);
+            ValidateSharedTableCompatibility(model, logger);
             ValidateDefaultValuesOnKeys(model, logger);
             ValidateBoolsWithDefaults(model, logger);
-            ValidateDbFunctions(model, logger);
             ValidateIndexProperties(model, logger);
+        }
+
+        /// <summary>
+        ///     Validates the mapping/configuration of SQL queries in the model.
+        /// </summary>
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateSqlQueries(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var sqlQuery = entityType.GetQuerySql();
+                if (sqlQuery == null)
+                {
+                    continue;
+                }
+
+                if (entityType.BaseType != null
+                    && (entityType.GetDiscriminatorProperty() == null
+                        || sqlQuery != entityType.BaseType.GetQuerySql()))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.InvalidMappedSqlQueryDerivedType(
+                            entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                }
+            }
         }
 
         /// <summary>
@@ -980,15 +1008,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         switch (storeOverride.StoreObjectType)
                         {
                             case StoreObjectType.Table:
-                                if (entityType.GetTableName() == name
-                                    && entityType.GetSchema() == schema)
-                                {
-                                    throw new InvalidOperationException(RelationalStrings.TableOverrideDeclaredTable(
-                                        property.Name,
-                                        (schema == null ? "" : schema + ".") + name,
-                                        entityType.DisplayName()));
-                                }
-
                                 if (!entityType.GetDerivedTypes().Any(d =>
                                     d.GetTableName() == name
                                     && d.GetSchema() == schema))
@@ -999,38 +1018,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 }
                                 break;
                             case StoreObjectType.View:
-                                if (entityType.GetViewName() == name
-                                    && entityType.GetViewSchema() == schema)
-                                {
-                                    throw new InvalidOperationException(RelationalStrings.TableOverrideDeclaredTable(
-                                        property.Name,
-                                        (schema == null ? "" : schema + ".") + name,
-                                        entityType.DisplayName()));
-                                }
-
                                 if (!entityType.GetDerivedTypes().Any(d =>
                                     d.GetViewName() == name
                                     && d.GetViewSchema() == schema))
                                 {
-                                    throw new InvalidOperationException(RelationalStrings.TableOverrideMismatch(
+                                    throw new InvalidOperationException(RelationalStrings.ViewOverrideMismatch(
                                         entityType.DisplayName() + "." + property.Name,
                                         (schema == null ? "" : schema + ".") + name));
                                 }
                                 break;
-                            case StoreObjectType.Function:
-                                if (entityType.GetFunctionName() == name)
+                            case StoreObjectType.SqlQuery:
+                                if (!entityType.GetDerivedTypes().Any(d => d.GetDefaultSqlQueryName() == name))
                                 {
-                                    throw new InvalidOperationException(RelationalStrings.TableOverrideDeclaredTable(
-                                        property.Name,
-                                        name,
-                                        entityType.DisplayName()));
+                                    throw new InvalidOperationException(RelationalStrings.SqlQueryOverrideMismatch(
+                                        entityType.DisplayName() + "." + property.Name, name));
                                 }
-
+                                break;
+                            case StoreObjectType.Function:
                                 if (!entityType.GetDerivedTypes().Any(d => d.GetFunctionName() == name))
                                 {
-                                    throw new InvalidOperationException(RelationalStrings.TableOverrideMismatch(
-                                        entityType.DisplayName() + "." + property.Name,
-                                        (schema == null ? "" : schema + ".") + name));
+                                    throw new InvalidOperationException(RelationalStrings.FunctionOverrideMismatch(
+                                        entityType.DisplayName() + "." + property.Name, name));
                                 }
                                 break;
                             default:

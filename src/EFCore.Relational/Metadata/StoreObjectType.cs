@@ -19,6 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         View,
 
         /// <summary>
+        ///     A SQL query.
+        /// </summary>
+        SqlQuery,
+
+        /// <summary>
         ///     A table-valued function.
         /// </summary>
         Function

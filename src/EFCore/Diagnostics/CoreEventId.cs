@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
@@ -97,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ForeignKeyAttributesOnBothNavigationsWarning,
             ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
             RedundantForeignKeyWarning,
-            NonNullableInverted,
+            NonNullableInverted, // Unused
             NonNullableReferenceOnBothNavigations,
             NonNullableReferenceOnDependent,
-            RequiredAttributeInverted,
+            RequiredAttributeInverted, // Unused
             RequiredAttributeOnCollection,
             CollectionWithoutComparer,
             ConflictingKeylessAndKeyAttributesWarning,
@@ -405,6 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId RequiredAttributeInverted = MakeModelId(Id.RequiredAttributeInverted);
 
         /// <summary>
@@ -419,6 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId NonNullableInverted = MakeModelId(Id.NonNullableInverted);
 
         /// <summary>

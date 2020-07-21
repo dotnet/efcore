@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         /// <summary>
         ///     Gets the value indicating whether this is the function mapping
-        ///     that should be used first when the entity type is queried.
+        ///     that should be used when the entity type is queried.
         /// </summary>
         bool IsDefaultFunctionMapping { get; }
 

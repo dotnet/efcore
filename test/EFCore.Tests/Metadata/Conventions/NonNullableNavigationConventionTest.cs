@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Non_nullability_inverts_when_navigation_to_dependent()
+        public void Non_nullability_logs_when_navigation_to_dependent()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
             var principalEntityTypeBuilder =
@@ -139,14 +139,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             navigation = RunConvention(relationshipBuilder, navigation);
 
-            Assert.Equal(nameof(Principal), navigation.ForeignKey.DeclaringEntityType.DisplayName());
-            Assert.True(navigation.ForeignKey.IsRequired);
+            Assert.Equal(nameof(Dependent), navigation.ForeignKey.DeclaringEntityType.DisplayName());
+            Assert.False(navigation.ForeignKey.IsRequired);
+            Assert.Empty(ListLoggerFactory.Log);
 
+            relationshipBuilder.HasEntityTypes(
+                relationshipBuilder.Metadata.PrincipalEntityType,
+                relationshipBuilder.Metadata.DeclaringEntityType,
+                ConfigurationSource.Convention);
+
+            navigation = RunConvention(relationshipBuilder, navigation);
+
+            Assert.Equal(nameof(Dependent), navigation.ForeignKey.DeclaringEntityType.DisplayName());
+            Assert.False(navigation.ForeignKey.IsRequired);
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogNonNullableInverted(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
+                CoreResources.LogNonNullableReferenceOnDependent(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(Dependent.Principal), nameof(Dependent)), logEntry.Message);
         }
 
         [ConditionalFact]

@@ -2740,6 +2740,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("TypeNotMarkedAsShared", nameof(type)),
                 type);
 
+        /// <summary>
+        ///     The shared type entity type '{entityType}' cannot have a base type.
+        /// </summary>
+        public static string SharedTypeDerivedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("SharedTypeDerivedType", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -3897,6 +3905,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string, string> LogRequiredAttributeInverted([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeInverted;
@@ -3921,6 +3930,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The navigation property '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string, string> LogNonNullableInverted([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableInverted;
@@ -4279,7 +4289,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is pointing to the dependent entity. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.
+        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' is invalid. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.
         /// </summary>
         public static EventDefinition<string, string> LogRequiredAttributeOnDependent([NotNull] IDiagnosticsLogger logger)
         {
@@ -4291,7 +4301,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     () => new EventDefinition<string, string>(
                         logger.Options,
                         CoreEventId.RequiredAttributeOnDependent,
-                        LogLevel.Debug,
+                        LogLevel.Error,
                         "CoreEventId.RequiredAttributeOnDependent",
                         level => LoggerMessage.Define<string, string>(
                             level,

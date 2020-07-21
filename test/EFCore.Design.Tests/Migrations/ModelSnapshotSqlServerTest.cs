@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(5, o.GetEntityTypes().First().GetAnnotations().Count());
+                    Assert.Equal(6, o.GetEntityTypes().First().GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                 });
         }
@@ -2753,7 +2753,7 @@ namespace RootNamespace
                 o =>
                 {
                     var property = o.GetEntityTypes().First().FindProperty("AlternateId");
-                    Assert.Equal(5, property.GetAnnotations().Count());
+                    Assert.Equal(6, property.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", property["AnnotationName"]);
                     Assert.Equal("CName", property["Relational:ColumnName"]);
                     Assert.Equal("int", property["Relational:ColumnType"]);

@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
             base.Validate(model, logger);
 
-            ValidateDefaultDecimalMapping(model, logger);
+            ValidateDecimalColumns(model, logger);
             ValidateByteIdentityMapping(model, logger);
             ValidateNonKeyValueGeneration(model, logger);
         }
@@ -66,16 +66,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void ValidateDefaultDecimalMapping(
+        protected virtual void ValidateDecimalColumns(
             [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            foreach (var property in model.GetEntityTypes()
+            foreach (IConventionProperty property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(
-                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                         && !p.IsForeignKey()))
             {
-                var valueConverterConfigurationSource = (property as IConventionProperty)?.GetValueConverterConfigurationSource();
+                var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
                 var valueConverterProviderType = property.GetValueConverter()?.ProviderClrType;
                 if (!ConfigurationSource.Convention.Overrides(valueConverterConfigurationSource)
                     && typeof(decimal) != valueConverterProviderType)
@@ -83,14 +82,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     continue;
                 }
 
-                var columnTypeConfigurationSource = (property as IConventionProperty)?.GetColumnTypeConfigurationSource();
-                var typeMappingConfigurationSource = (property as IConventionProperty)?.GetTypeMappingConfigurationSource();
-                if ((columnTypeConfigurationSource == null
-                        && ConfigurationSource.Convention.Overrides(typeMappingConfigurationSource))
+                var columnTypeConfigurationSource = property.GetColumnTypeConfigurationSource();
+                if (((columnTypeConfigurationSource == null
+                        && ConfigurationSource.Convention.Overrides(property.GetTypeMappingConfigurationSource()))
                     || (columnTypeConfigurationSource != null
                         && ConfigurationSource.Convention.Overrides(columnTypeConfigurationSource)))
+                    && (ConfigurationSource.Convention.Overrides(property.GetPrecisionConfigurationSource())
+                        || ConfigurationSource.Convention.Overrides(property.GetScaleConfigurationSource())))
                 {
                     logger.DecimalTypeDefaultWarning(property);
+                }
+
+                if (property.IsKey())
+                {
+                    logger.DecimalTypeKeyWarning(property);
                 }
             }
         }

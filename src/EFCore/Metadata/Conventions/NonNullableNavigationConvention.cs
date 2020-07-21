@@ -14,7 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the non-nullable navigations to principal entity type as required.
     /// </summary>
-    public class NonNullableNavigationConvention : NonNullableConventionBase, INavigationAddedConvention
+    public class NonNullableNavigationConvention :
+        NonNullableConventionBase,
+        INavigationAddedConvention,
+        IForeignKeyPrincipalEndChangedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="NonNullableNavigationConvention" />.
@@ -29,6 +32,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
             IConventionContext<IConventionNavigationBuilder> context)
+        {
+            ProcessNavigation(navigationBuilder);
+            context.StopProcessingIfChanged(navigationBuilder.Metadata.Builder);
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessForeignKeyPrincipalEndChanged(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context)
+        {
+            var fk = relationshipBuilder.Metadata;
+            if (fk.DependentToPrincipal != null)
+            {
+                ProcessNavigation(fk.DependentToPrincipal.Builder);
+            }
+
+            if (fk.PrincipalToDependent != null)
+            {
+                ProcessNavigation(fk.PrincipalToDependent.Builder);
+            }
+
+            context.StopProcessingIfChanged(relationshipBuilder.Metadata.Builder);
+        }
+
+        private void ProcessNavigation(IConventionNavigationBuilder navigationBuilder)
         {
             var navigation = navigationBuilder.Metadata;
             var foreignKey = navigation.ForeignKey;
@@ -53,31 +81,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
 
-                if (!navigation.ForeignKey.IsUnique
-                    || foreignKey.GetPrincipalEndConfigurationSource() != null)
+                if (foreignKey.GetPrincipalEndConfigurationSource() != null)
                 {
                     Dependencies.Logger.NonNullableReferenceOnDependent(navigation.ForeignKey.PrincipalToDependent);
                     return;
                 }
 
-                relationshipBuilder = relationshipBuilder.HasEntityTypes(
-                    foreignKey.DeclaringEntityType,
-                    foreignKey.PrincipalEntityType);
-
-                if (relationshipBuilder == null)
-                {
-                    return;
-                }
-
-                Dependencies.Logger.NonNullableInverted(relationshipBuilder.Metadata.DependentToPrincipal);
+                return;
             }
 
-            relationshipBuilder = relationshipBuilder.IsRequired(true);
-
-            if (relationshipBuilder != null)
-            {
-                context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal?.Builder);
-            }
+            relationshipBuilder.IsRequired(true);
         }
 
         private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)

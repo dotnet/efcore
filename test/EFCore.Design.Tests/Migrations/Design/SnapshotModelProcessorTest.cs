@@ -232,10 +232,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             foreach (var annotationName in GetAnnotationNames()
                 .Where(a => a != RelationalAnnotationNames.MaxIdentifierLength
                     && a != RelationalAnnotationNames.RelationalModel
+                    && a != RelationalAnnotationNames.DefaultMappings
+                    && a != RelationalAnnotationNames.DefaultColumnMappings
                     && a != RelationalAnnotationNames.TableMappings
                     && a != RelationalAnnotationNames.TableColumnMappings
                     && a != RelationalAnnotationNames.ViewMappings
                     && a != RelationalAnnotationNames.ViewColumnMappings
+                    && a != RelationalAnnotationNames.SqlQueryMappings
+                    && a != RelationalAnnotationNames.SqlQueryColumnMappings
+                    && a != RelationalAnnotationNames.FunctionMappings
+                    && a != RelationalAnnotationNames.FunctionColumnMappings
                     && a != RelationalAnnotationNames.ForeignKeyMappings
                     && a != RelationalAnnotationNames.TableIndexMappings
                     && a != RelationalAnnotationNames.UniqueConstraintMappings

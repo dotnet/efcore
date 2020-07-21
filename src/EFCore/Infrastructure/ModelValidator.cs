@@ -529,6 +529,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return;
             }
 
+            if (entityType.HasSharedClrType
+                && entityType.BaseType != null)
+            {
+                throw new InvalidOperationException(CoreStrings.SharedTypeDerivedType(entityType.DisplayName()));
+            }
+
             if (!entityType.HasDefiningNavigation()
                 && entityType.FindDeclaredOwnership() == null
                 && entityType.BaseType != null)

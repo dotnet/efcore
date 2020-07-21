@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize);
             }
 
-            _maxBatchSize = Math.Min(maxBatchSize ?? int.MaxValue, MaxRowCount);
+            _maxBatchSize = Math.Min(maxBatchSize ?? 42, MaxRowCount);
         }
 
         /// <summary>

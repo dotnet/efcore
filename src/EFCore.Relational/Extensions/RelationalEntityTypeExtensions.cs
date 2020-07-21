@@ -42,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning disable CS0618 // Type or member is obsolete
                 && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
 #pragma warning restore CS0618 // Type or member is obsolete
+                && ((entityType as IConventionEntityType)?.GetQuerySqlConfigurationSource() == null)
                 ? GetDefaultTableName(entityType)
                 : null;
         }
@@ -223,6 +224,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Returns the default mappings that the entity type would use.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the table mappings for. </param>
+        /// <returns> The tables to which the entity type is mapped. </returns>
+        public static IEnumerable<ITableMappingBase> GetDefaultMappings([NotNull] this IEntityType entityType) =>
+            (IEnumerable<ITableMappingBase>)entityType[RelationalAnnotationNames.DefaultMappings]
+                ?? Array.Empty<ITableMappingBase>();
+
+        /// <summary>
         ///     Returns the tables to which the entity type is mapped.
         /// </summary>
         /// <param name="entityType"> The entity type to get the table mappings for. </param>
@@ -253,6 +263,7 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning disable CS0618 // Type or member is obsolete
                 && (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
 #pragma warning restore CS0618 // Type or member is obsolete
+                && ((entityType as IConventionEntityType)?.GetQuerySqlConfigurationSource() == null)
                 ? GetDefaultViewName(entityType)
                 : null;
         }
@@ -388,6 +399,78 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<IViewMapping> GetViewMappings([NotNull] this IEntityType entityType) =>
             (IEnumerable<IViewMapping>)entityType[RelationalAnnotationNames.ViewMappings]
                 ?? Array.Empty<IViewMapping>();
+
+        /// <summary>
+        ///     Gets the default SQL query name that would be used for this entity type when mapped using
+        ///     <see cref="M:RelationalEntityTypeBuilderExtensions.ToQuerySql" />.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> Gets the default SQL query name. </returns>
+        public static string GetDefaultSqlQueryName([NotNull] this IEntityType entityType)
+            => entityType.Name + "." + SqlQueryExtensions.DefaultQueryNameBase;
+
+        /// <summary>
+        ///     Returns the SQL string used to provide data for the entity type or <see langword="null" /> if not mapped to a SQL string.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The SQL string used to provide data for the entity type. </returns>
+        public static string GetQuerySql([NotNull] this IEntityType entityType)
+        {
+            var nameAnnotation = (string)entityType[RelationalAnnotationNames.QuerySql];
+            if (nameAnnotation != null)
+            {
+                return nameAnnotation;
+            }
+
+            if (entityType.BaseType != null)
+            {
+                return entityType.GetRootType().GetQuerySql();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Sets the SQL string used to provide data for the entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="name"> The SQL string to set. </param>
+        public static void SetQuerySql([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
+            => entityType.SetAnnotation(
+                RelationalAnnotationNames.QuerySql,
+                Check.NullButNotEmpty(name, nameof(name)));
+
+        /// <summary>
+        ///     Sets the SQL string used to provide data for the entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="name"> The SQL string to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static string SetQuerySql(
+            [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
+            => (string)entityType.SetAnnotation(
+                RelationalAnnotationNames.QuerySql,
+                Check.NullButNotEmpty(name, nameof(name)),
+                fromDataAnnotation)?.Value;
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the query SQL string.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the query SQL string. </returns>
+        public static ConfigurationSource? GetQuerySqlConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(RelationalAnnotationNames.QuerySql)
+            ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the SQL string mappings.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the function mappings for. </param>
+        /// <returns> The functions to which the entity type is mapped. </returns>
+        public static IEnumerable<ISqlQueryMapping> GetSqlQueryMappings([NotNull] this IEntityType entityType) =>
+            (IEnumerable<ISqlQueryMapping>)entityType[RelationalAnnotationNames.SqlQueryMappings]
+                ?? Array.Empty<ISqlQueryMapping>();
 
         /// <summary>
         ///     Returns the name of the function to which the entity type is mapped or <see langword="null" /> if not mapped to a function.

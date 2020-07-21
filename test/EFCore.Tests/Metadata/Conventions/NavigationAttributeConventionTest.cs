@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void RequiredAttribute_does_not_set_is_required_for_navigation_to_dependent()
+        public void RequiredAttribute_throws_for_navigation_to_dependent()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
             var principalEntityTypeBuilder =
@@ -190,20 +190,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
-
-            RunRequiredNavigationAttributeConvention(relationshipBuilder, navigation);
-
-            Assert.False(relationshipBuilder.Metadata.IsRequired);
-
-            var logEntry = ListLoggerFactory.Log.Single();
-            Assert.Equal(LogLevel.Debug, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogRequiredAttributeOnDependent(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Dependent), nameof(Dependent.Principal)), logEntry.Message);
+            
+            Assert.Equal(CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.RequiredAttributeOnDependent.ToString(),
+                CoreResources.LogRequiredAttributeOnDependent(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage(nameof(Principal), nameof(Principal.Dependent)), "CoreEventId.RequiredAttributeOnDependent"),
+                Assert.Throws<InvalidOperationException>(() => RunRequiredNavigationAttributeConvention(relationshipBuilder, navigation)).Message);
         }
 
         [ConditionalFact]
-        public void RequiredAttribute_inverts_when_navigation_to_dependent()
+        public void RequiredAttribute_does_nothing_when_principal_end_is_ambiguous()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
             var principalEntityTypeBuilder =
@@ -222,16 +218,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunRequiredNavigationAttributeConvention(relationshipBuilder, navigation);
 
-            var newForeignKey = principalEntityTypeBuilder.Metadata.GetForeignKeys().Single();
-            Assert.Equal(nameof(Principal.Dependent), newForeignKey.DependentToPrincipal.Name);
-            Assert.Equal(nameof(Principal), newForeignKey.DeclaringEntityType.DisplayName());
-            Assert.True(newForeignKey.IsRequired);
-
-            var logEntry = ListLoggerFactory.Log.Single();
-            Assert.Equal(LogLevel.Debug, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogRequiredAttributeInverted(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
+            var newForeignKey = dependentEntityTypeBuilder.Metadata.GetForeignKeys().Single();
+            Assert.Equal(nameof(Principal.Dependent), newForeignKey.PrincipalToDependent.Name);
+            Assert.False(newForeignKey.IsRequired);
+            Assert.Empty(ListLoggerFactory.Log);
         }
 
         [ConditionalFact]
@@ -251,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var modelBuilder = CreateModelBuilder();
             var model = (Model)modelBuilder.Model;
+            modelBuilder.Entity<BlogDetails>();
             modelBuilder.Entity<BlogDetails>().HasOne(b => b.Blog).WithOne(b => b.BlogDetails);
 
             Assert.True(
@@ -1040,7 +1031,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Navigation_attribute_convention_runs_for_private_property()
         {
             var modelBuilder = CreateModelBuilder();
-            var referenceBuilder = modelBuilder.Entity<BlogDetails>().HasOne<Post>("Post").WithOne();
+            var referenceBuilder = modelBuilder.Entity<BlogDetails>().HasOne<Post>("Post").WithOne().HasForeignKey<BlogDetails>();
 
             Assert.False(referenceBuilder.Metadata.Properties.First().IsNullable);
         }

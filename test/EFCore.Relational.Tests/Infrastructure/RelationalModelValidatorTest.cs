@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1297,7 +1296,29 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
             property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog", null));
 
-            VerifyError(RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
+            VerifyError(RelationalStrings.ViewOverrideMismatch("Animal.Name", "Dog"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_invalid_sql_query_overrides()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
+            property.HasColumnName("DogName", StoreObjectIdentifier.SqlQuery("Dog"));
+
+            VerifyError(RelationalStrings.SqlQueryOverrideMismatch("Animal.Name", "Dog"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_invalid_function_overrides()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
+            property.HasColumnName("DogName", StoreObjectIdentifier.DbFunction("Dog"));
+
+            VerifyError(RelationalStrings.FunctionOverrideMismatch("Animal.Name", "Dog"),
                 modelBuilder.Model);
         }
 

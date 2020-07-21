@@ -3101,8 +3101,7 @@ WHERE [b].[Id] = 13");
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             {
                 var options = base.AddOptions(builder).ConfigureWarnings(
-                    c => c
-                        .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
                 new SqlServerDbContextOptionsBuilder(options).MinBatchSize(1);
 

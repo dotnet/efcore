@@ -360,11 +360,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (async)
                     {
-                        context.Database.CloseConnection();
+                        await context.Database.CloseConnectionAsync();
                     }
                     else
                     {
-                        await context.Database.CloseConnectionAsync();
+                        context.Database.CloseConnection();
                     }
                 }
 

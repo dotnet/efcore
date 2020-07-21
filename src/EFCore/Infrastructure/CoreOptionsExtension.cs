@@ -49,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .TryWithExplicit(CoreEventId.ManyServiceProvidersCreatedWarning, WarningBehavior.Throw)
                 .TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw)
                 .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw)
-                .TryWithExplicit(CoreEventId.InvalidIncludePathError, WarningBehavior.Throw);
+                .TryWithExplicit(CoreEventId.InvalidIncludePathError, WarningBehavior.Throw)
+                .TryWithExplicit(CoreEventId.RequiredAttributeOnDependent, WarningBehavior.Throw);
 
         /// <summary>
         ///     Creates a new set of options with everything set to default values.
