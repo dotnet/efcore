@@ -2900,10 +2900,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             var hash = new HashCode();
             hash.Add(base.GetHashCode());
 
-            foreach (var projection in _projection)
-            {
-                hash.Add(projection);
-            }
+            // TODO: See issue#21700 & #18923
+            //foreach (var projection in _projection)
+            //{
+            //    hash.Add(projection);
+            //}
 
             foreach (var projectionMapping in _projectionMapping)
             {
