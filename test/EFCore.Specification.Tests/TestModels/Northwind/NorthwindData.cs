@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         private readonly CustomerQuery[] _customerQueries;
         private readonly Employee[] _employees;
         private readonly Product[] _products;
+        private readonly ProductQuery[] _productQueries;
         private readonly Order[] _orders;
         private readonly OrderQuery[] _orderQueries;
         private readonly OrderDetail[] _orderDetails;
@@ -48,10 +49,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
             _customerQueries = customerQueries.ToArray();
 
+            var productQueries = new List<ProductQuery>();
+
             foreach (var product in _products)
             {
                 product.OrderDetails = new List<OrderDetail>();
+
+                if (!product.Discontinued)
+                {
+                    productQueries.Add(
+                        new ProductQuery { CategoryName = "Food", ProductID = product.ProductID, ProductName = product.ProductName });
+                }
             }
+
+            _productQueries = productQueries.ToArray();
 
             var orderQueries = new List<OrderQuery>();
 
@@ -123,6 +134,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             if (typeof(TEntity) == typeof(OrderQuery))
             {
                 return (IQueryable<TEntity>)_orderQueries.AsQueryable();
+            }
+
+            if (typeof(TEntity) == typeof(ProductQuery))
+            {
+                return (IQueryable<TEntity>)_productQueries.AsQueryable();
             }
 
             throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

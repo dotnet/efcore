@@ -199,5 +199,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(830, results.Count);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_correlated_with_keyless_entity_in_predicate_works(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CustomerQuery>()
+                    .Where(cq => ss.Set<Customer>().Where(c => c.City == cq.City).Any())
+                    .Select(pv => new { pv.City, pv.ContactName })
+                    .OrderBy(x => x.ContactName)
+                    .Take(2));
+        }
     }
 }
