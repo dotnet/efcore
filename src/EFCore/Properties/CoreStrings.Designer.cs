@@ -2740,6 +2740,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("TypeNotMarkedAsShared", nameof(type)),
                 type);
 
+        /// <summary>
+        ///     The shared type entity type '{entityType}' cannot have a base type.
+        /// </summary>
+        public static string SharedTypeDerivedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("SharedTypeDerivedType", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

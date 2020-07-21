@@ -1333,6 +1333,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyLogDoesNotContain(message, modelBuilder.Model);
         }
 
+        [ConditionalFact]
+        public virtual void Shared_type_inheritance_throws()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.SharedEntity<A>("Shared1");
+            modelBuilder.SharedEntity<C>("Shared2").HasBaseType("Shared1");
+
+            VerifyError(CoreStrings.SharedTypeDerivedType("Shared2"), modelBuilder.Model);
+        }
+
         // INotify interfaces not really implemented; just marking the classes to test metadata construction
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {
