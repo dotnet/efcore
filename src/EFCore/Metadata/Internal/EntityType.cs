@@ -450,7 +450,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         public virtual IEnumerable<EntityType> GetDerivedTypesInclusive()
-            => new[] { this }.Concat(GetDerivedTypes());
+            => _directlyDerivedTypes.Count == 0
+            ? new[] { this }
+            : new[] { this }.Concat(GetDerivedTypes());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -460,7 +462,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         public virtual IEnumerable<ForeignKey> GetForeignKeysInHierarchy()
-            => GetForeignKeys().Concat(GetDerivedForeignKeys());
+            => _directlyDerivedTypes.Count == 0
+            ? GetForeignKeys()
+            : GetForeignKeys().Concat(GetDerivedForeignKeys());
 
         private bool InheritsFrom(EntityType entityType)
         {
@@ -1051,8 +1055,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeys([NotNull] IProperty property)
-            => FindForeignKeys(
-                new[] { property });
+            => FindForeignKeys(new[] { property });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1065,8 +1068,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
 
-            return _baseType?.FindForeignKeys(properties)?.Concat(FindDeclaredForeignKeys(properties))
-                ?? FindDeclaredForeignKeys(properties);
+            return _baseType != null
+                ? _foreignKeys.Count == 0
+                    ? _baseType.FindForeignKeys(properties)
+                    : _baseType.FindForeignKeys(properties).Concat(FindDeclaredForeignKeys(properties))
+                : FindDeclaredForeignKeys(properties);
         }
 
         /// <summary>
@@ -1135,7 +1141,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetDerivedForeignKeys()
-            => GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys());
+            => _directlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<ForeignKey>()
+            : GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1144,7 +1152,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetForeignKeys()
-            => _baseType?.GetForeignKeys().Concat(_foreignKeys) ?? _foreignKeys;
+            => _baseType != null
+            ? _foreignKeys.Count == 0
+                ? _baseType.GetForeignKeys()
+                : _baseType.GetForeignKeys().Concat(_foreignKeys)
+            : _foreignKeys;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1156,7 +1168,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotEmpty(properties, nameof(properties));
 
-            return _foreignKeys.Where(fk => PropertyListComparer.Instance.Equals(fk.Properties, properties));
+            return _foreignKeys.Count == 0
+                ? Enumerable.Empty<ForeignKey>()
+                : _foreignKeys.Where(fk => PropertyListComparer.Instance.Equals(fk.Properties, properties));
         }
 
         /// <summary>
@@ -1173,6 +1187,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(properties, nameof(properties));
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
+
+            if (_foreignKeys.Count == 0)
+            {
+                return null;
+            }
 
             foreach (var fk in FindDeclaredForeignKeys(properties))
             {
@@ -1194,7 +1213,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys(
             [NotNull] IReadOnlyList<IProperty> properties)
-            => GetDerivedTypes().SelectMany(et => et.FindDeclaredForeignKeys(properties));
+            => _directlyDerivedTypes.Count == 0
+                ? Enumerable.Empty<ForeignKey>()
+                : GetDerivedTypes().SelectMany(et => et.FindDeclaredForeignKeys(properties));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1206,7 +1227,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType)
-            => GetDerivedTypes().Select(et => et.FindDeclaredForeignKey(properties, principalKey, principalEntityType))
+            => _directlyDerivedTypes.Count == 0
+                ? Enumerable.Empty<ForeignKey>()
+                : GetDerivedTypes().Select(et => et.FindDeclaredForeignKey(properties, principalKey, principalEntityType))
                 .Where(fk => fk != null);
 
         /// <summary>
@@ -1217,7 +1240,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy(
             [NotNull] IReadOnlyList<IProperty> properties)
-            => FindForeignKeys(properties).Concat(FindDerivedForeignKeys(properties));
+            => _directlyDerivedTypes.Count == 0
+                ? FindForeignKeys(properties)
+                : FindForeignKeys(properties).Concat(FindDerivedForeignKeys(properties));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1229,7 +1254,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType)
-            => ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
+            => _directlyDerivedTypes.Count == 0
+                ? ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
+                : ToEnumerable(FindForeignKey(properties, principalKey, principalEntityType))
                 .Concat(FindDerivedForeignKeys(properties, principalKey, principalEntityType));
 
         /// <summary>
@@ -1328,8 +1355,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
-            => _baseType?.GetReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
-                ?? GetDeclaredReferencingForeignKeys();
+            => _baseType != null
+                ? DeclaredReferencingForeignKeys?.Count == 0
+                    ? _baseType.GetReferencingForeignKeys()
+                    : _baseType.GetReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
+                : GetDeclaredReferencingForeignKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1347,7 +1377,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetDerivedReferencingForeignKeys()
-            => GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingForeignKeys());
+            => _directlyDerivedTypes.Count == 0
+                ? Enumerable.Empty<ForeignKey>()
+                : GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingForeignKeys());
 
         private SortedSet<ForeignKey> DeclaredReferencingForeignKeys { get; set; }
 
@@ -1502,7 +1534,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Navigation> GetDerivedNavigations()
-            => GetDerivedTypes().SelectMany(et => et.GetDeclaredNavigations());
+            => _directlyDerivedTypes.Count == 0
+                ? Enumerable.Empty<Navigation>()
+                : GetDerivedTypes().SelectMany(et => et.GetDeclaredNavigations());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1514,7 +1548,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(name, nameof(name));
 
-            return GetDerivedTypes().Select(et => et.FindDeclaredNavigation(name)).Where(n => n != null);
+            return _directlyDerivedTypes.Count == 0
+                ? Enumerable.Empty<Navigation>()
+                : GetDerivedTypes().Select(et => et.FindDeclaredNavigation(name)).Where(n => n != null);
         }
 
         /// <summary>
@@ -1524,7 +1560,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Navigation> FindNavigationsInHierarchy([NotNull] string name)
-            => ToEnumerable(FindNavigation(name)).Concat(FindDerivedNavigations(name));
+            => _directlyDerivedTypes.Count == 0
+                ? ToEnumerable(FindNavigation(name))
+                : ToEnumerable(FindNavigation(name)).Concat(FindDerivedNavigations(name));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1554,7 +1592,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Navigation> GetNavigations()
-            => _baseType?.GetNavigations().Concat(_navigations.Values) ?? _navigations.Values;
+            => _baseType != null
+                ? _navigations.Count == 0 ? _baseType.GetNavigations() : _baseType.GetNavigations().Concat(_navigations.Values)
+                : _navigations.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1712,7 +1752,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<SkipNavigation> GetDerivedSkipNavigations()
-            => GetDerivedTypes().SelectMany(et => et.GetDeclaredSkipNavigations());
+            => _directlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<SkipNavigation>()
+            : GetDerivedTypes().SelectMany(et => et.GetDeclaredSkipNavigations());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1724,7 +1766,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(name, nameof(name));
 
-            return GetDerivedTypes().Select(et => et.FindDeclaredSkipNavigation(name)).Where(n => n != null);
+            return _directlyDerivedTypes.Count == 0
+                ? Enumerable.Empty<SkipNavigation>()
+                : GetDerivedTypes().Select(et => et.FindDeclaredSkipNavigation(name)).Where(n => n != null);
         }
 
         /// <summary>
@@ -1734,7 +1778,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<SkipNavigation> FindDerivedSkipNavigationsInclusive([NotNull] string name)
-            => ToEnumerable(FindDeclaredSkipNavigation(name)).Concat(FindDerivedSkipNavigations(name));
+            => _directlyDerivedTypes.Count == 0
+                ? ToEnumerable(FindDeclaredSkipNavigation(name))
+                : ToEnumerable(FindDeclaredSkipNavigation(name)).Concat(FindDerivedSkipNavigations(name));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1743,7 +1789,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<SkipNavigation> FindSkipNavigationsInHierarchy([NotNull] string name)
-            => ToEnumerable(FindSkipNavigation(name)).Concat(FindDerivedSkipNavigations(name));
+            => _directlyDerivedTypes.Count == 0
+                ? ToEnumerable(FindSkipNavigation(name))
+                : ToEnumerable(FindSkipNavigation(name)).Concat(FindDerivedSkipNavigations(name));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1806,7 +1854,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<SkipNavigation> GetSkipNavigations()
-            => _baseType?.GetSkipNavigations().Concat(_skipNavigations.Values) ?? _skipNavigations.Values;
+            => _baseType != null
+                ? _skipNavigations.Count == 0
+                    ? _baseType.GetSkipNavigations()
+                    : _baseType.GetSkipNavigations().Concat(_skipNavigations.Values)
+                : _skipNavigations.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1815,8 +1867,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<SkipNavigation> GetReferencingSkipNavigations()
-            => _baseType?.GetReferencingSkipNavigations().Concat(GetDeclaredReferencingSkipNavigations())
-                ?? GetDeclaredReferencingSkipNavigations();
+            => _baseType != null
+                ? DeclaredReferencingSkipNavigations?.Count == 0
+                    ? _baseType.GetReferencingSkipNavigations()
+                    : _baseType.GetReferencingSkipNavigations().Concat(GetDeclaredReferencingSkipNavigations())
+                : GetDeclaredReferencingSkipNavigations();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1834,7 +1889,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<SkipNavigation> GetDerivedReferencingSkipNavigations()
-            => GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingSkipNavigations());
+            => _directlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<SkipNavigation>()
+            : GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingSkipNavigations());
 
         private SortedSet<SkipNavigation> DeclaredReferencingSkipNavigations { get; set; }
 
@@ -2010,8 +2067,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Index> GetDeclaredIndexes() =>
-            _unnamedIndexes.Values.Concat(_namedIndexes.Values);
+        public virtual IEnumerable<Index> GetDeclaredIndexes()
+            => _namedIndexes.Count == 0
+            ? _unnamedIndexes.Values
+            : _unnamedIndexes.Values.Concat(_namedIndexes.Values);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2020,7 +2079,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Index> GetDerivedIndexes()
-            => GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes());
+            => _directlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<Index>()
+            : GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2051,7 +2112,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] IReadOnlyList<IProperty> properties)
-            => GetDerivedTypes().Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
+            => _directlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<Index>()
+            : GetDerivedTypes().Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2060,7 +2123,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Index> FindDerivedIndexes([NotNull] string name)
-            => GetDerivedTypes().Select(et => et.FindDeclaredIndex(Check.NotEmpty(name, nameof(name)))).Where(i => i != null);
+            => _directlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<Index>()
+            : GetDerivedTypes().Select(et => et.FindDeclaredIndex(Check.NotEmpty(name, nameof(name)))).Where(i => i != null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2069,7 +2134,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] IReadOnlyList<IProperty> properties)
-            => ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
+            => _directlyDerivedTypes.Count == 0
+            ? ToEnumerable(FindIndex(properties))
+            : ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2078,7 +2145,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] string name)
-            => ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name)))).Concat(FindDerivedIndexes(name));
+            => _directlyDerivedTypes.Count == 0
+            ? ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name))))
+            : ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name)))).Concat(FindDerivedIndexes(name));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2163,7 +2232,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Index> GetIndexes() => _baseType?.GetIndexes().Concat(GetDeclaredIndexes()) ?? GetDeclaredIndexes();
+        public virtual IEnumerable<Index> GetIndexes()
+            => _baseType != null
+            ? _namedIndexes.Count == 0 && _unnamedIndexes.Count == 0
+                ? _baseType.GetIndexes()
+                : _baseType.GetIndexes().Concat(GetDeclaredIndexes())
+            : GetDeclaredIndexes();
 
         #endregion
 
@@ -2334,7 +2408,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(propertyName, nameof(propertyName));
 
-            return GetDerivedTypes().Select(et => et.FindDeclaredProperty(propertyName)).Where(p => p != null);
+            return _directlyDerivedTypes.Count == 0
+                ? Enumerable.Empty<Property>()
+                : GetDerivedTypes().Select(et => et.FindDeclaredProperty(propertyName)).Where(p => p != null);
         }
 
         /// <summary>
@@ -2344,7 +2420,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Property> FindDerivedPropertiesInclusive([NotNull] string propertyName)
-            => ToEnumerable(FindDeclaredProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
+            => _directlyDerivedTypes.Count == 0
+                ? ToEnumerable(FindDeclaredProperty(propertyName))
+                : ToEnumerable(FindDeclaredProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2353,7 +2431,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Property> FindPropertiesInHierarchy([NotNull] string propertyName)
-            => ToEnumerable(FindProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
+            => _directlyDerivedTypes.Count == 0
+                ? ToEnumerable(FindProperty(propertyName))
+                : ToEnumerable(FindProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2459,7 +2539,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Property> GetProperties()
-            => _baseType?.GetProperties().Concat(_properties.Values) ?? _properties.Values;
+            => _baseType != null
+                ? _baseType.GetProperties().Concat(_properties.Values)
+                : _properties.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2651,7 +2733,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(propertyName, nameof(propertyName));
 
-            return GetDerivedTypes().Select(et => et.FindDeclaredServiceProperty(propertyName)).Where(p => p != null);
+            return _directlyDerivedTypes.Count == 0
+                ? Enumerable.Empty<ServiceProperty>()
+                : GetDerivedTypes().Select(et => et.FindDeclaredServiceProperty(propertyName)).Where(p => p != null);
         }
 
         /// <summary>
@@ -2661,7 +2745,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ServiceProperty> FindDerivedServicePropertiesInclusive([NotNull] string propertyName)
-            => ToEnumerable(FindDeclaredServiceProperty(propertyName)).Concat(FindDerivedServiceProperties(propertyName));
+            => _directlyDerivedTypes.Count == 0
+                ? ToEnumerable(FindDeclaredServiceProperty(propertyName))
+                : ToEnumerable(FindDeclaredServiceProperty(propertyName)).Concat(FindDerivedServiceProperties(propertyName));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2670,7 +2756,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ServiceProperty> FindServicePropertiesInHierarchy([NotNull] string propertyName)
-            => ToEnumerable(FindServiceProperty(propertyName)).Concat(FindDerivedServiceProperties(propertyName));
+            => _directlyDerivedTypes.Count == 0
+                ? ToEnumerable(FindServiceProperty(propertyName))
+                : ToEnumerable(FindServiceProperty(propertyName)).Concat(FindDerivedServiceProperties(propertyName));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2723,7 +2811,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<ServiceProperty> GetServiceProperties()
-            => _baseType?.GetServiceProperties().Concat(_serviceProperties.Values) ?? _serviceProperties.Values;
+            => _baseType != null
+            ? _serviceProperties.Count == 0
+                ? _baseType.GetServiceProperties()
+                : _baseType.GetServiceProperties().Concat(_serviceProperties.Values)
+            : _serviceProperties.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
