@@ -1441,4 +1441,7 @@
   <data name="TypeNotMarkedAsShared" xml:space="preserve">
     <value>Type '{type}' is not been configured as shared type in the model. Before calling 'UsingEntity', please mark the type as shared or add the entity type in the model as shared entity.</value>
   </data>
+  <data name="SharedTypeDerivedType" xml:space="preserve">
+    <value>The shared type entity type '{entityType}' cannot have a base type.</value>
+  </data>
 </root>
