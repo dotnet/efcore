@@ -48,8 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && entityType.Builder.CanSetAnnotation(CoreAnnotationNames.ConstructorBinding, null))
                 {
                     var maxServiceParams = 0;
+                    var maxServiceOnlyParams = 0;
                     var minPropertyParams = int.MaxValue;
                     var foundBindings = new List<InstantiationBinding>();
+                    var foundServiceOnlyBindings = new List<InstantiationBinding>();
                     var bindingFailures = new List<IEnumerable<ParameterInfo>>();
 
                     foreach (var constructor in entityType.ClrType.GetTypeInfo()
@@ -63,6 +65,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         {
                             var serviceParamCount = binding.ParameterBindings.OfType<ServiceParameterBinding>().Count();
                             var propertyParamCount = binding.ParameterBindings.Count - serviceParamCount;
+
+                            if (propertyParamCount == 0)
+                            {
+                                if (serviceParamCount == maxServiceOnlyParams)
+                                {
+                                    foundServiceOnlyBindings.Add(binding);
+                                }
+                                else if (serviceParamCount > maxServiceOnlyParams)
+                                {
+                                    foundServiceOnlyBindings.Clear();
+                                    foundServiceOnlyBindings.Add(binding);
+
+                                    maxServiceOnlyParams = serviceParamCount;
+                                }
+                            }
 
                             if (serviceParamCount == maxServiceParams
                                 && propertyParamCount == minPropertyParams)
@@ -126,6 +143,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     entityType.Builder.HasAnnotation(
                         CoreAnnotationNames.ConstructorBinding,
                         foundBindings[0]);
+
+
+                    if (foundServiceOnlyBindings.Count == 1)
+                    {
+                        entityType.Builder.HasAnnotation(
+                            CoreAnnotationNames.ServiceOnlyConstructorBinding,
+                            foundServiceOnlyBindings[0]);
+                    }
                 }
             }
         }

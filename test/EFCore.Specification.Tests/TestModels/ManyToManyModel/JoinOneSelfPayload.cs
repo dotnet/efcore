@@ -7,10 +7,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     public class JoinOneSelfPayload
     {
-        public int LeftId { get; set; }
-        public int RightId { get; set; }
-        public DateTime Payload { get; set; }
-        public EntityOne Right { get; set; }
-        public EntityOne Left { get; set; }
+        public virtual int LeftId { get; set; }
+        public virtual int RightId { get; set; }
+        public virtual DateTime Payload { get; set; }
+        public virtual EntityOne Right { get; set; }
+        public virtual EntityOne Left { get; set; }
     }
 }

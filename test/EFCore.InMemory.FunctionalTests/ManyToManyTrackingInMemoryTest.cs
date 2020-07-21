@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -16,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override void ExecuteWithStrategyInTransaction(
-            Action<DbContext> testOperation,
-            Action<DbContext> nestedTestOperation1 = null,
-            Action<DbContext> nestedTestOperation2 = null,
-            Action<DbContext> nestedTestOperation3 = null)
+            Action<ManyToManyContext> testOperation,
+            Action<ManyToManyContext> nestedTestOperation1 = null,
+            Action<ManyToManyContext> nestedTestOperation2 = null,
+            Action<ManyToManyContext> nestedTestOperation3 = null)
         {
             base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
             Fixture.Reseed();

@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<EntityTwo>(et => et.OneSkipShared),
                     new ExpectedInclude<EntityTwo>(et => et.Reference)),
-                entryCount: 94);
+                entryCount: 93);
         }
 
         [ConditionalTheory]
