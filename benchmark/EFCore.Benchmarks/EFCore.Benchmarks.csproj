@@ -10,10 +10,6 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EF.Benchmarks.Shared\EF.Benchmarks.Shared.csproj" />
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug' ">
     <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.3.1" />
