@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ManyToManyTrackingProxySqlServerFixture : ManyToManyTrackingSqlServerFixtureBase
         {
+            protected override string StoreName { get; } = "ManyToManyTrackingProxies";
+
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).UseChangeTrackingProxies();
 

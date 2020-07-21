@@ -9,25 +9,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     // TODO: remove and use shared type instead
-    public class JoinOneToTwoShared
-    {
-        public virtual int OneId { get; set; }
-        public virtual int TwoId { get; set; }
-    }
-
-    public class JoinOneToThreePayloadFullShared
-    {
-        public virtual int OneId { get; set; }
-        public virtual int ThreeId { get; set; }
-        public virtual string Payload { get; set; }
-    }
-
-    public class JoinTwoSelfShared
-    {
-        public virtual int LeftId { get; set; }
-        public virtual int RightId { get; set; }
-    }
-
     public class JoinTwoToCompositeKeyShared
     {
         public virtual int TwoId { get; set; }

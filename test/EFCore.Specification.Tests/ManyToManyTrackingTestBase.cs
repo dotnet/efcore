@@ -24,15 +24,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7711),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7712),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7713)
+                        context.EntityTwos.CreateInstance(e => e.Id = 7711),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7712),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7721),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7722),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7723)
+                        context.EntityTwos.CreateInstance(e => e.Id = 7721),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7722),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].SelfSkipSharedLeft.Add(rightEntities[0]); // 11 - 21
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(6, context.ChangeTracker.Entries<EntityTwo>().Count());
-                Assert.Equal(5, context.ChangeTracker.Entries< /*TODO: Shared*/JoinTwoSelfShared>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, int>>().Count());
 
                 Assert.Equal(3, leftEntities[0].SelfSkipSharedLeft.Count);
                 Assert.Single(leftEntities[1].SelfSkipSharedLeft);
@@ -97,22 +97,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityTwo>().Include(e => e.SelfSkipSharedRight).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityTwo>().Include(e => e.SelfSkipSharedLeft).ToList();
 
-                    leftEntities[0].SelfSkipSharedRight.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7721));
-                    leftEntities[0].SelfSkipSharedRight.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7722));
-                    leftEntities[0].SelfSkipSharedRight.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7723));
+                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].SelfSkipSharedLeft.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7711));
-                    rightEntities[0].SelfSkipSharedLeft.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7712));
-                    rightEntities[0].SelfSkipSharedLeft.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7713));
+                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7711));
+                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7712));
+                    rightEntities[0].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7713));
 
                     leftEntities[2].SelfSkipSharedRight.Remove(leftEntities[2].SelfSkipSharedRight.Single(e => e.Id == 5));
                     rightEntities[1].SelfSkipSharedLeft.Remove(rightEntities[1].SelfSkipSharedLeft.Single(e => e.Id == 8));
 
                     leftEntities[4].SelfSkipSharedRight.Remove(leftEntities[4].SelfSkipSharedRight.Single(e => e.Id == 8));
-                    leftEntities[4].SelfSkipSharedRight.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7724));
+                    leftEntities[4].SelfSkipSharedRight.Add(context.EntityTwos.CreateInstance(e => e.Id = 7724));
 
                     rightEntities[3].SelfSkipSharedLeft.Remove(rightEntities[3].SelfSkipSharedLeft.Single(e => e.Id == 9));
-                    rightEntities[3].SelfSkipSharedLeft.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7714));
+                    rightEntities[3].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7714));
 
                     context.ChangeTracker.DetectChanges();
 
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
                 int joinCount)
             {
                 Assert.Equal(count, context.ChangeTracker.Entries<EntityTwo>().Count());
-                Assert.Equal(joinCount, context.ChangeTracker.Entries<JoinTwoSelfShared>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, int>>().Count());
                 Assert.Equal(count + joinCount, context.ChangeTracker.Entries().Count());
 
                 Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => e.Id == 7721);
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                var deleted = context.ChangeTracker.Entries<JoinTwoSelfShared>().Count(e => e.State == EntityState.Deleted);
+                var deleted = context.ChangeTracker.Entries<Dictionary<string, int>>().Count(e => e.State == EntityState.Deleted);
                 Assert.Equal(joinCount, (joins / 2) + deleted);
             }
         }
@@ -193,15 +193,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7711),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7712),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7713)
+                        context.EntityTwos.CreateInstance(e => e.Id = 7711),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7712),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<EntityThree>(e => e.Id = 7721),
-                        context.CreateInstance<EntityThree>(e => e.Id = 7722),
-                        context.CreateInstance<EntityThree>(e => e.Id = 7723)
+                        context.EntityThrees.CreateInstance(e => e.Id = 7721),
+                        context.EntityThrees.CreateInstance(e => e.Id = 7722),
+                        context.EntityThrees.CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].ThreeSkipFull.Add(rightEntities[0]); // 11 - 21
@@ -266,22 +266,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityTwo>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityThree>().Include(e => e.TwoSkipFull).ToList();
 
-                    leftEntities[0].ThreeSkipFull.Add(context.CreateInstance<EntityThree>(e => e.Id = 7721));
-                    leftEntities[0].ThreeSkipFull.Add(context.CreateInstance<EntityThree>(e => e.Id = 7722));
-                    leftEntities[0].ThreeSkipFull.Add(context.CreateInstance<EntityThree>(e => e.Id = 7723));
+                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].ThreeSkipFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].TwoSkipFull.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7711));
-                    rightEntities[0].TwoSkipFull.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7712));
-                    rightEntities[0].TwoSkipFull.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7713));
+                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7711));
+                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7712));
+                    rightEntities[0].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7713));
 
                     leftEntities[1].ThreeSkipFull.Remove(leftEntities[1].ThreeSkipFull.Single(e => e.Id == 9));
                     rightEntities[1].TwoSkipFull.Remove(rightEntities[1].TwoSkipFull.Single(e => e.Id == 4));
 
                     leftEntities[2].ThreeSkipFull.Remove(leftEntities[2].ThreeSkipFull.Single(e => e.Id == 11));
-                    leftEntities[2].ThreeSkipFull.Add(context.CreateInstance<EntityThree>(e => e.Id = 7724));
+                    leftEntities[2].ThreeSkipFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].TwoSkipFull.Remove(rightEntities[2].TwoSkipFull.Single(e => e.Id == 6));
-                    rightEntities[2].TwoSkipFull.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7714));
+                    rightEntities[2].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7714));
 
                     context.ChangeTracker.DetectChanges();
 
@@ -373,15 +373,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<EntityOne>(e => e.Id = 7711),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7712),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7713),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7713),
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<EntityBranch>(e => e.Id = 7721),
-                        context.CreateInstance<EntityBranch>(e => e.Id = 7722),
-                        context.CreateInstance<EntityBranch>(e => e.Id = 7723)
+                        context.Set<EntityBranch>().CreateInstance(e => e.Id = 7721),
+                        context.Set<EntityBranch>().CreateInstance(e => e.Id = 7722),
+                        context.Set<EntityBranch>().CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].BranchSkip.Add(rightEntities[0]); // 11 - 21
@@ -438,22 +438,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.BranchSkip).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityBranch>().Include(e => e.OneSkip).ToList();
 
-                    leftEntities[0].BranchSkip.Add(context.CreateInstance<EntityBranch>(e => e.Id = 7721));
-                    leftEntities[0].BranchSkip.Add(context.CreateInstance<EntityBranch>(e => e.Id = 7722));
-                    leftEntities[0].BranchSkip.Add(context.CreateInstance<EntityBranch>(e => e.Id = 7723));
+                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].OneSkip.Add(context.CreateInstance<EntityOne>(e => e.Id = 7711));
-                    rightEntities[0].OneSkip.Add(context.CreateInstance<EntityOne>(e => e.Id = 7712));
-                    rightEntities[0].OneSkip.Add(context.CreateInstance<EntityOne>(e => e.Id = 7713));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
 
                     leftEntities[1].BranchSkip.Remove(leftEntities[1].BranchSkip.Single(e => e.Id == 16));
                     rightEntities[1].OneSkip.Remove(rightEntities[1].OneSkip.Single(e => e.Id == 9));
 
                     leftEntities[2].BranchSkip.Remove(leftEntities[2].BranchSkip.Single(e => e.Id == 14));
-                    leftEntities[2].BranchSkip.Add(context.CreateInstance<EntityBranch>(e => e.Id = 7724));
+                    leftEntities[2].BranchSkip.Add(context.Set<EntityBranch>().CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].OneSkip.Remove(rightEntities[2].OneSkip.Single(e => e.Id == 8));
-                    rightEntities[2].OneSkip.Add(context.CreateInstance<EntityOne>(e => e.Id = 7714));
+                    rightEntities[2].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
                     context.ChangeTracker.DetectChanges();
 
@@ -536,15 +536,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<EntityOne>(e => e.Id = 7711),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7712),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<EntityOne>(e => e.Id = 7721),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7722),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7723)
+                        context.EntityOnes.CreateInstance(e => e.Id = 7721),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7722),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].SelfSkipPayloadLeft.Add(rightEntities[0]); // 11 - 21
@@ -627,22 +627,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.SelfSkipPayloadRight).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityOne>().Include(e => e.SelfSkipPayloadLeft).ToList();
 
-                    leftEntities[0].SelfSkipPayloadRight.Add(context.CreateInstance<EntityOne>(e => e.Id = 7721));
-                    leftEntities[0].SelfSkipPayloadRight.Add(context.CreateInstance<EntityOne>(e => e.Id = 7722));
-                    leftEntities[0].SelfSkipPayloadRight.Add(context.CreateInstance<EntityOne>(e => e.Id = 7723));
+                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].SelfSkipPayloadLeft.Add(context.CreateInstance<EntityOne>(e => e.Id = 7711));
-                    rightEntities[0].SelfSkipPayloadLeft.Add(context.CreateInstance<EntityOne>(e => e.Id = 7712));
-                    rightEntities[0].SelfSkipPayloadLeft.Add(context.CreateInstance<EntityOne>(e => e.Id = 7713));
+                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
+                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
+                    rightEntities[0].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
 
                     leftEntities[2].SelfSkipPayloadRight.Remove(leftEntities[2].SelfSkipPayloadRight.Single(e => e.Id == 6));
                     rightEntities[1].SelfSkipPayloadLeft.Remove(rightEntities[1].SelfSkipPayloadLeft.Single(e => e.Id == 13));
 
                     leftEntities[4].SelfSkipPayloadRight.Remove(leftEntities[4].SelfSkipPayloadRight.Single(e => e.Id == 3));
-                    leftEntities[4].SelfSkipPayloadRight.Add(context.CreateInstance<EntityOne>(e => e.Id = 7724));
+                    leftEntities[4].SelfSkipPayloadRight.Add(context.EntityOnes.CreateInstance(e => e.Id = 7724));
 
                     rightEntities[4].SelfSkipPayloadLeft.Remove(rightEntities[4].SelfSkipPayloadLeft.Single(e => e.Id == 6));
-                    rightEntities[4].SelfSkipPayloadLeft.Add(context.CreateInstance<EntityOne>(e => e.Id = 7714));
+                    rightEntities[4].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
                     context.ChangeTracker.DetectChanges();
 
@@ -750,15 +750,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<EntityOne>(e => e.Id = 7711),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7712),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<EntityThree>(e => e.Id = 7721),
-                        context.CreateInstance<EntityThree>(e => e.Id = 7722),
-                        context.CreateInstance<EntityThree>(e => e.Id = 7723)
+                        context.EntityThrees.CreateInstance(e => e.Id = 7721),
+                        context.EntityThrees.CreateInstance(e => e.Id = 7722),
+                        context.EntityThrees.CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].ThreeSkipPayloadFullShared.Add(rightEntities[0]); // 11 - 21
@@ -794,7 +794,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityThree>().Count());
-                Assert.Equal(5, context.ChangeTracker.Entries</*TODO: Shared*/JoinOneToThreePayloadFullShared>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
 
                 Assert.Equal(3, leftEntities[0].ThreeSkipPayloadFullShared.Count);
                 Assert.Single(leftEntities[1].ThreeSkipPayloadFullShared);
@@ -805,9 +805,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[2].OneSkipPayloadFullShared);
 
                 foreach (var joinEntity in context.ChangeTracker
-                    .Entries< /*TODO: Shared*/JoinOneToThreePayloadFullShared>().Select(e => e.Entity).ToList())
+                    .Entries<Dictionary<string, object>>().Select(e => e.Entity).ToList())
                 {
-                    Assert.Equal(postSave && SupportsDatabaseDefaults ? "Generated" : default, joinEntity.Payload);
+                    Assert.Equal(postSave && SupportsDatabaseDefaults ? "Generated" : default, joinEntity["Payload"]);
                 }
             }
         }
@@ -821,27 +821,27 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFullShared).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityThree>().Include(e => e.OneSkipPayloadFullShared).ToList();
 
-                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.CreateInstance<EntityThree>(e => e.Id = 7721));
-                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.CreateInstance<EntityThree>(e => e.Id = 7722));
-                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.CreateInstance<EntityThree>(e => e.Id = 7723));
+                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].OneSkipPayloadFullShared.Add(context.CreateInstance<EntityOne>(e => e.Id = 7711));
-                    rightEntities[0].OneSkipPayloadFullShared.Add(context.CreateInstance<EntityOne>(e => e.Id = 7712));
-                    rightEntities[0].OneSkipPayloadFullShared.Add(context.CreateInstance<EntityOne>(e => e.Id = 7713));
+                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
+                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
+                    rightEntities[0].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
 
                     leftEntities[2].ThreeSkipPayloadFullShared.Remove(leftEntities[2].ThreeSkipPayloadFullShared.Single(e => e.Id == 2));
                     rightEntities[4].OneSkipPayloadFullShared.Remove(rightEntities[4].OneSkipPayloadFullShared.Single(e => e.Id == 4));
 
                     leftEntities[3].ThreeSkipPayloadFullShared.Remove(leftEntities[3].ThreeSkipPayloadFullShared.Single(e => e.Id == 18));
-                    leftEntities[3].ThreeSkipPayloadFullShared.Add(context.CreateInstance<EntityThree>(e => e.Id = 7724));
+                    leftEntities[3].ThreeSkipPayloadFullShared.Add(context.EntityThrees.CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].OneSkipPayloadFullShared.Remove(rightEntities[2].OneSkipPayloadFullShared.Single(e => e.Id == 13));
-                    rightEntities[2].OneSkipPayloadFullShared.Add(context.CreateInstance<EntityOne>(e => e.Id = 7714));
+                    rightEntities[2].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
                     context.ChangeTracker.DetectChanges();
 
-                    context.Find<JoinOneToThreePayloadFullShared>(7712, 1).Payload = "Set!";
-                    context.Find<JoinOneToThreePayloadFullShared>(20, 16).Payload = "Changed!";
+                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Find(7712, 1)["Payload"] = "Set!";
+                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Find(20, 16)["Payload"] = "Changed!";
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 48, postSave: false);
 
@@ -868,7 +868,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(leftCount, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(rightCount, context.ChangeTracker.Entries<EntityThree>().Count());
-                Assert.Equal(joinCount, context.ChangeTracker.Entries<JoinOneToThreePayloadFullShared>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
                 Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
 
                 Assert.Contains(leftEntities[0].ThreeSkipPayloadFullShared, e => e.Id == 7721);
@@ -888,22 +888,22 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.DoesNotContain(rightEntities[2].OneSkipPayloadFullShared, e => e.Id == 13);
                 Assert.Contains(rightEntities[2].OneSkipPayloadFullShared, e => e.Id == 7714);
 
-                foreach (var joinEntry in context.ChangeTracker.Entries<JoinOneToThreePayloadFullShared>().ToList())
+                foreach (var joinEntry in context.ChangeTracker.Entries<Dictionary<string, object>>().ToList())
                 {
                     var joinEntity = joinEntry.Entity;
 
-                    if (joinEntity.OneId == 7712
-                        && joinEntity.ThreeId == 1)
+                    if ((int)joinEntity["OneId"] == 7712
+                        && (int)joinEntity["ThreeId"] == 1)
                     {
                         Assert.Equal(postSave ? EntityState.Unchanged : EntityState.Added, joinEntry.State);
-                        Assert.Equal("Set!", joinEntity.Payload);
+                        Assert.Equal("Set!", joinEntity["Payload"]);
                     }
-                    else if (joinEntity.OneId == 20
-                        && joinEntity.ThreeId == 20)
+                    else if ((int)joinEntity["OneId"] == 20
+                        && (int)joinEntity["ThreeId"] == 20)
                     {
                         Assert.Equal(postSave ? EntityState.Unchanged : EntityState.Modified, joinEntry.State);
-                        Assert.Equal(!postSave, joinEntry.Property(e => e.Payload).IsModified);
-                        Assert.Equal("Changed!", joinEntity.Payload);
+                        Assert.Equal(!postSave, joinEntry.Property("Payload").IsModified);
+                        Assert.Equal("Changed!", joinEntity["Payload"]);
                     }
                 }
 
@@ -929,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                var deleted = context.ChangeTracker.Entries<JoinOneToThreePayloadFullShared>().Count(e => e.State == EntityState.Deleted);
+                var deleted = context.ChangeTracker.Entries<Dictionary<string, object>>().Count(e => e.State == EntityState.Deleted);
                 Assert.Equal(joinCount, (count / 2) + deleted);
             }
         }
@@ -942,15 +942,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<EntityOne>(e => e.Id = 7711),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7712),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7721),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7722),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7723)
+                        context.EntityTwos.CreateInstance(e => e.Id = 7721),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7722),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].TwoSkipShared.Add(rightEntities[0]); // 11 - 21
@@ -986,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
-                Assert.Equal(5, context.ChangeTracker.Entries< /*TODO: Shared*/JoinOneToTwoShared>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, int>>().Count());
 
                 Assert.Equal(3, leftEntities[0].TwoSkipShared.Count);
                 Assert.Single(leftEntities[1].TwoSkipShared);
@@ -1007,22 +1007,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.TwoSkipShared).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityTwo>().Include(e => e.OneSkipShared).ToList();
 
-                    leftEntities[0].TwoSkipShared.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7721));
-                    leftEntities[0].TwoSkipShared.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7722));
-                    leftEntities[0].TwoSkipShared.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7723));
+                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].TwoSkipShared.Add(context.EntityTwos.CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].OneSkipShared.Add(context.CreateInstance<EntityOne>(e => e.Id = 7711));
-                    rightEntities[0].OneSkipShared.Add(context.CreateInstance<EntityOne>(e => e.Id = 7712));
-                    rightEntities[0].OneSkipShared.Add(context.CreateInstance<EntityOne>(e => e.Id = 7713));
+                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
+                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
+                    rightEntities[0].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
 
                     leftEntities[1].TwoSkipShared.Remove(leftEntities[1].TwoSkipShared.Single(e => e.Id == 3));
                     rightEntities[1].OneSkipShared.Remove(rightEntities[1].OneSkipShared.Single(e => e.Id == 5));
 
                     leftEntities[2].TwoSkipShared.Remove(leftEntities[2].TwoSkipShared.Single(e => e.Id == 10));
-                    leftEntities[2].TwoSkipShared.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7724));
+                    leftEntities[2].TwoSkipShared.Add(context.EntityTwos.CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].OneSkipShared.Remove(rightEntities[2].OneSkipShared.Single(e => e.Id == 7));
-                    rightEntities[2].OneSkipShared.Add(context.CreateInstance<EntityOne>(e => e.Id = 7714));
+                    rightEntities[2].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
                     context.ChangeTracker.DetectChanges();
 
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(leftCount, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(rightCount, context.ChangeTracker.Entries<EntityTwo>().Count());
-                Assert.Equal(joinCount, context.ChangeTracker.Entries<JoinOneToTwoShared>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, int>>().Count());
                 Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
 
                 Assert.Contains(leftEntities[0].TwoSkipShared, e => e.Id == 7721);
@@ -1092,7 +1092,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                var deleted = context.ChangeTracker.Entries<JoinOneToTwoShared>().Count(e => e.State == EntityState.Deleted);
+                var deleted = context.ChangeTracker.Entries<Dictionary<string, int>>().Count(e => e.State == EntityState.Deleted);
                 Assert.Equal(joinCount, (count / 2) + deleted);
             }
         }
@@ -1105,15 +1105,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<EntityOne>(e => e.Id = 7711),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7712),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7713)
+                        context.EntityOnes.CreateInstance(e => e.Id = 7711),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7712),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<EntityThree>(e => e.Id = 7721),
-                        context.CreateInstance<EntityThree>(e => e.Id = 7722),
-                        context.CreateInstance<EntityThree>(e => e.Id = 7723)
+                        context.EntityThrees.CreateInstance(e => e.Id = 7721),
+                        context.EntityThrees.CreateInstance(e => e.Id = 7722),
+                        context.EntityThrees.CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].ThreeSkipPayloadFull.Add(rightEntities[0]); // 11 - 21
@@ -1180,22 +1180,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFull).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityThree>().Include(e => e.OneSkipPayloadFull).ToList();
 
-                    leftEntities[0].ThreeSkipPayloadFull.Add(context.CreateInstance<EntityThree>(e => e.Id = 7721));
-                    leftEntities[0].ThreeSkipPayloadFull.Add(context.CreateInstance<EntityThree>(e => e.Id = 7722));
-                    leftEntities[0].ThreeSkipPayloadFull.Add(context.CreateInstance<EntityThree>(e => e.Id = 7723));
+                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].OneSkipPayloadFull.Add(context.CreateInstance<EntityOne>(e => e.Id = 7711));
-                    rightEntities[0].OneSkipPayloadFull.Add(context.CreateInstance<EntityOne>(e => e.Id = 7712));
-                    rightEntities[0].OneSkipPayloadFull.Add(context.CreateInstance<EntityOne>(e => e.Id = 7713));
+                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
+                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
+                    rightEntities[0].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
 
                     leftEntities[1].ThreeSkipPayloadFull.Remove(leftEntities[1].ThreeSkipPayloadFull.Single(e => e.Id == 9));
                     rightEntities[1].OneSkipPayloadFull.Remove(rightEntities[1].OneSkipPayloadFull.Single(e => e.Id == 4));
 
                     leftEntities[2].ThreeSkipPayloadFull.Remove(leftEntities[2].ThreeSkipPayloadFull.Single(e => e.Id == 5));
-                    leftEntities[2].ThreeSkipPayloadFull.Add(context.CreateInstance<EntityThree>(e => e.Id = 7724));
+                    leftEntities[2].ThreeSkipPayloadFull.Add(context.EntityThrees.CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].OneSkipPayloadFull.Remove(rightEntities[2].OneSkipPayloadFull.Single(e => e.Id == 8));
-                    rightEntities[2].OneSkipPayloadFull.Add(context.CreateInstance<EntityOne>(e => e.Id = 7714));
+                    rightEntities[2].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
                     context.ChangeTracker.DetectChanges();
 
@@ -1427,15 +1427,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<EntityOne>(e => e.Id = 7711 ),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7712 ),
-                        context.CreateInstance<EntityOne>(e => e.Id = 7713 )
+                        context.EntityOnes.CreateInstance(e => e.Id = 7711 ),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7712 ),
+                        context.EntityOnes.CreateInstance(e => e.Id = 7713 )
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7721 ),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7722 ),
-                        context.CreateInstance<EntityTwo>(e => e.Id = 7723 )
+                        context.EntityTwos.CreateInstance(e => e.Id = 7721 ),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7722 ),
+                        context.EntityTwos.CreateInstance(e => e.Id = 7723 )
                     };
 
                     leftEntities[0].TwoSkip.Add(rightEntities[0]); // 11 - 21
@@ -1492,22 +1492,22 @@ namespace Microsoft.EntityFrameworkCore
                     var leftEntities = context.Set<EntityOne>().Include(e => e.TwoSkip).OrderBy(e => e.Id).ToList();
                     var rightEntities = context.Set<EntityTwo>().Include(e => e.OneSkip).ToList();
 
-                    leftEntities[0].TwoSkip.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7721));
-                    leftEntities[0].TwoSkip.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7722));
-                    leftEntities[0].TwoSkip.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7723));
+                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].TwoSkip.Add(context.EntityTwos.CreateInstance(e => e.Id = 7723));
 
-                    rightEntities[0].OneSkip.Add(context.CreateInstance<EntityOne>(e => e.Id = 7711));
-                    rightEntities[0].OneSkip.Add(context.CreateInstance<EntityOne>(e => e.Id = 7712));
-                    rightEntities[0].OneSkip.Add(context.CreateInstance<EntityOne>(e => e.Id = 7713));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7711));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7712));
+                    rightEntities[0].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7713));
 
                     leftEntities[1].TwoSkip.Remove(leftEntities[1].TwoSkip.Single(e => e.Id == 1));
                     rightEntities[1].OneSkip.Remove(rightEntities[1].OneSkip.Single(e => e.Id == 1));
 
                     leftEntities[2].TwoSkip.Remove(leftEntities[2].TwoSkip.Single(e => e.Id == 1));
-                    leftEntities[2].TwoSkip.Add(context.CreateInstance<EntityTwo>(e => e.Id = 7724));
+                    leftEntities[2].TwoSkip.Add(context.EntityTwos.CreateInstance(e => e.Id = 7724));
 
                     rightEntities[2].OneSkip.Remove(rightEntities[2].OneSkip.Single(e => e.Id == 1));
-                    rightEntities[2].OneSkip.Add(context.CreateInstance<EntityOne>(e => e.Id = 7714));
+                    rightEntities[2].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
                     context.ChangeTracker.DetectChanges();
 
@@ -1672,15 +1672,15 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var leftEntities = new[]
                     {
-                        context.CreateInstance<ImplicitManyToManyA>(e => e.Id = 7711),
-                        context.CreateInstance<ImplicitManyToManyA>(e => e.Id = 7712),
-                        context.CreateInstance<ImplicitManyToManyA>(e => e.Id = 7713)
+                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7711),
+                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7712),
+                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7713)
                     };
                     var rightEntities = new[]
                     {
-                        context.CreateInstance<ImplicitManyToManyB>(e => e.Id = 7721),
-                        context.CreateInstance<ImplicitManyToManyB>(e => e.Id = 7722),
-                        context.CreateInstance<ImplicitManyToManyB>(e => e.Id = 7723)
+                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7721),
+                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7722),
+                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7723)
                     };
 
                     leftEntities[0].Bs.Add(rightEntities[0]); // 11 - 21
@@ -1702,25 +1702,24 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 context =>
                 {
-                    // Query fails...
-                    //var results = context.Set<ImplicitManyToManyA>().Where(e => e.Id > 7700).Include(e => e.Bs).ToList();
-                    //Assert.Equal(3, results.Count);
+                    var results = context.Set<ImplicitManyToManyA>().Where(e => e.Id > 7700).Include(e => e.Bs).ToList();
+                    Assert.Equal(3, results.Count);
 
-                    //Assert.Equal(11, context.ChangeTracker.Entries().Count());
-                    //Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyA>().Count());
-                    //Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyB>().Count());
-                    //Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+                    Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                    Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyA>().Count());
+                    Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyB>().Count());
+                    Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
 
-                    //var leftEntities = context.ChangeTracker.Entries<ImplicitManyToManyA>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
-                    //var rightEntities = context.ChangeTracker.Entries<ImplicitManyToManyB>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+                    var leftEntities = context.ChangeTracker.Entries<ImplicitManyToManyA>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+                    var rightEntities = context.ChangeTracker.Entries<ImplicitManyToManyB>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
 
-                    //Assert.Equal(3, leftEntities[0].Bs.Count);
-                    //Assert.Single(leftEntities[1].Bs);
-                    //Assert.Single(leftEntities[2].Bs);
+                    Assert.Equal(3, leftEntities[0].Bs.Count);
+                    Assert.Single(leftEntities[1].Bs);
+                    Assert.Single(leftEntities[2].Bs);
 
-                    //Assert.Equal(3, rightEntities[0].As.Count);
-                    //Assert.Single(rightEntities[1].As);
-                    //Assert.Single(rightEntities[2].As);
+                    Assert.Equal(3, rightEntities[0].As.Count);
+                    Assert.Single(rightEntities[1].As);
+                    Assert.Single(rightEntities[2].As);
                 });
 
             void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)

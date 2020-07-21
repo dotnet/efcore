@@ -153,8 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                         _createLazyLoadingProxyMethod,
                                         new List<ParameterBinding>
                                         {
-                                            new DependencyInjectionParameterBinding(
-                                                typeof(IDbContextOptions), typeof(IDbContextOptions)),
+                                            new ContextParameterBinding(typeof(DbContext)),
                                             new EntityTypeParameterBinding(),
                                             new DependencyInjectionParameterBinding(
                                                 typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
@@ -171,8 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                         _createProxyMethod,
                                         new List<ParameterBinding>
                                         {
-                                            new DependencyInjectionParameterBinding(
-                                                typeof(IDbContextOptions), typeof(IDbContextOptions)),
+                                            new ContextParameterBinding(typeof(DbContext)),
                                             new EntityTypeParameterBinding(),
                                             new ObjectArrayParameterBinding(binding.ParameterBindings)
                                         },
