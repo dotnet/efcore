@@ -1913,7 +1913,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                         foreach (var targetProperty in entry.EntityType.GetProperties())
                         {
-                            if (targetProperty.ValueGenerated != ValueGenerated.Never)
+                            if (!(targetProperty.ValueGenerated == ValueGenerated.Never || targetProperty.ValueGenerated == ValueGenerated.OnAdd))
                             {
                                 continue;
                             }
