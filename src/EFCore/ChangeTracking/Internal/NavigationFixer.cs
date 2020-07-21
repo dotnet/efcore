@@ -8,6 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -61,10 +62,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return;
             }
 
-            if (navigationBase is ISkipNavigation)
-            {
-                throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
-            }
+            Check.DebugAssert(navigationBase is INavigation, "Issue #21673. Non-collection skip navigations not supported.");
 
             var navigation = (INavigation)navigationBase;
             var foreignKey = navigation.ForeignKey;
@@ -246,14 +244,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             FindAssociationEntry(entry, oldTargetEntry, skipNavigation)?.SetEntityState(EntityState.Deleted);
 
-                            if (skipNavigation.Inverse.IsCollection)
-                            {
-                                RemoveFromCollection(oldTargetEntry, skipNavigation.Inverse, entry);
-                            }
-                            else
-                            {
-                                throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
-                            }
+                            Check.DebugAssert(
+                                skipNavigation.Inverse.IsCollection,
+                                "Issue #21673. Non-collection skip navigations not supported.");
+
+                            RemoveFromCollection(oldTargetEntry, skipNavigation.Inverse, entry);
                         }
                         else
                         {
@@ -309,14 +304,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 }
                             }
 
-                            if (skipNavigation.Inverse.IsCollection)
-                            {
-                                AddToCollection(newTargetEntry, skipNavigation.Inverse, entry, fromQuery: false);
-                            }
-                            else
-                            {
-                                throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
-                            }
+                            Check.DebugAssert(
+                                skipNavigation.Inverse.IsCollection,
+                                "Issue #21673. Non-collection skip navigations not supported.");
+
+                            AddToCollection(newTargetEntry, skipNavigation.Inverse, entry, fromQuery: false);
                         }
                         else
                         {
@@ -635,29 +627,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var navigationValue = entry[skipNavigation];
                 if (navigationValue != null)
                 {
-                    if (skipNavigation.IsCollection)
+                    Check.DebugAssert(skipNavigation.IsCollection, "Issue #21673. Non-collection skip navigations not supported.");
+
+                    var others = ((IEnumerable)navigationValue).Cast<object>().ToList();
+                    foreach (var otherEntity in others)
                     {
-                        var others = ((IEnumerable)navigationValue).Cast<object>().ToList();
-                        foreach (var otherEntity in others)
+                        var otherEntry = stateManager.TryGetEntry(otherEntity, skipNavigation.Inverse.DeclaringEntityType);
+                        if (otherEntry != null
+                            && otherEntry.EntityState != EntityState.Deleted)
                         {
-                            var otherEntry = stateManager.TryGetEntry(otherEntity, skipNavigation.Inverse.DeclaringEntityType);
-                            if (otherEntry != null
-                                && otherEntry.EntityState != EntityState.Deleted)
-                            {
-                                if (skipNavigation.Inverse.IsCollection)
-                                {
-                                    RemoveFromCollection(otherEntry, skipNavigation.Inverse, entry);
-                                }
-                                else
-                                {
-                                    throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
-                                }
-                            }
+                            Check.DebugAssert(
+                                skipNavigation.Inverse.IsCollection,
+                                "Issue #21673. Non-collection skip navigations not supported.");
+
+                            RemoveFromCollection(otherEntry, skipNavigation.Inverse, entry);
                         }
-                    }
-                    else
-                    {
-                        throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
                     }
                 }
             }
@@ -842,51 +826,42 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var navigationValue = entry[skipNavigation];
                     if (navigationValue != null)
                     {
-                        if (skipNavigation.IsCollection)
+                        Check.DebugAssert(skipNavigation.IsCollection, "Issue #21673. Non-collection skip navigations not supported.");
+                        var others = ((IEnumerable)navigationValue).Cast<object>().ToList();
+                        foreach (var otherEntity in others)
                         {
-                            var others = ((IEnumerable)navigationValue).Cast<object>().ToList();
-                            foreach (var otherEntity in others)
+                            var otherEntry = stateManager.TryGetEntry(otherEntity, skipNavigation.Inverse.DeclaringEntityType);
+                            if (otherEntry == null
+                                || otherEntry.EntityState == EntityState.Detached)
                             {
-                                var otherEntry = stateManager.TryGetEntry(otherEntity, skipNavigation.Inverse.DeclaringEntityType);
-                                if (otherEntry == null
-                                    || otherEntry.EntityState == EntityState.Detached)
-                                {
-                                    // If dependents in collection are not yet tracked, then save them away so that
-                                    // when we start tracking them we can come back and fixup this principal to them
-                                    stateManager.RecordReferencedUntrackedEntity(otherEntity, skipNavigation, entry);
-                                }
-                                else
-                                {
-                                    var associationEntry = FindOrCreateAssociationEntry(
-                                        entry, otherEntry, skipNavigation, fromQuery, setModified);
-
-                                    if (associationEntry.EntityState == EntityState.Detached)
-                                    {
-                                        try
-                                        {
-                                            _inFixup = false;
-                                            associationEntry.SetEntityState(EntityState.Added);
-                                        }
-                                        finally
-                                        {
-                                            _inFixup = true;
-                                        }
-                                    }
-
-                                    if (skipNavigation.Inverse.IsCollection)
-                                    {
-                                        AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
-                                    }
-                                    else
-                                    {
-                                        throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
-                                    }
-                                }
+                                // If dependents in collection are not yet tracked, then save them away so that
+                                // when we start tracking them we can come back and fixup this principal to them
+                                stateManager.RecordReferencedUntrackedEntity(otherEntity, skipNavigation, entry);
                             }
-                        }
-                        else
-                        {
-                            throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+                            else
+                            {
+                                var associationEntry = FindOrCreateAssociationEntry(
+                                    entry, otherEntry, skipNavigation, fromQuery, setModified);
+
+                                if (associationEntry.EntityState == EntityState.Detached)
+                                {
+                                    try
+                                    {
+                                        _inFixup = false;
+                                        associationEntry.SetEntityState(EntityState.Added);
+                                    }
+                                    finally
+                                    {
+                                        _inFixup = true;
+                                    }
+                                }
+
+                                Check.DebugAssert(
+                                    skipNavigation.Inverse.IsCollection,
+                                    "Issue #21673. Non-collection skip navigations not supported.");
+
+                                AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
+                            }
                         }
                     }
                 }
@@ -963,7 +938,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (associationEntry == null)
             {
                 var associationEntityType = skipNavigation.AssociationEntityType;
-                var associationEntity = associationEntityType.GetInstanceFactory()();
+                var associationEntity = associationEntityType.GetInstanceFactory()(
+                    new MaterializationContext(ValueBuffer.Empty, entry.StateManager.Context));
+
                 associationEntry = entry.StateManager.GetOrCreateEntry(associationEntity, associationEntityType);
             }
 

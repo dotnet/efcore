@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     public class JoinOneToTwo
     {
-        public int OneId { get; set; }
-        public int TwoId { get; set; }
+        public virtual int OneId { get; set; }
+        public virtual int TwoId { get; set; }
     }
 }

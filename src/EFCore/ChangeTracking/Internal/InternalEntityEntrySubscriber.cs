@@ -51,7 +51,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection))
+            foreach (var navigation in entityType
+                .GetNavigations()
+                .Concat<INavigationBase>(entityType.GetSkipNavigations())
+                .Where(n => n.IsCollection))
             {
                 AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
                     += entry.HandleINotifyCollectionChanged;
@@ -101,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static INotifyCollectionChanged AsINotifyCollectionChanged(
             InternalEntityEntry entry,
-            INavigation navigation,
+            INavigationBase navigation,
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {

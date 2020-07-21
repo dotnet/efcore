@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable ArgumentsStyleOther
@@ -327,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Func<object> GetInstanceFactory([NotNull] this IEntityType entityType)
+        public static Func<MaterializationContext, object> GetInstanceFactory([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().InstanceFactory;
 
         /// <summary>

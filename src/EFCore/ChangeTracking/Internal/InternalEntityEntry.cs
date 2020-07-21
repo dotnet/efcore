@@ -1625,7 +1625,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] object sender,
             [NotNull] NotifyCollectionChangedEventArgs eventArgs)
         {
-            var navigation = EntityType.GetNavigations().FirstOrDefault(n => n.IsCollection && this[n] == sender);
+            var navigation = EntityType.GetNavigations()
+                .Concat<INavigationBase>(EntityType.GetSkipNavigations())
+                .FirstOrDefault(n => n.IsCollection && this[n] == sender);
+
             if (navigation != null)
             {
                 switch (eventArgs.Action)

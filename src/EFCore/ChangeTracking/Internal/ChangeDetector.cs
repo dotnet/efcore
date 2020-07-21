@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -337,26 +338,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (!ReferenceEquals(currentValue, snapshotValue))
             {
-                if (navigationBase is INavigation navigation)
-                {
-                    if (!navigation.ForeignKey.IsOwnership
-                        || !navigation.IsOnDependent)
-                    {
-                        if (_loggingOptions.IsSensitiveDataLoggingEnabled)
-                        {
-                            _logger.ReferenceChangeDetectedSensitive(entry, navigation, snapshotValue, currentValue);
-                        }
-                        else
-                        {
-                            _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
-                        }
+                Check.DebugAssert(navigationBase is INavigation, "Issue #21673. Non-collection skip navigations not supported.");
 
-                        stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
-                    }
-                }
-                else
+                var navigation = (INavigation)navigationBase;
+                if (!navigation.ForeignKey.IsOwnership
+                    || !navigation.IsOnDependent)
                 {
-                    throw new NotImplementedException("TODO: #19003 Non-collection skip navs");
+                    if (_loggingOptions.IsSensitiveDataLoggingEnabled)
+                    {
+                        _logger.ReferenceChangeDetectedSensitive(entry, navigation, snapshotValue, currentValue);
+                    }
+                    else
+                    {
+                        _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
+                    }
+
+                    stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
                 }
             }
         }

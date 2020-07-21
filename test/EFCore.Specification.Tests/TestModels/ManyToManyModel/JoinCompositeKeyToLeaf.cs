@@ -7,12 +7,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     public class JoinCompositeKeyToLeaf
     {
-        public int CompositeId1 { get; set; }
-        public string CompositeId2 { get; set; }
-        public DateTime CompositeId3 { get; set; }
-        public int LeafId { get; set; }
+        public virtual int CompositeId1 { get; set; }
+        public virtual string CompositeId2 { get; set; }
+        public virtual DateTime CompositeId3 { get; set; }
+        public virtual int LeafId { get; set; }
 
-        public EntityCompositeKey Composite { get; set; }
-        public EntityLeaf Leaf { get; set; }
+        public virtual EntityCompositeKey Composite { get; set; }
+        public virtual EntityLeaf Leaf { get; set; }
     }
 }

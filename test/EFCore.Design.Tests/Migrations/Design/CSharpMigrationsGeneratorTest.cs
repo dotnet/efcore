@@ -141,6 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ConstructorBinding,
+                CoreAnnotationNames.ServiceOnlyConstructorBinding,
                 CoreAnnotationNames.NavigationAccessMode,
                 CoreAnnotationNames.EagerLoaded,
                 CoreAnnotationNames.QueryFilter,

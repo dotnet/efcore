@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private Func<InternalEntityEntry, ISnapshot> _storeGeneratedValuesFactory;
         private Func<ValueBuffer, ISnapshot> _shadowValuesFactory;
         private Func<ISnapshot> _emptyShadowValuesFactory;
-        private Func<object> _instanceFactory;
+        private Func<MaterializationContext, object> _instanceFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2542,20 +2542,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<object> InstanceFactory
+        public virtual Func<MaterializationContext, object> InstanceFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _instanceFactory, this,
                 entityType =>
                 {
-                    var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
-                    if (binding.ParameterBindings.Count > 0)
+                    var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ServiceOnlyConstructorBinding];
+                    if (binding == null)
                     {
-                        throw new Exception("TODO: #10508 Support more constructors");
+                        throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
                     }
 
-                    _instanceFactory = Expression.Lambda<Func<object>>(
+                    var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
+
+                    _instanceFactory = Expression.Lambda<Func<MaterializationContext, object>>(
                             binding.CreateConstructorExpression(
-                                new ParameterBindingInfo(entityType, null)))
+                                new ParameterBindingInfo(entityType, contextParam)),
+                            contextParam)
                         .Compile();
                 });
 

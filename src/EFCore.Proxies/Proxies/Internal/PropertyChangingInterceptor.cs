@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         {
             var methodName = invocation.Method.Name;
 
-            if (invocation.Method.DeclaringType.Equals(_notifyChangingInterface))
+            if (invocation.Method.DeclaringType == _notifyChangingInterface)
             {
                 if (methodName == $"add_{nameof(INotifyPropertyChanging.PropertyChanging)}")
                 {
@@ -78,7 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 }
                 else
                 {
-                    var navigation = _entityType.FindNavigation(propertyName);
+                    var navigation = _entityType.FindNavigation(propertyName)
+                        ?? (INavigationBase)_entityType.FindSkipNavigation(propertyName);
+
                     if (navigation != null)
                     {
                         HandleChanging(invocation, navigation, LegacyReferenceEqualityComparer.Instance);

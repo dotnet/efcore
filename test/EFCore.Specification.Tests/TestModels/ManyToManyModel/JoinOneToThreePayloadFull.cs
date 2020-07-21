@@ -5,11 +5,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     public class JoinOneToThreePayloadFull
     {
-        public int OneId { get; set; }
-        public int ThreeId { get; set; }
-        public EntityOne One { get; set; }
-        public EntityThree Three { get; set; }
+        public virtual int OneId { get; set; }
+        public virtual int ThreeId { get; set; }
+        public virtual EntityOne One { get; set; }
+        public virtual EntityThree Three { get; set; }
 
-        public string Payload { get; set; }
+        public virtual string Payload { get; set; }
     }
 }
