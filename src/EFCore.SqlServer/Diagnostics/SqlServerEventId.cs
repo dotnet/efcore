@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DecimalTypeDefaultWarning = CoreEventId.ProviderBaseId,
             ByteIdentityColumnWarning,
             ConflictingValueGenerationStrategiesWarning,
+            DecimalTypeKeyWarning,
 
             // Scaffolding events
             ColumnFound = CoreEventId.ProviderDesignBaseId,
@@ -63,6 +64,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
         private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
+
+        /// <summary>
+        ///     <para>
+        ///         Decimal column is part of the key.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId DecimalTypeKeyWarning = MakeValidationId(Id.DecimalTypeKeyWarning);
 
         /// <summary>
         ///     <para>

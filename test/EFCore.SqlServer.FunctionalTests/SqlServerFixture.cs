@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore
                 w =>
                 {
                     w.Log(SqlServerEventId.ByteIdentityColumnWarning);
+                    w.Log(SqlServerEventId.DecimalTypeKeyWarning);
                 });
     }
 }
