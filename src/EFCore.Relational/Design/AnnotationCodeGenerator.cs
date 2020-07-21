@@ -80,7 +80,11 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <inheritdoc />
         public virtual void RemoveAnnotationsHandledByConventions(
             IEntityType entityType, IDictionary<string, IAnnotation> annotations)
-            => RemoveConventionalAnnotationsHelper(entityType, annotations, IsHandledByConvention);
+        {
+            annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
+
+            RemoveConventionalAnnotationsHelper(entityType, annotations, IsHandledByConvention);
+        }
 
         /// <inheritdoc />
         public virtual void RemoveAnnotationsHandledByConventions(
