@@ -348,6 +348,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_decimal_keys()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>()
+                .Property<decimal>("Price").HasPrecision(18, 2);
+            modelBuilder.Entity<Animal>().HasKey("Price");
+
+            VerifyWarning(
+                SqlServerResources.LogDecimalTypeKey(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_default_decimal_mapping()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -365,6 +378,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Animal>().Property<decimal?>("Price");
 
             VerifyWarning(
+                SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Does_not_warn_if_decimal_column_has_precision_and_scale()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>()
+                .Property<decimal>("Price").HasPrecision(18, 2);
+
+            VerifyLogDoesNotContain(
                 SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>())
                     .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
