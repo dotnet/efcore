@@ -450,9 +450,10 @@ WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
         {
             base.QF_Stand_Alone();
 
-            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
-FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
-ORDER BY [t].[ProductId]");
+            AssertSql(
+                @"SELECT [g].[AmountSold], [g].[ProductId]
+FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
+ORDER BY [g].[ProductId]");
         }
 
         public override void QF_Stand_Alone_Parameter()
@@ -462,29 +463,31 @@ ORDER BY [t].[ProductId]");
             AssertSql(
                 @"@__customerId_1='1'
 
-SELECT [o].[Count], [o].[CustomerId], [o].[Year]
-FROM [dbo].[GetCustomerOrderCountByYear](@__customerId_1) AS [o]
-ORDER BY [o].[Count] DESC");
+SELECT [g].[Count], [g].[CustomerId], [g].[Year]
+FROM [dbo].[GetCustomerOrderCountByYear](@__customerId_1) AS [g]
+ORDER BY [g].[Count] DESC");
         }
 
         public override void QF_CrossApply_Correlated_Select_Anonymous()
         {
             base.QF_CrossApply_Correlated_Select_Anonymous();
 
-            AssertSql(@"SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+            AssertSql(
+                @"SELECT [c].[Id], [c].[LastName], [g].[Year], [g].[Count]
 FROM [Customers] AS [c]
-CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
-ORDER BY [c].[Id], [o].[Year]");
+CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [g]
+ORDER BY [c].[Id], [g].[Year]");
         }
 
         public override void QF_CrossApply_Correlated_Select_QF_Type()
         {
             base.QF_CrossApply_Correlated_Select_QF_Type();
 
-            AssertSql(@"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+            AssertSql(
+                @"SELECT [g].[Count], [g].[CustomerId], [g].[Year]
 FROM [Customers] AS [c]
-CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
-ORDER BY [o].[Year]");
+CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [g]
+ORDER BY [g].[Year]");
         }
 
 
@@ -503,23 +506,25 @@ FROM [Customers] AS [c]");
         {
             base.QF_Select_Correlated_Direct_With_Function_Query_Parameter_Correlated_In_Anonymous();
 
-            AssertSql(@"SELECT [c].[Id], [m].[OrderId], [m].[CustomerId], [m].[OrderDate]
+            AssertSql(
+                @"SELECT [c].[Id], [g].[OrderId], [g].[CustomerId], [g].[OrderDate]
 FROM [Customers] AS [c]
-OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([dbo].[AddValues]([c].[Id], 1)) AS [m]
+OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([dbo].[AddValues]([c].[Id], 1)) AS [g]
 WHERE [c].[Id] = 1
-ORDER BY [c].[Id], [m].[OrderId]");
+ORDER BY [c].[Id], [g].[OrderId]");
         }
 
         public override void QF_Select_Correlated_Subquery_In_Anonymous()
         {
             base.QF_Select_Correlated_Subquery_In_Anonymous();
 
-            AssertSql(@"SELECT [c].[Id], [t].[OrderId], [t].[CustomerId], [t].[OrderDate]
+            AssertSql(
+                @"SELECT [c].[Id], [t].[OrderId], [t].[CustomerId], [t].[OrderDate]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [m].[OrderId], [m].[CustomerId], [m].[OrderDate]
-    FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
-    WHERE DATEPART(day, [m].[OrderDate]) = 21
+    SELECT [g].[OrderId], [g].[CustomerId], [g].[OrderDate]
+    FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
+    WHERE DATEPART(day, [g].[OrderDate]) = 21
 ) AS [t]
 ORDER BY [c].[Id], [t].[OrderId]");
         }
@@ -528,12 +533,13 @@ ORDER BY [c].[Id], [t].[OrderId]");
         {
             base.QF_Select_Correlated_Subquery_In_Anonymous_Nested_With_QF();
 
-            AssertSql(@"SELECT [o].[CustomerId], [o].[OrderDate]
+            AssertSql(
+                @"SELECT [o].[CustomerId], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN (
-    SELECT [c].[Id], [c].[FirstName], [c].[LastName], [m].[OrderId], [m].[CustomerId], [m].[OrderDate]
+    SELECT [c].[Id], [c].[FirstName], [c].[LastName], [g].[OrderId], [g].[CustomerId], [g].[OrderDate]
     FROM [Customers] AS [c]
-    CROSS APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
+    CROSS APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
 ) AS [t] ON [o].[Id] = [t].[OrderId]");
         }
 
@@ -559,32 +565,34 @@ ORDER BY [c].[Id], [t].[OrderId], [t].[OrderId0]");
         {
             base.QF_Select_Correlated_Subquery_In_Anonymous_MultipleCollections();
 
-            AssertSql(@"SELECT [c].[Id], [t0].[ProductId], [t1].[Id], [t1].[City], [t1].[CustomerId], [t1].[State], [t1].[Street]
+            AssertSql(
+                @"SELECT [c].[Id], [t].[ProductId], [t0].[Id], [t0].[City], [t0].[CustomerId], [t0].[State], [t0].[Street]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [t].[ProductId]
-    FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
-    WHERE [t].[AmountSold] = 249
-) AS [t0]
+    SELECT [g].[ProductId]
+    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
+    WHERE [g].[AmountSold] = 249
+) AS [t]
 LEFT JOIN (
     SELECT [a].[Id], [a].[City], [a].[CustomerId], [a].[State], [a].[Street]
     FROM [Addresses] AS [a]
     WHERE [a].[State] = N'NY'
-) AS [t1] ON [c].[Id] = [t1].[CustomerId]
-ORDER BY [c].[Id], [t1].[Id]");
+) AS [t0] ON [c].[Id] = [t0].[CustomerId]
+ORDER BY [c].[Id], [t0].[Id]");
         }
 
         public override void QF_Select_NonCorrelated_Subquery_In_Anonymous()
         {
             base.QF_Select_NonCorrelated_Subquery_In_Anonymous();
 
-            AssertSql(@"SELECT [c].[Id], [t0].[ProductId]
+            AssertSql(
+                @"SELECT [c].[Id], [t].[ProductId]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [t].[ProductId]
-    FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
-    WHERE [t].[AmountSold] = 249
-) AS [t0]
+    SELECT [g].[ProductId]
+    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
+    WHERE [g].[AmountSold] = 249
+) AS [t]
 ORDER BY [c].[Id]");
         }
 
@@ -595,13 +603,13 @@ ORDER BY [c].[Id]");
             AssertSql(
                 @"@__amount_1='27' (Nullable = true)
 
-SELECT [c].[Id], [t0].[ProductId]
+SELECT [c].[Id], [t].[ProductId]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [t].[ProductId]
-    FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
-    WHERE [t].[AmountSold] = @__amount_1
-) AS [t0]
+    SELECT [g].[ProductId]
+    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
+    WHERE [g].[AmountSold] = @__amount_1
+) AS [t]
 ORDER BY [c].[Id]");
         }
 
@@ -609,20 +617,22 @@ ORDER BY [c].[Id]");
         {
             base.QF_Correlated_Select_In_Anonymous();
 
-            AssertSql(@"SELECT [c].[Id], [c].[LastName], [m].[OrderId], [m].[CustomerId], [m].[OrderDate]
+            AssertSql(
+                @"SELECT [c].[Id], [c].[LastName], [g].[OrderId], [g].[CustomerId], [g].[OrderDate]
 FROM [Customers] AS [c]
-OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
-ORDER BY [c].[Id], [m].[OrderId]");
+OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
+ORDER BY [c].[Id], [g].[OrderId]");
         }
 
         public override void QF_CrossApply_Correlated_Select_Result()
         {
             base.QF_CrossApply_Correlated_Select_Result();
 
-            AssertSql(@"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+            AssertSql(
+                @"SELECT [g].[Count], [g].[CustomerId], [g].[Year]
 FROM [Customers] AS [c]
-CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
-ORDER BY [o].[Count] DESC, [o].[Year] DESC");
+CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [g]
+ORDER BY [g].[Count] DESC, [g].[Year] DESC");
         }
 
         public override void QF_CrossJoin_Not_Correlated()
@@ -630,11 +640,11 @@ ORDER BY [o].[Count] DESC, [o].[Year] DESC");
             base.QF_CrossJoin_Not_Correlated();
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+                @"SELECT [c].[Id], [c].[LastName], [g].[Year], [g].[Count]
 FROM [Customers] AS [c]
-CROSS JOIN [dbo].[GetCustomerOrderCountByYear](2) AS [o]
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](2) AS [g]
 WHERE [c].[Id] = 2
-ORDER BY [o].[Count]");
+ORDER BY [g].[Count]");
         }
 
         public override void QF_CrossJoin_Parameter()
@@ -644,20 +654,21 @@ ORDER BY [o].[Count]");
             AssertSql(
                 @"@__custId_1='2'
 
-SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+SELECT [c].[Id], [c].[LastName], [g].[Year], [g].[Count]
 FROM [Customers] AS [c]
-CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__custId_1) AS [o]
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear](@__custId_1) AS [g]
 WHERE [c].[Id] = @__custId_1
-ORDER BY [o].[Count]");
+ORDER BY [g].[Count]");
         }
 
         public override void QF_Join()
         {
             base.QF_Join();
 
-            AssertSql(@"SELECT [p].[Id], [p].[Name], [t].[AmountSold]
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Name], [g].[AmountSold]
 FROM [Products] AS [p]
-INNER JOIN [dbo].[GetTopTwoSellingProducts]() AS [t] ON [p].[Id] = [t].[ProductId]
+INNER JOIN [dbo].[GetTopTwoSellingProducts]() AS [g] ON [p].[Id] = [g].[ProductId]
 ORDER BY [p].[Id]");
         }
 
@@ -665,9 +676,10 @@ ORDER BY [p].[Id]");
         {
             base.QF_LeftJoin_Select_Anonymous();
 
-            AssertSql(@"SELECT [p].[Id], [p].[Name], [t].[AmountSold]
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Name], [g].[AmountSold]
 FROM [Products] AS [p]
-LEFT JOIN [dbo].[GetTopTwoSellingProducts]() AS [t] ON [p].[Id] = [t].[ProductId]
+LEFT JOIN [dbo].[GetTopTwoSellingProducts]() AS [g] ON [p].[Id] = [g].[ProductId]
 ORDER BY [p].[Id] DESC");
         }
 
@@ -675,9 +687,10 @@ ORDER BY [p].[Id] DESC");
         {
             base.QF_LeftJoin_Select_Result();
 
-            AssertSql(@"SELECT [t].[AmountSold], [t].[ProductId]
+            AssertSql(
+                @"SELECT [g].[AmountSold], [g].[ProductId]
 FROM [Products] AS [p]
-LEFT JOIN [dbo].[GetTopTwoSellingProducts]() AS [t] ON [p].[Id] = [t].[ProductId]
+LEFT JOIN [dbo].[GetTopTwoSellingProducts]() AS [g] ON [p].[Id] = [g].[ProductId]
 ORDER BY [p].[Id] DESC");
         }
 
@@ -685,10 +698,11 @@ ORDER BY [p].[Id] DESC");
         {
             base.QF_OuterApply_Correlated_Select_QF();
 
-            AssertSql(@"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+            AssertSql(
+                @"SELECT [g].[Count], [g].[CustomerId], [g].[Year]
 FROM [Customers] AS [c]
-OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
-ORDER BY [c].[Id], [o].[Year]");
+OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [g]
+ORDER BY [c].[Id], [g].[Year]");
         }
 
         public override void QF_OuterApply_Correlated_Select_Entity()
@@ -698,43 +712,46 @@ ORDER BY [c].[Id], [o].[Year]");
             AssertSql(
                 @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
 FROM [Customers] AS [c]
-OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
-WHERE [o].[Year] = 2000
-ORDER BY [c].[Id], [o].[Year]");
+OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [g]
+WHERE [g].[Year] = 2000
+ORDER BY [c].[Id], [g].[Year]");
         }
 
         public override void QF_OuterApply_Correlated_Select_Anonymous()
         {
             base.QF_OuterApply_Correlated_Select_Anonymous();
 
-            AssertSql(@"SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+            AssertSql(
+                @"SELECT [c].[Id], [c].[LastName], [g].[Year], [g].[Count]
 FROM [Customers] AS [c]
-OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [o]
-ORDER BY [c].[Id], [o].[Year]");
+OUTER APPLY [dbo].[GetCustomerOrderCountByYear]([c].[Id]) AS [g]
+ORDER BY [c].[Id], [g].[Year]");
         }
 
         public override void QF_Nested()
         {
             base.QF_Nested();
 
-            AssertSql(@"@__custId_1='2'
+            AssertSql(
+                @"@__custId_1='2'
 
-SELECT [c].[Id], [c].[LastName], [o].[Year], [o].[Count]
+SELECT [c].[Id], [c].[LastName], [g].[Year], [g].[Count]
 FROM [Customers] AS [c]
-CROSS JOIN [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues](1, 1)) AS [o]
+CROSS JOIN [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues](1, 1)) AS [g]
 WHERE [c].[Id] = @__custId_1
-ORDER BY [o].[Year]");
+ORDER BY [g].[Year]");
         }
 
         public override void QF_Correlated_Nested_Func_Call()
         {
             base.QF_Correlated_Nested_Func_Call();
 
-            AssertSql(@"@__custId_1='2'
+            AssertSql(
+                @"@__custId_1='2'
 
-SELECT [c].[Id], [o].[Count], [o].[Year]
+SELECT [c].[Id], [g].[Count], [g].[Year]
 FROM [Customers] AS [c]
-CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues]([c].[Id], 1)) AS [o]
+CROSS APPLY [dbo].[GetCustomerOrderCountByYear]([dbo].[AddValues]([c].[Id], 1)) AS [g]
 WHERE [c].[Id] = @__custId_1");
         }
 
@@ -746,9 +763,9 @@ WHERE [c].[Id] = @__custId_1");
                 @"SELECT [c].[Id], [t].[CustomerName], [t].[OrderId], [t].[Id]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [c0].[LastName] AS [CustomerName], [m].[OrderId], [c0].[Id]
-    FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [m]
-    INNER JOIN [Customers] AS [c0] ON [m].[CustomerId] = [c0].[Id]
+    SELECT [c0].[LastName] AS [CustomerName], [g].[OrderId], [c0].[Id]
+    FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
+    INNER JOIN [Customers] AS [c0] ON [g].[CustomerId] = [c0].[Id]
 ) AS [t]
 ORDER BY [c].[Id], [t].[OrderId], [t].[Id]");
         }
@@ -758,9 +775,9 @@ ORDER BY [c].[Id], [t].[OrderId], [t].[Id]");
             base.DbSet_mapped_to_function();
 
             AssertSql(
-                @"SELECT [t].[AmountSold], [t].[ProductId]
-FROM [dbo].[GetTopTwoSellingProducts]() AS [t]
-ORDER BY [t].[ProductId]");
+                @"SELECT [g].[AmountSold], [g].[ProductId]
+FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
+ORDER BY [g].[ProductId]");
         }
 
         public override void TVF_backing_entity_type_mapped_to_view()
@@ -778,13 +795,13 @@ ORDER BY [c].[FirstName]");
             base.Udf_with_argument_being_comparison_to_null_parameter();
 
             AssertSql(
-                @"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+                @"SELECT [g].[Count], [g].[CustomerId], [g].[Year]
 FROM [Customers] AS [c]
 CROSS APPLY [dbo].[GetCustomerOrderCountByYearOnlyFrom2000]([c].[Id], CASE
     WHEN [c].[LastName] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END) AS [o]
-ORDER BY [o].[Year]");
+END) AS [g]
+ORDER BY [g].[Year]");
         }
 
         public override void Udf_with_argument_being_comparison_of_nullable_columns()
@@ -792,13 +809,13 @@ ORDER BY [o].[Year]");
             base.Udf_with_argument_being_comparison_of_nullable_columns();
 
             AssertSql(
-                @"SELECT [o].[Count], [o].[CustomerId], [o].[Year]
+                @"SELECT [g].[Count], [g].[CustomerId], [g].[Year]
 FROM [Addresses] AS [a]
 CROSS APPLY [dbo].[GetCustomerOrderCountByYearOnlyFrom2000](1, CASE
     WHEN (([a].[City] = [a].[State]) AND ([a].[City] IS NOT NULL AND [a].[State] IS NOT NULL)) OR ([a].[City] IS NULL AND [a].[State] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END) AS [o]
-ORDER BY [a].[Id], [o].[Year]");
+END) AS [g]
+ORDER BY [a].[Id], [g].[Year]");
         }
 
         #endregion

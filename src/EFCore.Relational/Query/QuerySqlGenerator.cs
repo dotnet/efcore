@@ -303,15 +303,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
 
-            if (!string.IsNullOrEmpty(tableValuedFunctionExpression.Schema))
+            if (!string.IsNullOrEmpty(tableValuedFunctionExpression.StoreFunction.Schema))
             {
                 _relationalCommandBuilder
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Schema))
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Schema))
                     .Append(".");
             }
 
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Name))
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Name))
                 .Append("(");
 
             GenerateList(tableValuedFunctionExpression.Arguments, e => Visit(e));
