@@ -41,16 +41,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the name of the index in the database.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The name of the index in the database. </returns>
-        public static string GetDatabaseName(
-            [NotNull] this IIndex index,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+        public static string GetDatabaseName([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
             => (string)index[RelationalAnnotationNames.Name]
                 ?? index.Name
-                ?? index.GetDefaultDatabaseName(tableName, schema);
+                ?? index.GetDefaultDatabaseName(storeObject);
 
         /// <summary>
         ///     Returns the default name that would be used for this index.
@@ -84,16 +80,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the default name that would be used for this index.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The default name that would be used for this index. </returns>
-        public static string GetDefaultDatabaseName(
-            [NotNull] this IIndex index,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+        public static string GetDefaultDatabaseName([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
         {
-            var table = StoreObjectIdentifier.Table(tableName, schema);
-            var propertyNames = index.Properties.Select(p => p.GetColumnName(table)).ToList();
+            var propertyNames = index.Properties.Select(p => p.GetColumnName(storeObject)).ToList();
             var rootIndex = index;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -101,9 +92,9 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
                 var linkedIndex = rootIndex.DeclaringEntityType
-                    .FindRowInternalForeignKeys(table)
+                    .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
-                    .FirstOrDefault(i => i.Properties.Select(p => p.GetColumnName(table)).SequenceEqual(propertyNames));
+                    .FirstOrDefault(i => i.Properties.Select(p => p.GetColumnName(storeObject)).SequenceEqual(propertyNames));
                 if (linkedIndex == null)
                 {
                     break;
@@ -114,12 +105,12 @@ namespace Microsoft.EntityFrameworkCore
 
             if (rootIndex != index)
             {
-                return rootIndex.GetDatabaseName(tableName, schema);
+                return rootIndex.GetDatabaseName(storeObject);
             }
 
             var baseName = new StringBuilder()
                 .Append("IX_")
-                .Append(tableName)
+                .Append(storeObject.Name)
                 .Append("_")
                 .AppendJoin(propertyNames, "_")
                 .ToString();
@@ -208,10 +199,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the index filter expression.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index filter expression. </returns>
-        public static string GetFilter([NotNull] this IIndex index, [NotNull] string tableName, [CanBeNull] string schema)
+        public static string GetFilter([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
         {
             var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
             if (annotation != null)
@@ -219,8 +209,8 @@ namespace Microsoft.EntityFrameworkCore
                 return (string)annotation.Value;
             }
 
-            var sharedTableRootIndex = index.FindSharedTableRootIndex(tableName, schema);
-            return sharedTableRootIndex?.GetFilter(tableName, schema);
+            var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+            return sharedTableRootIndex?.GetFilter(storeObject);
         }
 
         /// <summary>
@@ -269,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Finds the first <see cref="IIndex" /> that is mapped to the same index in a shared table.
+        ///         Finds the first <see cref="IIndex" /> that is mapped to the same index in a shared table-like object.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
@@ -277,19 +267,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
-        public static IIndex FindSharedTableRootIndex(
-            [NotNull] this IIndex index,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+        public static IIndex FindSharedObjectRootIndex([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
         {
             Check.NotNull(index, nameof(index));
-            Check.NotNull(tableName, nameof(tableName));
 
-            var table = StoreObjectIdentifier.Table(tableName, schema);
-            var indexName = index.GetDatabaseName(tableName, schema);
+            var indexName = index.GetDatabaseName(storeObject);
             var rootIndex = index;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -297,9 +281,9 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
                 var linkedIndex = rootIndex.DeclaringEntityType
-                    .FindRowInternalForeignKeys(table)
+                    .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
-                    .FirstOrDefault(i => i.GetDatabaseName(tableName, schema) == indexName);
+                    .FirstOrDefault(i => i.GetDatabaseName(storeObject) == indexName);
                 if (linkedIndex == null)
                 {
                     break;
@@ -313,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Finds the first <see cref="IMutableIndex" /> that is mapped to the same index in a shared table.
+        ///         Finds the first <see cref="IMutableIndex" /> that is mapped to the same index in a shared table-like object.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
@@ -321,18 +305,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
-        public static IMutableIndex FindSharedTableRootIndex(
-            [NotNull] this IMutableIndex index,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
-            => (IMutableIndex)((IIndex)index).FindSharedTableRootIndex(tableName, schema);
+        public static IMutableIndex FindSharedObjectRootIndex(
+            [NotNull] this IMutableIndex index, StoreObjectIdentifier storeObject)
+            => (IMutableIndex)((IIndex)index).FindSharedObjectRootIndex(storeObject);
 
         /// <summary>
         ///     <para>
-        ///         Finds the first <see cref="IConventionIndex" /> that is mapped to the same index in a shared table.
+        ///         Finds the first <see cref="IConventionIndex" /> that is mapped to the same index in a shared table-like object.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
@@ -340,13 +321,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
-        public static IConventionIndex FindSharedTableRootIndex(
-            [NotNull] this IConventionIndex index,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
-            => (IConventionIndex)((IIndex)index).FindSharedTableRootIndex(tableName, schema);
+        public static IConventionIndex FindSharedObjectRootIndex(
+            [NotNull] this IConventionIndex index, StoreObjectIdentifier storeObject)
+            => (IConventionIndex)((IIndex)index).FindSharedObjectRootIndex(storeObject);
     }
 }

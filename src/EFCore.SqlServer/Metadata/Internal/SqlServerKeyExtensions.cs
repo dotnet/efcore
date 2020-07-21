@@ -24,12 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatibleForSqlServer(
             [NotNull] this IKey key,
             [NotNull] IKey duplicateKey,
-            [NotNull] string tableName,
-            [CanBeNull] string schema,
+            StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
-            if (key.IsClustered(tableName, schema)
-                != duplicateKey.IsClustered(tableName, schema))
+            if (key.IsClustered(storeObject)
+                != duplicateKey.IsClustered(storeObject))
             {
                 if (shouldThrow)
                 {
@@ -39,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             key.DeclaringEntityType.DisplayName(),
                             duplicateKey.Properties.Format(),
                             duplicateKey.DeclaringEntityType.DisplayName(),
-                            tableName,
-                            key.GetName(tableName, schema)));
+                            storeObject.DisplayName(),
+                            key.GetName(storeObject)));
                 }
 
                 return false;

@@ -711,6 +711,12 @@
     <value>An error occurred while the batch executor was releasing a transaction savepoint.</value>
     <comment>Debug RelationalEventId.BatchExecutorFailedToReleaseSavepoint</comment>
   </data>
+  <data name="IncompatibleViewDerivedRelationship" xml:space="preserve">
+    <value>Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}', there is a relationship between their primary keys in which '{entityType}' is the dependent and '{entityType}' has a base entity type mapped to a different view. Either map '{otherEntityType}' to a different view or invert the relationship between '{entityType}' and '{otherEntityType}'.</value>
+  </data>
+  <data name="IncompatibleViewNoRelationship" xml:space="preserve">
+    <value>Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.</value>
+  </data>
   <data name="NonTPHOnFromSqlNotSupported" xml:space="preserve">
     <value>Using '{memberName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>

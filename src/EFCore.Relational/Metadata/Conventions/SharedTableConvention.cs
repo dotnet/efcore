@@ -54,13 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 keys.Clear();
                 foreignKeys.Clear();
 
-                var (tableName, schema) = table.Key;
+                var storeObject = StoreObjectIdentifier.Table(table.Key.TableName, table.Key.Schema);
                 foreach (var entityType in table.Value)
                 {
-                    TryUniquifyColumnNames(entityType, columns, tableName, schema, maxLength);
-                    TryUniquifyKeyNames(entityType, keys, tableName, schema, maxLength);
-                    TryUniquifyForeignKeyNames(entityType, foreignKeys, tableName, schema, maxLength);
-                    TryUniquifyIndexNames(entityType, indexes, tableName, schema, maxLength);
+                    TryUniquifyColumnNames(entityType, columns, storeObject, maxLength);
+                    TryUniquifyKeyNames(entityType, keys, storeObject, maxLength);
+                    TryUniquifyForeignKeyNames(entityType, foreignKeys, storeObject, maxLength);
+                    TryUniquifyIndexNames(entityType, indexes, storeObject, maxLength);
                 }
             }
         }
@@ -152,13 +152,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static void TryUniquifyColumnNames(
             IConventionEntityType entityType,
             Dictionary<string, IConventionProperty> properties,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             int maxLength)
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                var storeObject = StoreObjectIdentifier.Table(tableName, schema);
                 var columnName = property.GetColumnName(storeObject);
                 if (columnName == null)
                 {
@@ -236,13 +234,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void TryUniquifyKeyNames(
             IConventionEntityType entityType,
             Dictionary<string, IConventionKey> keys,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             int maxLength)
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
-                var keyName = key.GetName(tableName, schema);
+                var keyName = key.GetName(storeObject);
                 if (!keys.TryGetValue(keyName, out var otherKey))
                 {
                     keys[keyName] = key;
@@ -251,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if ((key.IsPrimaryKey()
                         && otherKey.IsPrimaryKey())
-                    || AreCompatible(key, otherKey, tableName, schema))
+                    || AreCompatible(key, otherKey, storeObject))
                 {
                     continue;
                 }
@@ -277,15 +274,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="key"> A key. </param>
         /// <param name="duplicateKey"> Another key. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true"/> if compatible </returns>
         protected virtual bool AreCompatible(
             [NotNull] IKey key,
             [NotNull] IKey duplicateKey,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
-            => key.AreCompatible(duplicateKey, tableName, schema, shouldThrow: false);
+            StoreObjectIdentifier storeObject)
+            => key.AreCompatible(duplicateKey, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(
             IConventionKey key, string keyName, Dictionary<string, T> keys, int maxLength)
@@ -303,20 +298,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void TryUniquifyIndexNames(
             IConventionEntityType entityType,
             Dictionary<string, IConventionIndex> indexes,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             int maxLength)
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {
-                var indexName = index.GetDatabaseName(tableName, schema);
+                var indexName = index.GetDatabaseName(storeObject);
                 if (!indexes.TryGetValue(indexName, out var otherIndex))
                 {
                     indexes[indexName] = index;
                     continue;
                 }
 
-                if (AreCompatible(index, otherIndex, tableName, schema))
+                if (AreCompatible(index, otherIndex, storeObject))
                 {
                     continue;
                 }
@@ -342,15 +336,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="index"> An index. </param>
         /// <param name="duplicateIndex"> Another index. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true"/> if compatible </returns>
         protected virtual bool AreCompatible(
             [NotNull] IIndex index,
             [NotNull] IIndex duplicateIndex,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
-            => index.AreCompatible(duplicateIndex, tableName, schema, shouldThrow: false);
+            StoreObjectIdentifier storeObject)
+            => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(
             IConventionIndex index, string indexName, Dictionary<string, T> indexes, int maxLength)
@@ -368,8 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void TryUniquifyForeignKeyNames(
             IConventionEntityType entityType,
             Dictionary<string, IConventionForeignKey> foreignKeys,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             int maxLength)
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
@@ -380,15 +371,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                var foreignKeyName = foreignKey.GetConstraintName(tableName, schema,
-                    foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema());
+                var foreignKeyName = foreignKey.GetConstraintName(storeObject,
+                    StoreObjectIdentifier.Table(foreignKey.PrincipalEntityType.GetTableName(),
+                    foreignKey.PrincipalEntityType.GetSchema()));
                 if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
                 {
                     foreignKeys[foreignKeyName] = foreignKey;
                     continue;
                 }
 
-                if (AreCompatible(foreignKey, otherForeignKey, tableName, schema))
+                if (AreCompatible(foreignKey, otherForeignKey, storeObject))
                 {
                     continue;
                 }
@@ -414,15 +406,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="foreignKey"> A foreign key. </param>
         /// <param name="duplicateForeignKey"> Another foreign key. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true"/> if compatible </returns>
         protected virtual bool AreCompatible(
             [NotNull] IForeignKey foreignKey,
             [NotNull] IForeignKey duplicateForeignKey,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
-            => foreignKey.AreCompatible(duplicateForeignKey, tableName, schema, shouldThrow: false);
+            StoreObjectIdentifier storeObject)
+            => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(
             IConventionForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)

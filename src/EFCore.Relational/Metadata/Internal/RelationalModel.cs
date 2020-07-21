@@ -745,6 +745,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static void PopulateConstraints(Table table)
         {
+            var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
             foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
             {
                 var entityType = (IConventionEntityType)entityTypeMapping.EntityType;
@@ -760,7 +761,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         var principalTable = (Table)principalMapping.Table;
-                        var name = foreignKey.GetConstraintName(table.Name, table.Schema, principalTable.Name, principalTable.Schema);
+                        var name = foreignKey.GetConstraintName(storeObject,
+                            StoreObjectIdentifier.Table(principalTable.Name, principalTable.Schema));
                         if (name == null)
                         {
                             continue;
@@ -837,7 +839,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var key in entityType.GetKeys())
                 {
-                    var name = key.GetName(table.Name, table.Schema);
+                    var name = key.GetName(storeObject);
                     var constraint = table.FindUniqueConstraint(name);
                     if (constraint == null)
                     {
@@ -878,7 +880,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var index in entityType.GetIndexes())
                 {
-                    var name = index.GetDatabaseName(table.Name, table.Schema);
+                    var name = index.GetDatabaseName(storeObject);
                     if (!table.Indexes.TryGetValue(name, out var tableIndex))
                     {
                         var columns = new Column[index.Properties.Count];
@@ -897,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             continue;
                         }
 
-                        tableIndex = new TableIndex(name, table, columns, index.GetFilter(table.Name, table.Schema), index.IsUnique);
+                        tableIndex = new TableIndex(name, table, columns, index.GetFilter(storeObject), index.IsUnique);
 
                         table.Indexes.Add(name, tableIndex);
                     }

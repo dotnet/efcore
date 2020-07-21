@@ -7,7 +7,6 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -24,21 +23,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <returns> The key constraint name for this key. </returns>
         public static string GetName([NotNull] this IKey key)
-            => key.GetName(key.DeclaringEntityType.GetTableName(), key.DeclaringEntityType.GetSchema());
+            => key.GetName(StoreObjectIdentifier.Table(key.DeclaringEntityType.GetTableName(), key.DeclaringEntityType.GetSchema()));
 
         /// <summary>
         ///     Returns the key constraint name for this key for a particular table.
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The key constraint name for this key. </returns>
-        public static string GetName(
-            [NotNull] this IKey key,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+        public static string GetName([NotNull] this IKey key, StoreObjectIdentifier storeObject)
             => (string)key[RelationalAnnotationNames.Name]
-            ?? key.GetDefaultName(tableName, schema);
+            ?? key.GetDefaultName(storeObject);
 
         /// <summary>
         ///     Returns the default key constraint name that would be used for this key.
@@ -70,15 +65,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the default key constraint name that would be used for this key for a particular table.
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The default key constraint name that would be used for this key. </returns>
-        public static string GetDefaultName(
-            [NotNull] this IKey key,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+        public static string GetDefaultName([NotNull] this IKey key, StoreObjectIdentifier storeObject)
         {
-            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
             string name = null;
             if (key.IsPrimaryKey())
             {
@@ -100,10 +90,10 @@ namespace Microsoft.EntityFrameworkCore
                 if (rootKey != null
                     && rootKey != key)
                 {
-                    return rootKey.GetName(tableName, schema);
+                    return rootKey.GetName(storeObject);
                 }
 
-                name = "PK_" + tableName;
+                name = "PK_" + storeObject.Name;
             }
             else
             {
@@ -128,12 +118,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (rootKey != key)
                 {
-                    return rootKey.GetName(tableName, schema);
+                    return rootKey.GetName(storeObject);
                 }
 
                 name = new StringBuilder()
                     .Append("AK_")
-                    .Append(tableName)
+                    .Append(storeObject.Name)
                     .Append("_")
                     .AppendJoin(key.Properties.Select(p => p.GetColumnName(storeObject)), "_")
                     .ToString();
@@ -188,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Finds the first <see cref="IKey" /> that is mapped to the same constraint in a shared table.
+        ///         Finds the first <see cref="IKey" /> that is mapped to the same constraint in a shared table-like object.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
@@ -196,18 +186,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
-        public static IKey FindSharedTableRootKey(
-            [NotNull] this IKey key,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+        public static IKey FindSharedObjectRootKey([NotNull] this IKey key, StoreObjectIdentifier storeObject)
         {
             Check.NotNull(key, nameof(key));
-            Check.NotNull(tableName, nameof(tableName));
 
-            var keyName = key.GetName(tableName, schema);
+            var keyName = key.GetName(storeObject);
             var rootKey = key;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -215,9 +200,9 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
                 var linkedKey = rootKey.DeclaringEntityType
-                    .FindRowInternalForeignKeys(StoreObjectIdentifier.Table(tableName, schema))
+                    .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetKeys())
-                    .FirstOrDefault(k => k.GetName(tableName, schema) == keyName);
+                    .FirstOrDefault(k => k.GetName(storeObject) == keyName);
                 if (linkedKey == null)
                 {
                     break;
@@ -231,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Finds the first <see cref="IMutableKey" /> that is mapped to the same constraint in a shared table.
+        ///         Finds the first <see cref="IMutableKey" /> that is mapped to the same constraint in a shared table-like object.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
@@ -239,18 +224,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
-        public static IMutableKey FindSharedTableRootKey(
-            [NotNull] this IMutableKey key,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
-            => (IMutableKey)((IKey)key).FindSharedTableRootKey(tableName, schema);
+        public static IMutableKey FindSharedObjectRootKey(
+            [NotNull] this IMutableKey key, StoreObjectIdentifier storeObject)
+            => (IMutableKey)((IKey)key).FindSharedObjectRootKey(storeObject);
 
         /// <summary>
         ///     <para>
-        ///         Finds the first <see cref="IConventionKey" /> that is mapped to the same constraint in a shared table.
+        ///         Finds the first <see cref="IConventionKey" /> that is mapped to the same constraint in a shared table-like object.
         ///     </para>
         ///     <para>
         ///         This method is typically used by database providers (and other extensions). It is generally
@@ -258,13 +240,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
-        public static IConventionKey FindSharedTableRootKey(
-            [NotNull] this IConventionKey key,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
-            => (IConventionKey)((IKey)key).FindSharedTableRootKey(tableName, schema);
+        public static IConventionKey FindSharedObjectRootKey(
+            [NotNull] this IConventionKey key, StoreObjectIdentifier storeObject)
+            => (IConventionKey)((IKey)key).FindSharedObjectRootKey(storeObject);
     }
 }

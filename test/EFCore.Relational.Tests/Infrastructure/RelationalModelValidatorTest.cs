@@ -169,6 +169,60 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_duplicate_view_names_without_identifying_relationship()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
+            AddProperties(entityA);
+
+            var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
+            AddProperties(entityB);
+            entityB.AddIgnored(nameof(B.A));
+            entityB.AddIgnored(nameof(B.AnotherA));
+            entityB.AddIgnored(nameof(B.ManyAs));
+
+            entityA.SetViewName("Table");
+            entityA.SetViewSchema("Schema");
+            entityB.SetViewName("Table");
+            entityB.SetViewSchema("Schema");
+
+            VerifyError(
+                RelationalStrings.IncompatibleViewNoRelationship(
+                    "Schema.Table", entityB.DisplayName(), entityA.DisplayName()),
+                model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_view_names_when_no_key()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityA = model.AddEntityType(typeof(A));
+            entityA.AddProperty("Id", typeof(int));
+            entityA.IsKeyless = true;
+            AddProperties(entityA);
+
+            var entityB = model.AddEntityType(typeof(B));
+            entityB.AddProperty("Id", typeof(int));
+            entityB.IsKeyless = true;
+            AddProperties(entityB);
+            entityB.AddIgnored(nameof(B.A));
+            entityB.AddIgnored(nameof(B.AnotherA));
+            entityB.AddIgnored(nameof(B.ManyAs));
+
+            entityA.SetViewName("Table");
+            entityB.SetViewName("Table");
+
+            VerifyError(
+                RelationalStrings.IncompatibleViewNoRelationship(
+                    "Table", entityB.DisplayName(), entityA.DisplayName()),
+                model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_for_duplicate_table_names_in_different_schema()
         {
             var model = CreateConventionlessModelBuilder().Model;
@@ -1252,6 +1306,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 RelationalStrings.IncompatibleTableDerivedRelationship(
+                    "Cat", "Cat", "Person"),
+                modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_linking_relationship_on_derived_type_in_TPT_views()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Animal>()
+                .Ignore(a => a.FavoritePerson)
+                .ToView("Animal");
+
+            modelBuilder.Entity<Cat>(
+             x =>
+             {
+                 x.ToView("Cat");
+                 x.HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Cat>(c => c.Id);
+             });
+
+            modelBuilder.Entity<Person>().ToView("Cat");
+
+            VerifyError(
+                RelationalStrings.IncompatibleViewDerivedRelationship(
                     "Cat", "Cat", "Person"),
                 modelBuilder.Model);
         }
