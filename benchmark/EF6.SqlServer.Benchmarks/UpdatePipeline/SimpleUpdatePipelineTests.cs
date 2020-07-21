@@ -62,7 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
 
         public class Insert : UpdatePipelineBase
         {
-            [IterationSetup]
             public override void InitializeContext()
             {
                 base.InitializeContext();
@@ -74,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
 
         public class Update : UpdatePipelineBase
         {
-            [IterationSetup]
             public override void InitializeContext()
             {
                 base.InitializeContext();
@@ -88,7 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
 
         public class Delete : UpdatePipelineBase
         {
-            [IterationSetup]
             public override void InitializeContext()
             {
                 base.InitializeContext();
@@ -99,7 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
 
         public class Mixed : UpdatePipelineBase
         {
-            [IterationSetup]
             public override void InitializeContext()
             {
                 base.InitializeContext();

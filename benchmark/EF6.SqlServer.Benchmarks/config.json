@@ -1,5 +1,5 @@
 ﻿{
   "benchmarks": {
-    "benchmarkDatabase": "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true;"
+    "benchmarkDatabase": "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true;Connect Timeout=60;ConnectRetryCount=0"
   }
 }

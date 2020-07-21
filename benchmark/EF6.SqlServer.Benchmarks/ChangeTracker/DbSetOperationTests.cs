@@ -81,7 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
         [DisplayName(nameof(ExistingDataVariations))]
         public abstract class ExistingDataVariations : DbSetOperationBase
         {
-            [IterationSetup]
             public override void InitializeContext()
             {
                 base.InitializeContext();

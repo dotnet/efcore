@@ -59,7 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
         [DisplayName(nameof(ChildVariations))]
         public abstract class ChildVariations : FixupBase
         {
-            [IterationSetup]
             public override void InitializeContext()
             {
                 base.InitializeContext();
@@ -95,7 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
         [DisplayName(nameof(ParentVariations))]
         public abstract class ParentVariations : FixupBase
         {
-            [IterationSetup]
             public override void InitializeContext()
             {
                 base.InitializeContext();
