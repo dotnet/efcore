@@ -671,6 +671,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
+        public void Dont_reseed_value_with_value_generated_on_add_property()
+        {
+            Execute(
+                common =>
+                {
+                    common.Entity(
+                        "EntityWithValueGeneratedOnAddProperty",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("ValueGeneratedOnAddProperty")
+                                .ValueGeneratedOnAdd();
+                            x.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    ValueGeneratedOnAddProperty = "Value"
+                                });
+                        });
+                },
+                source => { },
+                target => { },
+                operations => Assert.Equal(0, operations.Count));
+        }
+
+        [ConditionalFact]
         public void Dont_rebuild_index_with_equal_include()
         {
             Execute(

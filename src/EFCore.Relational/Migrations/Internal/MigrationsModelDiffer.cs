@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -1794,10 +1794,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                         foreach (var targetProperty in entry.EntityType.GetProperties())
                         {
+                            if (targetProperty.ValueGenerated != ValueGenerated.Never
+                                && targetProperty.ValueGenerated != ValueGenerated.OnAdd)
+                            {
+                                continue;
+                            }
+
                             var sourceProperty = diffContext.FindSource(targetProperty);
                             if (sourceProperty == null
-                                || !sourceEntityType.GetProperties().Contains(sourceProperty)
-                                || targetProperty.ValueGenerated != ValueGenerated.Never)
+                                || !sourceEntityType.GetProperties().Contains(sourceProperty))
                             {
                                 continue;
                             }
