@@ -361,20 +361,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public OwnedEntityTypeBuilder<TEntity> Instance => OwnedEntityTypeBuilder;
         }
 
-        protected class GenericTestSharedEntityTypeBuilder<TEntity> : TestSharedEntityTypeBuilder<TEntity>,
-            IInfrastructure<SharedEntityTypeBuilder<TEntity>>
-            where TEntity : class
-        {
-            public GenericTestSharedEntityTypeBuilder(SharedEntityTypeBuilder<TEntity> sharedEntityTypeBuilder)
-            {
-                SharedEntityTypeBuilder = sharedEntityTypeBuilder;
-            }
-
-            protected SharedEntityTypeBuilder<TEntity> SharedEntityTypeBuilder { get; }
-
-            public SharedEntityTypeBuilder<TEntity> Instance => SharedEntityTypeBuilder;
-        }
-
         protected class GenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>
         {
             public GenericTestPropertyBuilder(PropertyBuilder<TProperty> propertyBuilder)
