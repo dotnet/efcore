@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
                 case ExpressionType.Not
-                    when sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool):
+                    when sqlUnaryExpression.Type == typeof(bool):
                 {
                     resultTypeMapping = _boolTypeMapping;
                     resultType = typeof(bool);
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(operand, nameof(operand));
             Check.NotNull(type, nameof(type));
 
-            return MakeUnary(ExpressionType.Convert, operand, type, typeMapping);
+            return MakeUnary(ExpressionType.Convert, operand, type.UnwrapNullableType(), typeMapping);
         }
 
         /// <inheritdoc />

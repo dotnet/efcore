@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             : this(
                 column.Name,
                 table,
-                property.ClrType,
+                property.ClrType.UnwrapNullableType(),
                 column.PropertyMappings.First(m => m.Property == property).TypeMapping,
                 nullable || column.IsNullable)
         {
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             };
 
         private ColumnExpression(string name, TableExpressionBase table, Type type, RelationalTypeMapping typeMapping, bool nullable)
-            : base(nullable ? type.MakeNullable() : type, typeMapping)
+            : base(type, typeMapping)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(table, nameof(table));
@@ -70,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The table from which column is being referenced.
         /// </summary>
         public TableExpressionBase Table { get; }
+
         /// <summary>
         ///     The bool value indicating if this column can have null values.
         /// </summary>
@@ -88,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <returns> A new expression which has <see cref="IsNullable"/> property set to true. </returns>
         public ColumnExpression MakeNullable()
-            => new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
+            => new ColumnExpression(Name, Table, Type, TypeMapping, true);
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)

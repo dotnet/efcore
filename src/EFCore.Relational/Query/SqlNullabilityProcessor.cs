@@ -1644,7 +1644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static bool IsLogicalNot(SqlUnaryExpression sqlUnaryExpression)
             => sqlUnaryExpression != null
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not
-                && sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool);
+                && sqlUnaryExpression.Type == typeof(bool);
 
         // ?a == ?b -> [(a == b) && (a != null && b != null)] || (a == null && b == null))
         //

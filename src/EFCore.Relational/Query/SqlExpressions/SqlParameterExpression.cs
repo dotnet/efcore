@@ -24,15 +24,21 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly ParameterExpression _parameterExpression;
 
         internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping typeMapping)
-            : base(parameterExpression.Type, typeMapping)
+            : base(parameterExpression.Type.UnwrapNullableType(), typeMapping)
         {
             _parameterExpression = parameterExpression;
+            IsNullable = parameterExpression.Type.IsNullableType();
         }
 
         /// <summary>
         ///     The name of the parameter.
         /// </summary>
         public string Name => _parameterExpression.Name;
+
+        /// <summary>
+        ///     The bool value indicating if this parameter can have null values.
+        /// </summary>
+        public bool IsNullable { get; }
 
         /// <summary>
         ///     Applies supplied type mapping to this expression.

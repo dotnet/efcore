@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         argumentsPropagateNullability: new[] { true },
                         typeof(long));
 
-                    return _sqlExpressionFactory.Convert(result, method.ReturnType);
+                    return _sqlExpressionFactory.Convert(result, method.ReturnType.UnwrapNullableType());
                 }
 
                 return _sqlExpressionFactory.Function(
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     arguments.Skip(1),
                     nullable: true,
                     argumentsPropagateNullability: new[] { true },
-                    method.ReturnType);
+                    method.ReturnType.UnwrapNullableType());
             }
 
             return null;

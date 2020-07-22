@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         arguments,
                         nullable: true,
                         argumentsPropagateNullability: arguments.Select(a => false).ToList(),
-                        method.ReturnType);
+                        method.ReturnType.UnwrapNullableType());
                 }
 
                 return _sqlExpressionFactory.Function(
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     arguments,
                     nullable: true,
                     argumentsPropagateNullability: arguments.Select(a => false).ToList(),
-                    method.ReturnType);
+                    method.ReturnType.UnwrapNullableType());
             }
 
             return _plugins.Concat(_translators)
