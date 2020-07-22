@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         where TEntity : class
     {
+        private static readonly MethodInfo _objectEqualsMethodInfo
+                = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+
         private readonly IStateManager _stateManager;
         private readonly IDbSetSource _setSource;
         private readonly IDbSetCache _setCache;
@@ -354,34 +357,50 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     parameter));
         }
 
-        private static BinaryExpression BuildPredicate(
+        private static Expression BuildPredicate(
             IReadOnlyList<IProperty> keyProperties,
             ValueBuffer keyValues,
             ParameterExpression entityParameter)
         {
             var keyValuesConstant = Expression.Constant(keyValues);
 
-            var predicate = GenerateEqualExpression(keyProperties[0], 0);
+            var predicate = GenerateEqualExpression(entityParameter, keyValuesConstant, keyProperties[0], 0);
 
             for (var i = 1; i < keyProperties.Count; i++)
             {
-                predicate = Expression.AndAlso(predicate, GenerateEqualExpression(keyProperties[i], i));
+                predicate = Expression.AndAlso(predicate, GenerateEqualExpression(entityParameter, keyValuesConstant, keyProperties[i], i));
             }
 
             return predicate;
 
-            BinaryExpression GenerateEqualExpression(IProperty property, int i) =>
-                Expression.Equal(
-                    Expression.Call(
-                        EF.PropertyMethod.MakeGenericMethod(property.ClrType),
-                        entityParameter,
-                        Expression.Constant(property.Name, typeof(string))),
-                    Expression.Convert(
+            static Expression GenerateEqualExpression(
+                Expression entityParameterExpression, Expression keyValuesConstantExpression, IProperty property, int i)
+                => property.ClrType.IsValueType
+                    && property.ClrType.UnwrapNullableType() is Type nonNullableType
+                    && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
+                    ? Expression.Call(
+                        _objectEqualsMethodInfo,
                         Expression.Call(
-                            keyValuesConstant,
-                            ValueBuffer.GetValueMethod,
-                            Expression.Constant(i)),
-                        property.ClrType));
+                            EF.PropertyMethod.MakeGenericMethod(typeof(object)),
+                            entityParameterExpression,
+                            Expression.Constant(property.Name, typeof(string))),
+                        Expression.Convert(
+                            Expression.Call(
+                                keyValuesConstantExpression,
+                                ValueBuffer.GetValueMethod,
+                                Expression.Constant(i)),
+                            typeof(object)))
+                    : (Expression)Expression.Equal(
+                        Expression.Call(
+                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
+                            entityParameterExpression,
+                            Expression.Constant(property.Name, typeof(string))),
+                        Expression.Convert(
+                            Expression.Call(
+                                keyValuesConstantExpression,
+                                ValueBuffer.GetValueMethod,
+                                Expression.Constant(i)),
+                            property.ClrType));
         }
 
         private static Expression<Func<object, object[]>> BuildProjection(IEntityType entityType)

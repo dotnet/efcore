@@ -64,12 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (left != null
                 && right != null)
             {
-                if (left.Type == right.Type)
-                {
-                    return _sqlExpressionFactory.Equal(left, right);
-                }
-
-                return _sqlExpressionFactory.Constant(false);
+                return left.Type == right.Type
+                    || (right.Type == typeof(object) && right is SqlParameterExpression)
+                    || (left.Type == typeof(object) && left is SqlParameterExpression)
+                    ? _sqlExpressionFactory.Equal(left, right)
+                    : (SqlExpression)_sqlExpressionFactory.Constant(false);
             }
 
             return null;

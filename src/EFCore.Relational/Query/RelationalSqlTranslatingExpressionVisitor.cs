@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && binaryExpression.Left is NewArrayExpression
                 && binaryExpression.NodeType == ExpressionType.Equal)
             {
-                return Visit(ConvertObjectArrayEqualityComparison(binaryExpression));
+                return Visit(ConvertObjectArrayEqualityComparison(binaryExpression.Left, binaryExpression.Right));
             }
 
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
@@ -624,6 +624,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && methodCallExpression.Object == null
                 && methodCallExpression.Arguments.Count == 2)
             {
+                if (methodCallExpression.Arguments[0].Type == typeof(object[])
+                    && methodCallExpression.Arguments[0] is NewArrayExpression)
+                {
+                    return Visit(ConvertObjectArrayEqualityComparison(
+                        methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
+                }
+
                 var left = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
                 var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[1]));
 
@@ -1000,10 +1007,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? unaryExpression.Operand
                     : expression;
 
-        private static Expression ConvertObjectArrayEqualityComparison(BinaryExpression binaryExpression)
+        private static Expression ConvertObjectArrayEqualityComparison(Expression left, Expression right)
         {
-            var leftExpressions = ((NewArrayExpression)binaryExpression.Left).Expressions;
-            var rightExpressions = ((NewArrayExpression)binaryExpression.Right).Expressions;
+            var leftExpressions = ((NewArrayExpression)left).Expressions;
+            var rightExpressions = ((NewArrayExpression)right).Expressions;
 
             return leftExpressions.Zip(
                     rightExpressions,
