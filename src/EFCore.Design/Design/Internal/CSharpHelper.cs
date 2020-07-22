@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             builder.Append("new");
 
-            var valuesList = values.OfType<object>().ToList();
+            var valuesList = values.Cast<object>().ToList();
 
             if (valuesList.Count == 0)
             {
