@@ -1532,14 +1532,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     @"MaterializeCollectionNavigation(
     Navigation: Gear.Weapons,
     subquery: DbSet<Weapon>()
-        .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
-        .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))
+        .Where(w => EF.Property<string>(g, ""FullName"") != null && object.Equals(
+            objA: EF.Property<string>(g, ""FullName""), 
+            objB: EF.Property<string>(w, ""OwnerFullName"")))
+        .Where(i => EF.Property<string>(g, ""FullName"") != null && object.Equals(
+            objA: EF.Property<string>(g, ""FullName""), 
+            objB: EF.Property<string>(i, ""OwnerFullName"")))
     .AsQueryable()
     .Concat(MaterializeCollectionNavigation(
         Navigation: Gear.Weapons,
         subquery: DbSet<Weapon>()
-            .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
-            .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName"")))"),
+            .Where(w0 => EF.Property<string>(g, ""FullName"") != null && object.Equals(
+                objA: EF.Property<string>(g, ""FullName""), 
+                objB: EF.Property<string>(w0, ""OwnerFullName"")))
+            .Where(i => EF.Property<string>(g, ""FullName"") != null && object.Equals(
+                objA: EF.Property<string>(g, ""FullName""), 
+                objB: EF.Property<string>(i, ""OwnerFullName""))))"),
                 message, ignoreLineEndingDifferences: true);
         }
 
@@ -1557,14 +1565,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     @"MaterializeCollectionNavigation(
     Navigation: Gear.Weapons,
     subquery: DbSet<Weapon>()
-        .Where(w => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w, ""OwnerFullName""))
-        .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))
+        .Where(w => EF.Property<string>(g, ""FullName"") != null && object.Equals(
+            objA: EF.Property<string>(g, ""FullName""), 
+            objB: EF.Property<string>(w, ""OwnerFullName"")))
+        .Where(i => EF.Property<string>(g, ""FullName"") != null && object.Equals(
+            objA: EF.Property<string>(g, ""FullName""), 
+            objB: EF.Property<string>(i, ""OwnerFullName"")))
     .AsQueryable()
     .Union(MaterializeCollectionNavigation(
         Navigation: Gear.Weapons,
         subquery: DbSet<Weapon>()
-            .Where(w0 => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(w0, ""OwnerFullName""))
-            .Where(i => EF.Property<string>(g, ""FullName"") != null && EF.Property<string>(g, ""FullName"") == EF.Property<string>(i, ""OwnerFullName"")))"),
+            .Where(w0 => EF.Property<string>(g, ""FullName"") != null && object.Equals(
+                objA: EF.Property<string>(g, ""FullName""), 
+                objB: EF.Property<string>(w0, ""OwnerFullName"")))
+            .Where(i => EF.Property<string>(g, ""FullName"") != null && object.Equals(
+                objA: EF.Property<string>(g, ""FullName""), 
+                objB: EF.Property<string>(i, ""OwnerFullName""))))"),
                 message, ignoreLineEndingDifferences: true);
         }
 

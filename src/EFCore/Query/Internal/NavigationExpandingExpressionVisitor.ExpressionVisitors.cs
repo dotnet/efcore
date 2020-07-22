@@ -23,6 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private class ExpandingExpressionVisitor : ExpressionVisitor
         {
+            private static readonly MethodInfo _objectEqualsMethodInfo
+                = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+
             private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
             private readonly NavigationExpansionExpression _source;
 
@@ -393,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 })
                                 .Aggregate((l, r) => Expression.AndAlso(l, r))
                             : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
-                        Expression.Equal(outerKey, innerKey));
+                        Expression.Call(_objectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey)));
 
                     // Caller should take care of wrapping MaterializeCollectionNavigation
                     return Expression.Call(
@@ -455,6 +458,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return innerSource.PendingSelector;
             }
+
+            static Expression AddConvertToObject(Expression expression)
+                => expression.Type.IsValueType
+                    ? Expression.Convert(expression, typeof(object))
+                    : expression;
         }
 
         /// <summary>

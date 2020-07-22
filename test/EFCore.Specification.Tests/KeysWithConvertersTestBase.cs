@@ -86,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new IntStructKey { Id = 101 })),
                     context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new IntStructKey { Id = oneOhTwo })),
                     context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
-                    context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id == new IntStructKey { Id = 104 }),
-                    context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id == new IntStructKey { Id = oneOhFive }),
-                    context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
+                    context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new IntStructKey { Id = 104 })),
+                    context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new IntStructKey { Id = oneOhFive })),
+                    context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
                 };
 
                 Assert.Same(dependents[0], context.Set<IntStructKeyOptionalDependent>().Find(new IntStructKey { Id = 101 }));
@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new ComparableIntStructKey { Id = 101 })),
                     context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new ComparableIntStructKey { Id = oneOhTwo })),
                     context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
-                    context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id == new ComparableIntStructKey { Id = 104 }),
-                    context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id == new ComparableIntStructKey { Id = oneOhFive }),
-                    context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
+                    context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new ComparableIntStructKey { Id = 104 })),
+                    context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new ComparableIntStructKey { Id = oneOhFive })),
+                    context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
                 };
 
                 Assert.Same(dependents[0], context.Set<ComparableIntStructKeyOptionalDependent>().Find(new ComparableIntStructKey { Id = 101 }));
@@ -274,9 +274,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 101 })),
                     context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneOhTwo })),
                     context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
-                    context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id == new GenericComparableIntStructKey { Id = 104 }),
-                    context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id == new GenericComparableIntStructKey { Id = oneOhFive }),
-                    context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
+                    context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 104 })),
+                    context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneOhFive })),
+                    context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
                 };
 
                 Assert.Same(dependents[0], context.Set<GenericComparableIntStructKeyOptionalDependent>().Find(new GenericComparableIntStructKey { Id = 101 }));
@@ -368,9 +368,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = 111 })),
                     context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })),
                     context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneThirteen)),
-                    context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new IntStructKey { Id = 114 }),
-                    context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new IntStructKey { Id = oneFifteeen }),
-                    context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == oneSixteen)
+                    context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = 114 })),
+                    context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = oneFifteeen })),
+                    context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
                 };
 
                 Assert.Same(dependents[0], context.Set<IntStructKeyRequiredDependent>().Find(new IntStructKey { Id = 111 }));
@@ -462,9 +462,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new ComparableIntStructKey { Id = 111 })),
                     context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new ComparableIntStructKey { Id = oneTwelve })),
                     context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneThirteen)),
-                    context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new ComparableIntStructKey { Id = 114 }),
-                    context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new ComparableIntStructKey { Id = oneFifteeen }),
-                    context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == oneSixteen)
+                    context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new ComparableIntStructKey { Id = 114 })),
+                    context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new ComparableIntStructKey { Id = oneFifteeen })),
+                    context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
                 };
 
                 Assert.Same(dependents[0], context.Set<ComparableIntStructKeyRequiredDependent>().Find(new ComparableIntStructKey { Id = 111 }));
@@ -556,9 +556,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })),
                     context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneTwelve })),
                     context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneThirteen)),
-                    context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new GenericComparableIntStructKey { Id = 114 }),
-                    context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new GenericComparableIntStructKey { Id = oneFifteeen }),
-                    context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == oneSixteen)
+                    context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 114 })),
+                    context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })),
+                    context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
                 };
 
                 Assert.Same(dependents[0], context.Set<GenericComparableIntStructKeyRequiredDependent>().Find(new GenericComparableIntStructKey { Id = 111 }));
@@ -844,9 +844,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 101 } })),
                     context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new BytesStructKey { Id = oneOhTwo })),
                     context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
-                    context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id == new BytesStructKey { Id = new byte[] { 104 } }),
-                    context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id == new BytesStructKey { Id = oneOhFive }),
-                    context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
+                    context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 104 } })),
+                    context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new BytesStructKey { Id = oneOhFive })),
+                    context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
                 };
 
                 Assert.Same(dependents[0], context.Set<BytesStructKeyOptionalDependent>().Find(new BytesStructKey { Id = new byte[] { 101 } }));
@@ -938,9 +938,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 101 } })),
                     context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneOhTwo })),
                     context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
-                    context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == new StructuralComparableBytesStructKey { Id = new byte[] { 104 } }),
-                    context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == new StructuralComparableBytesStructKey { Id = oneOhFive }),
-                    context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
+                    context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 104 } })),
+                    context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneOhFive })),
+                    context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
                 };
 
                 Assert.Same(dependents[0], context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Find(new StructuralComparableBytesStructKey { Id = new byte[] { 101 } }));
@@ -1032,9 +1032,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 101 } })),
                     context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneOhTwo })),
                     context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
-                    context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == new ComparableBytesStructKey { Id = new byte[] { 104 } }),
-                    context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == new ComparableBytesStructKey { Id = oneOhFive }),
-                    context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
+                    context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 104 } })),
+                    context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneOhFive })),
+                    context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
                 };
 
                 Assert.Same(dependents[0], context.Set<ComparableBytesStructKeyOptionalDependent>().Find(new ComparableBytesStructKey { Id = new byte[] { 101 } }));
@@ -1126,9 +1126,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 101 } })),
                     context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneOhTwo })),
                     context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
-                    context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == new GenericComparableBytesStructKey { Id = new byte[] { 104 } }),
-                    context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == new GenericComparableBytesStructKey { Id = oneOhFive }),
-                    context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
+                    context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 104 } })),
+                    context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneOhFive })),
+                    context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
                 };
 
                 Assert.Same(dependents[0], context.Set<GenericComparableBytesStructKeyOptionalDependent>().Find(new GenericComparableBytesStructKey { Id = new byte[] { 101 } }));
@@ -1220,9 +1220,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 111 } })),
                     context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new BytesStructKey { Id = oneTwelve })),
                     context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneThirteen)),
-                    context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new BytesStructKey { Id = new byte[] { 114 } }),
-                    context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new BytesStructKey { Id = oneFifteeen }),
-                    context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == oneSixteen)
+                    context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 114 } })),
+                    context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new BytesStructKey { Id = oneFifteeen })),
+                    context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
                 };
 
                 Assert.Same(dependents[0], context.Set<BytesStructKeyRequiredDependent>().Find(new BytesStructKey { Id = new byte[] { 111 } }));
@@ -1314,9 +1314,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })),
                     context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneTwelve })),
                     context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneThirteen)),
-                    context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new ComparableBytesStructKey { Id = new byte[] { 114 } }),
-                    context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new ComparableBytesStructKey { Id = oneFifteeen }),
-                    context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == oneSixteen)
+                    context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 114 } })),
+                    context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneFifteeen })),
+                    context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
                 };
 
                 Assert.Same(dependents[0], context.Set<ComparableBytesStructKeyRequiredDependent>().Find(new ComparableBytesStructKey { Id = new byte[] { 111 } }));
@@ -1408,9 +1408,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })),
                     context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneTwelve })),
                     context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneThirteen)),
-                    context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new StructuralComparableBytesStructKey { Id = new byte[] { 114 } }),
-                    context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new StructuralComparableBytesStructKey { Id = oneFifteeen }),
-                    context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == oneSixteen)
+                    context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 114 } })),
+                    context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })),
+                    context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
                 };
 
                 Assert.Same(dependents[0], context.Set<StructuralComparableBytesStructKeyRequiredDependent>().Find(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } }));
@@ -1502,9 +1502,9 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })),
                     context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneTwelve })),
                     context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneThirteen)),
-                    context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new GenericComparableBytesStructKey { Id = new byte[] { 114 } }),
-                    context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == new GenericComparableBytesStructKey { Id = oneFifteeen }),
-                    context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id == oneSixteen)
+                    context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 114 } })),
+                    context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })),
+                    context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
                 };
 
                 Assert.Same(dependents[0], context.Set<GenericComparableBytesStructKeyRequiredDependent>().Find(new GenericComparableBytesStructKey { Id = new byte[] { 111 } }));
@@ -1535,48 +1535,46 @@ namespace Microsoft.EntityFrameworkCore
             where TPrincipal : class, IIntPrincipal, new()
             where TDependent : class, IIntOptionalDependent, new()
         {
-            using (var context = CreateContext())
-            {
-                context.Set<TPrincipal>().AddRange(
-                    new TPrincipal { BackingId = 1, Foo = "X1" },
-                    new TPrincipal { BackingId = 2, Foo = "X2" },
-                    new TPrincipal { BackingId = 3, Foo = "X3" },
-                    new TPrincipal { BackingId = 4, Foo = "X4" });
+            using var context = CreateContext();
 
-                context.Set<TDependent>().AddRange(
-                    new TDependent { BackingId = 101, BackingPrincipalId = 1 },
-                    new TDependent { BackingId = 102, BackingPrincipalId = 2 },
-                    new TDependent { BackingId = 103, BackingPrincipalId = 3 },
-                    new TDependent { BackingId = 104, BackingPrincipalId = 3 },
-                    new TDependent { BackingId = 105, BackingPrincipalId = 3 },
-                    new TDependent { BackingId = 106 });
+            context.Set<TPrincipal>().AddRange(
+                new TPrincipal { BackingId = 1, Foo = "X1" },
+                new TPrincipal { BackingId = 2, Foo = "X2" },
+                new TPrincipal { BackingId = 3, Foo = "X3" },
+                new TPrincipal { BackingId = 4, Foo = "X4" });
 
-                Assert.Equal(10, context.SaveChanges());
-            }
+            context.Set<TDependent>().AddRange(
+                new TDependent { BackingId = 101, BackingPrincipalId = 1 },
+                new TDependent { BackingId = 102, BackingPrincipalId = 2 },
+                new TDependent { BackingId = 103, BackingPrincipalId = 3 },
+                new TDependent { BackingId = 104, BackingPrincipalId = 3 },
+                new TDependent { BackingId = 105, BackingPrincipalId = 3 },
+                new TDependent { BackingId = 106 });
+
+            Assert.Equal(10, context.SaveChanges());
         }
 
         private void InsertRequiredGraph<TPrincipal, TDependent>()
             where TPrincipal : class, IIntPrincipal, new()
             where TDependent : class, IIntRequiredDependent, new()
         {
-            using (var context = CreateContext())
-            {
-                context.Set<TPrincipal>().AddRange(
-                    new TPrincipal { BackingId = 11, Foo = "X1" },
-                    new TPrincipal { BackingId = 12, Foo = "X2" },
-                    new TPrincipal { BackingId = 13, Foo = "X3" },
-                    new TPrincipal { BackingId = 14, Foo = "X4" });
+            using var context = CreateContext();
 
-                context.Set<TDependent>().AddRange(
-                    new TDependent { BackingId = 111, BackingPrincipalId = 11 },
-                    new TDependent { BackingId = 112, BackingPrincipalId = 12 },
-                    new TDependent { BackingId = 113, BackingPrincipalId = 13 },
-                    new TDependent { BackingId = 114, BackingPrincipalId = 13 },
-                    new TDependent { BackingId = 115, BackingPrincipalId = 13 },
-                    new TDependent { BackingId = 116, BackingPrincipalId = 13 });
+            context.Set<TPrincipal>().AddRange(
+                new TPrincipal { BackingId = 11, Foo = "X1" },
+                new TPrincipal { BackingId = 12, Foo = "X2" },
+                new TPrincipal { BackingId = 13, Foo = "X3" },
+                new TPrincipal { BackingId = 14, Foo = "X4" });
 
-                Assert.Equal(10, context.SaveChanges());
-            }
+            context.Set<TDependent>().AddRange(
+                new TDependent { BackingId = 111, BackingPrincipalId = 11 },
+                new TDependent { BackingId = 112, BackingPrincipalId = 12 },
+                new TDependent { BackingId = 113, BackingPrincipalId = 13 },
+                new TDependent { BackingId = 114, BackingPrincipalId = 13 },
+                new TDependent { BackingId = 115, BackingPrincipalId = 13 },
+                new TDependent { BackingId = 116, BackingPrincipalId = 13 });
+
+            Assert.Equal(10, context.SaveChanges());
         }
 
         protected void ValidateOptional(
@@ -1668,48 +1666,44 @@ namespace Microsoft.EntityFrameworkCore
             where TPrincipal : class, IBytesPrincipal, new()
             where TDependent : class, IBytesOptionalDependent, new()
         {
-            using (var context = CreateContext())
-            {
-                context.Set<TPrincipal>().AddRange(
-                    new TPrincipal { BackingId = new byte[]{ 1 }, Foo = "X1" },
-                    new TPrincipal { BackingId = new byte[]{ 2, 2 }, Foo = "X2" },
-                    new TPrincipal { BackingId = new byte[]{ 3, 3, 3 }, Foo = "X3" },
-                    new TPrincipal { BackingId = new byte[]{ 4, 4, 4, 4 }, Foo = "X4" });
+            using var context = CreateContext();
+            context.Set<TPrincipal>().AddRange(
+                new TPrincipal { BackingId = new byte[] { 1 }, Foo = "X1" },
+                new TPrincipal { BackingId = new byte[] { 2, 2 }, Foo = "X2" },
+                new TPrincipal { BackingId = new byte[] { 3, 3, 3 }, Foo = "X3" },
+                new TPrincipal { BackingId = new byte[] { 4, 4, 4, 4 }, Foo = "X4" });
 
-                context.Set<TDependent>().AddRange(
-                    new TDependent { BackingId = new byte[]{ 101 }, BackingPrincipalId = new byte[]{ 1 } },
-                    new TDependent { BackingId = new byte[]{ 102 }, BackingPrincipalId = new byte[]{ 2, 2 } },
-                    new TDependent { BackingId = new byte[]{ 103 }, BackingPrincipalId = new byte[]{ 3, 3, 3 } },
-                    new TDependent { BackingId = new byte[]{ 104 }, BackingPrincipalId = new byte[]{ 3, 3, 3 } },
-                    new TDependent { BackingId = new byte[]{ 105 }, BackingPrincipalId = new byte[]{ 3, 3, 3 } },
-                    new TDependent { BackingId = new byte[]{ 106 } });
+            context.Set<TDependent>().AddRange(
+                new TDependent { BackingId = new byte[] { 101 }, BackingPrincipalId = new byte[] { 1 } },
+                new TDependent { BackingId = new byte[] { 102 }, BackingPrincipalId = new byte[] { 2, 2 } },
+                new TDependent { BackingId = new byte[] { 103 }, BackingPrincipalId = new byte[] { 3, 3, 3 } },
+                new TDependent { BackingId = new byte[] { 104 }, BackingPrincipalId = new byte[] { 3, 3, 3 } },
+                new TDependent { BackingId = new byte[] { 105 }, BackingPrincipalId = new byte[] { 3, 3, 3 } },
+                new TDependent { BackingId = new byte[] { 106 } });
 
-                Assert.Equal(10, context.SaveChanges());
-            }
+            Assert.Equal(10, context.SaveChanges());
         }
 
         private void InsertRequiredBytesGraph<TPrincipal, TDependent>()
             where TPrincipal : class, IBytesPrincipal, new()
             where TDependent : class, IBytesRequiredDependent, new()
         {
-            using (var context = CreateContext())
-            {
-                context.Set<TPrincipal>().AddRange(
-                    new TPrincipal { BackingId = new byte[]{ 11 }, Foo = "X1" },
-                    new TPrincipal { BackingId = new byte[]{ 12, 12 }, Foo = "X2" },
-                    new TPrincipal { BackingId = new byte[]{ 13, 13, 13 }, Foo = "X3" },
-                    new TPrincipal { BackingId = new byte[]{ 14, 14, 14, 14 }, Foo = "X4" });
+            using var context = CreateContext();
+            context.Set<TPrincipal>().AddRange(
+                new TPrincipal { BackingId = new byte[] { 11 }, Foo = "X1" },
+                new TPrincipal { BackingId = new byte[] { 12, 12 }, Foo = "X2" },
+                new TPrincipal { BackingId = new byte[] { 13, 13, 13 }, Foo = "X3" },
+                new TPrincipal { BackingId = new byte[] { 14, 14, 14, 14 }, Foo = "X4" });
 
-                context.Set<TDependent>().AddRange(
-                    new TDependent { BackingId = new byte[]{ 111 }, BackingPrincipalId = new byte[]{ 11 } },
-                    new TDependent { BackingId = new byte[]{ 112 }, BackingPrincipalId = new byte[]{ 12, 12 } },
-                    new TDependent { BackingId = new byte[]{ 113 }, BackingPrincipalId = new byte[]{ 13, 13, 13 } },
-                    new TDependent { BackingId = new byte[]{ 114 }, BackingPrincipalId = new byte[]{ 13, 13, 13 } },
-                    new TDependent { BackingId = new byte[]{ 115 }, BackingPrincipalId = new byte[]{ 13, 13, 13 } },
-                    new TDependent { BackingId = new byte[]{ 116 }, BackingPrincipalId = new byte[]{ 13, 13, 13 } });
+            context.Set<TDependent>().AddRange(
+                new TDependent { BackingId = new byte[] { 111 }, BackingPrincipalId = new byte[] { 11 } },
+                new TDependent { BackingId = new byte[] { 112 }, BackingPrincipalId = new byte[] { 12, 12 } },
+                new TDependent { BackingId = new byte[] { 113 }, BackingPrincipalId = new byte[] { 13, 13, 13 } },
+                new TDependent { BackingId = new byte[] { 114 }, BackingPrincipalId = new byte[] { 13, 13, 13 } },
+                new TDependent { BackingId = new byte[] { 115 }, BackingPrincipalId = new byte[] { 13, 13, 13 } },
+                new TDependent { BackingId = new byte[] { 116 }, BackingPrincipalId = new byte[] { 13, 13, 13 } });
 
-                Assert.Equal(10, context.SaveChanges());
-            }
+            Assert.Equal(10, context.SaveChanges());
         }
 
         protected void ValidateOptionalBytes(
@@ -1804,25 +1798,15 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-#pragma warning disable 660,661 // Issue #19407
         protected struct IntStructKey
-#pragma warning restore 660,661
         {
             public static ValueConverter<IntStructKey, int> Converter
                 = new ValueConverter<IntStructKey, int>(v => v.Id, v => new IntStructKey { Id = v });
 
             public int Id { get; set; }
-
-            public static bool operator ==(IntStructKey left, IntStructKey right)
-                => left.Id == right.Id;
-
-            public static bool operator !=(IntStructKey left, IntStructKey right)
-                => left.Id != right.Id;
         }
 
-#pragma warning disable 660,661 // Issue #19407
         protected struct BytesStructKey
-#pragma warning restore 660,661
         {
             public static ValueConverter<BytesStructKey, byte[]> Converter
                 = new ValueConverter<BytesStructKey, byte[]>(v => v.Id, v => new BytesStructKey { Id = v });
@@ -1848,36 +1832,20 @@ namespace Microsoft.EntityFrameworkCore
 
                 return code.ToHashCode();
             }
-
-            public static bool operator ==(BytesStructKey left, BytesStructKey right)
-                => left.Equals(right);
-
-            public static bool operator !=(BytesStructKey left, BytesStructKey right)
-                => !left.Equals(right);
         }
 
-#pragma warning disable 660,661 // Issue #19407
         protected struct ComparableIntStructKey : IComparable
-#pragma warning restore 660,661
         {
             public static ValueConverter<ComparableIntStructKey, int> Converter
                 = new ValueConverter<ComparableIntStructKey, int>(v => v.Id, v => new ComparableIntStructKey { Id = v });
 
             public int Id { get; set; }
 
-            public static bool operator ==(ComparableIntStructKey left, ComparableIntStructKey right)
-                => left.Id == right.Id;
-
-            public static bool operator !=(ComparableIntStructKey left, ComparableIntStructKey right)
-                => left.Id != right.Id;
-
             public int CompareTo(object other)
                 => Id - ((ComparableIntStructKey)other).Id;
         }
 
-#pragma warning disable 660,661 // Issue #19407
         protected struct ComparableBytesStructKey : IComparable
-#pragma warning restore 660,661
         {
             public static ValueConverter<ComparableBytesStructKey, byte[]> Converter
                 = new ValueConverter<ComparableBytesStructKey, byte[]>(v => v.Id, v => new ComparableBytesStructKey { Id = v });
@@ -1904,46 +1872,28 @@ namespace Microsoft.EntityFrameworkCore
                 return code.ToHashCode();
             }
 
-            public static bool operator ==(ComparableBytesStructKey left, ComparableBytesStructKey right)
-                => left.Equals(right);
-
-            public static bool operator !=(ComparableBytesStructKey left, ComparableBytesStructKey right)
-                => !left.Equals(right);
-
             public int CompareTo(object other)
             {
                 var result = Id.Length - ((ComparableBytesStructKey)other).Id.Length;
-                if (result != 0)
-                {
-                    return result;
-                }
 
-                return StructuralComparisons.StructuralComparer.Compare(Id, ((ComparableBytesStructKey)other).Id);
+                return result != 0
+                    ? result
+                    : StructuralComparisons.StructuralComparer.Compare(Id, ((ComparableBytesStructKey)other).Id);
             }
         }
 
-#pragma warning disable 660,661 // Issue #19407
         protected struct GenericComparableIntStructKey : IComparable<GenericComparableIntStructKey>
-#pragma warning restore 660,661
         {
             public static ValueConverter<GenericComparableIntStructKey, int> Converter
                 = new ValueConverter<GenericComparableIntStructKey, int>(v => v.Id, v => new GenericComparableIntStructKey { Id = v });
 
             public int Id { get; set; }
 
-            public static bool operator ==(GenericComparableIntStructKey left, GenericComparableIntStructKey right)
-                => left.Id == right.Id;
-
-            public static bool operator !=(GenericComparableIntStructKey left, GenericComparableIntStructKey right)
-                => !(left == right);
-
             public int CompareTo(GenericComparableIntStructKey other)
                 => Id - other.Id;
         }
 
-#pragma warning disable 660,661 // Issue #19407
         protected struct GenericComparableBytesStructKey : IComparable<GenericComparableBytesStructKey>
-#pragma warning restore 660,661
         {
             public static ValueConverter<GenericComparableBytesStructKey, byte[]> Converter
                 = new ValueConverter<GenericComparableBytesStructKey, byte[]>(v => v.Id, v => new GenericComparableBytesStructKey { Id = v });
@@ -1970,27 +1920,17 @@ namespace Microsoft.EntityFrameworkCore
                 return code.ToHashCode();
             }
 
-            public static bool operator ==(GenericComparableBytesStructKey left, GenericComparableBytesStructKey right)
-                => left.Equals(right);
-
-            public static bool operator !=(GenericComparableBytesStructKey left, GenericComparableBytesStructKey right)
-                => !left.Equals(right);
-
             public int CompareTo(GenericComparableBytesStructKey other)
             {
                 var result = Id.Length - other.Id.Length;
-                if (result != 0)
-                {
-                    return result;
-                }
 
-                return StructuralComparisons.StructuralComparer.Compare(Id, other.Id);
+                return result != 0
+                    ? result
+                    : StructuralComparisons.StructuralComparer.Compare(Id, other.Id);
             }
         }
 
-#pragma warning disable 660,661 // Issue #19407
         protected struct StructuralComparableBytesStructKey : IStructuralComparable
-#pragma warning restore 660,661
         {
             public static ValueConverter<StructuralComparableBytesStructKey, byte[]> Converter
                 = new ValueConverter<StructuralComparableBytesStructKey, byte[]>(v => v.Id, v => new StructuralComparableBytesStructKey { Id = v });
@@ -2016,12 +1956,6 @@ namespace Microsoft.EntityFrameworkCore
 
                 return code.ToHashCode();
             }
-
-            public static bool operator ==(StructuralComparableBytesStructKey left, StructuralComparableBytesStructKey right)
-                => left.Equals(right);
-
-            public static bool operator !=(StructuralComparableBytesStructKey left, StructuralComparableBytesStructKey right)
-                => !left.Equals(right);
 
             public int CompareTo(object other, IComparer comparer)
             {
