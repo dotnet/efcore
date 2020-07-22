@@ -965,8 +965,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     FormatTable(operation.Table, operation.Schema)));
             }
 
-            var properties = operation.ColumnTypes == null
-                ? GetMappedProperties(operation.Columns, operation.Table, operation.Schema, model)
+            var propertyMappings = operation.ColumnTypes == null
+                ? GetPropertyMappings(operation.Columns, operation.Table, operation.Schema, model)
                 : null;
 
             for (var i = 0; i < operation.Values.GetLength(0); i++)
@@ -974,10 +974,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var modifications = new ColumnModification[operation.Columns.Length];
                 for (var j = 0; j < operation.Columns.Length; j++)
                 {
+                    var name = operation.Columns[j];
+                    var value = operation.Values[i, j];
+                    var propertyMapping = propertyMappings?[j];
+                    var columnType = operation.ColumnTypes?[j];
+                    var typeMapping = propertyMapping != null
+                        ? propertyMapping.TypeMapping
+                        : value != null
+                            ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
+                            : Dependencies.TypeMappingSource.FindMapping(columnType);
+
                     modifications[j] = new ColumnModification(
-                        operation.Columns[j], originalValue: null, value: operation.Values[i, j], property: properties?[j],
-                        columnType: operation.ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
-                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                        name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
+                        isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
                 }
 
                 yield return new ModificationCommand(operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
@@ -1042,8 +1052,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     FormatTable(operation.Table, operation.Schema)));
             }
 
-            var properties = operation.KeyColumnTypes == null
-                ? GetMappedProperties(operation.KeyColumns, operation.Table, operation.Schema, model)
+            var keypropertyMappings = operation.KeyColumnTypes == null
+                ? GetPropertyMappings(operation.KeyColumns, operation.Table, operation.Schema, model)
                 : null;
 
             for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
@@ -1051,10 +1061,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var modifications = new ColumnModification[operation.KeyColumns.Length];
                 for (var j = 0; j < operation.KeyColumns.Length; j++)
                 {
+                    var name = operation.KeyColumns[j];
+                    var value = operation.KeyValues[i, j];
+                    var propertyMapping = keypropertyMappings?[j];
+                    var columnType = operation.KeyColumnTypes?[j];
+                    var typeMapping = propertyMapping != null
+                        ? propertyMapping.TypeMapping
+                        : value != null
+                            ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
+                            : Dependencies.TypeMappingSource.FindMapping(columnType);
+
                     modifications[j] = new ColumnModification(
-                        operation.KeyColumns[j], originalValue: null, value: operation.KeyValues[i, j], property: properties?[j],
-                        columnType: operation.KeyColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: true,
-                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                        name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
+                        isRead: false, isWrite: true, isKey: true, isCondition: true,
+                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
                 }
 
                 yield return new ModificationCommand(operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
@@ -1137,11 +1157,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     FormatTable(operation.Table, operation.Schema)));
             }
 
-            var keyProperties = operation.KeyColumnTypes == null
-                ? GetMappedProperties(operation.KeyColumns, operation.Table, operation.Schema, model)
+            var keyPropertyMappings = operation.KeyColumnTypes == null
+                ? GetPropertyMappings(operation.KeyColumns, operation.Table, operation.Schema, model)
                 : null;
-            var properties = operation.ColumnTypes == null
-                ? GetMappedProperties(operation.Columns, operation.Table, operation.Schema, model)
+            var propertyMappings = operation.ColumnTypes == null
+                ? GetPropertyMappings(operation.Columns, operation.Table, operation.Schema, model)
                 : null;
 
             for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
@@ -1149,19 +1169,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var keys = new ColumnModification[operation.KeyColumns.Length];
                 for (var j = 0; j < operation.KeyColumns.Length; j++)
                 {
+                    var name = operation.KeyColumns[j];
+                    var value = operation.KeyValues[i, j];
+                    var propertyMapping = keyPropertyMappings?[j];
+                    var columnType = operation.KeyColumnTypes?[j];
+                    var typeMapping = propertyMapping != null
+                        ? propertyMapping.TypeMapping
+                        : value != null
+                            ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
+                            : Dependencies.TypeMappingSource.FindMapping(columnType);
+
                     keys[j] = new ColumnModification(
-                        operation.KeyColumns[j], originalValue: null, value: operation.KeyValues[i, j], property: keyProperties?[j],
-                        columnType: operation.KeyColumnTypes?[j], isRead: false, isWrite: false, isKey: true, isCondition: true,
-                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                        name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
+                        isRead: false, isWrite: false, isKey: true, isCondition: true,
+                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
                 }
 
                 var modifications = new ColumnModification[operation.Columns.Length];
                 for (var j = 0; j < operation.Columns.Length; j++)
                 {
+                    var name = operation.Columns[j];
+                    var value = operation.Values[i, j];
+                    var propertyMapping = propertyMappings?[j];
+                    var columnType = operation.ColumnTypes?[j];
+                    var typeMapping = propertyMapping != null
+                        ? propertyMapping.TypeMapping
+                        : value != null
+                            ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
+                            : Dependencies.TypeMappingSource.FindMapping(columnType);
+
                     modifications[j] = new ColumnModification(
-                        operation.Columns[j], originalValue: null, value: operation.Values[i, j], property: properties?[j],
-                        columnType: operation.ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
-                        sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                        name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
+                        isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
                 }
 
                 yield return new ModificationCommand(operation.Table, operation.Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: SensitiveLoggingEnabled);
@@ -1171,7 +1211,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private static string FormatTable(string table, string schema)
             => schema == null ? table : schema + "." + table;
 
-        private static IProperty[] GetMappedProperties(
+        private static IColumnMapping[] GetPropertyMappings(
             [NotNull] string[] names, [NotNull] string tableName, [CanBeNull] string schema, [NotNull] IModel model)
         {
             var table = model.GetRelationalModel().FindTable(tableName, schema);
@@ -1181,7 +1221,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     FormatTable(tableName, schema)));
             }
 
-            var properties = new IProperty[names.Length];
+            var properties = new IColumnMapping[names.Length];
             for (var i = 0; i < names.Length; i++)
             {
                 var name = names[i];
@@ -1192,7 +1232,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         FormatTable(tableName, schema), name));
                 }
 
-                properties[i] = column.PropertyMappings.First().Property;
+                properties[i] = column.PropertyMappings.First();
             }
 
             return properties;

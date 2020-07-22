@@ -286,12 +286,15 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 foreach (var property in entry.EntityType.GetProperties())
                 {
-                    var column = (IColumn)property.FindColumn(StoreObjectIdentifier.Table(TableName, Schema));
-                    if (column == null)
+                    var columnMapping = property.GetTableColumnMappings()
+                           .Where(m => m.TableMapping.Table.Name == TableName && m.TableMapping.Table.Schema == Schema)
+                           .FirstOrDefault();
+                    if (columnMapping == null)
                     {
                         continue;
                     }
 
+                    var column = columnMapping.Column;
                     var isKey = property.IsPrimaryKey();
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
                     var readValue = entry.IsStoreGenerated(property);
@@ -330,6 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             property,
                             column,
                             _generateParameterName,
+                            columnMapping.TypeMapping,
                             readValue,
                             writeValue,
                             isKey,

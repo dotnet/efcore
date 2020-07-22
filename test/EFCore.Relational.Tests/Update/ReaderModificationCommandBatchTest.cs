@@ -325,6 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             property,
                             property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
                             false, true, false, false, true)
                     }));
 
@@ -341,6 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             property,
                             property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
                             false, true, false, false, true)
                     }));
 
@@ -377,6 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             property,
                             property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
                             isRead: false, isWrite: true, isKey: false, isCondition: false,
                             sensitiveLoggingEnabled: true)
                     }));
@@ -412,6 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             property,
                             property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
                             isRead: false, isWrite: false, isKey: false, isCondition: true,
                             sensitiveLoggingEnabled: true)
                     }));
@@ -447,6 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             property,
                             property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
                             isRead: false, isWrite: true, isKey: false, isCondition: true,
                             sensitiveLoggingEnabled: true)
                     }));
@@ -484,6 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             property,
                             property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
                             isRead: true, isWrite: false, isKey: false, isCondition: false,
                             sensitiveLoggingEnabled: true)
                     }));

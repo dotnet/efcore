@@ -202,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         commandBuilder.AddParameter(
                             columnModification.ParameterName,
                             Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
-                            columnModification.Property);
+                            columnModification.TypeMapping,
+                            columnModification.IsNullable);
 
                         parameterValues.Add(columnModification.ParameterName, columnModification.Value);
                     }
@@ -212,7 +213,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         commandBuilder.AddParameter(
                             columnModification.OriginalParameterName,
                             Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
-                            columnModification.Property);
+                            columnModification.TypeMapping,
+                            columnModification.IsNullable);
 
                         parameterValues.Add(columnModification.OriginalParameterName, columnModification.OriginalValue);
                     }
@@ -322,7 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))
                         .Where(c => c.IsRead)
-                        .Select(c => new TypeMaterializationInfo(c.Property.ClrType, c.Property, null))
+                        .Select(c => new TypeMaterializationInfo(
+                            c.Property.ClrType, c.Property, typeMappingSource: null, fromLeftOuterJoin: null, index: -1, c.TypeMapping))
                         .ToArray());
     }
 }

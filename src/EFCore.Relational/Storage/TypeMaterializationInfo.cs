@@ -66,13 +66,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     or -1 if no index mapping is needed.
         /// </param>
         /// <param name="mapping"> The type mapping to use or <see langword="null" /> to infer one. </param>
+        /// <param name="nullable"> A value indicating whether the value could be null. </param>
         public TypeMaterializationInfo(
             [NotNull] Type modelClrType,
             [CanBeNull] IProperty property,
             [CanBeNull] IRelationalTypeMappingSource typeMappingSource,
             bool? fromLeftOuterJoin,
             int index = -1,
-            [CanBeNull] RelationalTypeMapping mapping = null)
+            [CanBeNull] RelationalTypeMapping mapping = null,
+            bool? nullable = null)
         {
             Check.NotNull(modelClrType, nameof(modelClrType));
 
@@ -90,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Property = property;
             Index = index;
             IsFromLeftOuterJoin = fromLeftOuterJoin;
+            IsNullable = nullable;
         }
 
         /// <summary>
@@ -122,6 +125,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Whether or not the value is coming from a LEFT OUTER JOIN operation.
         /// </summary>
         public virtual bool? IsFromLeftOuterJoin { get; }
+
+        /// <summary>
+        ///     Whether or not the value can be null.
+        /// </summary>
+        public virtual bool? IsNullable { get; }
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.

@@ -228,64 +228,6 @@ FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
         }
 
-        public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
-        {
-            base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
-
-            AssertSql(
-                @"@p0=NULL (DbType = Int32)
-@p1='1'
-
-SET NOCOUNT ON;
-INSERT INTO [BookDetails] ([AdditionalBookDetailsId], [AnotherBookId])
-VALUES (@p0, @p1);
-SELECT [Id]
-FROM [BookDetails]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
-                //
-                @"@p0=NULL (DbType = Int32)
-@p1=NULL (Nullable = false) (DbType = Int32)
-
-SET NOCOUNT ON;
-INSERT INTO [BookDetails] ([AdditionalBookDetailsId], [AnotherBookId])
-VALUES (@p0, @p1);
-SELECT [Id]
-FROM [BookDetails]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
-        }
-
-        public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
-        {
-            base.RequiredAttribute_for_property_throws_while_inserting_null_value();
-
-            AssertSql(
-                @"@p0=NULL (Size = 10)
-@p1='ValidString' (Nullable = false) (Size = 4000)
-@p2='00000000-0000-0000-0000-000000000001'
-@p3='Two' (Size = 4000)
-@p4='One' (Size = 4000)
-
-SET NOCOUNT ON;
-INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [Details_Name])
-VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT [UniqueNo]
-FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
-                //
-                @"@p0=NULL (Size = 10)
-@p1=NULL (Nullable = false) (Size = 4000)
-@p2='00000000-0000-0000-0000-000000000002'
-@p3='Two' (Size = 4000)
-@p4='One' (Size = 4000)
-
-SET NOCOUNT ON;
-INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [Details_Name])
-VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT [UniqueNo]
-FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
-        }
-
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
         {
             base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();

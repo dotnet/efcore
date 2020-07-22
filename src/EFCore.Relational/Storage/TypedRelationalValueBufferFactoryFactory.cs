@@ -122,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
         /// <returns> The value buffer assignment expressions. </returns>
+        [Obsolete]
         public virtual IReadOnlyList<Expression> CreateAssignmentExpressions([NotNull] IReadOnlyList<TypeMaterializationInfo> types)
             => Check.NotNull(types, nameof(types))
                 .Select(
@@ -255,8 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 valueExpression = Expression.Convert(valueExpression, typeof(object));
             }
 
-            if (property?.IsNullable != false
-                || property.DeclaringEntityType.BaseType != null
+            if (materializationInfo?.IsNullable != false
                 || materializationInfo.IsFromLeftOuterJoin != false)
             {
                 valueExpression

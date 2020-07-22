@@ -26,8 +26,8 @@ ORDER BY [e].[Id]",
 @p2='1'
 @p0='FO 108X' (Size = 4000)
 @p3='ChangedEngine' (Size = 4000)
-@p4='47.64491'
-@p5='-122.128101'
+@p4='47.64491' (Nullable = true)
+@p5='-122.128101' (Nullable = true)
 
 SET NOCOUNT ON;
 UPDATE [Engines] SET [Name] = @p0
