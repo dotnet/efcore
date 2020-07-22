@@ -154,9 +154,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
                 where TEntity : class;
 
-            public abstract TestSharedEntityTypeBuilder<TEntity> SharedEntity<TEntity>()
-                where TEntity : class;
-
             public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 where TEntity : class;
 

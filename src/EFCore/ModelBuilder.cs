@@ -478,43 +478,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks an entity type as shared type. All references to this type will be configured as separate entity types.
-        ///     </para>
-        ///     <para>
-        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
-        ///         a unique name and always identified by the name.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="T"> The entity type to be configured. </typeparam>
-        public virtual SharedEntityTypeBuilder<T> SharedEntity<T>()
-            where T : class
-        {
-            Builder.SharedEntity(typeof(T), ConfigurationSource.Explicit);
-
-            return new SharedEntityTypeBuilder<T>();
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Marks an entity type as shared type. All references to this type will be configured as separate entity types.
-        ///     </para>
-        ///     <para>
-        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
-        ///         a unique name and always identified by the name.
-        ///     </para>
-        /// </summary>
-        /// <param name="type"> The entity type to be configured. </param>
-        public virtual SharedEntityTypeBuilder SharedEntity([NotNull] Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            Builder.SharedEntity(type, ConfigurationSource.Explicit);
-
-            return new SharedEntityTypeBuilder();
-        }
-
-        /// <summary>
         ///     Configures the default <see cref="ChangeTrackingStrategy" /> to be used for this model.
         ///     This strategy indicates how the context detects changes to properties for an instance of an entity type.
         /// </summary>

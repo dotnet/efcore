@@ -354,34 +354,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionSharedEntityTypeBuilder SharedEntity(
-            [NotNull] Type type, ConfigurationSource configurationSource)
-        {
-            if (IsIgnored(type, configurationSource))
-            {
-                return null;
-            }
-
-            Metadata.RemoveIgnored(type);
-
-            foreach (var entityType in Metadata.GetEntityTypes()
-                .Where(et => !et.HasSharedClrType && et.ClrType == type && configurationSource.Overrides(et.GetConfigurationSource()))
-                .ToList())
-            {
-                HasNoEntityType(entityType, configurationSource);
-            }
-
-            Metadata.AddShared(type);
-
-            return new InternalSharedEntityTypeBuilder();
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual bool IsIgnored([NotNull] Type type, ConfigurationSource configurationSource)
             => IsIgnored(new TypeIdentity(type, Metadata), configurationSource);
 

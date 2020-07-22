@@ -129,8 +129,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestEntityTypeBuilder<TEntity> SharedEntity<TEntity>(string name)
                 => new GenericTestEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity<TEntity>(name));
-            public override TestSharedEntityTypeBuilder<TEntity> SharedEntity<TEntity>()
-                => new GenericTestSharedEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity<TEntity>());
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
