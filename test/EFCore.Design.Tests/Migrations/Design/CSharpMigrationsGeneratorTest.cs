@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         Table = "T1",
                         Columns = new string[] {"Id", "C2", "C3"},
-                        Values = new object[,] { { 1, "stringValue", -1} }
+                        Values = new object[,] { { 1, null, -1} }
                     }
                 },
                 Array.Empty<MigrationOperation>());
@@ -469,7 +469,7 @@ namespace MyNamespace
             migrationBuilder.InsertData(
                 table: ""T1"",
                 columns: new[] { ""Id"", ""C2"", ""C3"" },
-                values: new object[] { 1, ""stringValue"", -1 });
+                values: new object[] { 1, null, -1 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

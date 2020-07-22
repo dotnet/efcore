@@ -2708,7 +2708,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Table = "People",
                     Columns = new[] { "First Name", "Last Name", "Geometry" },
-                    Values = new object[,] { { "John", "Snow", new string[0] } }
+                    Values = new object[,] { { "John", null, new string[0] } }
                 },
                 "mb.InsertData("
                 + _eol
@@ -2716,14 +2716,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    columns: new[] { \"First Name\", \"Last Name\", \"Geometry\" },"
                 + _eol
-                + "    values: new object[] { \"John\", \"Snow\", new string[0] });",
+                + "    values: new object[] { \"John\", null, new string[0] });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
                     Assert.Equal(3, o.Columns.Length);
                     Assert.Equal(1, o.Values.GetLength(0));
                     Assert.Equal(3, o.Values.GetLength(1));
-                    Assert.Equal("Snow", o.Values[0, 1]);
+                    Assert.Null(o.Values[0, 1]);
                     Assert.Equal(new string[0], (string[])o.Values[0, 2]);
                 });
         }
