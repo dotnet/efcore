@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : CoreStrings.TranslationFailedWithDetails(expression.Print(), TranslationErrorDetails));
             }
 
-            var inputType = sqlExpression.Type.UnwrapNullableType();
+            var inputType = sqlExpression.Type;
             if (inputType == typeof(int)
                 || inputType == typeof(long))
             {
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : CoreStrings.TranslationFailedWithDetails(expression.Print(), TranslationErrorDetails));
             }
 
-            var inputType = sqlExpression.Type.UnwrapNullableType();
+            var inputType = sqlExpression.Type;
 
             return inputType == typeof(float)
                 ? _sqlExpressionFactory.Convert(
@@ -1313,9 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Check.NotNull(extensionExpression, nameof(extensionExpression));
 
                 if (extensionExpression is SqlExpression sqlExpression
-                    && !(extensionExpression is SqlFragmentExpression)
-                    && !(extensionExpression is SqlFunctionExpression sqlFunctionExpression
-                        && sqlFunctionExpression.Type.IsQueryableType()))
+                    && !(extensionExpression is SqlFragmentExpression))
                 {
                     if (sqlExpression.TypeMapping == null)
                     {

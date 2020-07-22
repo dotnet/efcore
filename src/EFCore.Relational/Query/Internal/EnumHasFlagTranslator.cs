@@ -48,14 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (Equals(method, _methodInfo))
             {
                 var argument = arguments[0];
-                if (instance.Type.UnwrapNullableType() != argument.Type.UnwrapNullableType())
-                {
-                    return null;
-                }
-
-                return _sqlExpressionFactory.Equal(
-                    _sqlExpressionFactory.And(instance, argument),
-                    argument);
+                return instance.Type != argument.Type
+                    ? null
+                    : (SqlExpression)_sqlExpressionFactory.Equal(_sqlExpressionFactory.And(instance, argument), argument);
             }
 
             return null;

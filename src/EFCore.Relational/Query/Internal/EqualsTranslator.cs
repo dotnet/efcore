@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (left != null
                 && right != null)
             {
-                if (left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType())
+                if (left.Type == right.Type)
                 {
                     return _sqlExpressionFactory.Equal(left, right);
                 }

@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -27,6 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
         protected SqlExpression([NotNull] Type type, [CanBeNull] RelationalTypeMapping typeMapping)
         {
+            Check.NotNull(type, nameof(type));
+
+            Check.DebugAssert(!type.IsNullableValueType(), "SqlExpression.Type must be reference type or non-nullable value type");
+
             Type = type;
             TypeMapping = typeMapping;
         }

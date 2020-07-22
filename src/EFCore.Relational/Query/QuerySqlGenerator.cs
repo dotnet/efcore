@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     sqlParameterExpression.Name,
                     parameterNameInCommand,
                     sqlParameterExpression.TypeMapping,
-                    sqlParameterExpression.Type.IsNullableType());
+                    sqlParameterExpression.IsNullable);
             }
 
             _relationalCommandBuilder
@@ -706,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 case ExpressionType.Not
-                    when sqlUnaryExpression.Type.UnwrapNullableType() == typeof(bool):
+                    when sqlUnaryExpression.Type == typeof(bool):
                 {
                     _relationalCommandBuilder.Append("NOT (");
                     Visit(sqlUnaryExpression.Operand);

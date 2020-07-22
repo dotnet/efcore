@@ -148,8 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             switch (operatorType)
             {
                 case ExpressionType.Not
-                    when type == typeof(bool)
-                    || type == typeof(bool?):
+                when type == typeof(bool):
                 {
                     switch (operand)
                     {
@@ -250,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 typeMapping);
 
                         case ColumnExpression columnOperand
-                            when !columnOperand.IsNullable:
+                        when !columnOperand.IsNullable:
                             return _sqlExpressionFactory.Constant(operatorType == ExpressionType.NotEqual, typeMapping);
 
                         case SqlUnaryExpression sqlUnaryOperand:
@@ -298,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             break;
 
                         case SqlFunctionExpression sqlFunctionExpression
-                            when sqlFunctionExpression.IsBuiltIn
+                        when sqlFunctionExpression.IsBuiltIn
                             && string.Equals("COALESCE", sqlFunctionExpression.Name, StringComparison.OrdinalIgnoreCase):
                             // for coalesce:
                             // (a ?? b) == null -> a == null && b == null

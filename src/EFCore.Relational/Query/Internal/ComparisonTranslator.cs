@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 SqlExpression right = null;
                 if (method.Name == nameof(string.Compare)
                     && arguments.Count == 2
-                    && arguments[0].Type.UnwrapNullableType() == arguments[1].Type.UnwrapNullableType())
+                    && arguments[0].Type == arguments[1].Type)
                 {
                     left = arguments[0];
                     right = arguments[1];
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else if (method.Name == nameof(string.CompareTo)
                     && arguments.Count == 1
                     && instance != null
-                    && instance.Type.UnwrapNullableType() == arguments[0].Type.UnwrapNullableType())
+                    && instance.Type == arguments[0].Type)
                 {
                     left = instance;
                     right = arguments[0];
