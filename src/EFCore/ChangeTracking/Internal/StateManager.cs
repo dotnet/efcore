@@ -239,6 +239,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType)
         {
+            if (entityType == null)
+            {
+                return GetOrCreateEntry(entity);
+            }
+
             var entry = TryGetEntry(entity, entityType);
             if (entry == null)
             {
@@ -347,7 +352,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var clrType = entity.GetType();
-            var entityType = baseEntityType.ClrType == clrType
+            var entityType = baseEntityType.HasSharedClrType
+                || baseEntityType.ClrType == clrType
                 || baseEntityType.HasDefiningNavigation()
                     ? baseEntityType
                     : _model.FindRuntimeEntityType(clrType);

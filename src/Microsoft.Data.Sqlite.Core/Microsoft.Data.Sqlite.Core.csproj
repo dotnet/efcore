@@ -53,24 +53,18 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.Designer.tt</DependentUpon>
     </Compile>
-    <Compile Update="SqliteCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="SqliteCommand.cs" />
     <Compile Update="SqliteConnection.CreateAggregate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateAggregate.tt</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Update="SqliteConnection.CreateFunction.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateFunction.tt</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
-    <Compile Update="SqliteConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="SqliteConnection.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,6 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Proxies.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -211,28 +212,47 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(set, nameof(set));
             Check.NotNull(constructorArguments, nameof(constructorArguments));
 
-            var entity = (TEntity)set.GetInfrastructure().CreateProxy(typeof(TEntity), constructorArguments);
+            var entity = (TEntity)set.GetInfrastructure().CreateProxy(set.EntityType, constructorArguments);
 
             configureEntity?.Invoke(entity);
 
             return entity;
         }
+
+        private static object CreateProxy(
+            this IServiceProvider serviceProvider,
+            IEntityType entityType,
+            params object[] constructorArguments)
+        {
+            CheckProxyOptions(serviceProvider, entityType.DisplayName());
+
+            return serviceProvider.GetService<IProxyFactory>().CreateProxy(
+                serviceProvider.GetService<ICurrentDbContext>().Context,
+                entityType,
+                constructorArguments);
+        }
+
         private static object CreateProxy(
             this IServiceProvider serviceProvider,
             Type entityType,
             params object[] constructorArguments)
         {
-            var options = serviceProvider.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
-
-            if (options?.UseProxies != true)
-            {
-                throw new InvalidOperationException(ProxiesStrings.ProxiesNotEnabled(entityType.ShortDisplayName()));
-            }
+            CheckProxyOptions(serviceProvider, entityType.ShortDisplayName());
 
             return serviceProvider.GetService<IProxyFactory>().Create(
                 serviceProvider.GetService<ICurrentDbContext>().Context,
                 entityType,
                 constructorArguments);
+        }
+
+        private static void CheckProxyOptions(IServiceProvider serviceProvider, string entityTypeName)
+        {
+            var options = serviceProvider.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
+
+            if (options?.UseProxies != true)
+            {
+                throw new InvalidOperationException(ProxiesStrings.ProxiesNotEnabled(entityTypeName));
+            }
         }
     }
 }

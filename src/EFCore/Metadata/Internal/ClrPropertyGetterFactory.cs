@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 return propertyBase?.IsIndexerProperty() == true
                     ? Expression.MakeIndex(
-                        parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(propertyBase.Name) })
+                        parameter, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(propertyBase.Name) })
                     : (Expression)Expression.MakeMemberAccess(parameter, memberInfo);
             }
         }
