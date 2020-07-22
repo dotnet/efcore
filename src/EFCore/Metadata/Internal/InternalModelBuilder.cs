@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityTypeBuilder SharedEntity(
+        public virtual InternalEntityTypeBuilder SharedTypeEntity(
             [NotNull] string name, [NotNull] Type type, ConfigurationSource configurationSource, bool? shouldBeOwned = false)
             => Entity(new TypeIdentity(name), Check.NotNull(type, nameof(type)), configurationSource, shouldBeOwned);
 
@@ -622,8 +622,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionEntityTypeBuilder IConventionModelBuilder.SharedEntity(string name, Type type, bool? shouldBeOwned, bool fromDataAnnotation)
-            => SharedEntity(name, type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, shouldBeOwned);
+        IConventionEntityTypeBuilder IConventionModelBuilder.SharedTypeEntity(string name, Type type, bool? shouldBeOwned, bool fromDataAnnotation)
+            => SharedTypeEntity(name, type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, shouldBeOwned);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 where TEntity : class;
 
-            public abstract TestEntityTypeBuilder<TEntity> SharedEntity<TEntity>(string name)
+            public abstract TestEntityTypeBuilder<TEntity> SharedTypeEntity<TEntity>(string name)
                 where TEntity : class;
 
             public abstract TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 where TEntity : class;
 
-            public abstract TestModelBuilder SharedEntity<TEntity>(string name, Action<TestEntityTypeBuilder<TEntity>> buildAction)
+            public abstract TestModelBuilder SharedTypeEntity<TEntity>(string name, Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 where TEntity : class;
 
             public abstract TestModelBuilder Ignore<TEntity>()
@@ -294,10 +294,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public abstract class TestOwnedEntityTypeBuilder<TEntity>
             where TEntity : class
-        {
-        }
-        public abstract class TestSharedEntityTypeBuilder<TEntity>
-           where TEntity : class
         {
         }
 

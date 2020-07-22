@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(typeof(TJoinEntity).DisplayName()));
                     }
 
-                    joinEntityType = ModelBuilder.SharedEntity(joinEntityName, typeof(TJoinEntity), ConfigurationSource.Explicit).Metadata;
+                    joinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, typeof(TJoinEntity), ConfigurationSource.Explicit).Metadata;
                 }
             }
 

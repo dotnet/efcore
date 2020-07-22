@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     int.MaxValue);
             }
 
-            var joinEntityTypeBuilder = model.Builder.SharedEntity(
+            var joinEntityTypeBuilder = model.Builder.SharedTypeEntity(
                 joinEntityTypeName, Model.DefaultPropertyBagType, ConfigurationSource.Convention);
 
             // Create left and right foreign keys from the outer entity types to

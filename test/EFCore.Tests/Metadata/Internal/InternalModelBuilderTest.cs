@@ -486,23 +486,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var sharedTypeName = "SpecialDetails";
 
-            Assert.NotNull(modelBuilder.SharedEntity(sharedTypeName, typeof(Details), ConfigurationSource.Convention));
+            Assert.NotNull(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Details), ConfigurationSource.Convention));
 
             Assert.True(model.FindEntityType(sharedTypeName).HasSharedClrType);
 
             Assert.Equal(
                 CoreStrings.ClashingMismatchedSharedType("SpecialDetails"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedEntity(sharedTypeName, typeof(Product), ConfigurationSource.DataAnnotation)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Product), ConfigurationSource.DataAnnotation)).Message);
 
             Assert.NotNull(modelBuilder.Entity(typeof(Product), ConfigurationSource.DataAnnotation));
 
-            Assert.Null(modelBuilder.SharedEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.DataAnnotation));
+            Assert.Null(modelBuilder.SharedTypeEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.DataAnnotation));
 
             Assert.NotNull(modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit));
 
             Assert.Equal(
                 CoreStrings.ClashingNonSharedType(typeof(Product).DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.Explicit)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.Explicit)).Message);
         }
 
         private static void Cleanup(InternalModelBuilder modelBuilder)

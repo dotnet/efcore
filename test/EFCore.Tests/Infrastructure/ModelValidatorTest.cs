@@ -1337,8 +1337,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Shared_type_inheritance_throws()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.SharedEntity<A>("Shared1");
-            modelBuilder.SharedEntity<C>("Shared2").HasBaseType("Shared1");
+            modelBuilder.SharedTypeEntity<A>("Shared1");
+            modelBuilder.SharedTypeEntity<C>("Shared2").HasBaseType("Shared1");
 
             VerifyError(CoreStrings.SharedTypeDerivedType("Shared2"), modelBuilder.Model);
         }

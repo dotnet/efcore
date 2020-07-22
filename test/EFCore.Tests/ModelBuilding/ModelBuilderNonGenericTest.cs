@@ -75,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 => new NonGenericTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity(typeof(TEntity)));
 
-            public override TestEntityTypeBuilder<TEntity> SharedEntity<TEntity>(string name)
-                => new NonGenericTestEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity(name, typeof(TEntity)));
+            public override TestEntityTypeBuilder<TEntity> SharedTypeEntity<TEntity>(string name)
+                => new NonGenericTestEntityTypeBuilder<TEntity>(ModelBuilder.SharedTypeEntity(name, typeof(TEntity)));
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
@@ -86,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return this;
             }
 
-            public override TestModelBuilder SharedEntity<TEntity>(string name, Action<TestEntityTypeBuilder<TEntity>> buildAction)
+            public override TestModelBuilder SharedTypeEntity<TEntity>(string name, Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
-                ModelBuilder.SharedEntity(
+                ModelBuilder.SharedTypeEntity(
                     name,
                     typeof(TEntity), entityTypeBuilder =>
                         buildAction(new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));

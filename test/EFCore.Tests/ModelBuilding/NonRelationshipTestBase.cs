@@ -1545,9 +1545,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_add_shared_type_entity_type()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.SharedEntity<Dictionary<string, object>>("Shared1");
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("Shared1");
 
-                modelBuilder.SharedEntity<Dictionary<string, object>>("Shared2", b => b.IndexerProperty<int>("Id"));
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("Shared2", b => b.IndexerProperty<int>("Id"));
 
                 var model = modelBuilder.Model;
                 Assert.Equal(2, model.GetEntityTypes().Count());
@@ -1576,7 +1576,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ClashingNonSharedType("Shared1"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedEntity<SharedTypeEntityType>("Shared1")).Message);
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity<SharedTypeEntityType>("Shared1")).Message);
             }
         }
     }

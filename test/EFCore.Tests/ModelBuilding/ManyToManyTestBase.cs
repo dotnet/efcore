@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.SharedEntity<ManyToManyJoinWithFields>("Shared");
+                modelBuilder.SharedTypeEntity<ManyToManyJoinWithFields>("Shared");
 
                 var joinEntityType = modelBuilder.Entity<ManyToManyPrincipalWithField>()
                     .HasMany(e => e.Dependents)
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.SharedEntity<ManyToManyJoinWithFields>("Shared");
+                modelBuilder.SharedTypeEntity<ManyToManyJoinWithFields>("Shared");
 
                 var joinEntityType = modelBuilder.Entity<ManyToManyPrincipalWithField>()
                     .HasMany(e => e.Dependents)
