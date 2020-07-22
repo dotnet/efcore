@@ -1138,6 +1138,12 @@ ORDER BY c[""CustomerID""]");
             return base.Projecting_multiple_collection_with_same_constant_works(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Projecting_after_navigation_and_distinct_works_correctly(bool async)
+        {
+            return base.Projecting_after_navigation_and_distinct_works_correctly(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

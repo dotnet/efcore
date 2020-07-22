@@ -7840,7 +7840,6 @@ FROM [Businesses] AS [b]");
 
         #endregion
 
-
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
