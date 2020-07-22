@@ -324,8 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))
                         .Where(c => c.IsRead)
-                        .Select(c => new TypeMaterializationInfo(
-                            c.Property.ClrType, c.Property, typeMappingSource: null, fromLeftOuterJoin: null, index: -1, c.TypeMapping))
+                        .Select(c => new TypeMaterializationInfo(c.Property.ClrType, c.Property, c.TypeMapping))
                         .ToArray());
     }
 }

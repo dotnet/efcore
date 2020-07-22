@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The index of the underlying result set that should be used for this type,
         ///     or -1 if no index mapping is needed.
         /// </param>
+        [Obsolete]
         public TypeMaterializationInfo(
             [NotNull] Type modelClrType,
             [CanBeNull] IProperty property,
@@ -44,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The index of the underlying result set that should be used for this type,
         ///     or -1 if no index mapping is needed.
         /// </param>
+        [Obsolete]
         public TypeMaterializationInfo(
             [NotNull] Type modelClrType,
             [CanBeNull] IProperty property,
@@ -59,6 +61,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="modelClrType"> The type that is needed in the model after conversion. </param>
         /// <param name="property"> The property associated with the type, or <see langword="null" /> if none. </param>
+        /// <param name="mapping"> The type mapping to use or <see langword="null" /> to infer one. </param>
+        /// <param name="nullable"> A value indicating whether the value could be null. </param>
+        public TypeMaterializationInfo(
+            [NotNull] Type modelClrType,
+            [CanBeNull] IProperty property,
+            [NotNull] RelationalTypeMapping mapping = null,
+            bool? nullable = null)
+        {
+            Check.NotNull(modelClrType, nameof(modelClrType));
+
+            ProviderClrType = mapping?.Converter?.ProviderClrType
+                ?? modelClrType;
+
+            ModelClrType = modelClrType;
+            Mapping = mapping;
+            Property = property;
+            IsNullable = nullable;
+        }
+
+        /// <summary>
+        ///     Creates a new <see cref="TypeMaterializationInfo" /> instance.
+        /// </summary>
+        /// <param name="modelClrType"> The type that is needed in the model after conversion. </param>
+        /// <param name="property"> The property associated with the type, or <see langword="null" /> if none. </param>
         /// <param name="typeMappingSource"> The type mapping source to use to find a mapping if the property does not have one already bound. </param>
         /// <param name="fromLeftOuterJoin"> Whether or not the value is coming from a LEFT OUTER JOIN operation. </param>
         /// <param name="index">
@@ -66,15 +92,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     or -1 if no index mapping is needed.
         /// </param>
         /// <param name="mapping"> The type mapping to use or <see langword="null" /> to infer one. </param>
-        /// <param name="nullable"> A value indicating whether the value could be null. </param>
+        [Obsolete]
         public TypeMaterializationInfo(
             [NotNull] Type modelClrType,
             [CanBeNull] IProperty property,
             [CanBeNull] IRelationalTypeMappingSource typeMappingSource,
             bool? fromLeftOuterJoin,
             int index = -1,
-            [CanBeNull] RelationalTypeMapping mapping = null,
-            bool? nullable = null)
+            [CanBeNull] RelationalTypeMapping mapping = null)
         {
             Check.NotNull(modelClrType, nameof(modelClrType));
 
@@ -92,7 +117,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Property = property;
             Index = index;
             IsFromLeftOuterJoin = fromLeftOuterJoin;
-            IsNullable = nullable;
         }
 
         /// <summary>
@@ -119,11 +143,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The index of the underlying result set that should be used for this type,
         ///     or -1 if no index mapping is needed.
         /// </summary>
-        public virtual int Index { get; }
+        [Obsolete]
+        public virtual int Index { get; } = -1;
 
         /// <summary>
         ///     Whether or not the value is coming from a LEFT OUTER JOIN operation.
         /// </summary>
+        [Obsolete]
         public virtual bool? IsFromLeftOuterJoin { get; }
 
         /// <summary>
@@ -141,8 +167,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 && ModelClrType == other.ModelClrType
                 && Equals(Mapping, other.Mapping)
                 && Equals(Property, other.Property)
+#pragma warning disable CS0612 // Type or member is obsolete
                 && Index == other.Index
-                && IsFromLeftOuterJoin == other.IsFromLeftOuterJoin;
+                && IsFromLeftOuterJoin == other.IsFromLeftOuterJoin
+#pragma warning restore CS0612 // Type or member is obsolete
+                && IsNullable == other.IsNullable;
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
@@ -160,6 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         public override int GetHashCode()
-            => HashCode.Combine(ProviderClrType, ModelClrType, Mapping, Property, Index, IsFromLeftOuterJoin);
+#pragma warning disable CS0612 // Type or member is obsolete
+            => HashCode.Combine(ProviderClrType, ModelClrType, Mapping, Property, Index, IsFromLeftOuterJoin, IsNullable);
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 }

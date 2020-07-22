@@ -193,7 +193,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var getMethod = materializationInfo.Mapping.GetDataReaderMethod();
 
+#pragma warning disable CS0612 // Type or member is obsolete
             index = materializationInfo.Index == -1 ? index : materializationInfo.Index;
+#pragma warning restore CS0612 // Type or member is obsolete
 
             var indexExpression = Expression.Constant(index);
 
@@ -256,9 +258,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 valueExpression = Expression.Convert(valueExpression, typeof(object));
             }
 
+#pragma warning disable CS0612 // Type or member is obsolete
             if (materializationInfo?.IsNullable != false
                 || materializationInfo.IsFromLeftOuterJoin != false)
             {
+#pragma warning restore CS0612 // Type or member is obsolete
                 valueExpression
                     = Expression.Condition(
                         Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
