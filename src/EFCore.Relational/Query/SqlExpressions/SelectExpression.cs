@@ -139,16 +139,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (entityType.GetFunctionMappings().SingleOrDefault(e => e.IsDefaultFunctionMapping) is IFunctionMapping functionMapping)
                 {
                     var storeFunction = functionMapping.Table;
-                    var alias = entityType.ShortName().Substring(0, 1).ToLower();
 
                     table = storeFunction;
-                    tableExpression = new TableValuedFunctionExpression(
-                        alias, storeFunction.Schema, storeFunction.Name, Array.Empty<SqlExpression>());
+                    tableExpression = new TableValuedFunctionExpression((IStoreFunction)storeFunction, Array.Empty<SqlExpression>());
                 }
                 else
                 {
                     table = entityType.GetViewOrTableMappings().Single().Table;
-                    tableExpression = new TableExpression(entityType.GetViewOrTableMappings().Single().Table);
+                    tableExpression = new TableExpression(table);
                 }
 
                 _tables.Add(tableExpression);
@@ -156,8 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                 foreach (var property in GetAllPropertiesInHierarchy(entityType))
                 {
-                    propertyExpressions[property] = GetColumn(
-                        property, property.DeclaringEntityType, table, tableExpression, nullable: false);
+                    propertyExpressions[property] = CreateColumnExpression(property, table, tableExpression, nullable: false);
                 }
 
                 var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
@@ -185,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var tableExpression = new TableExpression(table);
                     foreach (var property in baseType.GetDeclaredProperties())
                     {
-                        columns[property] = GetColumn(property, baseType, table, tableExpression, nullable: false);
+                        columns[property] = CreateColumnExpression(property, table, tableExpression, nullable: false);
                     }
 
                     if (_tables.Count == 0)
@@ -201,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     }
                     else
                     {
-                        var innerColumns = keyProperties.Select(p => GetColumn(p, baseType, table, tableExpression, nullable: false));
+                        var innerColumns = keyProperties.Select(p => CreateColumnExpression(p, table, tableExpression, nullable: false));
 
                         var joinPredicate = joinColumns.Zip(innerColumns, (l, r) => sqlExpressionFactory.Equal(l, r))
                             .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
@@ -220,10 +217,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var tableExpression = new TableExpression(table);
                     foreach (var property in derivedType.GetDeclaredProperties())
                     {
-                        columns[property] = GetColumn(property, derivedType, table, tableExpression, nullable: true);
+                        columns[property] = CreateColumnExpression(property, table, tableExpression, nullable: true);
                     }
 
-                    var keyColumns = keyProperties.Select(p => GetColumn(p, derivedType, table, tableExpression, nullable: true)).ToArray();
+                    var keyColumns = keyProperties.Select(p => CreateColumnExpression(p, table, tableExpression, nullable: true)).ToArray();
 
                     if (!derivedType.IsAbstract())
                     {
@@ -240,23 +237,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var entityProjection = new EntityProjectionExpression(entityType, columns, discriminatorExpressions);
                 _projectionMapping[new ProjectionMember()] = entityProjection;
             }
-
-            static ColumnExpression GetColumn(
-                IProperty property, IEntityType currentEntityType, ITableBase table, TableExpressionBase tableExpression, bool nullable)
-                => new ColumnExpression(property, table.FindColumn(property), tableExpression, nullable);
         }
 
-        internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpression)
+        internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpressionBase)
             : base(null)
         {
-            _tables.Add(tableExpression);
+            var table = tableExpressionBase switch
+            {
+                TableExpression tableExpression => tableExpression.Table,
+                TableValuedFunctionExpression tableValuedFunctionExpression => tableValuedFunctionExpression.StoreFunction,
+                _ => entityType.GetDefaultMappings().Single().Table,
+            };
+
+            _tables.Add(tableExpressionBase);
 
             var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-            var defaultTable = entityType.GetDefaultMappings().Single().Table;
             foreach (var property in GetAllPropertiesInHierarchy(entityType))
             {
-                propertyExpressions[property] = new ColumnExpression(
-                    property, defaultTable.FindColumn(property), tableExpression, nullable: false);
+                propertyExpressions[property] = CreateColumnExpression(property, table, tableExpressionBase, nullable: false);
             }
 
             var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
@@ -266,10 +264,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 foreach (var property in entityType.FindPrimaryKey().Properties)
                 {
-                    _identifier.Add((entityProjection.BindProperty(property), property.GetKeyValueComparer()));
+                    _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
                 }
             }
         }
+
+        private static ColumnExpression CreateColumnExpression(
+            IProperty property, ITableBase table, TableExpressionBase tableExpression, bool nullable)
+            => new ColumnExpression(property, table.FindColumn(property), tableExpression, nullable);
 
         /// <summary>
         ///    Checks whether this <see cref="SelectExpression"/> representes a <see cref="FromSqlExpression"/> which is not composed upon.

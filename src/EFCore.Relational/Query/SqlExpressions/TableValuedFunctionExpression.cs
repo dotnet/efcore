@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -24,35 +25,32 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
         /// </summary>
-        /// <param name="alias"> A string alias for the table source. </param>
-        /// <param name="schema"> The schema in which the function is defined. </param>
-        /// <param name="name"> The name of the function. </param>
+        /// <param name="storeFunction"> The <see cref="IStoreFunction"/> associated this function. </param>
         /// <param name="arguments"> The arguments of the function. </param>
-        public TableValuedFunctionExpression(
-            [NotNull] string alias, [CanBeNull] string schema, [NotNull] string name, [NotNull] IReadOnlyList<SqlExpression> arguments)
+        public TableValuedFunctionExpression([NotNull] IStoreFunction storeFunction, [NotNull] IReadOnlyList<SqlExpression> arguments)
+            : this(storeFunction.Name.Substring(0, 1).ToLower(),
+                  Check.NotNull(storeFunction, nameof(storeFunction)),
+                  Check.NotNull(arguments, nameof(arguments)))
+        {
+        }
+
+        private TableValuedFunctionExpression(string alias, IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
             : base(alias)
         {
-            Check.NullButNotEmpty(schema, nameof(schema));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(arguments, nameof(arguments));
-
-            Schema = schema;
-            Name = name;
+            StoreFunction = storeFunction;
             Arguments = arguments;
         }
 
         /// <summary>
-        ///     The name of the function.
+        ///     The store function.
         /// </summary>
-        public virtual string Name { get; }
-        /// <summary>
-        ///     The schema in which the function is defined, if any.
-        /// </summary>
-        public virtual string Schema { get; }
+        public virtual IStoreFunction StoreFunction { get; }
+
         /// <summary>
         ///     The list of arguments of this function.
         /// </summary>
-        public virtual IReadOnlyList<SqlExpression> Arguments { get; }
+        public virtual IReadOnlyList<SqlExpression> Arguments
+        { get; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -68,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return changed
-                ? new TableValuedFunctionExpression(Alias,Schema, Name, arguments)
+                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
                 : this;
         }
 
@@ -83,19 +81,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(arguments, nameof(arguments));
 
             return !arguments.SequenceEqual(Arguments)
-                ? new TableValuedFunctionExpression(Alias, Schema, Name, arguments)
+                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
                 : this;
         }
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            if (!string.IsNullOrEmpty(Schema))
+            if (!string.IsNullOrEmpty(StoreFunction.Schema))
             {
-                expressionPrinter.Append(Schema).Append(".");
+                expressionPrinter.Append(StoreFunction.Schema).Append(".");
             }
 
-            expressionPrinter.Append(Name);
+            expressionPrinter.Append(StoreFunction.Name);
             expressionPrinter.Append("(");
             expressionPrinter.VisitCollection(Arguments);
             expressionPrinter.Append(") AS ");
@@ -106,22 +104,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
-                    || obj is TableValuedFunctionExpression queryableExpression
-                    && Equals(queryableExpression));
+                    || obj is TableValuedFunctionExpression tableValuedFunctionExpression
+                    && Equals(tableValuedFunctionExpression));
 
-        private bool Equals(TableValuedFunctionExpression queryableExpression)
-            => base.Equals(queryableExpression)
-                && string.Equals(Name, queryableExpression.Name)
-                && string.Equals(Schema, queryableExpression.Schema)
-                && Arguments.SequenceEqual(queryableExpression.Arguments);
+        private bool Equals(TableValuedFunctionExpression tableValuedFunctionExpression)
+            => base.Equals(tableValuedFunctionExpression)
+                && StoreFunction == tableValuedFunctionExpression.StoreFunction
+                && Arguments.SequenceEqual(tableValuedFunctionExpression.Arguments);
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
             var hash = new HashCode();
             hash.Add(base.GetHashCode());
-            hash.Add(Schema);
-            hash.Add(Name);
+            hash.Add(StoreFunction);
             for (var i = 0; i < Arguments.Count; i++)
             {
                 hash.Add(Arguments[i]);

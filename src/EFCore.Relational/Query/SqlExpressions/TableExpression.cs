@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Name = table.Name;
             Schema = table.Schema;
+            Table = table;
         }
 
         /// <inheritdoc />
@@ -49,6 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The schema of the table or view.
         /// </summary>
         public string Schema { get; }
+
+        /// <summary>
+        ///     The <see cref="ITableBase"/> associated with this table or view.
+        /// </summary>
+        public ITableBase Table { get; }
 
         /// <inheritdoc />
         public override bool Equals(object obj)
