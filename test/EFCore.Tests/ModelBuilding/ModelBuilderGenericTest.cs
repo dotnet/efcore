@@ -129,8 +129,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestEntityTypeBuilder<TEntity> SharedEntity<TEntity>(string name)
                 => new GenericTestEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity<TEntity>(name));
-            public override TestSharedEntityTypeBuilder<TEntity> SharedEntity<TEntity>()
-                => new GenericTestSharedEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity<TEntity>());
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
@@ -361,20 +359,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected OwnedEntityTypeBuilder<TEntity> OwnedEntityTypeBuilder { get; }
 
             public OwnedEntityTypeBuilder<TEntity> Instance => OwnedEntityTypeBuilder;
-        }
-
-        protected class GenericTestSharedEntityTypeBuilder<TEntity> : TestSharedEntityTypeBuilder<TEntity>,
-            IInfrastructure<SharedEntityTypeBuilder<TEntity>>
-            where TEntity : class
-        {
-            public GenericTestSharedEntityTypeBuilder(SharedEntityTypeBuilder<TEntity> sharedEntityTypeBuilder)
-            {
-                SharedEntityTypeBuilder = sharedEntityTypeBuilder;
-            }
-
-            protected SharedEntityTypeBuilder<TEntity> SharedEntityTypeBuilder { get; }
-
-            public SharedEntityTypeBuilder<TEntity> Instance => SharedEntityTypeBuilder;
         }
 
         protected class GenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>

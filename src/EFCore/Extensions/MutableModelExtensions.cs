@@ -244,16 +244,6 @@ namespace Microsoft.EntityFrameworkCore
                 Check.NotNull(clrType, nameof(clrType)));
 
         /// <summary>
-        ///     Marks the given entity type as shared, indicating that when discovered matching entity types
-        ///     should be configured as shared type entity type.
-        /// </summary>
-        /// <param name="model"> The model to add the shared type to. </param>
-        /// <param name="clrType"> The type of the entity type that should be shared. </param>
-        public static Type AddShared([NotNull] this IMutableModel model, [NotNull] Type clrType)
-            => Check.NotNull((Model)model, nameof(model)).AddShared(
-                Check.NotNull(clrType, nameof(clrType)), ConfigurationSource.Explicit);
-
-        /// <summary>
         ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
         ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
