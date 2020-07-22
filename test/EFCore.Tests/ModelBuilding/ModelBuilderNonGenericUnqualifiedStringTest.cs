@@ -53,9 +53,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
                 => new NonGenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned(typeof(TEntity)));
 
-            public override TestSharedEntityTypeBuilder<TEntity> SharedEntity<TEntity>()
-                => new NonGenericTestSharedEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity(typeof(TEntity)));
-
             public override TestModelBuilder Ignore<TEntity>()
             {
                 ModelBuilder.Ignore(typeof(TEntity));

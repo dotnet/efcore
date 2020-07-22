@@ -98,9 +98,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedEntityTypeBuilder<TEntity> Owned<TEntity>()
                 => new NonGenericTestOwnedEntityTypeBuilder<TEntity>(ModelBuilder.Owned(typeof(TEntity)));
 
-            public override TestSharedEntityTypeBuilder<TEntity> SharedEntity<TEntity>()
-                => new NonGenericTestSharedEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity(typeof(TEntity)));
-
             public override TestModelBuilder Ignore<TEntity>()
             {
                 ModelBuilder.Ignore(typeof(TEntity));
@@ -345,20 +342,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected OwnedEntityTypeBuilder OwnedEntityTypeBuilder { get; }
 
             public OwnedEntityTypeBuilder Instance => OwnedEntityTypeBuilder;
-        }
-
-        protected class NonGenericTestSharedEntityTypeBuilder<TEntity> : TestSharedEntityTypeBuilder<TEntity>,
-            IInfrastructure<SharedEntityTypeBuilder>
-            where TEntity : class
-        {
-            public NonGenericTestSharedEntityTypeBuilder(SharedEntityTypeBuilder sharedEntityTypeBuilder)
-            {
-                SharedEntityTypeBuilder = sharedEntityTypeBuilder;
-            }
-
-            protected SharedEntityTypeBuilder SharedEntityTypeBuilder { get; }
-
-            public SharedEntityTypeBuilder Instance => SharedEntityTypeBuilder;
         }
 
         protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder>
