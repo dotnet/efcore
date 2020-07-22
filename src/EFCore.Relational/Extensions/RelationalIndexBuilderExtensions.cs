@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A builder to further configure the index. </returns>
         [Obsolete("Use HasDatabaseName() instead.")]
         public static IndexBuilder<TEntity> HasName<TEntity>([NotNull] this IndexBuilder<TEntity> indexBuilder, [CanBeNull] string name)
-            => indexBuilder.HasName(name);
+            => indexBuilder.HasDatabaseName(name);
 
         /// <summary>
         ///     Configures the name of the index in the database when targeting a relational database.
