@@ -168,6 +168,24 @@ FROM [Orders] AS [o]
 LEFT JOIN [Alphabetical list of products] AS [a] ON [o].[CustomerID] = [a].[CategoryName]");
         }
 
+        public override async Task Collection_correlated_with_keyless_entity_in_predicate_works(bool async)
+        {
+            await base.Collection_correlated_with_keyless_entity_in_predicate_works(async);
+
+            AssertSql(
+                @"@__p_0='2'
+
+SELECT TOP(@__p_0) [c].[City], [c].[ContactName]
+FROM (
+    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+) AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Customers] AS [c0]
+    WHERE ([c0].[City] = [c].[City]) OR ([c0].[City] IS NULL AND [c].[City] IS NULL))
+ORDER BY [c].[ContactName]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

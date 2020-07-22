@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(OrderQuery), e => ((OrderQuery)e)?.CustomerID },
                 { typeof(Employee), e => ((Employee)e)?.EmployeeID },
                 { typeof(Product), e => ((Product)e)?.ProductID },
+                { typeof(ProductQuery), e => ((ProductQuery)e)?.ProductID },
                 { typeof(OrderDetail), e => (((OrderDetail)e)?.OrderID.ToString(), ((OrderDetail)e)?.ProductID.ToString()) }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 

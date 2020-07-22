@@ -1423,6 +1423,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             else
             {
                 var parentIdentifierList = _identifier.Except(_childIdentifiers).ToList();
+                if (parentIdentifierList.Count == 0)
+                {
+                    throw new InvalidOperationException(RelationalStrings.ProjectingCollectionOnKeylessEntityNotSupported);
+                }
+
                 var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(parentIdentifierList);
                 var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier);
                 var innerClientEval = innerSelectExpression.Projection.Count > 0;
