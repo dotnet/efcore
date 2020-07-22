@@ -1655,6 +1655,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 LogLevel.Error);
         }
 
+        [ConditionalFact]
+        public virtual void Non_TPH_as_a_result_of_DbFunction_throws()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<A>().ToTable("A").HasNoDiscriminator();
+            modelBuilder.Entity<C>().ToTable("C");
+
+            modelBuilder.HasDbFunction(TestMethods.MethodFMi);
+
+            VerifyError(RelationalStrings.TableValuedFunctionNonTPH(
+                TestMethods.MethodFMi.DeclaringType.FullName + "." + TestMethods.MethodFMi.Name + "()", "C"), modelBuilder.Model);
+        }
+
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping]
                 = new TestRelationalTypeMappingSource(
@@ -1712,7 +1725,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         public class TestDecimalToLongConverter : ValueConverter<decimal, long>
         {
-            private static readonly Expression<Func<decimal, long>> convertToProviderExpression = d => (long)(d*100);
+            private static readonly Expression<Func<decimal, long>> convertToProviderExpression = d => (long)(d * 100);
             private static readonly Expression<Func<long, decimal>> convertFromProviderExpression = l => l / 100m;
 
             public TestDecimalToLongConverter()
@@ -1750,12 +1763,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public static readonly MethodInfo MethodCMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodC));
             public static readonly MethodInfo MethodDMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodD));
             public static readonly MethodInfo MethodEMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodE));
+            public static readonly MethodInfo MethodFMi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodF));
 
             public static IQueryable<TestMethods> MethodA() => throw new NotImplementedException();
             public static IQueryable<TestMethods> MethodB(int id) => throw new NotImplementedException();
             public static TestMethods MethodC() => throw new NotImplementedException();
             public static int MethodD(TestMethods methods) => throw new NotImplementedException();
             public static int MethodE() => throw new NotImplementedException();
+            public static IQueryable<C> MethodF() => throw new NotImplementedException();
         }
 
         protected virtual ModelBuilder CreateModelBuilderWithoutConvention<T>(

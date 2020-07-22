@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -148,13 +149,21 @@ namespace Microsoft.EntityFrameworkCore
         private static FromSqlQueryRootExpression GenerateFromSqlQueryRoot(
             IQueryable source,
             string sql,
-            object[] arguments)
+            object[] arguments,
+            [CallerMemberName] string memberName = null)
         {
             var queryRootExpression = (QueryRootExpression)source.Expression;
 
+            var entityType = queryRootExpression.EntityType;
+            if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
+                && entityType.GetDiscriminatorProperty() == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NonTPHOnFromSqlNotSupported(memberName, entityType.DisplayName()));
+            }
+
             return new FromSqlQueryRootExpression(
                 queryRootExpression.QueryProvider,
-                queryRootExpression.EntityType,
+                entityType,
                 sql,
                 Expression.Constant(arguments));
         }
