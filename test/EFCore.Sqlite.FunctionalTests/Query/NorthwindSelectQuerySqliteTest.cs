@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -135,22 +137,59 @@ FROM ""Orders"" AS ""o""");
         public override Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool async)
             => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(async);
 
-        // Sqlite does not support cross/outer apply
-        public override Task SelectMany_correlated_with_outer_1(bool async) => null;
+        public override async Task SelectMany_correlated_with_outer_1(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_correlated_with_outer_1(async))).Message);
 
-        public override Task SelectMany_correlated_with_outer_2(bool async) => null;
+        public override async Task SelectMany_correlated_with_outer_2(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_correlated_with_outer_2(async))).Message);
 
-        public override Task SelectMany_correlated_with_outer_3(bool async) => null;
+        public override async Task SelectMany_correlated_with_outer_3(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_correlated_with_outer_3(async))).Message);
 
-        public override Task SelectMany_correlated_with_outer_4(bool async) => null;
+        public override async Task SelectMany_correlated_with_outer_4(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_correlated_with_outer_4(async))).Message);
 
-        public override Task SelectMany_correlated_with_outer_5(bool async) => null;
+        public override async Task SelectMany_correlated_with_outer_5(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_correlated_with_outer_5(async))).Message);
 
-        public override Task SelectMany_correlated_with_outer_6(bool async) => null;
+        public override async Task SelectMany_correlated_with_outer_6(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_correlated_with_outer_6(async))).Message);
 
-        public override Task SelectMany_correlated_with_outer_7(bool async) => null;
+        public override async Task SelectMany_correlated_with_outer_7(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_correlated_with_outer_7(async))).Message);
 
-        public override Task SelectMany_whose_selector_references_outer_source(bool async) => null;
+        public override async Task SelectMany_whose_selector_references_outer_source(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.SelectMany_whose_selector_references_outer_source(async))).Message);
+
+        public override async Task Projecting_after_navigation_and_distinct_works_correctly(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Projecting_after_navigation_and_distinct_works_correctly(async))).Message);
 
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool async)

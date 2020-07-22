@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 using Xunit;
 
 #pragma warning disable RCS1202 // Avoid NullReferenceException.
@@ -94,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 15);
         }
 
-        [ConditionalTheory (Skip = "Issue#19247")]
+        [ConditionalTheory(Skip = "Issue#19247")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Projection_when_arithmetic_mixed_subqueries(bool async)
         {
@@ -1792,6 +1793,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     AssertCollection(e.O1, a.O1, ordered: true);
                     AssertCollection(e.O2, a.O2, ordered: true);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_after_navigation_and_distinct_works_correctly(bool async)
+        {
+            var filteredOrderIds = new[] { 10248, 10249, 10250 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Select(o => o.Customer)
+                    .Distinct()
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        Orders = c.Orders.Where(x => filteredOrderIds.Contains(x.OrderID)).OrderBy(x => x.OrderID).Select(x => new
+                        {
+                            c.CustomerID,
+                            x.OrderID,
+                            x.OrderDate
+                        })
+                    }),
+                elementSorter: e => e.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    AssertCollection(e.Orders, a.Orders, elementSorter: ee => ee.CustomerID);
                 });
         }
     }
