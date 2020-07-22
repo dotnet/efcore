@@ -708,4 +708,13 @@
     <value>An error occurred while the batch executor was releasing a transaction savepoint.</value>
     <comment>Debug RelationalEventId.BatchExecutorFailedToReleaseSavepoint</comment>
   </data>
+  <data name="NonTPHOnFromSqlNotSupported" xml:space="preserve">
+    <value>Using '{memberName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
+  </data>
+  <data name="SelectExpressionNonTPHWithCustomTable" xml:space="preserve">
+    <value>Cannot create 'SelectExpression' with custom 'TableExpressionBase' since result type '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
+  </data>
+  <data name="TableValuedFunctionNonTPH" xml:space="preserve">
+    <value>The element type of result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
+  </data>
 </root>

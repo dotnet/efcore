@@ -117,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     var elementType = dbFunction.ReturnType.GetGenericArguments()[0];
                     var entityType = model.FindEntityType(elementType);
+
                     if (entityType?.IsOwned() == true
                         || ((IConventionModel)model).IsOwned(elementType)
                         || (entityType == null && model.GetEntityTypes().Any(e => e.ClrType == elementType)))
@@ -129,6 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         throw new InvalidOperationException(RelationalStrings.DbFunctionInvalidReturnEntityType(
                             dbFunction.ModelName, dbFunction.ReturnType.ShortDisplayName(), elementType.ShortDisplayName()));
+                    }
+
+                    if ((entityType.BaseType != null || entityType.GetDerivedTypes().Any())
+                        && entityType.GetDiscriminatorProperty() == null)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.TableValuedFunctionNonTPH(dbFunction.ModelName, entityType.DisplayName()));
                     }
                 }
 

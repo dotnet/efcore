@@ -579,10 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (targetType != expression.Type
                 && targetType.TryGetElementType(typeof(IQueryable<>)) == null)
             {
-                if (targetType.MakeNullable() != expression.Type)
-                {
-                    throw new InvalidFilterCriteriaException();
-                }
+                Check.DebugAssert(targetType.MakeNullable() == expression.Type, "expression.Type must be nullable of targetType");
 
                 expression = Expression.Convert(expression, targetType);
             }

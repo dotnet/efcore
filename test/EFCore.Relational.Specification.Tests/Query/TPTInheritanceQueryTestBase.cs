@@ -3,7 +3,11 @@
 
 
 // ReSharper disable InconsistentNaming
+using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -30,5 +34,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // TPT does not have discriminator
         public override Task Discriminator_with_cast_in_shadow_property(bool async) => Task.CompletedTask;
+
+        [ConditionalFact]
+        public virtual void Using_from_sql_throws()
+        {
+            using var context = CreateContext();
+
+            var message = Assert.Throws<InvalidOperationException>(() => context.Set<Bird>().FromSqlRaw("Select * from Birds")).Message;
+
+            Assert.Equal(RelationalStrings.NonTPHOnFromSqlNotSupported("FromSqlRaw", typeof(Bird).Name), message);
+
+            message = Assert.Throws<InvalidOperationException>(() => context.Set<Bird>().FromSqlInterpolated($"Select * from Birds")).Message;
+
+            Assert.Equal(RelationalStrings.NonTPHOnFromSqlNotSupported("FromSqlInterpolated", typeof(Bird).Name), message);
+        }
     }
 }

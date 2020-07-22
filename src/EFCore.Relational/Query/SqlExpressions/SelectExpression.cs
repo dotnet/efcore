@@ -242,6 +242,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpressionBase)
             : base(null)
         {
+            if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
+                && entityType.GetDiscriminatorProperty() == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.SelectExpressionNonTPHWithCustomTable(entityType.DisplayName()));
+            }
+
             var table = tableExpressionBase switch
             {
                 TableExpression tableExpression => tableExpression.Table,
