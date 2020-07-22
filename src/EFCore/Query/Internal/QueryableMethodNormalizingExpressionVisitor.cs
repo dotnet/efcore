@@ -173,10 +173,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return visitedExpression;
             }
 
-            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreEagerLoadedNavigationsMethodInfo)
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreAutoIncludesMethodInfo)
             {
                 var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-                _queryCompilationContext.IgnoreEagerLoadedNavigations = true;
+                _queryCompilationContext.IgnoreAutoIncludes = true;
 
                 return visitedExpression;
             }

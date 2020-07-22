@@ -123,19 +123,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures whether this navigation should be eager loaded in a query.
+        ///     Configures whether this navigation should be automatically included in a query.
         /// </summary>
-        /// <param name="eagerLoaded"> A value indicating if the navigation should be eager loaded. </param>
+        /// <param name="autoInclude"> A value indicating if the navigation should be automatically included. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder IsEagerLoaded(bool eagerLoaded = true)
+        public virtual NavigationBuilder AutoInclude(bool autoInclude = true)
         {
             if (InternalNavigationBuilder != null)
             {
-                InternalNavigationBuilder.IsEagerLoaded(eagerLoaded, ConfigurationSource.Explicit);
+                InternalNavigationBuilder.AutoInclude(autoInclude, ConfigurationSource.Explicit);
             }
             else
             {
-                InternalSkipNavigationBuilder.IsEagerLoaded(eagerLoaded, ConfigurationSource.Explicit);
+                InternalSkipNavigationBuilder.AutoInclude(autoInclude, ConfigurationSource.Explicit);
             }
 
             return this;
