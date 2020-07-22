@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -238,8 +238,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to add the owned type to. </param>
         /// <param name="clrType"> The type of the entity type that should be owned. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The name of the owned type. </returns>
-        public static string AddOwned([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
+        public static void AddOwned([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
             => Check.NotNull((Model)model, nameof(model)).AddOwned(
                 Check.NotNull(clrType, nameof(clrType)),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -297,6 +296,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name of the ignored entity type. </returns>
         public static string AddIgnored([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
             => Check.NotNull((Model)model, nameof(model)).AddIgnored(
+                Check.NotNull(clrType, nameof(clrType)),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Marks the given entity type as shared, indicating that when discovered matching entity types
+        ///     should be configured as shared type entity type.
+        /// </summary>
+        /// <param name="model"> The model to add the shared type to. </param>
+        /// <param name="clrType"> The type of the entity type that should be shared. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void AddShared([NotNull] this IConventionModel model, [NotNull] Type clrType, bool fromDataAnnotation = false)
+            => Check.NotNull((Model)model, nameof(model)).AddShared(
                 Check.NotNull(clrType, nameof(clrType)),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
