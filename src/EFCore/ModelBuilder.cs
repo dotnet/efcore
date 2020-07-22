@@ -372,15 +372,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     Excludes an entity type with the given name from the model. This method is typically used to remove types from
         ///     the model that were added by convention.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be removed from the model. </param>
+        /// <param name="typeName"> The name of the entity type to be removed from the model. </param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Ignore([NotNull] string name)
+        public virtual ModelBuilder Ignore([NotNull] string typeName)
         {
-            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(typeName, nameof(typeName));
 
-            Builder.Ignore(name, ConfigurationSource.Explicit);
+            Builder.Ignore(typeName, ConfigurationSource.Explicit);
 
             return this;
         }
