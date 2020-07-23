@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalSkipNavigationBuilder();
             IConventionSkipNavigation metadata = builder.Metadata;
 
-            // the skip navigation is pointing to the automatically-generated association entity type
+            // the skip navigation is pointing to the automatically-generated join entity type
             var originalFK = metadata.ForeignKey;
             Assert.NotNull(originalFK);
             Assert.Equal(ConfigurationSource.Convention, metadata.GetForeignKeyConfigurationSource());
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IConventionSkipNavigation metadata = builder.Metadata;
 
             // the skip navigation is pointing to the automatically-generated
-            // association entity type and so is its inverse
+            // join entity type and so is its inverse
             var inverse = (SkipNavigation)metadata.TargetEntityType.Builder.HasSkipNavigation(
                 Product.OrdersProperty,
                 metadata.DeclaringEntityType)

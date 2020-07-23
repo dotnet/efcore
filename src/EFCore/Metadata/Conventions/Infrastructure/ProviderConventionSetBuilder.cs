@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 
-            conventionSet.SkipNavigationAddedConventions.Add(new ManyToManyAssociationEntityTypeConvention(Dependencies));
+            conventionSet.SkipNavigationAddedConventions.Add(new ManyToManyJoinEntityTypeConvention(Dependencies));
 
             conventionSet.IndexAddedConventions.Add(foreignKeyIndexConvention);
 

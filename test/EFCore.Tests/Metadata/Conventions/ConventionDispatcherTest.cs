@@ -2097,9 +2097,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var builder = new InternalModelBuilder(new Model(conventions));
             var firstEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var secondEntityBuilder = builder.Entity(typeof(Product), ConfigurationSource.Convention);
-            var associationEntityBuilder = builder.Entity(typeof(OrderProduct), ConfigurationSource.Convention);
+            var joinEntityBuilder = builder.Entity(typeof(OrderProduct), ConfigurationSource.Convention);
 
-            var foreignKey = associationEntityBuilder
+            var foreignKey = joinEntityBuilder
                 .HasRelationship(typeof(Order), new[] { OrderProduct.OrderIdProperty }, ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention)
                 .Metadata;

@@ -815,9 +815,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var firstId = firstEntity.AddProperty(Order.IdProperty);
             var firstKey = firstEntity.AddKey(firstId);
             var secondEntity = model.AddEntityType(typeof(Product));
-            var associationEntity = model.AddEntityType(typeof(OrderProduct));
-            var orderIdProperty = associationEntity.AddProperty(OrderProduct.OrderIdProperty);
-            var foreignKey = associationEntity
+            var joinEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderIdProperty = joinEntity.AddProperty(OrderProduct.OrderIdProperty);
+            var foreignKey = joinEntity
                 .AddForeignKey(new[] { orderIdProperty }, firstKey, firstEntity);
 
             var navigation = firstEntity.AddSkipNavigation(
@@ -826,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(CoreStrings.ForeignKeyInUseSkipNavigation(
                 "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(OrderProduct), nameof(Order.Products), nameof(Order)),
-                Assert.Throws<InvalidOperationException>(() => associationEntity.RemoveForeignKey(foreignKey)).Message);
+                Assert.Throws<InvalidOperationException>(() => joinEntity.RemoveForeignKey(foreignKey)).Message);
         }
 
         [ConditionalFact]

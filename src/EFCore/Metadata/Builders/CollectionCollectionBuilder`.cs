@@ -42,20 +42,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures the association entity type implementing the many-to-many relationship.
+        ///     Configures the join entity type implementing the many-to-many relationship.
         /// </summary>
-        /// <param name="configureAssociation"> The configuration of the association type. </param>
+        /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TRightEntity> UsingEntity(
-            [NotNull] Action<EntityTypeBuilder> configureAssociation)
+            [NotNull] Action<EntityTypeBuilder> configureJoinEntityType)
         {
-            Check.DebugAssert(LeftNavigation.AssociationEntityType != null, "LeftNavigation.AssociationEntityType is null");
-            Check.DebugAssert(RightNavigation.AssociationEntityType != null, "RightNavigation.AssociationEntityType is null");
-            Check.DebugAssert(LeftNavigation.AssociationEntityType == RightNavigation.AssociationEntityType,
-                "LeftNavigation.AssociationEntityType != RightNavigation.AssociationEntityType");
+            Check.DebugAssert(LeftNavigation.JoinEntityType != null, "LeftNavigation.JoinEntityType is null");
+            Check.DebugAssert(RightNavigation.JoinEntityType != null, "RightNavigation.JoinEntityType is null");
+            Check.DebugAssert(LeftNavigation.JoinEntityType == RightNavigation.JoinEntityType,
+                "LeftNavigation.JoinEntityType != RightNavigation.JoinEntityType");
 
-            var associationEntityTypeBuilder = new EntityTypeBuilder(LeftNavigation.AssociationEntityType);
-            configureAssociation(associationEntityTypeBuilder);
+            var joinEntityTypeBuilder = new EntityTypeBuilder(LeftNavigation.JoinEntityType);
+            configureJoinEntityType(joinEntityTypeBuilder);
 
             return new EntityTypeBuilder<TRightEntity>(RightEntityType);
         }
@@ -65,40 +65,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="configureRight"> The configuration for the relationship to the right entity type. </param>
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
-        /// <typeparam name="TAssociationEntity"> The type of the association entity. </typeparam>
-        /// <returns> The builder for the association type. </returns>
-        public virtual EntityTypeBuilder<TAssociationEntity> UsingEntity<TAssociationEntity>(
-            [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
-            [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
-            where TAssociationEntity : class
+        /// <typeparam name="TJoinEntity"> The CLR type of the join entity. </typeparam>
+        /// <returns> The builder for the join type. </returns>
+        public virtual EntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
+            [NotNull] Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
+            [NotNull] Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft)
+            where TJoinEntity : class
         {
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingAssociationEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType associationEntityType = null;
-            if (existingAssociationEntityType != null)
+            EntityType joinEntityType = null;
+            if (existingJoinEntityType != null)
             {
-                if (existingAssociationEntityType.ClrType == typeof(TAssociationEntity)
-                    && !existingAssociationEntityType.HasSharedClrType)
+                if (existingJoinEntityType.ClrType == typeof(TJoinEntity)
+                    && !existingJoinEntityType.HasSharedClrType)
                 {
-                    associationEntityType = existingAssociationEntityType;
+                    joinEntityType = existingJoinEntityType;
                 }
                 else
                 {
-                    ModelBuilder.RemoveAssociationEntityIfCreatedImplicitly(
-                        existingAssociationEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
+                    ModelBuilder.RemoveJoinEntityIfCreatedImplicitly(
+                        existingJoinEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
                 }
             }
 
-            if (associationEntityType == null)
+            if (joinEntityType == null)
             {
-                associationEntityType = ModelBuilder.Entity(typeof(TAssociationEntity), ConfigurationSource.Explicit).Metadata;
+                joinEntityType = ModelBuilder.Entity(typeof(TJoinEntity), ConfigurationSource.Explicit).Metadata;
             }
 
-            var entityTypeBuilder = new EntityTypeBuilder<TAssociationEntity>(associationEntityType);
+            var entityTypeBuilder = new EntityTypeBuilder<TJoinEntity>(joinEntityType);
 
             var leftForeignKey = configureLeft(entityTypeBuilder).Metadata;
             var rightForeignKey = configureRight(entityTypeBuilder).Metadata;
@@ -111,58 +111,58 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the relationships to the entity types participating in the many-to-many relationship.
         /// </summary>
-        /// <param name="joinEntityName"> The name of the association entity. </param>
+        /// <param name="joinEntityName"> The name of the join entity. </param>
         /// <param name="configureRight"> The configuration for the relationship to the right entity type. </param>
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
-        /// <typeparam name="TAssociationEntity"> The type of the association entity. </typeparam>
-        /// <returns> The builder for the association type. </returns>
-        public virtual EntityTypeBuilder<TAssociationEntity> UsingEntity<TAssociationEntity>(
+        /// <typeparam name="TJoinEntity"> The CLR type of the join entity. </typeparam>
+        /// <returns> The builder for the join entity type. </returns>
+        public virtual EntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
             [NotNull] string joinEntityName,
-            [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
-            [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
-            where TAssociationEntity : class
+            [NotNull] Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
+            [NotNull] Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft)
+            where TJoinEntity : class
         {
             Check.NotEmpty(joinEntityName, nameof(joinEntityName));
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingAssociationEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType associationEntityType = null;
-            if (existingAssociationEntityType != null)
+            EntityType joinEntityType = null;
+            if (existingJoinEntityType != null)
             {
-                if (existingAssociationEntityType.ClrType == typeof(TAssociationEntity)
-                    && string.Equals(existingAssociationEntityType.Name, joinEntityName, StringComparison.Ordinal))
+                if (existingJoinEntityType.ClrType == typeof(TJoinEntity)
+                    && string.Equals(existingJoinEntityType.Name, joinEntityName, StringComparison.Ordinal))
                 {
-                    associationEntityType = existingAssociationEntityType;
+                    joinEntityType = existingJoinEntityType;
                 }
                 else
                 {
-                    ModelBuilder.RemoveAssociationEntityIfCreatedImplicitly(
-                        existingAssociationEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
+                    ModelBuilder.RemoveJoinEntityIfCreatedImplicitly(
+                        existingJoinEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
                 }
             }
 
-            if (associationEntityType == null)
+            if (joinEntityType == null)
             {
                 var existingEntityType = ModelBuilder.Metadata.FindEntityType(joinEntityName);
-                if (existingEntityType?.ClrType == typeof(TAssociationEntity))
+                if (existingEntityType?.ClrType == typeof(TJoinEntity))
                 {
-                    associationEntityType = existingEntityType;
+                    joinEntityType = existingEntityType;
                 }
                 else
                 {
-                    if (!ModelBuilder.Metadata.IsShared(typeof(TAssociationEntity)))
+                    if (!ModelBuilder.Metadata.IsShared(typeof(TJoinEntity)))
                     {
-                        throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(typeof(TAssociationEntity).DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(typeof(TJoinEntity).DisplayName()));
                     }
 
-                    associationEntityType = ModelBuilder.SharedEntity(joinEntityName, typeof(TAssociationEntity), ConfigurationSource.Explicit).Metadata;
+                    joinEntityType = ModelBuilder.SharedEntity(joinEntityName, typeof(TJoinEntity), ConfigurationSource.Explicit).Metadata;
                 }
             }
 
-            var entityTypeBuilder = new EntityTypeBuilder<TAssociationEntity>(associationEntityType);
+            var entityTypeBuilder = new EntityTypeBuilder<TJoinEntity>(joinEntityType);
 
             var leftForeignKey = configureLeft(entityTypeBuilder).Metadata;
             var rightForeignKey = configureRight(entityTypeBuilder).Metadata;
@@ -177,20 +177,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="configureRight"> The configuration for the relationship to the right entity type. </param>
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
-        /// <param name="configureAssociation"> The configuration of the association type. </param>
-        /// <typeparam name="TAssociationEntity"> The type of the association entity. </typeparam>
+        /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
+        /// <typeparam name="TJoinEntity"> The CLR type of the join entity. </typeparam>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
-        public virtual EntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
-            [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
-            [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
-            [NotNull] Action<EntityTypeBuilder<TAssociationEntity>> configureAssociation)
-            where TAssociationEntity : class
+        public virtual EntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
+            [NotNull] Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
+            [NotNull] Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
+            [NotNull] Action<EntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
+            where TJoinEntity : class
         {
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
             var entityTypeBuilder = UsingEntity(configureRight, configureLeft);
-            configureAssociation(entityTypeBuilder);
+            configureJoinEntityType(entityTypeBuilder);
 
             return new EntityTypeBuilder<TRightEntity>(RightEntityType);
         }
@@ -198,26 +198,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the relationships to the entity types participating in the many-to-many relationship.
         /// </summary>
-        /// <param name="joinEntityName"> The name of the association entity. </param>
+        /// <param name="joinEntityName"> The name of the join entity. </param>
         /// <param name="configureRight"> The configuration for the relationship to the right entity type. </param>
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
-        /// <param name="configureAssociation"> The configuration of the association type. </param>
-        /// <typeparam name="TAssociationEntity"> The type of the association entity. </typeparam>
+        /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
+        /// <typeparam name="TJoinEntity"> The CLR type of the join entity. </typeparam>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
-        public virtual EntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
+        public virtual EntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
             [NotNull] string joinEntityName,
-            [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
-            [NotNull] Func<EntityTypeBuilder<TAssociationEntity>, ReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
-            [NotNull] Action<EntityTypeBuilder<TAssociationEntity>> configureAssociation)
-            where TAssociationEntity : class
+            [NotNull] Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
+            [NotNull] Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
+            [NotNull] Action<EntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
+            where TJoinEntity : class
         {
             Check.NotEmpty(joinEntityName, nameof(joinEntityName));
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
-            Check.NotNull(configureAssociation, nameof(configureAssociation));
+            Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
 
             var entityTypeBuilder = UsingEntity(joinEntityName, configureRight, configureLeft);
-            configureAssociation(entityTypeBuilder);
+            configureJoinEntityType(entityTypeBuilder);
 
             return new EntityTypeBuilder<TRightEntity>(RightEntityType);
         }

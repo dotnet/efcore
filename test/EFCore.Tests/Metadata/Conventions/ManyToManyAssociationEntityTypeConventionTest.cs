@@ -23,10 +23,10 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
-    public class ManyToManyAssociationEntityTypeConventionTest
+    public class ManyToManyJoinEntityTypeConventionTest
     {
         [ConditionalFact]
-        public void Association_entity_type_is_not_created_for_self_association()
+        public void Join_entity_type_is_not_created_for_self_join()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManySelf = modelBuilder.Entity(typeof(ManyToManySelf), ConfigurationSource.Convention);
@@ -46,11 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RunConvention(firstSkipNav);
 
             Assert.Empty(manyToManySelf.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedAssociationEntityType));
+                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
         }
 
         [ConditionalFact]
-        public void Association_entity_type_is_not_created_when_no_inverse_skip_navigation()
+        public void Join_entity_type_is_not_created_when_no_inverse_skip_navigation()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
@@ -73,11 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RunConvention(skipNavOnFirst);
 
             Assert.Empty(manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedAssociationEntityType));
+                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
         }
 
         [ConditionalFact]
-        public void Association_entity_type_is_not_created_when_skip_navigation_is_not_collection()
+        public void Join_entity_type_is_not_created_when_skip_navigation_is_not_collection()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
@@ -101,11 +101,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RunConvention(skipNavOnFirst);
 
             Assert.Empty(manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedAssociationEntityType));
+                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
         }
 
         [ConditionalFact]
-        public void Association_entity_type_is_not_created_when_inverse_skip_navigation_is_not_collection()
+        public void Join_entity_type_is_not_created_when_inverse_skip_navigation_is_not_collection()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
@@ -129,11 +129,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RunConvention(skipNavOnFirst);
 
             Assert.Empty(manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedAssociationEntityType));
+                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
         }
 
         [ConditionalFact]
-        public void Association_entity_type_is_not_created_when_skip_navigation_already_in_use()
+        public void Join_entity_type_is_not_created_when_skip_navigation_already_in_use()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
@@ -164,11 +164,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RunConvention(skipNavOnFirst);
 
             Assert.Empty(manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedAssociationEntityType));
+                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
         }
 
         [ConditionalFact]
-        public void Association_entity_type_is_not_created_when_inverse_skip_navigation_already_in_use()
+        public void Join_entity_type_is_not_created_when_inverse_skip_navigation_already_in_use()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
@@ -199,11 +199,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RunConvention(skipNavOnFirst);
 
             Assert.Empty(manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedAssociationEntityType));
+                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
         }
 
         [ConditionalFact]
-        public void Association_entity_type_is_created()
+        public void Join_entity_type_is_created()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RunConvention(skipNavOnFirst);
 
             var joinEntityType = manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Single(et => et.IsImplicitlyCreatedAssociationEntityType);
+                .Single(et => et.IsImplicitlyCreatedJoinEntityType);
 
             Assert.Equal("ManyToManyFirstManyToManySecond", joinEntityType.Name);
 
@@ -275,8 +275,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return context.ShouldStopProcessing() ? (InternalSkipNavigationBuilder)context.Result : skipNavBuilder;
         }
 
-        private ManyToManyAssociationEntityTypeConvention CreateManyToManyConvention()
-            => new ManyToManyAssociationEntityTypeConvention(CreateDependencies());
+        private ManyToManyJoinEntityTypeConvention CreateManyToManyConvention()
+            => new ManyToManyJoinEntityTypeConvention(CreateDependencies());
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()

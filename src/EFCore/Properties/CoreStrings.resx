@@ -1253,8 +1253,8 @@
   <data name="SkipNavigationWrongType" xml:space="preserve">
     <value>The skip navigation property '{navigation}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
   </data>
-  <data name="SkipInverseMismatchedAssociationType" xml:space="preserve">
-    <value>The skip navigation '{inverse}' using the association entity type '{inverseAssociationType}' cannot be set as the inverse of '{navigation}' that uses the association entity type '{associationType}'. The inverse should use the same association entity type.</value>
+  <data name="SkipInverseMismatchedJoinType" xml:space="preserve">
+    <value>The skip navigation '{inverse}' using the join entity type '{inverseJoinType}' cannot be set as the inverse of '{navigation}' that uses the join entity type '{joinType}'. The inverse should use the same join entity type.</value>
   </data>
   <data name="SkipNavigationNoInverse" xml:space="preserve">
     <value>The skip navigation '{navigation}' on entity type '{entityType}' doesn't have an inverse configured. Every skip navigation should have an inverse skip navigation.</value>
@@ -1263,7 +1263,7 @@
     <value>The skip navigation '{navigation}' on entity type '{entityType}' is not a collection. Only collection skip navigation properties are currently supported.</value>
   </data>
   <data name="SkipInverseMismatchedForeignKey" xml:space="preserve">
-    <value>The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the association entity type '{associationType}' while the inverse skip navigation '{inverse}' is using the association entity type '{inverseAssociationType}'. The inverse should use the same association entity type.</value>
+    <value>The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the join entity type '{joinType}' while the inverse skip navigation '{inverse}' is using the join entity type '{inverseJoinType}'. The inverse should use the same join entity type.</value>
   </data>
   <data name="SkipNavigationNoForeignKey" xml:space="preserve">
     <value>The skip navigation '{navigation}' on entity type '{entityType}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.</value>

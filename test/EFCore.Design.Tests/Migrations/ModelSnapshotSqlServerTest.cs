@@ -1184,9 +1184,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });", usingSystem: true),
                 model =>
                 {
-                    var associationEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
-                    Assert.NotNull(associationEntity);
-                    Assert.Collection(associationEntity.GetDeclaredProperties(),
+                    var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
+                    Assert.NotNull(joinEntity);
+                    Assert.Collection(joinEntity.GetDeclaredProperties(),
                         p =>
                         {
                             Assert.Equal("ManyToManyLeft_Id", p.Name);
@@ -1197,7 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.Equal("ManyToManyRight_Id", p.Name);
                             Assert.True(p.IsShadowProperty());
                         });
-                    Assert.Collection(associationEntity.FindDeclaredPrimaryKey().Properties,
+                    Assert.Collection(joinEntity.FindDeclaredPrimaryKey().Properties,
                         p =>
                         {
                             Assert.Equal("ManyToManyLeft_Id", p.Name);
@@ -1206,7 +1206,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             Assert.Equal("ManyToManyRight_Id", p.Name);
                         });
-                    Assert.Collection(associationEntity.GetDeclaredForeignKeys(),
+                    Assert.Collection(joinEntity.GetDeclaredForeignKeys(),
                         fk =>
                         {
                             Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft", fk.PrincipalEntityType.Name);
@@ -1315,10 +1315,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });", usingSystem: true),
                 model =>
                 {
-                    var associationEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
-                    Assert.NotNull(associationEntity);
-                    Assert.Equal("MyJoinTable", associationEntity.GetTableName());
-                    Assert.Collection(associationEntity.GetDeclaredProperties(),
+                    var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
+                    Assert.NotNull(joinEntity);
+                    Assert.Equal("MyJoinTable", joinEntity.GetTableName());
+                    Assert.Collection(joinEntity.GetDeclaredProperties(),
                         p =>
                         {
                             Assert.Equal("ManyToManyLeft_Id", p.Name);
@@ -1329,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.Equal("ManyToManyRight_Id", p.Name);
                             Assert.True(p.IsShadowProperty());
                         });
-                    Assert.Collection(associationEntity.FindDeclaredPrimaryKey().Properties,
+                    Assert.Collection(joinEntity.FindDeclaredPrimaryKey().Properties,
                         p =>
                         {
                             Assert.Equal("ManyToManyLeft_Id", p.Name);
@@ -1338,7 +1338,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             Assert.Equal("ManyToManyRight_Id", p.Name);
                         });
-                    Assert.Collection(associationEntity.GetDeclaredForeignKeys(),
+                    Assert.Collection(joinEntity.GetDeclaredForeignKeys(),
                         fk =>
                         {
                             Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft", fk.PrincipalEntityType.Name);

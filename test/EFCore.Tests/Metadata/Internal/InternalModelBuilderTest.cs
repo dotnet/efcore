@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        public void Can_remove_implicitly_created_association_entity_type(bool removeSkipNavs)
+        public void Can_remove_implicitly_created_join_entity_type(bool removeSkipNavs)
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
@@ -371,12 +371,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ConfigurationSource.Convention);
             skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
 
-            var associationEntityTypeBuilder =
+            var joinEntityTypeBuilder =
                 model.AddEntityType(
-                    "AssociationEntity",
+                    "JoinEntity",
                     typeof(Dictionary<string, object>),
                     ConfigurationSource.Convention).Builder;
-            var leftFK = associationEntityTypeBuilder
+            var leftFK = joinEntityTypeBuilder
                 .HasRelationship(
                     manyToManyLeft.Metadata.Name,
                     new List<string>() { "ManyToManyLeft_Id" },
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ConfigurationSource.Convention)
                 .IsUnique(false, ConfigurationSource.Convention)
                 .Metadata;
-            var rightFK = associationEntityTypeBuilder
+            var rightFK = joinEntityTypeBuilder
                 .HasRelationship(
                     manyToManyRight.Metadata.Name,
                     new List<string>() { "ManyToManyRight_Id" },
@@ -394,19 +394,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .Metadata;
             skipNavOnLeft.HasForeignKey(leftFK, ConfigurationSource.Convention);
             skipNavOnRight.HasForeignKey(rightFK, ConfigurationSource.Convention);
-            associationEntityTypeBuilder.PrimaryKey(
+            joinEntityTypeBuilder.PrimaryKey(
                 leftFK.Properties.Concat(rightFK.Properties).ToList(),
                 ConfigurationSource.Convention);
 
-            var associationEntityType = associationEntityTypeBuilder.Metadata;
+            var joinEntityType = joinEntityTypeBuilder.Metadata;
 
-            Assert.NotNull(associationEntityType);
+            Assert.NotNull(joinEntityType);
 
-            Assert.NotNull(modelBuilder.RemoveAssociationEntityIfCreatedImplicitly(
-                associationEntityType, removeSkipNavs, ConfigurationSource.Convention));
+            Assert.NotNull(modelBuilder.RemoveJoinEntityIfCreatedImplicitly(
+                joinEntityType, removeSkipNavs, ConfigurationSource.Convention));
 
             Assert.Empty(model.GetEntityTypes()
-                .Where(e => e.IsImplicitlyCreatedAssociationEntityType));
+                .Where(e => e.IsImplicitlyCreatedJoinEntityType));
 
             var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
             var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        public void Cannot_remove_manually_created_association_entity_type(bool removeSkipNavs)
+        public void Cannot_remove_manually_created_join_entity_type(bool removeSkipNavs)
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
@@ -461,20 +461,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             skipNavOnRight.Metadata.SetForeignKey(rightFK.Metadata, ConfigurationSource.Convention);
             skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
 
-            var associationEntityType = skipNavOnLeft.Metadata.AssociationEntityType;
-            Assert.NotNull(associationEntityType);
-            Assert.Same(associationEntityType, skipNavOnRight.Metadata.AssociationEntityType);
+            var joinEntityType = skipNavOnLeft.Metadata.JoinEntityType;
+            Assert.NotNull(joinEntityType);
+            Assert.Same(joinEntityType, skipNavOnRight.Metadata.JoinEntityType);
 
-            Assert.Null(modelBuilder.RemoveAssociationEntityIfCreatedImplicitly(
-                associationEntityType, removeSkipNavs, ConfigurationSource.Convention));
+            Assert.Null(modelBuilder.RemoveJoinEntityIfCreatedImplicitly(
+                joinEntityType, removeSkipNavs, ConfigurationSource.Convention));
 
             var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
             var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
             Assert.NotNull(leftSkipNav);
             Assert.NotNull(rightSkipNav);
 
-            Assert.Same(leftSkipNav.AssociationEntityType, rightSkipNav.AssociationEntityType);
-            Assert.Same(manyToManyJoin.Metadata, leftSkipNav.AssociationEntityType);
+            Assert.Same(leftSkipNav.JoinEntityType, rightSkipNav.JoinEntityType);
+            Assert.Same(manyToManyJoin.Metadata, leftSkipNav.JoinEntityType);
         }
 
         [ConditionalFact]

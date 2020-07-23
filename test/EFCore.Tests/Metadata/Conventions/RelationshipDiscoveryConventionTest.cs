@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Many_to_many_skip_navigations_are_not_discovered_if_self_association()
+        public void Many_to_many_skip_navigations_are_not_discovered_if_self_join()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManySelf = modelBuilder.Entity(typeof(ManyToManySelf), ConfigurationSource.Convention);
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Many_to_many_bidirectional_sets_up_skip_navigations_but_not_association_entity_type()
+        public void Many_to_many_bidirectional_sets_up_skip_navigations_but_not_join_entity_type()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManyFirst = modelBuilder.Entity(typeof(ManyToManyFirst), ConfigurationSource.Convention);
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Same(navigationOnManyToManySecond.Inverse, navigationOnManyToManyFirst);
 
             Assert.Empty(manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedAssociationEntityType));
+                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
         }
 
         [ConditionalFact]

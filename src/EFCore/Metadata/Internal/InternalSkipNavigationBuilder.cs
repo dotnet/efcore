@@ -70,16 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     foreignKey.UpdateConfigurationSource(configurationSource);
                 }
 
-                if (Metadata.AssociationEntityType != null
-                    && foreignKey?.DeclaringEntityType != Metadata.AssociationEntityType)
+                if (Metadata.JoinEntityType != null
+                    && foreignKey?.DeclaringEntityType != Metadata.JoinEntityType)
                 {
                     // Have reset the foreign key of a skip navigation on one side of an
-                    // association entity type to a different entity type. An implicit
-                    // association entity type is only useful if both sides are
+                    // join entity type to a different entity type. An implicit
+                    // join entity type is only useful if both sides are
                     // configured - so, if it is implicit, remove that entity type
                     // (which will also remove the other skip navigation's foreign key).
-                    Metadata.AssociationEntityType.Model.Builder.RemoveAssociationEntityIfCreatedImplicitly(
-                        Metadata.AssociationEntityType, removeSkipNavigations: false, configurationSource);
+                    Metadata.JoinEntityType.Model.Builder.RemoveJoinEntityIfCreatedImplicitly(
+                        Metadata.JoinEntityType, removeSkipNavigations: false, configurationSource);
                 }
 
                 Metadata.SetForeignKey(foreignKey, configurationSource);
@@ -109,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return (Metadata.DeclaringEntityType
                     == (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType))
-                            && (Metadata.Inverse?.AssociationEntityType == null
-                                || Metadata.Inverse.AssociationEntityType.IsImplicitlyCreatedAssociationEntityType == true
-                                || Metadata.Inverse.AssociationEntityType
+                            && (Metadata.Inverse?.JoinEntityType == null
+                                || Metadata.Inverse.JoinEntityType.IsImplicitlyCreatedJoinEntityType == true
+                                || Metadata.Inverse.JoinEntityType
                                 == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType));
         }
 
@@ -173,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return Metadata.TargetEntityType == inverse.DeclaringEntityType
                     && Metadata.DeclaringEntityType == inverse.TargetEntityType
-                    && (Metadata.AssociationEntityType == null
-                        || inverse.AssociationEntityType == null
-                        || Metadata.AssociationEntityType == inverse.AssociationEntityType);
+                    && (Metadata.JoinEntityType == null
+                        || inverse.JoinEntityType == null
+                        || Metadata.JoinEntityType == inverse.JoinEntityType);
         }
 
         /// <summary>

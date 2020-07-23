@@ -25,16 +25,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionSkipNavigationBuilder Builder { get; }
 
         /// <summary>
-        ///     Gets the association type used by the foreign key.
+        ///     Gets the join type used by the foreign key.
         /// </summary>
-        new IConventionEntityType AssociationEntityType
+        new IConventionEntityType JoinEntityType
         {
             [DebuggerStepThrough]
-            get => (IConventionEntityType)((ISkipNavigation)this).AssociationEntityType;
+            get => (IConventionEntityType)((ISkipNavigation)this).JoinEntityType;
         }
 
         /// <summary>
-        ///     Gets the foreign key to the association type.
+        ///     Gets the foreign key to the join type.
         /// </summary>
         new IConventionForeignKey ForeignKey
         {

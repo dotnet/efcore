@@ -447,37 +447,37 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             where TLeftEntity : class
             where TRightEntity : class
         {
-            public abstract TestEntityTypeBuilder<TAssociationEntity> UsingEntity<TAssociationEntity>(
-                Func<TestEntityTypeBuilder<TAssociationEntity>,
-                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
-                Func<TestEntityTypeBuilder<TAssociationEntity>,
-                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
-                where TAssociationEntity : class;
+            public abstract TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
+                Func<TestEntityTypeBuilder<TJoinEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TJoinEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft)
+                where TJoinEntity : class;
 
-            public abstract TestEntityTypeBuilder<TAssociationEntity> UsingEntity<TAssociationEntity>(
+            public abstract TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
                 string joinEntityName,
-                Func<TestEntityTypeBuilder<TAssociationEntity>,
-                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
-                Func<TestEntityTypeBuilder<TAssociationEntity>,
-                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
-                where TAssociationEntity : class;
+                Func<TestEntityTypeBuilder<TJoinEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TJoinEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft)
+                where TJoinEntity : class;
 
-            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
-                Func<TestEntityTypeBuilder<TAssociationEntity>,
-                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
-                Func<TestEntityTypeBuilder<TAssociationEntity>,
-                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
-                Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
-                where TAssociationEntity : class;
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
+                Func<TestEntityTypeBuilder<TJoinEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TJoinEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoin)
+                where TJoinEntity : class;
 
-            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TAssociationEntity>(
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
                 string joinEntityName,
-                Func<TestEntityTypeBuilder<TAssociationEntity>,
-                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
-                Func<TestEntityTypeBuilder<TAssociationEntity>,
-                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
-                Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
-                where TAssociationEntity : class;
+                Func<TestEntityTypeBuilder<TJoinEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TJoinEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoin)
+                where TJoinEntity : class;
         }
 
         public abstract class TestOwnershipBuilder<TEntity, TDependentEntity>

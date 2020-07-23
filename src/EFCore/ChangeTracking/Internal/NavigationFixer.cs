@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            FindAssociationEntry(entry, oldTargetEntry, skipNavigation)?.SetEntityState(EntityState.Deleted);
+                            FindJoinEntry(entry, oldTargetEntry, skipNavigation)?.SetEntityState(EntityState.Deleted);
 
                             Check.DebugAssert(
                                 skipNavigation.Inverse.IsCollection,
@@ -288,15 +288,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            var associationEntry = FindOrCreateAssociationEntry(
+                            var joinEntry = FindOrCreateJoinEntry(
                                 entry, newTargetEntry, skipNavigation, fromQuery: false, setModified: false);
 
-                            if (associationEntry.EntityState == EntityState.Detached)
+                            if (joinEntry.EntityState == EntityState.Detached)
                             {
                                 try
                                 {
                                     _inFixup = false;
-                                    associationEntry.SetEntityState(EntityState.Added);
+                                    joinEntry.SetEntityState(EntityState.Added);
                                 }
                                 finally
                                 {
@@ -840,15 +840,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                             else
                             {
-                                var associationEntry = FindOrCreateAssociationEntry(
+                                var joinEntry = FindOrCreateJoinEntry(
                                     entry, otherEntry, skipNavigation, fromQuery, setModified);
 
-                                if (associationEntry.EntityState == EntityState.Detached)
+                                if (joinEntry.EntityState == EntityState.Detached)
                                 {
                                     try
                                     {
                                         _inFixup = false;
-                                        associationEntry.SetEntityState(EntityState.Added);
+                                        joinEntry.SetEntityState(EntityState.Added);
                                     }
                                     finally
                                     {
@@ -885,15 +885,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var setModified = referencedEntry.EntityState != EntityState.Unchanged;
                 if (navigationBase is ISkipNavigation skipNavigation)
                 {
-                    var associationEntry = FindOrCreateAssociationEntry(
+                    var joinEntry = FindOrCreateJoinEntry(
                         entry, referencedEntry, skipNavigation, fromQuery, setModified);
 
-                    if (associationEntry.EntityState == EntityState.Detached)
+                    if (joinEntry.EntityState == EntityState.Detached)
                     {
                         try
                         {
                             _inFixup = false;
-                            associationEntry.SetEntityState(EntityState.Added);
+                            joinEntry.SetEntityState(EntityState.Added);
                         }
                         finally
                         {
@@ -929,55 +929,55 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private static InternalEntityEntry FindOrCreateAssociationEntry(
+        private static InternalEntityEntry FindOrCreateJoinEntry(
             InternalEntityEntry entry, InternalEntityEntry otherEntry, ISkipNavigation skipNavigation,
             bool fromQuery, bool setModified)
         {
-            var associationEntry = FindAssociationEntry(entry, otherEntry, skipNavigation);
+            var joinEntry = FindJoinEntry(entry, otherEntry, skipNavigation);
 
-            if (associationEntry == null)
+            if (joinEntry == null)
             {
-                var associationEntityType = skipNavigation.AssociationEntityType;
-                var associationEntity = associationEntityType.GetInstanceFactory()(
+                var joinEntityType = skipNavigation.JoinEntityType;
+                var joinEntity = joinEntityType.GetInstanceFactory()(
                     new MaterializationContext(ValueBuffer.Empty, entry.StateManager.Context));
 
-                associationEntry = entry.StateManager.GetOrCreateEntry(associationEntity, associationEntityType);
+                joinEntry = entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
 
-                foreach (var property in associationEntityType.GetProperties()) // Remove when #21720 is implemented
+                foreach (var property in joinEntityType.GetProperties()) // Remove when #21720 is implemented
                 {
                     if (property.IsIndexerProperty())
                     {
-                        ((PropertyBase)property).Setter.SetClrValue(associationEntity, property.ClrType.GetDefaultValue());
+                        ((PropertyBase)property).Setter.SetClrValue(joinEntity, property.ClrType.GetDefaultValue());
                     }
                 }
             }
 
-            SetForeignKeyProperties(associationEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
-            SetForeignKeyProperties(associationEntry, otherEntry, skipNavigation.Inverse.ForeignKey, setModified, fromQuery);
+            SetForeignKeyProperties(joinEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
+            SetForeignKeyProperties(joinEntry, otherEntry, skipNavigation.Inverse.ForeignKey, setModified, fromQuery);
 
-            return associationEntry;
+            return joinEntry;
         }
 
-        private static InternalEntityEntry FindAssociationEntry(
+        private static InternalEntityEntry FindJoinEntry(
             InternalEntityEntry entry,
             InternalEntityEntry otherEntry,
             ISkipNavigation skipNavigation)
         {
-            var associationEntityType = skipNavigation.AssociationEntityType;
+            var joinEntityType = skipNavigation.JoinEntityType;
             var foreignKey = skipNavigation.ForeignKey;
             var otherForeignKey = skipNavigation.Inverse.ForeignKey;
 
             if (foreignKey.Properties.Count == 1
                 && otherForeignKey.Properties.Count == 1)
             {
-                if (TryFind(entry, otherEntry, foreignKey, otherForeignKey, out var associationEntry))
+                if (TryFind(entry, otherEntry, foreignKey, otherForeignKey, out var joinEntry))
                 {
-                    return associationEntry;
+                    return joinEntry;
                 }
 
-                if (TryFind(otherEntry, entry, otherForeignKey, foreignKey, out associationEntry))
+                if (TryFind(otherEntry, entry, otherForeignKey, foreignKey, out joinEntry))
                 {
-                    return associationEntry;
+                    return joinEntry;
                 }
             }
 
@@ -988,9 +988,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 InternalEntityEntry secondEntry,
                 IForeignKey firstForeignKey,
                 IForeignKey secondForeignKey,
-                out InternalEntityEntry associationEntry)
+                out InternalEntityEntry joinEntry)
             {
-                var key = associationEntityType.FindKey(new[] { firstForeignKey.Properties[0], secondForeignKey.Properties[0] });
+                var key = joinEntityType.FindKey(new[] { firstForeignKey.Properties[0], secondForeignKey.Properties[0] });
                 if (key != null)
                 {
                     var keyValues = new[]
@@ -999,12 +999,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         secondEntry[secondForeignKey.PrincipalKey.Properties[0]]
                     };
                     {
-                        associationEntry = entry.StateManager.TryGetEntry(key, keyValues);
+                        joinEntry = entry.StateManager.TryGetEntry(key, keyValues);
                         return true;
                     }
                 }
 
-                associationEntry = null;
+                joinEntry = null;
                 return false;
             }
         }
