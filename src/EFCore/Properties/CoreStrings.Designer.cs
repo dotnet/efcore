@@ -2295,12 +2295,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, otherEntityType);
 
         /// <summary>
-        ///     The skip navigation '{inverse}' using the association entity type '{inverseAssociationType}' cannot be set as the inverse of '{navigation}' that uses the association entity type '{associationType}'. The inverse should use the same association entity type.
+        ///     The skip navigation '{inverse}' using the join entity type '{inverseJoinType}' cannot be set as the inverse of '{navigation}' that uses the join entity type '{joinType}'. The inverse should use the same join entity type.
         /// </summary>
-        public static string SkipInverseMismatchedAssociationType([CanBeNull] object inverse, [CanBeNull] object inverseAssociationType, [CanBeNull] object navigation, [CanBeNull] object associationType)
+        public static string SkipInverseMismatchedJoinType([CanBeNull] object inverse, [CanBeNull] object inverseJoinType, [CanBeNull] object navigation, [CanBeNull] object joinType)
             => string.Format(
-                GetString("SkipInverseMismatchedAssociationType", nameof(inverse), nameof(inverseAssociationType), nameof(navigation), nameof(associationType)),
-                inverse, inverseAssociationType, navigation, associationType);
+                GetString("SkipInverseMismatchedJoinType", nameof(inverse), nameof(inverseJoinType), nameof(navigation), nameof(joinType)),
+                inverse, inverseJoinType, navigation, joinType);
 
         /// <summary>
         ///     The skip navigation '{navigation}' on entity type '{entityType}' doesn't have an inverse configured. Every skip navigation should have an inverse skip navigation.
@@ -2319,12 +2319,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
-        ///     The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the association entity type '{associationType}' while the inverse skip navigation '{inverse}' is using the association entity type '{inverseAssociationType}'. The inverse should use the same association entity type.
+        ///     The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the join entity type '{joinType}' while the inverse skip navigation '{inverse}' is using the join entity type '{inverseJoinType}'. The inverse should use the same join entity type.
         /// </summary>
-        public static string SkipInverseMismatchedForeignKey([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object associationType, [CanBeNull] object inverse, [CanBeNull] object inverseAssociationType)
+        public static string SkipInverseMismatchedForeignKey([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object joinType, [CanBeNull] object inverse, [CanBeNull] object inverseJoinType)
             => string.Format(
-                GetString("SkipInverseMismatchedForeignKey", nameof(foreignKey), nameof(navigation), nameof(associationType), nameof(inverse), nameof(inverseAssociationType)),
-                foreignKey, navigation, associationType, inverse, inverseAssociationType);
+                GetString("SkipInverseMismatchedForeignKey", nameof(foreignKey), nameof(navigation), nameof(joinType), nameof(inverse), nameof(inverseJoinType)),
+                foreignKey, navigation, joinType, inverse, inverseJoinType);
 
         /// <summary>
         ///     The skip navigation '{navigation}' on entity type '{entityType}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.

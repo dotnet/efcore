@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType AssociationEntityType => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
+        public virtual EntityType JoinEntityType => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -190,13 +190,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ProcessForeignKey(foreignKey);
             UpdateForeignKeyConfigurationSource(configurationSource);
 
-            if (Inverse?.AssociationEntityType != null
-                && Inverse.AssociationEntityType != AssociationEntityType)
+            if (Inverse?.JoinEntityType != null
+                && Inverse.JoinEntityType != JoinEntityType)
             {
                 throw new InvalidOperationException(CoreStrings.SkipInverseMismatchedForeignKey(
                     foreignKey.Properties.Format(),
-                    Name, AssociationEntityType.DisplayName(),
-                    Inverse.Name, Inverse.AssociationEntityType.DisplayName()));
+                    Name, JoinEntityType.DisplayName(),
+                    Inverse.Name, Inverse.JoinEntityType.DisplayName()));
             }
 
             return isChanging
@@ -250,12 +250,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     inverse.Name, inverse.DeclaringEntityType.DisplayName(), Name, TargetEntityType.DisplayName()));
             }
 
-            if (inverse.AssociationEntityType != null
-                && AssociationEntityType != null
-                && inverse.AssociationEntityType != AssociationEntityType)
+            if (inverse.JoinEntityType != null
+                && JoinEntityType != null
+                && inverse.JoinEntityType != JoinEntityType)
             {
-                throw new InvalidOperationException(CoreStrings.SkipInverseMismatchedAssociationType(
-                    inverse.Name, inverse.AssociationEntityType.DisplayName(), Name, AssociationEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.SkipInverseMismatchedJoinType(
+                    inverse.Name, inverse.JoinEntityType.DisplayName(), Name, JoinEntityType.DisplayName()));
             }
 
             Inverse = inverse;

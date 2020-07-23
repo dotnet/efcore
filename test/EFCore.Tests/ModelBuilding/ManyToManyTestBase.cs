@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Association_type_is_automatically_configured_by_convention()
+            public virtual void Join_type_is_automatically_configured_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var manyToManyA = model.FindEntityType(typeof(ImplicitManyToManyA));
                 var manyToManyB = model.FindEntityType(typeof(ImplicitManyToManyB));
                 var joinEntityType = model.GetEntityTypes()
-                    .Where(et => ((EntityType)et).IsImplicitlyCreatedAssociationEntityType)
+                    .Where(et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType)
                     .Single();
                 Assert.Equal("ImplicitManyToManyAImplicitManyToManyB", joinEntityType.Name);
 
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Association_type_is_not_automatically_configured_when_navigations_are_ambiguous()
+            public virtual void Join_type_is_not_automatically_configured_when_navigations_are_ambiguous()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -177,14 +177,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotNull(hob);
                 Assert.NotNull(nob);
                 Assert.Empty(model.GetEntityTypes()
-                    .Where(et => ((EntityType)et).IsImplicitlyCreatedAssociationEntityType));
+                    .Where(et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType));
 
                 Assert.Empty(hob.GetSkipNavigations());
                 Assert.Empty(nob.GetSkipNavigations());
             }
 
             [ConditionalFact]
-            public virtual void Can_configure_association_type_using_fluent_api()
+            public virtual void Can_configure_join_type_using_fluent_api()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.SharedEntity<ManyToManyJoinWithFields>("Shared");
 
-                var associationEntityType = modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                var joinEntityType = modelBuilder.Entity<ManyToManyPrincipalWithField>()
                     .HasMany(e => e.Dependents)
                     .WithMany(e => e.ManyToManyPrincipals)
                     .UsingEntity<ManyToManyJoinWithFields>(
@@ -434,9 +434,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r => r.HasOne<DependentWithField>().WithMany(),
                         l => l.HasOne<ManyToManyPrincipalWithField>().WithMany()).Metadata;
 
-                Assert.True(associationEntityType.HasSharedClrType);
-                Assert.Equal("Shared", associationEntityType.Name);
-                Assert.Equal(typeof(ManyToManyJoinWithFields), associationEntityType.ClrType);
+                Assert.True(joinEntityType.HasSharedClrType);
+                Assert.Equal("Shared", joinEntityType.Name);
+                Assert.Equal(typeof(ManyToManyJoinWithFields), joinEntityType.ClrType);
             }
 
             [ConditionalFact]
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.SharedEntity<ManyToManyJoinWithFields>("Shared");
 
-                var associationEntityType = modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                var joinEntityType = modelBuilder.Entity<ManyToManyPrincipalWithField>()
                     .HasMany(e => e.Dependents)
                     .WithMany(e => e.ManyToManyPrincipals)
                     .UsingEntity<ManyToManyJoinWithFields>(
@@ -454,9 +454,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r => r.HasOne<DependentWithField>().WithMany(),
                         l => l.HasOne<ManyToManyPrincipalWithField>().WithMany()).Metadata;
 
-                Assert.True(associationEntityType.HasSharedClrType);
-                Assert.Equal("Shared", associationEntityType.Name);
-                Assert.Equal(typeof(ManyToManyJoinWithFields), associationEntityType.ClrType);
+                Assert.True(joinEntityType.HasSharedClrType);
+                Assert.Equal("Shared", joinEntityType.Name);
+                Assert.Equal(typeof(ManyToManyJoinWithFields), joinEntityType.ClrType);
             }
         }
     }

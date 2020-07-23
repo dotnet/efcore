@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var firstIdProperty = firstEntity.AddProperty(Order.IdProperty);
             var firstKey = firstEntity.AddKey(firstIdProperty);
             var secondEntity = model.AddEntityType(typeof(Product));
-            var associationEntityBuilder = model.AddEntityType(typeof(OrderProduct));
-            var orderIdProperty = associationEntityBuilder.AddProperty(OrderProduct.OrderIdProperty);
-            var firstFk = associationEntityBuilder
+            var joinEntityBuilder = model.AddEntityType(typeof(OrderProduct));
+            var orderIdProperty = joinEntityBuilder.AddProperty(OrderProduct.OrderIdProperty);
+            var firstFk = joinEntityBuilder
                 .AddForeignKey(new[] { orderIdProperty }, firstKey, firstEntity);
 
             var navigation = firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, true, false);
@@ -48,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var firstIdProperty = firstEntity.AddProperty(Order.IdProperty);
             var firstKey = firstEntity.AddKey(firstIdProperty);
             var secondEntity = model.AddEntityType(typeof(Product));
-            var associationEntityBuilder = model.AddEntityType(typeof(OrderProduct));
-            var orderIdProperty = associationEntityBuilder.AddProperty(OrderProduct.OrderIdProperty);
-            var firstFk = associationEntityBuilder
+            var joinEntityBuilder = model.AddEntityType(typeof(OrderProduct));
+            var orderIdProperty = joinEntityBuilder.AddProperty(OrderProduct.OrderIdProperty);
+            var firstFk = joinEntityBuilder
                 .AddForeignKey(new[] { orderIdProperty }, firstKey, firstEntity);
 
             var navigation = firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, true, false);
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Setting_inverse_with_wrong_association_type_throws()
+        public void Setting_inverse_with_wrong_join_type_throws()
         {
             var model = CreateModel();
             var orderEntity = model.AddEntityType(typeof(Order));
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var ordersNavigation = productEntity.AddSkipNavigation(nameof(Product.Orders), null, orderEntity, true, false);
             ordersNavigation.SetForeignKey(productOrderForeignKey);
 
-            Assert.Equal(CoreStrings.SkipInverseMismatchedAssociationType(
+            Assert.Equal(CoreStrings.SkipInverseMismatchedJoinType(
                     nameof(Product.Orders), nameof(Product), nameof(Order.Products), nameof(OrderProduct)),
                 Assert.Throws<InvalidOperationException>(() => productsNavigation.SetInverse(ordersNavigation)).Message);
         }

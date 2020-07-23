@@ -171,8 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 var navigationName = SkipNavigation.Name;
                 var declaringEntityType = (EntityType)DeclaringEntityType;
                 declaringEntityType.Model.Builder
-                    .RemoveAssociationEntityIfCreatedImplicitly(
-                        (EntityType)SkipNavigation.AssociationEntityType,
+                    .RemoveJoinEntityIfCreatedImplicitly(
+                        (EntityType)SkipNavigation.JoinEntityType,
                         removeSkipNavigations: true,
                         ConfigurationSource.Explicit);
 

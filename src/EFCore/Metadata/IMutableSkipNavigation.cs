@@ -19,16 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IMutableSkipNavigation : ISkipNavigation, IMutableNavigationBase
     {
         /// <summary>
-        ///     Gets the association type used by the foreign key.
+        ///     Gets the join type used by the foreign key.
         /// </summary>
-        new IMutableEntityType AssociationEntityType
+        new IMutableEntityType JoinEntityType
         {
             [DebuggerStepThrough]
-            get => (IMutableEntityType)((ISkipNavigation)this).AssociationEntityType;
+            get => (IMutableEntityType)((ISkipNavigation)this).JoinEntityType;
         }
 
         /// <summary>
-        ///     Gets the foreign key to the association type.
+        ///     Gets the foreign key to the join type.
         /// </summary>
         new IMutableForeignKey ForeignKey
         {

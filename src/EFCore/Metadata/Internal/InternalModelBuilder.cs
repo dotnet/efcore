@@ -258,21 +258,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder RemoveAssociationEntityIfCreatedImplicitly(
-            [NotNull] EntityType associationEntityType,
+        public virtual InternalModelBuilder RemoveJoinEntityIfCreatedImplicitly(
+            [NotNull] EntityType joinEntityType,
             bool removeSkipNavigations,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(associationEntityType, nameof(associationEntityType));
+            Check.NotNull(joinEntityType, nameof(joinEntityType));
 
-            if (!associationEntityType.IsImplicitlyCreatedAssociationEntityType)
+            if (!joinEntityType.IsImplicitlyCreatedJoinEntityType)
             {
                 return null;
             }
 
-            Debug.Assert(associationEntityType.GetForeignKeys().Count() == 2,
-                "Implicitly created association entity types should have exactly 2 foreign keys");
-            foreach (var fk in associationEntityType.GetForeignKeys())
+            Debug.Assert(joinEntityType.GetForeignKeys().Count() == 2,
+                "Implicitly created join entity types should have exactly 2 foreign keys");
+            foreach (var fk in joinEntityType.GetForeignKeys())
             {
                 var skipNavigation = fk.GetReferencingSkipNavigations().FirstOrDefault();
                 if (skipNavigation != null)
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            return HasNoEntityType(associationEntityType, configurationSource);
+            return HasNoEntityType(joinEntityType, configurationSource);
         }
 
         /// <summary>

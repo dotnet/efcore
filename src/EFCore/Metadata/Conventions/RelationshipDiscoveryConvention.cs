@@ -747,17 +747,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                var associationEntityType = (EntityType)declaringEntityType
+                var joinEntityType = (EntityType)declaringEntityType
                     .FindDeclaredSkipNavigation(navigationPropertyName)?
                     .ForeignKey?.DeclaringEntityType;
-                if (associationEntityType != null)
+                if (joinEntityType != null)
                 {
-                    var modelBuilder = associationEntityType.Model.Builder;
+                    var modelBuilder = joinEntityType.Model.Builder;
                     // The PropertyInfo underlying this skip navigation has become
-                    // ambiguous since we used it, so remove the association entity
+                    // ambiguous since we used it, so remove the join entity
                     // if it was implicitly created.
-                    if (modelBuilder.RemoveAssociationEntityIfCreatedImplicitly(
-                            associationEntityType, removeSkipNavigations: true, ConfigurationSource.Convention) == null)
+                    if (modelBuilder.RemoveJoinEntityIfCreatedImplicitly(
+                            joinEntityType, removeSkipNavigations: true, ConfigurationSource.Convention) == null)
                     {
                         // Navigations of higher configuration source are not ambiguous
                         toRemoveFrom.Remove(navigationProperty);
@@ -783,7 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             if (navigationTargetType == inverseTargetType)
             {
-                // do not automatically create many-to-many associations to self
+                // do not automatically create many-to-many joins to self
                 return;
             }
 
@@ -829,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             // also sets rightSkipNavigation's inverse
             leftSkipNavigation.Builder.HasInverse(rightSkipNavigation, fromDataAnnotation: false);
 
-            // the implicit many-to-many association entity type will be created
+            // the implicit many-to-many join entity type will be created
             // and configured by ManyToManyAssocationEntityTypeConvention.
         }
 

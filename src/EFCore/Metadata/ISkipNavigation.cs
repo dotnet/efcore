@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface ISkipNavigation : INavigationBase
     {
         /// <summary>
-        ///     Gets the association type used by the foreign key.
+        ///     Gets the join type used by the foreign key.
         /// </summary>
-        IEntityType AssociationEntityType => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
+        IEntityType JoinEntityType => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
 
         /// <summary>
         ///     Gets the inverse skip navigation.
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Gets the foreign key to the association type.
+        ///     Gets the foreign key to the join type.
         /// </summary>
         IForeignKey ForeignKey { get; }
 

@@ -1764,12 +1764,12 @@ namespace Microsoft.EntityFrameworkCore
             ValidateCounts(context, 152, 20, 20, 112);
         }
 
-        private static void ValidateCounts(DbContext context, int total, int ones, int twos, int associations)
+        private static void ValidateCounts(DbContext context, int total, int ones, int twos, int joins)
         {
             Assert.Equal(total, context.ChangeTracker.Entries().Count());
             Assert.Equal(ones, context.ChangeTracker.Entries<EntityOne>().Count());
             Assert.Equal(twos, context.ChangeTracker.Entries<EntityTwo>().Count());
-            Assert.Equal(associations, context.ChangeTracker.Entries<JoinOneToTwo>().Count());
+            Assert.Equal(joins, context.ChangeTracker.Entries<JoinOneToTwo>().Count());
 
             var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
             var rightEntities = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
@@ -1794,7 +1794,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var deleted = context.ChangeTracker.Entries<JoinOneToTwo>().Count(e => e.State == EntityState.Deleted);
-            Assert.Equal(associations, (joinCount / 2) + deleted);
+            Assert.Equal(joins, (joinCount / 2) + deleted);
         }
 
         protected ManyToManyTrackingTestBase(TFixture fixture) => Fixture = fixture;
