@@ -3,7 +3,8 @@ name: Test Cosmos
 on:
   pull_request:
     branches:
-      - master
+      - main
+      - feature/*
       - release/*
 
 jobs:

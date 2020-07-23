@@ -1,6 +1,6 @@
-# Master branch
+# Main branch
 
-Following instructions are for current **master** branch only. For building release/2.x branches go to [Earlier versions](https://github.com/dotnet/efcore/wiki/Getting-and-Building-the-Code#earlier-versions).
+Following instructions are for current **main** branch only. For building release/2.x branches go to [Earlier versions](https://github.com/dotnet/efcore/wiki/Getting-and-Building-the-Code#earlier-versions).
 
 ## Prerequisites
 
