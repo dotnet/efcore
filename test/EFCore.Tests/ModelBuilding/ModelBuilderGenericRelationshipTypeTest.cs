@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
                 => new GenericTypeTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
 
-            public override TestEntityTypeBuilder<TEntity> SharedEntity<TEntity>(string name)
-                => new GenericTypeTestEntityTypeBuilder<TEntity>(ModelBuilder.SharedEntity<TEntity>(name));
+            public override TestEntityTypeBuilder<TEntity> SharedTypeEntity<TEntity>(string name)
+                => new GenericTypeTestEntityTypeBuilder<TEntity>(ModelBuilder.SharedTypeEntity<TEntity>(name));
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
@@ -40,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return this;
             }
 
-            public override TestModelBuilder SharedEntity<TEntity>(string name, Action<TestEntityTypeBuilder<TEntity>> buildAction)
+            public override TestModelBuilder SharedTypeEntity<TEntity>(string name, Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
-                ModelBuilder.SharedEntity<TEntity>(
+                ModelBuilder.SharedTypeEntity<TEntity>(
                     name,
                     entityTypeBuilder =>
                         buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));

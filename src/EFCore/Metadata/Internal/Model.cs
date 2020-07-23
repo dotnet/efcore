@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
             = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 
-        private readonly Dictionary<Type, ConfigurationSource> _sharedEntityClrTypes = new Dictionary<Type, ConfigurationSource>();
+        private readonly Dictionary<Type, ConfigurationSource> _sharedTypes = new Dictionary<Type, ConfigurationSource>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -235,17 +235,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(entityType.DisplayName()));
                     }
 
-                    if (_sharedEntityClrTypes.TryGetValue(entityType.ClrType, out var existingConfigurationSource))
+                    if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingConfigurationSource))
                     {
-                        _sharedEntityClrTypes[entityType.ClrType] = entityType.GetConfigurationSource().Max(existingConfigurationSource);
+                        _sharedTypes[entityType.ClrType] = entityType.GetConfigurationSource().Max(existingConfigurationSource);
                     }
                     else
                     {
-                        _sharedEntityClrTypes.Add(entityType.ClrType, entityType.GetConfigurationSource());
+                        _sharedTypes.Add(entityType.ClrType, entityType.GetConfigurationSource());
                     }
                 }
                 else if (entityType.ClrType != null
-                    && _sharedEntityClrTypes.ContainsKey(entityType.ClrType))
+                    && _sharedTypes.ContainsKey(entityType.ClrType))
                 {
                     throw new InvalidOperationException(CoreStrings.ClashingSharedType(entityType.DisplayName()));
                 }
@@ -780,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsShared([NotNull] Type type)
-            => _sharedEntityClrTypes.ContainsKey(type);
+            => _sharedTypes.ContainsKey(type);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -896,13 +896,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.CannotMarkShared(clrType.ShortDisplayName()));
             }
 
-            if (_sharedEntityClrTypes.TryGetValue(clrType, out var existingConfigurationSource))
+            if (_sharedTypes.TryGetValue(clrType, out var existingConfigurationSource))
             {
-                _sharedEntityClrTypes[clrType] = configurationSource.Max(existingConfigurationSource);
+                _sharedTypes[clrType] = configurationSource.Max(existingConfigurationSource);
             }
             else
             {
-                _sharedEntityClrTypes.Add(clrType, configurationSource);
+                _sharedTypes.Add(clrType, configurationSource);
             }
         }
 

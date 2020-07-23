@@ -131,12 +131,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The CLR type of the entity type to be configured. </typeparam>
         /// <param name="name"> The name of the entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder<TEntity> SharedEntity<TEntity>([NotNull] string name)
+        public virtual EntityTypeBuilder<TEntity> SharedTypeEntity<TEntity>([NotNull] string name)
             where TEntity : class
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder<TEntity>(Builder.SharedEntity(name, typeof(TEntity), ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder<TEntity>(Builder.SharedTypeEntity(name, typeof(TEntity), ConfigurationSource.Explicit).Metadata);
         }
 
         /// <summary>
@@ -182,12 +182,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to be configured. </param>
         /// <param name="clrType"> The CLR type of the entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder SharedEntity([NotNull] string name, [NotNull] Type clrType)
+        public virtual EntityTypeBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type clrType)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(clrType, nameof(clrType));
 
-            return new EntityTypeBuilder(Builder.SharedEntity(name, clrType, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, clrType, ConfigurationSource.Explicit).Metadata);
         }
 
         /// <summary>
@@ -240,13 +240,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder SharedEntity<TEntity>([NotNull] string name, [NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
+        public virtual ModelBuilder SharedTypeEntity<TEntity>([NotNull] string name, [NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
             where TEntity : class
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(SharedEntity<TEntity>(name));
+            buildAction(SharedTypeEntity<TEntity>(name));
 
             return this;
         }
@@ -328,13 +328,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder SharedEntity([NotNull] string name, [NotNull] Type clrType, [NotNull] Action<EntityTypeBuilder> buildAction)
+        public virtual ModelBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type clrType, [NotNull] Action<EntityTypeBuilder> buildAction)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(SharedEntity(name, clrType));
+            buildAction(SharedTypeEntity(name, clrType));
 
             return this;
         }

@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionEntityTypeBuilder SharedEntity([NotNull] string name, [NotNull] Type type, bool? shouldBeOwned = false, bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type type, bool? shouldBeOwned = false, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.

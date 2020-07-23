@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(joinEntityClrType.DisplayName()));
                     }
 
-                    joinEntityType = ModelBuilder.SharedEntity(joinEntityName, joinEntityClrType, ConfigurationSource.Explicit).Metadata;
+                    joinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityClrType, ConfigurationSource.Explicit).Metadata;
                 }
             }
 

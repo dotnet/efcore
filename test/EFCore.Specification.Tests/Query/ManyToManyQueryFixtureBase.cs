@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.SharedEntity<Dictionary<string, int>>(
+            modelBuilder.SharedTypeEntity<Dictionary<string, int>>(
                 "JoinOneToTwoShared",
                 b =>
                 {
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     b.IndexerProperty<int>("TwoId");
                 });
 
-            modelBuilder.SharedEntity<Dictionary<string, object>>(
+            modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
                 "JoinOneToThreePayloadFullShared",
                 b =>
                 {
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     b.IndexerProperty<string>("Payload");
                 });
 
-            modelBuilder.SharedEntity<Dictionary<string, int>>(
+            modelBuilder.SharedTypeEntity<Dictionary<string, int>>(
                 "JoinTwoSelfShared",
                 b =>
                 {
