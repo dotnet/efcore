@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     A value indicating whether eager loaded navigations are ignored in this query.
         /// </summary>
-        public virtual bool IgnoreEagerLoadedNavigations { get; internal set; }
+        public virtual bool IgnoreAutoIncludes { get; internal set; }
         /// <summary>
         ///     The set of tags applied to this query.
         /// </summary>

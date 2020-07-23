@@ -7623,7 +7623,7 @@ ORDER BY [p].[Id]"
         #region Issue21540
 
         [ConditionalFact]
-        public virtual void Can_eager_loaded_navigation_from_model()
+        public virtual void Can_auto_include_navigation_from_model()
         {
             using (CreateDatabase21540())
             {
@@ -7653,12 +7653,12 @@ ORDER BY [p].[Id], [r].[Id], [c].[Id], [t].[ParentId], [t].[OtherSideId], [t].[I
         }
 
         [ConditionalFact]
-        public virtual void Can_ignore_eager_loaded_navigation_from_model()
+        public virtual void Can_ignore_auto_included_navigation_from_model()
         {
             using (CreateDatabase21540())
             {
                 using var context = new MyContext21540(_options);
-                var query = context.Parents.AsNoTracking().IgnoreEagerLoadedNavigations().ToList();
+                var query = context.Parents.AsNoTracking().IgnoreAutoIncludes().ToList();
 
                 var result = Assert.Single(query);
                 Assert.NotNull(result.OwnedReference);
@@ -7732,9 +7732,9 @@ FROM [Parents] AS [p]");
                     .HasKey(e => new { e.ParentId, e.OtherSideId });
                 modelBuilder.Entity<Parent21540>().OwnsOne(e => e.OwnedReference);
 
-                modelBuilder.Entity<Parent21540>().Navigation(e => e.Reference).IsEagerLoaded();
-                modelBuilder.Entity<Parent21540>().Navigation(e => e.Collection).IsEagerLoaded();
-                modelBuilder.Entity<Parent21540>().Navigation(e => e.SkipOtherSide).IsEagerLoaded();
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.Reference).AutoInclude();
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.Collection).AutoInclude();
+                modelBuilder.Entity<Parent21540>().Navigation(e => e.SkipOtherSide).AutoInclude();
             }
         }
 

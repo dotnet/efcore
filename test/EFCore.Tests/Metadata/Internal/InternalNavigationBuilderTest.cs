@@ -129,28 +129,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(metadata.IsEagerLoaded);
             Assert.Null(metadata.GetIsEagerLoadedConfigurationSource());
 
-            Assert.True(builder.CanSetIsEagerLoaded(eagerLoaded: true, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(builder.IsEagerLoaded(eagerLoaded: true, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.CanSetAutoInclude(autoInclude: true, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.AutoInclude(autoInclude: true, ConfigurationSource.DataAnnotation));
 
             Assert.True(metadata.IsEagerLoaded);
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsEagerLoadedConfigurationSource());
 
-            Assert.True(builder.CanSetIsEagerLoaded(eagerLoaded: true, ConfigurationSource.Convention));
-            Assert.False(builder.CanSetIsEagerLoaded(eagerLoaded: false, ConfigurationSource.Convention));
-            Assert.NotNull(builder.IsEagerLoaded(eagerLoaded: true, ConfigurationSource.Convention));
-            Assert.Null(builder.IsEagerLoaded(eagerLoaded: false, ConfigurationSource.Convention));
+            Assert.True(builder.CanSetAutoInclude(autoInclude: true, ConfigurationSource.Convention));
+            Assert.False(builder.CanSetAutoInclude(autoInclude: false, ConfigurationSource.Convention));
+            Assert.NotNull(builder.AutoInclude(autoInclude: true, ConfigurationSource.Convention));
+            Assert.Null(builder.AutoInclude(autoInclude: false, ConfigurationSource.Convention));
 
             Assert.True(metadata.IsEagerLoaded);
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsEagerLoadedConfigurationSource());
 
-            Assert.True(builder.CanSetIsEagerLoaded(eagerLoaded: false, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(builder.IsEagerLoaded(eagerLoaded: false, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.CanSetAutoInclude(autoInclude: false, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.AutoInclude(autoInclude: false, ConfigurationSource.DataAnnotation));
 
             Assert.False(metadata.IsEagerLoaded);
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsEagerLoadedConfigurationSource());
 
-            Assert.True(builder.CanSetIsEagerLoaded(null, ConfigurationSource.DataAnnotation));
-            Assert.NotNull(builder.IsEagerLoaded(null, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.CanSetAutoInclude(null, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.AutoInclude(null, ConfigurationSource.DataAnnotation));
 
             Assert.False(metadata.IsEagerLoaded);
             Assert.Null(metadata.GetIsEagerLoadedConfigurationSource());

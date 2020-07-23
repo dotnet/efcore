@@ -61,12 +61,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetIsEagerLoaded(bool? eagerLoaded, ConfigurationSource configurationSource)
+        public virtual bool CanSetAutoInclude(bool? autoInclude, ConfigurationSource configurationSource)
         {
             IConventionNavigation conventionNavigation = Metadata;
 
             return configurationSource.Overrides(conventionNavigation.GetIsEagerLoadedConfigurationSource())
-                || conventionNavigation.IsEagerLoaded == eagerLoaded;
+                || conventionNavigation.IsEagerLoaded == autoInclude;
         }
 
         /// <summary>
@@ -75,11 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalNavigationBuilder IsEagerLoaded(bool? eagerLoaded, ConfigurationSource configurationSource)
+        public virtual InternalNavigationBuilder AutoInclude(bool? autoInclude, ConfigurationSource configurationSource)
         {
-            if (CanSetIsEagerLoaded(eagerLoaded, configurationSource))
+            if (CanSetAutoInclude(autoInclude, configurationSource))
             {
-                Metadata.SetIsEagerLoaded(eagerLoaded, configurationSource);
+                Metadata.SetIsEagerLoaded(autoInclude, configurationSource);
 
                 return this;
             }
@@ -136,12 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionNavigationBuilder.CanSetIsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation)
-            => CanSetIsEagerLoaded(eagerLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        bool IConventionNavigationBuilder.CanSetAutoInclude(bool? autoInclude, bool fromDataAnnotation)
+            => CanSetAutoInclude(autoInclude, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigationBuilder IConventionNavigationBuilder.IsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation)
-            => IsEagerLoaded(eagerLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        IConventionNavigationBuilder IConventionNavigationBuilder.AutoInclude(bool? autoInclude, bool fromDataAnnotation)
+            => AutoInclude(autoInclude, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

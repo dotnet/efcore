@@ -2655,11 +2655,11 @@ namespace Microsoft.EntityFrameworkCore
 
         #endregion
 
-        #region Eager loaded navigations
+        #region Auto included navigations
 
-        internal static readonly MethodInfo IgnoreEagerLoadedNavigationsMethodInfo
+        internal static readonly MethodInfo IgnoreAutoIncludesMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(IgnoreEagerLoadedNavigations));
+                .GetTypeInfo().GetDeclaredMethod(nameof(IgnoreAutoIncludes));
 
         /// <summary>
         ///     Specifies that the current Entity Framework LINQ query should not have any
@@ -2670,7 +2670,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A new query that will not apply any model-level eager loaded navigations.
         /// </returns>
-        public static IQueryable<TEntity> IgnoreEagerLoadedNavigations<TEntity>(
+        public static IQueryable<TEntity> IgnoreAutoIncludes<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
         {
@@ -2681,7 +2681,7 @@ namespace Microsoft.EntityFrameworkCore
                     ? source.Provider.CreateQuery<TEntity>(
                         Expression.Call(
                             instance: null,
-                            method: IgnoreEagerLoadedNavigationsMethodInfo.MakeGenericMethod(typeof(TEntity)),
+                            method: IgnoreAutoIncludesMethodInfo.MakeGenericMethod(typeof(TEntity)),
                             arguments: source.Expression))
                     : source;
         }

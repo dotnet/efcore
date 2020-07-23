@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessForeignKeyOwnershipChanged(
             IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
         {
-            relationshipBuilder.Metadata.PrincipalToDependent?.Builder.IsEagerLoaded(relationshipBuilder.Metadata.IsOwnership);
+            relationshipBuilder.Metadata.PrincipalToDependent?.Builder.AutoInclude(relationshipBuilder.Metadata.IsOwnership);
         }
     }
 }

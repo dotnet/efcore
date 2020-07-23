@@ -1694,7 +1694,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .Concat(entityType.GetDerivedSkipNavigations())
                     .Where(n => n.IsEagerLoaded);
 
-            if (_queryCompilationContext.IgnoreEagerLoadedNavigations)
+            if (_queryCompilationContext.IgnoreAutoIncludes)
             {
                 outboundNavigations = outboundNavigations.Where(n => n is INavigation navigation && navigation.ForeignKey.IsOwnership);
             }
