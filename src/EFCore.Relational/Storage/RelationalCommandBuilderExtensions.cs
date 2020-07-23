@@ -171,6 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <param name="property"> The property that the type for this parameter will come from. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use overload with relationalTypeMapping")]
         public static IRelationalCommandBuilder AddParameter(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
             [NotNull] string invariantName,
@@ -188,6 +189,41 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     name,
                     property.GetRelationalTypeMapping(),
                     property.IsNullable));
+        }
+
+        /// <summary>
+        ///     Adds a parameter.
+        /// </summary>
+        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="invariantName">
+        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
+        ///     placeholder for a parameter and not the actual value. This is because the same command can be
+        ///     reused multiple times with different parameter values.
+        /// </param>
+        /// <param name="name">
+        ///     The name to be used for the parameter when the command is executed against the database.
+        /// </param>
+        /// <param name="relationalTypeMapping"> The relational type mapping for this parameter. </param>
+        /// <param name="nullable"> A value indicating whether the parameter could contain a null value. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static IRelationalCommandBuilder AddParameter(
+            [NotNull] this IRelationalCommandBuilder commandBuilder,
+            [NotNull] string invariantName,
+            [NotNull] string name,
+            [NotNull] RelationalTypeMapping relationalTypeMapping,
+            bool? nullable)
+        {
+            Check.NotNull(commandBuilder, nameof(commandBuilder));
+            Check.NotEmpty(invariantName, nameof(invariantName));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(relationalTypeMapping, nameof(relationalTypeMapping));
+
+            return commandBuilder.AddParameter(
+                new TypeMappedRelationalParameter(
+                    invariantName,
+                    name,
+                    relationalTypeMapping,
+                    nullable));
         }
 
         /// <summary>
@@ -262,6 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The property that values for this parameter will come from.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use overload with relationalTypeMapping")]
         public static IRelationalCommandBuilder AddPropertyParameter(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
             [NotNull] string invariantName,

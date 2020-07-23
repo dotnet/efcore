@@ -221,7 +221,7 @@ WHERE [v1].[FuelType] IS NOT NULL AND [v1].[Capacity] IS NOT NULL");
 
             AssertSql(
                 @"@p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
-@p0='LicensedOperator' (Nullable = false) (Size = 4000)
+@p0='LicensedOperator' (Size = 4000)
 @p1='repairman' (Size = 4000)
 @p2='Repair' (Size = 4000)
 

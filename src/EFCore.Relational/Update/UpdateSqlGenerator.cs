@@ -605,14 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private void AppendSqlLiteral(StringBuilder commandStringBuilder, ColumnModification modification, string tableName, string schema)
         {
-            var value = modification.Value;
-            var mapping = modification.Property != null
-                ? (RelationalTypeMapping)modification.Property.GetTypeMapping()
-                : value != null
-                    ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), modification.ColumnType)
-                    : Dependencies.TypeMappingSource.FindMapping(modification.ColumnType);
-
-            if (mapping == null)
+            if (modification.TypeMapping == null)
             {
                 var columnName =  modification.ColumnName;
                 if (tableName != null)
@@ -627,7 +620,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                throw new InvalidOperationException(RelationalStrings.UnsupportedDataOperationStoreType(modification.ColumnType, columnName));
             }
-            commandStringBuilder.Append(mapping.GenerateProviderValueSqlLiteral(value));
+
+            commandStringBuilder.Append(modification.TypeMapping.GenerateProviderValueSqlLiteral(modification.Value));
         }
     }
 }

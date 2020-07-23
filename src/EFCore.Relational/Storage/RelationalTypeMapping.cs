@@ -460,6 +460,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (nullable.HasValue)
             {
+                Check.DebugAssert(nullable.Value || value != null, "Null value in a non-nullable parameter");
+
                 parameter.IsNullable = nullable.Value;
             }
 

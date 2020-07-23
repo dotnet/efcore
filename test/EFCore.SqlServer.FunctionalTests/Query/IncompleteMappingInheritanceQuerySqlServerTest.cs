@@ -376,8 +376,8 @@ WHERE [c].[Id] = 1",
 @p2='Kiwi' (Nullable = false) (Size = 4000)
 @p3='Little spotted kiwi' (Size = 4000)
 @p4=NULL (Size = 100)
-@p5='True'
-@p6='0' (Size = 1)
+@p5='True' (Nullable = true)
+@p6='0' (Nullable = true) (Size = 1)
 
 SET NOCOUNT ON;
 INSERT INTO [Animals] ([Species], [CountryId], [Discriminator], [Name], [EagleId], [IsFlightless], [FoundOn])

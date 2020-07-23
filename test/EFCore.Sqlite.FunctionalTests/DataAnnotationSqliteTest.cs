@@ -151,60 +151,6 @@ WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
             Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
         }
 
-        public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
-        {
-            base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
-
-            AssertSql(
-                @"@p0=NULL
-@p1='1' (DbType = String)
-
-INSERT INTO ""BookDetails"" (""AdditionalBookDetailsId"", ""AnotherBookId"")
-VALUES (@p0, @p1);
-SELECT ""Id""
-FROM ""BookDetails""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
-                //
-                @"@p0=NULL
-@p1=NULL (Nullable = false)
-
-INSERT INTO ""BookDetails"" (""AdditionalBookDetailsId"", ""AnotherBookId"")
-VALUES (@p0, @p1);
-SELECT ""Id""
-FROM ""BookDetails""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
-        }
-
-        public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
-        {
-            base.RequiredAttribute_for_property_throws_while_inserting_null_value();
-
-            AssertSql(
-                @"@p0=NULL
-@p1='ValidString' (Nullable = false) (Size = 11)
-@p2='00000000-0000-0000-0000-000000000001' (DbType = String)
-@p3='Two' (Size = 3)
-@p4='One' (Size = 3)
-
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
-VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT ""UniqueNo""
-FROM ""Sample""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
-                //
-                @"@p0=NULL
-@p1=NULL (Nullable = false)
-@p2='00000000-0000-0000-0000-000000000002' (DbType = String)
-@p3='Two' (Size = 3)
-@p4='One' (Size = 3)
-
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
-VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT ""UniqueNo""
-FROM ""Sample""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
-        }
-
         // Sqlite does not support length
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
         {

@@ -333,19 +333,19 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 new ColumnModification(
                     entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    identityKey, !identityKey, true, false, true),
+                    idProperty.GetTableColumnMappings().Single().TypeMapping, identityKey, !identityKey, true, false, true),
                 new ColumnModification(
                     entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, true, false, false, true),
+                    nameProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
                 new ColumnModification(
                     entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, true, false, false, true),
+                    quacksProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
                 new ColumnModification(
                     entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    isComputed, false, false, false, true),
+                    computedProperty.GetTableColumnMappings().Single().TypeMapping, isComputed, false, false, false, true),
                 new ColumnModification(
                     entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, true, false, false, true)
+                    concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true)
             };
 
             if (defaultsOnly)
@@ -373,19 +373,19 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 new ColumnModification(
                     entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, false, true, true, true),
+                    idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true),
                 new ColumnModification(
                     entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, true, false, false, true),
+                    nameProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
                 new ColumnModification(
                     entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, true, false, false, true),
+                    quacksProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
                 new ColumnModification(
                     entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    isComputed, false, false, false, true),
+                    computedProperty.GetTableColumnMappings().Single().TypeMapping, isComputed, false, false, false, true),
                 new ColumnModification(
                     entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, true, false, concurrencyToken, true)
+                    concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true)
             };
 
             return new FakeModificationCommand(
@@ -405,10 +405,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 new ColumnModification(
                     entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, false, true, true, true),
+                    idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true),
                 new ColumnModification(
                     entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    false, false, false, concurrencyToken, true)
+                    concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true)
             };
 
             return new FakeModificationCommand(

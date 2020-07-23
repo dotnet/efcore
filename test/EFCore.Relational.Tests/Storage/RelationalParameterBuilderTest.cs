@@ -88,7 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameterBuilder.AddParameter(
                 "InvariantName",
                 "Name",
-                property);
+                property.GetRelationalTypeMapping(),
+                property.IsNullable);
 
             Assert.Equal(1, parameterBuilder.Parameters.Count);
 
