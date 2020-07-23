@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return innerSource.PendingSelector;
             }
 
-            static Expression AddConvertToObject(Expression expression)
+            private static Expression AddConvertToObject(Expression expression)
                 => expression.Type.IsValueType
                     ? Expression.Convert(expression, typeof(object))
                     : expression;
