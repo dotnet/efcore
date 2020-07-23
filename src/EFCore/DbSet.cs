@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -42,6 +43,11 @@ namespace Microsoft.EntityFrameworkCore
         : IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
         where TEntity : class
     {
+        /// <summary>
+        ///     The <see cref="IEntityType"/> metadata associated with this set.
+        /// </summary>
+        public virtual IEntityType EntityType => null;
+
         /// <summary>
         ///     <para>
         ///         Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
@@ -552,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Gets a value indicating whether the collection is a collection of System.Collections.IList objects.
-        ///     Always returns <see langword="false"/>. 
+        ///     Always returns <see langword="false"/>.
         /// </summary>
         bool IListSource.ContainsListCollection => false;
 

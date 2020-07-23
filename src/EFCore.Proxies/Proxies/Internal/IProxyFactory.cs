@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         object CreateLazyLoadingProxy(
-            [NotNull] IDbContextOptions dbContextOptions,
+            [NotNull] DbContext context,
             [NotNull] IEntityType entityType,
             [NotNull] ILazyLoader loader,
             [NotNull] object[] constructorArguments);
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         object CreateProxy(
-            [NotNull] IDbContextOptions dbContextOptions,
+            [NotNull] DbContext context,
             [NotNull] IEntityType entityType,
             [NotNull] object[] constructorArguments);
 

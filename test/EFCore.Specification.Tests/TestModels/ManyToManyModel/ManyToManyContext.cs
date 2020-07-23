@@ -25,12 +25,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         public static void Seed(ManyToManyContext context) => ManyToManyData.Seed(context);
 
-        public TEntity CreateInstance<TEntity>(Action<TEntity> configureEntity)
-            where TEntity : new()
+    }
+
+    public static class ManyToManyContextExtensions
+    {
+        public static TEntity CreateInstance<TEntity>(this DbSet<TEntity> set, Action<TEntity> configureEntity)
+            where TEntity : class, new()
         {
-            var entity = this.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>()?.UseChangeTrackingProxies == true
-                    ? this.CreateProxy<TEntity>()
-                    : new TEntity();
+            var entity = set.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>()?.UseChangeTrackingProxies == true
+                ? set.CreateProxy()
+                : new TEntity();
 
             configureEntity(entity);
 

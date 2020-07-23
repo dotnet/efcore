@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Proxies.Internal;
@@ -25,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         private readonly JoinThreeToCompositeKeyFull[] _joinThreeToCompositeKeyFulls;
         private readonly JoinTwoToThree[] _joinTwoToThrees;
 
-        private readonly JoinOneToTwoShared[] _joinOneToTwoShareds;
-        private readonly JoinOneToThreePayloadFullShared[] _joinOneToThreePayloadFullShareds;
-        private readonly JoinTwoSelfShared[] _joinTwoSelfShareds;
+        private readonly Dictionary<string, int>[] _joinOneToTwoShareds;
+        private readonly Dictionary<string, object>[] _joinOneToThreePayloadFullShareds;
+        private readonly Dictionary<string, int>[] _joinTwoSelfShareds;
         private readonly JoinTwoToCompositeKeyShared[] _joinTwoToCompositeKeyShareds;
         private readonly JoinThreeToRootShared[] _joinThreeToRootShareds;
         private readonly JoinCompositeKeyToRootShared[] _joinCompositeKeyToRootShareds;
@@ -167,26 +168,26 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             // Shared join entities
             foreach (var joinEntity in _joinOneToTwoShareds)
             {
-                var one = _ones.First(o => o.Id == joinEntity.OneId);
-                var two = _twos.First(t => t.Id == joinEntity.TwoId);
+                var one = _ones.First(o => o.Id == joinEntity["OneId"]);
+                var two = _twos.First(t => t.Id == joinEntity["TwoId"]);
                 one.TwoSkipShared.Add(two);
                 two.OneSkipShared.Add(one);
             }
 
             foreach (var joinEntity in _joinOneToThreePayloadFullShareds)
             {
-                var one = _ones.First(o => o.Id == joinEntity.OneId);
-                var three = _threes.First(t => t.Id == joinEntity.ThreeId);
+                var one = _ones.First(o => o.Id == (int)joinEntity["OneId"]);
+                var three = _threes.First(t => t.Id == (int)joinEntity["ThreeId"]);
                 one.ThreeSkipPayloadFullShared.Add(three);
-                one.JoinThreePayloadFullShared.Add(joinEntity);
+                //one.JoinThreePayloadFullShared.Add(joinEntity);
                 three.OneSkipPayloadFullShared.Add(one);
-                three.JoinOnePayloadFullShared.Add(joinEntity);
+                //three.JoinOnePayloadFullShared.Add(joinEntity);
             }
 
             foreach (var joinEntity in _joinTwoSelfShareds)
             {
-                var left = _twos.First(o => o.Id == joinEntity.LeftId);
-                var right = _twos.First(t => t.Id == joinEntity.RightId);
+                var left = _twos.First(o => o.Id == joinEntity["LeftId"]);
+                var right = _twos.First(t => t.Id == joinEntity["RightId"]);
                 left.SelfSkipSharedRight.Add(right);
                 right.SelfSkipSharedLeft.Add(left);
             }
@@ -276,9 +277,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             context.Set<JoinThreeToCompositeKeyFull>().AddRange(CreateJoinThreeToCompositeKeyFulls(context));
             context.Set<JoinTwoToThree>().AddRange(CreateJoinTwoToThrees(context));
 
-            context.Set<JoinOneToTwoShared>().AddRange(CreateJoinOneToTwoShareds(context));
-            context.Set<JoinOneToThreePayloadFullShared>().AddRange(CreateJoinOneToThreePayloadFullShareds(context));
-            context.Set<JoinTwoSelfShared>().AddRange(CreateJoinTwoSelfShareds(context));
+            context.Set<Dictionary<string, int>>("JoinOneToTwoShared").AddRange(CreateJoinOneToTwoShareds(context));
+            context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").AddRange(CreateJoinOneToThreePayloadFullShareds(context));
+            context.Set<Dictionary<string, int>>("JoinTwoSelfShared").AddRange(CreateJoinTwoSelfShareds(context));
             context.Set<JoinTwoToCompositeKeyShared>().AddRange(CreateJoinTwoToCompositeKeyShareds(context));
             context.Set<JoinThreeToRootShared>().AddRange(CreateJoinThreeToRootShareds(context));
             context.Set<JoinCompositeKeyToRootShared>().AddRange(CreateJoinCompositeKeyToRootShareds(context));
@@ -312,8 +313,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             };
 
         private static EntityOne CreateEntityOne(ManyToManyContext context, int id, string name)
-            => CreateInstance<EntityOne>(
-                context, e =>
+            => CreateInstance(
+                context?.EntityOnes, e =>
                 {
                     e.Id = id;
                     e.Name = name;
@@ -346,8 +347,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static EntityTwo CreateEntityTwo(
             ManyToManyContext context, int id, string name, int? referenceInverseId, int? collectionInverseId)
-            => CreateInstance<EntityTwo>(
-                context, e =>
+            => CreateInstance(
+                context?.EntityTwos, e =>
                 {
                     e.Id = id;
                     e.Name = name;
@@ -383,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         private static EntityThree CreateEntityThree(
             ManyToManyContext context, int id, string name, int? referenceInverseId, int? collectionInverseId)
             => CreateInstance<EntityThree>(
-                context, e =>
+                context?.EntityThrees, e =>
                 {
                     e.Id = id;
                     e.Name = name;
@@ -419,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         private static EntityCompositeKey CreateEntityCompositeKey(
             ManyToManyContext context, int key1, string key2, DateTime key3, string name)
             => CreateInstance<EntityCompositeKey>(
-                context, e =>
+                context?.EntityCompositeKeys, e =>
                 {
                     e.Key1 = key1;
                     e.Key2 = key2;
@@ -455,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         private static EntityRoot CreateEntityRoot(
             ManyToManyContext context, int id, string name)
             => CreateInstance<EntityRoot>(
-                context, e =>
+                context?.EntityRoots, e =>
                 {
                     e.Id = id;
                     e.Name = name;
@@ -463,8 +464,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static EntityBranch CreateEntityBranch(
             ManyToManyContext context, int id, string name, long number)
-            => CreateInstance<EntityBranch>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<EntityBranch>(), e =>
                 {
                     e.Id = id;
                     e.Name = name;
@@ -473,8 +474,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static EntityLeaf CreateEntityLeaf(
             ManyToManyContext context, int id, string name, long number, bool? isGreen)
-            => CreateInstance<EntityLeaf>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<EntityLeaf>(), e =>
                 {
                     e.Id = id;
                     e.Name = name;
@@ -520,8 +521,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinCompositeKeyToLeaf CreateJoinCompositeKeyToLeaf(
             ManyToManyContext context, int leafId, int compositeId1, string compositeId2, DateTime compositeId3)
-            => CreateInstance<JoinCompositeKeyToLeaf>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinCompositeKeyToLeaf>(), e =>
                 {
                     e.LeafId = leafId;
                     e.CompositeId1 = compositeId1;
@@ -565,8 +566,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinOneSelfPayload CreateJoinOneSelfPayload(
             ManyToManyContext context, int leftId, int rightId, DateTime payload)
-            => CreateInstance<JoinOneSelfPayload>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinOneSelfPayload>(), e =>
                 {
                     e.LeftId = leftId;
                     e.RightId = rightId;
@@ -627,8 +628,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinOneToBranch CreateJoinOneToBranch(
             ManyToManyContext context, int oneId, int branchId)
-            => CreateInstance<JoinOneToBranch>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinOneToBranch>(), e =>
                 {
                     e.OneId = oneId;
                     e.BranchId = branchId;
@@ -756,8 +757,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinOneToThreePayloadFull CreateJoinOneToThreePayloadFull(
             ManyToManyContext context, int oneId, int threeId, string payload)
-            => CreateInstance<JoinOneToThreePayloadFull>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinOneToThreePayloadFull>(), e =>
                 {
                     e.OneId = oneId;
                     e.ThreeId = threeId;
@@ -883,8 +884,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinOneToTwo CreateJoinOneToTwo(
             ManyToManyContext context, int oneId, int twoId)
-            => CreateInstance<JoinOneToTwo>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinOneToTwo>(), e =>
                 {
                     e.OneId = oneId;
                     e.TwoId = twoId;
@@ -942,8 +943,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinThreeToCompositeKeyFull CreateJoinThreeToCompositeKeyFull(
             ManyToManyContext context, int threeId, int compositeId1, string compositeId2, DateTime compositeId3)
-            => CreateInstance<JoinThreeToCompositeKeyFull>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinThreeToCompositeKeyFull>(), e =>
                 {
                     e.ThreeId = threeId;
                     e.CompositeId1 = compositeId1;
@@ -1010,14 +1011,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinTwoToThree CreateJoinTwoToThree(
             ManyToManyContext context, int twoId, int threeId)
-            => CreateInstance<JoinTwoToThree>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinTwoToThree>(), e =>
                 {
                     e.TwoId = twoId;
                     e.ThreeId = threeId;
                 });
 
-        private static JoinOneToTwoShared[] CreateJoinOneToTwoShareds(ManyToManyContext context)
+        private static Dictionary<string, int>[] CreateJoinOneToTwoShareds(ManyToManyContext context)
             => new[]
             {
                 CreateJoinOneToTwoShared(context, 1,  3),
@@ -1067,16 +1068,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 CreateJoinOneToTwoShared(context, 19, 14 )
             };
 
-        private static JoinOneToTwoShared CreateJoinOneToTwoShared(
+        private static Dictionary<string, int> CreateJoinOneToTwoShared(
             ManyToManyContext context, int oneId, int twoId)
-            => CreateInstance<JoinOneToTwoShared>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<Dictionary<string, int>>("JoinOneToTwoShared"), e =>
                 {
-                    e.OneId = oneId;
-                    e.TwoId = twoId;
+                    e["OneId"] = oneId;
+                    e["TwoId"] = twoId;
                 });
 
-        private static JoinOneToThreePayloadFullShared[] CreateJoinOneToThreePayloadFullShareds(ManyToManyContext context)
+        private static Dictionary<string, object>[] CreateJoinOneToThreePayloadFullShareds(ManyToManyContext context)
             => new[]
             {
                 CreateJoinOneToThreePayloadFullShared(context, 3, 1, "Capbrough"),
@@ -1121,17 +1122,17 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 CreateJoinOneToThreePayloadFullShared(context, 20, 16, "Bayburgh Hills")
             };
 
-        private static JoinOneToThreePayloadFullShared CreateJoinOneToThreePayloadFullShared(
+        private static Dictionary<string, object> CreateJoinOneToThreePayloadFullShared(
             ManyToManyContext context, int oneId, int threeId, string payload)
-            => CreateInstance<JoinOneToThreePayloadFullShared>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared"), e =>
                 {
-                    e.OneId = oneId;
-                    e.ThreeId = threeId;
-                    e.Payload = payload;
+                    e["OneId"] = oneId;
+                    e["ThreeId"] = threeId;
+                    e["Payload"] = payload;
                 });
 
-        private static JoinTwoSelfShared[] CreateJoinTwoSelfShareds(ManyToManyContext context)
+        private static Dictionary<string, int>[] CreateJoinTwoSelfShareds(ManyToManyContext context)
             => new[]
             {
                 CreateJoinTwoSelfShared(context, 1, 9),
@@ -1170,13 +1171,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 CreateJoinTwoSelfShared(context, 20, 4)
             };
 
-        private static JoinTwoSelfShared CreateJoinTwoSelfShared(
+        private static Dictionary<string, int> CreateJoinTwoSelfShared(
             ManyToManyContext context, int leftId, int rightId)
-            => CreateInstance<JoinTwoSelfShared>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<Dictionary<string, int>>("JoinTwoSelfShared"), e =>
                 {
-                    e.LeftId = leftId;
-                    e.RightId = rightId;
+                    e["LeftId"] = leftId;
+                    e["RightId"] = rightId;
                 });
 
         private static JoinTwoToCompositeKeyShared[] CreateJoinTwoToCompositeKeyShareds(ManyToManyContext context)
@@ -1222,8 +1223,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinTwoToCompositeKeyShared CreateJoinTwoToCompositeKeyShared(
             ManyToManyContext context, int twoId, int compositeId1, string compositeId2, DateTime compositeId3)
-            => CreateInstance<JoinTwoToCompositeKeyShared>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinTwoToCompositeKeyShared>(), e =>
                 {
                     e.TwoId = twoId;
                     e.CompositeId1 = compositeId1;
@@ -1267,8 +1268,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinThreeToRootShared CreateJoinThreeToRootShared(
             ManyToManyContext context, int threeId, int rootId)
-            => CreateInstance<JoinThreeToRootShared>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinThreeToRootShared>(), e =>
                 {
                     e.ThreeId = threeId;
                     e.RootId = rootId;
@@ -1320,8 +1321,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
         private static JoinCompositeKeyToRootShared CreateJoinCompositeKeyToRootShared(
             ManyToManyContext context, int rootId, int compositeId1, string compositeId2, DateTime compositeId3)
-            => CreateInstance<JoinCompositeKeyToRootShared>(
-                context, e =>
+            => CreateInstance(
+                context?.Set<JoinCompositeKeyToRootShared>(), e =>
                 {
                     e.RootId = rootId;
                     e.CompositeId1 = compositeId1;
@@ -1329,12 +1330,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                     e.CompositeId3 = compositeId3;
                 });
 
-        private static TEntity CreateInstance<TEntity>(ManyToManyContext context, Action<TEntity> configureEntity)
-            where TEntity : new()
+        private static TEntity CreateInstance<TEntity>(DbSet<TEntity> set, Action<TEntity> configureEntity)
+            where TEntity : class, new()
         {
-            if (context != null)
+            if (set != null)
             {
-                return context.CreateInstance(configureEntity);
+                return set.CreateInstance(configureEntity);
             }
 
             var entity = new TEntity();

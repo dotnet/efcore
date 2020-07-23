@@ -43,25 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entityClrType.ShortDisplayName()));
             }
 
-            var options = context.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
-            if (options == null)
-            {
-                throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
-            }
-
-            if (options.UseLazyLoadingProxies)
-            {
-                return CreateLazyLoadingProxy(
-                    options,
-                    entityType,
-                    context.GetService<ILazyLoader>(),
-                    constructorArguments);
-            }
-
-            return CreateProxy(
-                options,
-                entityType,
-                constructorArguments);
+            return CreateProxy(context, entityType, constructorArguments);
         }
 
         /// <summary>
@@ -85,12 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual object CreateLazyLoadingProxy(
-            IDbContextOptions dbContextOptions,
+            DbContext context,
             IEntityType entityType,
             ILazyLoader loader,
             object[] constructorArguments)
         {
-            var options = dbContextOptions.FindExtension<ProxiesOptionsExtension>();
+            var options = context.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
             if (options == null)
             {
                 throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
@@ -99,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             return CreateLazyLoadingProxy(
                 options,
                 entityType,
-                loader,
+                context.GetService<ILazyLoader>(),
                 constructorArguments);
         }
 
@@ -122,14 +104,23 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual object CreateProxy(
-            IDbContextOptions dbContextOptions,
+            DbContext context,
             IEntityType entityType,
             object[] constructorArguments)
         {
-            var options = dbContextOptions.FindExtension<ProxiesOptionsExtension>();
+            var options = context.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
             if (options == null)
             {
                 throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
+            }
+
+            if (options.UseLazyLoadingProxies)
+            {
+                return CreateLazyLoadingProxy(
+                    options,
+                    entityType,
+                    context.GetService<ILazyLoader>(),
+                    constructorArguments);
             }
 
             return CreateProxy(

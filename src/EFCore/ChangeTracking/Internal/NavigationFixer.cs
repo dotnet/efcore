@@ -942,6 +942,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     new MaterializationContext(ValueBuffer.Empty, entry.StateManager.Context));
 
                 associationEntry = entry.StateManager.GetOrCreateEntry(associationEntity, associationEntityType);
+
+                foreach (var property in associationEntityType.GetProperties()) // Remove when #21720 is implemented
+                {
+                    if (property.IsIndexerProperty())
+                    {
+                        ((PropertyBase)property).Setter.SetClrValue(associationEntity, property.ClrType.GetDefaultValue());
+                    }
+                }
             }
 
             SetForeignKeyProperties(associationEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
