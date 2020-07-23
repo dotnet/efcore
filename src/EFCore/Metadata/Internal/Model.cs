@@ -848,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string AddOwned([NotNull] Type clrType, ConfigurationSource configurationSource)
+        public virtual void AddOwned([NotNull] Type clrType, ConfigurationSource configurationSource)
         {
             var name = GetDisplayName(clrType);
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
@@ -860,12 +860,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (ownedTypes.TryGetValue(name, out var oldConfigurationSource))
             {
                 ownedTypes[name] = configurationSource.Max(oldConfigurationSource);
-                return name;
+                return;
             }
 
             ownedTypes.Add(name, configurationSource);
-
-            return name;
         }
 
         /// <summary>
@@ -891,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type AddShared([NotNull] Type clrType, ConfigurationSource configurationSource)
+        public virtual void AddShared([NotNull] Type clrType, ConfigurationSource configurationSource)
         {
             if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == clrType))
             {
@@ -906,8 +904,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 _sharedEntityClrTypes.Add(clrType, configurationSource);
             }
-
-            return clrType;
         }
 
         /// <summary>

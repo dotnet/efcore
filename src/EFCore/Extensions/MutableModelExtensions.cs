@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -227,8 +227,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to add the owned type to. </param>
         /// <param name="clrType"> The type of the entity type that should be owned. </param>
-        /// <returns> The name of the ignored type. </returns>
-        public static string AddOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
+        public static void AddOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
             => Check.NotNull((Model)model, nameof(model)).AddOwned(
                 Check.NotNull(clrType, nameof(clrType)), ConfigurationSource.Explicit);
 
@@ -242,6 +241,16 @@ namespace Microsoft.EntityFrameworkCore
         public static string RemoveOwned([NotNull] this IMutableModel model, [NotNull] Type clrType)
             => Check.NotNull((Model)model, nameof(model)).RemoveOwned(
                 Check.NotNull(clrType, nameof(clrType)));
+
+        /// <summary>
+        ///     Marks the given entity type as shared, indicating that when discovered matching entity types
+        ///     should be configured as shared type entity type.
+        /// </summary>
+        /// <param name="model"> The model to add the shared type to. </param>
+        /// <param name="clrType"> The type of the entity type that should be shared. </param>
+        public static void AddShared([NotNull] this IMutableModel model, [NotNull] Type clrType)
+            => Check.NotNull((Model)model, nameof(model)).AddShared(
+                Check.NotNull(clrType, nameof(clrType)), ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Forces post-processing on the model such that it is ready for use by the runtime. This post

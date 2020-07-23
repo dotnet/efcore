@@ -138,7 +138,11 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),
                 typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.AddAnnotations)),
                 typeof(MutableAnnotatableExtensions).GetMethod(nameof(MutableAnnotatableExtensions.AddAnnotations)),
-                typeof(IConventionModel).GetMethod(nameof(IConventionModel.IsShared))
+                typeof(IConventionModel).GetMethod(nameof(IConventionModel.IsShared)),
+                typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
+                typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
+                typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
+                typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared))
             };
         }
     }
