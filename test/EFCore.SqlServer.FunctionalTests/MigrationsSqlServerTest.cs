@@ -502,7 +502,8 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
-ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(max) NOT NULL;");
+ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(max) NOT NULL;
+ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];");
         }
 
         [ConditionalFact]
@@ -519,6 +520,7 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(450) NOT NULL;
+ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
 CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]);");
         }
 
@@ -536,6 +538,7 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;
+ALTER TABLE [People] ADD DEFAULT N'' FOR [FirstName];
 CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]);");
         }
 
@@ -662,6 +665,37 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) COLLATE German_PhoneBook_
         }
 
         [ConditionalFact]
+        public virtual async Task Alter_column_set_collation_with_index()
+        {
+            await Test(
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<string>("Name");
+                        e.HasIndex("Name");
+                    }),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .UseCollation(NonDefaultCollation),
+                model =>
+                {
+                    var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                    Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                });
+
+            AssertSql(
+                @"DROP INDEX [IX_People_Name] ON [People];
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) COLLATE German_PhoneBook_CI_AS NULL;
+CREATE INDEX [IX_People_Name] ON [People] ([Name]);");
+        }
+
+        [ConditionalFact]
         public override async Task Alter_column_reset_collation()
         {
             await base.Alter_column_reset_collation();
@@ -711,6 +745,7 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(450) NOT NULL;
+ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
 CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOtherColumn]);");
         }
 
@@ -1470,7 +1505,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
         public virtual async Task Add_primary_key_nonclustered()
         {
             await Test(
-                builder => builder.Entity("People").Property<string>("SomeField"),
+                builder => builder.Entity("People").Property<string>("SomeField").IsRequired().HasMaxLength(450),
                 builder => { },
                 builder => builder.Entity("People").HasKey("SomeField").IsClustered(false),
                 model =>
@@ -1482,14 +1517,6 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 });
 
             AssertSql(
-                @"DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
-ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
-                //
                 @"ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([SomeField]);");
         }
 

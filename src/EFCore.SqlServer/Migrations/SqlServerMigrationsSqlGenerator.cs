@@ -283,7 +283,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         operation.Name,
                         operation.OldColumn,
                         model);
-                narrowed = type != oldType || !operation.IsNullable && operation.OldColumn.IsNullable;
+                narrowed = type != oldType
+                    || operation.Collation != operation.OldColumn.Collation
+                    || !operation.IsNullable && operation.OldColumn.IsNullable;
             }
 
             if (narrowed)

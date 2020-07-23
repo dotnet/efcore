@@ -1011,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 Initialize(
                     alterColumnOperation, target, targetTypeMapping,
-                    target.IsNullable, targetMigrationsAnnotations, inline: true);
+                    target.IsNullable, targetMigrationsAnnotations, inline: !source.IsNullable);
 
                 Initialize(
                     alterColumnOperation.OldColumn, source, sourceTypeMapping,

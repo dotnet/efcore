@@ -1913,6 +1913,48 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Alter_column_nullability_to_required()
+        {
+            Execute(
+                source => source.Entity(
+                    "Bison",
+                    x =>
+                    {
+                        x.ToTable("Bison", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnType("nvarchar(30)")
+                            .IsRequired(false)
+                            .HasDefaultValueSql("CreateBisonName()");
+                    }),
+                target => target.Entity(
+                    "Bison",
+                    x =>
+                    {
+                        x.ToTable("Bison", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnType("nvarchar(30)")
+                            .IsRequired()
+                            .HasDefaultValueSql("CreateBisonName()");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Bison", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(30)", operation.ColumnType);
+                    Assert.False(operation.IsNullable);
+                    Assert.Equal(string.Empty, operation.DefaultValue);
+                    Assert.Equal("CreateBisonName()", operation.DefaultValueSql);
+                });
+        }
+
+        [ConditionalFact]
         public void Alter_column_type()
         {
             Execute(
