@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameConcurrencyTokenMismatch(
-                    nameof(Animal), "_TableSharingConcurrencyTokenConvention_Breed",
+                    nameof(Cat), nameof(Cat.Breed),
                     nameof(Dog), nameof(Dog.Breed),
                     nameof(Cat.Breed), nameof(Animal)),
                 modelBuilder.Model);
@@ -1115,7 +1115,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Cat>()
                 .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
 
-            Validate(modelBuilder.Model);
+            var model = Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Passes_with_missing_concurrency_token_property_on_the_base_type_when_derived_is_sharing()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Person>().ToTable(nameof(Animal))
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Animal>().Ignore(p => p.FavoritePerson);
+            modelBuilder.Entity<Cat>().HasOne<Person>().WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Cat>()
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+
+            var model = Validate(modelBuilder.Model);
+
+            var animalType = model.FindEntityType(typeof(Animal));
+            Assert.Empty(animalType.GetProperties().Where(p => p.IsConcurrencyToken));
         }
 
         [ConditionalFact]

@@ -3445,8 +3445,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (principalKey == null)
                 {
                     var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
-                        dependentProperties.Count, null, Enumerable.Repeat("", dependentProperties.Count),
-                        dependentProperties.Select(p => p.ClrType), isRequired: true, baseName: "TempId").Item2;
+                        dependentProperties.Count, null, dependentProperties.Select(p => p.ClrType),
+                        Enumerable.Repeat("", dependentProperties.Count), isRequired: true, baseName: "TempId").Item2;
 
                     principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(principalKeyProperties, ConfigurationSource.Convention)
                         .Metadata;
@@ -3464,7 +3464,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (principalKey == null)
                 {
                     var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
-                        1, null, new[] { "TempId" }, new[] { typeof(int) }, isRequired: true, baseName: "").Item2;
+                        1, null, new[] { typeof(int) }, new[] { "TempId" }, isRequired: true, baseName: "").Item2;
 
                     principalKey = principalBaseEntityTypeBuilder.HasKeyInternal(
                         principalKeyProperties, ConfigurationSource.Convention).Metadata;
@@ -3710,13 +3710,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool ShouldReuniquifyTemporaryProperties([NotNull] ForeignKey foreignKey)
             => TryCreateUniqueProperties(
-                    foreignKey.PrincipalKey.Properties.Count,
-                    foreignKey.Properties,
-                    foreignKey.PrincipalKey.Properties.Select(p => p.Name),
-                    foreignKey.PrincipalKey.Properties.Select(p => p.ClrType),
-                    foreignKey.IsRequired
+                foreignKey.PrincipalKey.Properties.Count,
+                foreignKey.Properties,
+                foreignKey.PrincipalKey.Properties.Select(p => p.ClrType),
+                foreignKey.PrincipalKey.Properties.Select(p => p.Name),
+                foreignKey.IsRequired
                     && foreignKey.GetIsRequiredConfigurationSource().Overrides(ConfigurationSource.Convention),
-                    foreignKey.DependentToPrincipal?.Name ?? foreignKey.PrincipalEntityType.ShortName())
+                foreignKey.DependentToPrincipal?.Name ?? foreignKey.PrincipalEntityType.ShortName())
                 .Item1;
 
         /// <summary>
@@ -3725,14 +3725,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Property CreateUniqueProperty(
-            [NotNull] string propertyName,
+        public virtual InternalPropertyBuilder CreateUniqueProperty(
             [NotNull] Type propertyType,
-            bool isRequired)
+            [NotNull] string propertyName,
+            bool required)
             => CreateUniqueProperties(
-                new[] { propertyName },
                 new[] { propertyType },
-                isRequired).First();
+                new[] { propertyName },
+                required).First().Builder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3741,14 +3741,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IReadOnlyList<Property> CreateUniqueProperties(
-            [NotNull] IReadOnlyList<string> propertyNames,
             [NotNull] IReadOnlyList<Type> propertyTypes,
+            [NotNull] IReadOnlyList<string> propertyNames,
             bool isRequired)
             => TryCreateUniqueProperties(
                 propertyNames.Count,
                 null,
-                propertyNames,
                 propertyTypes,
+                propertyNames,
                 isRequired,
                 "").Item2;
 
@@ -3760,16 +3760,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => TryCreateUniqueProperties(
                 principalProperties.Count,
                 currentProperties,
-                principalProperties.Select(p => p.Name),
                 principalProperties.Select(p => p.ClrType),
+                principalProperties.Select(p => p.Name),
                 isRequired,
                 baseName).Item2;
 
         private (bool, IReadOnlyList<Property>) TryCreateUniqueProperties(
             int propertyCount,
             IReadOnlyList<Property> currentProperties,
-            IEnumerable<string> principalPropertyNames,
             IEnumerable<Type> principalPropertyTypes,
+            IEnumerable<string> principalPropertyNames,
             bool isRequired,
             string baseName)
         {
@@ -5042,5 +5042,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         bool IConventionEntityTypeBuilder.CanRemoveDiscriminator(bool fromDataAnnotation)
             => CanRemoveDiscriminator(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionPropertyBuilder IConventionEntityTypeBuilder.CreateUniqueProperty(Type propertyType, string basePropertyName, bool required)
+            => CreateUniqueProperty(propertyType, basePropertyName, required);
     }
 }

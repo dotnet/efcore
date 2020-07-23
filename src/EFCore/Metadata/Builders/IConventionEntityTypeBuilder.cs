@@ -76,6 +76,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionPropertyBuilder Property([NotNull] MemberInfo memberInfo, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Creates a property with a name that's different from any existing properties.
+        /// </summary>
+        /// <param name="basePropertyName"> The desired property name. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="required"> A value indicating whether the property is required. </param>
+        /// <returns>
+        ///     An object that can be used to configure the property if it exists on the entity type,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionPropertyBuilder CreateUniqueProperty([NotNull] Type propertyType, [NotNull] string basePropertyName, bool required);
+
+        /// <summary>
         ///     Returns the existing properties with the given names or creates them if matching CLR members are found.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties. </param>
