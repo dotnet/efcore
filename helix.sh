@@ -2,7 +2,7 @@
 
 # This command sends helix test job from local machine
 
-export BUILD_SOURCEBRANCH="master"
+export BUILD_SOURCEBRANCH="main"
 export BUILD_REPOSITORY_NAME="efcore"
 export SYSTEM_TEAMPROJECT="public"
 export BUILD_REASON="test"
