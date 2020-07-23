@@ -4,8 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -26,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IModel model,
             [NotNull] string contextName,
             [NotNull] string connectionString,
-            [CanBeNull] string? contextNamespace,
+            [CanBeNull] string contextNamespace,
             [NotNull] string modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning,

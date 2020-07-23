@@ -3,8 +3,6 @@
 
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
@@ -17,6 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="language"> The programming language. </param>
         /// <returns> The <see cref="IModelCodeGenerator" />. </returns>
-        IModelCodeGenerator Select([CanBeNull] string? language);
+        IModelCodeGenerator Select([CanBeNull] string language);
     }
 }

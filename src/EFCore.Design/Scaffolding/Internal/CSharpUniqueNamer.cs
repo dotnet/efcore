@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -28,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public CSharpUniqueNamer(
             [NotNull] Func<T, string> nameGetter,
             [NotNull] ICSharpUtilities cSharpUtilities,
-            [CanBeNull] Func<string, string>? singularizePluralizer)
+            [CanBeNull] Func<string, string> singularizePluralizer)
             : this(nameGetter, null, cSharpUtilities, singularizePluralizer)
         {
         }
@@ -41,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public CSharpUniqueNamer(
             [NotNull] Func<T, string> nameGetter,
-            [CanBeNull] IEnumerable<string>? usedNames,
+            [CanBeNull] IEnumerable<string> usedNames,
             [NotNull] ICSharpUtilities cSharpUtilities,
-            [CanBeNull] Func<string, string>? singularizePluralizer)
+            [CanBeNull] Func<string, string> singularizePluralizer)
             : base(nameGetter, cSharpUtilities, singularizePluralizer)
         {
             if (usedNames != null)

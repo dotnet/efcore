@@ -16,8 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -118,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
-            var modelConnectionString = (string?)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);
+            var modelConnectionString = (string)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);
             if (!string.IsNullOrEmpty(modelConnectionString))
             {
                 codeOptions.ConnectionString = modelConnectionString;
