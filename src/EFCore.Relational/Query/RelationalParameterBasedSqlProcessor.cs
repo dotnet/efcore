@@ -20,9 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalParameterBasedSqlProcessor
     {
-        private readonly SqlNullabilityProcessor _sqlNullabilityProcessor;
-        private readonly FromSqlParameterExpandingExpressionVisitor _fromSqlParameterExpandingExpressionVisitor;
-
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryTranslationPostprocessor" /> class.
         /// </summary>
@@ -36,9 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Dependencies = dependencies;
             UseRelationalNulls = useRelationalNulls;
-
-            _sqlNullabilityProcessor = new SqlNullabilityProcessor(dependencies, useRelationalNulls);
-            _fromSqlParameterExpandingExpressionVisitor = new FromSqlParameterExpandingExpressionVisitor(dependencies);
         }
 
         /// <summary>
@@ -88,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
-            return _sqlNullabilityProcessor.Process(selectExpression, parametersValues, out canCache);
+            return new SqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
         }
 
         /// <summary>
@@ -104,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
-            return _fromSqlParameterExpandingExpressionVisitor.Expand(selectExpression, parametersValues, out canCache);
+            return new FromSqlParameterExpandingExpressionVisitor(Dependencies).Expand(selectExpression, parametersValues, out canCache);
         }
     }
 }
