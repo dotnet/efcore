@@ -107,10 +107,6 @@ stages:
             pool:
               vmImage: macOS-10.14
             steps:
-              # HACK: Use an older version to work around #16667
-              - bash: brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/835ae521c065524abdf66578e68032fa24bce514/Formula/libspatialite.rb
-                displayName: Install SpatiaLite
-                continueOnError: true
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - task: Bash@3
                   displayName: Setup Private Feeds Credentials
