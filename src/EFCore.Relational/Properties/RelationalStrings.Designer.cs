@@ -1026,6 +1026,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string CustomQueryMappingOnOwner
             => GetString("CustomQueryMappingOnOwner");
 
+        /// <summary>
+        ///     Nullability information should only be specified for scalar database functions.
+        /// </summary>
+        public static string NullabilityInfoOnlyAllowedOnScalarFunctions
+            => GetString("NullabilityInfoOnlyAllowedOnScalarFunctions");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

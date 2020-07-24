@@ -122,6 +122,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IConventionDbFunctionBuilder IsNullable(bool nullable, ConfigurationSource configurationSource)
+        {
+            if (CanSetIsNullable(nullable, configurationSource))
+            {
+                Metadata.SetIsNullable(nullable, configurationSource);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetIsNullable(bool nullable, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(Metadata.GetIsNullableConfigurationSource())
+                || Metadata.IsNullable == nullable;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IConventionDbFunctionBuilder HasStoreType([CanBeNull] string storeType, ConfigurationSource configurationSource)
         {
             if (CanSetStoreType(storeType, configurationSource))
@@ -254,6 +281,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         [DebuggerStepThrough]
         bool IConventionDbFunctionBuilder.CanSetIsBuiltIn(bool builtIn, bool fromDataAnnotation)
             => CanSetIsBuiltIn(builtIn, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionDbFunctionBuilder IConventionDbFunctionBuilder.IsNullable(bool nullable, bool fromDataAnnotation)
+            => IsNullable(nullable, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        bool IConventionDbFunctionBuilder.CanSetIsNullable(bool nullable, bool fromDataAnnotation)
+            => CanSetIsNullable(nullable, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]

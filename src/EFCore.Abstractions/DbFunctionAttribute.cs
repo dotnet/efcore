@@ -17,9 +17,12 @@ namespace Microsoft.EntityFrameworkCore
     public class DbFunctionAttribute : Attribute
 #pragma warning restore CA1813 // Avoid unsealed attributes
     {
+        private static readonly bool DefaultNullable = true;
+
         private string _name;
         private string _schema;
         private bool _builtIn;
+        private bool? _nullable;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbFunctionAttribute" /> class.
@@ -68,12 +71,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     The value indicating wheather the database function is built-in or not.
+        ///     The value indicating whether the database function is built-in or not.
         /// </summary>
         public virtual bool IsBuiltIn
         {
             get => _builtIn;
             set => _builtIn = value;
         }
+
+        /// <summary>
+        ///     The value indicating whether the database function can return null result or not.
+        /// </summary>
+        public virtual bool IsNullable
+        {
+            get => _nullable ?? DefaultNullable;
+            set => _nullable = value;
+        }
+
+        /// <summary>
+        ///     Use this method if you want to know the nullability of
+        ///     the database function or <see langword="null"/> if it was not specified.
+        /// </summary>
+        public bool? GetIsNullable() => _nullable;
     }
 }

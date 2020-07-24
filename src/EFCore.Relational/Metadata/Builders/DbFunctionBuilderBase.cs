@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Marks whether the database function is built-in.
         /// </summary>
-        /// <param name="builtIn"> The value indicating wheather the database function is built-in. </param>
+        /// <param name="builtIn"> The value indicating whether the database function is built-in. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilderBase IsBuiltIn(bool builtIn = true)
         {

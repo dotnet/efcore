@@ -172,6 +172,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             [DbFunction(Schema = "dbo")]
             public static string IdentityString(string s) => throw new Exception();
 
+            public static string IdentityStringPropagateNull(string s) => throw new Exception();
+
+            [DbFunction(IsNullable = false)]
+            public static string IdentityStringNonNullable(string s) => throw new Exception();
+
+            public static string IdentityStringNonNullableFluent(string s) => throw new Exception();
+
+            public string StringLength(string s) => throw new Exception();
+
             public int AddValues(int a, int b)
             {
                 throw new NotImplementedException();
@@ -242,6 +251,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), new[] { typeof(int), typeof(int) }));
 
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringPropagateNull), new[] { typeof(string) }))
+                    .HasParameter("s").PropagatesNullability();
+
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), new[] { typeof(string) }))
+                    .IsNullable(false);
+
                 //Instance
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountInstance)))
                     .HasName("CustomerOrderCount");
@@ -263,6 +278,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.HasDbFunction(methodInfo2).HasName("len").IsBuiltIn();
 
                 modelBuilder.Entity<MultProductOrders>().ToTable("MultProductOrders").HasKey(mpo => mpo.OrderId);
+
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StringLength), new[] { typeof(string) }))
+                    .HasParameter("s").PropagatesNullability();
 
                 //Table
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), new[] { typeof(int) }));
@@ -818,6 +836,59 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .FirstOrDefault();
 
             Assert.Equal("Customer", result);
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_function_without_null_propagation_to_null()
+        {
+            using var context = CreateContext();
+
+            var result = context.Customers
+                .OrderBy(c => c.Id)
+                .Where(c => UDFSqlContext.IdentityString(c.FirstName) != null)
+                .ToList();
+
+            Assert.Equal(4, result.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_function_with_null_propagation_to_null()
+        {
+            using var context = CreateContext();
+
+            var result = context.Customers
+                .OrderBy(c => c.Id)
+                .Where(c => UDFSqlContext.IdentityStringPropagateNull(c.FirstName) != null)
+                .ToList();
+
+            Assert.Equal(4, result.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_non_nullable_function_to_null_gets_optimized()
+        {
+            using var context = CreateContext();
+
+            var result = context.Customers
+                .OrderBy(c => c.Id)
+                .Where(c => UDFSqlContext.IdentityStringNonNullable(c.FirstName) != null
+                    && UDFSqlContext.IdentityStringNonNullableFluent(c.FirstName) != null)
+                .ToList();
+
+            Assert.Equal(4, result.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Compare_functions_returning_int_that_take_nullable_param_which_propagates_null()
+        {
+            using var context = CreateContext();
+
+            var result = context.Customers
+                .OrderBy(c => c.Id)
+                .Where(c => context.StringLength(c.FirstName) != context.StringLength(c.LastName))
+                .ToList();
+
+            Assert.Equal(4, result.Count);
         }
 
         [ConditionalFact]
@@ -1947,8 +2018,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var customers = (from t in context.Set<CustomerData>()
-                                orderby t.FirstName
-                                select t).ToList();
+                                 orderby t.FirstName
+                                 select t).ToList();
 
                 Assert.Equal(4, customers.Count);
             }
@@ -1961,9 +2032,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var prm = default(string);
                 var query = (from c in context.Customers
-                              from r in context.GetCustomerOrderCountByYearOnlyFrom2000(c.Id, c.LastName != prm)
-                              orderby r.Year
-                              select r
+                             from r in context.GetCustomerOrderCountByYearOnlyFrom2000(c.Id, c.LastName != prm)
+                             orderby r.Year
+                             select r
                              ).ToList();
 
                 Assert.Equal(4, query.Count);
@@ -1996,9 +2067,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ClearLog();
 
                 var query = (from a in context.Addresses
-                              from r in context.GetCustomerOrderCountByYearOnlyFrom2000(1, a.City == a.State)
-                              orderby a.Id, r.Year
-                              select r
+                             from r in context.GetCustomerOrderCountByYearOnlyFrom2000(1, a.City == a.State)
+                             orderby a.Id, r.Year
+                             select r
                              ).ToList();
 
                 Assert.Equal(expected.Count, query.Count);

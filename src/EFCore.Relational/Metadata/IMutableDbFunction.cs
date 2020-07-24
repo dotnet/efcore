@@ -26,9 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Gets or sets the value indicating wheather the database function is built-in or not.
+        ///     Gets or sets the value indicating whether the database function is built-in or not.
         /// </summary>
         new bool IsBuiltIn { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the value indicating whether the database function can return null value or not.
+        /// </summary>
+        new bool IsNullable { get; set; }
 
         /// <summary>
         ///     Gets or sets the store type of the function in the database.

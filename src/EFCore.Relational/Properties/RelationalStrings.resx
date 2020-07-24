@@ -729,4 +729,7 @@
   <data name="CustomQueryMappingOnOwner" xml:space="preserve">
     <value>Using 'FromSqlRaw' or 'FromSqlInterpolated' on an entity type which has owned reference navigations sharing same table is not supported.</value>
   </data>
+  <data name="NullabilityInfoOnlyAllowedOnScalarFunctions" xml:space="preserve">
+    <value>Nullability information should only be specified for scalar database functions.</value>
+  </data>
 </root>

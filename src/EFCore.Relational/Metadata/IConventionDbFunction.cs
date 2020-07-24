@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource? GetSchemaConfigurationSource();
 
         /// <summary>
-        ///     Sets the value indicating wheather the database function is built-in or not.
+        ///     Sets the value indicating whether the database function is built-in or not.
         /// </summary>
         /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -73,6 +73,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The configuration source for <see cref="IDbFunction.IsBuiltIn" />. </returns>
         ConfigurationSource? GetIsBuiltInConfigurationSource();
+
+        /// <summary>
+        ///     Sets the value indicating whether the database function can return null value or not.
+        /// </summary>
+        /// <param name="nullable"> The value indicating whether the database function can return null value or not. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        bool SetIsNullable(bool nullable, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Gets the configuration source for <see cref="IDbFunction.IsNullable" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IDbFunction.IsNullable" />. </returns>
+        ConfigurationSource? GetIsNullableConfigurationSource();
 
         /// <summary>
         ///     Sets the store type of the function in the database.

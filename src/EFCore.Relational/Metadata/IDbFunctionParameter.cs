@@ -33,6 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string StoreType { get; }
 
         /// <summary>
+        ///     Gets the value which indicates whether parameter propagates nullability, meaning if it's value is null the database function itself returns null.
+        /// </summary>
+        bool PropagatesNullability { get; }
+
+        /// <summary>
         ///     Gets the <see cref="RelationalTypeMapping" /> for this parameter.
         /// </summary>
         RelationalTypeMapping TypeMapping { get; }
