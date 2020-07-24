@@ -7843,6 +7843,54 @@ FROM [Businesses] AS [b]");
 
         #endregion
 
+        #region Issue21666
+
+        [ConditionalFact]
+        public virtual void Thread_safety_in_relational_command_cache()
+        {
+            using (CreateDatabase21666())
+            {
+                var ids = new[] { 1, 2, 3 };
+
+                Parallel.For(0, 100,
+                    i =>
+                    {
+                        using var context = new MyContext21666(_options);
+                        var query = context.Lists.Where(l => !l.IsDeleted && ids.Contains(l.Id)).ToList();
+                    });
+            }
+        }
+
+        private class List21666
+        {
+            public int Id { get; set; }
+            public bool IsDeleted { get; set; }
+        }
+
+        private class MyContext21666 : DbContext
+        {
+            public DbSet<List21666> Lists { get; set; }
+
+            public MyContext21666(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase21666()
+            => CreateTestStore(
+                () => new MyContext21666(_options),
+                context =>
+                {
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

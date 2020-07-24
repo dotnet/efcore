@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlProcessor
     {
-        private readonly SearchConditionConvertingExpressionVisitor _searchConditionConvertingExpressionVisitor;
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -29,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             bool useRelationalNulls)
             : base(dependencies, useRelationalNulls)
         {
-            _searchConditionConvertingExpressionVisitor = new SearchConditionConvertingExpressionVisitor(dependencies.SqlExpressionFactory);
         }
 
         /// <summary>
@@ -48,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             var optimizedSelectExpression = base.Optimize(selectExpression, parametersValues, out canCache);
 
-            return (SelectExpression)_searchConditionConvertingExpressionVisitor.Visit(optimizedSelectExpression);
+            return (SelectExpression)new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory)
+                .Visit(optimizedSelectExpression);
         }
     }
 }
