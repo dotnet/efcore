@@ -20,10 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void Missing_concurrency_token_property_is_created_on_the_base_type()
         {
             var modelBuilder = GetModelBuilder();
+            modelBuilder.Entity<Person>().HasKey(a => a.Id);
             modelBuilder.Entity<Person>().ToTable(nameof(Animal))
                 .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Animal>().HasKey(a => a.Id);
             modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
             modelBuilder.Entity<Cat>()
+                .HasBaseType<Animal>()
                 .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
 
             var model = modelBuilder.Model;
@@ -41,11 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void Missing_concurrency_token_property_is_not_created_for_TPT()
         {
             var modelBuilder = GetModelBuilder();
+            modelBuilder.Entity<Animal>().HasKey(a => a.Id);
             modelBuilder.Entity<Animal>().Ignore(a => a.FavoritePerson)
                 .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
             modelBuilder.Entity<Cat>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-            modelBuilder.Entity<Cat>().ToTable(nameof(Cat));
+            modelBuilder.Entity<Cat>().ToTable(nameof(Cat))
+                .HasBaseType<Animal>();
             modelBuilder.Entity<Person>().ToTable(nameof(Cat));
+            modelBuilder.Entity<Person>().HasKey(a => a.Id);
 
             var model = modelBuilder.Model;
             model.FinalizeModel();
@@ -55,16 +61,58 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public virtual void Missing_concurrency_token_properties_are_created_on_the_base_most_types()
+        public virtual void Missing_concurrency_token_property_is_created_for_TPT_same_table()
         {
             var modelBuilder = GetModelBuilder();
+            modelBuilder.Entity<Animal>().HasKey(a => a.Id);
+            modelBuilder.Entity<Animal>().Ignore(a => a.FavoritePerson);
+            modelBuilder.Entity<Cat>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            modelBuilder.Entity<Cat>().ToTable(nameof(Cat))
+                .HasBaseType<Animal>()
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            modelBuilder.Entity<Person>().ToTable(nameof(Cat));
+            modelBuilder.Entity<Person>().HasKey(a => a.Id);
+
+            var model = modelBuilder.Model;
+            model.FinalizeModel();
+
+            var person = model.FindEntityType(typeof(Person));
+            Assert.Contains(person.GetProperties(), p => p.IsConcurrencyToken);
+        }
+
+        [ConditionalFact]
+        public virtual void Missing_concurrency_token_property_is_not_created_for_TPH()
+        {
+            var modelBuilder = GetModelBuilder();
+            modelBuilder.Entity<Animal>().HasKey(a => a.Id);
+            modelBuilder.Entity<Animal>().Ignore(a => a.FavoritePerson);
+            modelBuilder.Entity<Cat>()
+                .HasBaseType<Animal>()
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+
+            var model = modelBuilder.Model;
+            model.FinalizeModel();
+
+            var person = model.FindEntityType(typeof(Animal));
+            Assert.DoesNotContain(person.GetProperties(), p => p.IsConcurrencyToken);
+        }
+
+        [ConditionalFact]
+        public virtual void Missing_concurrency_token_properties_are_created_on_the_base()
+        {
+            var modelBuilder = GetModelBuilder();
+            modelBuilder.Entity<Person>().HasKey(a => a.Id);
             modelBuilder.Entity<Person>().ToTable(nameof(Animal)).Property<byte[]>("Version")
                 .HasColumnName("Version").ValueGeneratedOnUpdate().IsConcurrencyToken(true);
+            modelBuilder.Entity<Animal>().HasKey(a => a.Id);
             modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
             modelBuilder.Entity<Animal>().HasOne(a => a.Dwelling).WithOne().HasForeignKey<AnimalHouse>(p => p.Id);
-            modelBuilder.Entity<Cat>();
+            modelBuilder.Entity<Cat>()
+                .HasBaseType<Animal>();
+            modelBuilder.Entity<AnimalHouse>().HasKey(a => a.Id);
             modelBuilder.Entity<AnimalHouse>().ToTable(nameof(Animal));
-            modelBuilder.Entity<TheMovie>();
+            modelBuilder.Entity<TheMovie>()
+                .HasBaseType<AnimalHouse>();
 
             var model = modelBuilder.Model;
             model.FinalizeModel();
@@ -94,7 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void Missing_concurrency_token_property_is_created_on_the_sharing_type()
         {
             var modelBuilder = GetModelBuilder();
+            modelBuilder.Entity<Person>().HasKey(a => a.Id);
             modelBuilder.Entity<Person>().ToTable(nameof(Animal));
+            modelBuilder.Entity<Animal>().HasKey(a => a.Id);
             modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
             modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
 
@@ -124,16 +174,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [NotMapped]
             public string Type { get; set; }
-
-            public int Identity { get; set; }
-        }
-
-        protected class Dog : Animal
-        {
-            public string Breed { get; set; }
-
-            [NotMapped]
-            public int Type { get; set; }
 
             public int Identity { get; set; }
         }

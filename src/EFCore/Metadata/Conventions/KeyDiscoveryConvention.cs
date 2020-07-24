@@ -107,8 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         || primaryKey.Properties.Count == 1
                         || definingFk.Properties.Contains(shadowProperty))
                     {
-                        shadowProperty = ((InternalEntityTypeBuilder)entityTypeBuilder)
-                            .CreateUniqueProperty("Id", typeof(int), isRequired: true);
+                        shadowProperty = entityTypeBuilder.CreateUniqueProperty(typeof(int), "Id", required: true).Metadata;
                     }
 
                     keyProperties.Clear();
