@@ -1019,6 +1019,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("TableValuedFunctionNonTPH", nameof(dbFunction), nameof(entityType)),
                 dbFunction, entityType);
 
+        /// <summary>
+        ///     Using 'FromSqlRaw' or 'FromSqlInterpolated' on an entity type which has owned reference navigations sharing same table is not supported.
+        /// </summary>
+        public static string CustomQueryMappingOnOwner
+            => GetString("CustomQueryMappingOnOwner");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
