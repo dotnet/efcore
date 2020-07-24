@@ -26,11 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatible(
             [NotNull] this IIndex index,
             [NotNull] IIndex duplicateIndex,
-            [NotNull] string tableName,
-            [CanBeNull] string schema,
+            StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
-            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
             if (!index.Properties.Select(p => p.GetColumnName(storeObject))
                 .SequenceEqual(duplicateIndex.Properties.Select(p => p.GetColumnName(storeObject))))
             {
@@ -43,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(tableName, schema),
+                            index.GetDatabaseName(storeObject),
                             index.Properties.FormatColumns(storeObject),
                             duplicateIndex.Properties.FormatColumns(storeObject)));
                 }
@@ -62,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(tableName, schema)));
+                            index.GetDatabaseName(storeObject)));
                 }
 
                 return false;

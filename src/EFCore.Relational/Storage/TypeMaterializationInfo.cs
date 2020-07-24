@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public TypeMaterializationInfo(
             [NotNull] Type modelClrType,
             [CanBeNull] IProperty property,
-            [NotNull] RelationalTypeMapping mapping = null,
+            [NotNull] RelationalTypeMapping mapping,
             bool? nullable = null)
         {
             Check.NotNull(modelClrType, nameof(modelClrType));

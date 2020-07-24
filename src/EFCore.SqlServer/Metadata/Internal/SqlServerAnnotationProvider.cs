@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             var key = constraint.MappedKeys.First();
 
             var table = constraint.Table;
-            var isClustered = key.IsClustered(table.Name, table.Schema);
+            var isClustered = key.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema));
             if (isClustered.HasValue)
             {
                 yield return new Annotation(
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             var modelIndex = index.MappedIndexes.First();
 
             var table = index.Table;
-            var isClustered = modelIndex.IsClustered(table.Name, table.Schema);
+            var isClustered = modelIndex.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema));
             if (isClustered.HasValue)
             {
                 yield return new Annotation(

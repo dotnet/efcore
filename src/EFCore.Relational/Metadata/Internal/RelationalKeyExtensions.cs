@@ -26,11 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatible(
             [NotNull] this IKey key,
             [NotNull] IKey duplicateKey,
-            [NotNull] string tableName,
-            [CanBeNull] string schema,
+            StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
-            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
             if (!key.Properties.Select(p => p.GetColumnName(storeObject))
                 .SequenceEqual(duplicateKey.Properties.Select(p => p.GetColumnName(storeObject))))
             {
@@ -43,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         duplicateKey.Properties.Format(),
                         duplicateKey.DeclaringEntityType.DisplayName(),
                         key.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        key.GetName(tableName, schema),
+                        key.GetName(storeObject),
                         key.Properties.FormatColumns(storeObject),
                         duplicateKey.Properties.FormatColumns(storeObject)));
                 }

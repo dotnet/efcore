@@ -25,13 +25,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the key is clustered.
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <param name="schema"> The schema. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if the key is clustered. </returns>
-        public static bool? IsClustered(
-            [NotNull] this IKey key,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+        public static bool? IsClustered([NotNull] this IKey key, StoreObjectIdentifier storeObject)
         {
             var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
             if (annotation != null)
@@ -39,16 +35,13 @@ namespace Microsoft.EntityFrameworkCore
                 return (bool?)annotation.Value;
             }
 
-            return GetDefaultIsClustered(key, tableName, schema);
+            return GetDefaultIsClustered(key, storeObject);
         }
 
-        private static bool? GetDefaultIsClustered(
-            [NotNull] IKey key,
-            [NotNull] string tableName,
-            [CanBeNull] string schema)
+        private static bool? GetDefaultIsClustered([NotNull] IKey key, StoreObjectIdentifier storeObject)
         {
-            var sharedTableRootKey = key.FindSharedTableRootKey(tableName, schema);
-            return sharedTableRootKey?.IsClustered(tableName, schema);
+            var sharedTableRootKey = key.FindSharedObjectRootKey(storeObject);
+            return sharedTableRootKey?.IsClustered(storeObject);
         }
 
         /// <summary>

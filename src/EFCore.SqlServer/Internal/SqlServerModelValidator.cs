@@ -338,13 +338,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             IKey key,
             IKey duplicateKey,
             string keyName,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateCompatible(key, duplicateKey, keyName, tableName, schema, logger);
+            base.ValidateCompatible(key, duplicateKey, keyName, storeObject, logger);
 
-            key.AreCompatibleForSqlServer(duplicateKey, tableName, schema, shouldThrow: true);
+            key.AreCompatibleForSqlServer(duplicateKey, storeObject, shouldThrow: true);
         }
 
         /// <inheritdoc />
@@ -352,13 +351,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             IIndex index,
             IIndex duplicateIndex,
             string indexName,
-            string tableName,
-            string schema,
+            StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            base.ValidateCompatible(index, duplicateIndex, indexName, tableName, schema, logger);
+            base.ValidateCompatible(index, duplicateIndex, indexName, storeObject, logger);
 
-            index.AreCompatibleForSqlServer(duplicateIndex, tableName, schema, shouldThrow: true);
+            index.AreCompatibleForSqlServer(duplicateIndex, storeObject, shouldThrow: true);
         }
     }
 }

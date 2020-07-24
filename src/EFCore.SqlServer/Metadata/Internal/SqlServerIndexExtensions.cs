@@ -25,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatibleForSqlServer(
             [NotNull] this IIndex index,
             [NotNull] IIndex duplicateIndex,
-            [NotNull] string tableName,
-            [CanBeNull] string schema,
+            StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
             if (index.GetIncludeProperties() != duplicateIndex.GetIncludeProperties())
@@ -34,11 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (index.GetIncludeProperties() == null
                     || duplicateIndex.GetIncludeProperties() == null
                     || !index.GetIncludeProperties().Select(
-                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(StoreObjectIdentifier.Table(tableName, schema)))
+                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(storeObject))
                         .SequenceEqual(
                             duplicateIndex.GetIncludeProperties().Select(
                                 p => duplicateIndex.DeclaringEntityType.FindProperty(p)
-                                    .GetColumnName(StoreObjectIdentifier.Table(tableName, schema)))))
+                                    .GetColumnName(storeObject))))
                 {
                     if (shouldThrow)
                     {
@@ -49,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 duplicateIndex.Properties.Format(),
                                 duplicateIndex.DeclaringEntityType.DisplayName(),
                                 index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                                index.GetDatabaseName(tableName, schema),
-                                FormatInclude(index, tableName, schema),
-                                FormatInclude(duplicateIndex, tableName, schema)));
+                                index.GetDatabaseName(storeObject),
+                                FormatInclude(index, storeObject),
+                                FormatInclude(duplicateIndex, storeObject)));
                     }
 
                     return false;
@@ -69,13 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(tableName, schema)));
+                            index.GetDatabaseName(storeObject)));
                 }
 
                 return false;
             }
 
-            if (index.IsClustered(tableName, schema) != duplicateIndex.IsClustered(tableName, schema))
+            if (index.IsClustered(storeObject) != duplicateIndex.IsClustered(storeObject))
             {
                 if (shouldThrow)
                 {
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(tableName, schema)));
+                            index.GetDatabaseName(storeObject)));
                 }
 
                 return false;
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(tableName, schema)));
+                            index.GetDatabaseName(storeObject)));
                 }
 
                 return false;
@@ -112,13 +111,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        private static string FormatInclude(IIndex index, string tableName, string schema)
+        private static string FormatInclude(IIndex index, StoreObjectIdentifier storeObject)
             => index.GetIncludeProperties() == null
                 ? "{}"
                 : "{'"
                     + string.Join("', '",
                         index.GetIncludeProperties().Select(p => index.DeclaringEntityType.FindProperty(p)
-                            ?.GetColumnName(StoreObjectIdentifier.Table(tableName, schema))))
+                            ?.GetColumnName(storeObject)))
                     + "'}";
     }
 }

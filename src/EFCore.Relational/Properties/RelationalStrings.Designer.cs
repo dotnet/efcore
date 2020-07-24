@@ -974,6 +974,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SequenceContainsNoElements");
 
         /// <summary>
+        ///     Projecting collection correlated with keyless entity is not supported.
+        /// </summary>
+        public static string ProjectingCollectionOnKeylessEntityNotSupported
+            => GetString("ProjectingCollectionOnKeylessEntityNotSupported");
+
+        /// <summary>
+        ///     Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}', there is a relationship between their primary keys in which '{entityType}' is the dependent and '{entityType}' has a base entity type mapped to a different view. Either map '{otherEntityType}' to a different view or invert the relationship between '{entityType}' and '{otherEntityType}'.
+        /// </summary>
+        public static string IncompatibleViewDerivedRelationship([CanBeNull] object view, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+            => string.Format(
+                GetString("IncompatibleViewDerivedRelationship", nameof(view), nameof(entityType), nameof(otherEntityType)),
+                view, entityType, otherEntityType);
+
+        /// <summary>
+        ///     Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.
+        /// </summary>
+        public static string IncompatibleViewNoRelationship([CanBeNull] object view, [CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+            => string.Format(
+                GetString("IncompatibleViewNoRelationship", nameof(view), nameof(entityType), nameof(otherEntityType)),
+                view, entityType, otherEntityType);
+
+        /// <summary>
         ///     Using '{memberName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
         /// </summary>
         public static string NonTPHOnFromSqlNotSupported([CanBeNull] object memberName, [CanBeNull] object entityType)
@@ -996,12 +1018,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("TableValuedFunctionNonTPH", nameof(dbFunction), nameof(entityType)),
                 dbFunction, entityType);
-
-        /// <summary>
-        ///     Projecting collection correlated with keyless entity is not supported.
-        /// </summary>
-        public static string ProjectingCollectionOnKeylessEntityNotSupported
-            => GetString("ProjectingCollectionOnKeylessEntityNotSupported");
 
         private static string GetString(string name, params string[] formatterNames)
         {
