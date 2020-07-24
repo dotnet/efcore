@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -39,6 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) });
         private static readonly MethodInfo _stringEqualsWithStringComparisonStatic
             = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
+        private static readonly MethodInfo _objectEqualsMethodInfo
+                 = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
@@ -1014,21 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return leftExpressions.Zip(
                     rightExpressions,
-                    (l, r) =>
-                    {
-                        l = RemoveObjectConvert(l);
-                        r = RemoveObjectConvert(r);
-                        if (l.Type.IsNullableType())
-                        {
-                            r = r.Type.IsNullableType() ? r : Expression.Convert(r, l.Type);
-                        }
-                        else if (r.Type.IsNullableType())
-                        {
-                            l = l.Type.IsNullableType() ? l : Expression.Convert(l, r.Type);
-                        }
-
-                        return Expression.Equal(l, r);
-                    })
+                    (l, r) => (Expression)Expression.Call(_objectEqualsMethodInfo, l, r))
                 .Aggregate((a, b) => Expression.AndAlso(a, b));
         }
 
@@ -1126,6 +1115,52 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var nonNullEntityReference = IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference;
                 var entityType1 = nonNullEntityReference.EntityType;
+
+                var linkingFks = entityType1.GetViewOrTableMappings().FirstOrDefault()?.Table.GetRowInternalForeignKeys(entityType1);
+                if (linkingFks != null
+                    && linkingFks.Any())
+                {
+                    // Optional dependent sharing table
+                    var requiredNonPkProperties = entityType1.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+                    if (requiredNonPkProperties.Count > 0)
+                    {
+                        result = Visit(requiredNonPkProperties.Select(p =>
+                            {
+                                var comparison = Expression.Call(_objectEqualsMethodInfo,
+                                    Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
+                                    Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+
+                                return nodeType == ExpressionType.Equal
+                                    ? (Expression)comparison
+                                    : Expression.Not(comparison);
+                            }).Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+
+                        return true;
+                    }
+                    else
+                    {
+                        var allNonPkProperties = entityType1.GetProperties().Where(p => !p.IsPrimaryKey()).ToList();
+                        if (allNonPkProperties.Count > 0)
+                        {
+                            result = Visit(allNonPkProperties.Select(p =>
+                                {
+                                    var comparison = Expression.Call(_objectEqualsMethodInfo,
+                                        Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
+                                        Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+
+                                    return nodeType == ExpressionType.Equal
+                                        ? (Expression)comparison
+                                        : Expression.Not(comparison);
+                                }).Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.AndAlso(l, r) : Expression.OrElse(l, r)));
+
+                            return true;
+                        }
+
+                        result = null;
+                        return false;
+                    }
+                }
+
                 var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
                 if (primaryKeyProperties1 == null)
                 {
@@ -1133,11 +1168,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 result = Visit(primaryKeyProperties1.Select(p =>
-                    Expression.MakeBinary(
-                        nodeType,
-                        CreatePropertyAccessExpression(nonNullEntityReference, p),
-                        Expression.Constant(null, p.ClrType.MakeNullable())))
-                    .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+                    {
+                    var comparison = Expression.Call(_objectEqualsMethodInfo,
+                        Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
+                        Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+
+                        return nodeType == ExpressionType.Equal
+                            ? (Expression)comparison
+                            : Expression.Not(comparison);
+                    }).Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
 
                 return true;
             }
@@ -1146,7 +1185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var rightEntityType = rightEntityReference?.EntityType;
             var entityType = leftEntityType ?? rightEntityType;
 
-            Debug.Assert(entityType != null, "At least either side should be entityReference so entityType should be non-null.");
+            Debug.Assert(entityType != null, "At least one side should be entityReference so entityType should be non-null.");
 
             if (leftEntityType != null
                 && rightEntityType != null
@@ -1171,11 +1210,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             result = Visit(primaryKeyProperties.Select(p =>
-                    Expression.MakeBinary(
-                        nodeType,
-                        CreatePropertyAccessExpression(left, p),
-                        CreatePropertyAccessExpression(right, p)))
-                    .Aggregate((l, r) => Expression.AndAlso(l, r)));
+                {
+                    var comparison = Expression.Call(_objectEqualsMethodInfo,
+                        Expression.Convert(CreatePropertyAccessExpression(left, p), typeof(object)),
+                        Expression.Convert(CreatePropertyAccessExpression(right, p), typeof(object)));
+
+                    return nodeType == ExpressionType.Equal
+                        ? (Expression)comparison
+                        : Expression.Not(comparison);
+                }).Aggregate((l, r) => Expression.AndAlso(l, r)));
 
             return true;
         }

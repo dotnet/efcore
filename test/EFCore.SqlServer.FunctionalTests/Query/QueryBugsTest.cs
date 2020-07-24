@@ -4290,7 +4290,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
 
         #region Bug13157
 
-        [ConditionalFact(Skip = "Issue#20342")]
+        [ConditionalFact]
         public virtual void Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
         {
             using (CreateDatabase13157())
@@ -4322,7 +4322,10 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
                     });
 
                 AssertSql(
-                    @"SELECT [p].[Id], CAST(0 AS bit), [a].[Turnovers_AmountIn], [a].[Id]
+                    @"SELECT [p].[Id], CASE
+    WHEN [a].[Turnovers_AmountIn] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [a].[Turnovers_AmountIn], [a].[Id]
 FROM [Partners] AS [p]
 LEFT JOIN [Address13157] AS [a] ON [p].[Id] = [a].[Partner13157Id]
 ORDER BY [p].[Id], [a].[Id]");
