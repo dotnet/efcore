@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var column = columnMapping.Column;
                     var isKey = property.IsPrimaryKey();
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
-                    var readValue = entry.IsStoreGenerated(property);
+                    var readValue = state != EntityState.Deleted && entry.IsStoreGenerated(property);
                     ColumnValuePropagator columnPropagator = null;
                     if (sharedColumnMap != null)
                     {

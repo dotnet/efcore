@@ -1646,7 +1646,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Indexed_property_throws_when_entityType_is_not_indexer()
+        public void Indexer_property_throws_when_entityType_is_not_indexer()
         {
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);

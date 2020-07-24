@@ -1470,7 +1470,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         || HasTemporaryValue(property)
                         || HasDefaultValue(property)))
                 || (property.ValueGenerated.ForUpdate()
-                    && EntityState == EntityState.Modified
+                    && (EntityState == EntityState.Modified || EntityState == EntityState.Deleted)
                     && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
                         || !IsModified(property)));
 
