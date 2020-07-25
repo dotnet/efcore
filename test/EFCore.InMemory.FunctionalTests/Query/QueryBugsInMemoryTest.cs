@@ -772,6 +772,119 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region Issue21768
+
+        [ConditionalFact]
+        public virtual void Using_explicit_interface_implementation_as_navigation_works()
+        {
+            using (CreateScratch<MyContext21768>((t) => { }, "21768"))
+            {
+                using var context = new MyContext21768();
+                Expression<Func<IBook21768, BookViewModel21768>> projection = b => new BookViewModel21768
+                {
+                    FirstPage = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved) != null
+                         ? new PageViewModel21768
+                         {
+                             Uri = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved).Uri
+                         }
+                         : null,
+                };
+
+                var result = context.Books.Where(b => b.Id == 1).Select(projection).SingleOrDefault();
+            }
+        }
+
+        private class BookViewModel21768
+        {
+            public PageViewModel21768 FirstPage { get; set; }
+        }
+
+        private class PageViewModel21768
+        {
+            public string Uri { get; set; }
+        }
+
+        private interface IBook21768
+        {
+            public int Id { get; set; }
+
+            public IBookCover21768 FrontCover { get; }
+            public int FrontCoverId { get; set; }
+
+            public IBookCover21768 BackCover { get; }
+            public int BackCoverId { get; set; }
+        }
+
+        private interface IBookCover21768
+        {
+            public int Id { get; set; }
+            public IEnumerable<ICoverIllustration21768> Illustrations { get; }
+        }
+
+        private interface ICoverIllustration21768
+        {
+            public int Id { get; set; }
+            public IBookCover21768 Cover { get; }
+            public int CoverId { get; set; }
+            public string Uri { get; set; }
+            public IllustrationState21768 State { get; set; }
+        }
+
+        private class Book21768 : IBook21768
+        {
+            public int Id { get; set; }
+
+            public BookCover21768 FrontCover { get; set; }
+            public int FrontCoverId { get; set; }
+
+            public BookCover21768 BackCover { get; set; }
+            public int BackCoverId { get; set; }
+            IBookCover21768 IBook21768.FrontCover => FrontCover;
+            IBookCover21768 IBook21768.BackCover => BackCover;
+        }
+
+        private class BookCover21768 : IBookCover21768
+        {
+            public int Id { get; set; }
+            public ICollection<CoverIllustration21768> Illustrations { get; set; }
+            IEnumerable<ICoverIllustration21768> IBookCover21768.Illustrations => Illustrations;
+        }
+
+        private class CoverIllustration21768 : ICoverIllustration21768
+        {
+            public int Id { get; set; }
+            public BookCover21768 Cover { get; set; }
+            public int CoverId { get; set; }
+            public string Uri { get; set; }
+            public IllustrationState21768 State { get; set; }
+
+            IBookCover21768 ICoverIllustration21768.Cover => Cover;
+        }
+
+        private enum IllustrationState21768
+        {
+            New,
+            PendingApproval,
+            Approved,
+            Printed
+        }
+
+        private class MyContext21768 : DbContext
+        {
+            public DbSet<Book21768> Books { get; set; }
+            public DbSet<BookCover21768> BookCovers { get; set; }
+            public DbSet<CoverIllustration21768> CoverIllustrations { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("21768");
+            }
+        }
+
+        #endregion
+
         #region SharedHelper
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed, string databaseName)

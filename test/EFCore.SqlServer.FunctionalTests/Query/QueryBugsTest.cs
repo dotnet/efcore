@@ -7891,6 +7891,149 @@ FROM [Businesses] AS [b]");
 
         #endregion
 
+        #region Issue21768
+
+        [ConditionalFact]
+        public virtual void Using_explicit_interface_implementation_as_navigation_works()
+        {
+            using (CreateDatabase21768())
+            {
+                using var context = new MyContext21768(_options);
+                Expression<Func<IBook21768, BookViewModel21768>> projection = b => new BookViewModel21768
+                {
+                    FirstPage = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved) != null
+                         ? new PageViewModel21768
+                         {
+                             Uri = b.FrontCover.Illustrations.FirstOrDefault(i => i.State >= IllustrationState21768.Approved).Uri
+                         }
+                         : null,
+                };
+
+                var result = context.Books.Where(b => b.Id == 1).Select(projection).SingleOrDefault();
+
+                AssertSql(
+                    @"SELECT TOP(2) CASE
+    WHEN (
+        SELECT TOP(1) [c].[Id]
+        FROM [CoverIllustrations] AS [c]
+        WHERE ([b0].[Id] = [c].[CoverId]) AND ([c].[State] >= 2)) IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, (
+    SELECT TOP(1) [c0].[Uri]
+    FROM [CoverIllustrations] AS [c0]
+    WHERE ([b0].[Id] = [c0].[CoverId]) AND ([c0].[State] >= 2))
+FROM [Books] AS [b]
+INNER JOIN [BookCovers] AS [b0] ON [b].[FrontCoverId] = [b0].[Id]
+WHERE [b].[Id] = 1");
+            }
+        }
+
+        private class BookViewModel21768
+        {
+            public PageViewModel21768 FirstPage { get; set; }
+        }
+
+        private class PageViewModel21768
+        {
+            public string Uri { get; set; }
+        }
+
+        private interface IBook21768
+        {
+            public int Id { get; set; }
+
+            public IBookCover21768 FrontCover { get; }
+            public int FrontCoverId { get; set; }
+
+            public IBookCover21768 BackCover { get; }
+            public int BackCoverId { get; set; }
+        }
+
+        private interface IBookCover21768
+        {
+            public int Id { get; set; }
+            public IEnumerable<ICoverIllustration21768> Illustrations { get; }
+        }
+
+        private interface ICoverIllustration21768
+        {
+            public int Id { get; set; }
+            public IBookCover21768 Cover { get; }
+            public int CoverId { get; set; }
+            public string Uri { get; set; }
+            public IllustrationState21768 State { get; set; }
+        }
+
+        private class Book21768 : IBook21768
+        {
+            public int Id { get; set; }
+
+            public BookCover21768 FrontCover { get; set; }
+            public int FrontCoverId { get; set; }
+
+            public BookCover21768 BackCover { get; set; }
+            public int BackCoverId { get; set; }
+            IBookCover21768 IBook21768.FrontCover => FrontCover;
+            IBookCover21768 IBook21768.BackCover => BackCover;
+        }
+
+        private class BookCover21768 : IBookCover21768
+        {
+            public int Id { get; set; }
+            public ICollection<CoverIllustration21768> Illustrations { get; set; }
+            IEnumerable<ICoverIllustration21768> IBookCover21768.Illustrations => Illustrations;
+        }
+
+        private class CoverIllustration21768 : ICoverIllustration21768
+        {
+            public int Id { get; set; }
+            public BookCover21768 Cover { get; set; }
+            public int CoverId { get; set; }
+            public string Uri { get; set; }
+            public IllustrationState21768 State { get; set; }
+
+            IBookCover21768 ICoverIllustration21768.Cover => Cover;
+        }
+
+        private enum IllustrationState21768
+        {
+            New,
+            PendingApproval,
+            Approved,
+            Printed
+        }
+
+        private class MyContext21768 : DbContext
+        {
+            public DbSet<Book21768> Books { get; set; }
+            public DbSet<BookCover21768> BookCovers { get; set; }
+            public DbSet<CoverIllustration21768> CoverIllustrations { get; set; }
+
+            public MyContext21768(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                foreach (var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+                {
+                    fk.DeleteBehavior = DeleteBehavior.NoAction;
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase21768()
+            => CreateTestStore(
+                () => new MyContext21768(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
