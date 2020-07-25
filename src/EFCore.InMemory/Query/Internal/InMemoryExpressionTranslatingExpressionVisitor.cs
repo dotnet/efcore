@@ -478,22 +478,26 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return null;
                 }
 
-                if (subqueryTranslation.ShaperExpression is EntityShaperExpression entityShaperExpression)
-                {
-                    return new EntityReferenceExpression(subqueryTranslation);
-                }
-
                 var shaperExpression = subqueryTranslation.ShaperExpression;
+                var innerExpression = shaperExpression;
+                Type convertedType = null;
                 if (shaperExpression is UnaryExpression unaryExpression
-                    && unaryExpression.NodeType == ExpressionType.Convert
-                    && unaryExpression.Type.MakeNullable() == unaryExpression.Operand.Type)
+                    && unaryExpression.NodeType == ExpressionType.Convert)
                 {
-                    shaperExpression = unaryExpression.Operand;
+                    convertedType = unaryExpression.Type;
+                    innerExpression = unaryExpression.Operand;
                 }
 
-#pragma warning disable IDE0046 // Convert to conditional expression
-                if (!(shaperExpression is ProjectionBindingExpression projectionBindingExpression))
-#pragma warning restore IDE0046 // Convert to conditional expression
+                if (innerExpression is EntityShaperExpression entityShaperExpression
+                    && (convertedType == null
+                        || convertedType.IsAssignableFrom(entityShaperExpression.Type)))
+                {
+                    return new EntityReferenceExpression(subqueryTranslation.UpdateShaperExpression(innerExpression));
+                }
+
+                if (!(innerExpression is ProjectionBindingExpression projectionBindingExpression
+                     && (convertedType == null
+                        || convertedType.MakeNullable() == innerExpression.Type)))
                 {
                     return null;
                 }
@@ -917,8 +921,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (entityReferenceExpression.SubqueryEntity != null)
             {
                 var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
-                var readValueExpression = ((EntityProjectionExpression)Visit(entityShaper.ValueBufferExpression)).BindProperty(property);
                 var inMemoryQueryExpression = (InMemoryQueryExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
+
+                Expression readValueExpression;
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
+                if (projectionBindingExpression.ProjectionMember != null)
+                {
+                    var entityProjectionExpression = (EntityProjectionExpression)inMemoryQueryExpression.GetMappedProjection(
+                        projectionBindingExpression.ProjectionMember);
+                    readValueExpression = entityProjectionExpression.BindProperty(property);
+                }
+                else
+                {
+                    // This has to be index map since entities cannot map to just integer index
+                    var index = projectionBindingExpression.IndexMap[property];
+                    readValueExpression = inMemoryQueryExpression.Projection[index];
+                }
 
                 return ProcessSingleResultScalar(
                     inMemoryQueryExpression.ServerQueryExpression,

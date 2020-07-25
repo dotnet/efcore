@@ -549,16 +549,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return null;
                 }
 
-                if (subqueryTranslation.ShaperExpression is EntityShaperExpression entityShaperExpression)
+                var shaperExpression = subqueryTranslation.ShaperExpression;
+                var innerExpression = shaperExpression;
+                Type convertedType = null;
+                if (shaperExpression is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert)
                 {
-                    return new EntityReferenceExpression(subqueryTranslation);
+                    convertedType = unaryExpression.Type;
+                    innerExpression = unaryExpression.Operand;
                 }
 
-                if (!(subqueryTranslation.ShaperExpression is ProjectionBindingExpression
-                    || (subqueryTranslation.ShaperExpression is UnaryExpression unaryExpression
-                        && unaryExpression.NodeType == ExpressionType.Convert
-                        && unaryExpression.Type.MakeNullable() == unaryExpression.Operand.Type
-                        && unaryExpression.Operand is ProjectionBindingExpression)
+                if (innerExpression is EntityShaperExpression entityShaperExpression
+                    && (convertedType == null
+                        || convertedType.IsAssignableFrom(entityShaperExpression.Type)))
+                {
+                    return new EntityReferenceExpression(subqueryTranslation.UpdateShaperExpression(innerExpression));
+                }
+
+                if (!((innerExpression is ProjectionBindingExpression
+                        && (convertedType == null
+                            || convertedType.MakeNullable() == innerExpression.Type))
                     || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
                 {
                     return null;
@@ -583,11 +593,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlExpression scalarSubqueryExpression = new ScalarSubqueryExpression(subquery);
 
                 if (subqueryTranslation.ResultCardinality == ResultCardinality.SingleOrDefault
-                    && !subqueryTranslation.ShaperExpression.Type.IsNullableType())
+                    && !shaperExpression.Type.IsNullableType())
                 {
                     scalarSubqueryExpression = _sqlExpressionFactory.Coalesce(
                         scalarSubqueryExpression,
-                        (SqlExpression)Visit(subqueryTranslation.ShaperExpression.Type.GetDefaultValueConstant()));
+                        (SqlExpression)Visit(shaperExpression.Type.GetDefaultValueConstant()));
                 }
 
                 return scalarSubqueryExpression;
@@ -942,8 +952,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (entityReferenceExpression.SubqueryEntity != null)
             {
                 var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
-                var innerProjection = ((EntityProjectionExpression)Visit(entityShaper.ValueBufferExpression)).BindProperty(property);
                 var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
+
+                SqlExpression innerProjection;
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
+                if (projectionBindingExpression.ProjectionMember != null)
+                {
+                    var entityProjectionExpression = (EntityProjectionExpression)subSelectExpression.GetMappedProjection(
+                        projectionBindingExpression.ProjectionMember);
+                    innerProjection = entityProjectionExpression.BindProperty(property);
+                }
+                else
+                {
+                    // This has to be index map since entities cannot map to just integer index
+                    var index = projectionBindingExpression.IndexMap[property];
+                    innerProjection = subSelectExpression.Projection[index].Expression;
+                    subSelectExpression.ClearProjection();
+                }
+
                 subSelectExpression.AddToProjection(innerProjection);
 
                 return new ScalarSubqueryExpression(subSelectExpression);
