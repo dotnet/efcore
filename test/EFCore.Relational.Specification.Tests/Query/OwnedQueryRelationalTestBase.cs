@@ -1,8 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -111,6 +113,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<OwnedPerson>().Where(c => (string)c["Name"] == "Mona Cy").AsSplitQuery());
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Throws_when_using_from_sql_on_owner(bool async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<OwnedPerson>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [OwnedPersons]"));
+
+            var message = async
+                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
+                : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message;
+            Assert.Equal(RelationalStrings.CustomQueryMappingOnOwner, message);
+        }
+
+        protected string NormalizeDelimitersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
+
+        protected FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
+
         protected virtual bool CanExecuteQueryString => false;
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
@@ -118,6 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public abstract class RelationalOwnedQueryFixture : OwnedQueryFixtureBase
         {
+            public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

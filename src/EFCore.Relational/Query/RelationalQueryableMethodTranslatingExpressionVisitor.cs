@@ -1347,6 +1347,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // So there is no handling for dependent having TPT
 
                     // If navigation is defined on derived type and entity type is part of TPT then we need to get ITableBase for derived type.
+                    // TODO: The following code should also handle Function and SqlQuery mappings
                     var table = navigation.DeclaringEntityType.BaseType == null
                         || entityType.GetDiscriminatorProperty() != null
                         ? navigation.DeclaringEntityType.GetViewOrTableMappings().Single().Table
@@ -1366,11 +1367,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             || (entityType.GetDiscriminatorProperty() == null
                                 && navigation.DeclaringEntityType.IsStrictlyDerivedFrom(entityShaperExpression.EntityType));
 
-                        var propertyExpressions = identifyingColumn.Table is TableExpression innerTable
-                            ? GetPropertyExpressionsFromTable(
-                                targetEntityType, table, _selectExpression, innerTable, principalNullable)
-                            // If the principal table is SelectExpression then we may need to populate inner projection
-                            : GetPropertyExpressionsFromSubquery(targetEntityType, table, identifyingColumn, principalNullable);
+                        var propertyExpressions = GetPropertyExpressionFromSameTable(
+                            targetEntityType, table, _selectExpression, identifyingColumn, principalNullable);
 
                         innerShaper = new RelationalEntityShaperExpression(
                             targetEntityType, new EntityProjectionExpression(targetEntityType, propertyExpressions), true);
@@ -1411,48 +1409,51 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return innerShaper;
             }
 
-            private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromSubquery(
-                IEntityType entityType, ITableBase table, ColumnExpression identifyingColumn, bool nullable)
+            private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionFromSameTable(
+                IEntityType entityType, ITableBase table, SelectExpression selectExpression, ColumnExpression identifyingColumn, bool nullable)
             {
-                var subquery = (SelectExpression)identifyingColumn.Table;
-                var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
-                    .SingleOrDefault(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase)).Expression;
-
-                var subqueryPropertyExpressions = subqueryIdentifyingColumn.Table is TableExpression innerTable
-                    ? GetPropertyExpressionsFromTable(entityType, table, subquery, innerTable, nullable)
-                    : GetPropertyExpressionsFromSubquery(entityType, table, subqueryIdentifyingColumn, nullable);
-
-                var newPropertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var item in subqueryPropertyExpressions)
+                if (identifyingColumn.Table is TableExpression tableExpression)
                 {
-                    newPropertyExpressions[item.Key] = new ColumnExpression(
-                        subquery.Projection[subquery.AddToProjection(item.Value)], subquery);
+                    if (!string.Equals(tableExpression.Name, table.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Fetch the table for the type which is defining the navigation since dependent would be in that table
+                        tableExpression = selectExpression.Tables
+                            .Select(t => (t as InnerJoinExpression)?.Table ?? (t as LeftJoinExpression)?.Table ?? t)
+                            .Cast<TableExpression>()
+                            .First(t => string.Equals(t.Name, table.Name) && string.Equals(t.Schema, table.Schema));
+                    }
+
+                    var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                    foreach (var property in entityType
+                        .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                        .SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+                    {
+                        propertyExpressions[property] = new ColumnExpression(
+                            property, table.FindColumn(property), tableExpression, nullable || !property.IsPrimaryKey());
+                    }
+
+                    return propertyExpressions;
                 }
 
-                return newPropertyExpressions;
-            }
-
-            private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromTable(
-                IEntityType entityType, ITableBase table, SelectExpression selectExpression, TableExpression tableExpression, bool nullable)
-            {
-                if (!string.Equals(tableExpression.Name, table.Name, StringComparison.OrdinalIgnoreCase))
+                if (identifyingColumn.Table is SelectExpression subquery)
                 {
-                    // Fetch the table for the type which is defining the navigation since dependent would be in that table
-                    tableExpression = selectExpression.Tables
-                        .Select(t => (t as InnerJoinExpression)?.Table ?? (t as LeftJoinExpression)?.Table ?? t)
-                        .Cast<TableExpression>()
-                        .First(t => string.Equals(t.Name, table.Name) && string.Equals(t.Schema, table.Schema));
+                    var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
+                        .SingleOrDefault(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase)).Expression;
+
+                    var subqueryPropertyExpressions = GetPropertyExpressionFromSameTable(
+                        entityType, table, subquery, subqueryIdentifyingColumn, nullable);
+
+                    var newPropertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                    foreach (var item in subqueryPropertyExpressions)
+                    {
+                        newPropertyExpressions[item.Key] = new ColumnExpression(
+                            subquery.Projection[subquery.AddToProjection(item.Value)], subquery);
+                    }
+
+                    return newPropertyExpressions;
                 }
 
-                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var property in entityType
-                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).SelectMany(EntityTypeExtensions.GetDeclaredProperties))
-                {
-                    propertyExpressions[property] = new ColumnExpression(
-                        property, table.FindColumn(property), tableExpression, nullable || !property.IsPrimaryKey());
-                }
-
-                return propertyExpressions;
+                throw new InvalidOperationException(RelationalStrings.CustomQueryMappingOnOwner);
             }
 
             private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromJoinedTable(
