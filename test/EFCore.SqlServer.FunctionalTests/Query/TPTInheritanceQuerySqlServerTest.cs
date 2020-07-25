@@ -38,12 +38,9 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -57,16 +54,13 @@ ORDER BY [a].[Species]");
             await base.Can_include_animals(async);
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[Name], [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[IsEagle], [t].[IsKiwi]
+                @"SELECT [c].[Id], [c].[Name], [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[c]
 FROM [Countries] AS [c]
 LEFT JOIN (
     SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-        WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [IsEagle], CASE
-        WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [IsKiwi]
+        WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+        WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+    END AS [c]
     FROM [Animals] AS [a]
     LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
     LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -80,7 +74,7 @@ ORDER BY [c].[Name], [c].[Id], [t].[Species]");
             await base.Can_include_prey(async);
 
             AssertSql(
-                @"SELECT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t0].[Species], [t0].[CountryId], [t0].[Name], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t0].[FoundOn], [t0].[IsEagle], [t0].[IsKiwi]
+                @"SELECT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t0].[Species], [t0].[CountryId], [t0].[Name], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t0].[FoundOn], [t0].[c]
 FROM (
     SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group]
     FROM [Animals] AS [a]
@@ -89,12 +83,9 @@ FROM (
 ) AS [t]
 LEFT JOIN (
     SELECT [a0].[Species], [a0].[CountryId], [a0].[Name], [b0].[EagleId], [b0].[IsFlightless], [e0].[Group], [k].[FoundOn], CASE
-        WHEN [e0].[Species] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [IsEagle], CASE
-        WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [IsKiwi]
+        WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+        WHEN [e0].[Species] IS NOT NULL THEN N'Eagle'
+    END AS [c]
     FROM [Animals] AS [a0]
     INNER JOIN [Birds] AS [b0] ON [a0].[Species] = [b0].[Species]
     LEFT JOIN [Eagle] AS [e0] ON [a0].[Species] = [e0].[Species]
@@ -189,12 +180,9 @@ WHERE [a].[Species] LIKE N'%owenii'");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -208,12 +196,9 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -227,12 +212,9 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns], CASE
-    WHEN [d].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsDaisy], CASE
-    WHEN [r].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsRose]
+    WHEN [r].[Species] IS NOT NULL THEN N'Rose'
+    WHEN [d].[Species] IS NOT NULL THEN N'Daisy'
+END
 FROM [Plants] AS [p]
 LEFT JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
 LEFT JOIN [Daisies] AS [d] ON [p].[Species] = [d].[Species]
@@ -246,15 +228,10 @@ ORDER BY [p].[Species]");
 
             AssertSql(
                 @"SELECT [d].[Id], [c].[CaffeineGrams], [c].[CokeCO2], [c].[SugarGrams], [l].[LiltCO2], [l].[SugarGrams], [t].[CaffeineGrams], [t].[HasMilk], CASE
-    WHEN [c].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsCoke], CASE
-    WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsLilt], CASE
-    WHEN [t].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsTea]
+    WHEN [t].[Id] IS NOT NULL THEN N'Tea'
+    WHEN [l].[Id] IS NOT NULL THEN N'Lilt'
+    WHEN [c].[Id] IS NOT NULL THEN N'Coke'
+END
 FROM [Drinks] AS [d]
 LEFT JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
 LEFT JOIN [Lilt] AS [l] ON [d].[Id] = [l].[Id]
@@ -325,12 +302,9 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -359,12 +333,9 @@ LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -378,12 +349,9 @@ WHERE [k].[Species] IS NOT NULL AND ([a].[CountryId] = 1)");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -397,17 +365,14 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [e].[Species] IS NOT NULL OR [k].[Species] IS NOT NULL
+WHERE [k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL
 ORDER BY [a].[Species]");
         }
 
@@ -417,17 +382,14 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT TOP(1) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [e].[Species] IS NOT NULL OR [k].[Species] IS NOT NULL
+WHERE [k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL
 ORDER BY [a].[Species]");
         }
 
@@ -437,17 +399,14 @@ ORDER BY [a].[Species]");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE ([a].[CountryId] = 1) AND ([e].[Species] IS NOT NULL OR [k].[Species] IS NOT NULL)
+WHERE ([a].[CountryId] = 1) AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)
 ORDER BY [a].[Species]");
         }
 
@@ -461,7 +420,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [e].[Species] IS NOT NULL OR [k].[Species] IS NOT NULL");
+WHERE [k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL");
         }
 
         public override async Task Can_use_of_type_kiwi(bool async)
@@ -469,7 +428,9 @@ WHERE [e].[Species] IS NOT NULL OR [k].[Species] IS NOT NULL");
             await base.Can_use_of_type_kiwi(async);
 
             AssertSql(
-                @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -482,7 +443,9 @@ WHERE [k].[Species] IS NOT NULL");
             await base.Can_use_of_type_kiwi_where_north_on_derived_property(async);
 
             AssertSql(
-                @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -495,7 +458,9 @@ WHERE [k].[Species] IS NOT NULL AND ([k].[FoundOn] = CAST(0 AS tinyint))");
             await base.Can_use_of_type_kiwi_where_south_on_derived_property(async);
 
             AssertSql(
-                @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -508,7 +473,9 @@ WHERE [k].[Species] IS NOT NULL AND ([k].[FoundOn] = CAST(1 AS tinyint))");
             await base.Can_use_of_type_rose(async);
 
             AssertSql(
-                @"SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns]
+                @"SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns], CASE
+    WHEN [r].[Species] IS NOT NULL THEN N'Rose'
+END
 FROM [Plants] AS [p]
 LEFT JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
 LEFT JOIN [Daisies] AS [d] ON [p].[Species] = [d].[Species]
@@ -568,21 +535,18 @@ VALUES (@p0, @p1, @p2);");
             AssertSql(
                 @"@__p_0='5'
 
-SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
+SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn], [t].[c]
 FROM (
     SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-        WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [IsEagle], CASE
-        WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END AS [IsKiwi]
+        WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+        WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+    END AS [c]
     FROM [Animals] AS [a]
     INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
     LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 ) AS [t]
-WHERE [t].[IsKiwi] = CAST(1 AS bit)");
+WHERE [t].[c] = N'Kiwi'");
         }
 
         public override async Task Union_entity_equality(bool async)
@@ -605,12 +569,9 @@ WHERE [t].[IsKiwi] = CAST(1 AS bit)");
 
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
-    WHEN [e].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEagle], CASE
-    WHEN [k].[Species] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsKiwi]
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -619,19 +580,16 @@ WHERE EXISTS (
     SELECT 1
     FROM (
         SELECT TOP(1) [a0].[Species], [a0].[CountryId], [a0].[Name], [b0].[EagleId], [b0].[IsFlightless], [e0].[Group], [k0].[FoundOn], CASE
-            WHEN [e0].[Species] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEagle], CASE
-            WHEN [k0].[Species] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsKiwi]
+            WHEN [k0].[Species] IS NOT NULL THEN N'Kiwi'
+            WHEN [e0].[Species] IS NOT NULL THEN N'Eagle'
+        END AS [c], [k0].[Species] AS [Species0]
         FROM [Animals] AS [a0]
         LEFT JOIN [Birds] AS [b0] ON [a0].[Species] = [b0].[Species]
         LEFT JOIN [Eagle] AS [e0] ON [a0].[Species] = [e0].[Species]
         LEFT JOIN [Kiwi] AS [k0] ON [a0].[Species] = [k0].[Species]
         WHERE [a0].[Name] = N'Great spotted kiwi'
     ) AS [t]
-    WHERE [t].[IsKiwi] = CAST(1 AS bit))
+    WHERE [t].[Species0] IS NOT NULL)
 ORDER BY [a].[Species]");
         }
 
