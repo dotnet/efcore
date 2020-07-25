@@ -494,7 +494,8 @@ namespace Microsoft.EntityFrameworkCore
                     eb.ToTable("Vehicles");
                 });
 
-            modelBuilder.Entity<Engine>().ToTable("Vehicles");
+            modelBuilder.Entity<Engine>().ToTable("Vehicles")
+                .Property(e => e.Computed).ValueGeneratedOnAddOrUpdate();
             modelBuilder.Entity<Operator>().ToTable("Vehicles");
             modelBuilder.Entity<OperatorDetails>().ToTable("Vehicles");
             modelBuilder.Entity<FuelTank>().ToTable("Vehicles");

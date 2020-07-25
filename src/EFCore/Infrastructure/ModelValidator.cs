@@ -1004,7 +1004,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         {
                             if (!property.IsNullable
                                 && ((!property.RequiresValueGenerator()
-                                        && (property.ValueGenerated & ValueGenerated.OnAdd) == 0)
+                                        && !property.ValueGenerated.ForAdd())
                                     || property.IsPrimaryKey()))
                             {
                                 throw new InvalidOperationException(

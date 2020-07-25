@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"SELECT [v].[Name], [v].[SeatingCapacity], CASE
     WHEN [p].[Name] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END AS [IsPoweredVehicle], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[IsLicensedOperator], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Description], [t5].[IsContinuousCombustionEngine], [t5].[IsIntermittentCombustionEngine], [t5].[IsSolidRocket], [t7].[VehicleName], [t7].[Capacity], [t7].[FuelType], [t7].[GrainGeometry], [t7].[IsSolidFuelTank]
+END AS [IsPoweredVehicle], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[IsLicensedOperator], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Computed], [t5].[Description], [t5].[IsContinuousCombustionEngine], [t5].[IsIntermittentCombustionEngine], [t5].[IsSolidRocket], [t7].[VehicleName], [t7].[Capacity], [t7].[FuelType], [t7].[GrainGeometry], [t7].[IsSolidFuelTank]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
@@ -66,7 +66,7 @@ LEFT JOIN (
     WHERE [v2].[Type] IS NOT NULL
 ) AS [t3] ON [t0].[Name] = [t3].[Name]
 LEFT JOIN (
-    SELECT [p2].[Name], [p2].[Description], CASE
+    SELECT [p2].[Name], [p2].[Computed], [p2].[Description], CASE
         WHEN [c0].[VehicleName] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [IsContinuousCombustionEngine], CASE
@@ -86,7 +86,7 @@ LEFT JOIN (
         FROM [Vehicles] AS [v5]
         INNER JOIN [PoweredVehicles] AS [p3] ON [v5].[Name] = [p3].[Name]
     ) AS [t4] ON [p2].[Name] = [t4].[Name]
-    WHERE [p2].[Description] IS NOT NULL
+    WHERE [p2].[Computed] IS NOT NULL
 ) AS [t5] ON [v].[Name] = [t5].[Name]
 LEFT JOIN (
     SELECT [c1].[VehicleName], [c1].[Capacity], [c1].[FuelType], [s0].[GrainGeometry], CASE
@@ -96,7 +96,7 @@ LEFT JOIN (
     FROM [CombustionEngines] AS [c1]
     LEFT JOIN [SolidFuelTanks] AS [s0] ON [c1].[VehicleName] = [s0].[VehicleName]
     INNER JOIN (
-        SELECT [p4].[Name], [p4].[Description], CASE
+        SELECT [p4].[Name], [p4].[Computed], [p4].[Description], CASE
             WHEN [c3].[VehicleName] IS NOT NULL THEN CAST(1 AS bit)
             ELSE CAST(0 AS bit)
         END AS [IsContinuousCombustionEngine], CASE
@@ -187,7 +187,7 @@ END AS [IsSolidFuelTank]
 FROM [CombustionEngines] AS [c]
 LEFT JOIN [SolidFuelTanks] AS [s] ON [c].[VehicleName] = [s].[VehicleName]
 INNER JOIN (
-    SELECT [p].[Name], [p].[Description], CASE
+    SELECT [p].[Name], [p].[Computed], [p].[Description], CASE
         WHEN [c1].[VehicleName] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [IsContinuousCombustionEngine], CASE
@@ -214,7 +214,7 @@ WHERE [c].[FuelType] IS NOT NULL OR [c].[Capacity] IS NOT NULL");
                 @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
 INNER JOIN (
-    SELECT [p].[Name], [p].[Description], CASE
+    SELECT [p].[Name], [p].[Computed], [p].[Description], CASE
         WHEN [c1].[VehicleName] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [IsContinuousCombustionEngine], CASE
@@ -241,7 +241,7 @@ WHERE [c].[FuelType] IS NOT NULL OR [c].[Capacity] IS NOT NULL");
                 @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
 INNER JOIN (
-    SELECT [p].[Name], [p].[Description], CASE
+    SELECT [p].[Name], [p].[Computed], [p].[Description], CASE
         WHEN [c1].[VehicleName] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [IsContinuousCombustionEngine], CASE

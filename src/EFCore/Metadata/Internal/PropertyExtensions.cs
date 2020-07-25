@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     values when new entities are added to the context.
         /// </summary>
         public static bool RequiresValueGenerator([NotNull] this IProperty property)
-            => ((property.ValueGenerated & ValueGenerated.OnAdd) == ValueGenerated.OnAdd
+            => (property.ValueGenerated.ForAdd()
                     && !property.IsForeignKey()
                     && property.IsKey())
                 || property.GetValueGeneratorFactory() != null;

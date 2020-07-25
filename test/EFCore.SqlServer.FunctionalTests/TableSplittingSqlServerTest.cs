@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
 
             // TODO: [Name] shouldn't be selected multiple times and no joins are needed
             AssertSql(
-                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t1].[Name], [t1].[Type], [t3].[Name], [t3].[Description], [t3].[Engine_Discriminator], [t7].[Name], [t7].[Capacity], [t7].[FuelTank_Discriminator], [t7].[FuelType], [t7].[GrainGeometry]
+                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t1].[Name], [t1].[Type], [t3].[Name], [t3].[Computed], [t3].[Description], [t3].[Engine_Discriminator], [t7].[Name], [t7].[Capacity], [t7].[FuelTank_Discriminator], [t7].[FuelType], [t7].[GrainGeometry]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
@@ -41,14 +42,14 @@ LEFT JOIN (
     WHERE [v2].[Type] IS NOT NULL
 ) AS [t1] ON [t].[Name] = [t1].[Name]
 LEFT JOIN (
-    SELECT [v5].[Name], [v5].[Description], [v5].[Engine_Discriminator], [t2].[Name] AS [Name0]
+    SELECT [v5].[Name], [v5].[Computed], [v5].[Description], [v5].[Engine_Discriminator], [t2].[Name] AS [Name0]
     FROM [Vehicles] AS [v5]
     INNER JOIN (
         SELECT [v6].[Name], [v6].[Discriminator], [v6].[SeatingCapacity]
         FROM [Vehicles] AS [v6]
         WHERE [v6].[Discriminator] = N'PoweredVehicle'
     ) AS [t2] ON [v5].[Name] = [t2].[Name]
-    WHERE [v5].[Engine_Discriminator] IS NOT NULL
+    WHERE [v5].[Engine_Discriminator] IS NOT NULL AND [v5].[Computed] IS NOT NULL
 ) AS [t3] ON [v].[Name] = [t3].[Name]
 LEFT JOIN (
     SELECT [v7].[Name], [v7].[Capacity], [v7].[FuelTank_Discriminator], [v7].[FuelType], [v7].[GrainGeometry]
@@ -63,7 +64,7 @@ LEFT JOIN (
     SELECT [v9].[Name], [v9].[Capacity], [v9].[FuelTank_Discriminator], [v9].[FuelType], [v9].[GrainGeometry]
     FROM [Vehicles] AS [v9]
     INNER JOIN (
-        SELECT [v10].[Name], [v10].[Description], [v10].[Engine_Discriminator], [t5].[Name] AS [Name0]
+        SELECT [v10].[Name], [v10].[Computed], [v10].[Description], [v10].[Engine_Discriminator], [t5].[Name] AS [Name0]
         FROM [Vehicles] AS [v10]
         INNER JOIN (
             SELECT [v11].[Name], [v11].[Discriminator], [v11].[SeatingCapacity]
@@ -145,7 +146,7 @@ UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelTank_Discriminator], [v1].[FuelType], [v1].[GrainGeometry]
 FROM [Vehicles] AS [v1]
 INNER JOIN (
-    SELECT [v2].[Name], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
+    SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
         SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity]
@@ -174,7 +175,7 @@ UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelType]
 FROM [Vehicles] AS [v1]
 INNER JOIN (
-    SELECT [v2].[Name], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
+    SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
         SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity]
@@ -203,7 +204,7 @@ UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelType]
 FROM [Vehicles] AS [v1]
 INNER JOIN (
-    SELECT [v2].[Name], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
+    SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator], [t0].[Name] AS [Name0]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
         SELECT [v3].[Name], [v3].[Discriminator], [v3].[SeatingCapacity]
@@ -263,6 +264,14 @@ LEFT JOIN (
     WHERE [v0].[Operator_Discriminator] IS NOT NULL
 ) AS [t] ON [v].[Name] = [t].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Engine>().ToTable("Vehicles")
+                .Property(e => e.Computed).HasComputedColumnSql("1", stored: true);
         }
     }
 }
