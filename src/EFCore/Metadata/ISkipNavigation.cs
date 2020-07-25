@@ -47,6 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The accessor. </returns>
         IClrCollectionAccessor INavigationBase.GetCollectionAccessor()
-            => new ClrCollectionAccessorFactory().Create(this);
+            => ((SkipNavigation)this).CollectionAccessor;
     }
 }
