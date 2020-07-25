@@ -99,9 +99,8 @@ ORDER BY (
     FROM [JoinOneToBranch] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityLeaf]
+            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+        END AS [c]
         FROM [Roots] AS [r]
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -177,12 +176,9 @@ INNER JOIN (
     FROM [JoinThreeToRootShared] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityBranch], CASE
-            WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityLeaf]
+            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+            WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+        END AS [c]
         FROM [Roots] AS [r]
         LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -361,24 +357,21 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
             await base.Skip_navigation_of_type(async);
 
             AssertSql(
-                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[RootId]
+                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[c], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[RootId]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId]
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[c], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId]
     FROM [JoinCompositeKeyToRootShared] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityBranch], CASE
-            WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityLeaf]
+            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+            WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+        END AS [c]
         FROM [Roots] AS [r]
         LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[RootId] = [t].[Id]
-    WHERE [t].[IsEntityLeaf] = CAST(1 AS bit)
+    WHERE [t].[c] = N'EntityLeaf'
 ) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[RootId], [t0].[Id]");
         }
@@ -508,24 +501,21 @@ INNER JOIN (
             await base.Select_many_over_skip_navigation_of_type(async);
 
             AssertSql(
-                @"SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[IsEntityLeaf]
+                @"SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[c]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
-    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[IsEntityLeaf], [j].[ThreeId], [j].[RootId]
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[c], [j].[ThreeId], [j].[RootId]
     FROM [JoinThreeToRootShared] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityBranch], CASE
-            WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityLeaf]
+            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+            WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+        END AS [c]
         FROM [Roots] AS [r]
         LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[RootId] = [t].[Id]
-    WHERE ([t].[IsEntityBranch] = CAST(1 AS bit)) OR ([t].[IsEntityLeaf] = CAST(1 AS bit))
+    WHERE [t].[c] IN (N'EntityBranch', N'EntityLeaf')
 ) AS [t0] ON [e].[Id] = [t0].[ThreeId]");
         }
 
@@ -534,16 +524,15 @@ INNER JOIN (
             await base.Select_many_over_skip_navigation_cast(async);
 
             AssertSql(
-                @"SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[IsEntityLeaf]
+                @"SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[c]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
-    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[IsEntityLeaf], [j].[BranchId], [j].[OneId]
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[c], [j].[BranchId], [j].[OneId]
     FROM [JoinOneToBranch] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityLeaf]
+            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+        END AS [c]
         FROM [Roots] AS [r]
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -615,19 +604,16 @@ ORDER BY [e].[Id]");
             await base.Include_skip_navigation(async);
 
             AssertSql(
-                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[IsEntityBranch], [t0].[IsEntityLeaf], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[RootId]
+                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[c], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[RootId]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[IsEntityBranch], [t].[IsEntityLeaf], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId]
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[c], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId]
     FROM [JoinCompositeKeyToRootShared] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityBranch], CASE
-            WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityLeaf]
+            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+            WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+        END AS [c]
         FROM [Roots] AS [r]
         LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -808,12 +794,9 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-    WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEntityBranch], CASE
-    WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEntityLeaf], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[ThreeId], [t0].[RootId], [t0].[Id0], [t0].[Name0], [t0].[OneId], [t0].[ThreeId0]
+    WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+    WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+END, [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[ThreeId], [t0].[RootId], [t0].[Id0], [t0].[Name0], [t0].[OneId], [t0].[ThreeId0]
 FROM [Roots] AS [r]
 LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -837,12 +820,9 @@ ORDER BY [r].[Id], [t0].[ThreeId], [t0].[RootId], [t0].[Id], [t0].[OneId], [t0].
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-    WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEntityBranch], CASE
-    WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEntityLeaf], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name0], [t1].[ReferenceInverseId], [t1].[ThreeId], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30]
+    WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+    WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+END, [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name0], [t1].[ReferenceInverseId], [t1].[ThreeId], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30]
 FROM [Roots] AS [r]
 LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -961,10 +941,10 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0], [t].[Id1]");
             await base.Filter_include_on_skip_navigation_combined_with_filtered_then_includes(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t3].[Id], [t3].[Name], [t3].[OneId], [t3].[ThreeId], [t3].[Id0], [t3].[CollectionInverseId], [t3].[Name0], [t3].[ReferenceInverseId], [t3].[OneId0], [t3].[TwoId], [t3].[Id1], [t3].[Name1], [t3].[Number], [t3].[IsGreen], [t3].[IsEntityLeaf], [t3].[BranchId], [t3].[OneId1]
+                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t3].[Id], [t3].[Name], [t3].[OneId], [t3].[ThreeId], [t3].[Id0], [t3].[CollectionInverseId], [t3].[Name0], [t3].[ReferenceInverseId], [t3].[OneId0], [t3].[TwoId], [t3].[Id1], [t3].[Name1], [t3].[Number], [t3].[IsGreen], [t3].[c], [t3].[BranchId], [t3].[OneId1]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[Name], [j].[OneId], [j].[ThreeId], [t0].[Id] AS [Id0], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId], [t0].[OneId] AS [OneId0], [t0].[TwoId], [t2].[Id] AS [Id1], [t2].[Name] AS [Name1], [t2].[Number], [t2].[IsGreen], [t2].[IsEntityLeaf], [t2].[BranchId], [t2].[OneId] AS [OneId1]
+    SELECT [e0].[Id], [e0].[Name], [j].[OneId], [j].[ThreeId], [t0].[Id] AS [Id0], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId], [t0].[OneId] AS [OneId0], [t0].[TwoId], [t2].[Id] AS [Id1], [t2].[Name] AS [Name1], [t2].[Number], [t2].[IsGreen], [t2].[c], [t2].[BranchId], [t2].[OneId] AS [OneId1]
     FROM [JoinOneToThreePayloadFull] AS [j]
     INNER JOIN [EntityOnes] AS [e0] ON [j].[OneId] = [e0].[Id]
     LEFT JOIN (
@@ -977,13 +957,12 @@ LEFT JOIN (
         WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
     ) AS [t0] ON [e0].[Id] = [t0].[OneId]
     LEFT JOIN (
-        SELECT [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[IsEntityLeaf], [j1].[BranchId], [j1].[OneId]
+        SELECT [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[c], [j1].[BranchId], [j1].[OneId]
         FROM [JoinOneToBranch] AS [j1]
         INNER JOIN (
             SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-                WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-                ELSE CAST(0 AS bit)
-            END AS [IsEntityLeaf]
+                WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+            END AS [c]
             FROM [Roots] AS [r]
             INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
             LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -1060,19 +1039,16 @@ ORDER BY [e].[Id], [t0].[Id], [t0].[TwoId], [t0].[ThreeId], [t0].[Id0]");
 FROM [EntityCompositeKeys] AS [e]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3]",
                 //
-                @"SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[IsEntityBranch], [t0].[IsEntityLeaf], [e].[Key1], [e].[Key2], [e].[Key3]
+                @"SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[c], [e].[Key1], [e].[Key2], [e].[Key3]
 FROM [EntityCompositeKeys] AS [e]
 INNER JOIN (
-    SELECT [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId], [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[IsEntityBranch], [t].[IsEntityLeaf]
+    SELECT [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId], [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[c]
     FROM [JoinCompositeKeyToRootShared] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityBranch], CASE
-            WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityLeaf]
+            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+            WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+        END AS [c]
         FROM [Roots] AS [r]
         LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -1318,12 +1294,9 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-    WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEntityBranch], CASE
-    WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEntityLeaf]
+    WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+    WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+END
 FROM [Roots] AS [r]
 LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -1364,12 +1337,9 @@ ORDER BY [r].[Id], [t].[ThreeId], [t].[RootId], [t].[Id]");
 
             AssertSql(
                 @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-    WHEN [b].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEntityBranch], CASE
-    WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsEntityLeaf]
+    WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+    WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+END
 FROM [Roots] AS [r]
 LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -1600,7 +1570,7 @@ INNER JOIN (
 ) AS [t1] ON [t].[Id] = [t1].[OneId]
 ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id], [t1].[OneId], [t1].[Id]",
                 //
-                @"SELECT [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[IsEntityLeaf], [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
+                @"SELECT [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[c], [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
     SELECT [j].[OneId], [j].[ThreeId], [j].[Payload], [e0].[Id], [e0].[Name]
@@ -1609,13 +1579,12 @@ INNER JOIN (
     WHERE [e0].[Id] < 10
 ) AS [t] ON [e].[Id] = [t].[ThreeId]
 INNER JOIN (
-    SELECT [j0].[BranchId], [j0].[OneId], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[IsEntityLeaf]
+    SELECT [j0].[BranchId], [j0].[OneId], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[c]
     FROM [JoinOneToBranch] AS [j0]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [l].[Id] IS NOT NULL THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END AS [IsEntityLeaf]
+            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+        END AS [c]
         FROM [Roots] AS [r]
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]

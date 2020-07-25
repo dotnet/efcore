@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -44,18 +46,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entityType"> The entity type to shape. </param>
         /// <param name="propertyExpressionMap"> A dictionary of column expressions corresponding to properties of the entity type. </param>
-        /// <param name="entityTypeIdentifyingExpressionMap"> A dictionary of <see cref="SqlExpression"/> to identify each entity type in hierarchy. </param>
+        /// <param name="discriminatorExpression"> A <see cref="SqlExpression"/> to generate discriminator for each concrete entity type in hierarchy. </param>
         public EntityProjectionExpression(
             [NotNull] IEntityType entityType,
             [NotNull] IDictionary<IProperty, ColumnExpression> propertyExpressionMap,
-            [CanBeNull] IReadOnlyDictionary<IEntityType, SqlExpression> entityTypeIdentifyingExpressionMap = null)
+            [CanBeNull] SqlExpression discriminatorExpression = null)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyExpressionMap, nameof(propertyExpressionMap));
 
             EntityType = entityType;
             _propertyExpressionMap = propertyExpressionMap;
-            EntityTypeIdentifyingExpressionMap = entityTypeIdentifyingExpressionMap;
+            DiscriminatorExpression = discriminatorExpression;
         }
 
         /// <summary>
@@ -63,9 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual IEntityType EntityType { get; }
         /// <summary>
-        ///     Dictionary of entity type identifying expressions.
+        ///     A <see cref="SqlExpression"/> to generate discriminator for entity type.
         /// </summary>
-        public virtual IReadOnlyDictionary<IEntityType, SqlExpression> EntityTypeIdentifyingExpressionMap { get; }
+        public virtual SqlExpression DiscriminatorExpression { get; }
         /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
         /// <inheritdoc />
@@ -86,21 +88,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 propertyExpressionMap[expression.Key] = newExpression;
             }
 
-            Dictionary<IEntityType, SqlExpression> entityTypeIdentifyingExpressionMap = null;
-            if (EntityTypeIdentifyingExpressionMap != null)
-            {
-                entityTypeIdentifyingExpressionMap = new Dictionary<IEntityType, SqlExpression>();
-                foreach (var expression in EntityTypeIdentifyingExpressionMap)
-                {
-                    var newExpression = (SqlExpression)visitor.Visit(expression.Value);
-                    changed |= newExpression != expression.Value;
-
-                    entityTypeIdentifyingExpressionMap[expression.Key] = newExpression;
-                }
-            }
+            var discriminatorExpression = (SqlExpression)visitor.Visit(DiscriminatorExpression);
+            changed |= discriminatorExpression != DiscriminatorExpression;
 
             return changed
-                ? new EntityProjectionExpression(EntityType, propertyExpressionMap, entityTypeIdentifyingExpressionMap)
+                ? new EntityProjectionExpression(EntityType, propertyExpressionMap, discriminatorExpression)
                 : this;
         }
 
@@ -116,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 propertyExpressionMap[expression.Key] = expression.Value.MakeNullable();
             }
 
-            // We don't need to process EntityTypeIdentifyingExpressionMap because they are already nullable
-            return new EntityProjectionExpression(EntityType, propertyExpressionMap, EntityTypeIdentifyingExpressionMap);
+            // We don't need to process DiscriminatorExpression because they are already nullable
+            return new EntityProjectionExpression(EntityType, propertyExpressionMap, DiscriminatorExpression);
         }
 
         /// <summary>
@@ -140,21 +132,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            Dictionary<IEntityType, SqlExpression> entityTypeIdentifyingExpressionMap = null;
-            if (EntityTypeIdentifyingExpressionMap != null)
+            var discriminatorExpression = DiscriminatorExpression;
+            if (DiscriminatorExpression is CaseExpression caseExpression)
             {
-                entityTypeIdentifyingExpressionMap = new Dictionary<IEntityType, SqlExpression>();
-                foreach (var kvp in EntityTypeIdentifyingExpressionMap)
-                {
-                    var entityType = kvp.Key;
-                    if (entityType.IsStrictlyDerivedFrom(derivedType))
-                    {
-                        entityTypeIdentifyingExpressionMap[entityType] = kvp.Value;
-                    }
-                }
+                var entityTypesToSelect = derivedType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract())
+                    .Select(et => et.ShortName()).ToHashSet();
+                var whenClauses = caseExpression.WhenClauses
+                    .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value))
+                    .ToList();
+
+                discriminatorExpression = caseExpression.Update(operand: null, whenClauses, elseResult: null);
             }
 
-            return new EntityProjectionExpression(derivedType, propertyExpressionMap, entityTypeIdentifyingExpressionMap);
+            return new EntityProjectionExpression(derivedType, propertyExpressionMap, discriminatorExpression);
         }
 
         /// <summary>

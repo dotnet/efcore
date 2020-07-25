@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -72,22 +73,28 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 // TPT
                 var valueBufferParameter = Parameter(typeof(ValueBuffer));
-                var body = entityType.IsAbstract()
+                var discriminatorValueVariable = Variable(typeof(string), "discriminator");
+                var expressions = new List<Expression>
+                {
+                    Assign(
+                        discriminatorValueVariable,
+                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(string), 0, null))
+                };
+
+                var derivedConcreteEntityTypes = entityType.GetDerivedTypes().Where(dt => !dt.IsAbstract()).ToArray();
+                var switchCases = new SwitchCase[derivedConcreteEntityTypes.Length];
+                for (var i = 0; i < derivedConcreteEntityTypes.Length; i++)
+                {
+                    var discriminatorValue = Constant(derivedConcreteEntityTypes[i].ShortName(), typeof(string));
+                    switchCases[i] = SwitchCase(Constant(derivedConcreteEntityTypes[i], typeof(IEntityType)), discriminatorValue);
+                }
+
+                var defaultBlock = entityType.IsAbstract()
                     ? Block(Throw(Call(_createUnableToIdentifyConcreteTypeException)), Constant(null, typeof(IEntityType)))
                     : (Expression)Constant(entityType, typeof(IEntityType));
 
-                var concreteEntityTypes = entityType.GetDerivedTypes().Where(dt => !dt.IsAbstract()).ToArray();
-                for (var i = 0; i < concreteEntityTypes.Length; i++)
-                {
-                    body = Condition(
-                        Equal(
-                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(bool?), i, property: null),
-                            Constant(true, typeof(bool?))),
-                        Constant(concreteEntityTypes[i], typeof(IEntityType)),
-                        body);
-                }
-
-                baseCondition = Lambda(body, valueBufferParameter);
+                expressions.Add(Switch(discriminatorValueVariable, defaultBlock, switchCases));
+                baseCondition = Lambda(Block(new[] { discriminatorValueVariable }, expressions), valueBufferParameter);
             }
             else
             {

@@ -775,16 +775,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (discriminatorProperty == null)
                     {
                         // TPT
+                        var discriminatorValues = concreteEntityTypes.Select(et => et.ShortName()).ToList();
                         if (entityReferenceExpression.SubqueryEntity != null)
                         {
                             var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
                             var entityProjection = (EntityProjectionExpression)Visit(entityShaper.ValueBufferExpression);
                             var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
 
-                            var predicate = entityProjection.EntityTypeIdentifyingExpressionMap
-                                .Where(kvp => concreteEntityTypes.Contains(kvp.Key))
-                                .Select(kvp => kvp.Value)
-                                .Aggregate((l, r) => _sqlExpressionFactory.OrElse(l, r));
+                            var predicate = GeneratePredicateTPT(entityProjection);
 
                             subSelectExpression.ApplyPredicate(predicate);
                             subSelectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>());
@@ -802,16 +800,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var entityProjection = (EntityProjectionExpression)Visit(
                                 entityReferenceExpression.ParameterEntity.ValueBufferExpression);
 
-                            return entityProjection.EntityTypeIdentifyingExpressionMap
-                                .Where(kvp => concreteEntityTypes.Contains(kvp.Key))
-                                .Select(kvp => kvp.Value)
-                                .Aggregate((l, r) => _sqlExpressionFactory.OrElse(l, r));
+                            return GeneratePredicateTPT(entityProjection);
+                        }
+
+                        SqlExpression GeneratePredicateTPT(EntityProjectionExpression entityProjectionExpression)
+                        {
+                            if (entityProjectionExpression.DiscriminatorExpression is CaseExpression caseExpression)
+                            {
+                                var matchingCaseWhenClauses = caseExpression.WhenClauses
+                                    .Where(wc => discriminatorValues.Contains((string)((SqlConstantExpression)wc.Result).Value))
+                                    .ToList();
+
+                                return matchingCaseWhenClauses.Count == 1
+                                    ? matchingCaseWhenClauses[0].Test
+                                    : matchingCaseWhenClauses.Select(e => e.Test)
+                                        .Aggregate((l, r) => _sqlExpressionFactory.OrElse(l, r));
+                            }
+
+                            return discriminatorValues.Count == 1
+                                ? _sqlExpressionFactory.Equal(
+                                    entityProjectionExpression.DiscriminatorExpression,
+                                    _sqlExpressionFactory.Constant(discriminatorValues[0]))
+                                : (SqlExpression)_sqlExpressionFactory.In(
+                                    entityProjectionExpression.DiscriminatorExpression,
+                                    _sqlExpressionFactory.Constant(discriminatorValues),
+                                    negated: false);
                         }
                     }
                     else
                     {
                         var discriminatorColumn = BindProperty(entityReferenceExpression, discriminatorProperty);
-
                         if (discriminatorColumn != null)
                         {
                             return concreteEntityTypes.Count == 1
@@ -1169,9 +1187,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 result = Visit(primaryKeyProperties1.Select(p =>
                     {
-                    var comparison = Expression.Call(_objectEqualsMethodInfo,
-                        Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
-                        Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+                        var comparison = Expression.Call(_objectEqualsMethodInfo,
+                            Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
+                            Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
 
                         return nodeType == ExpressionType.Equal
                             ? (Expression)comparison

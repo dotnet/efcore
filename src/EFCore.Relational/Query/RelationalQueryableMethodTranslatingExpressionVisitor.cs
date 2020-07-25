@@ -783,7 +783,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (discriminatorProperty == null)
                     {
                         var selectExpression = (SelectExpression)source.QueryExpression;
-                        var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
+                        var discriminatorValues = derivedType.GetConcreteDerivedTypesInclusive().Where(et => !et.IsAbstract())
+                            .Select(et => et.ShortName()).ToList();
                         var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
 
                         var projectionMember = projectionBindingExpression.ProjectionMember;
@@ -793,10 +794,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetMappedProjection(projectionMember);
 
-                        var predicate = entityProjectionExpression.EntityTypeIdentifyingExpressionMap
-                            .Where(kvp => concreteEntityTypes.Contains(kvp.Key))
-                            .Select(kvp => kvp.Value)
-                            .Aggregate((l, r) => _sqlExpressionFactory.OrElse(l, r));
+                        var predicate = GeneratePredicateTPT(entityProjectionExpression);
 
                         selectExpression.ApplyPredicate(predicate);
                         selectExpression.ReplaceProjectionMapping(
@@ -804,6 +802,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
                             });
+
+                        SqlExpression GeneratePredicateTPT(EntityProjectionExpression entityProjectionExpression)
+                        {
+                            if (entityProjectionExpression.DiscriminatorExpression is CaseExpression caseExpression)
+                            {
+                                var matchingCaseWhenClauses = caseExpression.WhenClauses
+                                    .Where(wc => discriminatorValues.Contains((string)((SqlConstantExpression)wc.Result).Value))
+                                    .ToList();
+
+                                return matchingCaseWhenClauses.Count == 1
+                                    ? matchingCaseWhenClauses[0].Test
+                                    : matchingCaseWhenClauses.Select(e => e.Test)
+                                        .Aggregate((l, r) => _sqlExpressionFactory.OrElse(l, r));
+                            }
+
+                            return discriminatorValues.Count == 1
+                                ? _sqlExpressionFactory.Equal(
+                                    entityProjectionExpression.DiscriminatorExpression,
+                                    _sqlExpressionFactory.Constant(discriminatorValues[0]))
+                                : (SqlExpression)_sqlExpressionFactory.In(
+                                    entityProjectionExpression.DiscriminatorExpression,
+                                    _sqlExpressionFactory.Constant(discriminatorValues),
+                                    negated: false);
+                        }
                     }
                     else if (!derivedType.GetRootType().GetIsDiscriminatorMappingComplete()
                             || !derivedType.GetAllBaseTypesInclusiveAscending()
