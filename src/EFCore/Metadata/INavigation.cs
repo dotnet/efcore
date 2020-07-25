@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             [DebuggerStepThrough]
             get => ForeignKey.DependentToPrincipal == this;
-        }            
+        }
 
         /// <summary>
         ///     Gets a value indicating whether the navigation property is a collection property.
@@ -76,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The accessor. </returns>
         [DebuggerStepThrough]
-        IClrCollectionAccessor INavigationBase.GetCollectionAccessor() => new ClrCollectionAccessorFactory().Create(this);
+        IClrCollectionAccessor INavigationBase.GetCollectionAccessor()
+            => ((Navigation)this).CollectionAccessor;
     }
 }
