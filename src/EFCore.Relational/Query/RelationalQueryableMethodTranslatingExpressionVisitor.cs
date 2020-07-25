@@ -783,8 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (discriminatorProperty == null)
                     {
                         var selectExpression = (SelectExpression)source.QueryExpression;
-                        var discriminatorValues = derivedType.GetConcreteDerivedTypesInclusive().Where(et => !et.IsAbstract())
-                            .Select(et => et.ShortName()).ToList();
+                        var discriminatorValues = derivedType.GetTptDiscriminatorValues();
                         var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
 
                         var projectionMember = projectionBindingExpression.ProjectionMember;

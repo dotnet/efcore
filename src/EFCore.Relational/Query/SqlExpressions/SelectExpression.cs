@@ -38,6 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThanOrEqual },
         };
 
+        private const string DiscriminatorColumnAlias = "Discriminator";
+
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
 
@@ -328,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                     if (entityProjection.DiscriminatorExpression != null)
                     {
-                        AddToProjection(entityProjection.DiscriminatorExpression);
+                        AddToProjection(entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
                     }
 
                     result[keyValuePair.Key] = Constant(map);
@@ -443,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 if (entityProjection.DiscriminatorExpression != null)
                 {
-                    AddToProjection(entityProjection.DiscriminatorExpression);
+                    AddToProjection(entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
                 }
 
                 _entityProjectionCache[entityProjection] = dictionary;
@@ -933,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     discriminatorExpression = GenerateDiscriminatorExpression(
                         select1, projection1.DiscriminatorExpression,
                         select2, projection2.DiscriminatorExpression,
-                        "Discriminator");
+                        DiscriminatorColumnAlias);
                 }
 
                 _projectionMapping[projectionMember] = new EntityProjectionExpression(
@@ -1143,7 +1145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 ColumnExpression discriminatorExpression = null;
                 if (entityProjection.DiscriminatorExpression != null)
                 {
-                    discriminatorExpression = subquery.GenerateOuterColumn(entityProjection.DiscriminatorExpression);
+                    discriminatorExpression = subquery.GenerateOuterColumn(entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
                     projectionMap[entityProjection.DiscriminatorExpression] = discriminatorExpression;
                 }
 

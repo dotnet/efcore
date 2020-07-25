@@ -22,19 +22,19 @@ namespace Microsoft.EntityFrameworkCore
             AssertSql(
                 @"SELECT [v].[Name], [v].[SeatingCapacity], CASE
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-END, [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[c], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Computed], [t5].[Description], [t5].[c], [t7].[VehicleName], [t7].[Capacity], [t7].[FuelType], [t7].[GrainGeometry], [t7].[c]
+END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[Discriminator], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Computed], [t5].[Description], [t5].[Discriminator], [t7].[VehicleName], [t7].[Capacity], [t7].[FuelType], [t7].[GrainGeometry], [t7].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-    END AS [c], [t].[Name] AS [Name0]
+    END AS [Discriminator], [t].[Name] AS [Name0]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [LicensedOperators] AS [l] ON [v0].[Name] = [l].[VehicleName]
     INNER JOIN (
         SELECT [v1].[Name], [v1].[SeatingCapacity], CASE
             WHEN [p0].[Name] IS NOT NULL THEN N'PoweredVehicle'
-        END AS [c]
+        END AS [Discriminator]
         FROM [Vehicles] AS [v1]
         LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
@@ -46,13 +46,13 @@ LEFT JOIN (
     INNER JOIN (
         SELECT [v3].[Name], [v3].[Operator_Name], [v3].[RequiredInt], [l0].[LicenseType], CASE
             WHEN [l0].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-        END AS [c], [t1].[Name] AS [Name0]
+        END AS [Discriminator], [t1].[Name] AS [Name0]
         FROM [Vehicles] AS [v3]
         LEFT JOIN [LicensedOperators] AS [l0] ON [v3].[Name] = [l0].[VehicleName]
         INNER JOIN (
             SELECT [v4].[Name], [v4].[SeatingCapacity], CASE
                 WHEN [p1].[Name] IS NOT NULL THEN N'PoweredVehicle'
-            END AS [c]
+            END AS [Discriminator]
             FROM [Vehicles] AS [v4]
             LEFT JOIN [PoweredVehicles] AS [p1] ON [v4].[Name] = [p1].[Name]
         ) AS [t1] ON [v3].[Name] = [t1].[Name]
@@ -65,7 +65,7 @@ LEFT JOIN (
         WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
         WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
         WHEN [c0].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-    END AS [c], [t4].[Name] AS [Name0]
+    END AS [Discriminator], [t4].[Name] AS [Name0]
     FROM [PoweredVehicles] AS [p2]
     LEFT JOIN [CombustionEngines] AS [c] ON [p2].[Name] = [c].[VehicleName]
     LEFT JOIN [ContinuousCombustionEngines] AS [c0] ON [p2].[Name] = [c0].[VehicleName]
@@ -81,7 +81,7 @@ LEFT JOIN (
 LEFT JOIN (
     SELECT [c1].[VehicleName], [c1].[Capacity], [c1].[FuelType], [s0].[GrainGeometry], CASE
         WHEN [s0].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
-    END AS [c], [t6].[Name]
+    END AS [Discriminator], [t6].[Name]
     FROM [CombustionEngines] AS [c1]
     LEFT JOIN [SolidFuelTanks] AS [s0] ON [c1].[VehicleName] = [s0].[VehicleName]
     INNER JOIN (
@@ -89,7 +89,7 @@ LEFT JOIN (
             WHEN [s1].[VehicleName] IS NOT NULL THEN N'SolidRocket'
             WHEN [i0].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
             WHEN [c3].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-        END AS [c]
+        END AS [Discriminator]
         FROM [PoweredVehicles] AS [p4]
         INNER JOIN [CombustionEngines] AS [c2] ON [p4].[Name] = [c2].[VehicleName]
         LEFT JOIN [ContinuousCombustionEngines] AS [c3] ON [p4].[Name] = [c3].[VehicleName]
@@ -108,13 +108,13 @@ ORDER BY [v].[Name]");
             AssertSql(
                 @"SELECT [v].[Name], [v].[Operator_Name], [v].[RequiredInt], [l].[LicenseType], CASE
     WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-END
+END AS [Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [LicensedOperators] AS [l] ON [v].[Name] = [l].[VehicleName]
 INNER JOIN (
     SELECT [v0].[Name], [v0].[SeatingCapacity], CASE
         WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-    END AS [c]
+    END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]
@@ -131,7 +131,7 @@ FROM [Vehicles] AS [v]
 INNER JOIN (
     SELECT [v0].[Name], [v0].[SeatingCapacity], CASE
         WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-    END AS [c]
+    END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]
@@ -148,7 +148,7 @@ FROM [Vehicles] AS [v]
 INNER JOIN (
     SELECT [v0].[Name], [v0].[SeatingCapacity], CASE
         WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-    END AS [c]
+    END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]
@@ -162,7 +162,7 @@ WHERE [v].[RequiredInt] IS NOT NULL");
             AssertSql(
                 @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType], [s].[GrainGeometry], CASE
     WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
-END
+END AS [Discriminator]
 FROM [CombustionEngines] AS [c]
 LEFT JOIN [SolidFuelTanks] AS [s] ON [c].[VehicleName] = [s].[VehicleName]
 INNER JOIN (
@@ -170,7 +170,7 @@ INNER JOIN (
         WHEN [s0].[VehicleName] IS NOT NULL THEN N'SolidRocket'
         WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
         WHEN [c1].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-    END AS [c]
+    END AS [Discriminator]
     FROM [PoweredVehicles] AS [p]
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
     LEFT JOIN [ContinuousCombustionEngines] AS [c1] ON [p].[Name] = [c1].[VehicleName]
@@ -192,7 +192,7 @@ INNER JOIN (
         WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
         WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
         WHEN [c1].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-    END AS [c]
+    END AS [Discriminator]
     FROM [PoweredVehicles] AS [p]
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
     LEFT JOIN [ContinuousCombustionEngines] AS [c1] ON [p].[Name] = [c1].[VehicleName]
@@ -214,7 +214,7 @@ INNER JOIN (
         WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
         WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
         WHEN [c1].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-    END AS [c]
+    END AS [Discriminator]
     FROM [PoweredVehicles] AS [p]
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
     LEFT JOIN [ContinuousCombustionEngines] AS [c1] ON [p].[Name] = [c1].[VehicleName]
@@ -248,19 +248,19 @@ VALUES (@p2, @p3);",
                 //
                 @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-END, [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[c]
+END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-    END AS [c], [t].[Name] AS [Name0]
+    END AS [Discriminator], [t].[Name] AS [Name0]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [LicensedOperators] AS [l] ON [v0].[Name] = [l].[VehicleName]
     INNER JOIN (
         SELECT [v1].[Name], [v1].[SeatingCapacity], CASE
             WHEN [p0].[Name] IS NOT NULL THEN N'PoweredVehicle'
-        END AS [c]
+        END AS [Discriminator]
         FROM [Vehicles] AS [v1]
         LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
@@ -284,19 +284,19 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-END, [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[c]
+END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-    END AS [c], [t].[Name] AS [Name0]
+    END AS [Discriminator], [t].[Name] AS [Name0]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [LicensedOperators] AS [l] ON [v0].[Name] = [l].[VehicleName]
     INNER JOIN (
         SELECT [v1].[Name], [v1].[SeatingCapacity], CASE
             WHEN [p0].[Name] IS NOT NULL THEN N'PoweredVehicle'
-        END AS [c]
+        END AS [Discriminator]
         FROM [Vehicles] AS [v1]
         LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
