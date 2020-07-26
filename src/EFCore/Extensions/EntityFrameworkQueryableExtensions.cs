@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using System.Diagnostics.CodeAnalysis;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -404,6 +405,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source"/> is <see langword="null" />.
         /// </exception>
+        [return: MaybeNull]
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [JB.NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -440,6 +442,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name = "source"/> or <paramref name="predicate"/> is <see langword="null" />.
         /// </exception>
+        [return: MaybeNull]
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [JB.NotNull] this IQueryable<TSource> source,
             [JB.NotNull] Expression<Func<TSource, bool>> predicate,
@@ -561,6 +564,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source"/> is <see langword="null" />.
         /// </exception>
+        [return: MaybeNull]
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [JB.NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -597,6 +601,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source"/> or <paramref name="predicate"/> is <see langword="null" />.
         /// </exception>
+        [return: MaybeNull]
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [JB.NotNull] this IQueryable<TSource> source,
             [JB.NotNull] Expression<Func<TSource, bool>> predicate,
@@ -739,6 +744,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException">
         ///     <paramref name="source"/> contains more than one element.
         /// </exception>
+        [return: MaybeNull]
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [JB.NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -778,6 +784,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException">
         ///    More than one element satisfies the condition in <paramref name="predicate"/>.
         /// </exception>
+        [return: MaybeNull]
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [JB.NotNull] this IQueryable<TSource> source,
             [JB.NotNull] Expression<Func<TSource, bool>> predicate,
