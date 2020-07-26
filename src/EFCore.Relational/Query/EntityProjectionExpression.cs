@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -135,8 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var discriminatorExpression = DiscriminatorExpression;
             if (DiscriminatorExpression is CaseExpression caseExpression)
             {
-                var entityTypesToSelect = derivedType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract())
-                    .Select(et => et.ShortName()).ToHashSet();
+                var entityTypesToSelect = derivedType.GetTptDiscriminatorValues();
                 var whenClauses = caseExpression.WhenClauses
                     .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value))
                     .ToList();

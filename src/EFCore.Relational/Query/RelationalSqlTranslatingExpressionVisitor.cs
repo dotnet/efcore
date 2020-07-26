@@ -780,12 +780,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
                 if (derivedType != null)
                 {
-                    var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                     var discriminatorProperty = entityType.GetDiscriminatorProperty();
                     if (discriminatorProperty == null)
                     {
                         // TPT
-                        var discriminatorValues = concreteEntityTypes.Select(et => et.ShortName()).ToList();
+                        var discriminatorValues = derivedType.GetTptDiscriminatorValues();
                         if (entityReferenceExpression.SubqueryEntity != null)
                         {
                             var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
@@ -839,6 +838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
+                        var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                         var discriminatorColumn = BindProperty(entityReferenceExpression, discriminatorProperty);
                         if (discriminatorColumn != null)
                         {

@@ -40,7 +40,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -54,13 +54,13 @@ ORDER BY [a].[Species]");
             await base.Can_include_animals(async);
 
             AssertSql(
-                @"SELECT [c].[Id], [c].[Name], [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[c]
+                @"SELECT [c].[Id], [c].[Name], [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM [Countries] AS [c]
 LEFT JOIN (
     SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
         WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
         WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-    END AS [c]
+    END AS [Discriminator]
     FROM [Animals] AS [a]
     LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
     LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -74,7 +74,7 @@ ORDER BY [c].[Name], [c].[Id], [t].[Species]");
             await base.Can_include_prey(async);
 
             AssertSql(
-                @"SELECT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t0].[Species], [t0].[CountryId], [t0].[Name], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t0].[FoundOn], [t0].[c]
+                @"SELECT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t0].[Species], [t0].[CountryId], [t0].[Name], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t0].[FoundOn], [t0].[Discriminator]
 FROM (
     SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group]
     FROM [Animals] AS [a]
@@ -85,7 +85,7 @@ LEFT JOIN (
     SELECT [a0].[Species], [a0].[CountryId], [a0].[Name], [b0].[EagleId], [b0].[IsFlightless], [e0].[Group], [k].[FoundOn], CASE
         WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
         WHEN [e0].[Species] IS NOT NULL THEN N'Eagle'
-    END AS [c]
+    END AS [Discriminator]
     FROM [Animals] AS [a0]
     INNER JOIN [Birds] AS [b0] ON [a0].[Species] = [b0].[Species]
     LEFT JOIN [Eagle] AS [e0] ON [a0].[Species] = [e0].[Species]
@@ -182,7 +182,7 @@ WHERE [a].[Species] LIKE N'%owenii'");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -198,7 +198,7 @@ ORDER BY [a].[Species]");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -214,7 +214,7 @@ ORDER BY [a].[Species]");
                 @"SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns], CASE
     WHEN [r].[Species] IS NOT NULL THEN N'Rose'
     WHEN [d].[Species] IS NOT NULL THEN N'Daisy'
-END
+END AS [Discriminator]
 FROM [Plants] AS [p]
 LEFT JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
 LEFT JOIN [Daisies] AS [d] ON [p].[Species] = [d].[Species]
@@ -231,7 +231,7 @@ ORDER BY [p].[Species]");
     WHEN [t].[Id] IS NOT NULL THEN N'Tea'
     WHEN [l].[Id] IS NOT NULL THEN N'Lilt'
     WHEN [c].[Id] IS NOT NULL THEN N'Coke'
-END
+END AS [Discriminator]
 FROM [Drinks] AS [d]
 LEFT JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
 LEFT JOIN [Lilt] AS [l] ON [d].[Id] = [l].[Id]
@@ -304,7 +304,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -335,7 +335,7 @@ LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -351,7 +351,7 @@ WHERE [k].[Species] IS NOT NULL AND ([a].[CountryId] = 1)");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -367,7 +367,7 @@ ORDER BY [a].[Species]");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -384,7 +384,7 @@ ORDER BY [a].[Species]");
                 @"SELECT TOP(1) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -401,7 +401,7 @@ ORDER BY [a].[Species]");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -430,7 +430,7 @@ WHERE [k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -445,7 +445,7 @@ WHERE [k].[Species] IS NOT NULL");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -460,7 +460,7 @@ WHERE [k].[Species] IS NOT NULL AND ([k].[FoundOn] = CAST(0 AS tinyint))");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -475,7 +475,7 @@ WHERE [k].[Species] IS NOT NULL AND ([k].[FoundOn] = CAST(1 AS tinyint))");
             AssertSql(
                 @"SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns], CASE
     WHEN [r].[Species] IS NOT NULL THEN N'Rose'
-END
+END AS [Discriminator]
 FROM [Plants] AS [p]
 LEFT JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
 LEFT JOIN [Daisies] AS [d] ON [p].[Species] = [d].[Species]
@@ -535,18 +535,18 @@ VALUES (@p0, @p1, @p2);");
             AssertSql(
                 @"@__p_0='5'
 
-SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn], [t].[c]
+SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
         WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
         WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-    END AS [c]
+    END AS [Discriminator]
     FROM [Animals] AS [a]
     INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
     LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 ) AS [t]
-WHERE [t].[c] = N'Kiwi'");
+WHERE [t].[Discriminator] = N'Kiwi'");
         }
 
         public override async Task Union_entity_equality(bool async)
@@ -571,7 +571,7 @@ WHERE [t].[c] = N'Kiwi'");
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-END
+END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
@@ -582,7 +582,7 @@ WHERE EXISTS (
         SELECT TOP(1) [a0].[Species], [a0].[CountryId], [a0].[Name], [b0].[EagleId], [b0].[IsFlightless], [e0].[Group], [k0].[FoundOn], CASE
             WHEN [k0].[Species] IS NOT NULL THEN N'Kiwi'
             WHEN [e0].[Species] IS NOT NULL THEN N'Eagle'
-        END AS [c], [k0].[Species] AS [Species0]
+        END AS [Discriminator], [k0].[Species] AS [Species0]
         FROM [Animals] AS [a0]
         LEFT JOIN [Birds] AS [b0] ON [a0].[Species] = [b0].[Species]
         LEFT JOIN [Eagle] AS [e0] ON [a0].[Species] = [e0].[Species]
