@@ -69,7 +69,7 @@ namespace Microsoft.Data.Sqlite
 
         /// <summary>
         ///     Gets or sets a value indicating how <see cref="CommandText" /> is interpreted. Only
-        ///     <see cref="MediaTypeNames.Text" /> is supported.
+        ///     <see cref="CommandType.Text" /> is supported.
         /// </summary>
         /// <value>A value indicating how <see cref="CommandText" /> is interpreted.</value>
         public override CommandType CommandType
