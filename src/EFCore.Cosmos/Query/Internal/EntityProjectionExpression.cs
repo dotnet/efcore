@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -22,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class EntityProjectionExpression : Expression, IPrintableExpression, IAccessExpression
     {
-        private readonly IDictionary<IProperty, IAccessExpression> _propertyExpressionsCache
+        private readonly IDictionary<IProperty, IAccessExpression> _propertyExpressionsMap
             = new Dictionary<IProperty, IAccessExpression>();
 
-        private readonly IDictionary<INavigation, IAccessExpression> _navigationExpressionsCache
+        private readonly IDictionary<INavigation, IAccessExpression> _navigationExpressionsMap
             = new Dictionary<INavigation, IAccessExpression>();
 
         /// <summary>
@@ -121,10 +122,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         "GetProperty", nameof(IProperty), EntityType.DisplayName(), $"Property:{property.Name}"));
             }
 
-            if (!_propertyExpressionsCache.TryGetValue(property, out var expression))
+            if (!_propertyExpressionsMap.TryGetValue(property, out var expression))
             {
                 expression = new KeyAccessExpression(property, AccessExpression);
-                _propertyExpressionsCache[property] = expression;
+                _propertyExpressionsMap[property] = expression;
             }
 
             if (!clientEval
@@ -153,20 +154,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         "GetNavigation", nameof(INavigation), EntityType.DisplayName(), $"Navigation:{navigation.Name}"));
             }
 
-            if (!_navigationExpressionsCache.TryGetValue(navigation, out var expression))
+            if (!_navigationExpressionsMap.TryGetValue(navigation, out var expression))
             {
-                if (navigation.IsCollection)
-                {
-                    expression = new ObjectArrayProjectionExpression(navigation, AccessExpression);
-                }
-                else
-                {
-                    expression = new EntityProjectionExpression(
+                expression = navigation.IsCollection
+                    ? new ObjectArrayProjectionExpression(navigation, AccessExpression)
+                    : (IAccessExpression)new EntityProjectionExpression(
                         navigation.TargetEntityType,
                         new ObjectAccessExpression(navigation, AccessExpression));
-                }
 
-                _navigationExpressionsCache[navigation] = expression;
+                _navigationExpressionsMap[navigation] = expression;
             }
 
             if (!clientEval
@@ -229,6 +225,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             // Entity member not found
             propertyBase = null;
             return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual EntityProjectionExpression UpdateEntityType([NotNull] IEntityType derivedType)
+        {
+            Check.NotNull(derivedType, nameof(derivedType));
+
+            if (!derivedType.GetAllBaseTypes().Contains(EntityType))
+            {
+                throw new InvalidOperationException(CosmosStrings.InvalidDerivedTypeInEntityProjection(
+                    derivedType.DisplayName(), EntityType.DisplayName()));
+            }
+
+            return new EntityProjectionExpression(derivedType, AccessExpression);
         }
 
         /// <summary>

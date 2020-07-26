@@ -711,6 +711,53 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(source, nameof(source));
             Check.NotNull(resultType, nameof(resultType));
 
+            if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
+            {
+                var entityType = entityShaperExpression.EntityType;
+                if (entityType.ClrType == resultType)
+                {
+                    return source;
+                }
+
+                var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
+                var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
+                var translation = TranslateLambdaExpression(source, predicate);
+                if (translation == null)
+                {
+                    // EntityType is not part of hierarchy
+                    return null;
+                }
+
+                var selectExpression = (SelectExpression)source.QueryExpression;
+                if (!(translation is SqlConstantExpression sqlConstantExpression
+                    && sqlConstantExpression.Value is bool constantValue
+                    && constantValue))
+                {
+                    selectExpression.ApplyPredicate(translation);
+                }
+
+                var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
+                if (baseType != null)
+                {
+                    return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(baseType));
+                }
+
+                var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+
+                var projectionMember = projectionBindingExpression.ProjectionMember;
+                Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
+
+                var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetMappedProjection(projectionMember);
+                selectExpression.ReplaceProjectionMapping(
+                    new Dictionary<ProjectionMember, Expression>
+                    {
+                        { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
+                    });
+
+                return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(derivedType));
+            }
+
             return null;
         }
 

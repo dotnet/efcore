@@ -220,6 +220,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         public static string ConnectionStringConflictingConfiguration
             => GetString("ConnectionStringConflictingConfiguration");
 
+        /// <summary>
+        ///     'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.
+        /// </summary>
+        public static string InvalidDerivedTypeInEntityProjection([CanBeNull] object derivedType, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
+                derivedType, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

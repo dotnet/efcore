@@ -480,6 +480,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND @__predicate_0)");
 
 SELECT c
 FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))",
+                //
+                @"@__city_0='Seattle'
+
+SELECT c
+FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))");
         }
 
@@ -530,6 +536,12 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > @__p_0))")
 
 SELECT c
 FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__GetCity_0))",
+                //
+                @"@__GetCity_0='Seattle'
+
+SELECT c
+FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__GetCity_0))");
         }
 
@@ -539,6 +551,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__GetCity_0))")
 
             AssertSql(
                 @"@__city_InstanceFieldValue_0='London'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_InstanceFieldValue_0))",
+                //
+                @"@__city_InstanceFieldValue_0='Seattle'
 
 SELECT c
 FROM root c
@@ -554,6 +572,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Instance
 
 SELECT c
 FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_InstancePropertyValue_0))",
+                //
+                @"@__city_InstancePropertyValue_0='Seattle'
+
+SELECT c
+FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_InstancePropertyValue_0))");
         }
 
@@ -563,6 +587,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Instance
 
             AssertSql(
                 @"@__StaticFieldValue_0='London'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__StaticFieldValue_0))",
+                //
+                @"@__StaticFieldValue_0='Seattle'
 
 SELECT c
 FROM root c
@@ -578,6 +608,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__StaticFieldVa
 
 SELECT c
 FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__StaticPropertyValue_0))",
+                //
+                @"@__StaticPropertyValue_0='Seattle'
+
+SELECT c
+FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__StaticPropertyValue_0))");
         }
 
@@ -590,6 +626,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__StaticPropert
 
 SELECT c
 FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Nested_InstanceFieldValue_0))",
+                //
+                @"@__city_Nested_InstanceFieldValue_0='Seattle'
+
+SELECT c
+FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Nested_InstanceFieldValue_0))");
         }
 
@@ -599,6 +641,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Nested_I
 
             AssertSql(
                 @"@__city_Nested_InstancePropertyValue_0='London'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_Nested_InstancePropertyValue_0))",
+                //
+                @"@__city_Nested_InstancePropertyValue_0='Seattle'
 
 SELECT c
 FROM root c
@@ -629,6 +677,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__InstanceField
 
             AssertSql(
                 @"@__InstanceFieldValue_0='London'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__InstanceFieldValue_0))",
+                //
+                @"@__InstanceFieldValue_0='Seattle'
 
 SELECT c
 FROM root c
@@ -1527,7 +1581,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
+WHERE ((c[""Discriminator""] = ""Customer"") AND false)",
+                //
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] = ""ALFKI"") AND true))");
         }
 
         public override async Task Where_default(bool async)
@@ -1775,7 +1833,6 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""City""] = null) AND (c[""Country""] = ""UK"")))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_Is_on_same_type(bool async)
         {
             await base.Where_Is_on_same_type(async);
@@ -1783,7 +1840,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""City""] = null) AND (c[""
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Discriminator""] = ""Customer""))");
+WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         public override async Task Where_chain(bool async)
@@ -1925,10 +1982,14 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
             return base.Decimal_cast_to_double_works(async);
         }
 
-        [ConditionalTheory(Skip = "Issue#16391")]
-        public override Task Where_is_conditional(bool async)
+        public override async Task Where_is_conditional(bool async)
         {
-            return base.Where_is_conditional(async);
+            await base.Where_is_conditional(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Product"") AND (true ? false : true))");
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]

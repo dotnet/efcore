@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -68,6 +70,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public virtual EntityProjectionExpression UpdateEntityType([NotNull] IEntityType derivedType)
         {
+            if (!derivedType.GetAllBaseTypes().Contains(EntityType))
+            {
+                throw new InvalidOperationException(InMemoryStrings.InvalidDerivedTypeInEntityProjection(
+                    derivedType.DisplayName(), EntityType.DisplayName()));
+            }
+
             var readExpressionMap = new Dictionary<IProperty, Expression>();
             foreach (var kvp in _readExpressionMap)
             {

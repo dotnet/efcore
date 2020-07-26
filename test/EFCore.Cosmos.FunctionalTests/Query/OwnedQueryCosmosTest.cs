@@ -217,10 +217,14 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
             return base.Query_with_owned_entity_equality_object_method(async);
         }
 
-        [ConditionalTheory(Skip = "OfType #17246")]
-        public override Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
+        public override async Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
         {
-            return base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);
+            await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""Discriminator""] = ""LeafA""))");
         }
 
         [ConditionalTheory(Skip = "Distinct ordering #16156")]
