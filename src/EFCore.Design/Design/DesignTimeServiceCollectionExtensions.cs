@@ -49,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return services
                 .AddSingleton<AnnotationCodeGeneratorDependencies>()
-                .AddSingleton<TypeMappingSourceDependencies>()
                 .AddSingleton<CSharpMigrationOperationGeneratorDependencies>()
                 .AddSingleton<CSharpMigrationsGeneratorDependencies>()
                 .AddSingleton<CSharpSnapshotGeneratorDependencies>()
