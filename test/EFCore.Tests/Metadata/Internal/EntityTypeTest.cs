@@ -65,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IModel Model { get; }
             public string Name { get; }
             public bool HasSharedClrType { get; }
+            public bool IsPropertyBag { get; }
             public Type ClrType { get; }
             public IEntityType BaseType { get; }
             public string DefiningNavigationName { get; }

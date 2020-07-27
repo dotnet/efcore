@@ -88,8 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
                 else
                 {
-                    ModelBuilder.RemoveJoinEntityIfCreatedImplicitly(
-                        existingJoinEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
+                    ModelBuilder.RemoveImplicitJoinEntity(existingJoinEntityType);
                 }
             }
 
@@ -139,8 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
                 else
                 {
-                    ModelBuilder.RemoveJoinEntityIfCreatedImplicitly(
-                        existingJoinEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
+                    ModelBuilder.RemoveImplicitJoinEntity(existingJoinEntityType);
                 }
             }
 

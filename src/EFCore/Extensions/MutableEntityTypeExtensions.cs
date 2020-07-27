@@ -470,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The newly created property. </returns>
         public static IMutableProperty AddProperty(
             [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
-            => entityType.AddProperty(name, propertyType, null);
+            => ((EntityType)entityType).AddProperty(name, propertyType, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Adds a property backed up by an indexer to this entity type.

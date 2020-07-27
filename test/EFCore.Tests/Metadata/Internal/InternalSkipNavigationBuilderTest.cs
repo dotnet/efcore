@@ -126,7 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = CreateInternalSkipNavigationBuilder();
             IConventionSkipNavigation metadata = builder.Metadata;
 
-            // the skip navigation is pointing to the automatically-generated join entity type
             var originalFK = metadata.ForeignKey;
             Assert.NotNull(originalFK);
             Assert.Equal(ConfigurationSource.Convention, metadata.GetForeignKeyConfigurationSource());
@@ -137,17 +136,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .IsUnique(false)
                 .Metadata;
 
-            // skip navigation is unaffected by the FK created above
             Assert.NotSame(fk, metadata.ForeignKey);
             Assert.Same(originalFK, metadata.ForeignKey);
             Assert.Equal(ConfigurationSource.Convention, metadata.GetForeignKeyConfigurationSource());
+            Assert.NotNull(metadata.Inverse.ForeignKey);
 
-            // now explicitly assign the skip navigation's ForeignKey
             Assert.True(builder.CanSetForeignKey(fk, ConfigurationSource.DataAnnotation));
             Assert.NotNull(builder.HasForeignKey(fk, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(fk, metadata.ForeignKey);
             Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetForeignKeyConfigurationSource());
+            Assert.Null(metadata.Inverse.ForeignKey);
 
             Assert.True(builder.CanSetForeignKey(fk, ConfigurationSource.Convention));
             Assert.False(builder.CanSetForeignKey(null, ConfigurationSource.Convention));

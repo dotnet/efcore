@@ -118,21 +118,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingjoinEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
             EntityType joinEntityType = null;
-            if (existingjoinEntityType != null)
+            if (existingJoinEntityType != null)
             {
-                if (existingjoinEntityType.ClrType == joinEntityClrType
-                    && !existingjoinEntityType.HasSharedClrType)
+                if (existingJoinEntityType.ClrType == joinEntityClrType
+                    && !existingJoinEntityType.HasSharedClrType)
                 {
-                    joinEntityType = existingjoinEntityType;
+                    joinEntityType = existingJoinEntityType;
                 }
                 else
                 {
-                    ModelBuilder.RemoveJoinEntityIfCreatedImplicitly(
-                        existingjoinEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
+                    ModelBuilder.RemoveImplicitJoinEntity(existingJoinEntityType);
                 }
             }
 
@@ -183,8 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
                 else
                 {
-                    ModelBuilder.RemoveJoinEntityIfCreatedImplicitly(
-                        existingJoinEntityType, removeSkipNavigations: false, ConfigurationSource.Explicit);
+                    ModelBuilder.RemoveImplicitJoinEntity(existingJoinEntityType);
                 }
             }
 
@@ -281,13 +279,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var leftBuilder = ((SkipNavigation)LeftNavigation).Builder;
             var rightBuilder = ((SkipNavigation)RightNavigation).Builder;
 
+            leftBuilder = leftBuilder.HasInverse(rightBuilder.Metadata, ConfigurationSource.Explicit);
+
             leftBuilder = leftBuilder.HasForeignKey((ForeignKey)leftForeignKey, ConfigurationSource.Explicit);
             rightBuilder = rightBuilder.HasForeignKey((ForeignKey)rightForeignKey, ConfigurationSource.Explicit);
 
-            leftBuilder = leftBuilder.HasInverse(rightBuilder.Metadata, ConfigurationSource.Explicit);
-
             LeftNavigation = leftBuilder.Metadata;
-            RightNavigation = leftBuilder.Metadata.Inverse;
+            RightNavigation = rightBuilder.Metadata;
         }
 
         #region Hidden System.Object members

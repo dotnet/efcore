@@ -258,38 +258,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder RemoveJoinEntityIfCreatedImplicitly(
-            [NotNull] EntityType joinEntityType,
-            bool removeSkipNavigations,
-            ConfigurationSource configurationSource)
+        public virtual InternalModelBuilder RemoveImplicitJoinEntity([NotNull] EntityType joinEntityType)
         {
             Check.NotNull(joinEntityType, nameof(joinEntityType));
+
+            if (joinEntityType.Builder == null)
+            {
+                return this;
+            }
 
             if (!joinEntityType.IsImplicitlyCreatedJoinEntityType)
             {
                 return null;
             }
 
-            Debug.Assert(joinEntityType.GetForeignKeys().Count() == 2,
-                "Implicitly created join entity types should have exactly 2 foreign keys");
-            foreach (var fk in joinEntityType.GetForeignKeys())
-            {
-                var skipNavigation = fk.GetReferencingSkipNavigations().FirstOrDefault();
-                if (skipNavigation != null)
-                {
-                    skipNavigation.SetForeignKey(null, configurationSource);
-                    skipNavigation.SetInverse(null, configurationSource);
-
-                    if (removeSkipNavigations
-                        && fk.PrincipalEntityType.Builder
-                            .CanRemoveSkipNavigation(skipNavigation, configurationSource))
-                    {
-                        fk.PrincipalEntityType.RemoveSkipNavigation(skipNavigation);
-                    }
-                }
-            }
-
-            return HasNoEntityType(joinEntityType, configurationSource);
+            return HasNoEntityType(joinEntityType, ConfigurationSource.Convention);
         }
 
         /// <summary>
@@ -512,6 +495,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreach (var skipNavigation in entityType.GetDeclaredReferencingSkipNavigations().ToList())
                 {
                     var removed = skipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(skipNavigation, configurationSource);
+                    Check.DebugAssert(removed != null, "removed is null");
+                }
+
+                foreach (var skipNavigation in entityType.GetDeclaredForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations()).ToList())
+                {
+                    var removed = skipNavigation.Builder.HasForeignKey(null, configurationSource);
                     Check.DebugAssert(removed != null, "removed is null");
                 }
 

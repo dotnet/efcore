@@ -68,18 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (foreignKey != null)
                 {
                     foreignKey.UpdateConfigurationSource(configurationSource);
-                }
 
-                if (Metadata.JoinEntityType != null
-                    && foreignKey?.DeclaringEntityType != Metadata.JoinEntityType)
-                {
-                    // Have reset the foreign key of a skip navigation on one side of an
-                    // join entity type to a different entity type. An implicit
-                    // join entity type is only useful if both sides are
-                    // configured - so, if it is implicit, remove that entity type
-                    // (which will also remove the other skip navigation's foreign key).
-                    Metadata.JoinEntityType.Model.Builder.RemoveJoinEntityIfCreatedImplicitly(
-                        Metadata.JoinEntityType, removeSkipNavigations: false, configurationSource);
+                    if (Metadata.Inverse?.JoinEntityType != null
+                        && Metadata.Inverse.JoinEntityType
+                            != (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType))
+                    {
+                        Metadata.Inverse.Builder.HasForeignKey(null, configurationSource);
+                    }
                 }
 
                 Metadata.SetForeignKey(foreignKey, configurationSource);
@@ -107,12 +102,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
-            return (Metadata.DeclaringEntityType
-                    == (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType))
-                            && (Metadata.Inverse?.JoinEntityType == null
-                                || Metadata.Inverse.JoinEntityType.IsImplicitlyCreatedJoinEntityType == true
-                                || Metadata.Inverse.JoinEntityType
-                                == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType));
+            if (Metadata.DeclaringEntityType
+                    != (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType))
+            {
+                return false;
+            }
+
+            if (Metadata.Inverse?.JoinEntityType == null)
+            {
+                return true;
+            }
+
+            return Metadata.Inverse.JoinEntityType
+                        == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType)
+                    || Metadata.Inverse.Builder.CanSetForeignKey(null, configurationSource);
         }
 
         /// <summary>
@@ -134,17 +137,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 inverse.UpdateConfigurationSource(configurationSource);
             }
 
-            if (Metadata.Inverse != null
-                && Metadata.Inverse != inverse)
+            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                Metadata.Inverse.SetInverse(null, configurationSource);
-            }
+                if (Metadata.Inverse != null
+                    && Metadata.Inverse != inverse)
+                {
+                    Metadata.Inverse.SetInverse(null, configurationSource);
+                }
 
-            Metadata.SetInverse(inverse, configurationSource);
+                Metadata.SetInverse(inverse, configurationSource);
 
-            if (inverse != null)
-            {
-                inverse.SetInverse(Metadata, configurationSource);
+                if (inverse != null)
+                {
+                    inverse.SetInverse(Metadata, configurationSource);
+                }
             }
 
             return this;
