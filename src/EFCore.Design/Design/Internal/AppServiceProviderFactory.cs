@@ -59,12 +59,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return null;
             }
 
-            // TODO: Remove when dotnet/cli#6617 is fixed
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            if (environment == null)
+            var aspnetCoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var dotnetEnvironment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+            var environment = aspnetCoreEnvironment
+                ?? dotnetEnvironment
+                ?? "Development";
+            if (aspnetCoreEnvironment == null)
             {
-                environment = "Development";
                 Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
+            }
+            if (dotnetEnvironment == null)
+            {
+                Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", environment);
             }
 
             _reporter.WriteVerbose(DesignStrings.UsingEnvironment(environment));
