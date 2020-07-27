@@ -237,7 +237,9 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            var rc = sqlite3_open_v2(filename, out _db, flags, vfs: null);
+            var vfs = ConnectionOptions.Vfs;
+
+            var rc = sqlite3_open_v2(filename, out _db, flags, vfs);
             SqliteException.ThrowExceptionForRC(rc, _db);
 
             _state = ConnectionState.Open;
