@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Proxies.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
@@ -26,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         private readonly JoinThreeToCompositeKeyFull[] _joinThreeToCompositeKeyFulls;
         private readonly JoinTwoToThree[] _joinTwoToThrees;
 
-        private readonly Dictionary<string, int>[] _joinOneToTwoShareds;
+        private readonly Dictionary<string, object>[] _joinOneToTwoShareds;
         private readonly Dictionary<string, object>[] _joinOneToThreePayloadFullShareds;
-        private readonly Dictionary<string, int>[] _joinTwoSelfShareds;
+        private readonly Dictionary<string, object>[] _joinTwoSelfShareds;
         private readonly JoinTwoToCompositeKeyShared[] _joinTwoToCompositeKeyShareds;
         private readonly JoinThreeToRootShared[] _joinThreeToRootShareds;
         private readonly JoinCompositeKeyToRootShared[] _joinCompositeKeyToRootShareds;
@@ -168,8 +166,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             // Shared join entities
             foreach (var joinEntity in _joinOneToTwoShareds)
             {
-                var one = _ones.First(o => o.Id == joinEntity["OneId"]);
-                var two = _twos.First(t => t.Id == joinEntity["TwoId"]);
+                var one = _ones.First(o => o.Id == (int)joinEntity["OneId"]);
+                var two = _twos.First(t => t.Id == (int)joinEntity["TwoId"]);
                 one.TwoSkipShared.Add(two);
                 two.OneSkipShared.Add(one);
             }
@@ -186,8 +184,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
             foreach (var joinEntity in _joinTwoSelfShareds)
             {
-                var left = _twos.First(o => o.Id == joinEntity["LeftId"]);
-                var right = _twos.First(t => t.Id == joinEntity["RightId"]);
+                var left = _twos.First(o => o.Id == (int)joinEntity["LeftId"]);
+                var right = _twos.First(t => t.Id == (int)joinEntity["RightId"]);
                 left.SelfSkipSharedRight.Add(right);
                 right.SelfSkipSharedLeft.Add(left);
             }
@@ -277,9 +275,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             context.Set<JoinThreeToCompositeKeyFull>().AddRange(CreateJoinThreeToCompositeKeyFulls(context));
             context.Set<JoinTwoToThree>().AddRange(CreateJoinTwoToThrees(context));
 
-            context.Set<Dictionary<string, int>>("JoinOneToTwoShared").AddRange(CreateJoinOneToTwoShareds(context));
+            context.Set<Dictionary<string, object>>("JoinOneToTwoShared").AddRange(CreateJoinOneToTwoShareds(context));
             context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").AddRange(CreateJoinOneToThreePayloadFullShareds(context));
-            context.Set<Dictionary<string, int>>("JoinTwoSelfShared").AddRange(CreateJoinTwoSelfShareds(context));
+            context.Set<Dictionary<string, object>>("JoinTwoSelfShared").AddRange(CreateJoinTwoSelfShareds(context));
             context.Set<JoinTwoToCompositeKeyShared>().AddRange(CreateJoinTwoToCompositeKeyShareds(context));
             context.Set<JoinThreeToRootShared>().AddRange(CreateJoinThreeToRootShareds(context));
             context.Set<JoinCompositeKeyToRootShared>().AddRange(CreateJoinCompositeKeyToRootShareds(context));
@@ -1018,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                     e.ThreeId = threeId;
                 });
 
-        private static Dictionary<string, int>[] CreateJoinOneToTwoShareds(ManyToManyContext context)
+        private static Dictionary<string, object>[] CreateJoinOneToTwoShareds(ManyToManyContext context)
             => new[]
             {
                 CreateJoinOneToTwoShared(context, 1,  3),
@@ -1068,10 +1066,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 CreateJoinOneToTwoShared(context, 19, 14 )
             };
 
-        private static Dictionary<string, int> CreateJoinOneToTwoShared(
+        private static Dictionary<string, object> CreateJoinOneToTwoShared(
             ManyToManyContext context, int oneId, int twoId)
             => CreateInstance(
-                context?.Set<Dictionary<string, int>>("JoinOneToTwoShared"), e =>
+                context?.Set<Dictionary<string, object>>("JoinOneToTwoShared"), e =>
                 {
                     e["OneId"] = oneId;
                     e["TwoId"] = twoId;
@@ -1132,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                     e["Payload"] = payload;
                 });
 
-        private static Dictionary<string, int>[] CreateJoinTwoSelfShareds(ManyToManyContext context)
+        private static Dictionary<string, object>[] CreateJoinTwoSelfShareds(ManyToManyContext context)
             => new[]
             {
                 CreateJoinTwoSelfShared(context, 1, 9),
@@ -1171,10 +1169,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 CreateJoinTwoSelfShared(context, 20, 4)
             };
 
-        private static Dictionary<string, int> CreateJoinTwoSelfShared(
+        private static Dictionary<string, object> CreateJoinTwoSelfShared(
             ManyToManyContext context, int leftId, int rightId)
             => CreateInstance(
-                context?.Set<Dictionary<string, int>>("JoinTwoSelfShared"), e =>
+                context?.Set<Dictionary<string, object>>("JoinTwoSelfShared"), e =>
                 {
                     e["LeftId"] = leftId;
                     e["RightId"] = rightId;

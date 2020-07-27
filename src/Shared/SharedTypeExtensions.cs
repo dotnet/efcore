@@ -47,6 +47,18 @@ namespace System
         public static bool IsValidEntityType(this Type type)
             => type.IsClass;
 
+        public static bool IsPropertyBagType(this Type type)
+        {
+            if (type.IsGenericTypeDefinition)
+            {
+                return false;
+            }
+
+            var types = GetGenericTypeImplementations(type, typeof(IDictionary<,>));
+            return types.Any(t => t.GetGenericArguments()[0] == typeof(string)
+                && t.GetGenericArguments()[1] == typeof(object));
+        }
+
         public static Type MakeNullable(this Type type, bool nullable = true)
             => type.IsNullableType() == nullable
                 ? type

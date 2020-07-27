@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     detachedRelationship.Attach();
                 }
 
-                RemoveUnusedShadowProperties(key.Properties);
+                RemoveUnusedImplicitProperties(key.Properties);
                 foreach (var property in key.Properties)
                 {
                     if (!property.IsKey()
@@ -1986,7 +1986,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Metadata.RemoveForeignKey(foreignKey);
 
-            RemoveUnusedShadowProperties(foreignKey.Properties);
+            RemoveUnusedImplicitProperties(foreignKey.Properties);
             foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey);
 
             return this;
@@ -2130,15 +2130,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityTypeBuilder RemoveUnusedShadowProperties<T>(
-            [NotNull] IReadOnlyList<T> properties, ConfigurationSource configurationSource = ConfigurationSource.Convention)
-            where T : class, IProperty
+        public virtual InternalEntityTypeBuilder RemoveUnusedImplicitProperties<T>([NotNull] IReadOnlyList<T> properties)
+            where T : class, IConventionProperty
         {
             foreach (var property in properties)
             {
-                if (property?.IsShadowProperty() == true)
+                if (property?.Builder != null
+                    && (property.IsShadowProperty()
+                        || property.DeclaringEntityType.IsPropertyBag))
                 {
-                    RemovePropertyIfUnused((Property)(object)property, configurationSource);
+                    RemovePropertyIfUnused((Property)(object)property, ConfigurationSource.Convention);
                 }
             }
 
@@ -2337,7 +2338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : Metadata.RemoveIndex(index.Name);
             Check.DebugAssert(removedIndex == index, "removedIndex != index");
 
-            RemoveUnusedShadowProperties(index.Properties);
+            RemoveUnusedImplicitProperties(index.Properties);
 
             return this;
         }
@@ -2620,7 +2621,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EntityType targetEntityType,
             MemberIdentity? navigationToTarget,
             MemberIdentity? inverseNavigation,
-            bool? targetIsPrincipal,
+            bool? setTargetAsPrincipal,
             ConfigurationSource configurationSource,
             bool? required = null)
         {
@@ -2629,18 +2630,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 "navigationToTarget == null and inverseNavigation == null");
 
             Check.DebugAssert(
-                targetIsPrincipal != null || required == null,
+                setTargetAsPrincipal != null || required == null,
                 "required should only be set if principal end is known");
 
             var navigationProperty = navigationToTarget?.MemberInfo;
-            if (targetIsPrincipal == false
+            if (setTargetAsPrincipal == false
                 || (inverseNavigation == null
                     && navigationProperty?.GetMemberType().IsAssignableFrom(
                         targetEntityType.ClrType) == false))
             {
                 // Target is expected to be dependent or only one nav specified and it can't be the nav to principal
                 return targetEntityType.Builder.HasRelationship(
-                    Metadata, null, navigationToTarget, !targetIsPrincipal, configurationSource, required);
+                    Metadata, null, navigationToTarget, !setTargetAsPrincipal, configurationSource, required);
             }
 
             var existingRelationship = InternalForeignKeyBuilder.FindCurrentForeignKeyBuilder(
@@ -2662,7 +2663,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
                     }
-                    else if (targetIsPrincipal == true)
+                    else if (setTargetAsPrincipal == true)
                     {
                         shouldInvert = true;
                     }
@@ -2683,7 +2684,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
                     }
-                    else if (targetIsPrincipal == true)
+                    else if (setTargetAsPrincipal == true)
                     {
                         shouldInvert = true;
                     }
@@ -2702,7 +2703,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (!shouldInvert)
                 {
-                    if (targetIsPrincipal == true)
+                    if (setTargetAsPrincipal == true)
                     {
                         existingRelationship = existingRelationship.HasEntityTypes(
                             existingRelationship.Metadata.PrincipalEntityType,
@@ -2759,7 +2760,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
 
-                    if (targetIsPrincipal == null)
+                    if (setTargetAsPrincipal == null)
                     {
                         return existingRelationship;
                     }
@@ -2776,7 +2777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    if (targetIsPrincipal == true
+                    if (setTargetAsPrincipal == true
                         || targetEntityType.DefiningEntityType != Metadata)
                     {
                         newRelationship = CreateForeignKey(
@@ -2807,7 +2808,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationship = newRelationship;
                 }
 
-                if (targetIsPrincipal == true)
+                if (setTargetAsPrincipal == true)
                 {
                     relationship = relationship
                         .HasEntityTypes(targetEntityType.Builder.Metadata, Metadata, configurationSource);
@@ -2890,8 +2891,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType principalEntityType,
-            ConfigurationSource configurationSource)
-            => HasRelationshipInternal(principalEntityType, principalKey: null, configurationSource: configurationSource);
+            ConfigurationSource configurationSource,
+            bool? required = null)
+            => HasRelationshipInternal(principalEntityType, principalKey: null, configurationSource, required);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2902,13 +2904,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType principalEntityType,
             [NotNull] Key principalKey,
-            ConfigurationSource configurationSource)
-            => HasRelationshipInternal(principalEntityType, principalKey, configurationSource);
+            ConfigurationSource configurationSource,
+            bool? required = null)
+            => HasRelationshipInternal(principalEntityType, principalKey, configurationSource, required);
 
         private InternalForeignKeyBuilder HasRelationshipInternal(
             EntityType targetEntityType,
             Key principalKey,
-            ConfigurationSource configurationSource)
+            ConfigurationSource configurationSource,
+            bool? required = null)
         {
             InternalForeignKeyBuilder relationship;
             InternalForeignKeyBuilder newRelationship;
@@ -2919,7 +2923,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     null,
                     principalKey,
                     null,
-                    null,
+                    required,
                     configurationSource);
 
                 newRelationship = relationship;
@@ -3183,8 +3187,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     targetEntityType: principalBuilder.Metadata,
                     navigationToTarget: inverse,
                     inverseNavigation: navigation,
-                    targetIsPrincipal: true,
-                    configurationSource: configurationSource,
+                    setTargetAsPrincipal: true,
+                    configurationSource,
                     required: true);
                 relationship = batch.Run(relationship.IsOwnership(true, configurationSource));
             }
@@ -3479,7 +3483,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var temporaryProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, "TempFk");
                     foreignKey.SetProperties(temporaryProperties, principalKey, configurationSource);
 
-                    foreignKey.DeclaringEntityType.Builder.RemoveUnusedShadowProperties(oldProperties);
+                    foreignKey.DeclaringEntityType.Builder.RemoveUnusedImplicitProperties(oldProperties);
                     if (oldKey != principalKey)
                     {
                         oldKey.DeclaringEntityType.Builder.RemoveKeyIfUnused(oldKey);
@@ -3504,7 +3508,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (oldFKProperties != dependentProperties)
             {
-                foreignKey.DeclaringEntityType.Builder.RemoveUnusedShadowProperties(oldFKProperties);
+                foreignKey.DeclaringEntityType.Builder.RemoveUnusedImplicitProperties(oldFKProperties);
             }
 
             if (oldPrincipalKey != principalKey)
@@ -4187,7 +4191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (oldDiscriminatorProperty?.Builder != null
                 && oldDiscriminatorProperty != newDiscriminatorProperty)
             {
-                oldDiscriminatorProperty.DeclaringEntityType.Builder.RemoveUnusedShadowProperties(
+                oldDiscriminatorProperty.DeclaringEntityType.Builder.RemoveUnusedImplicitProperties(
                     new[] { oldDiscriminatorProperty });
 
                 if (oldDiscriminatorProperty.Builder != null)
@@ -4347,10 +4351,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IConventionEntityTypeBuilder IConventionEntityTypeBuilder.HasNoUnusedShadowProperties(
-            IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
-            => RemoveUnusedShadowProperties(
-                properties, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        IConventionEntityTypeBuilder IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties(
+            IReadOnlyList<IConventionProperty> properties)
+            => RemoveUnusedImplicitProperties(properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

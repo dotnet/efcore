@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -23,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ISkipNavigationForeignKeyChangedConvention,
         ISkipNavigationRemovedConvention
     {
-        private const string JoinEntityTypeNameTemplate = "{0}{1}";
-
         /// <summary>
         ///     Creates a new instance of <see cref="ManyToManyJoinEntityTypeConvention" />.
         /// </summary>
@@ -112,10 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var inverseEntityType = inverseSkipNavigation.DeclaringEntityType;
             var model = declaringEntityType.Model;
 
-            var joinEntityTypeName = string.Format(
-                    JoinEntityTypeNameTemplate,
-                    declaringEntityType.ShortName(),
-                    inverseEntityType.ShortName());
+            var joinEntityTypeName = declaringEntityType.ShortName() + inverseEntityType.ShortName();
             if (model.FindEntityType(joinEntityTypeName) != null)
             {
                 var otherIdentifiers = model.GetEntityTypes().ToDictionary(et => et.Name, et => 0);
@@ -152,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => joinEntityTypeBuilder
                 .HasRelationship(
                     skipNavigation.DeclaringEntityType,
-                    ConfigurationSource.Convention)
+                    ConfigurationSource.Convention,
+                    required: true)
                 .IsUnique(false, ConfigurationSource.Convention)
                 .Metadata;
     }

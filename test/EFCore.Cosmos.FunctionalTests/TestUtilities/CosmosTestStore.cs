@@ -275,6 +275,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public string Name => throw new NotImplementedException();
             public Type ClrType => throw new NotImplementedException();
             public bool HasSharedClrType => throw new NotImplementedException();
+            public bool IsPropertyBag => throw new NotImplementedException();
             public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
             public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) => throw new NotImplementedException();
             public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();

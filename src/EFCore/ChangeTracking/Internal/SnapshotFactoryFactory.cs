@@ -141,9 +141,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
 
                 var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
-                var memberAccess = propertyBase.IsIndexerProperty()
-                    ? Expression.MakeIndex(entityVariable, (PropertyInfo)memberInfo, new[] { Expression.Constant(propertyBase.Name) })
-                    : (Expression)Expression.MakeMemberAccess(entityVariable, memberInfo);
+                var memberAccess = PropertyBase.CreateMemberAccess(propertyBase, entityVariable, memberInfo);
 
                 if (memberAccess.Type != propertyBase.ClrType)
                 {

@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyIndexes GetPropertyIndexes([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase()?.PropertyIndexes;
+            => ((PropertyBase)propertyBase).PropertyIndexes;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyAccessors GetPropertyAccessors([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase().Accessors;
+            => ((PropertyBase)propertyBase).Accessors;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -106,22 +106,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] IEnumerable<MemberInfo> memberInfos, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Removes shadow properties in the given list if they are not part of any metadata object.
+        ///     Removes properties in the given list if they are not part of any metadata object.
         /// </summary>
         /// <param name="properties"> The properties to remove. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        IConventionEntityTypeBuilder HasNoUnusedShadowProperties(
-            [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder RemoveUnusedImplicitProperties([NotNull] IReadOnlyList<IConventionProperty> properties);
 
         /// <summary>
         ///     Removes shadow properties in the given list if they are not part of any metadata object.
         /// </summary>
         /// <param name="properties"> The properties to remove. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        [Obsolete("Use HasNoUnusedShadowProperties")]
+        [Obsolete("Use RemoveUnusedImplicitProperties")]
         IConventionEntityTypeBuilder RemoveUnusedShadowProperties(
             [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false)
-            => HasNoUnusedShadowProperties(properties, fromDataAnnotation);
+            => RemoveUnusedImplicitProperties(properties);
 
         /// <summary>
         ///     Returns an object that can be used to configure the service property with the given member info.

@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Expression readExpression;
             if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
             {
-                readExpression = CreateMemberAccess(entityParameter);
+                readExpression = PropertyBase.CreateMemberAccess(propertyBase, entityParameter, memberInfo);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
                             Expression.Default(memberInfo.GetMemberType()),
-                            CreateMemberAccess(converted))
+                            PropertyBase.CreateMemberAccess(propertyBase, converted, memberInfo))
                     });
             }
 
@@ -74,14 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new ClrPropertyGetter<TEntity, TValue>(
                 Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
                 Expression.Lambda<Func<TEntity, bool>>(hasDefaultValueExpression, entityParameter).Compile());
-
-            Expression CreateMemberAccess(Expression parameter)
-            {
-                return propertyBase?.IsIndexerProperty() == true
-                    ? Expression.MakeIndex(
-                        parameter, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(propertyBase.Name) })
-                    : (Expression)Expression.MakeMemberAccess(parameter, memberInfo);
-            }
         }
     }
 }
