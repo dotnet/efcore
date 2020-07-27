@@ -1890,7 +1890,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 // The below ensures that the relationship is no longer
                 // using Nob.Hob. After that it is allowed to override
                 // Hob.Nob's inverse in the HasMany().WithOne() call below.
-                modelBuilder.Entity<Nob>().HasOne<Hob>().WithOne(e => e.Nob);
+                modelBuilder.Entity<Nob>().Ignore(e => e.Hob);
 
                 var dependentType = model.FindEntityType(typeof(Hob));
                 var principalType = model.FindEntityType(typeof(Nob));
@@ -1912,7 +1912,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var otherFk = principalType.GetForeignKeys().Single();
                 Assert.False(fk.IsUnique);
                 Assert.Equal(nameof(Hob.Nobs), otherFk.PrincipalToDependent.Name);
-                Assert.Equal(nameof(Nob.Hob), otherFk.DependentToPrincipal.Name);
                 Assert.Same(principalKey, principalType.FindPrimaryKey());
                 Assert.Same(dependentKey, dependentType.FindPrimaryKey());
                 Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
