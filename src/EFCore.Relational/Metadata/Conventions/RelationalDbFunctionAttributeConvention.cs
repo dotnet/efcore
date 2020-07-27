@@ -92,6 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     dbFunctionBuilder.IsBuiltIn(dbFunctionAttribute.IsBuiltIn, fromDataAnnotation: true);
                 }
+
+                if (dbFunctionAttribute.GetIsNullable() is bool value)
+                {
+                    dbFunctionBuilder.IsNullable(value, fromDataAnnotation: true);
+                }
             }
         }
     }

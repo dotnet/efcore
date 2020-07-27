@@ -56,6 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsAggregate { get; }
 
         /// <summary>
+        ///     Gets the value indicating whether the database function can return null.
+        /// </summary>
+        bool IsNullable { get; }
+
+        /// <summary>
         ///     Gets the configured store type string.
         /// </summary>
         string StoreType { get; }

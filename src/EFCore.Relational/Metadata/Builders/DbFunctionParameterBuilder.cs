@@ -62,6 +62,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <summary>
+        ///     Indicates whether parameter propagates nullability, meaning if it's value is null the database function itself returns null.
+        /// </summary>
+        /// <param name="propagatesNullability"> Value which indicates whether parameter propagates nullability. </param>
+        /// <returns> The same builder instance so that further configuration calls can be chained. </returns>
+        public virtual DbFunctionParameterBuilder PropagatesNullability(bool propagatesNullability = true)
+        {
+            Builder.PropagatesNullability(propagatesNullability, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
         #region Hidden System.Object members
 
         /// <summary>

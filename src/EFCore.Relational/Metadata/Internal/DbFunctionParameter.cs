@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
@@ -22,9 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private string _storeType;
         private RelationalTypeMapping _typeMapping;
+        private bool _propagatesNullability;
 
         private ConfigurationSource? _storeTypeConfigurationSource;
         private ConfigurationSource? _typeMappingConfigurationSource;
+        private ConfigurationSource? _propagatesNullabilityConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,19 +122,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             _storeType = storeType;
 
-            UpdateStoreTypeConfigurationSource(configurationSource);
+            _storeTypeConfigurationSource = configurationSource.Max(_storeTypeConfigurationSource);
 
             return storeType;
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        private void UpdateStoreTypeConfigurationSource(ConfigurationSource configurationSource)
-            => _storeTypeConfigurationSource = configurationSource.Max(_storeTypeConfigurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,14 +162,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] RelationalTypeMapping typeMapping, ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
-
-            UpdateTypeMappingConfigurationSource(configurationSource);
+            _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
 
             return typeMapping;
         }
 
-        private void UpdateTypeMappingConfigurationSource(ConfigurationSource configurationSource)
-            => _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool PropagatesNullability
+        {
+            get => _propagatesNullability;
+            set => SetPropagatesNullability(value, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool SetPropagatesNullability(bool propagatesNullability, ConfigurationSource configurationSource)
+        {
+            if (!Function.IsScalar)
+            {
+                new InvalidOperationException(RelationalStrings.NullabilityInfoOnlyAllowedOnScalarFunctions);
+            }
+
+            _propagatesNullability = propagatesNullability;
+            _propagatesNullabilityConfigurationSource = configurationSource.Max(_storeTypeConfigurationSource);
+
+            return propagatesNullability;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetPropagatesNullabilityConfigurationSource() => _propagatesNullabilityConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

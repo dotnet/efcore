@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private string _schema;
         private string _name;
         private bool _builtIn;
+        private bool _nullable;
         private string _storeType;
         private RelationalTypeMapping _typeMapping;
         private Func<IReadOnlyCollection<SqlExpression>, SqlExpression> _translation;
@@ -38,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _schemaConfigurationSource;
         private ConfigurationSource? _nameConfigurationSource;
         private ConfigurationSource? _builtInConfigurationSource;
+        private ConfigurationSource? _nullableConfigurationSource;
         private ConfigurationSource? _storeTypeConfigurationSource;
         private ConfigurationSource? _typeMappingConfigurationSource;
         private ConfigurationSource? _translationConfigurationSource;
@@ -113,6 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : parameters
                     .Select(p => new DbFunctionParameter(this, p.Name, p.Type))
                     .ToList();
+
+            if (IsScalar)
+            {
+                _nullable = true;
+            }
         }
 
         private static string GetFunctionName(MethodInfo methodInfo, ParameterInfo[] parameters)
@@ -392,6 +399,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool IsNullable
+        {
+            get => _nullable;
+            set => SetIsNullable(value, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool SetIsNullable(bool nullable, ConfigurationSource configurationSource)
+        {
+            if (!IsScalar)
+            {
+                new InvalidOperationException(RelationalStrings.NullabilityInfoOnlyAllowedOnScalarFunctions);
+            }
+
+            _nullable = nullable;
+            _nullableConfigurationSource = configurationSource.Max(_nullableConfigurationSource);
+
+            return nullable;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetIsNullableConfigurationSource() => _nullableConfigurationSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual string StoreType
         {
             get => _storeType ?? TypeMapping?.StoreType;
@@ -604,6 +650,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         bool IConventionDbFunction.SetIsBuiltIn(bool builtIn, bool fromDataAnnotation)
             => SetIsBuiltIn(builtIn, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        bool IConventionDbFunction.SetIsNullable(bool nullable, bool fromDataAnnotation)
+            => SetIsNullable(nullable, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]

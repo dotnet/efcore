@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
             : base(parameter, modelBuilder)
         {
         }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -86,6 +87,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         public virtual bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetTypeMappingConfigurationSource())
                 || Metadata.TypeMapping == typeMapping;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionDbFunctionParameterBuilder PropagatesNullability(
+            bool propagatesNullability,
+            ConfigurationSource configurationSource)
+        {
+            if (CanSetPropagatesNullability(propagatesNullability, configurationSource))
+            {
+                Metadata.SetPropagatesNullability(propagatesNullability, configurationSource);
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetPropagatesNullability(bool propagatesNullability, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(Metadata.GetPropagatesNullabilityConfigurationSource())
+                || Metadata.PropagatesNullability == propagatesNullability;
 
         /// <inheritdoc />
         IConventionDbFunctionParameter IConventionDbFunctionParameterBuilder.Metadata

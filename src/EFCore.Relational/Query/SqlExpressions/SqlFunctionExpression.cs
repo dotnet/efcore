@@ -203,30 +203,35 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The name of the function.
         /// </summary>
         public virtual string Name { get; }
+
         /// <summary>
         ///     The schema in which the function is defined, if any.
         /// </summary>
         public virtual string Schema { get; }
+
         /// <summary>
         ///     A bool value indicating if the function is niladic.
         /// </summary>
         public virtual bool IsNiladic { get; }
+
         /// <summary>
         ///     A bool value indicating if the function is built-in.
         /// </summary>
         public virtual bool IsBuiltIn { get; }
+
         /// <summary>
         ///     The list of arguments of this function.
         /// </summary>
         public virtual IReadOnlyList<SqlExpression> Arguments { get; }
+
         /// <summary>
         ///     The instance on which this function is applied.
         /// </summary>
         public virtual SqlExpression Instance { get; }
+
         /// <summary>
         ///     A bool value indicating if the function can return null result.
         /// </summary>
-
         public virtual bool IsNullable { get; private set; }
 
         /// <summary>

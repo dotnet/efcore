@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -82,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return _sqlExpressionFactory.Function(
                         dbFunction.Name,
                         arguments,
-                        nullable: true,
-                        argumentsPropagateNullability: arguments.Select(a => false).ToList(),
+                        nullable: dbFunction.IsNullable,
+                        argumentsPropagateNullability: dbFunction.Parameters.Select(p => p.PropagatesNullability),
                         method.ReturnType.UnwrapNullableType());
                 }
 
@@ -91,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     dbFunction.Schema,
                     dbFunction.Name,
                     arguments,
-                    nullable: true,
-                    argumentsPropagateNullability: arguments.Select(a => false).ToList(),
+                    nullable: dbFunction.IsNullable,
+                    argumentsPropagateNullability: dbFunction.Parameters.Select(p => p.PropagatesNullability),
                     method.ReturnType.UnwrapNullableType());
             }
 

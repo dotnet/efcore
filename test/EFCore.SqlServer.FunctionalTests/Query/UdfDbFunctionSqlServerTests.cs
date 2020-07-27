@@ -219,6 +219,50 @@ INNER JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
 ORDER BY [o].[Id]");
         }
 
+        public override void Compare_function_without_null_propagation_to_null()
+        {
+            base.Compare_function_without_null_propagation_to_null();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
+FROM [Customers] AS [c]
+WHERE [dbo].[IdentityString]([c].[FirstName]) IS NOT NULL
+ORDER BY [c].[Id]");
+        }
+
+        public override void Compare_function_with_null_propagation_to_null()
+        {
+            base.Compare_function_with_null_propagation_to_null();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
+FROM [Customers] AS [c]
+WHERE [c].[FirstName] IS NOT NULL
+ORDER BY [c].[Id]");
+        }
+
+        public override void Compare_non_nullable_function_to_null_gets_optimized()
+        {
+            base.Compare_non_nullable_function_to_null_gets_optimized();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
+FROM [Customers] AS [c]
+ORDER BY [c].[Id]");
+        }
+
+        public override void Compare_functions_returning_int_that_take_nullable_param_which_propagates_null()
+        {
+            base.Compare_functions_returning_int_that_take_nullable_param_which_propagates_null();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
+FROM [Customers] AS [c]
+WHERE (([dbo].[StringLength]([c].[FirstName]) <> [dbo].[StringLength]([c].[LastName])) OR ([c].[FirstName] IS NULL OR [c].[LastName] IS NULL)) AND ([c].[FirstName] IS NOT NULL OR [c].[LastName] IS NOT NULL)
+ORDER BY [c].[Id]");
+        }
+
+
         public override void Scalar_Function_SqlFragment_Static()
         {
             base.Scalar_Function_SqlFragment_Static();
@@ -890,11 +934,43 @@ ORDER BY [a].[Id], [g].[Year]");
                                                     end");
 
                 context.Database.ExecuteSqlRaw(
-                    @"create function [dbo].[IdentityString] (@customerName nvarchar(max))
+                    @"create function [dbo].[IdentityString] (@s nvarchar(max))
                                                     returns nvarchar(max)
                                                     as
                                                     begin
-                                                        return @customerName;
+                                                        return @s;
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].[IdentityStringPropagatesNull] (@s nvarchar(max))
+                                                    returns nvarchar(max)
+                                                    as
+                                                    begin
+                                                        return @s;
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].[IdentityStringNonNullable] (@s nvarchar(max))
+                                                    returns nvarchar(max)
+                                                    as
+                                                    begin
+                                                        return COALESCE(@s, 'NULL');
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].[IdentityStringNonNullableFluent] (@s nvarchar(max))
+                                                    returns nvarchar(max)
+                                                    as
+                                                    begin
+                                                        return COALESCE(@s, 'NULL');
+                                                    end");
+
+                context.Database.ExecuteSqlRaw(
+                    @"create function [dbo].[StringLength] (@s nvarchar(max))
+                                                    returns int
+                                                    as
+                                                    begin
+                                                        return LEN(@s);
                                                     end");
 
                 context.Database.ExecuteSqlRaw(
