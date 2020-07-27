@@ -28,6 +28,7 @@ namespace Microsoft.Data.Sqlite
         private const string PasswordKeyword = "Password";
         private const string ForeignKeysKeyword = "Foreign Keys";
         private const string RecursiveTriggersKeyword = "Recursive Triggers";
+        private const string VfsKeyword = "VFS";
 
         private enum Keywords
         {
@@ -36,7 +37,8 @@ namespace Microsoft.Data.Sqlite
             Cache,
             Password,
             ForeignKeys,
-            RecursiveTriggers
+            RecursiveTriggers,
+            Vfs
         }
 
         private static readonly IReadOnlyList<string> _validKeywords;
@@ -48,6 +50,7 @@ namespace Microsoft.Data.Sqlite
         private string _password = string.Empty;
         private bool? _foreignKeys;
         private bool _recursiveTriggers;
+        private string _vfs;
 
         static SqliteConnectionStringBuilder()
         {
@@ -58,6 +61,7 @@ namespace Microsoft.Data.Sqlite
             validKeywords[(int)Keywords.Password] = PasswordKeyword;
             validKeywords[(int)Keywords.ForeignKeys] = ForeignKeysKeyword;
             validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeyword;
+            validKeywords[(int)Keywords.Vfs] = VfsKeyword;
             _validKeywords = validKeywords;
 
             _keywords = new Dictionary<string, Keywords>(8, StringComparer.OrdinalIgnoreCase)
@@ -68,6 +72,7 @@ namespace Microsoft.Data.Sqlite
                 [PasswordKeyword] = Keywords.Password,
                 [ForeignKeysKeyword] = Keywords.ForeignKeys,
                 [RecursiveTriggersKeyword] = Keywords.RecursiveTriggers,
+                [VfsKeyword] = Keywords.Vfs,
 
                 // aliases
                 [FilenameKeyword] = Keywords.DataSource,
@@ -184,6 +189,17 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether to use an alternative VFS and its name.
+        ///     <see langword="null"/> will default to a builtin VFS appropriate for the current platform.
+        /// </summary>
+        /// <value>A value indicating whether to use an alternative VFS and its name.</value>
+        public string Vfs
+        {
+            get => _vfs;
+            set => base[VfsKeyword] = _vfs = value;
+        }
+
+        /// <summary>
         ///     Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="keyword">The key.</param>
@@ -224,6 +240,10 @@ namespace Microsoft.Data.Sqlite
 
                     case Keywords.RecursiveTriggers:
                         RecursiveTriggers = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+                        return;
+
+                    case Keywords.Vfs:
+                        Vfs = Convert.ToString(value, CultureInfo.InvariantCulture);
                         return;
 
                     default:
@@ -366,6 +386,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.RecursiveTriggers:
                     return RecursiveTriggers;
 
+                case Keywords.Vfs:
+                    return Vfs;
+
                 default:
                     Debug.Assert(false, "Unexpected keyword: " + index);
                     return null;
@@ -403,6 +426,10 @@ namespace Microsoft.Data.Sqlite
 
                 case Keywords.RecursiveTriggers:
                     _recursiveTriggers = false;
+                    return;
+
+                case Keywords.Vfs:
+                    _vfs = null;
                     return;
 
                 default:
