@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -381,6 +382,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IComparer<IUpdateEntry> CurrentValueComparer =>
             NonCapturingLazyInitializer.EnsureInitialized(
                 ref _currentValueComparer, this, p => new CurrentValueComparerFactory().Create(p));
+
+        private static readonly MethodInfo _containsKeyMethod =
+            typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<string, object>.ContainsKey));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static Expression CreateMemberAccess(
+            [CanBeNull] IPropertyBase property,
+            [NotNull] Expression instanceExpression,
+            [NotNull] MemberInfo memberInfo)
+        {
+            if (property?.IsIndexerProperty() == true)
+            {
+                Expression expression = Expression.MakeIndex(
+                    instanceExpression, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(property.Name) });
+
+                if (property.DeclaringType.IsPropertyBag)
+                {
+                    expression = Expression.Condition(
+                        Expression.Call(instanceExpression, _containsKeyMethod, new List<Expression>() { Expression.Constant(property.Name) }),
+                        expression,
+                        Expression.Convert(property.ClrType.GetDefaultValueConstant(), expression.Type));
+                }
+
+                return expression;
+            }
+            else
+            {
+                return Expression.MakeMemberAccess(instanceExpression, memberInfo);
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -37,5 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets whether this entity type can share its ClrType with other entities.
         /// </summary>
         bool HasSharedClrType { get; }
+
+        /// <summary>
+        ///     Gets whether this entity type has an indexer which is able to contain arbitrary properties.
+        /// </summary>
+        bool IsPropertyBag { get; }
     }
 }

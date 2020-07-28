@@ -2361,6 +2361,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
                 }
             }
+            else if (IsPropertyBag)
+            {
+                memberInfo = FindIndexerPropertyInfo();
+            }
             else
             {
                 Check.DebugAssert(ClrType?.GetMembersInHierarchy(name).FirstOrDefault() == null,

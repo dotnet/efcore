@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(6, context.ChangeTracker.Entries<EntityTwo>().Count());
-                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, int>>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
 
                 Assert.Equal(3, leftEntities[0].SelfSkipSharedLeft.Count);
                 Assert.Single(leftEntities[1].SelfSkipSharedLeft);
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
                 int joinCount)
             {
                 Assert.Equal(count, context.ChangeTracker.Entries<EntityTwo>().Count());
-                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, int>>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
                 Assert.Equal(count + joinCount, context.ChangeTracker.Entries().Count());
 
                 Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => e.Id == 7721);
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                var deleted = context.ChangeTracker.Entries<Dictionary<string, int>>().Count(e => e.State == EntityState.Deleted);
+                var deleted = context.ChangeTracker.Entries<Dictionary<string, object>>().Count(e => e.State == EntityState.Deleted);
                 Assert.Equal(joinCount, (joins / 2) + deleted);
             }
         }
@@ -804,10 +804,14 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Single(rightEntities[1].OneSkipPayloadFullShared);
                 Assert.Single(rightEntities[2].OneSkipPayloadFullShared);
 
-                foreach (var joinEntity in context.ChangeTracker
-                    .Entries<Dictionary<string, object>>().Select(e => e.Entity).ToList())
+                if (postSave
+                    && SupportsDatabaseDefaults)
                 {
-                    Assert.Equal(postSave && SupportsDatabaseDefaults ? "Generated" : default, joinEntity["Payload"]);
+                    foreach (var joinEntity in context.ChangeTracker
+                        .Entries<Dictionary<string, object>>().Select(e => e.Entity).ToList())
+                    {
+                        Assert.Equal("Generated", joinEntity["Payload"]);
+                    }
                 }
             }
         }
@@ -986,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
-                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, int>>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
 
                 Assert.Equal(3, leftEntities[0].TwoSkipShared.Count);
                 Assert.Single(leftEntities[1].TwoSkipShared);
@@ -1050,7 +1054,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(leftCount, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(rightCount, context.ChangeTracker.Entries<EntityTwo>().Count());
-                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, int>>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
                 Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
 
                 Assert.Contains(leftEntities[0].TwoSkipShared, e => e.Id == 7721);
@@ -1092,7 +1096,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                var deleted = context.ChangeTracker.Entries<Dictionary<string, int>>().Count(e => e.State == EntityState.Deleted);
+                var deleted = context.ChangeTracker.Entries<Dictionary<string, object>>().Count(e => e.State == EntityState.Deleted);
                 Assert.Equal(joinCount, (count / 2) + deleted);
             }
         }
@@ -1166,7 +1170,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Contains(joinEntity, joinEntity.One.JoinThreePayloadFull);
                     Assert.Contains(joinEntity, joinEntity.Three.JoinOnePayloadFull);
 
-                    Assert.Equal(postSave && SupportsDatabaseDefaults ? "Generated" : default, joinEntity.Payload);
+                    if (postSave && SupportsDatabaseDefaults)
+                    {
+                        Assert.Equal("Generated", joinEntity.Payload);
+                    }
                 }
             }
         }

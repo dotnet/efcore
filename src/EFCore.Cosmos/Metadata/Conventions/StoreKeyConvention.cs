@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var jObjectProperty = entityType.FindDeclaredProperty(JObjectPropertyName);
                 if (jObjectProperty != null)
                 {
-                    entityType.Builder.HasNoUnusedShadowProperties(new[] { jObjectProperty });
+                    entityType.Builder.RemoveUnusedImplicitProperties(new[] { jObjectProperty });
                 }
             }
         }

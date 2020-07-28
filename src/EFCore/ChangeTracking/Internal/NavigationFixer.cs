@@ -942,14 +942,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     new MaterializationContext(ValueBuffer.Empty, entry.StateManager.Context));
 
                 joinEntry = entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
-
-                foreach (var property in joinEntityType.GetProperties()) // Remove when #21720 is implemented
-                {
-                    if (property.IsIndexerProperty())
-                    {
-                        ((PropertyBase)property).Setter.SetClrValue(joinEntity, property.ClrType.GetDefaultValue());
-                    }
-                }
             }
 
             SetForeignKeyProperties(joinEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);

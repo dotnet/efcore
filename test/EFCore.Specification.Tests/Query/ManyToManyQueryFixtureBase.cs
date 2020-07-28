@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.SharedTypeEntity<Dictionary<string, int>>(
+            modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
                 "JoinOneToTwoShared",
                 b =>
                 {
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     b.IndexerProperty<string>("Payload");
                 });
 
-            modelBuilder.SharedTypeEntity<Dictionary<string, int>>(
+            modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
                 "JoinTwoSelfShared",
                 b =>
                 {
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.TwoSkipShared)
                 .WithMany(e => e.OneSkipShared)
-                .UsingEntity<Dictionary<string, int>>(
+                .UsingEntity<Dictionary<string, object>>(
                     "JoinOneToTwoShared",
                     r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("TwoId"),
                     l => l.HasOne<EntityOne>().WithMany().HasForeignKey("OneId"))
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<EntityTwo>()
                 .HasMany(e => e.SelfSkipSharedLeft)
                 .WithMany(e => e.SelfSkipSharedRight)
-                .UsingEntity<Dictionary<string, int>>(
+                .UsingEntity<Dictionary<string, object>>(
                     "JoinTwoSelfShared",
                     l => l.HasOne<EntityTwo>().WithMany().HasForeignKey("LeftId"),
                     r => r.HasOne<EntityTwo>().WithMany().OnDelete(DeleteBehavior.NoAction).HasForeignKey("RightId"))

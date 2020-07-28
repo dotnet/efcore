@@ -71,9 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Expression.Property(entryParameter, "Entity"),
                     entityClrType);
 
-                currentValueExpression = CreateMemberAccess(
-                    convertedExpression,
-                    propertyBase.GetMemberInfo(forMaterialization: false, forSet: false));
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
+                currentValueExpression = PropertyBase.CreateMemberAccess(propertyBase, convertedExpression, memberInfo);
 
                 if (currentValueExpression.Type != typeof(TProperty))
                 {
@@ -115,14 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     currentValueExpression,
                     updateParameter)
                 .Compile();
-
-            Expression CreateMemberAccess(Expression parameter, MemberInfo memberInfo)
-            {
-                return propertyBase?.IsIndexerProperty() == true
-                    ? Expression.MakeIndex(
-                        parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(propertyBase.Name) })
-                    : (Expression)Expression.MakeMemberAccess(parameter, memberInfo);
-            }
         }
 
         private static Func<IUpdateEntry, TProperty> CreateOriginalValueGetter<TProperty>(IProperty property)

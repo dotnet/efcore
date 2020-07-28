@@ -697,8 +697,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
         internal static readonly MethodInfo GetCurrentValueMethod
-            =
-            typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
                 m => m.IsGenericMethod);
 
         /// <summary>

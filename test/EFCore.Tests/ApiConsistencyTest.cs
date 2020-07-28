@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.LeastDerivedType)),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.HasNoEntityType)),
                 typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
-                typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.HasNoUnusedShadowProperties)),
+                typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.Ignore)),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new []{ typeof(Type), typeof(bool) }),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new []{ typeof(string), typeof(bool) })
