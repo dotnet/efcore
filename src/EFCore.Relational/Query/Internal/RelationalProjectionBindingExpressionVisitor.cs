@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private readonly RelationalQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
+        private readonly IncludeFindingExpressionVisitor _includeFindingExpressionVisitor;
 
         private SelectExpression _selectExpression;
         private SqlExpression[] _existingProjections;
@@ -52,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTranslator = sqlTranslatingExpressionVisitor;
+            _includeFindingExpressionVisitor = new IncludeFindingExpressionVisitor();
         }
 
         /// <summary>
@@ -367,7 +369,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Expression updatedMemberExpression = memberExpression.Update(
                 expression != null ? MatchTypes(expression, memberExpression.Expression.Type) : expression);
 
-            if (expression?.Type.IsNullableValueType() == true)
+            if (expression?.Type.IsNullableType() == true
+                && !_includeFindingExpressionVisitor.ContainsInclude(expression))
             {
                 var nullableReturnType = memberExpression.Type.MakeNullable();
                 if (!memberExpression.Type.IsNullableType())
@@ -591,5 +594,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
 #pragma warning restore IDE0052 // Remove unread private members
             => (T)queryContext.ParameterValues[parameterName];
+
+        private sealed class IncludeFindingExpressionVisitor : ExpressionVisitor
+        {
+            private bool _containsInclude;
+
+            public bool ContainsInclude(Expression expression)
+            {
+                _containsInclude = false;
+
+                Visit(expression);
+
+                return _containsInclude;
+            }
+
+            public override Expression Visit(Expression expression) => _containsInclude ? expression : base.Visit(expression);
+
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                if (extensionExpression is IncludeExpression)
+                {
+                    _containsInclude = true;
+
+                    return extensionExpression;
+                }
+
+                return base.VisitExtension(extensionExpression);
+            }
+        }
     }
 }

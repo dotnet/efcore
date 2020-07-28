@@ -385,7 +385,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
-            return source.UpdateShaperExpression(new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int)));
+            return source.UpdateShaperExpression(
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int?)),
+                    typeof(int)));
         }
 
         /// <summary>
@@ -631,7 +634,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
-            return source.UpdateShaperExpression(new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long)));
+            return source.UpdateShaperExpression(
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long?)),
+                    typeof(long)));
         }
 
         /// <summary>
@@ -1132,8 +1138,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             selectExpression.ClearOrdering();
 
             var nullableResultType = resultType.MakeNullable();
-            Expression shaper = new ProjectionBindingExpression(
-                source.QueryExpression, new ProjectionMember(), throwOnNullResult ? nullableResultType : projection.Type);
+            Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
 
             if (throwOnNullResult)
             {
