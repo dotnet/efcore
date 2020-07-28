@@ -1393,7 +1393,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}', because there already is a relationship between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.
+        ///     Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}', because there already is a relationship between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation '{newDependentNavigationSpecification}' first.
         /// </summary>
         public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalNavigationSpecification, [CanBeNull] object newDependentNavigationSpecification, [CanBeNull] object existingPrincipalNavigationSpecification, [CanBeNull] object existingDependentNavigationSpecification)
             => string.Format(
