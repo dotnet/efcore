@@ -25,10 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder, context);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-                modelBuilder.Entity<BlogQuery>().HasNoKey().ToQuery(
-                    () => context.Set<BlogQuery>().FromSqlRaw("SELECT * FROM Blog"));
-#pragma warning restore CS0618 // Type or member is obsolete
+                modelBuilder.Entity<BlogQuery>().HasNoKey().ToQuerySql("SELECT * FROM Blog");
             }
         }
     }

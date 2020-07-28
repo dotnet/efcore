@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(cq => cq.OrderCount > 0)
                     .ToArray();
 
-            Assert.Equal(4, results.Length);
+            Assert.Equal(89, results.Length);
         }
 
         [ConditionalTheory]
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<OrderQuery>().Where(ov => ov.CustomerID == "ALFKI"));
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#21828")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
         {
@@ -111,46 +111,30 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task KeylessEntity_with_included_nav(bool async)
+        public virtual Task KeylessEntity_with_included_nav(bool async)
         {
-            using var ctx = CreateContext();
-            if (async)
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
-                           where ov.CustomerID == "ALFKI"
-                           select ov).ToListAsync());
-            }
-            else
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => Task.FromResult(
-                        (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
-                         where ov.CustomerID == "ALFKI"
-                         select ov).ToList()));
-            }
+            return AssertQuery(
+                async,
+                ss => from ov in ss.Set<OrderQuery>().Include(ov => ov.Customer)
+                      where ov.CustomerID == "ALFKI"
+                      select ov,
+                elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderQuery>(ov => ov.Customer)),
+                entryCount: 1);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#21828")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task KeylessEntity_with_included_navs_multi_level(bool async)
+        public virtual Task KeylessEntity_with_included_navs_multi_level(bool async)
         {
-            using var ctx = CreateContext();
-            if (async)
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
-                           where ov.CustomerID == "ALFKI"
-                           select ov).ToListAsync());
-            }
-            else
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => Task.FromResult(
-                        (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
-                         where ov.CustomerID == "ALFKI"
-                         select ov).ToList()));
-            }
+            return AssertQuery(
+                async,
+                ss => from ov in ss.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
+                      where ov.CustomerID == "ALFKI"
+                      select ov,
+                elementAsserter: (e, a) => AssertInclude(e, a,
+                    new ExpectedInclude<OrderQuery>(ov => ov.Customer),
+                    new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
+                entryCount: 1);
         }
 
         [ConditionalTheory]

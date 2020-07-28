@@ -38,17 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder
                 .Entity<CustomerQueryWithQueryFilter>()
                 .HasDiscriminator<string>("Discriminator").HasValue("Customer");
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            modelBuilder
-                .Entity<CustomerQuery>().Metadata.SetDefiningQuery(null);
-            modelBuilder
-                .Entity<OrderQuery>().Metadata.SetDefiningQuery(null);
-            modelBuilder
-                .Entity<ProductQuery>().Metadata.SetDefiningQuery(null);
-            modelBuilder
-                .Entity<CustomerQueryWithQueryFilter>().Metadata.SetDefiningQuery(null);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }
