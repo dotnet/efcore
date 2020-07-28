@@ -148,9 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var ownedEntityReference = new EntityReference(targetType);
                     ownedEntityReference.MarkAsOptional();
-                    if (entityReference.IncludePaths.ContainsKey(navigation))
+                    if (entityReference.IncludePaths.TryGetValue(navigation, out var includePath))
                     {
-                        ownedEntityReference.IncludePaths.Merge(entityReference.IncludePaths[navigation]);
+                        ownedEntityReference.IncludePaths.Merge(includePath);
                     }
 
                     ownedExpansion = new OwnedNavigationReference(root, navigation, ownedEntityReference);

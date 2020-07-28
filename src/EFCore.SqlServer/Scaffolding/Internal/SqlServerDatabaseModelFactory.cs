@@ -442,13 +442,13 @@ WHERE "
                     MaxValue = maxValue
                 };
 
-                if (_defaultSequenceMinMax.ContainsKey(storeType))
+                if (_defaultSequenceMinMax.TryGetValue(storeType, out var defaultMinMax))
                 {
-                    var defaultMin = _defaultSequenceMinMax[storeType][0];
+                    var defaultMin = defaultMinMax[0];
                     sequence.MinValue = sequence.MinValue == defaultMin ? null : sequence.MinValue;
                     sequence.StartValue = sequence.StartValue == defaultMin ? null : sequence.StartValue;
 
-                    sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1]
+                    sequence.MaxValue = sequence.MaxValue == defaultMinMax[1]
                         ? null
                         : sequence.MaxValue;
                 }

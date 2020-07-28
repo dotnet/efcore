@@ -57,9 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(item, nameof(item));
 
-            if (NameCache.ContainsKey(item))
+            if (NameCache.TryGetValue(item, out var cachedName))
             {
-                return NameCache[item];
+                return cachedName;
             }
 
             var name = _cSharpUtilities.GenerateCSharpIdentifier(

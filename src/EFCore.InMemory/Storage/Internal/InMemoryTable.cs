@@ -199,14 +199,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             var key = CreateKey(entry);
 
-            if (_rows.ContainsKey(key))
+            if (_rows.TryGetValue(key, out var row))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
                 var concurrencyConflicts = new Dictionary<IProperty, object>();
 
                 for (var index = 0; index < properties.Count; index++)
                 {
-                    IsConcurrencyConflict(entry, properties[index], _rows[key][index], concurrencyConflicts);
+                    IsConcurrencyConflict(entry, properties[index], row[index], concurrencyConflicts);
                 }
 
                 if (concurrencyConflicts.Count > 0)
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         {
             var key = CreateKey(entry);
 
-            if (_rows.ContainsKey(key))
+            if (_rows.TryGetValue(key, out var row))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
                 var comparers = GetKeyComparers(properties);
@@ -264,14 +264,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 for (var index = 0; index < valueBuffer.Length; index++)
                 {
-                    if (IsConcurrencyConflict(entry, properties[index], _rows[key][index], concurrencyConflicts))
+                    if (IsConcurrencyConflict(entry, properties[index], row[index], concurrencyConflicts))
                     {
                         continue;
                     }
 
                     valueBuffer[index] = entry.IsModified(properties[index])
                         ? SnapshotValue(properties[index], comparers[index], entry)
-                        : _rows[key][index];
+                        : row[index];
                 }
 
                 if (concurrencyConflicts.Count > 0)

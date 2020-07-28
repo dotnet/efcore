@@ -835,9 +835,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(parameterExpression, nameof(parameterExpression));
 
-            if (_parametersInScope.ContainsKey(parameterExpression))
+            if (_parametersInScope.TryGetValue(parameterExpression, out var parameterName))
             {
-                var parameterName = _parametersInScope[parameterExpression];
                 if (parameterName == null)
                 {
                     if (!_namelessParameters.Contains(parameterExpression))
