@@ -640,7 +640,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return Expression.Default(clrType);
                 }
 
-                return CreateGetValueExpression(jObjectExpression, storeName, clrType, property.GetTypeMapping());
+                return Expression.Convert(
+                    CreateGetValueExpression(jObjectExpression, storeName, clrType.MakeNullable(), property.GetTypeMapping()),
+                    clrType);
             }
 
             private Expression CreateGetValueExpression(
@@ -649,6 +651,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Type clrType,
                 CoreTypeMapping typeMapping = null)
             {
+                Check.DebugAssert(clrType.IsNullableType(), "Must read nullable type from JObject.");
+
                 var innerExpression = jObjectExpression;
                 if (_projectionBindings.TryGetValue(jObjectExpression, out var innerVariable))
                 {

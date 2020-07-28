@@ -2308,12 +2308,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#13168")]
         public override Task Where_bitwise_or_with_logical_or(bool async)
         {
-            // #13168
-            //await base.Where_bitwise_or_with_logical_or(async);
-
-            return Task.CompletedTask;
+            return base.Where_bitwise_or_with_logical_or(async);
         }
 
         public override async Task Where_bitwise_and_with_logical_and(bool async)
@@ -2326,12 +2324,10 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"") & (c[""CustomerID""] = ""ANATR"")) AND (c[""CustomerID""] = ""ANTON"")))");
         }
 
+        [ConditionalTheory(Skip = "Issue#13168")]
         public override Task Where_bitwise_or_with_logical_and(bool async)
         {
-            // #13168
-            //await base.Where_bitwise_or_with_logical_and(async);
-
-            return Task.CompletedTask;
+            return base.Where_bitwise_or_with_logical_and(async);
         }
 
         public override async Task Where_bitwise_and_with_logical_or(bool async)
@@ -2409,12 +2405,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#13159")]
         public override Task Parameter_extraction_short_circuits_1(bool async)
         {
-            // #13159
-            //await base.Parameter_extraction_short_circuits_1(async);
-
-            return Task.CompletedTask;
+            return base.Parameter_extraction_short_circuits_1(async);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -2428,12 +2422,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#13159")]
         public override Task Parameter_extraction_short_circuits_3(bool async)
         {
-            // #13159
-            //await base.Parameter_extraction_short_circuits_3(async);
-
-            return Task.CompletedTask;
+            return base.Parameter_extraction_short_circuits_3(async);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -4151,22 +4143,16 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.Select_distinct_Select_with_client_bindings(async);
         }
 
-        [ConditionalTheory(Skip = "Issue#21678")]
-        public override Task Non_nullable_property_through_optional_navigation(bool async)
-        {
-            return base.Non_nullable_property_through_optional_navigation(async);
-        }
-
-        [ConditionalTheory(Skip = "Issue#21678")]
-        public override Task Max_on_empty_sequence_throws(bool async)
-        {
-            return base.Max_on_empty_sequence_throws(async);
-        }
-
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
         public override Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(bool async)
         {
             return base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async);
+        }
+
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task Max_on_empty_sequence_throws(bool async)
+        {
+            return base.Max_on_empty_sequence_throws(async);
         }
 
         private void AssertSql(params string[] expected)
