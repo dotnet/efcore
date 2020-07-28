@@ -340,22 +340,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             AssertCanRemove(entityType);
 
-            foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
-            {
-                if (foreignKey.PrincipalEntityType != entityType)
-                {
-                    entityType.RemoveForeignKey(foreignKey);
-                }
-            }
-
-            foreach (var skipNavigation in entityType.GetSkipNavigations().ToList())
-            {
-                if (skipNavigation.TargetEntityType != entityType)
-                {
-                    entityType.RemoveSkipNavigation(skipNavigation);
-                }
-            }
-
             var entityTypeName = entityType.Name;
             if (entityType.HasDefiningNavigation())
             {

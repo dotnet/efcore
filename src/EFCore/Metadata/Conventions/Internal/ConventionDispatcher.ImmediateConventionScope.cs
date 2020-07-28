@@ -779,13 +779,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _foreignKeyConventionContext.ResetState(foreignKey);
                     foreach (var skipNavigationConvention in _conventionSet.SkipNavigationForeignKeyChangedConventions)
                     {
-                        if (navigationBuilder.Metadata.Builder == null
-                            || navigationBuilder.Metadata.ForeignKey != foreignKey)
-                        {
-                            Check.DebugAssert(false, "Foreign key changed");
-                            return null;
-                        }
-
                         skipNavigationConvention.ProcessSkipNavigationForeignKeyChanged(
                             navigationBuilder, foreignKey, oldForeignKey, _foreignKeyConventionContext);
                         if (_foreignKeyConventionContext.ShouldStopProcessing())
@@ -824,13 +817,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _skipNavigationConventionContext.ResetState(inverse);
                     foreach (var skipNavigationConvention in _conventionSet.SkipNavigationInverseChangedConventions)
                     {
-                        if (navigationBuilder.Metadata.Builder == null
-                            || navigationBuilder.Metadata.Inverse != inverse)
-                        {
-                            Check.DebugAssert(false, "inverse changed");
-                            return null;
-                        }
-
                         skipNavigationConvention.ProcessSkipNavigationInverseChanged(
                             navigationBuilder, inverse, oldInverse, _skipNavigationConventionContext);
                         if (_skipNavigationConventionContext.ShouldStopProcessing())

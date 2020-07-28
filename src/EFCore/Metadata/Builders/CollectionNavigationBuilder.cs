@@ -170,11 +170,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
                 var navigationName = SkipNavigation.Name;
                 var declaringEntityType = (EntityType)DeclaringEntityType;
-                declaringEntityType.Model.Builder
-                    .RemoveJoinEntityIfCreatedImplicitly(
-                        (EntityType)SkipNavigation.JoinEntityType,
-                        removeSkipNavigations: true,
-                        ConfigurationSource.Explicit);
+
+                if (SkipNavigation.Inverse != null)
+                {
+                    ((EntityType)SkipNavigation.Inverse.DeclaringEntityType).Builder.HasNoSkipNavigation(
+                        (SkipNavigation)SkipNavigation.Inverse, ConfigurationSource.Explicit);
+                }
+
+                declaringEntityType.Builder.HasNoSkipNavigation((SkipNavigation)SkipNavigation, ConfigurationSource.Explicit);
 
                 Builder = declaringEntityType.Builder
                     .HasRelationship(

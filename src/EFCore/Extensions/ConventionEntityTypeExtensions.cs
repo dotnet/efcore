@@ -509,7 +509,13 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionProperty AddProperty(
             [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
             bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
-            => entityType.AddProperty(name, propertyType, null, setTypeConfigurationSource, fromDataAnnotation);
+            => ((EntityType)entityType).AddProperty(
+                name,
+                propertyType,
+                setTypeConfigurationSource
+                    ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                    : (ConfigurationSource?)null,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Adds a property backed by and indexer to this entity type.

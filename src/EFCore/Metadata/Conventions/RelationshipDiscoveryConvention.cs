@@ -747,20 +747,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                var joinEntityType = (EntityType)declaringEntityType
-                    .FindDeclaredSkipNavigation(navigationPropertyName)?
-                    .ForeignKey?.DeclaringEntityType;
-                if (joinEntityType != null)
+                var skipNavigation = declaringEntityType.FindDeclaredSkipNavigation(navigationPropertyName);
+                if (skipNavigation != null)
                 {
-                    var modelBuilder = joinEntityType.Model.Builder;
-                    // The PropertyInfo underlying this skip navigation has become
-                    // ambiguous since we used it, so remove the join entity
-                    // if it was implicitly created.
-                    if (modelBuilder.RemoveJoinEntityIfCreatedImplicitly(
-                            joinEntityType, removeSkipNavigations: true, ConfigurationSource.Convention) == null)
+                    var inverse = skipNavigation.Inverse;
+                    if (declaringEntityType.Builder.HasNoSkipNavigation(skipNavigation) == null)
                     {
                         // Navigations of higher configuration source are not ambiguous
                         toRemoveFrom.Remove(navigationProperty);
+                    }
+                    else if (inverse?.Builder != null)
+                    {
+                        inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(inverse);
                     }
                 }
             }

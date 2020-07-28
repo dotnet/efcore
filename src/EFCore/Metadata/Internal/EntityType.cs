@@ -388,6 +388,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void OnTypeRemoved()
         {
+            if (_foreignKeys.Count > 0)
+            {
+                foreach (var foreignKey in GetDeclaredForeignKeys().ToList())
+                {
+                    if (foreignKey.PrincipalEntityType != this)
+                    {
+                        RemoveForeignKey(foreignKey);
+                    }
+                }
+            }
+
+            if (_skipNavigations.Count > 0)
+            {
+                foreach (var skipNavigation in GetDeclaredSkipNavigations().ToList())
+                {
+                    if (skipNavigation.TargetEntityType != this)
+                    {
+                        RemoveSkipNavigation(skipNavigation);
+                    }
+                }
+            }
+
             Builder = null;
             _baseType?._directlyDerivedTypes.Remove(this);
 
@@ -2261,7 +2283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddProperty(
                 name,
                 propertyType,
-                null,
+                ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
                 typeConfigurationSource,
                 configurationSource);
         }
@@ -2341,7 +2363,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                memberInfo = ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                Check.DebugAssert(ClrType?.GetMembersInHierarchy(name).FirstOrDefault() == null,
+                    "MemberInfo not supplied for non-shadow property");
             }
 
             if (memberInfo != null
@@ -3904,7 +3927,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, MemberInfo memberInfo)
-            => AddProperty(name, propertyType, memberInfo, ConfigurationSource.Explicit, ConfigurationSource.Explicit);
+            => AddProperty(name, propertyType, memberInfo ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
+                ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3918,7 +3942,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => AddProperty(
                 name,
                 propertyType,
-                memberInfo,
+                memberInfo ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault(),
                 setTypeConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                     : (ConfigurationSource?)null,

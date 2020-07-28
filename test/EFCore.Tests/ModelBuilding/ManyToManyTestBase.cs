@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Finds_existing_navigations_and_uses_associated_FK()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
+                var model = (IModel)modelBuilder.Model;
 
                 modelBuilder.Entity<Category>().Ignore(c => c.Products);
                 modelBuilder.Entity<Product>().Ignore(p => p.Categories);
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         pcb => pcb.HasOne(pc => pc.Product).WithMany(),
                         pcb => pcb.HasOne(pc => pc.Category).WithMany(c => c.ProductCategories));
 
-                modelBuilder.FinalizeModel();
+                model = modelBuilder.FinalizeModel();
 
                 Assert.Same(categoriesNavigation, productType.GetSkipNavigations().Single());
                 Assert.Same(productsNavigation, categoryType.GetSkipNavigations().Single());
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Finds_existing_navigations_and_uses_associated_FK_with_fields()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
+                var model = (IModel)modelBuilder.Model;
 
                 modelBuilder.Entity<ManyToManyPrincipalWithField>(e =>
                 {
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         jwf => jwf.HasOne<ManyToManyPrincipalWithField>(j => j.ManyToManyPrincipalWithField)
                             .WithMany());
 
-                modelBuilder.FinalizeModel();
+                model = modelBuilder.FinalizeModel();
 
                 Assert.Same(principalToJoinNav, principalEntityType.GetSkipNavigations().Single());
                 Assert.Same(dependentToJoinNav, dependentEntityType.GetSkipNavigations().Single());
@@ -128,9 +128,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Join_type_is_automatically_configured_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 modelBuilder.Entity<ImplicitManyToManyA>();
+
+                var model = modelBuilder.FinalizeModel();
 
                 var manyToManyA = model.FindEntityType(typeof(ImplicitManyToManyA));
                 var manyToManyB = model.FindEntityType(typeof(ImplicitManyToManyB));
@@ -157,11 +158,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var key = joinEntityType.FindPrimaryKey();
                 Assert.Equal(
                     new[] {
-                        nameof(ImplicitManyToManyA) + "_" + nameof(ImplicitManyToManyA.Id),
-                        nameof(ImplicitManyToManyB) + "_" + nameof(ImplicitManyToManyB.Id) },
+                        nameof(ImplicitManyToManyA) + nameof(ImplicitManyToManyA.Id),
+                        nameof(ImplicitManyToManyB) + nameof(ImplicitManyToManyB.Id) },
                     key.Properties.Select(p => p.Name));
-
-                modelBuilder.FinalizeModel();
             }
 
             [ConditionalFact]
@@ -174,8 +173,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var hob = model.FindEntityType(typeof(Hob));
                 var nob = model.FindEntityType(typeof(Nob));
-                Assert.NotNull(hob);
-                Assert.NotNull(nob);
                 Assert.Empty(model.GetEntityTypes()
                     .Where(et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType));
 
@@ -187,7 +184,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_configure_join_type_using_fluent_api()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 modelBuilder.Entity<Category>().Ignore(c => c.Products);
                 modelBuilder.Entity<Product>().Ignore(p => p.Categories);
@@ -199,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         pcb => pcb.HasOne(pc => pc.Category).WithMany(c => c.ProductCategories),
                         pcb => pcb.HasKey(pc => new { pc.ProductId, pc.CategoryId }));
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
                 Assert.Equal(typeof(Category), manyToMany.Metadata.ClrType);
 
@@ -227,7 +223,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_ignore_existing_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
                 modelBuilder.Entity<Category>()
                     .HasMany(p => p.Products).WithMany(c => c.Categories);
 
@@ -237,20 +232,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 // Issue #19550
                 modelBuilder.Ignore<ProductCategory>();
 
+                var model = modelBuilder.FinalizeModel();
+
                 var productType = model.FindEntityType(typeof(Product));
                 var categoryType = model.FindEntityType(typeof(Category));
 
                 Assert.Empty(productType.GetSkipNavigations());
                 Assert.Empty(categoryType.GetSkipNavigations());
-
-                modelBuilder.FinalizeModel();
             }
 
             [ConditionalFact]
             public virtual void Throws_for_conflicting_many_to_one_on_left()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 // make sure we do not set up the automatic many-to-many relationship
                 modelBuilder.Entity<Category>().Ignore(e => e.Products);
@@ -273,7 +267,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Throws_for_conflicting_many_to_one_on_right()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 // make sure we do not set up the automatic many-to-many relationship
                 modelBuilder.Entity<Category>().Ignore(e => e.Products);
@@ -296,7 +289,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Throws_for_many_to_many_with_only_one_navigation_configured()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 Assert.Equal(
                     CoreStrings.MissingInverseManyToManyNavigation(
@@ -312,7 +304,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Navigation_properties_can_set_access_mode_using_expressions()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 modelBuilder.Entity<ManyToManyNavPrincipal>()
                     .HasMany(e => e.Dependents)
@@ -326,8 +317,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Navigation(e => e.ManyToManyPrincipals)
                     .UsePropertyAccessMode(PropertyAccessMode.Property);
 
-                var principal = (IEntityType)model.FindEntityType(typeof(ManyToManyNavPrincipal));
-                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+                modelBuilder.Entity<NavDependent>()
+                    .Ignore(n => n.OneToOnePrincipal);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var principal = model.FindEntityType(typeof(ManyToManyNavPrincipal));
+                var dependent = model.FindEntityType(typeof(NavDependent));
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindSkipNavigation("Dependents").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindSkipNavigation("ManyToManyPrincipals").GetPropertyAccessMode());
@@ -337,7 +333,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Navigation_properties_can_set_access_mode_using_navigation_names()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 modelBuilder.Entity<ManyToManyNavPrincipal>()
                     .HasMany<NavDependent>("Dependents")
@@ -351,6 +346,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Navigation("ManyToManyPrincipals")
                     .UsePropertyAccessMode(PropertyAccessMode.Property);
 
+                modelBuilder.Entity<NavDependent>()
+                    .Ignore(n => n.OneToOnePrincipal);
+
+                var model = modelBuilder.FinalizeModel();
+
                 var principal = (IEntityType)model.FindEntityType(typeof(ManyToManyNavPrincipal));
                 var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
 
@@ -362,7 +362,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_use_shared_Type_as_join_entity()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 modelBuilder.Ignore<OneToManyNavPrincipal>();
                 modelBuilder.Ignore<OneToOneNavPrincipal>();
@@ -384,13 +383,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         e => e.HasOne<ManyToManyPrincipalWithField>().WithMany(),
                         e => e.IndexerProperty<int>("Payload"));
 
-                var shared1 = modelBuilder.Model.FindEntityType("Shared1");
+                modelBuilder.Entity<ManyToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var shared1 = model.FindEntityType("Shared1");
                 Assert.NotNull(shared1);
                 Assert.Equal(2, shared1.GetForeignKeys().Count());
                 Assert.True(shared1.HasSharedClrType);
                 Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
 
-                var shared2 = modelBuilder.Model.FindEntityType("Shared2");
+                var shared2 = model.FindEntityType("Shared2");
                 Assert.NotNull(shared2);
                 Assert.Equal(2, shared2.GetForeignKeys().Count());
                 Assert.True(shared2.HasSharedClrType);
@@ -434,6 +440,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r => r.HasOne<DependentWithField>().WithMany(),
                         l => l.HasOne<ManyToManyPrincipalWithField>().WithMany()).Metadata;
 
+                modelBuilder.Entity<ManyToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
+
+                var model = modelBuilder.FinalizeModel();
+
                 Assert.True(joinEntityType.HasSharedClrType);
                 Assert.Equal("Shared", joinEntityType.Name);
                 Assert.Equal(typeof(ManyToManyJoinWithFields), joinEntityType.ClrType);
@@ -453,6 +466,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         "Shared",
                         r => r.HasOne<DependentWithField>().WithMany(),
                         l => l.HasOne<ManyToManyPrincipalWithField>().WithMany()).Metadata;
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
+
+                var model = modelBuilder.FinalizeModel();
 
                 Assert.True(joinEntityType.HasSharedClrType);
                 Assert.Equal("Shared", joinEntityType.Name);

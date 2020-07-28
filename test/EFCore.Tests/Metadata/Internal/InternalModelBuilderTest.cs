@@ -348,10 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Owned(typeof(Details), ConfigurationSource.Explicit)).Message);
         }
 
-        [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Can_remove_implicitly_created_join_entity_type(bool removeSkipNavs)
+        [ConditionalFact]
+        public void Can_remove_implicitly_created_join_entity_type()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
@@ -401,31 +399,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var joinEntityType = joinEntityTypeBuilder.Metadata;
 
             Assert.NotNull(joinEntityType);
-
-            Assert.NotNull(modelBuilder.RemoveJoinEntityIfCreatedImplicitly(
-                joinEntityType, removeSkipNavs, ConfigurationSource.Convention));
+            Assert.NotNull(modelBuilder.RemoveImplicitJoinEntity(joinEntityType));
 
             Assert.Empty(model.GetEntityTypes()
                 .Where(e => e.IsImplicitlyCreatedJoinEntityType));
 
             var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
             var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
-            if (removeSkipNavs)
-            {
-                Assert.Null(leftSkipNav);
-                Assert.Null(rightSkipNav);
-            }
-            else
-            {
-                Assert.NotNull(leftSkipNav);
-                Assert.NotNull(rightSkipNav);
-            }
+
+            Assert.NotNull(leftSkipNav);
+            Assert.NotNull(rightSkipNav);
         }
 
-        [ConditionalTheory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Cannot_remove_manually_created_join_entity_type(bool removeSkipNavs)
+        [ConditionalFact]
+        public void Cannot_remove_manually_created_join_entity_type()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
@@ -465,8 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(joinEntityType);
             Assert.Same(joinEntityType, skipNavOnRight.Metadata.JoinEntityType);
 
-            Assert.Null(modelBuilder.RemoveJoinEntityIfCreatedImplicitly(
-                joinEntityType, removeSkipNavs, ConfigurationSource.Convention));
+            Assert.Null(modelBuilder.RemoveImplicitJoinEntity(joinEntityType));
 
             var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
             var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));

@@ -659,10 +659,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         var inverse = conflictingSkipNavigation.Inverse;
                         if (inverse?.Builder != null
-                            && inverse.DeclaringEntityType.Builder
-                                .CanRemoveSkipNavigation(inverse, configurationSource))
+                            && inverse.GetConfigurationSource() != ConfigurationSource.Explicit)
                         {
-                            inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
+                            inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(inverse, configurationSource.Value);
                         }
 
                         conflictingSkipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(
@@ -881,10 +880,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         var inverse = conflictingSkipNavigation.Inverse;
                         if (inverse?.Builder != null
-                            && inverse.DeclaringEntityType.Builder
-                                .CanRemoveSkipNavigation(inverse, configurationSource))
+                            && inverse.GetConfigurationSource() != ConfigurationSource.Explicit)
                         {
-                            inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
+                            inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(inverse, configurationSource.Value);
                         }
 
                         conflictingSkipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(
@@ -1047,16 +1045,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             var inverse = skipNavigation.Inverse;
                             if (inverse?.Builder != null
-                                && inverse.DeclaringEntityType.Builder
-                                    .CanRemoveSkipNavigation(inverse, configurationSource))
+                                && inverse.GetConfigurationSource() != ConfigurationSource.Explicit)
                             {
-                                inverse.SetInverse(null, configurationSource);
-                                inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
+                                inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(inverse, configurationSource);
                             }
 
                             Check.DebugAssert(skipNavigation.DeclaringEntityType == Metadata, "skipNavigation.DeclaringEntityType != Metadata");
 
-                            Metadata.RemoveSkipNavigation(skipNavigation);
+                            Metadata.Builder.HasNoSkipNavigation(skipNavigation, configurationSource);
                         }
                         else
                         {
@@ -1117,18 +1113,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 var inverse = skipNavigation.Inverse;
                                 if (inverse?.Builder != null
-                                    && configurationSource != inverse.GetConfigurationSource()
-                                    && inverse.DeclaringEntityType.Builder
-                                        .CanRemoveSkipNavigation(inverse, configurationSource))
+                                    && inverse.GetConfigurationSource() != ConfigurationSource.Explicit)
                                 {
-                                    inverse.SetInverse(null, configurationSource);
-                                    inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
+                                    inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(inverse, configurationSource);
                                 }
 
-                                if (configurationSource.Overrides(skipNavigation.GetConfigurationSource())
-                                    && skipNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
+                                if (skipNavigation.GetConfigurationSource() != ConfigurationSource.Explicit)
                                 {
-                                    derivedType.RemoveSkipNavigation(skipNavigation);
+                                    derivedType.Builder.HasNoSkipNavigation(skipNavigation, configurationSource);
                                 }
                             }
                             else
@@ -1467,7 +1459,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return baseNavigation != null
                                 && n.TargetEntityType == baseNavigation.TargetEntityType;
                         },
-                        n => n.DeclaringEntityType.RemoveSkipNavigation(n));
+                        n => n.DeclaringEntityType.Builder.HasNoSkipNavigation(n, ConfigurationSource.Explicit));
 
                     if (skipNavigationsToDetach != null)
                     {
@@ -1965,6 +1957,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] ForeignKey foreignKey,
             ConfigurationSource configurationSource)
         {
+            if (foreignKey.Builder == null)
+            {
+                return this;
+            }
+
             var currentConfigurationSource = foreignKey.GetConfigurationSource();
             if (!configurationSource.Overrides(currentConfigurationSource))
             {
@@ -1980,6 +1977,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     referencingSkipNavigation.Builder.HasForeignKey(null, configurationSource);
                 }
+            }
+
+            if (foreignKey.Builder == null)
+            {
+                return this;
             }
 
             Metadata.RemoveForeignKey(foreignKey);
@@ -3673,8 +3675,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalEntityTypeBuilder HasNoSkipNavigation(
             [NotNull] SkipNavigation skipNavigation, ConfigurationSource configurationSource)
         {
-            var currentConfigurationSource = skipNavigation.GetConfigurationSource();
-            if (!configurationSource.Overrides(currentConfigurationSource))
+            if (!CanRemoveSkipNavigation(skipNavigation, configurationSource))
             {
                 return null;
             }
@@ -3690,6 +3691,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return this;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanRemoveSkipNavigation([NotNull] SkipNavigation skipNavigation, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(skipNavigation.GetConfigurationSource());
+
         private static InternalSkipNavigationBuilder DetachSkipNavigation(SkipNavigation skipNavigationToDetach)
         {
             var builder = skipNavigationToDetach?.Builder;
@@ -3698,7 +3708,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            skipNavigationToDetach.DeclaringEntityType.RemoveSkipNavigation(skipNavigationToDetach);
+            skipNavigationToDetach.DeclaringEntityType.Builder.HasNoSkipNavigation(skipNavigationToDetach, ConfigurationSource.Explicit);
             return builder;
         }
 
@@ -3884,7 +3894,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         return null;
                     }
 
-                    // TODO: Log that a shadow property is created
                     var propertyBuilder = Property(
                         required
                             ? type
@@ -4834,6 +4843,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
                 collection,
                 onDependent);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionEntityTypeBuilder IConventionEntityTypeBuilder.HasNoSkipNavigation(ISkipNavigation skipNavigation, bool fromDataAnnotation)
+            => HasNoSkipNavigation((SkipNavigation)skipNavigation,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        bool IConventionEntityTypeBuilder.CanRemoveSkipNavigation(ISkipNavigation skipNavigation, bool fromDataAnnotation)
+            => CanRemoveSkipNavigation((SkipNavigation)skipNavigation,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

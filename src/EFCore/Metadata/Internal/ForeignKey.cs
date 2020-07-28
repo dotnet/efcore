@@ -1089,6 +1089,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionNavigation IConventionForeignKey.SetPrincipalToDependent(MemberInfo property, bool fromDataAnnotation)
             => HasPrincipalToDependent(property, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IEnumerable<ISkipNavigation> IForeignKey.GetReferencingSkipNavigations()
+            => GetReferencingSkipNavigations();        
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

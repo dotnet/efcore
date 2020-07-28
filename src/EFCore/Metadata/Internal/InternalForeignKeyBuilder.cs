@@ -314,13 +314,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     var inverse = conflictingSkipNavigation.Inverse;
                     if (inverse?.Builder != null
-                        && inverse.DeclaringEntityType.Builder
-                            .CanRemoveSkipNavigation(inverse, configurationSource))
+                        && inverse.GetConfigurationSource() != ConfigurationSource.Explicit)
                     {
-                        inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
+                        inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(conflictingSkipNavigation, configurationSource);
                     }
 
-                    conflictingSkipNavigation.DeclaringEntityType.RemoveSkipNavigation(conflictingSkipNavigation);
+                    conflictingSkipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(conflictingSkipNavigation, configurationSource);
                 }
             }
 
@@ -351,13 +350,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     var inverse = conflictingSkipNavigation.Inverse;
                     if (inverse?.Builder != null
-                        && inverse.DeclaringEntityType.Builder
-                            .CanRemoveSkipNavigation(inverse, configurationSource))
+                        && inverse.GetConfigurationSource() != ConfigurationSource.Explicit)
                     {
-                        inverse.DeclaringEntityType.RemoveSkipNavigation(inverse);
+                        inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(conflictingSkipNavigation, configurationSource);
                     }
 
-                    conflictingSkipNavigation.DeclaringEntityType.RemoveSkipNavigation(conflictingSkipNavigation);
+                    conflictingSkipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(conflictingSkipNavigation, configurationSource);
                 }
             }
 
@@ -2191,6 +2189,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             InternalForeignKeyBuilder newRelationshipBuilder;
             using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
             {
+                var referencingSkipNavigations = Metadata.ReferencingSkipNavigations
+                    ?.Select(n => (Navigation: n, ConfigurationSource: n.GetForeignKeyConfigurationSource().Value)).ToList();
+
                 newRelationshipBuilder = GetOrCreateRelationshipBuilder(
                     principalEntityTypeBuilder.Metadata,
                     dependentEntityTypeBuilder.Metadata,
@@ -2572,6 +2573,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Metadata.IsOwnership,
                             Metadata.GetIsOwnershipConfigurationSource().Value)
                         ?? newRelationshipBuilder;
+                }
+
+                if (referencingSkipNavigations != null)
+                {
+                    foreach (var referencingNavigationTuple in referencingSkipNavigations)
+                    {
+                        var skipNavigation = referencingNavigationTuple.Navigation;
+                        if (skipNavigation.Builder == null)
+                        {
+                            var navigationEntityType = skipNavigation.DeclaringEntityType;
+                            skipNavigation = navigationEntityType.Builder == null
+                                ? null
+                                : navigationEntityType.FindSkipNavigation(skipNavigation.Name);
+                        }
+
+                        skipNavigation?.Builder.HasForeignKey(
+                            newRelationshipBuilder.Metadata, referencingNavigationTuple.ConfigurationSource);
+                    }
                 }
 
                 if (Metadata != newRelationshipBuilder.Metadata)

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class ManyToManyJoinEntityTypeConventionTest
     {
         [ConditionalFact]
-        public void Join_entity_type_is_not_created_for_self_join()
+        public void Join_entity_type_is_created_for_self_join()
         {
             var modelBuilder = CreateInternalModeBuilder();
             var manyToManySelf = modelBuilder.Entity(typeof(ManyToManySelf), ConfigurationSource.Convention);
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(firstSkipNav);
 
-            Assert.Empty(manyToManySelf.Metadata.Model.GetEntityTypes()
+            Assert.Single(manyToManySelf.Metadata.Model.GetEntityTypes()
                 .Where(et => et.IsImplicitlyCreatedJoinEntityType));
         }
 
@@ -243,13 +243,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
             Assert.Equal(manyToManyFirstForeignKey.DeclaringEntityType, joinEntityType);
             Assert.Equal(manyToManySecondForeignKey.DeclaringEntityType, joinEntityType);
-
-            var key = joinEntityType.FindPrimaryKey();
-            Assert.Equal(
-                new[] {
-                        nameof(ManyToManyFirst) + "_" + nameof(ManyToManyFirst.Id),
-                        nameof(ManyToManySecond) + "_" + nameof(ManyToManySecond.Id) },
-                key.Properties.Select(p => p.Name));
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }
