@@ -82,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             else if (oldBaseType != null
                 && newBaseType == null
                 && entityType.ClrType != null
-                && _sets.ContainsKey(entityType.ClrType))
+                && _sets.TryGetValue(entityType.ClrType, out var setName))
             {
-                entityTypeBuilder.ToTable(_sets[entityType.ClrType]);
+                entityTypeBuilder.ToTable(setName);
             }
         }
 
@@ -100,9 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType == null
                 && entityType.ClrType != null
-                && _sets.ContainsKey(entityType.ClrType))
+                && _sets.TryGetValue(entityType.ClrType, out var setName))
             {
-                entityTypeBuilder.ToTable(_sets[entityType.ClrType]);
+                entityTypeBuilder.ToTable(setName);
             }
         }
 
