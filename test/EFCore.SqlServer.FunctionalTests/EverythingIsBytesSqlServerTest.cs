@@ -29,13 +29,11 @@ namespace Microsoft.EntityFrameworkCore
                 nameof(ObjectBackedDataTypes),
                 nameof(NullableBackedDataTypes),
                 nameof(NonNullableBackedDataTypes),
-                nameof(AnimalDetails));
+                nameof(Animal),
+                nameof(AnimalDetails),
+                nameof(AnimalIdentification));
 
-            const string expected = @"Animal.Id ---> [varbinary] [MaxLength = 4]
-AnimalIdentification.AnimalId ---> [varbinary] [MaxLength = 4]
-AnimalIdentification.Id ---> [varbinary] [MaxLength = 4]
-AnimalIdentification.Method ---> [varbinary] [MaxLength = 4]
-BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
+            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [varbinary] [MaxLength = 4]
 BinaryKeyDataType.Ex ---> [nullable varbinary] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
@@ -185,6 +183,16 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
             // Return values are string which byte[] cannot read
         }
 
+        public override void Can_compare_enum_to_constant()
+        {
+            // Column is mapped as int rather than byte[]
+        }
+
+        public override void Can_compare_enum_to_parameter()
+        {
+            // Column is mapped as int rather than byte[]
+        }
+
         public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
             public override bool StrictEquality => true;
@@ -210,6 +218,15 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                     .AddOptions(builder)
                     .ConfigureWarnings(
                         c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Ignore<Animal>();
+                modelBuilder.Ignore<AnimalIdentification>();
+                modelBuilder.Ignore<AnimalDetails>();
+            }
         }
 
         public class SqlServerBytesTestStoreFactory : SqlServerTestStoreFactory

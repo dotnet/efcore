@@ -279,14 +279,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 return null;
             }
 
-            if (notNull && defaultValue == "0")
+            if (notNull && defaultValue == "0"
+                && _typeMappingSource.FindMapping(dataType).ClrType.IsNumeric())
             {
-                var normalizedType = _typeMappingSource.FindMapping(dataType).StoreType;
-                if (normalizedType == "INTEGER"
-                    || normalizedType == "REAL")
-                {
-                    return null;
-                }
+                return null;
             }
 
             return defaultValue;

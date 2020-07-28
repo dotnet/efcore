@@ -30,13 +30,11 @@ namespace Microsoft.EntityFrameworkCore
                 nameof(ObjectBackedDataTypes),
                 nameof(NullableBackedDataTypes),
                 nameof(NonNullableBackedDataTypes),
-                nameof(AnimalDetails));
+                nameof(Animal),
+                nameof(AnimalDetails),
+                nameof(AnimalIdentification));
 
-            const string expected = @"Animal.Id ---> [nvarchar] [MaxLength = 64]
-AnimalIdentification.AnimalId ---> [nvarchar] [MaxLength = 64]
-AnimalIdentification.Id ---> [nvarchar] [MaxLength = 64]
-AnimalIdentification.Method ---> [nvarchar] [MaxLength = -1]
-BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
+            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
@@ -181,6 +179,16 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             // Column is mapped as int rather than string
         }
 
+        public override void Can_compare_enum_to_constant()
+        {
+            // Column is mapped as int rather than string
+        }
+
+        public override void Can_compare_enum_to_parameter()
+        {
+            // Column is mapped as int rather than string
+        }
+
         public class EverythingIsStringsSqlServerFixture : BuiltInDataTypesFixtureBase
         {
             public override bool StrictEquality => true;
@@ -212,6 +220,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 base.OnModelCreating(modelBuilder, context);
 
                 modelBuilder.Entity<MaxLengthDataTypes>().Property(e => e.ByteArray5).HasMaxLength(8);
+
+                modelBuilder.Ignore<Animal>();
+                modelBuilder.Ignore<AnimalIdentification>();
+                modelBuilder.Ignore<AnimalDetails>();
             }
         }
 

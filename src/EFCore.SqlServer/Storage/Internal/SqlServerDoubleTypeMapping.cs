@@ -26,7 +26,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         public SqlServerDoubleTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, dbType)
+            : base(
+                new RelationalTypeMappingParameters(
+                        new CoreTypeMappingParameters(typeof(double)),
+                        storeType,
+                        StoreTypePostfix.Precision,
+                        dbType))
         {
         }
 
@@ -78,10 +83,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             base.ConfigureParameter(parameter);
 
-            if (Size.HasValue
-                && Size.Value != -1)
+            if (Precision.HasValue
+                && Precision.Value != -1)
             {
-                parameter.Size = Size.Value;
+                // SqlClient wants this set as "size"
+                parameter.Size = Precision.Value;
             }
         }
     }

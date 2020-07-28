@@ -111,6 +111,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
+            var mapping = FindRawMapping(mappingInfo);
+
+            return mapping != null
+                && mappingInfo.StoreTypeName != null
+                    ? mapping.Clone(mappingInfo.StoreTypeName, null)
+                    : mapping;
+        }
+
+        private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
+        {
             var clrType = mappingInfo.ClrType;
             if (clrType != null
                 && _clrTypeMappings.TryGetValue(clrType, out var mapping))

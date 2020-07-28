@@ -111,16 +111,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Configures the precision of the property.
         ///     </para>
-        ///     <para>
-        ///         Note: has the side-effect of setting the scale to 0.
-        ///     </para>
         /// </summary>
         /// <param name="precision"> The precision of the property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder HasPrecision(int precision)
         {
             Builder.HasPrecision(precision, ConfigurationSource.Explicit);
-            Builder.HasScale(0, ConfigurationSource.Explicit);
 
             return this;
         }

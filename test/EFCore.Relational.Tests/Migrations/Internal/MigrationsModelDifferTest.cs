@@ -2192,7 +2192,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Toad", operation.Table);
                     Assert.Equal("Salary", operation.Name);
                     Assert.Equal(10, operation.Precision);
-                    Assert.Equal(0, operation.Scale);
+                    Assert.Null(operation.Scale);
                     Assert.True(operation.IsDestructiveChange);
                 });
         }

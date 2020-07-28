@@ -234,13 +234,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The database type of the column to which the property is mapped. </returns>
         public static string GetColumnType([NotNull] this IProperty property)
         {
-            var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
-            if (annotation != null)
-            {
-                return (string)annotation.Value;
-            }
+            Check.NotNull(property, nameof(property));
 
-            return property.FindRelationalTypeMapping()?.StoreType;
+            return (string)(property.FindRelationalTypeMapping()?.StoreType
+                ?? property.FindAnnotation(RelationalAnnotationNames.ColumnType)?.Value);
         }
 
         /// <summary>
@@ -254,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore
             var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
             if (annotation != null)
             {
-                return (string)annotation.Value;
+                return property.FindRelationalTypeMapping()?.StoreType ?? (string)annotation.Value;
             }
 
             return GetDefaultColumnType(property, storeObject);

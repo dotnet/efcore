@@ -334,7 +334,7 @@ namespace TestNamespace
                 {
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.Equal(12, entity.GetProperty("HasPrecision").GetPrecision());
-                    Assert.Equal(0, entity.GetProperty("HasPrecision").GetScale());
+                    Assert.Null(entity.GetProperty("HasPrecision").GetScale());
                     Assert.Equal(14, entity.GetProperty("HasPrecisionAndScale").GetPrecision());
                     Assert.Equal(7, entity.GetProperty("HasPrecisionAndScale").GetScale());
                 });

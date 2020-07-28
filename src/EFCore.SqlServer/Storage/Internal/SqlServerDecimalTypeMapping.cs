@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             DbType? dbType = null,
             int? precision = null,
             int? scale = null,
-            StoreTypePostfix storeTypePostfix = StoreTypePostfix.None)
+            StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
             : base(
                 new RelationalTypeMappingParameters(
                         new CoreTypeMappingParameters(typeof(decimal)),

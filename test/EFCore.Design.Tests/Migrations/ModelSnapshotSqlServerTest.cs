@@ -4532,7 +4532,7 @@ namespace RootNamespace
                 Activator.CreateInstance(factoryType),
                 new object[] { builder });
 
-            var services = RelationalTestHelpers.Instance.CreateContextServices();
+            var services = SqlServerTestHelpers.Instance.CreateContextServices();
 
             var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IConventionSetBuilder>());
             return processor.Process(builder.Model);

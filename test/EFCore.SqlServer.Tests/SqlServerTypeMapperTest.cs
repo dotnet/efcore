@@ -1031,10 +1031,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("datetime", typeof(DateTime), null, false, false)]
         [InlineData("datetime2", typeof(DateTime), null, false, false)]
         [InlineData("datetimeoffset", typeof(DateTimeOffset), null, false, false)]
-        [InlineData("dec", typeof(decimal), null, false, false, "dec(18,2)")]
-        [InlineData("decimal", typeof(decimal), null, false, false, "decimal(18,2)")]
+        [InlineData("dec", typeof(decimal), null, false, false)]
+        [InlineData("decimal", typeof(decimal), null, false, false)]
         [InlineData("float", typeof(double), null, false, false)] // This is correct. SQL Server 'float' type maps to C# double
-        [InlineData("float(10,8)", typeof(double), null, false, false)]
+        [InlineData("float(10)", typeof(double), null, false, false)]
         [InlineData("image", typeof(byte[]), null, false, false)]
         [InlineData("int", typeof(int), null, false, false)]
         [InlineData("money", typeof(decimal), null, false, false)]
@@ -1045,7 +1045,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("national character(333)", typeof(string), 333, true, true)]
         [InlineData("nchar(333)", typeof(string), 333, true, true)]
         [InlineData("ntext", typeof(string), null, true, false)]
-        [InlineData("numeric", typeof(decimal), null, false, false, "numeric(18,2)")]
+        [InlineData("numeric", typeof(decimal), null, false, false)]
         [InlineData("nvarchar(333)", typeof(string), 333, true, false)]
         [InlineData("nvarchar(max)", typeof(string), null, true, false)]
         [InlineData("real", typeof(float), null, false, false)]
@@ -1073,63 +1073,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(unicode, mapping.IsUnicode);
             Assert.Equal(fixedLength, mapping.IsFixedLength);
             Assert.Equal(expectedType ?? typeName, mapping.StoreType);
-        }
-
-        [ConditionalTheory]
-        [InlineData("binary varying")]
-        [InlineData("binary")]
-        [InlineData("char varying")]
-        [InlineData("char")]
-        [InlineData("character varying")]
-        [InlineData("character")]
-        [InlineData("national char varying")]
-        [InlineData("national character varying")]
-        [InlineData("national character")]
-        [InlineData("nchar")]
-        [InlineData("nvarchar")]
-        [InlineData("varbinary")]
-        [InlineData("varchar")]
-        [InlineData("VarCHaR")] // case-insensitive
-        [InlineData("VARCHAR")]
-        public void Throws_for_naked_type_name(string typeName)
-        {
-            var mapper = CreateTypeMapper();
-
-            Assert.Equal(
-                SqlServerStrings.UnqualifiedDataType(typeName),
-                Assert.Throws<ArgumentException>(() => mapper.FindMapping(typeName)).Message, ignoreCase: true);
-        }
-
-        [ConditionalTheory]
-        [InlineData("binary varying")]
-        [InlineData("binary")]
-        [InlineData("char varying")]
-        [InlineData("char")]
-        [InlineData("character varying")]
-        [InlineData("character")]
-        [InlineData("national char varying")]
-        [InlineData("national character varying")]
-        [InlineData("national character")]
-        [InlineData("nchar")]
-        [InlineData("nvarchar")]
-        [InlineData("varbinary")]
-        [InlineData("varchar")]
-        [InlineData("VarCHaR")] // case-insensitive
-        [InlineData("VARCHAR")]
-        public void Throws_for_naked_type_name_on_property(string typeName)
-        {
-            var builder = CreateModelBuilder();
-
-            var property = builder.Entity<StringCheese>()
-                .Property(e => e.StringWithSize)
-                .HasColumnType(typeName)
-                .Metadata;
-
-            var mapper = CreateTypeMapper();
-
-            Assert.Equal(
-                SqlServerStrings.UnqualifiedDataTypeOnProperty(typeName, nameof(StringCheese.StringWithSize)),
-                Assert.Throws<ArgumentException>(() => mapper.FindMapping(property)).Message, ignoreCase: true);
         }
 
         [ConditionalTheory]
