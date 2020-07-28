@@ -311,10 +311,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
 
                     var noOtherCompatibleNavigation = true;
-                    foreach (var n in relationshipCandidate.NavigationProperties)
+                    foreach (var otherNavigation in relationshipCandidate.NavigationProperties)
                     {
-                        if (n != navigationProperty
-                            && IsCompatibleInverse(n, compatibleInverse, entityTypeBuilder, targetEntityTypeBuilder))
+                        if (otherNavigation != navigationProperty
+                            && IsCompatibleInverse(otherNavigation, compatibleInverse, entityTypeBuilder, targetEntityTypeBuilder))
                         {
                             noOtherCompatibleNavigation = false;
                             break;
@@ -524,11 +524,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var entityType = entityTypeBuilder.Metadata;
                 var targetEntityType = relationshipCandidate.TargetTypeBuilder.Metadata;
                 var isAmbiguousOnBase = entityType.BaseType != null
-                    && HasAmbiguousNavigationsTo(
-                        entityType.BaseType, targetEntityType.ClrType)
-                    || targetEntityType.BaseType != null
-                    && HasAmbiguousNavigationsTo(
-                        targetEntityType.BaseType, entityType.ClrType);
+                    && HasAmbiguousNavigationsTo(entityType.BaseType, targetEntityType.ClrType)
+                    || (targetEntityType.BaseType != null
+                        && HasAmbiguousNavigationsTo(targetEntityType.BaseType, entityType.ClrType));
 
                 var ambiguousOwnership = relationshipCandidate.NavigationProperties.Count == 1
                     && relationshipCandidate.InverseProperties.Count == 1
@@ -631,15 +629,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         if (targetOwned)
                         {
-                            entityTypeBuilder.HasOwnership(
-                                targetEntityType.ClrType,
-                                navigation);
+                            entityTypeBuilder.HasOwnership(targetEntityType.ClrType, navigation);
                         }
                         else
                         {
-                            entityTypeBuilder.HasRelationship(
-                                targetEntityType,
-                                navigation);
+                            entityTypeBuilder.HasRelationship(targetEntityType, navigation);
                         }
                     }
                     else
@@ -668,20 +662,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         if (targetOwned)
                         {
-                            entityTypeBuilder.HasOwnership(
-                                targetEntityType.ClrType,
-                                navigation,
-                                inverse);
+                            entityTypeBuilder.HasOwnership(targetEntityType.ClrType, navigation, inverse);
                         }
                         else
                         {
-                            if (entityTypeBuilder.HasRelationship(
-                                    targetEntityType,
-                                    navigation,
-                                    inverse) == null)
+                            if (entityTypeBuilder.HasRelationship(targetEntityType, navigation, inverse) == null)
                             {
                                 HasManyToManyRelationship(
-                                    entityTypeBuilder, relationshipCandidate, navigation, inverse);
+                                    entityTypeBuilder, relationshipCandidate.TargetTypeBuilder, navigation, inverse);
                             }
                         }
                     }
@@ -709,9 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 continue;
                             }
 
-                            targetEntityType.Builder.HasRelationship(
-                                entityTypeBuilder.Metadata,
-                                inverse);
+                            targetEntityType.Builder.HasRelationship(entityTypeBuilder.Metadata, inverse);
                         }
                     }
                 }
@@ -766,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void HasManyToManyRelationship(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            RelationshipCandidate relationshipCandidate,
+            IConventionEntityTypeBuilder targetEntityTypeBuilder,
             PropertyInfo navigation,
             PropertyInfo inverse)
         {
@@ -775,78 +761,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (navigationTargetType == null
                 || inverseTargetType == null)
             {
-                // these are not many-to-many navigations
                 return;
             }
 
-            if (navigationTargetType == inverseTargetType)
-            {
-                // do not automatically create many-to-many joins to self
-                return;
-            }
-
-            var leftEntityType = entityTypeBuilder.Metadata;
-            var rightEntityType = relationshipCandidate.TargetTypeBuilder.Metadata;
-            if (navigationTargetType != rightEntityType.ClrType
-                || inverseTargetType != leftEntityType.ClrType)
-            {
-                // this relationship should be defined between different
-                // entity types further up at least one of their inheritance trees
-                return;
-            }
-
-            var navigationName = navigation.GetSimpleMemberName();
-            var inverseName = inverse.GetSimpleMemberName();
-            if (((EntityType)leftEntityType)
-                    .FindNavigationsInHierarchy(navigationName).FirstOrDefault() != null
-                || ((EntityType)rightEntityType)
-                    .FindNavigationsInHierarchy(inverseName).FirstOrDefault() != null)
-            {
-                // navigations have already been configured using these properties
-                return;
-            }
-
-            var leftSkipNavigation = leftEntityType.FindSkipNavigation(navigation) ??
-                leftEntityType.AddSkipNavigation(
-                    navigationName, navigation, rightEntityType,
-                    collection: true, onDependent: false, fromDataAnnotation: false);
-            if (leftSkipNavigation == null)
+            var entityType = entityTypeBuilder.Metadata;
+            var targetEntityType = targetEntityTypeBuilder.Metadata;
+            if (navigationTargetType != targetEntityType.ClrType
+                || inverseTargetType != entityType.ClrType)
             {
                 return;
             }
 
-            var rightSkipNavigation = rightEntityType.FindSkipNavigation(inverse) ??
-                rightEntityType.AddSkipNavigation(
-                    inverseName, inverse, leftEntityType,
-                    collection: true, onDependent: false, fromDataAnnotation: false);
-            if (rightSkipNavigation == null)
+            var skipNavigationBuilder = entityTypeBuilder.HasSkipNavigation(navigation, targetEntityType);
+            if (skipNavigationBuilder == null)
             {
                 return;
             }
 
-            // also sets rightSkipNavigation's inverse
-            leftSkipNavigation.Builder.HasInverse(rightSkipNavigation, fromDataAnnotation: false);
+            var inverseSkipNavigationBuilder = targetEntityTypeBuilder.HasSkipNavigation(inverse, entityType);
+            if (inverseSkipNavigationBuilder == null)
+            {
+                entityTypeBuilder.HasNoSkipNavigation(skipNavigationBuilder.Metadata);
+                return;
+            }
 
-            // the implicit many-to-many join entity type will be created
-            // and configured by ManyToManyAssocationEntityTypeConvention.
+            skipNavigationBuilder.HasInverse(inverseSkipNavigationBuilder.Metadata, fromDataAnnotation: false);
         }
 
-        /// <summary>
-        ///     Called after an entity type is added to the model.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
             => DiscoverRelationships(entityTypeBuilder, context);
 
-        /// <summary>
-        ///     Called after the base type of an entity type changes.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newBaseType"> The new base entity type. </param>
-        /// <param name="oldBaseType"> The old base entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionEntityType newBaseType,
@@ -894,14 +841,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after a navigation is removed from the entity type.
-        /// </summary>
-        /// <param name="sourceEntityTypeBuilder"> The builder for the entity type that contained the navigation. </param>
-        /// <param name="targetEntityTypeBuilder"> The builder for the target entity type of the navigation. </param>
-        /// <param name="navigationName"> The navigation name. </param>
-        /// <param name="memberInfo"> The member used for by the navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessNavigationRemoved(
             IConventionEntityTypeBuilder sourceEntityTypeBuilder,
             IConventionEntityTypeBuilder targetEntityTypeBuilder,
@@ -947,21 +887,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && (!sourceEntityTypeBuilder.Metadata.IsKeyless
                     || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
-        /// <summary>
-        ///     Called after an entity type is ignored.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="name"> The name of the ignored entity type. </param>
-        /// <param name="type"> The ignored entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeIgnored(
             IConventionModelBuilder modelBuilder, string name, Type type, IConventionContext<string> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                // Only run the convention if an ambiguity might have been removed
                 var ambiguityRemoved = RemoveAmbiguous(entityType, type);
-
                 if (ambiguityRemoved)
                 {
                     DiscoverRelationships(entityType.Builder, context);
@@ -969,12 +901,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after an entity type member is ignored.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="name"> The name of the ignored member. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeMemberIgnored(
             IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
         {
@@ -1055,11 +982,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after the ownership value for a foreign key is changed.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessForeignKeyOwnershipChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<bool?> context)

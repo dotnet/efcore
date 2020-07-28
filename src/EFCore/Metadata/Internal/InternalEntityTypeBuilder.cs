@@ -3565,12 +3565,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                if (!configurationSource.HasValue)
-                {
-                    return null;
-                }
-
-                if (IsIgnored(navigationName, configurationSource))
+                if (!configurationSource.HasValue
+                    || IsIgnored(navigationName, configurationSource))
                 {
                     return null;
                 }
