@@ -681,10 +681,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p17='2017-01-02T12:11:12.1234567'
 @p18='2018-01-02T13:11:12.0000000' (DbType = DateTime)
 @p19='2016-01-02T11:11:12.1234567+00:00'
-@p20='101.1' (Precision = 18) (Scale = 2)
-@p21='102.2' (Precision = 18) (Scale = 2)
+@p20='101.1'
+@p21='102.2'
 @p22='81.1'
-@p23='103.3' (Precision = 18) (Scale = 2)
+@p23='103.3'
 @p24='82.2'
 @p25='85.5'
 @p26='83.3'
@@ -875,10 +875,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p17='2017-01-02T12:11:12.9876543' (Nullable = true)
 @p18='2018-01-02T13:11:12.0000000' (Nullable = true) (DbType = DateTime)
 @p19='2016-01-02T11:11:12.9876543+00:00' (Nullable = true)
-@p20='101.1' (Nullable = true) (Precision = 18) (Scale = 2)
-@p21='102.2' (Nullable = true) (Precision = 18) (Scale = 2)
+@p20='101.1' (Nullable = true)
+@p21='102.2' (Nullable = true)
 @p22='81.1' (Nullable = true)
-@p23='103.3' (Nullable = true) (Precision = 18) (Scale = 2)
+@p23='103.3' (Nullable = true)
 @p24='82.2' (Nullable = true)
 @p25='85.5' (Nullable = true)
 @p26='83.3' (Nullable = true)
@@ -1061,10 +1061,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p17=NULL (DbType = DateTime2)
 @p18=NULL (DbType = DateTime)
 @p19=NULL (DbType = DateTimeOffset)
-@p20=NULL (Precision = 18) (Scale = 2)
-@p21=NULL (Precision = 18) (Scale = 2)
+@p20=NULL
+@p21=NULL
 @p22=NULL
-@p23=NULL (Precision = 18) (Scale = 2)
+@p23=NULL
 @p24=NULL
 @p25=NULL
 @p26=NULL
@@ -1314,6 +1314,96 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         [ConditionalFact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_sized_separately()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedSizedSeparatelyDataTypes>().Add(CreateMappedSizedSeparatelyDataTypes(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            var parameters = DumpParameters();
+            Assert.Equal(
+                @"@p0='77'
+@p1='0x0A0B0C' (Size = 3)
+@p2='0x0C0D0E' (Size = 3)
+@p3='0x0B0C0D' (Size = 3)
+@p4='B' (Size = 3) (DbType = AnsiString)
+@p5='C' (Size = 3) (DbType = AnsiString)
+@p6='E' (Size = 3)
+@p7='F' (Size = 3)
+@p8='D' (Size = 3)
+@p9='A' (Size = 3) (DbType = AnsiString)
+@p10='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
+@p11='Thr' (Size = 3) (DbType = AnsiString)
+@p12='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
+@p13='Let' (Size = 3) (DbType = AnsiString)
+@p14='The' (Size = 3)
+@p15='Squ' (Size = 3) (DbType = StringFixedLength)
+@p16='Col' (Size = 3)
+@p17='Won' (Size = 3) (DbType = StringFixedLength)
+@p18='Int' (Size = 3)
+@p19='Tha' (Size = 3) (DbType = AnsiString)",
+                parameters,
+                ignoreLineEndingDifferences: true);
+
+            using (var context = CreateContext())
+            {
+                AssertMappedSizedSeparatelyDataTypes(context.Set<MappedSizedSeparatelyDataTypes>().Single(e => e.Id == 77), 77);
+            }
+        }
+
+        private static void AssertMappedSizedSeparatelyDataTypes(MappedSizedSeparatelyDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Id);
+            Assert.Equal("Wor", entity.StringAsChar3);
+            Assert.Equal("Lon", entity.StringAsCharacter3);
+            Assert.Equal("Tha", entity.StringAsVarchar3);
+            Assert.Equal("Thr", entity.StringAsCharVarying3);
+            Assert.Equal("Let", entity.StringAsCharacterVarying3);
+            Assert.Equal("Won", entity.StringAsNchar3);
+            Assert.Equal("Squ", entity.StringAsNationalCharacter3);
+            Assert.Equal("Int", entity.StringAsNvarchar3);
+            Assert.Equal("The", entity.StringAsNationalCharVarying3);
+            Assert.Equal("Col", entity.StringAsNationalCharacterVarying3);
+            Assert.Equal(new byte[] { 10, 11, 12 }, entity.BytesAsBinary3);
+            Assert.Equal(new byte[] { 11, 12, 13 }, entity.BytesAsVarbinary3);
+            Assert.Equal(new byte[] { 12, 13, 14 }, entity.BytesAsBinaryVarying3);
+            Assert.Equal('A', entity.CharAsVarchar3);
+            Assert.Equal('B', entity.CharAsAsCharVarying3);
+            Assert.Equal('C', entity.CharAsCharacterVarying3);
+            Assert.Equal('D', entity.CharAsNvarchar3);
+            Assert.Equal('E', entity.CharAsNationalCharVarying3);
+            Assert.Equal('F', entity.CharAsNationalCharacterVarying3);
+        }
+
+        private static MappedSizedSeparatelyDataTypes CreateMappedSizedSeparatelyDataTypes(int id)
+            => new MappedSizedSeparatelyDataTypes
+            {
+                Id = id,
+                StringAsChar3 = "Wor",
+                StringAsCharacter3 = "Lon",
+                StringAsVarchar3 = "Tha",
+                StringAsCharVarying3 = "Thr",
+                StringAsCharacterVarying3 = "Let",
+                StringAsNchar3 = "Won",
+                StringAsNationalCharacter3 = "Squ",
+                StringAsNvarchar3 = "Int",
+                StringAsNationalCharVarying3 = "The",
+                StringAsNationalCharacterVarying3 = "Col",
+                BytesAsBinary3 = new byte[] { 10, 11, 12 },
+                BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
+                BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
+                CharAsVarchar3 = 'A',
+                CharAsAsCharVarying3 = 'B',
+                CharAsCharacterVarying3 = 'C',
+                CharAsNvarchar3 = 'D',
+                CharAsNationalCharVarying3 = 'E',
+                CharAsNationalCharacterVarying3 = 'F'
+            };
+
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale()
         {
             using (var context = CreateContext())
@@ -1374,6 +1464,66 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             };
 
         [ConditionalFact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_separately()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedScaledSeparatelyDataTypes>().Add(CreateMappedScaledSeparatelyDataTypes(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            var parameters = DumpParameters();
+            Assert.Equal(
+                @"@p0='77'
+@p1='2017-01-02T12:11:12.3210000' (Precision = 3)
+@p2='2016-01-02T11:11:12.7650000+00:00' (Precision = 3)
+@p3='102' (Precision = 3)
+@p4='101' (Precision = 3)
+@p5='103' (Precision = 3)
+@p6='85.55000305175781' (Size = 25)
+@p7='85.5' (Size = 3)
+@p8='83.33000183105469' (Size = 25)
+@p9='83.3' (Size = 3)",
+                parameters,
+                ignoreLineEndingDifferences: true);
+
+            using (var context = CreateContext())
+            {
+                AssertMappedScaledSeparatelyDataTypes(context.Set<MappedScaledSeparatelyDataTypes>().Single(e => e.Id == 77), 77);
+            }
+        }
+
+        private static void AssertMappedScaledSeparatelyDataTypes(MappedScaledSeparatelyDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Id);
+            Assert.Equal(83.3f, entity.FloatAsFloat3);
+            Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
+            Assert.Equal(83.33f, entity.FloatAsFloat25);
+            Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
+            Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
+            Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 321), entity.DateTimeAsDatetime23);
+            Assert.Equal(101m, entity.DecimalAsDecimal3);
+            Assert.Equal(102m, entity.DecimalAsDec3);
+            Assert.Equal(103m, entity.DecimalAsNumeric3);
+        }
+
+        private static MappedScaledSeparatelyDataTypes CreateMappedScaledSeparatelyDataTypes(int id)
+            => new MappedScaledSeparatelyDataTypes
+            {
+                Id = id,
+                FloatAsFloat3 = 83.3f,
+                FloatAsDoublePrecision3 = 85.5f,
+                FloatAsFloat25 = 83.33f,
+                FloatAsDoublePrecision25 = 85.55f,
+                DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero),
+                DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 321),
+                DecimalAsDecimal3 = 101m,
+                DecimalAsDec3 = 102m,
+                DecimalAsNumeric3 = 103m
+            };
+
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale()
         {
             using (var context = CreateContext())
@@ -1416,6 +1566,48 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             };
 
         [ConditionalFact]
+        public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_separately()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedPrecisionAndScaledSeparatelyDataTypes>().Add(CreateMappedPrecisionAndScaledSeparatelyDataTypes(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            var parameters = DumpParameters();
+            Assert.Equal(
+                @"@p0='77'
+@p1='102.2' (Precision = 5) (Scale = 2)
+@p2='101.1' (Precision = 5) (Scale = 2)
+@p3='103.3' (Precision = 5) (Scale = 2)",
+                parameters,
+                ignoreLineEndingDifferences: true);
+
+            using (var context = CreateContext())
+            {
+                AssertMappedPrecisionAndScaledSeparatelyDataTypes(context.Set<MappedPrecisionAndScaledSeparatelyDataTypes>().Single(e => e.Id == 77), 77);
+            }
+        }
+
+        private static void AssertMappedPrecisionAndScaledSeparatelyDataTypes(MappedPrecisionAndScaledSeparatelyDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Id);
+            Assert.Equal(101.1m, entity.DecimalAsDecimal52);
+            Assert.Equal(102.2m, entity.DecimalAsDec52);
+            Assert.Equal(103.3m, entity.DecimalAsNumeric52);
+        }
+
+        private static MappedPrecisionAndScaledSeparatelyDataTypes CreateMappedPrecisionAndScaledSeparatelyDataTypes(int id)
+            => new MappedPrecisionAndScaledSeparatelyDataTypes
+            {
+                Id = id,
+                DecimalAsDecimal52 = 101.1m,
+                DecimalAsDec52 = 102.2m,
+                DecimalAsNumeric52 = 103.3m
+            };
+
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_identity()
         {
             using (var context = CreateContext())
@@ -1446,10 +1638,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p16='2017-01-02T12:11:12.7654321'
 @p17='2018-01-02T13:11:12.0000000' (DbType = DateTime)
 @p18='2016-01-02T11:11:12.7654321+00:00'
-@p19='101.1' (Precision = 18) (Scale = 2)
-@p20='102.2' (Precision = 18) (Scale = 2)
+@p19='101.1'
+@p20='102.2'
 @p21='81.1'
-@p22='103.3' (Precision = 18) (Scale = 2)
+@p22='103.3'
 @p23='82.2'
 @p24='85.5'
 @p25='83.3'
@@ -1632,10 +1824,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p16='2017-01-02T12:11:12.2345678' (Nullable = true)
 @p17='2018-01-02T13:11:12.0000000' (Nullable = true) (DbType = DateTime)
 @p18='2016-01-02T11:11:12.2345678+00:00' (Nullable = true)
-@p19='101.1' (Nullable = true) (Precision = 18) (Scale = 2)
-@p20='102.2' (Nullable = true) (Precision = 18) (Scale = 2)
+@p19='101.1' (Nullable = true)
+@p20='102.2' (Nullable = true)
 @p21='81.1' (Nullable = true)
-@p22='103.3' (Nullable = true) (Precision = 18) (Scale = 2)
+@p22='103.3' (Nullable = true)
 @p23='82.2' (Nullable = true)
 @p24='85.5' (Nullable = true)
 @p25='83.3' (Nullable = true)
@@ -1818,10 +2010,10 @@ WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p16=NULL (DbType = DateTime2)
 @p17=NULL (DbType = DateTime)
 @p18=NULL (DbType = DateTimeOffset)
-@p19=NULL (Precision = 18) (Scale = 2)
-@p20=NULL (Precision = 18) (Scale = 2)
+@p19=NULL
+@p20=NULL
 @p21=NULL
-@p22=NULL (Precision = 18) (Scale = 2)
+@p22=NULL
 @p23=NULL
 @p24=NULL
 @p25=NULL
@@ -2816,6 +3008,10 @@ MappedPrecisionAndScaledDataTypesWithIdentity.DecimalAsDecimal52 ---> [decimal] 
 MappedPrecisionAndScaledDataTypesWithIdentity.DecimalAsNumeric52 ---> [numeric] [Precision = 5 Scale = 2]
 MappedPrecisionAndScaledDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
 MappedPrecisionAndScaledDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
+MappedPrecisionAndScaledSeparatelyDataTypes.DecimalAsDec52 ---> [decimal] [Precision = 5 Scale = 2]
+MappedPrecisionAndScaledSeparatelyDataTypes.DecimalAsDecimal52 ---> [decimal] [Precision = 5 Scale = 2]
+MappedPrecisionAndScaledSeparatelyDataTypes.DecimalAsNumeric52 ---> [numeric] [Precision = 5 Scale = 2]
+MappedPrecisionAndScaledSeparatelyDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MappedScaledDataTypes.DateTimeAsDatetime23 ---> [datetime2] [Precision = 3]
 MappedScaledDataTypes.DateTimeOffsetAsDatetimeoffset3 ---> [datetimeoffset] [Precision = 3]
 MappedScaledDataTypes.DecimalAsDec3 ---> [decimal] [Precision = 3 Scale = 0]
@@ -2837,6 +3033,16 @@ MappedScaledDataTypesWithIdentity.FloatAsFloat25 ---> [float] [Precision = 53]
 MappedScaledDataTypesWithIdentity.FloatAsFloat3 ---> [real] [Precision = 24]
 MappedScaledDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
 MappedScaledDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
+MappedScaledSeparatelyDataTypes.DateTimeAsDatetime23 ---> [datetime2] [Precision = 3]
+MappedScaledSeparatelyDataTypes.DateTimeOffsetAsDatetimeoffset3 ---> [datetimeoffset] [Precision = 3]
+MappedScaledSeparatelyDataTypes.DecimalAsDec3 ---> [decimal] [Precision = 3 Scale = 0]
+MappedScaledSeparatelyDataTypes.DecimalAsDecimal3 ---> [decimal] [Precision = 3 Scale = 0]
+MappedScaledSeparatelyDataTypes.DecimalAsNumeric3 ---> [numeric] [Precision = 3 Scale = 0]
+MappedScaledSeparatelyDataTypes.FloatAsDoublePrecision25 ---> [float] [Precision = 53]
+MappedScaledSeparatelyDataTypes.FloatAsDoublePrecision3 ---> [real] [Precision = 24]
+MappedScaledSeparatelyDataTypes.FloatAsFloat25 ---> [float] [Precision = 53]
+MappedScaledSeparatelyDataTypes.FloatAsFloat3 ---> [real] [Precision = 24]
+MappedScaledSeparatelyDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MappedSizedDataTypes.BytesAsBinary3 ---> [nullable binary] [MaxLength = 3]
 MappedSizedDataTypes.BytesAsBinaryVarying3 ---> [nullable varbinary] [MaxLength = 3]
 MappedSizedDataTypes.BytesAsVarbinary3 ---> [nullable varbinary] [MaxLength = 3]
@@ -2878,6 +3084,26 @@ MappedSizedDataTypesWithIdentity.StringAsNationalCharVarying3 ---> [nullable nva
 MappedSizedDataTypesWithIdentity.StringAsNchar3 ---> [nullable nchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsNvarchar3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsVarchar3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.BytesAsBinary3 ---> [nullable binary] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.BytesAsBinaryVarying3 ---> [nullable varbinary] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.BytesAsVarbinary3 ---> [nullable varbinary] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.CharAsAsCharVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.CharAsCharacterVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.CharAsNationalCharacterVarying3 ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.CharAsNationalCharVarying3 ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.CharAsNvarchar3 ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.CharAsVarchar3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
+MappedSizedSeparatelyDataTypes.StringAsChar3 ---> [nullable char] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsCharacter3 ---> [nullable char] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsCharacterVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsCharVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsNationalCharacter3 ---> [nullable nchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsNationalCharacterVarying3 ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsNationalCharVarying3 ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsNchar3 ---> [nullable nchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsNvarchar3 ---> [nullable nvarchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsVarchar3 ---> [nullable varchar] [MaxLength = 3]
 MaxLengthDataTypes.ByteArray5 ---> [nullable varbinary] [MaxLength = 5]
 MaxLengthDataTypes.ByteArray9000 ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
@@ -3096,6 +3322,55 @@ WHERE [b].[Id] = 13");
                 modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
                 modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
                 modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>();
+
+                modelBuilder.Entity<MappedSizedSeparatelyDataTypes>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.StringAsChar3).HasMaxLength(3);
+                        b.Property(e => e.StringAsCharacter3).HasMaxLength(3);
+                        b.Property(e => e.StringAsVarchar3).HasMaxLength(3);
+                        b.Property(e => e.StringAsCharVarying3).HasMaxLength(3);
+                        b.Property(e => e.StringAsCharacterVarying3).HasMaxLength(3);
+                        b.Property(e => e.StringAsNchar3).HasMaxLength(3);
+                        b.Property(e => e.StringAsNationalCharacter3).HasMaxLength(3);
+                        b.Property(e => e.StringAsNvarchar3).HasMaxLength(3);
+                        b.Property(e => e.StringAsNationalCharVarying3).HasMaxLength(3);
+                        b.Property(e => e.StringAsNationalCharacterVarying3).HasMaxLength(3);
+                        b.Property(e => e.BytesAsBinary3).HasMaxLength(3);
+                        b.Property(e => e.BytesAsVarbinary3).HasMaxLength(3);
+                        b.Property(e => e.BytesAsBinaryVarying3).HasMaxLength(3);
+                        b.Property(e => e.CharAsVarchar3).HasMaxLength(3);
+                        b.Property(e => e.CharAsAsCharVarying3).HasMaxLength(3);
+                        b.Property(e => e.CharAsCharacterVarying3).HasMaxLength(3);
+                        b.Property(e => e.CharAsNvarchar3).HasMaxLength(3);
+                        b.Property(e => e.CharAsNationalCharVarying3).HasMaxLength(3);
+                        b.Property(e => e.CharAsNationalCharacterVarying3).HasMaxLength(3);
+                    });
+
+                modelBuilder.Entity<MappedScaledSeparatelyDataTypes>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.FloatAsFloat3).HasPrecision(3);
+                        b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(3);
+                        b.Property(e => e.FloatAsFloat25).HasPrecision(25);
+                        b.Property(e => e.FloatAsDoublePrecision25).HasPrecision(25);
+                        b.Property(e => e.DateTimeOffsetAsDatetimeoffset3).HasPrecision(3);
+                        b.Property(e => e.DateTimeAsDatetime23).HasPrecision(3);
+                        b.Property(e => e.DecimalAsDecimal3).HasPrecision(3);
+                        b.Property(e => e.DecimalAsDec3).HasPrecision(3);
+                        b.Property(e => e.DecimalAsNumeric3).HasPrecision(3);
+                    });
+
+                modelBuilder.Entity<MappedPrecisionAndScaledSeparatelyDataTypes>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.DecimalAsDecimal52).HasPrecision(5, 2);
+                        b.Property(e => e.DecimalAsDec52).HasPrecision(5, 2);
+                        b.Property(e => e.DecimalAsNumeric52).HasPrecision(5, 2);
+                    });
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -3350,6 +3625,68 @@ WHERE [b].[Id] = 13");
             public char? CharAsNationalCharacterVarying3 { get; set; }
         }
 
+        protected class MappedSizedSeparatelyDataTypes
+        {
+            public int Id { get; set; }
+
+            [Column(TypeName = "char")]
+            public string StringAsChar3 { get; set; }
+
+            [Column(TypeName = "character")]
+            public string StringAsCharacter3 { get; set; }
+
+            [Column(TypeName = "varchar")]
+            public string StringAsVarchar3 { get; set; }
+
+            [Column(TypeName = "char varying")]
+            public string StringAsCharVarying3 { get; set; }
+
+            [Column(TypeName = "character varying")]
+            public string StringAsCharacterVarying3 { get; set; }
+
+            [Column(TypeName = "nchar")]
+            public string StringAsNchar3 { get; set; }
+
+            [Column(TypeName = "national character")]
+            public string StringAsNationalCharacter3 { get; set; }
+
+            [Column(TypeName = "nvarchar")]
+            public string StringAsNvarchar3 { get; set; }
+
+            [Column(TypeName = "national char varying")]
+            public string StringAsNationalCharVarying3 { get; set; }
+
+            [Column(TypeName = "national character varying")]
+            public string StringAsNationalCharacterVarying3 { get; set; }
+
+            [Column(TypeName = "binary")]
+            public byte[] BytesAsBinary3 { get; set; }
+
+            [Column(TypeName = "varbinary")]
+            public byte[] BytesAsVarbinary3 { get; set; }
+
+            [Column(TypeName = "binary varying")]
+            public byte[] BytesAsBinaryVarying3 { get; set; }
+
+            [Column(TypeName = "varchar")]
+            public char? CharAsVarchar3 { get; set; }
+
+            [Column(TypeName = "char varying")]
+            public char? CharAsAsCharVarying3 { get; set; }
+
+            [Column(TypeName = "character varying")]
+            public char? CharAsCharacterVarying3 { get; set; }
+
+            [Column(TypeName = "nvarchar")]
+            public char? CharAsNvarchar3 { get; set; }
+
+            [Column(TypeName = "national char varying")]
+            public char? CharAsNationalCharVarying3 { get; set; }
+
+            [Column(TypeName = "national character varying")]
+            public char? CharAsNationalCharacterVarying3 { get; set; }
+        }
+
         protected class MappedScaledDataTypes
         {
             public int Id { get; set; }
@@ -3382,6 +3719,38 @@ WHERE [b].[Id] = 13");
             public decimal DecimalAsNumeric3 { get; set; }
         }
 
+        protected class MappedScaledSeparatelyDataTypes
+        {
+            public int Id { get; set; }
+
+            [Column(TypeName = "float")]
+            public float FloatAsFloat3 { get; set; }
+
+            [Column(TypeName = "double precision")]
+            public float FloatAsDoublePrecision3 { get; set; }
+
+            [Column(TypeName = "float")]
+            public float FloatAsFloat25 { get; set; }
+
+            [Column(TypeName = "double precision")]
+            public float FloatAsDoublePrecision25 { get; set; }
+
+            [Column(TypeName = "datetimeoffset")]
+            public DateTimeOffset DateTimeOffsetAsDatetimeoffset3 { get; set; }
+
+            [Column(TypeName = "datetime2")]
+            public DateTime DateTimeAsDatetime23 { get; set; }
+
+            [Column(TypeName = "decimal")]
+            public decimal DecimalAsDecimal3 { get; set; }
+
+            [Column(TypeName = "dec")]
+            public decimal DecimalAsDec3 { get; set; }
+
+            [Column(TypeName = "numeric")]
+            public decimal DecimalAsNumeric3 { get; set; }
+        }
+
         protected class MappedPrecisionAndScaledDataTypes
         {
             public int Id { get; set; }
@@ -3393,6 +3762,20 @@ WHERE [b].[Id] = 13");
             public decimal DecimalAsDec52 { get; set; }
 
             [Column(TypeName = "numeric(5,2)")]
+            public decimal DecimalAsNumeric52 { get; set; }
+        }
+
+        protected class MappedPrecisionAndScaledSeparatelyDataTypes
+        {
+            public int Id { get; set; }
+
+            [Column(TypeName = "decimal")]
+            public decimal DecimalAsDecimal52 { get; set; }
+
+            [Column(TypeName = "dec")]
+            public decimal DecimalAsDec52 { get; set; }
+
+            [Column(TypeName = "numeric")]
             public decimal DecimalAsNumeric52 { get; set; }
         }
 

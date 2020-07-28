@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 int? precision = null,
                 int? scale = null)
             {
-                Check.NotEmpty(storeType, nameof(storeType));
+                Check.NotNull(storeType, nameof(storeType));
 
                 var converterHints = coreParameters.Converter?.MappingHints;
 
@@ -155,8 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     Scale);
 
             /// <summary>
-            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
-            ///     store type and size.
+            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given precision and scale
             /// </summary>
             /// <param name="precision"> The precision of data the property is configured to store, or null if no size is configured. </param>
             /// <param name="scale"> The scale of data the property is configured to store, or null if no size is configured. </param>
@@ -173,6 +172,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     Size,
                     FixedLength,
                     precision,
+                    scale);
+
+            /// <summary>
+            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given precision.
+            /// </summary>
+            /// <param name="precision"> The precision of data the property is configured to store, or null if no size is configured. </param>
+            /// <returns> The new parameter object. </returns>
+            public RelationalTypeMappingParameters WithPrecision(int? precision)
+                => new RelationalTypeMappingParameters(
+                    CoreParameters,
+                    StoreType,
+                    StoreTypePostfix,
+                    DbType,
+                    Unicode,
+                    Size,
+                    FixedLength,
+                    precision,
+                    Scale);
+
+            /// <summary>
+            ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given scale.
+            /// </summary>
+            /// <param name="scale"> The scale of data the property is configured to store, or null if no size is configured. </param>
+            /// <returns> The new parameter object. </returns>
+            public RelationalTypeMappingParameters WithScale(int? scale)
+                => new RelationalTypeMappingParameters(
+                    CoreParameters,
+                    StoreType,
+                    StoreTypePostfix,
+                    DbType,
+                    Unicode,
+                    Size,
+                    FixedLength,
+                    Precision,
                     scale);
 
             /// <summary>

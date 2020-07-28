@@ -301,7 +301,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         [ConditionalTheory]
         [InlineData("nvarchar(450)", null)]
-        [InlineData("datetime2(4)", "datetime2(4)")]
+        [InlineData("datetime2(4)", null)]
+        [InlineData("DateTime2(4)", "DateTime2(4)")]
         public void Column_type_annotation(string StoreType, string expectedColumnType)
         {
             var column = new DatabaseColumn { Table = Table, Name = "Col", StoreType = StoreType };

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
@@ -43,8 +44,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerDateTimeTypeMapping(
             [NotNull] string storeType,
-            DbType? dbType = null)
-            : base(storeType, dbType)
+            DbType? dbType = null,
+            int? precision = null,
+            StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
+            : base(
+                new RelationalTypeMappingParameters(
+                        new CoreTypeMappingParameters(typeof(DateTime)),
+                        storeType,
+                        storeTypePostfix,
+                        dbType)
+                    .WithPrecision(precision))
         {
         }
 
