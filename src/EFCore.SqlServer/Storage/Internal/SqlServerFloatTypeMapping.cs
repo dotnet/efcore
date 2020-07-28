@@ -24,16 +24,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerFloatTypeMapping(
             [NotNull] string storeType,
-            DbType? dbType = null,
-            int? precision = null,
-            StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
+            DbType? dbType = null)
             : base(
                 new RelationalTypeMappingParameters(
                         new CoreTypeMappingParameters(typeof(float)),
                         storeType,
-                        storeTypePostfix,
-                        dbType)
-                    .WithPrecision(precision))
+                        StoreTypePostfix.Precision,
+                        dbType))
         {
         }
 

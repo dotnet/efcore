@@ -117,14 +117,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
         private readonly DecimalTypeMapping _decimal
             = new SqlServerDecimalTypeMapping(
-                "decimal", storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
+                "decimal");
 
         private readonly DecimalTypeMapping _decimal182
             = new SqlServerDecimalTypeMapping(
-                "decimal(18, 2)", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
+                "decimal(18, 2)", precision: 18, scale: 2);
 
         private readonly DecimalTypeMapping _money
-            = new SqlServerDecimalTypeMapping("money");
+            = new SqlServerDecimalTypeMapping("money", storeTypePostfix: StoreTypePostfix.None);
 
         private readonly TimeSpanTypeMapping _time
             = new SqlServerTimeSpanTypeMapping("time");

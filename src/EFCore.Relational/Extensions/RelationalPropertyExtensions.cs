@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore
             var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
             if (annotation != null)
             {
-                return property.FindRelationalTypeMapping()?.StoreType;
+                return property.FindRelationalTypeMapping()?.StoreType ?? (string)annotation.Value;
             }
 
             return GetDefaultColumnType(property, storeObject);
