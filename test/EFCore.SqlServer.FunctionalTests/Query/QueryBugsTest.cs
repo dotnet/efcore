@@ -8034,6 +8034,79 @@ WHERE [b].[Id] = 1");
                 });
 
         #endregion
+
+        #region Issue19206
+
+        [ConditionalFact]
+        public virtual void From_sql_expression_compares_correctly()
+        {
+            using (CreateDatabase19206())
+            {
+                using var context = new MyContext19206(_options);
+                var query = from t1 in context.Tests.FromSqlInterpolated($"Select * from Tests Where Type = {TestType19206.Unit}")
+                            from t2 in context.Tests.FromSqlInterpolated($"Select * from Tests Where Type = {TestType19206.Integration}")
+                            select new { t1, t2 };
+
+                var result = query.ToList();
+
+                var item = Assert.Single(result);
+                Assert.Equal(TestType19206.Unit, item.t1.Type);
+                Assert.Equal(TestType19206.Integration, item.t2.Type);
+
+                AssertSql(
+                    @"p0='0'
+p1='1'
+
+SELECT [t].[Id], [t].[Type], [t0].[Id], [t0].[Type]
+FROM (
+    Select * from Tests Where Type = @p0
+) AS [t]
+CROSS JOIN (
+    Select * from Tests Where Type = @p1
+) AS [t0]");
+            }
+        }
+
+        public class Test19206
+        {
+            public int Id { get; set; }
+            public TestType19206 Type { get; set; }
+        }
+
+        public enum TestType19206
+        {
+            Unit,
+            Integration,
+        }
+
+        private class MyContext19206 : DbContext
+        {
+            public DbSet<Test19206> Tests { get; set; }
+
+            public MyContext19206(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase19206()
+            => CreateTestStore(
+                () => new MyContext19206(_options),
+                context =>
+                {
+                    context.Add(new Test19206 { Type = TestType19206.Unit });
+                    context.Add(new Test19206 { Type = TestType19206.Integration });
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

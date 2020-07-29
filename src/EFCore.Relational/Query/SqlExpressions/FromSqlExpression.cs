@@ -102,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(FromSqlExpression fromSqlExpression)
             => base.Equals(fromSqlExpression)
-                && string.Equals(Sql, fromSqlExpression.Sql);
+                && string.Equals(Sql, fromSqlExpression.Sql)
+                && ExpressionEqualityComparer.Instance.Equals(Arguments, fromSqlExpression.Arguments);
 
         /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Sql);
