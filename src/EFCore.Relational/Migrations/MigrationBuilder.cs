@@ -695,14 +695,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Builds an <see cref="AddCheckConstraintOperation" /> to create a new check constraint.
+        ///     <para>
+        ///         Warning, this API is obsolete. Use <see cref="AddCheckConstraint"/> instead.
+        ///     </para>
+        ///     <para>
+        ///         Builds an <see cref="AddCheckConstraintOperation" /> to create a new check constraint.
+        ///     </para>
         /// </summary>
         /// <param name="name"> The check constraint name. </param>
         /// <param name="table"> The name of the table for the check constraint. </param>
         /// <param name="sql"> The constraint sql for the check constraint. </param>
         /// <param name="schema"> The schema that contains the check constraint, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
-        [Obsolete("Use AddCheckConstraint")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual OperationBuilder<AddCheckConstraintOperation> CreateCheckConstraint(
             [NotNull] string name,
             [NotNull] string table,
