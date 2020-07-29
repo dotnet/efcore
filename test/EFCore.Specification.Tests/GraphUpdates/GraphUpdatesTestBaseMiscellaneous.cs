@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
@@ -16,6 +17,54 @@ namespace Microsoft.EntityFrameworkCore
     public abstract partial class GraphUpdatesTestBase<TFixture>
         where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
+        [ConditionalFact]
+        public virtual void Mutating_discriminator_value_throws_by_convention()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var instance = context.Set<OptionalSingle1Derived>().First();
+
+                    var propertyEntry = context.Entry(instance).Property("Discriminator");
+
+                    Assert.Equal(nameof(OptionalSingle1Derived), propertyEntry.CurrentValue);
+
+                    propertyEntry.CurrentValue = nameof(OptionalSingle1MoreDerived);
+
+                    Assert.Equal(
+                        CoreStrings.PropertyReadOnlyAfterSave("Discriminator", nameof(OptionalSingle1Derived)),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Mutating_discriminator_value_can_be_configured_to_allow_mutation()
+        {
+            var id = 0;
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var instance = context.Set<OptionalSingle2Derived>().First();
+                    var propertyEntry = context.Entry(instance).Property("Discriminator");
+                    id = instance.Id;
+
+                    Assert.IsType<OptionalSingle2Derived>(instance);
+                    Assert.Equal(nameof(OptionalSingle2Derived), propertyEntry.CurrentValue);
+
+                    propertyEntry.CurrentValue = nameof(OptionalSingle2);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var instance = context.Set<OptionalSingle2>().First(e => e.Id == id);
+                    var propertyEntry = context.Entry(instance).Property("Discriminator");
+
+                    Assert.IsType<OptionalSingle2>(instance);
+                    Assert.Equal(nameof(OptionalSingle2), propertyEntry.CurrentValue);
+                });
+        }
+
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Fk)]
         [InlineData((int)ChangeMechanism.Dependent)]
