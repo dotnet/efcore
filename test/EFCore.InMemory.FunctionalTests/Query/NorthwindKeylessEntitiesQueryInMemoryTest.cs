@@ -1,7 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -26,5 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Entity_mapped_to_view_on_right_side_of_join()
         {
         }
+
+        public override async Task KeylessEntity_with_included_nav(bool async)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.KeylessEntity_with_included_nav(async));
+        }
+
     }
 }

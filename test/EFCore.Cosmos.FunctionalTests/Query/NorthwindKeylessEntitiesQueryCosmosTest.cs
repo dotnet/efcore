@@ -88,6 +88,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task KeylessEntity_with_included_nav(bool async)
+        {
+            return base.KeylessEntity_with_included_nav(async);
+        }
+
         public override async Task KeylessEntity_with_defining_query(bool async)
         {
             await base.KeylessEntity_with_defining_query(async);

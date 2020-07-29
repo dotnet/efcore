@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
-        public void Model_differ_does_not_detect_queries()
+        public void Model_differ_does_not_detect_defining_queries()
         {
             DbContext context = null;
             Execute(
@@ -69,6 +69,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuery(
                     () => context.Set<TestKeylessType>().FromSqlRaw("SELECT * FROM Vista")),
 #pragma warning restore CS0618 // Type or member is obsolete
+                result => Assert.Empty(result));
+        }
+
+        [ConditionalFact]
+        public void Model_differ_does_not_detect_queries()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuerySql("SELECT * FROM Vista"),
                 result => Assert.Empty(result));
         }
 

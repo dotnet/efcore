@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.KeylessEntity_simple(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
         }
 
         [ConditionalTheory]
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
 FROM (
-    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
 ) AS [c]
 WHERE [c].[City] = N'London'");
         }
@@ -50,6 +50,7 @@ WHERE [c].[City] = N'London'");
 FROM [Alphabetical list of products] AS [a]");
         }
 
+        [ConditionalFact(Skip = "Issue#21627")]
         public override void KeylessEntity_with_nav_defining_query()
         {
             base.KeylessEntity_with_nav_defining_query();
@@ -143,7 +144,7 @@ WHERE EXISTS (
             base.Auto_initialized_view_set();
 
             AssertSql(
-                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
         }
 
         public override async Task KeylesEntity_groupby(bool async)
@@ -153,7 +154,7 @@ WHERE EXISTS (
             AssertSql(
                 @"SELECT [c].[City] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST(LEN([c].[Address]) AS int)), 0) AS [Sum]
 FROM (
-    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
 ) AS [c]
 GROUP BY [c].[City]");
         }
@@ -177,7 +178,7 @@ LEFT JOIN [Alphabetical list of products] AS [a] ON [o].[CustomerID] = [a].[Cate
 
 SELECT TOP(@__p_0) [c].[City], [c].[ContactName]
 FROM (
-    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
 ) AS [c]
 WHERE EXISTS (
     SELECT 1

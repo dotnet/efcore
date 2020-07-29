@@ -4434,13 +4434,9 @@ ORDER BY [p].[Id], [a].[Id]");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 modelBuilder.Entity<OrderSummary13346>()
                     .HasNoKey()
-                    .ToQuery(
-                        () => Set<OrderSummary13346>()
-                            .FromSqlRaw("SELECT o.Amount From Orders AS o"));
-#pragma warning restore CS0618 // Type or member is obsolete
+                    .ToQuerySql("SELECT o.Amount From Orders AS o");
             }
         }
 
