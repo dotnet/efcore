@@ -206,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete]
         public const string DefiningQuery = "DefiningQuery";
 
         /// <summary>
@@ -313,7 +314,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             AfterSaveBehavior,
             BeforeSaveBehavior,
             QueryFilter,
+#pragma warning disable CS0612 // Type or member is obsolete
             DefiningQuery,
+#pragma warning restore CS0612 // Type or member is obsolete
             EagerLoaded,
             ProviderClrType,
             InverseNavigations,

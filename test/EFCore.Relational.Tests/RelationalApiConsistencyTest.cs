@@ -91,6 +91,8 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(RelationalEntityTypeBuilderExtensions),
                 typeof(DbFunctionBuilder),
                 typeof(DbFunctionParameterBuilder),
+                typeof(TableBuilder),
+                typeof(TableBuilder<>),
                 typeof(SequenceBuilder),
                 typeof(MigrationBuilder),
                 typeof(AlterOperationBuilder<>),

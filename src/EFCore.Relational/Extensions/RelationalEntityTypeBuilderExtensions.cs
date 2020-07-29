@@ -27,20 +27,20 @@ namespace Microsoft.EntityFrameworkCore
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name)
-            => ToTable(entityTypeBuilder, name, excludedFromMigrations: false);
+            => entityTypeBuilder.ToTable(name, (string)null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
-        /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
-            bool excludedFromMigrations)
-            => entityTypeBuilder.ToTable(name, null, excludedFromMigrations);
+            [NotNull] Action<TableBuilder> buildAction)
+            => entityTypeBuilder.ToTable(name, null, buildAction);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, excludedFromMigrations: false);
+            => entityTypeBuilder.ToTable(name, (string)null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -61,14 +61,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
-        /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name,
-            bool excludedFromMigrations)
+            [NotNull] Action<TableBuilder<TEntity>> buildAction)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, excludedFromMigrations);
+            => entityTypeBuilder.ToTable(name, null, buildAction);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -81,7 +81,11 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema)
-            => entityTypeBuilder.ToTable(name, schema, excludedFromMigrations: false);
+        {
+            entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetSchema(schema);
+            return entityTypeBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -89,21 +93,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
-        /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
-        [NotNull] this EntityTypeBuilder entityTypeBuilder,
-        [CanBeNull] string name,
-        [CanBeNull] string schema,
-        bool excludedFromMigrations)
+            [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            [NotNull] string name,
+            [CanBeNull] string schema,
+            [NotNull] Action<TableBuilder> buildAction)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NullButNotEmpty(name, nameof(name));
+            Check.NotNull(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
+            buildAction(new TableBuilder(name, schema, entityTypeBuilder.Metadata));
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(schema);
-            entityTypeBuilder.Metadata.SetIsTableExcludedFromMigrations(excludedFromMigrations);
 
             return entityTypeBuilder;
         }
@@ -121,7 +124,11 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             [CanBeNull] string schema)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema, excludedFromMigrations: false);
+        {
+            entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetSchema(schema);
+            return entityTypeBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -130,15 +137,24 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
-        /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema,
-            bool excludedFromMigrations)
+            [NotNull] Action<TableBuilder<TEntity>> buildAction)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema, excludedFromMigrations);
+        {
+            Check.NotNull(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            buildAction(new TableBuilder<TEntity>(name, schema, entityTypeBuilder.Metadata));
+            entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetSchema(schema);
+
+            return entityTypeBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
