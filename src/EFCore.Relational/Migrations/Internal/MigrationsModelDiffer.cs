@@ -1920,15 +1920,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             var targetColumn = targetTable.FindColumn(targetProperty);
                             var sourceColumn = diffContext.FindSource(targetColumn);
-                            if (sourceColumn == null)
-                            {
-                                continue;
-                            }
-
-                            var sourceProperty = sourceColumn.PropertyMappings.Select(m => m.Property)
+                            var sourceProperty = sourceColumn?.PropertyMappings.Select(m => m.Property)
                                 .FirstOrDefault(p => p.DeclaringEntityType.IsAssignableFrom(sourceEntityType));
                             if (sourceProperty == null)
                             {
+                                if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save
+                                    && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0)
+                                {
+                                    entryMapping.RecreateRow = true;
+                                    break;
+                                }
+
                                 continue;
                             }
 

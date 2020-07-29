@@ -4121,7 +4121,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 type ?? discriminatorProperty?.ClrType ?? _defaultDiscriminatorType,
                 name ?? discriminatorProperty?.Name ?? _defaultDiscriminatorName,
                 typeConfigurationSource: type != null ? configurationSource : (ConfigurationSource?)null,
-                configurationSource: configurationSource);
+                configurationSource)
+                ?.AfterSave(PropertySaveBehavior.Throw, ConfigurationSource.Convention);
         }
 
         private DiscriminatorBuilder DiscriminatorBuilder(
