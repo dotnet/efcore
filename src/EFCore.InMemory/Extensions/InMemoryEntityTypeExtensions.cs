@@ -22,7 +22,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The LINQ query used as the default source. </returns>
         public static LambdaExpression GetDefiningQuery([NotNull] this IEntityType entityType)
 #pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable CS0612 // Type or member is obsolete
             => (LambdaExpression)Check.NotNull(entityType, nameof(entityType))[CoreAnnotationNames.DefiningQuery];
+#pragma warning restore CS0612 // Type or member is obsolete
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
@@ -35,7 +37,9 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] LambdaExpression definingQuery)
             => Check.NotNull(entityType, nameof(entityType))
 #pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable CS0612 // Type or member is obsolete
                 .SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery);
+#pragma warning restore CS0612 // Type or member is obsolete
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         /// <summary>
@@ -51,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore
             bool fromDataAnnotation = false)
             => (LambdaExpression)Check.NotNull(entityType, nameof(entityType))
 #pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable CS0612 // Type or member is obsolete
                 .SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, fromDataAnnotation)
+#pragma warning restore CS0612 // Type or member is obsolete
 #pragma warning restore EF1001 // Internal EF Core API usage.
                 ?.Value;
 
@@ -62,7 +68,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />. </returns>
         public static ConfigurationSource? GetDefiningQueryConfigurationSource([NotNull] this IConventionEntityType entityType)
 #pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable CS0612 // Type or member is obsolete
             => entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery)?.GetConfigurationSource();
+#pragma warning restore CS0612 // Type or member is obsolete
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 }

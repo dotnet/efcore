@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder =>
                 {
                     builder.Entity<DerivedEntity>()
-                        .ToTable("DerivedEntity", "foo", excludedFromMigrations: true);
+                        .ToTable("DerivedEntity", "foo", t => t.IsExcludedFromMigrations());
                     builder.Entity<BaseEntity>();
                 },
                 AddBoilerPlate(
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
 
-                    b.ToTable(""DerivedEntity"", ""foo"", true);
+                    b.ToTable(""DerivedEntity"", ""foo"", t => t.IsExcludedFromMigrations());
                 });"),
                 o =>
                 {
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 o =>
                 {
-                    Assert.Equal(6, o.GetEntityTypes().First().GetAnnotations().Count());
+                    Assert.Equal(5, o.GetEntityTypes().First().GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                 });
         }
