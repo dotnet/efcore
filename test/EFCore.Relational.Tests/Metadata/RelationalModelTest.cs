@@ -618,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
             modelBuilder.Entity<Order>(cb =>
             {
-                cb.ToQuerySql("GetOrders()");
+                cb.ToSqlQuery("GetOrders()");
                 cb.Ignore(c => c.Customer);
                 cb.Ignore(c => c.Details);
                 cb.Ignore(c => c.DateDetails);

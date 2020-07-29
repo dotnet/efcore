@@ -4436,7 +4436,7 @@ ORDER BY [p].[Id], [a].[Id]");
             {
                 modelBuilder.Entity<OrderSummary13346>()
                     .HasNoKey()
-                    .ToQuerySql("SELECT o.Amount From Orders AS o");
+                    .ToSqlQuery("SELECT o.Amount From Orders AS o");
             }
         }
 

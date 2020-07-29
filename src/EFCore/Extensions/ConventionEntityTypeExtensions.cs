@@ -640,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingQuery"> The LINQ query used as the default source. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured entity type. </returns>
-        [Obsolete("Use InMemoryEntityTypeExtensions.SetDefiningQuery")]
+        [Obsolete("Use InMemoryEntityTypeExtensions.SetInMemoryQuery")]
         public static LambdaExpression SetDefiningQuery(
             [NotNull] this IConventionEntityType entityType,
             [CanBeNull] LambdaExpression definingQuery,
@@ -655,7 +655,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />. </returns>
-        [Obsolete("Use InMemoryEntityTypeExtensions.GetDefiningQueryConfigurationSource")]
+        [Obsolete("Use InMemoryEntityTypeExtensions.GetInMemoryQueryConfigurationSource")]
         public static ConfigurationSource? GetDefiningQueryConfigurationSource([NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery)?.GetConfigurationSource();
 

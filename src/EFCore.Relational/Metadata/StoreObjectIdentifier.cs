@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Creates an id for the SQL query mapped using <see cref="M:RelationalEntityTypeBuilderExtensions.ToQuerySql" />.
+        ///     Creates an id for the SQL query mapped using <see cref="M:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The SQL query id. </returns>

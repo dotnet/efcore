@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning disable CS0618 // Type or member is obsolete
                 && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
 #pragma warning restore CS0618 // Type or member is obsolete
-                && ((entityType as IConventionEntityType)?.GetQuerySqlConfigurationSource() == null)
+                && ((entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null)
                 ? GetDefaultTableName(entityType)
                 : null;
         }
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning disable CS0618 // Type or member is obsolete
                 && (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
 #pragma warning restore CS0618 // Type or member is obsolete
-                && ((entityType as IConventionEntityType)?.GetQuerySqlConfigurationSource() == null)
+                && ((entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null)
                 ? GetDefaultViewName(entityType)
                 : null;
         }
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Gets the default SQL query name that would be used for this entity type when mapped using
-        ///     <see cref="M:RelationalEntityTypeBuilderExtensions.ToQuerySql" />.
+        ///     <see cref="M:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Gets the default SQL query name. </returns>
@@ -414,9 +414,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The SQL string used to provide data for the entity type. </returns>
-        public static string GetQuerySql([NotNull] this IEntityType entityType)
+        public static string GetSqlQuery([NotNull] this IEntityType entityType)
         {
-            var nameAnnotation = (string)entityType[RelationalAnnotationNames.QuerySql];
+            var nameAnnotation = (string)entityType[RelationalAnnotationNames.SqlQuery];
             if (nameAnnotation != null)
             {
                 return nameAnnotation;
@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (entityType.BaseType != null)
             {
-                return entityType.GetRootType().GetQuerySql();
+                return entityType.GetRootType().GetSqlQuery();
             }
 
             return null;
@@ -435,9 +435,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="name"> The SQL string to set. </param>
-        public static void SetQuerySql([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
+        public static void SetSqlQuery([NotNull] this IMutableEntityType entityType, [CanBeNull] string name)
             => entityType.SetAnnotation(
-                RelationalAnnotationNames.QuerySql,
+                RelationalAnnotationNames.SqlQuery,
                 Check.NullButNotEmpty(name, nameof(name)));
 
         /// <summary>
@@ -447,10 +447,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The SQL string to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string SetQuerySql(
+        public static string SetSqlQuery(
             [NotNull] this IConventionEntityType entityType, [CanBeNull] string name, bool fromDataAnnotation = false)
             => (string)entityType.SetAnnotation(
-                RelationalAnnotationNames.QuerySql,
+                RelationalAnnotationNames.SqlQuery,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation)?.Value;
 
@@ -459,8 +459,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to find configuration source for. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the query SQL string. </returns>
-        public static ConfigurationSource? GetQuerySqlConfigurationSource([NotNull] this IConventionEntityType entityType)
-            => entityType.FindAnnotation(RelationalAnnotationNames.QuerySql)
+        public static ConfigurationSource? GetSqlQueryConfigurationSource([NotNull] this IConventionEntityType entityType)
+            => entityType.FindAnnotation(RelationalAnnotationNames.SqlQuery)
             ?.GetConfigurationSource();
 
         /// <summary>

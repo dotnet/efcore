@@ -72,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string FunctionName = Prefix + "FunctionName";
 
         /// <summary>
-        ///     The name for mapped query sql annotations.
+        ///     The name for mapped sql query annotations.
         /// </summary>
-        public const string QuerySql = Prefix + "QuerySql";
+        public const string SqlQuery = Prefix + "SqlQuery";
 
         /// <summary>
         ///     The name for comment annotations.
@@ -154,12 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string RelationalModel = Prefix + "RelationalModel";
 
         /// <summary>
-        ///     The name for view mappings annotations.
+        ///     The name for default mappings annotations.
         /// </summary>
         public const string DefaultMappings = Prefix + "DefaultMappings";
 
         /// <summary>
-        ///     The name for view column mappings annotations.
+        ///     The name for default column mappings annotations.
         /// </summary>
         public const string DefaultColumnMappings = Prefix + "DefaultColumnMappings";
 
@@ -184,22 +184,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ViewColumnMappings = Prefix + "ViewColumnMappings";
 
         /// <summary>
-        ///     The name for view mappings annotations.
+        ///     The name for function mappings annotations.
         /// </summary>
         public const string FunctionMappings = Prefix + "FunctionMappings";
 
         /// <summary>
-        ///     The name for view column mappings annotations.
+        ///     The name for function column mappings annotations.
         /// </summary>
         public const string FunctionColumnMappings = Prefix + "FunctionColumnMappings";
 
         /// <summary>
-        ///     The name for view mappings annotations.
+        ///     The name for sql query mappings annotations.
         /// </summary>
         public const string SqlQueryMappings = Prefix + "SqlQueryMappings";
 
         /// <summary>
-        ///     The name for view column mappings annotations.
+        ///     The name for sql query column mappings annotations.
         /// </summary>
         public const string SqlQueryColumnMappings = Prefix + "SqlQueryColumnMappings";
 

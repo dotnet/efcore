@@ -23,14 +23,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> ToQuery<TEntity>(
+        public static EntityTypeBuilder<TEntity> ToInMemoryQuery<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [NotNull] Expression<Func<IQueryable<TEntity>>> query)
             where TEntity : class
         {
             Check.NotNull(query, nameof(query));
 
-            InMemoryEntityTypeExtensions.SetDefiningQuery(entityTypeBuilder.Metadata, query);
+            entityTypeBuilder.Metadata.SetInMemoryQuery(query);
 
             return entityTypeBuilder;
         }
@@ -44,14 +44,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToQuery(
+        public static IConventionEntityTypeBuilder ToInMemoryQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] LambdaExpression query,
             bool fromDataAnnotation = false)
         {
-            if (CanSetDefiningQuery(entityTypeBuilder, query, fromDataAnnotation))
+            if (CanSetInMemoryQuery(entityTypeBuilder, query, fromDataAnnotation))
             {
-                InMemoryEntityTypeExtensions.SetDefiningQuery(entityTypeBuilder.Metadata, query, fromDataAnnotation);
+                entityTypeBuilder.Metadata.SetInMemoryQuery(query, fromDataAnnotation);
 
                 return entityTypeBuilder;
             }
@@ -60,13 +60,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns a value indicating whether the given defining query can be set from the current configuration source.
+        ///     Returns a value indicating whether the given in-memory query can be set from the current configuration source.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The query that will provide the underlying data for the keyless entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given defining query can be set. </returns>
-        public static bool CanSetDefiningQuery(
+        /// <returns> <see langword="true" /> if the given in-memory query can be set. </returns>
+        public static bool CanSetInMemoryQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             [CanBeNull] LambdaExpression query,
             bool fromDataAnnotation = false)

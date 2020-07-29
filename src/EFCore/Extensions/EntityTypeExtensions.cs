@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the defining query for. </param>
         /// <returns> The LINQ query used as the default source. </returns>
-        [Obsolete("Use InMemoryEntityTypeExtensions.GetDefiningQuery")]
+        [Obsolete("Use InMemoryEntityTypeExtensions.GetInMemoryQuery")]
         public static LambdaExpression GetDefiningQuery([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

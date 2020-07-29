@@ -603,14 +603,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The SQL query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> ToQuerySql<TEntity>(
+        public static EntityTypeBuilder<TEntity> ToSqlQuery<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [NotNull] string query)
             where TEntity : class
         {
             Check.NotNull(query, nameof(query));
 
-            entityTypeBuilder.Metadata.SetQuerySql(query);
+            entityTypeBuilder.Metadata.SetSqlQuery(query);
 
             return entityTypeBuilder;
         }
@@ -624,16 +624,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToQuerySql(
+        public static IConventionEntityTypeBuilder ToSqlQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
         {
-            if (!entityTypeBuilder.CanSetQuerySql(name, fromDataAnnotation))
+            if (!entityTypeBuilder.CanSetSqlQuery(name, fromDataAnnotation))
             {
                 return null;
             }
 
             var entityType = entityTypeBuilder.Metadata;
-            entityType.SetQuerySql(name, fromDataAnnotation);
+            entityType.SetSqlQuery(name, fromDataAnnotation);
 
             return entityTypeBuilder;
         }
@@ -646,12 +646,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The SQL query that will provide the underlying data for the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
-        public static bool CanSetQuerySql(
+        public static bool CanSetSqlQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
-            return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.QuerySql, name, fromDataAnnotation);
+            return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.SqlQuery, name, fromDataAnnotation);
         }
 
         /// <summary>

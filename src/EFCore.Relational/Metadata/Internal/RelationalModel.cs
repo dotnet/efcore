@@ -481,8 +481,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static void AddSqlQueries(RelationalModel databaseModel, IConventionEntityType entityType)
         {
-            var querySql = entityType.GetQuerySql();
-            if (querySql == null)
+            var entityTypeSqlQuery = entityType.GetSqlQuery();
+            if (entityTypeSqlQuery == null)
             {
                 return;
             }
@@ -491,10 +491,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var definingType = entityType;
             while (definingType != null)
             {
-                var mappedSql = definingType.GetQuerySql();
-                if (mappedSql == null
+                var definingTypeSqlQuery = definingType.GetSqlQuery();
+                if (definingTypeSqlQuery == null
                     || definingType.BaseType == null
-                    || (mappedSql == querySql
+                    || (definingTypeSqlQuery == entityTypeSqlQuery
                         && definingType != entityType))
                 {
                     break;
@@ -506,9 +506,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var mappedType = entityType;
             while (mappedType != null)
             {
-                var mappedSql = mappedType.GetQuerySql();
-                if (mappedSql == null
-                    || (mappedSql == querySql
+                var mappedTypeSqlQuery = mappedType.GetSqlQuery();
+                if (mappedTypeSqlQuery == null
+                    || (mappedTypeSqlQuery == entityTypeSqlQuery
                         && mappedType != entityType))
                 {
                     break;
@@ -517,8 +517,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var mappedQuery = StoreObjectIdentifier.SqlQuery(definingType);
                 if (!databaseModel.Queries.TryGetValue(mappedQuery.Name, out var sqlQuery))
                 {
-                    sqlQuery = new SqlQuery(mappedQuery.Name, databaseModel);
-                    sqlQuery.Sql = mappedSql;
+                    sqlQuery = new SqlQuery(mappedQuery.Name, databaseModel)
+                    {
+                        Sql = mappedTypeSqlQuery
+                    };
                     databaseModel.Queries.Add(mappedQuery.Name, sqlQuery);
                 }
 
