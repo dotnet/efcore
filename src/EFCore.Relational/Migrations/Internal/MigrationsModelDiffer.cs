@@ -1936,7 +1936,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 continue;
                             }
 
-
                             var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
                             var targetValue = entry.GetCurrentValue(targetProperty);
                             var comparer = targetProperty.GetValueComparer()
