@@ -1922,17 +1922,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             var targetColumn = targetProperty.GetTableColumnMappings()
                                 .FirstOrDefault(m => m.TableMapping.EntityType == entry.EntityType && m.TableMapping.Table == targetTable)?.Column;
                             var sourceColumn = diffContext.FindSource(targetColumn);
-                            if (sourceColumn == null)
-                            {
-                                continue;
-                            }
-
-                            var sourceProperty = sourceColumn.PropertyMappings.Select(m => m.Property)
+                            var sourceProperty = sourceColumn?.PropertyMappings.Select(m => m.Property)
                                 .FirstOrDefault(p => p.DeclaringEntityType.IsAssignableFrom(sourceEntityType));
                             if (sourceProperty == null)
                             {
+                                if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save
+                                    && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0)
+                                {
+                                    entryMapping.RecreateRow = true;
+                                    break;
+                                }
+
                                 continue;
                             }
+
 
                             var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
                             var targetValue = entry.GetCurrentValue(targetProperty);
