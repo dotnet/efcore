@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IReadOnlyList<string> Parameters => ((TestSqlLogger)Logger).Parameters;
         public string Sql => string.Join(_eol + _eol, SqlStatements);
 
-        public void AssertBaseline(string[] expected)
+        public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
             if (_proceduralQueryGeneration)
             {
@@ -44,12 +44,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             try
             {
-                for (var i = 0; i < expected.Length; i++)
+                if (assertOrder)
                 {
-                    Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
-                }
+                    for (var i = 0; i < expected.Length; i++)
+                    {
+                        Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
+                    }
 
-                Assert.Empty(SqlStatements.Skip(expected.Length));
+                    Assert.Empty(SqlStatements.Skip(expected.Length));
+                }
+                else
+                {
+                    foreach (var expectedFragment in expected)
+                    {
+                        var normalizedExpectedFragment = expectedFragment.Replace("\r", string.Empty).Replace("\n", _eol);
+                        Assert.Contains(
+                            normalizedExpectedFragment,
+                            SqlStatements);
+                    }
+                }
             }
             catch
             {
