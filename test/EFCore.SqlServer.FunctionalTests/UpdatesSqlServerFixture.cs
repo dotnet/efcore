@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.OnModelCreating(modelBuilder, context);
 
+            modelBuilder.Entity<ProductBase>()
+                .Property(p => p.Id).HasDefaultValueSql("NEWID()");
+
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price).HasColumnType("decimal(18,2)");
 

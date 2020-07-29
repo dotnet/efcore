@@ -109,7 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ICollection<TElement> GetOrCreateCollection(object instance, bool forMaterialization)
         {
             var collection = GetCollection(instance);
-
             if (collection == null)
             {
                 var setCollection = forMaterialization

@@ -883,13 +883,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
+            if (storeObject.StoreObjectType != StoreObjectType.Table)
+            {
+                return;
+            }
+
             var foreignKeyMappings = new Dictionary<string, IForeignKey>();
 
             foreach (var foreignKey in mappedTypes.SelectMany(et => et.GetDeclaredForeignKeys()))
             {
+                var principalTable = foreignKey.PrincipalEntityType.GetTableName();
+                var principalSchema = foreignKey.PrincipalEntityType.GetSchema();
+
+                if (principalTable == null)
+                {
+                    continue;
+                }
+
                 var foreignKeyName = foreignKey.GetConstraintName(
                     storeObject,
-                    StoreObjectIdentifier.Table(foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()));
+                    StoreObjectIdentifier.Table(principalTable, principalSchema));
                 if (!foreignKeyMappings.TryGetValue(foreignKeyName, out var duplicateForeignKey))
                 {
                     foreignKeyMappings[foreignKeyName] = foreignKey;

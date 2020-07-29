@@ -365,15 +365,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
             {
-                if (foreignKey.DeclaringEntityType.GetTableName() == foreignKey.PrincipalEntityType.GetTableName()
-                    && foreignKey.DeclaringEntityType.GetSchema() == foreignKey.PrincipalEntityType.GetSchema())
+                var principalTable = foreignKey.PrincipalEntityType.GetTableName();
+                var principalSchema = foreignKey.PrincipalEntityType.GetSchema();
+                if (principalTable == null
+                    || (foreignKey.DeclaringEntityType.GetTableName() == principalTable
+                        && foreignKey.DeclaringEntityType.GetSchema() == principalSchema))
                 {
                     continue;
                 }
 
                 var foreignKeyName = foreignKey.GetConstraintName(storeObject,
-                    StoreObjectIdentifier.Table(foreignKey.PrincipalEntityType.GetTableName(),
-                    foreignKey.PrincipalEntityType.GetSchema()));
+                    StoreObjectIdentifier.Table(principalTable, principalSchema));
                 if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
                 {
                     foreignKeys[foreignKeyName] = foreignKey;
