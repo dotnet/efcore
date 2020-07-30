@@ -881,9 +881,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         private class ManyToManyNavPrincipal
         {
+            private readonly List<NavDependent> _randomField;
+
+            public ManyToManyNavPrincipal()
+            {
+                _randomField = new List<NavDependent>();
+            }
+
             public int Id { get; set; }
             public string Name { get; set; }
 
+            [BackingField("_randomField")]
             public List<NavDependent> Dependents { get; set; }
         }
 

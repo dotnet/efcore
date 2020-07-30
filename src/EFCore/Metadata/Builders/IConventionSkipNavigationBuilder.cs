@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IConventionSkipNavigationBuilder : IConventionAnnotatableBuilder
+    public interface IConventionSkipNavigationBuilder : IConventionPropertyBaseBuilder
     {
         /// <summary>
         ///     Gets the navigation property being configured.
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSkipNavigationBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
+        new IConventionSkipNavigationBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the backing field to use for this navigation.
@@ -42,25 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSkipNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the backing field can be set for this navigation
-        ///     from the given configuration source.
-        /// </summary>
-        /// <param name="fieldName"> The field name. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the backing field can be set for this property. </returns>
-        bool CanSetField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the backing field can be set for this navigation
-        ///     from the given configuration source.
-        /// </summary>
-        /// <param name="fieldInfo"> The field. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the backing field can be set for this property. </returns>
-        bool CanSetField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
+        new IConventionSkipNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this navigation.
@@ -71,16 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSkipNavigationBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the <see cref="PropertyAccessMode" /> can be set for this navigation
-        ///     from the given configuration source.
-        /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this navigation. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the <see cref="PropertyAccessMode" /> can be set for this property. </returns>
-        bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
+        new IConventionSkipNavigationBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the foreign key.

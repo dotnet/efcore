@@ -332,6 +332,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Skip_navigation_field_can_be_set_via_attribute()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals);
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Equal("_randomField", model.FindEntityType(typeof(ManyToManyNavPrincipal)).FindSkipNavigation("Dependents").GetFieldName());
+            }
+
+            [ConditionalFact]
             public virtual void Navigation_properties_can_set_access_mode_using_navigation_names()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -353,8 +369,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var model = modelBuilder.FinalizeModel();
 
-                var principal = (IEntityType)model.FindEntityType(typeof(ManyToManyNavPrincipal));
-                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+                var principal = model.FindEntityType(typeof(ManyToManyNavPrincipal));
+                var dependent = model.FindEntityType(typeof(NavDependent));
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindSkipNavigation("Dependents").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindSkipNavigation("ManyToManyPrincipals").GetPropertyAccessMode());
