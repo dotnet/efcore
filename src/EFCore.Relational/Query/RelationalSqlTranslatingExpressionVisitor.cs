@@ -838,24 +838,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                     else
                     {
-                        var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
-                        var discriminatorColumn = BindProperty(entityReferenceExpression, discriminatorProperty);
-                        if (discriminatorColumn != null)
+                        if (!derivedType.GetRootType().GetIsDiscriminatorMappingComplete()
+                            || !derivedType.GetAllBaseTypesInclusiveAscending()
+                                .All(e => (e == derivedType || e.IsAbstract()) && !HasSiblings(e)))
                         {
-                            return concreteEntityTypes.Count == 1
-                                ? _sqlExpressionFactory.Equal(
-                                    discriminatorColumn,
-                                    _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                                : (Expression)_sqlExpressionFactory.In(
-                                    discriminatorColumn,
-                                    _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
-                                    negated: false);
+                            var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
+                            var discriminatorColumn = BindProperty(entityReferenceExpression, discriminatorProperty);
+                            if (discriminatorColumn != null)
+                            {
+                                return concreteEntityTypes.Count == 1
+                                    ? _sqlExpressionFactory.Equal(
+                                        discriminatorColumn,
+                                        _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                                    : (Expression)_sqlExpressionFactory.In(
+                                        discriminatorColumn,
+                                        _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
+                                        negated: false);
+                            }
+                        }
+                        else
+                        {
+                            return _sqlExpressionFactory.Constant(true);
                         }
                     }
                 }
             }
 
             return null;
+
+            static bool HasSiblings(IEntityType entityType)
+                => entityType.BaseType?.GetDirectlyDerivedTypes().Any(i => i != entityType) == true;
         }
 
         /// <inheritdoc />

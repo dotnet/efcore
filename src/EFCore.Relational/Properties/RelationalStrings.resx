@@ -732,4 +732,7 @@
   <data name="NullabilityInfoOnlyAllowedOnScalarFunctions" xml:space="preserve">
     <value>Nullability information should only be specified for scalar database functions.</value>
   </data>
+  <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
+    <value>'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.</value>
+  </data>
 </root>

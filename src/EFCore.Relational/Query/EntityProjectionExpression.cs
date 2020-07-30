@@ -122,6 +122,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(derivedType, nameof(derivedType));
 
+            if (!derivedType.GetAllBaseTypes().Contains(EntityType))
+            {
+                throw new InvalidOperationException(RelationalStrings.InvalidDerivedTypeInEntityProjection(
+                    derivedType.DisplayName(), EntityType.DisplayName()));
+            }
+
             var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
             foreach (var kvp in _propertyExpressionMap)
             {

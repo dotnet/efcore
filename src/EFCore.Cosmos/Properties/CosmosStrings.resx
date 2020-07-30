@@ -198,4 +198,7 @@
   <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
     <value>Both the connection string and account key or account endpoint were specified. Only specify one set of connection details.</value>
   </data>
+  <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
+    <value>'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.</value>
+  </data>
 </root>

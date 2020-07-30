@@ -598,6 +598,43 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return null;
         }
 
+        /// <inheritdoc />
+        protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
+        {
+            Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
+
+            var innerExpression = Visit(typeBinaryExpression.Expression);
+
+            if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
+                && innerExpression is EntityReferenceExpression entityReferenceExpression)
+            {
+                var entityType = entityReferenceExpression.EntityType;
+                if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
+                {
+                    return _sqlExpressionFactory.Constant(true);
+                }
+
+                var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
+                if (derivedType != null
+                    && TryBindMember(entityReferenceExpression,
+                        MemberIdentity.Create(entityType.GetDiscriminatorProperty().Name)) is SqlExpression discriminatorColumn)
+                {
+                    var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
+
+                    return concreteEntityTypes.Count == 1
+                        ? _sqlExpressionFactory.Equal(
+                            discriminatorColumn,
+                            _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                        : (SqlExpression)_sqlExpressionFactory.In(
+                            discriminatorColumn,
+                            _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
+                            negated: false);
+                }
+            }
+
+            return null;
+        }
+
         private Expression TryBindMember(Expression source, MemberIdentity member)
         {
             if (!(source is EntityReferenceExpression entityReferenceExpression))
