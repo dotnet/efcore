@@ -32,6 +32,28 @@ namespace Microsoft.EntityFrameworkCore
 
             using var _ = context;
 
+            var savingEventCalled = false;
+            var resultFromEvent = 0;
+            Exception exceptionFromEvent = null;
+
+            context.SavingChanges += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                savingEventCalled = true;
+            };
+
+            context.SavedChanges += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                resultFromEvent = args.EntitiesSavedCount;
+            };
+
+            context.SaveChangesFailed += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                exceptionFromEvent = args.Exception;
+            };
+
             context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
 
             using var transaction = context.Database.BeginTransaction();
@@ -47,6 +69,10 @@ namespace Microsoft.EntityFrameworkCore
                     : context.SaveChanges(acceptAllChangesOnSuccess: false);
 
             Assert.Equal(1, savedCount);
+
+            Assert.True(savingEventCalled);
+            Assert.Equal(savedCount, resultFromEvent);
+            Assert.Null(exceptionFromEvent);
 
             AssertNormalOutcome(context, interceptor, async);
 
@@ -76,6 +102,28 @@ namespace Microsoft.EntityFrameworkCore
 
             using var _ = context;
 
+            var savingEventCalled = false;
+            var resultFromEvent = 0;
+            Exception exceptionFromEvent = null;
+
+            context.SavingChanges += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                savingEventCalled = true;
+            };
+
+            context.SavedChanges += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                resultFromEvent = args.EntitiesSavedCount;
+            };
+
+            context.SaveChangesFailed += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                exceptionFromEvent = args.Exception;
+            };
+
             context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
 
             using var transaction = context.Database.BeginTransaction();
@@ -91,6 +139,10 @@ namespace Microsoft.EntityFrameworkCore
                     : context.SaveChanges(acceptAllChangesOnSuccess: false);
 
             Assert.Equal(-1, savedCount);
+
+            Assert.True(savingEventCalled);
+            Assert.Equal(savedCount, resultFromEvent);
+            Assert.Null(exceptionFromEvent);
 
             AssertNormalOutcome(context, interceptor, async);
 
@@ -134,6 +186,28 @@ namespace Microsoft.EntityFrameworkCore
 
             using var _ = context;
 
+            var savingEventCalled = false;
+            var resultFromEvent = 0;
+            Exception exceptionFromEvent = null;
+
+            context.SavingChanges += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                savingEventCalled = true;
+            };
+
+            context.SavedChanges += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                resultFromEvent = args.EntitiesSavedCount;
+            };
+
+            context.SaveChangesFailed += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                exceptionFromEvent = args.Exception;
+            };
+
             context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
 
             using var transaction = context.Database.BeginTransaction();
@@ -149,6 +223,10 @@ namespace Microsoft.EntityFrameworkCore
                     : context.SaveChanges(acceptAllChangesOnSuccess: false);
 
             Assert.Equal(777, savedCount);
+
+            Assert.True(savingEventCalled);
+            Assert.Equal(savedCount, resultFromEvent);
+            Assert.Null(exceptionFromEvent);
 
             AssertNormalOutcome(context, interceptor, async);
 
@@ -178,27 +256,67 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
-        [InlineData(false, false, false)]
-        [InlineData(true, false, false)]
-        [InlineData(false, true, false)]
-        [InlineData(true, true, false)]
-        [InlineData(false, false, true)]
-        [InlineData(true, false, true)]
-        [InlineData(false, true, true)]
-        [InlineData(true, true, true)]
-        public virtual async Task Intercept_SaveChanges_failed(bool async, bool inject, bool noAcceptChanges)
+        [InlineData(false, false, false, false)]
+        [InlineData(true, false, false, false)]
+        [InlineData(false, true, false, false)]
+        [InlineData(true, true, false, false)]
+        [InlineData(false, false, true, false)]
+        [InlineData(true, false, true, false)]
+        [InlineData(false, true, true, false)]
+        [InlineData(true, true, true, false)]
+        [InlineData(false, false, false, true)]
+        [InlineData(true, false, false, true)]
+        [InlineData(false, true, false, true)]
+        [InlineData(true, true, false, true)]
+        [InlineData(false, false, true, true)]
+        [InlineData(true, false, true, true)]
+        [InlineData(false, true, true, true)]
+        [InlineData(true, true, true, true)]
+        public virtual async Task Intercept_SaveChanges_failed(bool async, bool inject, bool noAcceptChanges, bool concurrencyError)
         {
+            if (concurrencyError
+                && !SupportsOptimisticConcurrency)
+            {
+                return;
+            }
+
             var (context, interceptor) = CreateContext<PassiveSaveChangesInterceptor>(inject);
 
             using var _ = context;
 
             using var transaction = context.Database.BeginTransaction();
 
-            context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
-            var ___ = async ? await context.SaveChangesAsync() : context.SaveChanges();
-            context.ChangeTracker.Clear();
+            if (!concurrencyError)
+            {
+                context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
+                var ___ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+                context.ChangeTracker.Clear();
+            }
 
-            context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
+            var savingEventCalled = false;
+            var resultFromEvent = -1;
+            Exception exceptionFromEvent = null;
+
+            context.SavingChanges += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                savingEventCalled = true;
+            };
+
+            context.SavedChanges += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                resultFromEvent = args.EntitiesSavedCount;
+            };
+
+            context.SaveChangesFailed += (sender, args) =>
+            {
+                Assert.Same(context, sender);
+                exceptionFromEvent = args.Exception;
+            };
+
+            context.Entry(new Singularity { Id = 35, Type = "Red Dwarf" }).State
+                = concurrencyError ? EntityState.Modified : EntityState.Added;
 
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
 
@@ -226,9 +344,22 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context, interceptor.Context);
             Assert.Same(thrown, interceptor.Exception);
 
-            listener.AssertEventsInOrder(
-                CoreEventId.SaveChangesStarting.Name,
-                CoreEventId.SaveChangesFailed.Name);
+            Assert.True(savingEventCalled);
+            Assert.Equal(-1, resultFromEvent);
+            Assert.Same(thrown, exceptionFromEvent);
+
+            if (concurrencyError)
+            {
+                listener.AssertEventsInOrder(
+                    CoreEventId.SaveChangesStarting.Name,
+                    CoreEventId.OptimisticConcurrencyException.Name);
+            }
+            else
+            {
+                listener.AssertEventsInOrder(
+                    CoreEventId.SaveChangesStarting.Name,
+                    CoreEventId.SaveChangesFailed.Name);
+            }
         }
 
         [ConditionalTheory]
@@ -369,5 +500,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(interceptor.FailedCalled);
             Assert.Same(context, interceptor.Context);
         }
+
+        protected virtual bool SupportsOptimisticConcurrency => true;
     }
 }

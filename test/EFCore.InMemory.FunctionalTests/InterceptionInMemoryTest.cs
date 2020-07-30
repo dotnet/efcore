@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -15,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
         }
+
+        protected override bool SupportsOptimisticConcurrency => false;
 
         public abstract class InterceptionInMemoryFixtureBase : InterceptionFixtureBase
         {
