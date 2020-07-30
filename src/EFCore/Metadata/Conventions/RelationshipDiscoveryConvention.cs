@@ -664,12 +664,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         {
                             entityTypeBuilder.HasOwnership(targetEntityType.ClrType, navigation, inverse);
                         }
-                        else
+                        else if (entityTypeBuilder.HasRelationship(targetEntityType, navigation, inverse) == null)
                         {
-                            if (entityTypeBuilder.HasRelationship(targetEntityType, navigation, inverse) == null)
+                            var navigationTargetType = navigation.PropertyType.TryGetSequenceType();
+                            var inverseTargetType = inverse.PropertyType.TryGetSequenceType();
+                            if (navigationTargetType == targetEntityType.ClrType
+                                && inverseTargetType == entityType.ClrType)
                             {
-                                HasManyToManyRelationship(
-                                    entityTypeBuilder, relationshipCandidate.TargetTypeBuilder, navigation, inverse);
+                                entityTypeBuilder.HasSkipNavigation(
+                                    navigation, targetEntityType, inverse, collections: true, onDependent: false);
                             }
                         }
                     }
@@ -748,44 +751,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
             }
-        }
-
-        private void HasManyToManyRelationship(
-            IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityTypeBuilder targetEntityTypeBuilder,
-            PropertyInfo navigation,
-            PropertyInfo inverse)
-        {
-            var navigationTargetType = navigation.PropertyType.TryGetSequenceType();
-            var inverseTargetType = inverse.PropertyType.TryGetSequenceType();
-            if (navigationTargetType == null
-                || inverseTargetType == null)
-            {
-                return;
-            }
-
-            var entityType = entityTypeBuilder.Metadata;
-            var targetEntityType = targetEntityTypeBuilder.Metadata;
-            if (navigationTargetType != targetEntityType.ClrType
-                || inverseTargetType != entityType.ClrType)
-            {
-                return;
-            }
-
-            var skipNavigationBuilder = entityTypeBuilder.HasSkipNavigation(navigation, targetEntityType);
-            if (skipNavigationBuilder == null)
-            {
-                return;
-            }
-
-            var inverseSkipNavigationBuilder = targetEntityTypeBuilder.HasSkipNavigation(inverse, entityType);
-            if (inverseSkipNavigationBuilder == null)
-            {
-                entityTypeBuilder.HasNoSkipNavigation(skipNavigationBuilder.Metadata);
-                return;
-            }
-
-            skipNavigationBuilder.HasInverse(inverseSkipNavigationBuilder.Metadata, fromDataAnnotation: false);
         }
 
         /// <inheritdoc />

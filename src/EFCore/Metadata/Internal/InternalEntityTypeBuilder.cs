@@ -3526,11 +3526,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalSkipNavigationBuilder HasSkipNavigation(
+            MemberIdentity navigationToTarget,
+            [NotNull] EntityType targetEntityType,
+            MemberIdentity inverseNavigation,
+            ConfigurationSource configurationSource,
+            bool? collections = null,
+            bool? onDependent = null)
+        {
+            var skipNavigationBuilder = HasSkipNavigation(
+                navigationToTarget, targetEntityType, configurationSource, collections, onDependent);
+            if (skipNavigationBuilder == null)
+            {
+                return null;
+            }
+
+            var inverseSkipNavigationBuilder = targetEntityType.Builder.HasSkipNavigation(
+                inverseNavigation, Metadata, configurationSource, collections, onDependent);
+            if (inverseSkipNavigationBuilder == null)
+            {
+                HasNoSkipNavigation(skipNavigationBuilder.Metadata, configurationSource);
+                return null;
+            }
+
+            return skipNavigationBuilder.HasInverse(inverseSkipNavigationBuilder.Metadata, configurationSource);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalSkipNavigationBuilder HasSkipNavigation(
             MemberIdentity navigationProperty,
             [NotNull] EntityType targetEntityType,
             ConfigurationSource? configurationSource,
-            bool collection = true,
-            bool onDependent = false)
+            bool? collection = null,
+            bool? onDependent = null)
         {
             List<SkipNavigation> navigationsToDetach = null;
             List<(InternalSkipNavigationBuilder Navigation, InternalSkipNavigationBuilder Inverse)> detachedNavigations = null;
@@ -3542,11 +3574,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Check.DebugAssert(memberInfo == null || memberInfo.IsSameAs(existingNavigation.GetIdentifyingMemberInfo()),
                     "Expected memberInfo to be the same on the existing navigation");
 
-                Check.DebugAssert(collection == existingNavigation.IsCollection,
-                    "Only collection skip navigations are currently supported");
+                Check.DebugAssert(collection == null || collection == existingNavigation.IsCollection,
+                    "Expected existing navigation to have the same cardinality");
 
-                Check.DebugAssert(onDependent == existingNavigation.IsOnDependent,
-                    "Only skip navigations on principals are currently supported");
+                Check.DebugAssert(onDependent == null || onDependent == existingNavigation.IsOnDependent,
+                    "Expected existing navigation to be on the same side");
 
                 if (existingNavigation.DeclaringEntityType != Metadata)
                 {
@@ -3563,37 +3595,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 return existingNavigation.Builder;
             }
-            else
+
+            if (!configurationSource.HasValue
+                || IsIgnored(navigationName, configurationSource))
             {
-                if (!configurationSource.HasValue
-                    || IsIgnored(navigationName, configurationSource))
+                return null;
+            }
+
+            foreach (var conflictingMember in Metadata.FindPropertiesInHierarchy(navigationName).Cast<PropertyBase>()
+                .Concat(Metadata.FindNavigationsInHierarchy(navigationName))
+                .Concat(Metadata.FindServicePropertiesInHierarchy(navigationName)))
+            {
+                if (!configurationSource.Overrides(conflictingMember.GetConfigurationSource()))
                 {
                     return null;
                 }
+            }
 
-                foreach (var conflictingMember in Metadata.FindPropertiesInHierarchy(navigationName).Cast<PropertyBase>()
-                    .Concat(Metadata.FindNavigationsInHierarchy(navigationName))
-                    .Concat(Metadata.FindServicePropertiesInHierarchy(navigationName)))
+            foreach (var derivedType in Metadata.GetDerivedTypes())
+            {
+                var conflictingNavigation = derivedType.FindDeclaredSkipNavigation(navigationName);
+                if (conflictingNavigation != null)
                 {
-                    if (!configurationSource.Overrides(conflictingMember.GetConfigurationSource()))
+                    if (navigationsToDetach == null)
                     {
-                        return null;
+                        navigationsToDetach = new List<SkipNavigation>();
                     }
-                }
 
-                foreach (var derivedType in Metadata.GetDerivedTypes())
-                {
-                    var conflictingNavigation = derivedType.FindDeclaredSkipNavigation(navigationName);
-                    if (conflictingNavigation != null)
-                    {
-                        if (navigationsToDetach == null)
-                        {
-                            navigationsToDetach = new List<SkipNavigation>();
-                        }
-
-                        navigationsToDetach.Add(conflictingNavigation);
-                    }
+                    navigationsToDetach.Add(conflictingNavigation);
                 }
+            }
+
+            if (collection == null
+                && navigationProperty.MemberInfo != null)
+            {
+                var navigationType = navigationProperty.MemberInfo.GetMemberType();
+                var navigationTargetClrType = navigationType.TryGetSequenceType();
+                collection = navigationTargetClrType != null
+                    && navigationType != targetEntityType.ClrType
+                    && navigationTargetClrType.IsAssignableFrom(targetEntityType.ClrType);
             }
 
             InternalSkipNavigationBuilder builder;
@@ -3650,7 +3690,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 builder = Metadata.AddSkipNavigation(
                     navigationName, navigationProperty.MemberInfo,
-                    targetEntityType, collection, onDependent, configurationSource.Value).Builder;
+                    targetEntityType, collection ?? true, onDependent ?? false, configurationSource.Value).Builder;
 
                 if (detachedNavigations != null)
                 {
@@ -4703,6 +4743,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
                 setTargetAsPrincipal);
 
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionSkipNavigationBuilder IConventionEntityTypeBuilder.HasSkipNavigation(
+            MemberInfo navigationToTarget,
+            IConventionEntityType targetEntityType,
+            MemberInfo inverseNavigation,
+            bool? collections,
+            bool? onDependent,
+            bool fromDataAnnotation)
+            => HasSkipNavigation(
+                MemberIdentity.Create(navigationToTarget),
+                (EntityType)targetEntityType,
+                MemberIdentity.Create(inverseNavigation),
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+                collections,
+                onDependent);
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -4819,8 +4876,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionSkipNavigationBuilder IConventionEntityTypeBuilder.HasSkipNavigation(
             MemberInfo navigationToTarget,
             IConventionEntityType targetEntityType,
-            bool collection,
-            bool onDependent,
+            bool? collection,
+            bool? onDependent,
             bool fromDataAnnotation)
             => HasSkipNavigation(
                 MemberIdentity.Create(navigationToTarget),
@@ -4834,8 +4891,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionSkipNavigationBuilder IConventionEntityTypeBuilder.HasSkipNavigation(
             string navigationName,
             IConventionEntityType targetEntityType,
-            bool collection,
-            bool onDependent,
+            bool? collection,
+            bool? onDependent,
             bool fromDataAnnotation)
             => HasSkipNavigation(
                 MemberIdentity.Create(navigationName),
