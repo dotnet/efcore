@@ -19,6 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    ///     <para>
+    ///         This class is not publicly constructable. If this is a problem for your application or provider, then please file
+    ///         an issue at https://github.com/dotnet/efcore.
+    ///     </para>
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
