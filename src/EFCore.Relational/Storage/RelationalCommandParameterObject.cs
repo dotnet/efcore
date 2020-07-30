@@ -34,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
         /// <param name="logger"> A logger, or null if no logger is available. </param>
         public RelationalCommandParameterObject(
-        [NotNull] IRelationalConnection connection,
-        [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-        [CanBeNull] IReadOnlyList<ReaderColumn> readerColumns,
-        [CanBeNull] DbContext context,
-        [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
+            [CanBeNull] IReadOnlyList<ReaderColumn> readerColumns,
+            [CanBeNull] DbContext context,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(connection, nameof(connection));
 
