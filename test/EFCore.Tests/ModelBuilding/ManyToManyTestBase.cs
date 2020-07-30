@@ -480,6 +480,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Shared", joinEntityType.Name);
                 Assert.Equal(typeof(ManyToManyJoinWithFields), joinEntityType.ClrType);
             }
+
+            [ConditionalFact]
+            public virtual void Unconfigured_many_to_many_navigations_throw()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<AmbigiousManyToManyImplicitLeft>();
+
+                Assert.Equal(
+                    CoreStrings.NavigationNotAdded(typeof(AmbigiousManyToManyImplicitLeft).DisplayName(fullName: false), "Navigation1",
+                    typeof(List<AmbigiousManyToManyImplicitRight>).DisplayName(fullName: false)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
         }
     }
 }

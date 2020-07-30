@@ -1106,5 +1106,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
             public List<Dictionary<string, object>> Navigation { get; set; }
         }
+
+        protected class AmbigiousManyToManyImplicitLeft
+        {
+            public int Id { get; set; }
+            public List<AmbigiousManyToManyImplicitRight> Navigation1 { get; } = new List<AmbigiousManyToManyImplicitRight>();
+            public List<AmbigiousManyToManyImplicitRight> Navigation2 { get; } = new List<AmbigiousManyToManyImplicitRight>();
+        }
+
+        protected class AmbigiousManyToManyImplicitRight
+        {
+            public int Id { get; set; }
+            public List<AmbigiousManyToManyImplicitLeft> Navigation1 { get; } = new List<AmbigiousManyToManyImplicitLeft>();
+            public List<AmbigiousManyToManyImplicitLeft> Navigation2 { get; } = new List<AmbigiousManyToManyImplicitLeft>();
+        }
     }
 }
