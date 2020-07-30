@@ -620,6 +620,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool CanHaveNavigation([NotNull] string navigationName, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Returns a value indicating whether the given navigation base can be added to this entity type.
+        /// </summary>
+        /// <param name="navigationBaseName"> The name of the navigation base. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        bool CanHaveNavigationBase([NotNull] string navigationBaseName, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Configures a skip navigation and the inverse between this and the target entity type.
         /// </summary>
         /// <param name="targetEntityType"> The entity type that this relationship targets. </param>

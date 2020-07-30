@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
             foreach (var joinEntity in _joinOneToBranches)
             {
-                var one = _ones.First(o => o.Id == joinEntity.OneId);
-                var branch = _roots.OfType<EntityBranch>().First(t => t.Id == joinEntity.BranchId);
+                var one = _ones.First(o => o.Id == joinEntity.EntityOneId);
+                var branch = _roots.OfType<EntityBranch>().First(t => t.Id == joinEntity.EntityBranchId);
                 one.BranchSkip.Add(branch);
                 branch.OneSkip.Add(one);
             }
@@ -629,8 +629,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             => CreateInstance(
                 context?.Set<JoinOneToBranch>(), e =>
                 {
-                    e.OneId = oneId;
-                    e.BranchId = branchId;
+                    e.EntityOneId = oneId;
+                    e.EntityBranchId = branchId;
                 });
 
         private static JoinOneToThreePayloadFull[] CreateJoinOneToThreePayloadFulls(ManyToManyContext context)
