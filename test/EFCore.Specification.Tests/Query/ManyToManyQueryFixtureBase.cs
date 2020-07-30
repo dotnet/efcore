@@ -147,31 +147,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
-                "JoinOneToTwoShared",
-                b =>
-                {
-                    b.IndexerProperty<int>("OneId");
-                    b.IndexerProperty<int>("TwoId");
-                });
-
-            modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
-                "JoinOneToThreePayloadFullShared",
-                b =>
-                {
-                    b.IndexerProperty<int>("OneId");
-                    b.IndexerProperty<int>("ThreeId");
-                    b.IndexerProperty<string>("Payload");
-                });
-
-            modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
-                "JoinTwoSelfShared",
-                b =>
-                {
-                    b.IndexerProperty<int>("LeftId");
-                    b.IndexerProperty<int>("RightId");
-                });
-
             modelBuilder.Entity<EntityOne>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<EntityTwo>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<EntityThree>().Property(e => e.Id).ValueGeneratedNever();
@@ -209,14 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .HasKey(e => new { e.OneId, e.ThreeId });
 
             // Nav:2 Payload:No Join:Shared Extra:None
-            modelBuilder.Entity<EntityOne>()
-                .HasMany(e => e.TwoSkipShared)
-                .WithMany(e => e.OneSkipShared)
-                .UsingEntity<Dictionary<string, object>>(
-                    "JoinOneToTwoShared",
-                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("TwoId"),
-                    l => l.HasOne<EntityOne>().WithMany().HasForeignKey("OneId"))
-                .HasKey("OneId", "TwoId");
+            modelBuilder.Entity<EntityOne>().HasMany(e => e.TwoSkipShared).WithMany(e => e.OneSkipShared);
 
             // Nav:4 Payload:Yes Join:Shared Extra:None
             modelBuilder.Entity<EntityOne>()
@@ -224,9 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithMany(e => e.OneSkipPayloadFullShared)
                 .UsingEntity<Dictionary<string, object>>(
                     "JoinOneToThreePayloadFullShared",
-                    r => r.HasOne<EntityThree>().WithMany(/*"JoinOnePayloadFullShared"*/).HasForeignKey("ThreeId"), // #13729
-                    l => l.HasOne<EntityOne>().WithMany(/*"JoinThreePayloadFullShared"*/).HasForeignKey("OneId")) // #13729
-                .HasKey("OneId", "ThreeId");
+                    r => r.HasOne<EntityThree>().WithMany(e => e.JoinOnePayloadFullShared).HasForeignKey("ThreeId"),
+                    l => l.HasOne<EntityOne>().WithMany(e => e.JoinThreePayloadFullShared).HasForeignKey("OneId"))
+                .IndexerProperty<string>("Payload");
 
             // Nav:6 Payload:Yes Join:Concrete Extra:Self-Ref
             modelBuilder.Entity<EntityOne>()
@@ -272,8 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .UsingEntity<Dictionary<string, object>>(
                     "JoinTwoSelfShared",
                     l => l.HasOne<EntityTwo>().WithMany().HasForeignKey("LeftId"),
-                    r => r.HasOne<EntityTwo>().WithMany().OnDelete(DeleteBehavior.NoAction).HasForeignKey("RightId"))
-                .HasKey("LeftId", "RightId");
+                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("RightId").OnDelete(DeleteBehavior.NoAction));
 
             // TODO: convert to shared type
             // Nav:2 Payload:No Join:Shared Extra:CompositeKey
@@ -294,15 +261,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull))
                 .HasKey(e => new { e.ThreeId, e.CompositeId1, e.CompositeId2, e.CompositeId3 });
 
-            // TODO: convert to shared type
             // Nav:2 Payload:No Join:Shared Extra:Inheritance
-            modelBuilder.Entity<EntityThree>()
-                .HasMany(e => e.RootSkipShared)
-                .WithMany(e => e.ThreeSkipShared)
-                .UsingEntity<JoinThreeToRootShared>(
-                    r => r.HasOne<EntityRoot>().WithMany().HasForeignKey(e => e.RootId),
-                    l => l.HasOne<EntityThree>().WithMany().HasForeignKey(e => e.ThreeId))
-                .HasKey(e => new { e.ThreeId, e.RootId });
+            modelBuilder.Entity<EntityThree>().HasMany(e => e.RootSkipShared).WithMany(e => e.ThreeSkipShared);
 
             // TODO: convert to shared type
             // Nav:2 Payload:No Join:Shared Extra:Inheritance,CompositeKey

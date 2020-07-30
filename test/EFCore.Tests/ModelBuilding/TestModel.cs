@@ -1094,5 +1094,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [NotMapped]
             public string Value { get; set; }
         }
+
+        protected class ReferenceNavigationToSharedType
+        {
+            public int Id { get; set; }
+            public Dictionary<string, object> Navigation { get; set; }
+        }
+
+        protected class CollectionNavigationToSharedType
+        {
+            public int Id { get; set; }
+            public List<Dictionary<string, object>> Navigation { get; set; }
+        }
     }
 }

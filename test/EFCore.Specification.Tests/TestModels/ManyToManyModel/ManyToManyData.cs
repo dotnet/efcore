@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         private readonly Dictionary<string, object>[] _joinOneToThreePayloadFullShareds;
         private readonly Dictionary<string, object>[] _joinTwoSelfShareds;
         private readonly JoinTwoToCompositeKeyShared[] _joinTwoToCompositeKeyShareds;
-        private readonly JoinThreeToRootShared[] _joinThreeToRootShareds;
+        private readonly Dictionary<string, object>[] _joinThreeToRootShareds;
         private readonly JoinCompositeKeyToRootShared[] _joinCompositeKeyToRootShareds;
 
         public ManyToManyData()
@@ -47,11 +47,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             _joinThreeToCompositeKeyFulls = CreateJoinThreeToCompositeKeyFulls(null);
             _joinTwoToThrees = CreateJoinTwoToThrees(null);
 
-            _joinOneToTwoShareds = CreateJoinOneToTwoShareds(null);
+            _joinOneToTwoShareds = CreateEntityOneEntityTwos(null);
             _joinOneToThreePayloadFullShareds = CreateJoinOneToThreePayloadFullShareds(null);
             _joinTwoSelfShareds = CreateJoinTwoSelfShareds(null);
             _joinTwoToCompositeKeyShareds = CreateJoinTwoToCompositeKeyShareds(null);
-            _joinThreeToRootShareds = CreateJoinThreeToRootShareds(null);
+            _joinThreeToRootShareds = CreateEntityRootEntityThrees(null);
             _joinCompositeKeyToRootShareds = CreateJoinCompositeKeyToRootShareds(null);
 
             foreach (var basicTwo in _twos)
@@ -166,8 +166,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             // Shared join entities
             foreach (var joinEntity in _joinOneToTwoShareds)
             {
-                var one = _ones.First(o => o.Id == (int)joinEntity["OneId"]);
-                var two = _twos.First(t => t.Id == (int)joinEntity["TwoId"]);
+                var one = _ones.First(o => o.Id == (int)joinEntity["EntityOneId"]);
+                var two = _twos.First(t => t.Id == (int)joinEntity["EntityTwoId"]);
                 one.TwoSkipShared.Add(two);
                 two.OneSkipShared.Add(one);
             }
@@ -177,9 +177,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 var one = _ones.First(o => o.Id == (int)joinEntity["OneId"]);
                 var three = _threes.First(t => t.Id == (int)joinEntity["ThreeId"]);
                 one.ThreeSkipPayloadFullShared.Add(three);
-                //one.JoinThreePayloadFullShared.Add(joinEntity);
+                one.JoinThreePayloadFullShared.Add(joinEntity);
                 three.OneSkipPayloadFullShared.Add(one);
-                //three.JoinOnePayloadFullShared.Add(joinEntity);
+                three.JoinOnePayloadFullShared.Add(joinEntity);
             }
 
             foreach (var joinEntity in _joinTwoSelfShareds)
@@ -202,8 +202,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
             foreach (var joinEntity in _joinThreeToRootShareds)
             {
-                var three = _threes.First(o => o.Id == joinEntity.ThreeId);
-                var root = _roots.First(t => t.Id == joinEntity.RootId);
+                var three = _threes.First(o => o.Id == (int)joinEntity["EntityThreeId"]);
+                var root = _roots.First(t => t.Id == (int)joinEntity["EntityRootId"]);
                 three.RootSkipShared.Add(root);
                 root.ThreeSkipShared.Add(three);
             }
@@ -275,11 +275,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             context.Set<JoinThreeToCompositeKeyFull>().AddRange(CreateJoinThreeToCompositeKeyFulls(context));
             context.Set<JoinTwoToThree>().AddRange(CreateJoinTwoToThrees(context));
 
-            context.Set<Dictionary<string, object>>("JoinOneToTwoShared").AddRange(CreateJoinOneToTwoShareds(context));
+            context.Set<Dictionary<string, object>>("EntityOneEntityTwo").AddRange(CreateEntityOneEntityTwos(context));
             context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").AddRange(CreateJoinOneToThreePayloadFullShareds(context));
             context.Set<Dictionary<string, object>>("JoinTwoSelfShared").AddRange(CreateJoinTwoSelfShareds(context));
             context.Set<JoinTwoToCompositeKeyShared>().AddRange(CreateJoinTwoToCompositeKeyShareds(context));
-            context.Set<JoinThreeToRootShared>().AddRange(CreateJoinThreeToRootShareds(context));
+            context.Set<Dictionary<string, object>>("EntityRootEntityThree").AddRange(CreateEntityRootEntityThrees(context));
             context.Set<JoinCompositeKeyToRootShared>().AddRange(CreateJoinCompositeKeyToRootShareds(context));
 
             context.SaveChanges();
@@ -1016,63 +1016,63 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                     e.ThreeId = threeId;
                 });
 
-        private static Dictionary<string, object>[] CreateJoinOneToTwoShareds(ManyToManyContext context)
+        private static Dictionary<string, object>[] CreateEntityOneEntityTwos(ManyToManyContext context)
             => new[]
             {
-                CreateJoinOneToTwoShared(context, 1,  3),
-                CreateJoinOneToTwoShared(context, 1,  16),
-                CreateJoinOneToTwoShared(context, 2,  3),
-                CreateJoinOneToTwoShared(context, 2,  10),
-                CreateJoinOneToTwoShared(context, 2,  18),
-                CreateJoinOneToTwoShared(context, 3,  10),
-                CreateJoinOneToTwoShared(context, 3,  11),
-                CreateJoinOneToTwoShared(context, 3,  16),
-                CreateJoinOneToTwoShared(context, 5,  2),
-                CreateJoinOneToTwoShared(context, 5,  5),
-                CreateJoinOneToTwoShared(context, 5,  7),
-                CreateJoinOneToTwoShared(context, 5,  9),
-                CreateJoinOneToTwoShared(context, 5,  14),
-                CreateJoinOneToTwoShared(context, 6,  12),
-                CreateJoinOneToTwoShared(context, 7,  3),
-                CreateJoinOneToTwoShared(context, 7,  16),
-                CreateJoinOneToTwoShared(context, 7,  17),
-                CreateJoinOneToTwoShared(context, 8,  19),
-                CreateJoinOneToTwoShared(context, 9,  9),
-                CreateJoinOneToTwoShared(context, 9,  11),
-                CreateJoinOneToTwoShared(context, 10, 6),
-                CreateJoinOneToTwoShared(context, 10, 17),
-                CreateJoinOneToTwoShared(context, 10, 20),
-                CreateJoinOneToTwoShared(context, 11, 17),
-                CreateJoinOneToTwoShared(context, 11, 18),
-                CreateJoinOneToTwoShared(context, 12, 6),
-                CreateJoinOneToTwoShared(context, 12, 19),
-                CreateJoinOneToTwoShared(context, 13, 7),
-                CreateJoinOneToTwoShared(context, 13, 8),
-                CreateJoinOneToTwoShared(context, 13, 9),
-                CreateJoinOneToTwoShared(context, 13, 13),
-                CreateJoinOneToTwoShared(context, 14, 4),
-                CreateJoinOneToTwoShared(context, 14, 9),
-                CreateJoinOneToTwoShared(context, 14, 19),
-                CreateJoinOneToTwoShared(context, 15, 10),
-                CreateJoinOneToTwoShared(context, 16, 1),
-                CreateJoinOneToTwoShared(context, 16, 7),
-                CreateJoinOneToTwoShared(context, 16, 19),
-                CreateJoinOneToTwoShared(context, 17, 8),
-                CreateJoinOneToTwoShared(context, 17, 15),
-                CreateJoinOneToTwoShared(context, 18, 4),
-                CreateJoinOneToTwoShared(context, 18, 13),
-                CreateJoinOneToTwoShared(context, 18, 14),
-                CreateJoinOneToTwoShared(context, 19, 4 ),
-                CreateJoinOneToTwoShared(context, 19, 14 )
+                CreateEntityOneEntityTwo(context, 1,  3),
+                CreateEntityOneEntityTwo(context, 1,  16),
+                CreateEntityOneEntityTwo(context, 2,  3),
+                CreateEntityOneEntityTwo(context, 2,  10),
+                CreateEntityOneEntityTwo(context, 2,  18),
+                CreateEntityOneEntityTwo(context, 3,  10),
+                CreateEntityOneEntityTwo(context, 3,  11),
+                CreateEntityOneEntityTwo(context, 3,  16),
+                CreateEntityOneEntityTwo(context, 5,  2),
+                CreateEntityOneEntityTwo(context, 5,  5),
+                CreateEntityOneEntityTwo(context, 5,  7),
+                CreateEntityOneEntityTwo(context, 5,  9),
+                CreateEntityOneEntityTwo(context, 5,  14),
+                CreateEntityOneEntityTwo(context, 6,  12),
+                CreateEntityOneEntityTwo(context, 7,  3),
+                CreateEntityOneEntityTwo(context, 7,  16),
+                CreateEntityOneEntityTwo(context, 7,  17),
+                CreateEntityOneEntityTwo(context, 8,  19),
+                CreateEntityOneEntityTwo(context, 9,  9),
+                CreateEntityOneEntityTwo(context, 9,  11),
+                CreateEntityOneEntityTwo(context, 10, 6),
+                CreateEntityOneEntityTwo(context, 10, 17),
+                CreateEntityOneEntityTwo(context, 10, 20),
+                CreateEntityOneEntityTwo(context, 11, 17),
+                CreateEntityOneEntityTwo(context, 11, 18),
+                CreateEntityOneEntityTwo(context, 12, 6),
+                CreateEntityOneEntityTwo(context, 12, 19),
+                CreateEntityOneEntityTwo(context, 13, 7),
+                CreateEntityOneEntityTwo(context, 13, 8),
+                CreateEntityOneEntityTwo(context, 13, 9),
+                CreateEntityOneEntityTwo(context, 13, 13),
+                CreateEntityOneEntityTwo(context, 14, 4),
+                CreateEntityOneEntityTwo(context, 14, 9),
+                CreateEntityOneEntityTwo(context, 14, 19),
+                CreateEntityOneEntityTwo(context, 15, 10),
+                CreateEntityOneEntityTwo(context, 16, 1),
+                CreateEntityOneEntityTwo(context, 16, 7),
+                CreateEntityOneEntityTwo(context, 16, 19),
+                CreateEntityOneEntityTwo(context, 17, 8),
+                CreateEntityOneEntityTwo(context, 17, 15),
+                CreateEntityOneEntityTwo(context, 18, 4),
+                CreateEntityOneEntityTwo(context, 18, 13),
+                CreateEntityOneEntityTwo(context, 18, 14),
+                CreateEntityOneEntityTwo(context, 19, 4 ),
+                CreateEntityOneEntityTwo(context, 19, 14 )
             };
 
-        private static Dictionary<string, object> CreateJoinOneToTwoShared(
+        private static Dictionary<string, object> CreateEntityOneEntityTwo(
             ManyToManyContext context, int oneId, int twoId)
             => CreateInstance(
-                context?.Set<Dictionary<string, object>>("JoinOneToTwoShared"), e =>
+                context?.Set<Dictionary<string, object>>("EntityOneEntityTwo"), e =>
                 {
-                    e["OneId"] = oneId;
-                    e["TwoId"] = twoId;
+                    e["EntityOneId"] = oneId;
+                    e["EntityTwoId"] = twoId;
                 });
 
         private static Dictionary<string, object>[] CreateJoinOneToThreePayloadFullShareds(ManyToManyContext context)
@@ -1230,47 +1230,47 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                     e.CompositeId3 = compositeId3;
                 });
 
-        private static JoinThreeToRootShared[] CreateJoinThreeToRootShareds(ManyToManyContext context)
+        private static Dictionary<string, object>[] CreateEntityRootEntityThrees(ManyToManyContext context)
             => new[]
             {
-                CreateJoinThreeToRootShared(context, 1,  7),
-                CreateJoinThreeToRootShared(context, 1,  8),
-                CreateJoinThreeToRootShared(context, 1,  15),
-                CreateJoinThreeToRootShared(context, 2,  4),
-                CreateJoinThreeToRootShared(context, 2,  16),
-                CreateJoinThreeToRootShared(context, 3,  12),
-                CreateJoinThreeToRootShared(context, 3,  14),
-                CreateJoinThreeToRootShared(context, 3,  24),
-                CreateJoinThreeToRootShared(context, 5,  14),
-                CreateJoinThreeToRootShared(context, 5,  15),
-                CreateJoinThreeToRootShared(context, 5,  16),
-                CreateJoinThreeToRootShared(context, 6,  21),
-                CreateJoinThreeToRootShared(context, 7,  1),
-                CreateJoinThreeToRootShared(context, 7,  6),
-                CreateJoinThreeToRootShared(context, 7,  13),
-                CreateJoinThreeToRootShared(context, 7,  24),
-                CreateJoinThreeToRootShared(context, 8,  10),
-                CreateJoinThreeToRootShared(context, 10, 3),
-                CreateJoinThreeToRootShared(context, 10, 8),
-                CreateJoinThreeToRootShared(context, 13, 5),
-                CreateJoinThreeToRootShared(context, 14, 1),
-                CreateJoinThreeToRootShared(context, 14, 14),
-                CreateJoinThreeToRootShared(context, 16, 5),
-                CreateJoinThreeToRootShared(context, 16, 7),
-                CreateJoinThreeToRootShared(context, 17, 14),
-                CreateJoinThreeToRootShared(context, 18, 6),
-                CreateJoinThreeToRootShared(context, 18, 23),
-                CreateJoinThreeToRootShared(context, 19, 11),
-                CreateJoinThreeToRootShared(context, 20, 14)
+                CreateEntityRootEntityThree(context, 1,  7),
+                CreateEntityRootEntityThree(context, 1,  8),
+                CreateEntityRootEntityThree(context, 1,  15),
+                CreateEntityRootEntityThree(context, 2,  4),
+                CreateEntityRootEntityThree(context, 2,  16),
+                CreateEntityRootEntityThree(context, 3,  12),
+                CreateEntityRootEntityThree(context, 3,  14),
+                CreateEntityRootEntityThree(context, 3,  24),
+                CreateEntityRootEntityThree(context, 5,  14),
+                CreateEntityRootEntityThree(context, 5,  15),
+                CreateEntityRootEntityThree(context, 5,  16),
+                CreateEntityRootEntityThree(context, 6,  21),
+                CreateEntityRootEntityThree(context, 7,  1),
+                CreateEntityRootEntityThree(context, 7,  6),
+                CreateEntityRootEntityThree(context, 7,  13),
+                CreateEntityRootEntityThree(context, 7,  24),
+                CreateEntityRootEntityThree(context, 8,  10),
+                CreateEntityRootEntityThree(context, 10, 3),
+                CreateEntityRootEntityThree(context, 10, 8),
+                CreateEntityRootEntityThree(context, 13, 5),
+                CreateEntityRootEntityThree(context, 14, 1),
+                CreateEntityRootEntityThree(context, 14, 14),
+                CreateEntityRootEntityThree(context, 16, 5),
+                CreateEntityRootEntityThree(context, 16, 7),
+                CreateEntityRootEntityThree(context, 17, 14),
+                CreateEntityRootEntityThree(context, 18, 6),
+                CreateEntityRootEntityThree(context, 18, 23),
+                CreateEntityRootEntityThree(context, 19, 11),
+                CreateEntityRootEntityThree(context, 20, 14)
             };
 
-        private static JoinThreeToRootShared CreateJoinThreeToRootShared(
+        private static Dictionary<string, object> CreateEntityRootEntityThree(
             ManyToManyContext context, int threeId, int rootId)
             => CreateInstance(
-                context?.Set<JoinThreeToRootShared>(), e =>
+                context?.Set<Dictionary<string, object>>("EntityRootEntityThree"), e =>
                 {
-                    e.ThreeId = threeId;
-                    e.RootId = rootId;
+                    e["EntityThreeId"] = threeId;
+                    e["EntityRootId"] = rootId;
                 });
 
         private static JoinCompositeKeyToRootShared[] CreateJoinCompositeKeyToRootShareds(ManyToManyContext context)
