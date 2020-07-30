@@ -336,60 +336,64 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
+        /// <inheritdoc />
         IConventionSkipNavigationBuilder IConventionSkipNavigation.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
             [DebuggerStepThrough]
             get => Builder;
         }
 
+        /// <inheritdoc />
         IEntityType INavigationBase.DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => DeclaringEntityType;
         }
 
+        /// <inheritdoc />
         IEntityType INavigationBase.TargetEntityType
         {
             [DebuggerStepThrough]
             get => TargetEntityType;
         }
 
+        /// <inheritdoc />
         IForeignKey ISkipNavigation.ForeignKey
         {
             [DebuggerStepThrough]
             get => ForeignKey;
         }
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         void IMutableSkipNavigation.SetForeignKey([CanBeNull] IMutableForeignKey foreignKey)
             => SetForeignKey((ForeignKey)foreignKey, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKey IConventionSkipNavigation.SetForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation)
             => SetForeignKey((ForeignKey)foreignKey, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
         ISkipNavigation ISkipNavigation.Inverse
         {
             [DebuggerStepThrough]
             get => Inverse;
         }
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IMutableSkipNavigation IMutableSkipNavigation.SetInverse([CanBeNull] IMutableSkipNavigation inverse)
             => SetInverse((SkipNavigation)inverse, ConfigurationSource.Explicit);
 
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionSkipNavigation IConventionSkipNavigation.SetInverse([CanBeNull] IConventionSkipNavigation inverse, bool fromDataAnnotation)
             => SetInverse((SkipNavigation)inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

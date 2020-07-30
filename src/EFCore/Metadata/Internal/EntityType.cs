@@ -1663,6 +1663,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     shouldThrow: true);
             }
 
+            Navigation.IsCompatible(
+                name,
+                memberInfo,
+                this,
+                targetEntityType,
+                collection,
+                shouldThrow: true);
+
             var skipNavigation = new SkipNavigation(
                 name,
                 memberInfo as PropertyInfo,
