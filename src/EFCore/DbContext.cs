@@ -486,6 +486,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
+            SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
+
             var interceptionResult = DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
 
             TryDetectChanges();
@@ -496,17 +498,25 @@ namespace Microsoft.EntityFrameworkCore
                     ? interceptionResult.Result
                     : DbContextDependencies.StateManager.SaveChanges(acceptAllChangesOnSuccess);
 
-                return DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
+                var result = DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
+
+                SavedChanges?.Invoke(this, new SavedChangesEventArgs(acceptAllChangesOnSuccess, result));
+
+                return result;
             }
             catch (DbUpdateConcurrencyException exception)
             {
                 DbContextDependencies.UpdateLogger.OptimisticConcurrencyException(this, exception);
+
+                SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
 
                 throw;
             }
             catch (Exception exception)
             {
                 DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
+
+                SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
 
                 throw;
             }
@@ -595,6 +605,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
+            SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
+
             var interceptionResult = await DbContextDependencies.UpdateLogger
                 .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(false);
 
@@ -608,13 +620,20 @@ namespace Microsoft.EntityFrameworkCore
                         .SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken)
                         .ConfigureAwait(false);
 
-                return await DbContextDependencies.UpdateLogger
+                var result = await DbContextDependencies.UpdateLogger
                     .SaveChangesCompletedAsync(this, entitiesSaved, cancellationToken)
                     .ConfigureAwait(false);
+
+                SavedChanges?.Invoke(this, new SavedChangesEventArgs(acceptAllChangesOnSuccess, result));
+
+                return result;
             }
             catch (DbUpdateConcurrencyException exception)
             {
-                DbContextDependencies.UpdateLogger.OptimisticConcurrencyException(this, exception);
+                await DbContextDependencies.UpdateLogger.OptimisticConcurrencyExceptionAsync(this, exception, cancellationToken)
+                    .ConfigureAwait(false);
+
+                SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
 
                 throw;
             }
@@ -622,9 +641,26 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await DbContextDependencies.UpdateLogger.SaveChangesFailedAsync(this, exception, cancellationToken).ConfigureAwait(false);
 
+                SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+
                 throw;
             }
         }
+
+        /// <summary>
+        ///     An event fired at the beginning of a call to <see cref="M:SaveChanges"/> or <see cref="M:SaveChangesAsync"/>
+        /// </summary>
+        public event EventHandler<SavingChangesEventArgs> SavingChanges;
+
+        /// <summary>
+        ///     An event fired at the end of a call to <see cref="M:SaveChanges"/> or <see cref="M:SaveChangesAsync"/>
+        /// </summary>
+        public event EventHandler<SavedChangesEventArgs> SavedChanges;
+
+        /// <summary>
+        ///     An event fired if a call to <see cref="M:SaveChanges"/> or <see cref="M:SaveChangesAsync"/> fails with an exception.
+        /// </summary>
+        public event EventHandler<SaveChangesFailedEventArgs> SaveChangesFailed;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -704,6 +740,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 service.ResetState();
             }
+
+            SavingChanges = null;
+            SavedChanges = null;
+            SaveChangesFailed = null;
 
             _disposed = true;
         }

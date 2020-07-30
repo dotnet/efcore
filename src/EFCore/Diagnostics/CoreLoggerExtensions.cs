@@ -64,10 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
-                if (interceptor != null)
-                {
-                    interceptor.SaveChangesFailed(eventData);
-                }
+                interceptor?.SaveChangesFailed(eventData);
             }
         }
 
@@ -140,17 +137,62 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(diagnostics, exception);
             }
 
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new DbContextErrorEventData(
-                    definition,
-                    OptimisticConcurrencyException,
-                    context,
-                    exception);
+                var eventData = CreateDbContextErrorEventData(context, exception, definition);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                interceptor?.SaveChangesFailed(eventData);
             }
         }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="context"> The context in use. </param>
+        /// <param name="exception"> The exception that caused this event. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="ValueTask"/> for the async result. </returns>
+        public static ValueTask OptimisticConcurrencyExceptionAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] Exception exception,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, exception);
+            }
+
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = CreateDbContextErrorEventData(context, exception, definition);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.SaveChangesFailedAsync(eventData, cancellationToken);
+                }
+            }
+
+            return new ValueTask();
+        }
+
+        private static DbContextErrorEventData CreateDbContextErrorEventData(
+            DbContext context, Exception exception, EventDefinition<Exception> definition)
+            => new DbContextErrorEventData(
+                definition,
+                OptimisticConcurrencyException,
+                context,
+                exception);
 
         private static string OptimisticConcurrencyException(EventDefinitionBase definition, EventData payload)
         {
