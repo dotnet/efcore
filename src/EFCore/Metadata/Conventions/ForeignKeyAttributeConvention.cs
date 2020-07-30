@@ -342,7 +342,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (attribute.Name != navigationName
                     || (memberInfo is PropertyInfo propertyInfo
-                        && FindCandidateNavigationPropertyType(propertyInfo) != null))
+                        && (FindCandidateNavigationPropertyType(propertyInfo) != null
+                            || IsNavigationToSharedType(entityType.Model, propertyInfo))))
                 {
                     continue;
                 }
@@ -373,6 +374,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
             => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
+
+        private bool IsNavigationToSharedType(IConventionModel model, PropertyInfo propertyInfo)
+            => model.IsShared(propertyInfo.PropertyType)
+            || (propertyInfo.PropertyType.TryGetSequenceType() is Type elementType
+                && model.IsShared(elementType));
 
         private static IReadOnlyList<string> FindCandidateDependentPropertiesThroughNavigation(
             IConventionForeignKeyBuilder relationshipBuilder,

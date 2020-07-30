@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
@@ -17,35 +14,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public virtual DateTime CompositeId3 { get; set; }
     }
 
-    public class JoinThreeToRootShared
-    {
-        public virtual int ThreeId { get; set; }
-        public virtual int RootId { get; set; }
-    }
-
     public class JoinCompositeKeyToRootShared
     {
         public virtual int CompositeId1 { get; set; }
         public virtual string CompositeId2 { get; set; }
         public virtual DateTime CompositeId3 { get; set; }
         public virtual int RootId { get; set; }
-    }
-
-    public class ImplicitManyToManyA
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public virtual int Id { get; set; }
-        public virtual string Name { get; set; }
-
-        public virtual ICollection<ImplicitManyToManyB> Bs { get; } = new ObservableCollection<ImplicitManyToManyB>();
-    }
-
-    public class ImplicitManyToManyB
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public virtual int Id { get; set; }
-        public virtual string Name { get; set; }
-
-        public virtual ICollection<ImplicitManyToManyA> As { get; } = new ObservableCollection<ImplicitManyToManyA>();
     }
 }

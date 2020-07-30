@@ -2748,6 +2748,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("SharedTypeDerivedType", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     The navigation '{navigation}' on '{entityType}' must be configured using Fluent API with an explicit name for the target shared type entity type or excluded by calling 'EntityTypeBuilder.Ignore'.
+        /// </summary>
+        public static string NonconfiguredNavigationToSharedType([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NonconfiguredNavigationToSharedType", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

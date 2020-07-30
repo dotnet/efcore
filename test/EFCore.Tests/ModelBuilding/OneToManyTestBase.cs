@@ -2575,6 +2575,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .UsePropertyAccessMode(PropertyAccessMode.Property)
                         ).Message);
             }
+
+            [ConditionalFact]
+            public virtual void Navigation_to_shared_type_is_no_discovered_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CollectionNavigationToSharedType>();
+
+                Assert.Equal(
+                    CoreStrings.NonconfiguredNavigationToSharedType("Navigation", nameof(CollectionNavigationToSharedType)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
         }
     }
 }
