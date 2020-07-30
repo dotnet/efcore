@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
         /// </returns>
-        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToQuery")]
+        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery")]
         IConventionEntityTypeBuilder HasDefiningQuery([CanBeNull] LambdaExpression query, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="query"> The query that will provide the underlying data for the keyless entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given defining query can be set. </returns>
-        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.CanSetDefiningQuery")]
+        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.CanSetInMemoryQuery")]
         bool CanSetDefiningQuery([CanBeNull] LambdaExpression query, bool fromDataAnnotation = false);
 
         /// <summary>

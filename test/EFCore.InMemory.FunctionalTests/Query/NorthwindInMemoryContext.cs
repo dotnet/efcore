@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.OnModelCreating(modelBuilder);
 
-            InMemoryEntityTypeBuilderExtensions.ToQuery(
-                modelBuilder.Entity<CustomerQuery>(),
+            modelBuilder.Entity<CustomerQuery>().ToInMemoryQuery(
                 () => Customers.Select(
                     c => new CustomerQuery
                     {
@@ -29,12 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ContactTitle = c.ContactTitle
                     }));
 
-            InMemoryEntityTypeBuilderExtensions.ToQuery(
-                modelBuilder.Entity<OrderQuery>(),
+            modelBuilder.Entity<OrderQuery>().ToInMemoryQuery(
                 () => Orders.Select(o => new OrderQuery { CustomerID = o.CustomerID }));
 
-            InMemoryEntityTypeBuilderExtensions.ToQuery(
-                modelBuilder.Entity<ProductQuery>(),
+            modelBuilder.Entity<ProductQuery>().ToInMemoryQuery(
                 () => Products.Where(p => !p.Discontinued)
                         .Select(
                             p => new ProductQuery
@@ -44,8 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 CategoryName = "Food"
                             }));
 
-            InMemoryEntityTypeBuilderExtensions.ToQuery(
-                modelBuilder.Entity<CustomerQueryWithQueryFilter>(),
+            modelBuilder.Entity<CustomerQueryWithQueryFilter>().ToInMemoryQuery(
                 () => Customers.Select(
                     c => new CustomerQueryWithQueryFilter
                     {

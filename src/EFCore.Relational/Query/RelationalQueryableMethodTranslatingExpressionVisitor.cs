@@ -135,9 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return CreateShapedQueryExpression(entityType, queryExpression);
 
                 case QueryRootExpression queryRootExpression
-                when queryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is ISqlQuery querySql:
+                when queryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is ISqlQuery sqlQuery:
                     return Visit(new FromSqlQueryRootExpression(
-                        queryRootExpression.EntityType, querySql.Sql, Expression.Constant(Array.Empty<object>(), typeof(object[]))));
+                        queryRootExpression.EntityType, sqlQuery.Sql, Expression.Constant(Array.Empty<object>(), typeof(object[]))));
 
                 default:
                     return base.VisitExtension(extensionExpression);

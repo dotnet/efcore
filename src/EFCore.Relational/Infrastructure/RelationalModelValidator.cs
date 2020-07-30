@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                var sqlQuery = entityType.GetQuerySql();
+                var sqlQuery = entityType.GetSqlQuery();
                 if (sqlQuery == null)
                 {
                     continue;
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 if (entityType.BaseType != null
                     && (entityType.GetDiscriminatorProperty() == null
-                        || sqlQuery != entityType.BaseType.GetQuerySql()))
+                        || sqlQuery != entityType.BaseType.GetSqlQuery()))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.InvalidMappedSqlQueryDerivedType(

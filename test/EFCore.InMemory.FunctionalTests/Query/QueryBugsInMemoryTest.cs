@@ -709,8 +709,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                InMemoryEntityTypeBuilderExtensions.ToQuery(
-                    modelBuilder.Entity<CustomerView19708>().HasNoKey(), Build_Customers_Sql_View_InMemory());
+                modelBuilder.Entity<CustomerView19708>().HasNoKey().ToInMemoryQuery(Build_Customers_Sql_View_InMemory());
             }
 
             private Expression<Func<IQueryable<CustomerView19708>>> Build_Customers_Sql_View_InMemory()

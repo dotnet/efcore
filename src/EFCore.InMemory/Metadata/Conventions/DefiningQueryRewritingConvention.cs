@@ -32,11 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                var definingQuery = InMemoryEntityTypeExtensions.GetDefiningQuery(entityType);
+                var definingQuery = entityType.GetInMemoryQuery();
                 if (definingQuery != null)
                 {
-                    InMemoryEntityTypeExtensions.SetDefiningQuery(
-                        entityType, (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
+                    entityType.SetInMemoryQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
                 }
             }
         }

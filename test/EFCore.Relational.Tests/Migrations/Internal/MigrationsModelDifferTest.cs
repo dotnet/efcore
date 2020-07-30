@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToQuerySql("SELECT * FROM Vista"),
+                modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToSqlQuery("SELECT * FROM Vista"),
                 result => Assert.Empty(result));
         }
 
