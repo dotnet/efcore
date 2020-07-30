@@ -138,6 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IConventionSetPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IResettableService), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
+                { typeof(IInterceptorAggregator), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) }
             };
 
         /// <summary>
@@ -237,6 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ISingletonOptionsInitializer, SingletonOptionsInitializer>();
             TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
             TryAdd<IInterceptors, Interceptors>();
+            TryAdd<IInterceptorAggregator, SaveChangesInterceptorAggregator>();
             TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ICoreSingletonOptions, CoreSingletonOptions>();
             TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());

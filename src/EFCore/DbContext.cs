@@ -486,17 +486,17 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
+            var interceptionResult = DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
 
             TryDetectChanges();
 
             try
             {
-                var entitiesSaved = DbContextDependencies.StateManager.SaveChanges(acceptAllChangesOnSuccess);
+                var entitiesSaved = interceptionResult.HasResult
+                    ? interceptionResult.Result
+                    : DbContextDependencies.StateManager.SaveChanges(acceptAllChangesOnSuccess);
 
-                DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
-
-                return entitiesSaved;
+                return DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
             }
             catch (DbUpdateConcurrencyException exception)
             {
@@ -595,18 +595,22 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
+            var interceptionResult = await DbContextDependencies.UpdateLogger
+                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(false);
 
             TryDetectChanges();
 
             try
             {
-                var entitiesSaved = await DbContextDependencies.StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken)
+                var entitiesSaved = interceptionResult.HasResult
+                    ? interceptionResult.Result
+                    : await DbContextDependencies.StateManager
+                        .SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken)
+                        .ConfigureAwait(false);
+
+                return await DbContextDependencies.UpdateLogger
+                    .SaveChangesCompletedAsync(this, entitiesSaved, cancellationToken)
                     .ConfigureAwait(false);
-
-                DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
-
-                return entitiesSaved;
             }
             catch (DbUpdateConcurrencyException exception)
             {
@@ -616,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (Exception exception)
             {
-                DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
+                await DbContextDependencies.UpdateLogger.SaveChangesFailedAsync(this, exception, cancellationToken).ConfigureAwait(false);
 
                 throw;
             }
