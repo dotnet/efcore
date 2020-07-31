@@ -15,7 +15,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
-    public class InternalRelationshipBuilderTest
+    public class InternalForeignKeyBuilderTest
     {
         [ConditionalFact]
         public void Facets_are_configured_with_the_specified_source()
@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(fk.GetDependentToPrincipalConfigurationSource());
             Assert.Null(fk.GetPrincipalToDependentConfigurationSource());
             Assert.Null(fk.GetIsRequiredConfigurationSource());
+            Assert.Null(fk.GetIsRequiredDependentConfigurationSource());
             Assert.Null(fk.GetIsOwnershipConfigurationSource());
             Assert.Null(fk.GetIsUniqueConfigurationSource());
             Assert.Null(fk.GetDeleteBehaviorConfigurationSource());
@@ -51,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .IsRequired(false, ConfigurationSource.Explicit)
+                .IsRequiredDependent(false, ConfigurationSource.Explicit)
                 .IsOwnership(false, ConfigurationSource.Explicit)
                 .OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Explicit)
                 .HasForeignKey(
@@ -69,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     new[] { shadowId.Name, Customer.UniqueProperty.Name }, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsUnique(true, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsRequired(true, ConfigurationSource.DataAnnotation));
+            Assert.Null(relationshipBuilder.IsRequiredDependent(true, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsOwnership(true, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.OnDelete(DeleteBehavior.ClientSetNull, ConfigurationSource.DataAnnotation));
             Assert.Null(
@@ -105,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreignKey.HasPrincipalToDependent(Customer.OrdersProperty, ConfigurationSource.Explicit);
             foreignKey.IsUnique = false;
             foreignKey.IsRequired = false;
+            foreignKey.IsRequiredDependent = false;
             foreignKey.IsOwnership = false;
             foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
 
@@ -116,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetPrincipalToDependentConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsUniqueConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsRequiredConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsRequiredDependentConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetIsOwnershipConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetDeleteBehaviorConfigurationSource());
         }
@@ -534,6 +539,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 new[] { Order.CustomerIdProperty.Name },
                 relationshipBuilder.Metadata.Properties.Select(p => p.Name));
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_RequiredDependent()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.HasRelationship(customerEntityBuilder.Metadata, ConfigurationSource.Convention);
+            Assert.False(relationshipBuilder.Metadata.IsRequiredDependent);
+
+            relationshipBuilder = relationshipBuilder.IsUnique(true, ConfigurationSource.Convention);
+            relationshipBuilder = relationshipBuilder.IsRequiredDependent(true, ConfigurationSource.Convention);
+            Assert.True(relationshipBuilder.Metadata.IsRequiredDependent);
+
+            relationshipBuilder = relationshipBuilder.IsRequiredDependent(false, ConfigurationSource.DataAnnotation);
+            Assert.False(relationshipBuilder.Metadata.IsRequiredDependent);
+
+            Assert.Null(relationshipBuilder.IsRequiredDependent(true, ConfigurationSource.Convention));
+            Assert.False(relationshipBuilder.Metadata.IsRequiredDependent);
         }
 
         [ConditionalFact]

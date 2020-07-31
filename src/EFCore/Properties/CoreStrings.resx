@@ -761,7 +761,7 @@
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
   </data>
   <data name="AmbiguousOneToOneRelationship" xml:space="preserve">
-    <value>The child/dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
+    <value>The dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
   </data>
   <data name="AmbiguousForeignKeyPropertyCandidates" xml:space="preserve">
     <value>Both relationships between '{firstDependentToPrincipalNavigationSpecification}' and '{firstPrincipalToDependentNavigationSpecification}' and between '{secondDependentToPrincipalNavigationSpecification}' and '{secondPrincipalToDependentNavigationSpecification}' could use {foreignKeyProperties} as the foreign key. To resolve this configure the foreign key properties explicitly on at least one of the relationships.</value>
@@ -1025,11 +1025,11 @@
   </data>
   <data name="LogRequiredAttributeOnBothNavigations" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.</value>
-    <comment>Debug CoreEventId.RequiredAttributeOnBothNavigations string string string string</comment>
+    <comment>Obsolete Debug CoreEventId.RequiredAttributeOnBothNavigations string string string string</comment>
   </data>
   <data name="LogNonNullableReferenceOnBothNavigations" xml:space="preserve">
     <value>'{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal '{dependentEntityType}.{dependentNavigation}' can be configured as required.</value>
-    <comment>Debug CoreEventId.NonNullableReferenceOnBothNavigations string string string string</comment>
+    <comment>Obsolete Debug CoreEventId.NonNullableReferenceOnBothNavigations string string string string</comment>
   </data>
   <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
     <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on navigations on both sides.</value>
@@ -1222,11 +1222,11 @@
   </data>
   <data name="LogRequiredAttributeOnDependent" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' is invalid. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.</value>
-    <comment>Error CoreEventId.RequiredAttributeOnDependent string string</comment>
+    <comment>Obsolete Error CoreEventId.RequiredAttributeOnDependent string string</comment>
   </data>
   <data name="LogNonNullableReferenceOnDependent" xml:space="preserve">
     <value>'{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal can be configured as required.</value>
-    <comment>Debug CoreEventId.NonNullableReferenceOnDependent string string</comment>
+    <comment>Obsolete Debug CoreEventId.NonNullableReferenceOnDependent string string</comment>
   </data>
   <data name="LogRedundantAddServicesCall" xml:space="preserve">
     <value>'AddEntityFramework*' was called on the service provider, but 'UseInternalServiceProvider' wasn't called in the DbContext options configuration. Remove the 'AddEntityFramework*' call as in most cases it's not needed and might cause conflicts with other products and services registered in the same service provider.</value>
@@ -1444,7 +1444,29 @@
   <data name="SharedTypeDerivedType" xml:space="preserve">
     <value>The shared type entity type '{entityType}' cannot have a base type.</value>
   </data>
+  <data name="AmbiguousEndRequiredDependentNavigation" xml:space="preserve">
+    <value>'{entityType}.{navigation}' cannot be configured as required since the dependent side of the underlying foreign key {foreignKey} cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
+  </data>
+  <data name="NonUniqueRequiredDependentForeignKey" xml:space="preserve">
+    <value>The foreign key {foreignKey} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.</value>
+  </data>
+  <data name="NonUniqueRequiredDependentNavigation" xml:space="preserve">
+    <value>'{principalEntityType}.{principalNavigation}' cannot be configured as required since it contains a collection.</value>
+  </data>
+  <data name="RequiredSkipNavigation" xml:space="preserve">
+    <value>'{entityType}.{navigation}' cannot be configured as required since it represents a skip navigation.</value>
+  </data>
   <data name="NonconfiguredNavigationToSharedType" xml:space="preserve">
     <value>The navigation '{navigation}' on '{entityType}' must be configured using Fluent API with an explicit name for the target shared type entity type or excluded by calling 'EntityTypeBuilder.Ignore'.</value>
+  </data>
+  <data name="AmbiguousEndRequired" xml:space="preserve">
+    <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
+  </data>
+  <data name="AmbiguousEndRequiredDependent" xml:space="preserve">
+    <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be configured as having a required dependent since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
+  </data>
+  <data name="LogRequiredAttributeOnSkipNavigation" xml:space="preserve">
+    <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a skip navigation. Instead configure the underlying foreign keys.</value>
+    <comment>Debug CoreEventId.RequiredAttributeOnSkipNavigation string string</comment>
   </data>
 </root>

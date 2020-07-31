@@ -377,6 +377,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void IsRequired_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(n => n.Dependents)
+                    .WithMany(n => n.ManyToManyPrincipals);
+
+                Assert.Equal(
+                    CoreStrings.RequiredSkipNavigation(nameof(ManyToManyNavPrincipal), nameof(ManyToManyNavPrincipal.Dependents)),
+                        Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ManyToManyNavPrincipal>()
+                        .Navigation("Dependents")
+                        .IsRequired()).Message);
+            }
+
+            [ConditionalFact]
             public virtual void Can_use_shared_Type_as_join_entity()
             {
                 var modelBuilder = CreateModelBuilder();

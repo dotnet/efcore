@@ -2210,19 +2210,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void RequiredAttribute_throws_when_specified_on_nav_to_dependent_per_convention()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-            CoreEventId.RequiredAttributeOnDependent.ToString(),
-            CoreResources.LogRequiredAttributeOnDependent(new TestLogger<TestLoggingDefinitions>())
-                            .GenerateMessage(nameof(AdditionalBookDetails), nameof(AdditionalBookDetails.BookDetails)),
-                "CoreEventId.RequiredAttributeOnDependent"),
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<AdditionalBookDetails>()).Message);
-        }
-
-        [ConditionalFact]
         public virtual void RequiredAttribute_for_property_throws_while_inserting_null_value()
         {
             ExecuteWithStrategyInTransaction(

@@ -110,6 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             = new List<IForeignKeyRequirednessChangedConvention>();
 
         /// <summary>
+        ///     Conventions to run when the requiredness of a foreign key is changed.
+        /// </summary>
+        public virtual IList<IForeignKeyDependentRequirednessChangedConvention> ForeignKeyDependentRequirednessChangedConventions { get; }
+            = new List<IForeignKeyDependentRequirednessChangedConvention>();
+
+        /// <summary>
         ///     Conventions to run when the ownership of a foreign key is changed.
         /// </summary>
         public virtual IList<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; }

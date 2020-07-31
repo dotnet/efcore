@@ -1329,7 +1329,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     The child/dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        ///     The dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
         /// </summary>
         public static string AmbiguousOneToOneRelationship([CanBeNull] object dependentToPrincipalNavigationSpecification, [CanBeNull] object principalToDependentNavigationSpecification)
             => string.Format(
@@ -2749,12 +2749,60 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     '{entityType}.{navigation}' cannot be configured as required since the dependent side of the underlying foreign key {foreignKey} cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        /// </summary>
+        public static string AmbiguousEndRequiredDependentNavigation([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object foreignKey)
+            => string.Format(
+                GetString("AmbiguousEndRequiredDependentNavigation", nameof(entityType), nameof(navigation), nameof(foreignKey)),
+                entityType, navigation, foreignKey);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.
+        /// </summary>
+        public static string NonUniqueRequiredDependentForeignKey([CanBeNull] object foreignKey, [CanBeNull] object declaringEntityType)
+            => string.Format(
+                GetString("NonUniqueRequiredDependentForeignKey", nameof(foreignKey), nameof(declaringEntityType)),
+                foreignKey, declaringEntityType);
+
+        /// <summary>
+        ///     '{principalEntityType}.{principalNavigation}' cannot be configured as required since it contains a collection.
+        /// </summary>
+        public static string NonUniqueRequiredDependentNavigation([CanBeNull] object principalEntityType, [CanBeNull] object principalNavigation)
+            => string.Format(
+                GetString("NonUniqueRequiredDependentNavigation", nameof(principalEntityType), nameof(principalNavigation)),
+                principalEntityType, principalNavigation);
+
+        /// <summary>
+        ///     '{entityType}.{navigation}' cannot be configured as required since it represents a skip navigation.
+        /// </summary>
+        public static string RequiredSkipNavigation([CanBeNull] object entityType, [CanBeNull] object navigation)
+            => string.Format(
+                GetString("RequiredSkipNavigation", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
+
+        /// <summary>
         ///     The navigation '{navigation}' on '{entityType}' must be configured using Fluent API with an explicit name for the target shared type entity type or excluded by calling 'EntityTypeBuilder.Ignore'.
         /// </summary>
         public static string NonconfiguredNavigationToSharedType([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
                 GetString("NonconfiguredNavigationToSharedType", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} on entity type '{entityType}' cannot be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        /// </summary>
+        public static string AmbiguousEndRequired([CanBeNull] object foreignKey, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("AmbiguousEndRequired", nameof(foreignKey), nameof(entityType)),
+                foreignKey, entityType);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} on entity type '{entityType}' cannot be configured as having a required dependent since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        /// </summary>
+        public static string AmbiguousEndRequiredDependent([CanBeNull] object foreignKey, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("AmbiguousEndRequiredDependent", nameof(foreignKey), nameof(entityType)),
+                foreignKey, entityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -3963,6 +4011,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'. RequiredAttribute should only be specified on the dependent side of the relationship.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnBothNavigations;
@@ -3987,6 +4036,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     '{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal '{dependentEntityType}.{dependentNavigation}' can be configured as required.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string, string, string, string> LogNonNullableReferenceOnBothNavigations([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnBothNavigations;
@@ -4299,6 +4349,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' is invalid. RequiredAttribute should only be specified on the navigation pointing to the principal side of the relationship. To change the dependent side configure the foreign key properties.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string, string> LogRequiredAttributeOnDependent([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnDependent;
@@ -4323,6 +4374,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     '{principalEntityType}.{principalNavigation}' may still be null at runtime despite being declared as non-nullable since only the navigation to principal can be configured as required.
         /// </summary>
+        [Obsolete]
         public static EventDefinition<string, string> LogNonNullableReferenceOnDependent([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogNonNullableReferenceOnDependent;
@@ -4411,6 +4463,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
                             _resourceManager.GetString("LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a skip navigation. Instead configure the underlying foreign keys.
+        /// </summary>
+        public static EventDefinition<string, string> LogRequiredAttributeOnSkipNavigation([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnSkipNavigation;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRequiredAttributeOnSkipNavigation,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.RequiredAttributeOnSkipNavigation,
+                        LogLevel.Debug,
+                        "CoreEventId.RequiredAttributeOnSkipNavigation",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.RequiredAttributeOnSkipNavigation,
+                            _resourceManager.GetString("LogRequiredAttributeOnSkipNavigation"))));
             }
 
             return (EventDefinition<string, string>)definition;

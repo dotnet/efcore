@@ -104,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 principalEntityTypeBuilder.Metadata,
                 nameof(Post.Blog),
                 nameof(Blog.Posts),
-                ConfigurationSource.Convention);
+                ConfigurationSource.Convention,
+                setTargetAsPrincipal: true);
 
             var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Post.Blog));
 
@@ -173,32 +174,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void RequiredAttribute_throws_for_navigation_to_dependent()
-        {
-            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder =
-                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
-
-            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
-                    principalEntityTypeBuilder.Metadata,
-                    nameof(Dependent.Principal),
-                    nameof(Principal.Dependent),
-                    ConfigurationSource.Convention)
-                .HasEntityTypes
-                    (principalEntityTypeBuilder.Metadata, dependentEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
-
-            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
-
-            Assert.False(relationshipBuilder.Metadata.IsRequired);
-            
-            Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                CoreEventId.RequiredAttributeOnDependent.ToString(),
-                CoreResources.LogRequiredAttributeOnDependent(new TestLogger<TestLoggingDefinitions>())
-                .GenerateMessage(nameof(Principal), nameof(Principal.Dependent)), "CoreEventId.RequiredAttributeOnDependent"),
-                Assert.Throws<InvalidOperationException>(() => RunRequiredNavigationAttributeConvention(relationshipBuilder, navigation)).Message);
-        }
-
-        [ConditionalFact]
         public void RequiredAttribute_does_nothing_when_principal_end_is_ambiguous()
         {
             var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -237,22 +212,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void RequiredAttribute_can_be_specified_on_both_navigations()
+        public void RequiredAttribute_does_not_configure_skip_navigations()
         {
-            var modelBuilder = CreateModelBuilder();
-            var model = (Model)modelBuilder.Model;
-            modelBuilder.Entity<BlogDetails>();
-            modelBuilder.Entity<BlogDetails>().HasOne(b => b.Blog).WithOne(b => b.BlogDetails);
+            var postEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
+            var blogEntityTypeBuilder = postEntityTypeBuilder.ModelBuilder.Entity(
+                typeof(Blog), ConfigurationSource.Convention);
 
-            Assert.True(
-                model.FindEntityType(typeof(BlogDetails)).GetForeignKeys()
-                    .Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
+            var navigationBuilder = postEntityTypeBuilder.HasSkipNavigation(
+                new MemberIdentity(nameof(Post.Blogs)),
+                blogEntityTypeBuilder.Metadata,
+                new MemberIdentity(nameof(Blog.Posts)),
+                ConfigurationSource.Convention,
+                collections: true,
+                onDependent: false);
+
+            var convention = new RequiredNavigationAttributeConvention(CreateDependencies(CreateLogger()));
+            convention.ProcessSkipNavigationAdded(
+                navigationBuilder,
+                new ConventionContext<IConventionSkipNavigationBuilder>(
+                    postEntityTypeBuilder.Metadata.Model.ConventionDispatcher));
 
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogRequiredAttributeOnBothNavigations(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
+                CoreResources.LogRequiredAttributeOnSkipNavigation(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(Post), nameof(Post.Blogs)), logEntry.Message);
+
+            Validate(postEntityTypeBuilder);
+
+            Assert.Empty(ListLoggerFactory.Log);
         }
 
         #endregion
@@ -1095,6 +1083,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class BlogDetails
         {
             public int Id { get; set; }
+            public int BlogId { get; set; }
 
             [Required]
             public Blog Blog { get; set; }
@@ -1109,6 +1098,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Required]
             public Blog Blog { get; set; }
+
+            [NotMapped]
+            [Required]
+            public ICollection<Blog> Blogs { get; set; }
         }
 
         private class Principal

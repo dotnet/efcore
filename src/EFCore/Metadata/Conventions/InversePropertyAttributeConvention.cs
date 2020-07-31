@@ -472,9 +472,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var referencingTuple in referencingNavigationsWithAttribute)
             {
                 var inverseTargetEntityType = FindActualEntityType(referencingTuple.TargetEntityType);
-                if ((inverseTargetEntityType?.Builder.IsIgnored(
+                if (inverseTargetEntityType?.Builder.IsIgnored(
                         referencingTuple.Inverse.GetSimpleMemberName(), fromDataAnnotation: true)
-                    != false))
+                    != false)
                 {
                     if (tuplesToRemove == null)
                     {

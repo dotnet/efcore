@@ -51,10 +51,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new bool IsUnique { get; set; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether this relationship is required. If true, the dependent entity must always be
-        ///     assigned to a valid principal entity.
+        ///     Sets a value indicating whether the principal entity is required.
+        ///     If <see langword="true" />, the dependent entity must always be assigned to a valid principal entity.
         /// </summary>
         new bool IsRequired { get; set; }
+
+        /// <summary>
+        ///     Sets a value indicating whether the dependent entity is required.
+        ///     If <see langword="true" />, the principal entity must always have a valid dependent entity assigned.
+        /// </summary>
+        new bool IsRequiredDependent { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether this relationship defines ownership. If true, the dependent entity must always be

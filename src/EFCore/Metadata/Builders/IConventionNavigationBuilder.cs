@@ -74,5 +74,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionNavigationBuilder AutoInclude(bool? autoInclude, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether this navigation requiredness can be configured
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="required"> A value indicating whether the navigation should be required. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if requiredness can be set for this navigation. </returns>
+        bool CanSetIsRequired(bool? required, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures whether this navigation is required.
+        /// </summary>
+        /// <param name="required">
+        ///     A value indicating whether this is a required navigation.
+        ///     <see langword="null" /> to reset to default.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the requiredness was configured, <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionNavigationBuilder IsRequired(bool? required, bool fromDataAnnotation = false);
     }
 }

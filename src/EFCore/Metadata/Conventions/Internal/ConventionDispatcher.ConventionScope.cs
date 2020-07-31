@@ -101,6 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public abstract bool? OnForeignKeyRequirednessChanged(
                 [NotNull] IConventionForeignKeyBuilder relationshipBuilder);
 
+            public abstract bool? OnForeignKeyDependentRequirednessChanged(
+                [NotNull] IConventionForeignKeyBuilder relationshipBuilder);
+
             public abstract bool? OnForeignKeyUniquenessChanged(
                 [NotNull] IConventionForeignKeyBuilder relationshipBuilder);
 

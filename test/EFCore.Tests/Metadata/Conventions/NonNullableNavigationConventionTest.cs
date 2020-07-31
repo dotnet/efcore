@@ -120,46 +120,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Non_nullability_logs_when_navigation_to_dependent()
-        {
-            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder =
-                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
-
-            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
-                principalEntityTypeBuilder.Metadata,
-                nameof(Dependent.Principal),
-                nameof(Principal.Dependent),
-                ConfigurationSource.Convention);
-
-            Assert.Equal(nameof(Dependent), relationshipBuilder.Metadata.DeclaringEntityType.DisplayName());
-            Assert.False(relationshipBuilder.Metadata.IsRequired);
-
-            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
-
-            navigation = RunConvention(relationshipBuilder, navigation);
-
-            Assert.Equal(nameof(Dependent), navigation.ForeignKey.DeclaringEntityType.DisplayName());
-            Assert.False(navigation.ForeignKey.IsRequired);
-            Assert.Empty(ListLoggerFactory.Log);
-
-            relationshipBuilder.HasEntityTypes(
-                relationshipBuilder.Metadata.PrincipalEntityType,
-                relationshipBuilder.Metadata.DeclaringEntityType,
-                ConfigurationSource.Convention);
-
-            navigation = RunConvention(relationshipBuilder, navigation);
-
-            Assert.Equal(nameof(Dependent), navigation.ForeignKey.DeclaringEntityType.DisplayName());
-            Assert.False(navigation.ForeignKey.IsRequired);
-            var logEntry = ListLoggerFactory.Log.Single();
-            Assert.Equal(LogLevel.Debug, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogNonNullableReferenceOnDependent(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Dependent.Principal), nameof(Dependent)), logEntry.Message);
-        }
-
-        [ConditionalFact]
         public void Non_nullability_sets_is_required_with_conventional_builder()
         {
             var modelBuilder = CreateModelBuilder();
@@ -169,21 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.True(
                 model.FindEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog))
                     .IsRequired);
-        }
-
-        [ConditionalFact]
-        public void Non_nullability_can_be_specified_on_both_navigations()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var model = (Model)modelBuilder.Model;
-            modelBuilder.Entity<BlogDetails>().HasOne(b => b.Blog).WithOne(b => b.BlogDetails);
-
-            var logEntry = ListLoggerFactory.Log.Single();
-
-            Assert.Equal(LogLevel.Debug, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogNonNullableReferenceOnBothNavigations(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
         }
 
         private Navigation RunConvention(InternalForeignKeyBuilder relationshipBuilder, Navigation navigation)
@@ -259,6 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
 
+            public int BlogId { get; set; }
             public Blog Blog { get; set; }
 
             private Post Post { get; set; }

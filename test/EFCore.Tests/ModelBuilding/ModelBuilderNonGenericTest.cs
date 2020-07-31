@@ -436,6 +436,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestNavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
                 => new NonGenericTestNavigationBuilder(NavigationBuilder.UsePropertyAccessMode(propertyAccessMode));
+
+            public override TestNavigationBuilder HasField(string fieldName)
+                => new NonGenericTestNavigationBuilder(NavigationBuilder.HasField(fieldName));
+
+            public override TestNavigationBuilder AutoInclude(bool autoInclude = true)
+                => new NonGenericTestNavigationBuilder(NavigationBuilder.AutoInclude(autoInclude));
+
+            public override TestNavigationBuilder IsRequired(bool required = true)
+                => new NonGenericTestNavigationBuilder(NavigationBuilder.IsRequired(required));
         }
 
         protected class NonGenericTestKeyBuilder<TEntity> : TestKeyBuilder<TEntity>, IInfrastructure<KeyBuilder>

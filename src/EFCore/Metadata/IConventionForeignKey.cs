@@ -112,10 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource? GetIsUniqueConfigurationSource();
 
         /// <summary>
-        ///     Sets a value indicating whether this relationship is required.
+        ///     Sets a value indicating whether the principal entity is required.
         ///     If <see langword="true" />, the dependent entity must always be assigned to a valid principal entity.
         /// </summary>
-        /// <param name="required"> A value indicating whether this relationship is required. </param>
+        /// <param name="required"> A value indicating whether the principal entity is required. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured requiredness. </returns>
         bool? SetIsRequired(bool? required, bool fromDataAnnotation = false);
@@ -125,6 +125,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The configuration source for <see cref="IForeignKey.IsRequired" />. </returns>
         ConfigurationSource? GetIsRequiredConfigurationSource();
+
+        /// <summary>
+        ///     Sets a value indicating whether the dependent entity is required.
+        ///     If <see langword="true" />, the principal entity must always have a valid dependent entity assigned.
+        /// </summary>
+        /// <param name="required"> A value indicating whether the dependent entity is required. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured requiredness. </returns>
+        bool? SetIsRequiredDependent(bool? required, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="IForeignKey.IsRequiredDependent" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IForeignKey.IsRequiredDependent" />. </returns>
+        ConfigurationSource? GetIsRequiredDependentConfigurationSource();
 
         /// <summary>
         ///     Sets a value indicating whether this relationship defines an ownership.
