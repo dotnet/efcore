@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     connection.Open();
 
-                    if (transaction?.AreSavepointsSupported == true)
+                    if (transaction?.SupportsSavepoints == true)
                     {
                         transaction.CreateSavepoint(SavepointName);
                         createdSavepoint = true;
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-                    if (transaction?.AreSavepointsSupported == true)
+                    if (transaction?.SupportsSavepoints == true)
                     {
                         await transaction.CreateSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                         createdSavepoint = true;

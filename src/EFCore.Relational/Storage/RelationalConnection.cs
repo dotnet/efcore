@@ -598,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <inheritdoc />
-        public virtual bool AreSavepointsSupported
+        public virtual bool SupportsSavepoints
         {
             get
             {
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
                 }
 
-                return CurrentTransaction.AreSavepointsSupported;
+                return CurrentTransaction.SupportsSavepoints;
             }
         }
 

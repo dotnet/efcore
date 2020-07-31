@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         /// <inheritdoc />
-        public virtual bool AreSavepointsSupported => true;
+        public virtual bool SupportsSavepoints => true;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
