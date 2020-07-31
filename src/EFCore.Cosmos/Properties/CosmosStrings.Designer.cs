@@ -220,6 +220,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         public static string ConnectionStringConflictingConfiguration
             => GetString("ConnectionStringConflictingConfiguration");
 
+        /// <summary>
+        ///     Reverse could not be translated to the server because there is no ordering on the server side.
+        /// </summary>
+        public static string MissingOrderingInSqlExpression
+            => GetString("MissingOrderingInSqlExpression");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

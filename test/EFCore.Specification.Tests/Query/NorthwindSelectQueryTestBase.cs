@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
@@ -891,13 +892,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Reverse_without_explicit_ordering_throws(bool async)
         {
-            return AssertTranslationFailed(
+            return AssertTranslationFailedWithDetails(
                 () => AssertQuery(
                     async,
                     ss => ss.Set<Employee>()
                         .Reverse()
                         .Select(e => $"{e.EmployeeID}")
-                ));
+                ), RelationalStrings.MissingOrderingInSqlExpression);
         }
 
         [ConditionalTheory]
