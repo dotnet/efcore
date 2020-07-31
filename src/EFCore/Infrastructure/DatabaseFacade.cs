@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <see langword="true" /> if this <see cref="DatabaseFacade"/> instance supports database savepoints;
         ///     otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool AreSavepointsSupported => Dependencies.TransactionManager.AreSavepointsSupported;
+        public virtual bool SupportsSavepoints => Dependencies.TransactionManager.SupportsSavepoints;
 
         /// <summary>
         ///     Creates an instance of the configured <see cref="IExecutionStrategy" />.

@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual string GetReleaseSavepointSql([NotNull] string name) => "RELEASE SAVEPOINT " + name;
 
         /// <inheritdoc />
-        public virtual bool AreSavepointsSupported => true;
+        public virtual bool SupportsSavepoints => true;
 
         /// <inheritdoc />
         public virtual void Dispose()

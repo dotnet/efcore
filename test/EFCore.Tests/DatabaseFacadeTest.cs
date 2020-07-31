@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
             public int CreateSavepointCalls;
             public int RollbackSavepointCalls;
             public int ReleaseSavepointCalls;
-            public int AreSavepointsSupportedCalls;
+            public int SupportsSavepointsCalls;
 
             public IDbContextTransaction BeginTransaction()
                 => _transaction;
@@ -202,11 +202,11 @@ namespace Microsoft.EntityFrameworkCore
                 return Task.CompletedTask;
             }
 
-            public bool AreSavepointsSupported
+            public bool SupportsSavepoints
             {
                 get
                 {
-                    AreSavepointsSupportedCalls++;
+                    SupportsSavepointsCalls++;
                     return true;
                 }
             }
@@ -368,9 +368,9 @@ namespace Microsoft.EntityFrameworkCore
             var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
 
-            _ = context.Database.AreSavepointsSupported;
+            _ = context.Database.SupportsSavepoints;
 
-            Assert.Equal(1, manager.AreSavepointsSupportedCalls);
+            Assert.Equal(1, manager.SupportsSavepointsCalls);
         }
 
         [ConditionalFact]
