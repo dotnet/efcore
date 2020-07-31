@@ -108,21 +108,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual IComparer<string> VersionComparer { get; } = new SemanticVersionComparer();
 
         /// <summary>
+        ///     Gets or sets the options to use when generating commands.
+        /// </summary>
+        protected virtual MigrationsSqlGenerationOptions Options { get; set; }
+
+        /// <summary>
         ///     Generates commands from a list of operations.
         /// </summary>
         /// <param name="operations"> The operations. </param>
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
+        /// <param name="options"> The options to use when generating commands. </param>
         /// <returns> The list of commands to be executed or scripted. </returns>
         public virtual IReadOnlyList<MigrationCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
-            IModel model = null)
+            IModel model = null,
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             Check.NotNull(operations, nameof(operations));
 
+            Options = options;
+
             var builder = new MigrationCommandListBuilder(Dependencies);
-            foreach (var operation in operations)
+            try
             {
-                Generate(operation, model, builder);
+                foreach (var operation in operations)
+                {
+                    Generate(operation, model, builder);
+                }
+            }
+            finally
+            {
+                Options = MigrationsSqlGenerationOptions.Default;
             }
 
             return builder.GetCommandList();

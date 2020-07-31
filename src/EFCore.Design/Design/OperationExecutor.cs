@@ -297,11 +297,19 @@ namespace Microsoft.EntityFrameworkCore.Design
             [CanBeNull] string toMigration,
             bool idempotent,
             [CanBeNull] string contextType)
-            => MigrationsOperations.ScriptMigration(
+        {
+            var options = MigrationsSqlGenerationOptions.Default;
+            if (idempotent)
+            {
+                options |= MigrationsSqlGenerationOptions.Idempotent;
+            }
+
+            return MigrationsOperations.ScriptMigration(
                 fromMigration,
                 toMigration,
-                idempotent,
+                options,
                 contextType);
+        }
 
         /// <summary>
         ///     Represents an operation to remove the last migration.

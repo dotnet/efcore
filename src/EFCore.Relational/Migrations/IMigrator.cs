@@ -54,12 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="toMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
-        /// <param name="idempotent">
-        ///     If <see langword="true" />, then idempotent scripts will be generated, otherwise
-        ///     scripts will be generated that assume none of the migrations in the range specified have
-        ///     already been applied to the database.
+        /// <param name="options">
+        ///     The options to use when generating SQL for migrations.
         /// </param>
         /// <returns> The generated script. </returns>
-        string GenerateScript([CanBeNull] string fromMigration = null, [CanBeNull] string toMigration = null, bool idempotent = false);
+        string GenerateScript([CanBeNull] string fromMigration = null, [CanBeNull] string toMigration = null, MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
     }
 }

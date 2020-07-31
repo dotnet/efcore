@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore
             using var db = Fixture.CreateContext();
             var migrator = db.GetService<IMigrator>();
 
-            SetSql(migrator.GenerateScript(idempotent: true));
+            SetSql(migrator.GenerateScript(options: MigrationsSqlGenerationOptions.Idempotent));
         }
 
         [ConditionalFact]
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore
                 migrator.GenerateScript(
                     fromMigration: "Migration2",
                     toMigration: Migration.InitialDatabase,
-                    idempotent: true));
+                    MigrationsSqlGenerationOptions.Idempotent));
         }
 
         [ConditionalFact]

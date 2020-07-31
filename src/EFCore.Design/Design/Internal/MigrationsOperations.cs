@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public virtual string ScriptMigration(
             [CanBeNull] string fromMigration,
             [CanBeNull] string toMigration,
-            bool idempotent,
+            MigrationsSqlGenerationOptions options,
             [CanBeNull] string contextType)
         {
             using var context = _contextOperations.CreateContext(contextType);
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var migrator = services.GetRequiredService<IMigrator>();
 
-            return migrator.GenerateScript(fromMigration, toMigration, idempotent);
+            return migrator.GenerateScript(fromMigration, toMigration, options);
         }
 
         /// <summary>

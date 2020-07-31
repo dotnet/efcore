@@ -303,8 +303,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public virtual string GenerateScript(
             string fromMigration = null,
             string toMigration = null,
-            bool idempotent = false)
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
+            options |= MigrationsSqlGenerationOptions.Script;
+
+            var idempotent = options.HasFlag(MigrationsSqlGenerationOptions.Idempotent);
+
             IEnumerable<string> appliedMigrations;
             if (string.IsNullOrEmpty(fromMigration)
                 || fromMigration == Migration.InitialDatabase)
@@ -344,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 _logger.MigrationGeneratingDownScript(this, migration, fromMigration, toMigration, idempotent);
 
-                foreach (var command in GenerateDownSql(migration, previousMigration))
+                foreach (var command in GenerateDownSql(migration, previousMigration, options))
                 {
                     if (idempotent)
                     {
@@ -369,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 _logger.MigrationGeneratingUpScript(this, migration, fromMigration, toMigration, idempotent);
 
-                foreach (var command in GenerateUpSql(migration))
+                foreach (var command in GenerateUpSql(migration, options))
                 {
                     if (idempotent)
                     {
@@ -399,7 +403,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration)
+        protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration,
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             Check.NotNull(migration, nameof(migration));
 
@@ -407,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())));
 
             return _migrationsSqlGenerator
-                .Generate(migration.UpOperations, FinalizeModel(migration.TargetModel))
+                .Generate(migration.UpOperations, FinalizeModel(migration.TargetModel), options)
                 .Concat(new[] { new MigrationCommand(insertCommand, _currentContext.Context, _commandLogger) })
                 .ToList();
         }
@@ -420,7 +425,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateDownSql(
             [NotNull] Migration migration,
-            [CanBeNull] Migration previousMigration)
+            [CanBeNull] Migration previousMigration,
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             Check.NotNull(migration, nameof(migration));
 
@@ -428,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _historyRepository.GetDeleteScript(migration.GetId()));
 
             return _migrationsSqlGenerator
-                .Generate(migration.DownOperations, FinalizeModel(previousMigration?.TargetModel))
+                .Generate(migration.DownOperations, FinalizeModel(previousMigration?.TargetModel), options)
                 .Concat(new[] { new MigrationCommand(deleteCommand, _currentContext.Context, _commandLogger) })
                 .ToList();
         }

@@ -1042,13 +1042,5 @@ PRAGMA foreign_keys = 1;
                   .OptionsBuilder).Options)
         {
         }
-
-        protected virtual void Generate(Action<ModelBuilder> buildAction, Action<MigrationBuilder> migrateAction)
-        {
-            var migrationBuilder = new MigrationBuilder(activeProvider: null);
-            migrateAction(migrationBuilder);
-
-            Generate(buildAction, migrationBuilder.Operations.ToArray());
-        }
     }
 }

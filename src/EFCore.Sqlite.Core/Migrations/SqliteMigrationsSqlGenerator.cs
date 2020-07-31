@@ -49,9 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="operations"> The operations. </param>
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
+        /// <param name="options"> The options to use when generating commands. </param>
         /// <returns> The list of commands to be executed or scripted. </returns>
-        public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
-            => base.Generate(RewriteOperations(operations, model), model);
+        public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null, MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
+            => base.Generate(RewriteOperations(operations, model), model, options);
 
         private bool IsSpatialiteColumn(AddColumnOperation operation, IModel model)
             => SqliteTypeMappingSource.IsSpatialiteType(

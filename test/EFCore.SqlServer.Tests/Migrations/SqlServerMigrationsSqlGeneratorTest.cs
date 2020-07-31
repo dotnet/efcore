@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
+        protected static string SQL_EOL => string.Join(", ", EOL.Select(c => "CHAR(" + (short)c + ")"));
+
         [ConditionalFact]
         public virtual void AddColumnOperation_identity_legacy()
         {
@@ -926,6 +929,145 @@ SELECT @@ROWCOUNT;
 );
 ";
             AssertSql(expectedSql);
+        }
+
+        [ConditionalFact]
+        public virtual void AddColumn_generates_exec_when_computed_and_idempotent()
+        {
+            Generate(
+                modelBuilder => { },
+                migrationBuilder => migrationBuilder.AddColumn<int>(
+                    name: "Column2",
+                    table: "Table1",
+                    computedColumnSql: "[Column1] + 1"),
+                MigrationsSqlGenerationOptions.Idempotent);
+
+            AssertSql(
+                @"EXEC(N'ALTER TABLE [Table1] ADD [Column2] AS [Column1] + 1');
+");
+        }
+
+        [ConditionalFact]
+        public virtual void AddCheckConstraint_generates_exec_when_idempotent()
+        {
+            Generate(
+                modelBuilder => { },
+                migrationBuilder => migrationBuilder.AddCheckConstraint(
+                    name: "CK_Table1",
+                    table: "Table1",
+                    "[Column1] BETWEEN 0 AND 100"),
+                MigrationsSqlGenerationOptions.Idempotent);
+
+            AssertSql(
+                @"EXEC(N'ALTER TABLE [Table1] ADD CONSTRAINT [CK_Table1] CHECK ([Column1] BETWEEN 0 AND 100)');
+");
+        }
+
+        [ConditionalFact]
+        public virtual void CreateIndex_generates_exec_when_filter_and_idempotent()
+        {
+            Generate(
+                modelBuilder => { },
+                migrationBuilder => migrationBuilder.CreateIndex(
+                    name: "IX_Table1_Column1",
+                    table: "Table1",
+                    column: "Column1",
+                    filter: "[Column1] IS NOT NULL"),
+                MigrationsSqlGenerationOptions.Idempotent);
+
+            AssertSql(
+                @"EXEC(N'CREATE INDEX [IX_Table1_Column1] ON [Table1] ([Column1]) WHERE [Column1] IS NOT NULL');
+");
+        }
+
+        [ConditionalFact]
+        public virtual void CreateIndex_generates_exec_when_legacy_filter_and_idempotent()
+        {
+            Generate(
+                modelBuilder =>
+                {
+                    modelBuilder
+                        .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
+                        .Entity("Table1").Property<int?>("Column1");
+                },
+                migrationBuilder => migrationBuilder.CreateIndex(
+                    name: "IX_Table1_Column1",
+                    table: "Table1",
+                    column: "Column1",
+                    unique: true),
+                MigrationsSqlGenerationOptions.Idempotent);
+
+            AssertSql(
+                @"EXEC(N'CREATE UNIQUE INDEX [IX_Table1_Column1] ON [Table1] ([Column1]) WHERE [Column1] IS NOT NULL');
+");
+        }
+
+        [ConditionalFact]
+        public virtual void DeleteData_generates_exec_when_idempotent()
+        {
+            Generate(
+                modelBuilder => { },
+                migrationBuilder => migrationBuilder
+                    .DeleteData(
+                        table: "Table1",
+                        keyColumn: "Id",
+                        keyValue: 1)
+                    .GetInfrastructure()
+                    .KeyColumnTypes = new[] { "int" },
+                MigrationsSqlGenerationOptions.Idempotent);
+
+            AssertSql(
+                @$"EXEC(CONCAT(N'DELETE FROM [Table1]', {SQL_EOL}, N'WHERE [Id] = 1;', {SQL_EOL}, N'SELECT @@ROWCOUNT'));
+");
+        }
+
+        [ConditionalFact]
+        public virtual void InsertData_generates_exec_when_idempotent()
+        {
+            Generate(
+                modelBuilder => { },
+                migrationBuilder => migrationBuilder
+                    .InsertData(
+                        table: "Table1",
+                        column: "Id",
+                        value: 1)
+                    .GetInfrastructure()
+                    .ColumnTypes = new[] { "int" },
+                MigrationsSqlGenerationOptions.Idempotent);
+
+            AssertSql(
+                @$"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [object_id] = OBJECT_ID(N'[Table1]'))
+    SET IDENTITY_INSERT [Table1] ON;
+EXEC(CONCAT(N'INSERT INTO [Table1] ([Id])', {SQL_EOL}, N'VALUES (1)'));
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [object_id] = OBJECT_ID(N'[Table1]'))
+    SET IDENTITY_INSERT [Table1] OFF;
+");
+        }
+
+        [ConditionalFact]
+        public virtual void UpdateData_generates_exec_when_idempotent()
+        {
+            Generate(
+                modelBuilder => { },
+                migrationBuilder =>
+                {
+                    var operation = migrationBuilder
+                        .UpdateData(
+                            table: "Table1",
+                            keyColumn: "Id",
+                            keyValue: 1,
+                            column: "Column1",
+                            value: 2)
+                        .GetInfrastructure();
+
+                    operation.KeyColumnTypes = new[] { "int" };
+                    operation.ColumnTypes = new[] { "int" };
+                },
+                MigrationsSqlGenerationOptions.Idempotent);
+
+            AssertSql(
+                @$"EXEC(CONCAT(N'UPDATE [Table1] SET [Column1] = 2', {SQL_EOL}, N'WHERE [Id] = 1;', {SQL_EOL}, N'SELECT @@ROWCOUNT'));
+");
         }
 
         public SqlServerMigrationsSqlGeneratorTest()

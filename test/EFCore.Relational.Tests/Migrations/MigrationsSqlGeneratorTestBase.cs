@@ -710,7 +710,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void Generate(params MigrationOperation[] operation)
             => Generate(null, operation);
 
+        protected virtual void Generate(
+            Action<ModelBuilder> buildAction,
+            Action<MigrationBuilder> migrateAction,
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
+        {
+            var migrationBuilder = new MigrationBuilder(activeProvider: null);
+            migrateAction(migrationBuilder);
+
+            Generate(buildAction, migrationBuilder.Operations.ToArray(), options);
+        }
+
         protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
+            => Generate(buildAction, operation, MigrationsSqlGenerationOptions.Default);
+
+        protected virtual void Generate(
+            Action<ModelBuilder> buildAction, MigrationOperation[] operation, MigrationsSqlGenerationOptions options)
         {
             var services = ContextOptions != null
                 ? TestHelpers.CreateContextServices(CustomServices, ContextOptions)
@@ -733,7 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 model = relationalModelConvention.ProcessModelFinalized((IConventionModel)model);
             }
 
-            var batch = services.GetRequiredService<IMigrationsSqlGenerator>().Generate(operation, model);
+            var batch = services.GetRequiredService<IMigrationsSqlGenerator>().Generate(operation, model, options);
 
             Sql = string.Join(
                 "GO" + EOL + EOL,

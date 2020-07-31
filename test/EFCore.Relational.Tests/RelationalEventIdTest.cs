@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
             public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new CancellationToken()) =>
                 throw new NotImplementedException();
 
-            public string GenerateScript(string fromMigration = null, string toMigration = null, bool idempotent = false) =>
+            public string GenerateScript(string fromMigration = null, string toMigration = null, MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default) =>
                 throw new NotImplementedException();
         }
 

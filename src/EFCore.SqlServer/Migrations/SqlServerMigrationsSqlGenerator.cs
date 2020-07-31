@@ -55,13 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="operations"> The operations. </param>
         /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
+        /// <param name="options"> The options to use when generating commands. </param>
         /// <returns> The list of commands to be executed or scripted. </returns>
-        public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model)
+        public override IReadOnlyList<MigrationCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null, MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             _operations = operations;
             try
             {
-                return base.Generate(operations, model);
+                return base.Generate(operations, model, options);
             }
             finally
             {
@@ -103,6 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
         }
 
+        /// <inheritdoc />
+        protected override void Generate(AddCheckConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => GenerateExecWhenIdempotent(builder, b => base.Generate(operation, model, b));
+
         /// <summary>
         ///     Builds commands for the given <see cref="AddColumnOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
@@ -130,7 +135,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operation.DefaultValue = null;
             }
 
-            base.Generate(operation, model, builder, terminate: false);
+            var needsExec = Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent)
+                && operation.ComputedColumnSql != null;
+            if (needsExec)
+            {
+                var subBuilder = new MigrationCommandListBuilder(Dependencies);
+                base.Generate(operation, model, subBuilder, terminate: false);
+                subBuilder.EndCommand();
+
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+                var command = subBuilder.GetCommandList().Single();
+
+                builder
+                    .Append("EXEC(")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(command.CommandText))
+                    .Append(")");
+            }
+            else
+            {
+                base.Generate(operation, model, builder, terminate: false);
+            }
 
             if (terminate)
             {
@@ -635,8 +659,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
             else
             {
-                base.Generate(operation, model, builder, terminate: false);
-
+                var needsLegacyFilter = false;
                 if (operation.Filter == null
                     && UseLegacyIndexFilters(model))
                 {
@@ -645,19 +668,47 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         && (clustered != true)
                         && nullableColumns.Count != 0)
                     {
-                        builder.Append(" WHERE ");
-                        for (var i = 0; i < nullableColumns.Count; i++)
-                        {
-                            if (i != 0)
-                            {
-                                builder.Append(" AND ");
-                            }
-
-                            builder
-                                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
-                                .Append(" IS NOT NULL");
-                        }
+                        needsLegacyFilter = true;
                     }
+                }
+
+                var needsExec = Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent)
+                    && (operation.Filter != null
+                        || needsLegacyFilter);
+                var subBuilder = needsExec
+                    ? new MigrationCommandListBuilder(Dependencies)
+                    : builder;
+
+                base.Generate(operation, model, subBuilder, terminate: false);
+
+                if (needsLegacyFilter)
+                {
+                    subBuilder.Append(" WHERE ");
+                    for (var i = 0; i < nullableColumns.Count; i++)
+                    {
+                        if (i != 0)
+                        {
+                            subBuilder.Append(" AND ");
+                        }
+
+                        subBuilder
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
+                            .Append(" IS NOT NULL");
+                    }
+                }
+
+                if (needsExec)
+                {
+                    subBuilder
+                        .EndCommand();
+
+                    var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+                    var command = subBuilder.GetCommandList().Single();
+
+                    builder
+                        .Append("EXEC(")
+                        .Append(stringTypeMapping.GenerateSqlLiteral(command.CommandText))
+                        .Append(")");
                 }
             }
 
@@ -1259,7 +1310,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 GenerateModificationCommands(operation, model).ToList(),
                 0);
 
-            builder.Append(sqlBuilder.ToString());
+            if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
+            {
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
+                builder
+                    .Append("EXEC(")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(sqlBuilder.ToString().TrimEnd('\n', '\r', ';')))
+                    .Append(")")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+            else
+            {
+                builder.Append(sqlBuilder.ToString());
+            }
 
             GenerateIdentityInsert(builder, operation, on: false);
 
@@ -1292,6 +1356,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }
+
+        /// <inheritdoc />
+        protected override void Generate(DeleteDataOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => GenerateExecWhenIdempotent(builder, b => base.Generate(operation, model, b));
+
+        /// <inheritdoc />
+        protected override void Generate(UpdateDataOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => GenerateExecWhenIdempotent(builder, b => base.Generate(operation, model, b));
 
         /// <summary>
         ///     Generates a SQL fragment configuring a sequence with the given options.
@@ -1900,5 +1972,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => operation[SqlServerAnnotationNames.Identity] != null
                 || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
                 == SqlServerValueGenerationStrategy.IdentityColumn;
+
+        private void GenerateExecWhenIdempotent(
+            MigrationCommandListBuilder builder,
+            Action<MigrationCommandListBuilder> generate)
+        {
+            if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
+            {
+                var subBuilder = new MigrationCommandListBuilder(Dependencies);
+                generate(subBuilder);
+
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+                var command = subBuilder.GetCommandList().Single();
+                builder
+                    .Append("EXEC(")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(command.CommandText.TrimEnd('\n', '\r', ';')))
+                    .Append(")")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(command.TransactionSuppressed);
+
+                return;
+            }
+
+            generate(builder);
+        }
     }
 }

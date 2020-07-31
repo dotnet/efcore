@@ -137,10 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the commands that will create all tables from the model.
         /// </summary>
+        /// <param name="options"> The options to use when generating commands. </param>
         /// <returns> The generated commands. </returns>
-        protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands()
+        protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands(MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
             => Dependencies.MigrationsSqlGenerator.Generate(
-                Dependencies.ModelDiffer.GetDifferences(null, Dependencies.Model.GetRelationalModel()), Dependencies.Model);
+                Dependencies.ModelDiffer.GetDifferences(null, Dependencies.Model.GetRelationalModel()), Dependencies.Model, options);
 
         /// <summary>
         ///     Determines whether the database contains any tables. No attempt is made to determine if
@@ -291,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string GenerateCreateScript()
         {
-            var commands = GetCreateTablesCommands();
+            var commands = GetCreateTablesCommands(MigrationsSqlGenerationOptions.Script);
             var builder = new StringBuilder();
             foreach (var command in commands)
             {
