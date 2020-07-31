@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Sets whether or not the sequence will start again from the beginning once
         ///     the maximum value is reached.
         /// </summary>
-        /// <param name="cyclic"> If <see langword="true" />, then the sequence with restart when the maximum is reached. </param>
+        /// <param name="cyclic"> If <see langword="true" />, then the sequence will restart when the maximum is reached. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder IsCyclic(bool cyclic = true)
         {
