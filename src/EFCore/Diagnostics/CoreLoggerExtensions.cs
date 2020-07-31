@@ -75,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context in use. </param>
         /// <param name="exception"> The exception that caused this event. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="ValueTask"/> for the async result. </returns>
-        public static ValueTask SaveChangesFailedAsync(
+        /// <returns> A <see cref="Task"/> for the async result. </returns>
+        public static Task SaveChangesFailedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
             [NotNull] Exception exception,
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return new ValueTask();
+            return Task.CompletedTask;
         }
 
         private static DbContextErrorEventData CreateDbContextErrorEventData(
@@ -155,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context in use. </param>
         /// <param name="exception"> The exception that caused this event. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="ValueTask"/> for the async result. </returns>
-        public static ValueTask OptimisticConcurrencyExceptionAsync(
+        /// <returns> A <see cref="Task"/> for the async result. </returns>
+        public static Task OptimisticConcurrencyExceptionAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
             [NotNull] Exception exception,
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return new ValueTask();
+            return Task.CompletedTask;
         }
 
         private static DbContextErrorEventData CreateDbContextErrorEventData(

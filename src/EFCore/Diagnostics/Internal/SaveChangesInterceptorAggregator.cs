@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async ValueTask SaveChangesFailedAsync(
+            public async Task SaveChangesFailedAsync(
                 DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
