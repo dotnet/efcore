@@ -661,10 +661,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 _readerColumns)
                                 .ProcessShaper(relationalCollectionShaperExpression.InnerShaper, out _, out _);
 
-                            var collectionType = relationalCollectionShaperExpression.Type;
-                            var elementType = collectionType.TryGetSequenceType();
-                            var relatedElementType = innerShaper.ReturnType;
                             var navigation = relationalCollectionShaperExpression.Navigation;
+                            var collectionAccessor = navigation?.GetCollectionAccessor();
+                            var collectionType = collectionAccessor?.CollectionType ?? relationalCollectionShaperExpression.Type;
+                            var elementType = relationalCollectionShaperExpression.ElementType;
+                            var relatedElementType = innerShaper.ReturnType;
 
                             _inline = true;
 
@@ -700,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         _resultCoordinatorParameter,
                                         Expression.Constant(parentIdentifierLambda.Compile()),
                                         Expression.Constant(outerIdentifierLambda.Compile()),
-                                        Expression.Constant(navigation?.GetCollectionAccessor(), typeof(IClrCollectionAccessor)))));
+                                        Expression.Constant(collectionAccessor, typeof(IClrCollectionAccessor)))));
 
                             _valuesArrayInitializers.Add(collectionParameter);
                             accessor = Expression.Convert(
@@ -735,15 +736,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                         if (!_variableShaperMapping.TryGetValue(key, out var accessor))
                         {
                             var innerProcessor = new ShaperProcessingExpressionVisitor(_parentVisitor, _resultCoordinatorParameter,
-                            _executionStrategyParameter, relationalSplitCollectionShaperExpression.SelectExpression, _tags);
+                                _executionStrategyParameter, relationalSplitCollectionShaperExpression.SelectExpression, _tags);
                             var innerShaper = innerProcessor.ProcessShaper(relationalSplitCollectionShaperExpression.InnerShaper,
                                     out var relationalCommandCache,
                                     out var relatedDataLoaders);
 
-                            var collectionType = relationalSplitCollectionShaperExpression.Type;
-                            var elementType = collectionType.TryGetSequenceType();
-                            var relatedElementType = innerShaper.ReturnType;
                             var navigation = relationalSplitCollectionShaperExpression.Navigation;
+                            var collectionAccessor = navigation?.GetCollectionAccessor();
+                            var collectionType = collectionAccessor?.CollectionType ?? relationalSplitCollectionShaperExpression.Type;
+                            var elementType = relationalSplitCollectionShaperExpression.ElementType;
+                            var relatedElementType = innerShaper.ReturnType;
 
                             _inline = true;
 
@@ -777,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         _dataReaderParameter,
                                         _resultCoordinatorParameter,
                                         Expression.Constant(parentIdentifierLambda.Compile()),
-                                        Expression.Constant(navigation?.GetCollectionAccessor(), typeof(IClrCollectionAccessor)))));
+                                        Expression.Constant(collectionAccessor, typeof(IClrCollectionAccessor)))));
 
                             _valuesArrayInitializers.Add(collectionParameter);
                             accessor = Expression.Convert(
@@ -1053,7 +1055,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
-                where TIncludingEntity : TEntity
+                where TEntity : class
+                where TIncludingEntity : class, TEntity
+                where TIncludedEntity : class
             {
                 if (entity is TIncludingEntity includingEntity)
                 {
@@ -1093,7 +1097,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 INavigationBase navigation,
                 IClrCollectionAccessor clrCollectionAccessor,
                 bool trackingQuery)
-                where TNavigationEntity : TParent
+                where TParent : class
+                where TNavigationEntity : class, TParent
             {
                 object collection = null;
                 if (entity is TNavigationEntity)
@@ -1133,6 +1138,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
+                where TIncludingEntity : class
+                where TIncludedEntity : class
             {
                 var collectionMaterializationContext = resultCoordinator.Collections[collectionId];
                 if (collectionMaterializationContext.Parent is TIncludingEntity entity)
@@ -1242,7 +1249,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 INavigationBase navigation,
                 IClrCollectionAccessor clrCollectionAccessor,
                 bool trackingQuery)
-                where TNavigationEntity : TParent
+                where TParent : class
+                where TNavigationEntity : class, TParent
             {
                 object collection = null;
                 if (entity is TNavigationEntity)
@@ -1279,6 +1287,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
+                where TIncludingEntity : class
+                where TIncludedEntity : class
             {
                 if (resultCoordinator.DataReaders.Count <= collectionId
                     || resultCoordinator.DataReaders[collectionId] == null)
@@ -1357,6 +1367,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 INavigationBase inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
                 bool trackingQuery)
+                where TIncludingEntity : class
+                where TIncludedEntity : class
             {
                 if (resultCoordinator.DataReaders.Count <= collectionId
                     || resultCoordinator.DataReaders[collectionId] == null)
@@ -1435,7 +1447,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 IClrCollectionAccessor clrCollectionAccessor)
-                where TCollection : class, IEnumerable<TElement>
+                where TCollection : class, ICollection<TElement>
             {
                 var collection = clrCollectionAccessor?.Create() ?? new List<TElement>();
 
@@ -1566,7 +1578,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SplitQueryResultCoordinator resultCoordinator,
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 IClrCollectionAccessor clrCollectionAccessor)
-                where TCollection : class, IEnumerable<TElement>
+                where TCollection : class, ICollection<TElement>
             {
                 var collection = clrCollectionAccessor?.Create() ?? new List<TElement>();
                 var parentKey = parentIdentifier(queryContext, parentDataReader);
@@ -1587,8 +1599,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IReadOnlyList<ValueComparer> identifierValueComparers,
                 Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
                 Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator> relatedDataLoaders)
-               where TRelatedEntity : TElement
-               where TCollection : class, ICollection<TElement>
+                where TRelatedEntity : TElement
+                where TCollection : class, ICollection<TElement>
             {
                 if (resultCoordinator.DataReaders.Count <= collectionId
                     || resultCoordinator.DataReaders[collectionId] == null)
@@ -1659,8 +1671,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 IReadOnlyList<ValueComparer> identifierValueComparers,
                 Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
                 Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task> relatedDataLoaders)
-               where TRelatedEntity : TElement
-               where TCollection : class, ICollection<TElement>
+                where TRelatedEntity : TElement
+                where TCollection : class, ICollection<TElement>
             {
                 if (resultCoordinator.DataReaders.Count <= collectionId
                     || resultCoordinator.DataReaders[collectionId] == null)

@@ -196,17 +196,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 if (extensionExpression is CollectionShaperExpression collectionShaperExpression)
                 {
+                    var navigation = collectionShaperExpression.Navigation;
+                    var collectionAccessor = navigation?.GetCollectionAccessor();
+                    var collectionType = collectionAccessor?.CollectionType ?? collectionShaperExpression.Type;
                     var elementType = collectionShaperExpression.ElementType;
-                    var collectionType = collectionShaperExpression.Type;
 
                     return Expression.Call(
                         _materializeCollectionMethodInfo.MakeGenericMethod(elementType, collectionType),
                         QueryCompilationContext.QueryContextParameter,
                         collectionShaperExpression.Projection,
                         Expression.Constant(((LambdaExpression)Visit(collectionShaperExpression.InnerShaper)).Compile()),
-                        Expression.Constant(
-                            collectionShaperExpression.Navigation?.GetCollectionAccessor(),
-                            typeof(IClrCollectionAccessor)));
+                        Expression.Constant(collectionAccessor, typeof(IClrCollectionAccessor)));
                 }
 
                 if (extensionExpression is SingleResultShaperExpression singleResultShaperExpression)
