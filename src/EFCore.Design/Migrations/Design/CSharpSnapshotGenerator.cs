@@ -1207,113 +1207,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates a Fluent API call for the max length configuration.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateFluentApiForMaxLength(
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            if (property.GetMaxLength() is int maxLength)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".")
-                    .Append(nameof(PropertyBuilder.HasMaxLength))
-                    .Append("(")
-                    .Append(Code.Literal(maxLength))
-                    .Append(")");
-            }
-        }
-
-        /// <summary>
-        ///     Generates a Fluent API call for the Precision and Scale configuration.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateFluentApiForPrecisionAndScale(
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            if (property.GetPrecision() is int precision)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".")
-                    .Append(nameof(PropertyBuilder.HasPrecision))
-                    .Append("(")
-                    .Append(Code.UnknownLiteral(precision));
-
-                if (property.GetScale() is int scale)
-                {
-                    if (scale != 0)
-                    {
-                        stringBuilder
-                            .Append(", ")
-                            .Append(Code.UnknownLiteral(scale));
-                    }
-                }
-
-                stringBuilder.Append(")");
-            }
-        }
-
-        /// <summary>
-        ///     Generates a Fluent API call for the unicode configuration.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateFluentApiForIsUnicode(
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            if (property.IsUnicode() is bool unicode)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".")
-                    .Append(nameof(PropertyBuilder.IsUnicode))
-                    .Append("(")
-                    .Append(Code.Literal(unicode))
-                    .Append(")");
-            }
-        }
-
-        /// <summary>
-        ///     Generates a Fluent API call for the default value annotations.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateFluentApiForDefaultValue(
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
-        {
-            var defaultValue = property.GetDefaultValue();
-            if (defaultValue == null)
-            {
-                return;
-            }
-
-            stringBuilder
-                .AppendLine()
-                .Append(".")
-                .Append(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))
-                .Append("(");
-
-            if (defaultValue != DBNull.Value)
-            {
-                stringBuilder
-                    .Append(Code.UnknownLiteral(FindValueConverter(property) is ValueConverter valueConverter
-                        ? valueConverter.ConvertToProvider(defaultValue)
-                        : defaultValue));
-            }
-
-            stringBuilder
-                .Append(")");
-        }
-
-        /// <summary>
         ///     Generates code for an annotation which does not have a fluent API call.
         /// </summary>
         /// <param name="annotation"> The annotation. </param>
@@ -1415,6 +1308,93 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .AppendLine(");");
+        }
+
+        private void GenerateFluentApiForMaxLength(
+            [NotNull] IProperty property,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            if (property.GetMaxLength() is int maxLength)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".")
+                    .Append(nameof(PropertyBuilder.HasMaxLength))
+                    .Append("(")
+                    .Append(Code.Literal(maxLength))
+                    .Append(")");
+            }
+        }
+
+        private void GenerateFluentApiForPrecisionAndScale(
+            [NotNull] IProperty property,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            if (property.GetPrecision() is int precision)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".")
+                    .Append(nameof(PropertyBuilder.HasPrecision))
+                    .Append("(")
+                    .Append(Code.UnknownLiteral(precision));
+
+                if (property.GetScale() is int scale)
+                {
+                    if (scale != 0)
+                    {
+                        stringBuilder
+                            .Append(", ")
+                            .Append(Code.UnknownLiteral(scale));
+                    }
+                }
+
+                stringBuilder.Append(")");
+            }
+        }
+
+        private void GenerateFluentApiForIsUnicode(
+            [NotNull] IProperty property,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            if (property.IsUnicode() is bool unicode)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".")
+                    .Append(nameof(PropertyBuilder.IsUnicode))
+                    .Append("(")
+                    .Append(Code.Literal(unicode))
+                    .Append(")");
+            }
+        }
+
+        private void GenerateFluentApiForDefaultValue(
+            [NotNull] IProperty property,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            var defaultValue = property.GetDefaultValue();
+            if (defaultValue == null)
+            {
+                return;
+            }
+
+            stringBuilder
+                .AppendLine()
+                .Append(".")
+                .Append(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))
+                .Append("(");
+
+            if (defaultValue != DBNull.Value)
+            {
+                stringBuilder
+                    .Append(Code.UnknownLiteral(FindValueConverter(property) is ValueConverter valueConverter
+                        ? valueConverter.ConvertToProvider(defaultValue)
+                        : defaultValue));
+            }
+
+            stringBuilder
+                .Append(")");
         }
     }
 }
