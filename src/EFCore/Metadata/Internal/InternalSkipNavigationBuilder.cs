@@ -319,10 +319,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
-        IConventionSkipNavigation IConventionSkipNavigationBuilder.Metadata
+        IConventionPropertyBase IConventionPropertyBaseBuilder.Metadata
         {
             [DebuggerStepThrough] get => Metadata;
         }
+
+        IConventionSkipNavigation IConventionSkipNavigationBuilder.Metadata
+        {
+            [DebuggerStepThrough]
+            get => Metadata;
+        }
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.HasField(string fieldName, bool fromDataAnnotation)
+            => HasField(
+                fieldName,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.HasField(FieldInfo fieldInfo, bool fromDataAnnotation)
+            => HasField(
+                fieldInfo,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
@@ -340,16 +360,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionSkipNavigationBuilder.CanSetField(string fieldName, bool fromDataAnnotation)
+        bool IConventionPropertyBaseBuilder.CanSetField(string fieldName, bool fromDataAnnotation)
             => CanSetField(
                 fieldName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionSkipNavigationBuilder.CanSetField(FieldInfo fieldInfo, bool fromDataAnnotation)
+        bool IConventionPropertyBaseBuilder.CanSetField(FieldInfo fieldInfo, bool fromDataAnnotation)
             => CanSetField(
                 fieldInfo,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.UsePropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+            => UsePropertyAccessMode(
+                propertyAccessMode,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -362,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionSkipNavigationBuilder.CanSetPropertyAccessMode(
+        bool IConventionPropertyBaseBuilder.CanSetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
             => CanSetPropertyAccessMode(
                 propertyAccessMode,

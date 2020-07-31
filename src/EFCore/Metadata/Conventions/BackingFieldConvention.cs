@@ -57,11 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionPropertyBuilder propertyBuilder,
             IConventionContext<IConventionPropertyBuilder> context)
         {
-            var field = GetFieldToSet(propertyBuilder.Metadata);
-            if (field != null)
-            {
-                propertyBuilder.HasField(field);
-            }
+            DiscoverField(propertyBuilder);
         }
 
         /// <inheritdoc/>
@@ -69,11 +65,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionNavigationBuilder navigationBuilder,
             IConventionContext<IConventionNavigationBuilder> context)
         {
-            var navigation = navigationBuilder.Metadata;
-            var field = GetFieldToSet(navigation);
-            if (field != null)
+            DiscoverField(navigationBuilder);
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessSkipNavigationAdded(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            IConventionContext<IConventionSkipNavigationBuilder> context)
+        {
+            DiscoverField(skipNavigationBuilder);
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
+        {
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                navigation.Builder.HasField(field);
+                foreach (var property in entityType.GetDeclaredProperties())
+                {
+                    var ambiguousField = property.FindAnnotation(CoreAnnotationNames.AmbiguousField);
+                    if (ambiguousField != null)
+                    {
+                        if (property.GetFieldName() == null)
+                        {
+                            throw new InvalidOperationException((string)ambiguousField.Value);
+                        }
+
+                        property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);
+                    }
+                }
+            }
+        }
+
+        private void DiscoverField(IConventionPropertyBaseBuilder conventionPropertyBaseBuilder)
+        {
+            if (ConfigurationSource.Convention.Overrides(conventionPropertyBaseBuilder.Metadata.GetFieldInfoConfigurationSource()))
+            {
+                var field = GetFieldToSet(conventionPropertyBaseBuilder.Metadata);
+                if (field != null)
+                {
+                    conventionPropertyBaseBuilder.HasField(field);
+                }
             }
         }
 
@@ -237,41 +271,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 right = middle - 1;
-            }
-        }
-
-        /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(
-            IConventionModelBuilder modelBuilder,
-            IConventionContext<IConventionModelBuilder> context)
-        {
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
-            {
-                foreach (var property in entityType.GetDeclaredProperties())
-                {
-                    var ambiguousField = property.FindAnnotation(CoreAnnotationNames.AmbiguousField);
-                    if (ambiguousField != null)
-                    {
-                        if (property.GetFieldName() == null)
-                        {
-                            throw new InvalidOperationException((string)ambiguousField.Value);
-                        }
-
-                        property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);
-                    }
-                }
-            }
-        }
-
-        /// <inheritdoc />
-        public virtual void ProcessSkipNavigationAdded(
-            IConventionSkipNavigationBuilder skipNavigationBuilder,
-            IConventionContext<IConventionSkipNavigationBuilder> context)
-        {
-            var field = GetFieldToSet(skipNavigationBuilder.Metadata);
-            if (field != null)
-            {
-                skipNavigationBuilder.HasField(field);
             }
         }
     }

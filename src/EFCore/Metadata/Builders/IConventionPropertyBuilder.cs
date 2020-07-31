@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IConventionPropertyBuilder : IConventionAnnotatableBuilder
+    public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     {
         /// <summary>
         ///     Gets the property being configured.
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionPropertyBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
+        new IConventionPropertyBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the backing field to use for this property.
@@ -128,25 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionPropertyBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the backing field can be set for this property
-        ///     from the current configuration source.
-        /// </summary>
-        /// <param name="fieldName"> The field name. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the backing field can be set for this property. </returns>
-        bool CanSetField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the backing field can be set for this property
-        ///     from the current configuration source.
-        /// </summary>
-        /// <param name="fieldInfo"> The field. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the backing field can be set for this property. </returns>
-        bool CanSetField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
+        new IConventionPropertyBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
@@ -157,16 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionPropertyBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the <see cref="PropertyAccessMode" /> can be set for this property
-        ///     from the current configuration source.
-        /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the <see cref="PropertyAccessMode" /> can be set for this property. </returns>
-        bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
+        new IConventionPropertyBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the maximum length of data that can be stored in this property.
