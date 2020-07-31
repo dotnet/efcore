@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new ValueTask<int>(result);
             }
 
-            public virtual ValueTask SaveChangesFailedAsync(
+            public virtual Task SaveChangesFailedAsync(
                 DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
             {
                 Assert.NotNull(eventData.Context);
@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore
                 FailedCalled = true;
                 AsyncCalled = true;
 
-                return new ValueTask();
+                return Task.CompletedTask;
             }
         }
 
