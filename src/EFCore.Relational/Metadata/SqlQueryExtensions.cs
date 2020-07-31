@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         /// <summary>
         ///     Gets the name used for the <see cref="ISqlQuery" /> mapped using
-        ///     <see cref="M:RelationalEntityTypeBuilderExtensions.ToQuerySql" />.
+        ///     <see cref="M:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
         /// </summary>
         public static readonly string DefaultQueryNameBase = "MappedSqlQuery";
 

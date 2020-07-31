@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -373,6 +374,10 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Produce>()
                     .HasIndex(e => e.BarCode)
                     .IsUnique();
+
+                modelBuilder.Entity<OptionalSingle2Derived>()
+                    .Property<string>("Discriminator")
+                    .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
             }
 
             protected virtual object CreateFullGraph()

@@ -800,56 +800,36 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return source;
                 }
 
+                var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
+                var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
+                source = TranslateWhere(source, predicate);
+                if (source == null)
+                {
+                    // EntityType is not part of hierarchy
+                    return null;
+                }
+
                 var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
                 if (baseType != null)
                 {
                     return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(baseType));
                 }
 
-                var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == resultType);
-                if (derivedType != null)
-                {
-                    var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
-                    var parameter = Expression.Parameter(entityType.ClrType);
+                var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
+                var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
-                    var equals = Expression.Equal(
-                        parameter.CreateEFPropertyExpression(discriminatorProperty),
-                        Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                var projectionMember = projectionBindingExpression.ProjectionMember;
+                Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
 
-                    foreach (var derivedDerivedType in derivedType.GetDerivedTypes())
+                var entityProjectionExpression = (EntityProjectionExpression)inMemoryQueryExpression.GetMappedProjection(projectionMember);
+                inMemoryQueryExpression.ReplaceProjectionMapping(
+                    new Dictionary<ProjectionMember, Expression>
                     {
-                        equals = Expression.OrElse(
-                            equals,
-                            Expression.Equal(
-                                parameter.CreateEFPropertyExpression(discriminatorProperty),
-                                Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
-                    }
+                            { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
+                    });
 
-                    var discriminatorPredicate = TranslateLambdaExpression(source, Expression.Lambda(equals, parameter));
-                    if (discriminatorPredicate == null)
-                    {
-                        return null;
-                    }
-
-                    inMemoryQueryExpression.UpdateServerQueryExpression(
-                        Expression.Call(
-                            EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
-                            inMemoryQueryExpression.ServerQueryExpression,
-                            discriminatorPredicate));
-
-                    var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                    var projectionMember = projectionBindingExpression.ProjectionMember;
-                    var entityProjection = (EntityProjectionExpression)inMemoryQueryExpression.GetMappedProjection(projectionMember);
-
-                    inMemoryQueryExpression.ReplaceProjectionMapping(
-                        new Dictionary<ProjectionMember, Expression>
-                        {
-                            { projectionMember, entityProjection.UpdateEntityType(derivedType) }
-                        });
-
-                    return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(derivedType));
-                }
+                return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(derivedType));
             }
 
             return null;

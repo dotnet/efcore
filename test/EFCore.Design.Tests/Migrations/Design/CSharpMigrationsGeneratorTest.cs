@@ -147,7 +147,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.NavigationAccessMode,
                 CoreAnnotationNames.EagerLoaded,
                 CoreAnnotationNames.QueryFilter,
+#pragma warning disable CS0612 // Type or member is obsolete
                 CoreAnnotationNames.DefiningQuery,
+#pragma warning restore CS0612 // Type or member is obsolete
                 CoreAnnotationNames.DiscriminatorProperty,
                 CoreAnnotationNames.DiscriminatorValue,
                 CoreAnnotationNames.InverseNavigations,

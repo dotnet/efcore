@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames
             = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 
-        private readonly Dictionary<Type, ConfigurationSource> _sharedTypes = new Dictionary<Type, ConfigurationSource>();
+        private readonly Dictionary<Type, ConfigurationSource> _sharedTypes =
+            new Dictionary<Type, ConfigurationSource> { { DefaultPropertyBagType, ConfigurationSource.Convention } };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

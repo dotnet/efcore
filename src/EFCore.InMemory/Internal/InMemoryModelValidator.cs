@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (InMemoryEntityTypeExtensions.GetDefiningQuery(entityType) != null)
+                if (entityType.GetInMemoryQuery() != null)
                 {
                     if (entityType.BaseType != null)
                     {

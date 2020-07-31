@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore
                     lastEntry.State = EntityState.Unchanged;
                     firstEntry.Entity.Name = "John";
                     firstEntry.State = EntityState.Modified;
-                    if (AreSavepointsSupported)
+                    if (SavepointsSupported)
                     {
                         await context.SaveChangesAsync();
                     }
@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore
                     lastEntry.State = EntityState.Unchanged;
                     firstEntry.Entity.Name = "John";
                     firstEntry.State = EntityState.Modified;
-                    if (AreSavepointsSupported)
+                    if (SavepointsSupported)
                     {
                         context.SaveChanges();
                     }
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Database.AutoTransactionsEnabled = true;
             }
 
-            if (AreSavepointsSupported)
+            if (SavepointsSupported)
             {
                 using var context = CreateContext();
                 Assert.Equal(Customers.Count, context.Set<TransactionCustomer>().Count());
@@ -1223,7 +1223,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual bool DirtyReadsOccur => true;
 
-        protected virtual bool AreSavepointsSupported => true;
+        protected virtual bool SavepointsSupported => true;
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 

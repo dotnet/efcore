@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             await base.CommitAsync(cancellationToken);
         }
 
-        public override bool AreSavepointsSupported => true;
+        public override bool SupportsSavepoints => true;
 
         /// <inheritdoc />
         protected override string GetCreateSavepointSql(string name) => "SAVE TRANSACTION " + name;

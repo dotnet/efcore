@@ -881,9 +881,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         private class ManyToManyNavPrincipal
         {
+            private readonly List<NavDependent> _randomField;
+
+            public ManyToManyNavPrincipal()
+            {
+                _randomField = new List<NavDependent>();
+            }
+
             public int Id { get; set; }
             public string Name { get; set; }
 
+            [BackingField("_randomField")]
             public List<NavDependent> Dependents { get; set; }
         }
 
@@ -1093,6 +1101,32 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
             [NotMapped]
             public string Value { get; set; }
+        }
+
+        protected class ReferenceNavigationToSharedType
+        {
+            public int Id { get; set; }
+            public Dictionary<string, object> Navigation { get; set; }
+        }
+
+        protected class CollectionNavigationToSharedType
+        {
+            public int Id { get; set; }
+            public List<Dictionary<string, object>> Navigation { get; set; }
+        }
+
+        protected class AmbigiousManyToManyImplicitLeft
+        {
+            public int Id { get; set; }
+            public List<AmbigiousManyToManyImplicitRight> Navigation1 { get; } = new List<AmbigiousManyToManyImplicitRight>();
+            public List<AmbigiousManyToManyImplicitRight> Navigation2 { get; } = new List<AmbigiousManyToManyImplicitRight>();
+        }
+
+        protected class AmbigiousManyToManyImplicitRight
+        {
+            public int Id { get; set; }
+            public List<AmbigiousManyToManyImplicitLeft> Navigation1 { get; } = new List<AmbigiousManyToManyImplicitLeft>();
+            public List<AmbigiousManyToManyImplicitLeft> Navigation2 { get; } = new List<AmbigiousManyToManyImplicitLeft>();
         }
     }
 }

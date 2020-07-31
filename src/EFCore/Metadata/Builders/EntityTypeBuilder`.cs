@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="query"> The query that will provide the underlying data for the keyless entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToQuery")]
+        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery")]
         public virtual EntityTypeBuilder<TEntity> ToQuery([NotNull] Expression<Func<IQueryable<TEntity>>> query)
         {
             Check.NotNull(query, nameof(query));

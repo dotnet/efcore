@@ -221,6 +221,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ConnectionStringConflictingConfiguration");
 
         /// <summary>
+        ///     'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.
+        /// </summary>
+        public static string InvalidDerivedTypeInEntityProjection([CanBeNull] object derivedType, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
+                derivedType, entityType);
+
+        /// <summary>
         ///     Reverse could not be translated to the server because there is no ordering on the server side.
         /// </summary>
         public static string MissingOrderingInSqlExpression

@@ -14,10 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = base.CreateConventionalModelBuilder();
             var context = new DbContext(new DbContextOptions<DbContext>());
-            InMemoryEntityTypeBuilderExtensions.ToQuery(
-                modelBuilder.Entity<Abstract>().HasNoKey(), () => context.Set<Abstract>());
-            InMemoryEntityTypeBuilderExtensions.ToQuery(
-                modelBuilder.Entity<Generic<int>>(), () => context.Set<Generic<int>>());
+            modelBuilder.Entity<Abstract>().HasNoKey().ToInMemoryQuery(() => context.Set<Abstract>());
+            modelBuilder.Entity<Generic<int>>().ToInMemoryQuery(() => context.Set<Generic<int>>());
 
             VerifyError(
                 CoreStrings.DerivedTypeDefiningQuery("Generic<int>", nameof(Abstract)),

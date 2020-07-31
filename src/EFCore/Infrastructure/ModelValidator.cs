@@ -29,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class ModelValidator : IModelValidator
     {
+        private static readonly IEnumerable<string> _dictionaryProperties =
+            typeof(IDictionary<string, object>).GetRuntimeProperties().Select(e => e.Name);
+
         /// <summary>
         ///     Creates a new instance of <see cref="ModelValidator" />.
         /// </summary>
@@ -169,13 +172,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 clrProperties.UnionWith(
                     runtimeProperties.Values
-                        .Where(pi => pi.IsCandidateProperty())
+                        .Where(pi => pi.IsCandidateProperty(needsWrite: false))
                         .Select(pi => pi.GetSimpleMemberName()));
 
                 clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
                 clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
                 clrProperties.ExceptWith(entityType.GetSkipNavigations().Select(p => p.Name));
                 clrProperties.ExceptWith(entityType.GetServiceProperties().Select(p => p.Name));
+                if (entityType.IsPropertyBag)
+                {
+                    clrProperties.ExceptWith(_dictionaryProperties);
+                }
                 clrProperties.RemoveWhere(p => entityType.FindIgnoredConfigurationSource(p) != null);
 
                 if (clrProperties.Count <= 0)
@@ -196,7 +203,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         continue;
                     }
 
+                    if (model.IsShared(propertyType)
+                        || (targetSequenceType != null && model.IsShared(targetSequenceType)))
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.NonconfiguredNavigationToSharedType(actualProperty.Name, entityType.DisplayName()));
+                    }
+
                     var targetType = FindCandidateNavigationPropertyType(actualProperty);
+
+                    if ((targetType == null // Not a navigation
+                        || targetSequenceType == null) // Not a collection navigation
+                        && actualProperty.FindSetterProperty() == null) // No setter property
+                    {
+                        continue;
+                    }
 
                     var isTargetWeakOrOwned
                         = targetType != null

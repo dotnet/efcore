@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IReadOnlyList<string> Parameters => ((TestSqlLogger)Logger).Parameters;
         public string Sql => string.Join(_eol + _eol, SqlStatements);
 
-        public void AssertBaseline(string[] expected)
+        public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
             if (_proceduralQueryGeneration)
             {
@@ -44,16 +44,28 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             try
             {
-                for (var i = 0; i < expected.Length; i++)
+                if (assertOrder)
                 {
-                    Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
-                }
+                    for (var i = 0; i < expected.Length; i++)
+                    {
+                        Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
+                    }
 
-                Assert.Empty(SqlStatements.Skip(expected.Length));
+                    Assert.Empty(SqlStatements.Skip(expected.Length));
+                }
+                else
+                {
+                    foreach (var expectedFragment in expected)
+                    {
+                        var normalizedExpectedFragment = expectedFragment.Replace("\r", string.Empty).Replace("\n", _eol);
+                        Assert.Contains(
+                            normalizedExpectedFragment,
+                            SqlStatements);
+                    }
+                }
             }
             catch
             {
-                var writeToLog = true;
                 var methodCallLine = Environment.StackTrace.Split(
                     new[] { _eol },
                     StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
@@ -64,65 +76,31 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var fileName = parts[1][..^5];
                 var lineNumber = int.Parse(parts[2]);
 
-                if (writeToLog || SqlStatements.Count > 9)
-                {
-                    var currentDirectory = Directory.GetCurrentDirectory();
-                    var logFile = currentDirectory.Substring(
-                            0,
-                            currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
-                        + "QueryBaseline.txt";
+                var currentDirectory = Directory.GetCurrentDirectory();
+                var logFile = currentDirectory.Substring(
+                        0,
+                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                    + "QueryBaseline.txt";
 
-                    var testInfo = testName + " : " + lineNumber + FileNewLine;
-                    const string indent = FileNewLine + "                ";
+                var testInfo = testName + " : " + lineNumber + FileNewLine;
+                const string indent = FileNewLine + "                ";
 
-                    var newBaseLine = $@"            AssertSql(
+                var newBaseLine = $@"            AssertSql(
                 {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
 
 ";
 
-                    if (SqlStatements.Count > 9)
-                    {
-                        newBaseLine += "Output truncated.";
-                    }
-
-                    Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
-                    Logger.TestOutputHelper?.WriteLine(newBaseLine);
-
-                    var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
-
-                    File.AppendAllText(logFile, contents);
-                }
-                else
+                if (SqlStatements.Count > 9)
                 {
-                    var indentCount = 3;
-                    var initialIndent = string.Join("", Enumerable.Repeat("    ", indentCount));
-                    var additionalIndent = initialIndent + "    ";
-                    var existingLines = File.ReadAllLines(fileName);
-                    var newBaseLine = $@"{initialIndent}AssertSql(
-{additionalIndent}{string.Join("," + FileNewLine + additionalIndent + "//" + FileNewLine + additionalIndent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});";
-                    var newLines = newBaseLine.Split(Environment.NewLine);
-                    using (var fileStream = File.Open(fileName, FileMode.Open))
-                    {
-                        using (var streamWriter = new StreamWriter(fileStream))
-                        {
-                            for (var i = 1; i <= existingLines.Length; i++)
-                            {
-                                if (i == lineNumber)
-                                {
-                                    for (var j = 0; j < newLines.Length; i++, j++)
-                                    {
-                                        streamWriter.WriteLine(newLines[j]);
-                                    }
-                                }
-
-                                streamWriter.WriteLine(existingLines[i - 1]);
-                            }
-                        }
-                    }
-
-                    Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
-                    Logger.TestOutputHelper?.WriteLine(newBaseLine);
+                    newBaseLine += "Output truncated.";
                 }
+
+                Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
+                Logger.TestOutputHelper?.WriteLine(newBaseLine);
+
+                var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
+
+                File.AppendAllText(logFile, contents);
 
                 throw;
             }

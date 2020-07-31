@@ -18,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     {
         private readonly IRelationalCommand _relationalCommand;
         private readonly DbContext _context;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
 
         /// <summary>
         ///     Creates a new instance of the command.
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             _relationalCommand = relationalCommand;
             _context = context;
-            _logger = logger;
+            CommandLogger = logger;
             TransactionSuppressed = transactionSuppressed;
         }
 
@@ -50,6 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The SQL command text that will be executed against the database.
         /// </summary>
         public virtual string CommandText => _relationalCommand.CommandText;
+
+        /// <summary>
+        ///     The associated command logger.
+        /// </summary>
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
 
         /// <summary>
         ///     Executes the command and returns the number of rows affected.
@@ -66,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     parameterValues,
                     null,
                     _context,
-                    _logger));
+                    CommandLogger));
 
         /// <summary>
         ///     Executes the command and returns the number of rows affected.
@@ -85,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     parameterValues,
                     null,
                     _context,
-                    _logger),
+                    CommandLogger),
                 cancellationToken);
     }
 }

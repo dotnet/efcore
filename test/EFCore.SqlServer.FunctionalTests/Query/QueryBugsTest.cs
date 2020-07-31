@@ -4436,7 +4436,7 @@ ORDER BY [p].[Id], [a].[Id]");
             {
                 modelBuilder.Entity<OrderSummary13346>()
                     .HasNoKey()
-                    .ToQuerySql("SELECT o.Amount From Orders AS o");
+                    .ToSqlQuery("SELECT o.Amount From Orders AS o");
             }
         }
 
@@ -8030,6 +8030,174 @@ WHERE [b].[Id] = 1");
                 });
 
         #endregion
+
+        #region Issue19206
+
+        [ConditionalFact]
+        public virtual void From_sql_expression_compares_correctly()
+        {
+            using (CreateDatabase19206())
+            {
+                using var context = new MyContext19206(_options);
+                var query = from t1 in context.Tests.FromSqlInterpolated($"Select * from Tests Where Type = {TestType19206.Unit}")
+                            from t2 in context.Tests.FromSqlInterpolated($"Select * from Tests Where Type = {TestType19206.Integration}")
+                            select new { t1, t2 };
+
+                var result = query.ToList();
+
+                var item = Assert.Single(result);
+                Assert.Equal(TestType19206.Unit, item.t1.Type);
+                Assert.Equal(TestType19206.Integration, item.t2.Type);
+
+                AssertSql(
+                    @"p0='0'
+p1='1'
+
+SELECT [t].[Id], [t].[Type], [t0].[Id], [t0].[Type]
+FROM (
+    Select * from Tests Where Type = @p0
+) AS [t]
+CROSS JOIN (
+    Select * from Tests Where Type = @p1
+) AS [t0]");
+            }
+        }
+
+        public class Test19206
+        {
+            public int Id { get; set; }
+            public TestType19206 Type { get; set; }
+        }
+
+        public enum TestType19206
+        {
+            Unit,
+            Integration,
+        }
+
+        private class MyContext19206 : DbContext
+        {
+            public DbSet<Test19206> Tests { get; set; }
+
+            public MyContext19206(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase19206()
+            => CreateTestStore(
+                () => new MyContext19206(_options),
+                context =>
+                {
+                    context.Add(new Test19206 { Type = TestType19206.Unit });
+                    context.Add(new Test19206 { Type = TestType19206.Integration });
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+
+        #region Issue 18510
+
+        [ConditionalFact]
+        public virtual void Invoke_inside_query_filter_gets_correctly_evaluated_during_translation()
+        {
+            using (CreateDatabase18510())
+            {
+                using var context = new MyContext18510(_options);
+
+                context.TenantId = 1;
+                var query1 = context.Entities.ToList();
+                Assert.True(query1.All(x => x.TenantId == 1));
+
+                context.TenantId = 2;
+                var query2 = context.Entities.ToList();
+                Assert.True(query2.All(x => x.TenantId == 2));
+
+                AssertSql(
+                    @"@__ef_filter__p_0='1'
+
+SELECT [e].[Id], [e].[Name], [e].[TenantId]
+FROM [Entities] AS [e]
+WHERE (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL) AND ([e].[TenantId] = @__ef_filter__p_0)",
+                    //
+                    @"@__ef_filter__p_0='2'
+
+SELECT [e].[Id], [e].[Name], [e].[TenantId]
+FROM [Entities] AS [e]
+WHERE (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL) AND ([e].[TenantId] = @__ef_filter__p_0)");
+            }
+        }
+
+        public class MyEntity18510
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public int TenantId { get; set; }
+        }
+
+        private class MyContext18510 : DbContext
+        {
+            public DbSet<MyEntity18510> Entities { get; set; }
+
+            public int TenantId { get; set; }
+
+            public MyContext18510(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<MyEntity18510>().HasQueryFilter(x => x.Name != "Foo");
+
+                var entityType = modelBuilder.Model.GetEntityTypes().Single(et => et.ClrType == typeof(MyEntity18510));
+                var queryFilter = entityType.GetQueryFilter();
+                Expression<Func<int>> tenantFunc = () => TenantId;
+                var tenant = Expression.Invoke(tenantFunc);
+
+                var efPropertyMethod = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property)).MakeGenericMethod(typeof(int));
+                var prm = queryFilter.Parameters[0];
+                var efPropertyMethodCall = Expression.Call(efPropertyMethod, prm, Expression.Constant("TenantId"));
+
+                var updatedQueryFilter = Expression.Lambda(
+                    Expression.AndAlso(
+                        queryFilter.Body,
+                        Expression.Equal(
+                            efPropertyMethodCall,
+                            tenant)),
+                    prm);
+
+                entityType.SetQueryFilter(updatedQueryFilter);
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase18510()
+            => CreateTestStore(
+                () => new MyContext18510(_options),
+                context =>
+                {
+                    var e1 = new MyEntity18510 { Name = "e1", TenantId = 1 };
+                    var e2 = new MyEntity18510 { Name = "e2", TenantId = 2 };
+                    var e3 = new MyEntity18510 { Name = "e3", TenantId = 2 };
+                    var e4 = new MyEntity18510 { Name = "Foo", TenantId = 2 };
+
+                    context.Entities.AddRange(e1, e2, e3, e4);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Assert.Equal(1, commandList.Count);
 
             Assert.Equal(suppressTransaction, commandList[0].TransactionSuppressed);
+            Assert.NotNull(commandList[0].CommandLogger);
             Assert.Equal(
                 @"Statement1
 Statement2
@@ -58,6 +59,7 @@ Statement3
             Assert.Equal(3, commandList.Count);
 
             Assert.Equal(suppressTransaction, commandList[0].TransactionSuppressed);
+            Assert.NotNull(commandList[0].CommandLogger);
             Assert.Equal(
                 @"Statement1
 ",
@@ -65,6 +67,7 @@ Statement3
                 ignoreLineEndingDifferences: true);
 
             Assert.Equal(suppressTransaction, commandList[1].TransactionSuppressed);
+            Assert.NotNull(commandList[1].CommandLogger);
             Assert.Equal(
                 @"Statement2
 Statement3
@@ -73,6 +76,7 @@ Statement3
                 ignoreLineEndingDifferences: true);
 
             Assert.Equal(suppressTransaction, commandList[2].TransactionSuppressed);
+            Assert.NotNull(commandList[2].CommandLogger);
             Assert.Equal(
                 @"Statement4
 Statement5
@@ -102,6 +106,7 @@ Statement6
             Assert.Equal(2, commandList.Count);
 
             Assert.Equal(suppressTransaction, commandList[0].TransactionSuppressed);
+            Assert.NotNull(commandList[0].CommandLogger);
             Assert.Equal(
                 @"Statement1
 ",
@@ -109,6 +114,7 @@ Statement6
                 ignoreLineEndingDifferences: true);
 
             Assert.Equal(suppressTransaction, commandList[1].TransactionSuppressed);
+            Assert.NotNull(commandList[1].CommandLogger);
             Assert.Equal(
                 @"Statement2
 Statement3

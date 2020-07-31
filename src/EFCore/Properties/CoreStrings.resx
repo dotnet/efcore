@@ -1444,4 +1444,7 @@
   <data name="SharedTypeDerivedType" xml:space="preserve">
     <value>The shared type entity type '{entityType}' cannot have a base type.</value>
   </data>
+  <data name="NonconfiguredNavigationToSharedType" xml:space="preserve">
+    <value>The navigation '{navigation}' on '{entityType}' must be configured using Fluent API with an explicit name for the target shared type entity type or excluded by calling 'EntityTypeBuilder.Ignore'.</value>
+  </data>
 </root>

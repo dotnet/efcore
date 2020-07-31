@@ -1943,8 +1943,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_is_conditional(bool async)
         {
-            var customer = new Customer();
-
             return AssertQuery(
                 async,
                 ss => ss.Set<Product>().Where(p => p is Product ? false : true));

@@ -620,6 +620,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool CanHaveNavigation([NotNull] string navigationName, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Configures a skip navigation and the inverse between this and the target entity type.
+        /// </summary>
+        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
+        /// <param name="navigationToTarget"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="inverseNavigation">
+        ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
+        ///     is specified, the relationship will be configured without a navigation property on the target end.
+        /// </param>
+        /// <param name="collections"> Whether both of the navigation properties are collections or aren't collections. </param>
+        /// <param name="onDependent">
+        ///     Whether both of the navigation property are defined on the dependent side of the underlying foreign keys.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the relationship if it exists on the entity type,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionSkipNavigationBuilder HasSkipNavigation(
+            [NotNull] MemberInfo navigationToTarget,
+            [NotNull] IConventionEntityType targetEntityType,
+            [NotNull] MemberInfo inverseNavigation,
+            bool? collections = null,
+            bool? onDependent = null,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Configures a skip navigation between this and the target entity type.
         /// </summary>
         /// <param name="navigationToTarget"> The navigation property. </param>
@@ -636,8 +662,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionSkipNavigationBuilder HasSkipNavigation(
             [NotNull] MemberInfo navigationToTarget,
             [NotNull] IConventionEntityType targetEntityType,
-            bool collection = true,
-            bool onDependent = false,
+            bool? collection = null,
+            bool? onDependent = null,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -657,8 +683,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionSkipNavigationBuilder HasSkipNavigation(
             [NotNull] string navigationName,
             [NotNull] IConventionEntityType targetEntityType,
-            bool collection = true,
-            bool onDependent = false,
+            bool? collection = null,
+            bool? onDependent = null,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -689,7 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
         /// </returns>
-        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToQuery")]
+        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery")]
         IConventionEntityTypeBuilder HasDefiningQuery([CanBeNull] LambdaExpression query, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -698,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="query"> The query that will provide the underlying data for the keyless entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given defining query can be set. </returns>
-        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.CanSetDefiningQuery")]
+        [Obsolete("Use InMemoryEntityTypeBuilderExtensions.CanSetInMemoryQuery")]
         bool CanSetDefiningQuery([CanBeNull] LambdaExpression query, bool fromDataAnnotation = false);
 
         /// <summary>

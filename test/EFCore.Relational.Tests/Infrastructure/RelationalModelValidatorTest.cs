@@ -411,8 +411,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
-            modelBuilder.Entity<A>().ToTable("Table", excludedFromMigrations: true);
-            modelBuilder.Entity<B>().ToTable("Table", excludedFromMigrations: true);
+            modelBuilder.Entity<A>().ToTable("Table", t => t.IsExcludedFromMigrations());
+            modelBuilder.Entity<B>().ToTable("Table", t => t.IsExcludedFromMigrations());
 
             Validate(modelBuilder.Model);
         }
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<B>().OwnsOne(b => b.A);
-            modelBuilder.Entity<B>().ToTable("Table", excludedFromMigrations: true);
+            modelBuilder.Entity<B>().ToTable("Table", t => t.IsExcludedFromMigrations());
 
             var model = Validate(modelBuilder.Model);
 
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<A>().ToTable("Table", excludedFromMigrations: true);
+            modelBuilder.Entity<A>().ToTable("Table", t => t.IsExcludedFromMigrations());
             modelBuilder.Entity<C>();
 
             var model = Validate(modelBuilder.Model);
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
-            modelBuilder.Entity<A>().ToTable("Table", excludedFromMigrations: true);
+            modelBuilder.Entity<A>().ToTable("Table", t => t.IsExcludedFromMigrations());
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(

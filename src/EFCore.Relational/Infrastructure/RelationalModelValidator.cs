@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                var sqlQuery = entityType.GetQuerySql();
+                var sqlQuery = entityType.GetSqlQuery();
                 if (sqlQuery == null)
                 {
                     continue;
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 if (entityType.BaseType != null
                     && (entityType.GetDiscriminatorProperty() == null
-                        || sqlQuery != entityType.BaseType.GetQuerySql()))
+                        || sqlQuery != entityType.BaseType.GetSqlQuery()))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.InvalidMappedSqlQueryDerivedType(
@@ -883,13 +883,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
+            if (storeObject.StoreObjectType != StoreObjectType.Table)
+            {
+                return;
+            }
+
             var foreignKeyMappings = new Dictionary<string, IForeignKey>();
 
             foreach (var foreignKey in mappedTypes.SelectMany(et => et.GetDeclaredForeignKeys()))
             {
+                var principalTable = foreignKey.PrincipalEntityType.GetTableName();
+                var principalSchema = foreignKey.PrincipalEntityType.GetSchema();
+
+                if (principalTable == null)
+                {
+                    continue;
+                }
+
                 var foreignKeyName = foreignKey.GetConstraintName(
                     storeObject,
-                    StoreObjectIdentifier.Table(foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()));
+                    StoreObjectIdentifier.Table(principalTable, principalSchema));
                 if (!foreignKeyMappings.TryGetValue(foreignKeyName, out var duplicateForeignKey))
                 {
                     foreignKeyMappings[foreignKeyName] = foreignKey;

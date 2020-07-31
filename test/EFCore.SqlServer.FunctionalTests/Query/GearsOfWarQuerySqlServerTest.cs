@@ -2972,7 +2972,6 @@ WHERE @_outer_FullName = [w].[OwnerFullName]");
             AssertSql(
                 @"SELECT [f].[Name], [f].[Eradicated]
 FROM [Factions] AS [f]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -2983,7 +2982,6 @@ ORDER BY [f].[Name]");
             AssertSql(
                 @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
 FROM [Factions] AS [f]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -2994,7 +2992,6 @@ ORDER BY [f].[Name]");
             AssertSql(
                 @"SELECT [f].[Name], [f].[Eradicated]
 FROM [Factions] AS [f]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -3005,7 +3002,6 @@ ORDER BY [f].[Name]");
             AssertSql(
                 @"SELECT [f].[Name], [f].[Eradicated]
 FROM [Factions] AS [f]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -3021,7 +3017,6 @@ LEFT JOIN (
     FROM [LocustLeaders] AS [l]
     WHERE [l].[Discriminator] = N'LocustCommander'
 ) AS [t] ON [f].[CommanderName] = [t].[Name]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -3037,7 +3032,6 @@ LEFT JOIN (
     FROM [LocustLeaders] AS [l]
     WHERE [l].[Discriminator] = N'LocustCommander'
 ) AS [t] ON [f].[CommanderName] = [t].[Name]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -3053,7 +3047,6 @@ LEFT JOIN (
     FROM [LocustLeaders] AS [l]
     WHERE [l].[Discriminator] = N'LocustCommander'
 ) AS [t] ON [f].[CommanderName] = [t].[Name]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -3069,7 +3062,6 @@ LEFT JOIN (
     FROM [LocustLeaders] AS [l]
     WHERE [l].[Discriminator] = N'LocustCommander'
 ) AS [t] ON [f].[CommanderName] = [t].[Name]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -3083,7 +3075,6 @@ ORDER BY [f].[Name]");
     FROM [LocustLeaders] AS [l]
     WHERE [f].[Id] = [l].[LocustHordeId]) AS [LeadersCount]
 FROM [Factions] AS [f]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Name]");
         }
 
@@ -3095,7 +3086,6 @@ ORDER BY [f].[Name]");
                 @"SELECT [f].[Name], [l].[Name] AS [LeaderName]
 FROM [Factions] AS [f]
 INNER JOIN [LocustLeaders] AS [l] ON [f].[Id] = [l].[LocustHordeId]
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [l].[Name]");
         }
 
@@ -3166,7 +3156,7 @@ LEFT JOIN (
     WHERE [l].[Discriminator] = N'LocustCommander'
 ) AS [t0] ON [f].[CommanderName] = [t0].[Name]
 LEFT JOIN [Gears] AS [g0] ON ([t0].[DefeatedByNickname] = [g0].[Nickname]) AND ([t0].[DefeatedBySquadId] = [g0].[SquadId])
-WHERE (([f].[Discriminator] = N'LocustHorde') AND ([t].[HasSoulPatch] = CAST(1 AS bit))) AND (([g0].[Nickname] = [t].[Nickname]) AND ([g0].[SquadId] = [t].[SquadId]))");
+WHERE ([t].[HasSoulPatch] = CAST(1 AS bit)) AND (([g0].[Nickname] = [t].[Nickname]) AND ([g0].[SquadId] = [t].[SquadId]))");
         }
 
         public override async Task Comparing_entities_using_Equals_inheritance(bool async)
@@ -3219,8 +3209,7 @@ WHERE ([g].[Discriminator] = N'Officer') AND ((
     WHEN [f].[CommanderName] IS NOT NULL THEN [f].[CommanderName]
     ELSE NULL
 END
-FROM [Factions] AS [f]
-WHERE [f].[Discriminator] = N'LocustHorde'");
+FROM [Factions] AS [f]");
         }
 
         public override async Task Select_null_conditional_with_inheritance_negative(bool async)
@@ -3232,8 +3221,7 @@ WHERE [f].[Discriminator] = N'LocustHorde'");
     WHEN [f].[CommanderName] IS NOT NULL THEN [f].[Eradicated]
     ELSE NULL
 END
-FROM [Factions] AS [f]
-WHERE [f].[Discriminator] = N'LocustHorde'");
+FROM [Factions] AS [f]");
         }
 
         public override async Task Project_collection_navigation_with_inheritance1(bool async)
@@ -3284,7 +3272,6 @@ LEFT JOIN (
 ) AS [t] ON [f].[CommanderName] = [t].[Name]
 LEFT JOIN [Gears] AS [g] ON ([t].[DefeatedByNickname] = [g].[Nickname]) AND ([t].[DefeatedBySquadId] = [g].[SquadId])
 LEFT JOIN [Gears] AS [g0] ON (([g].[Nickname] = [g0].[LeaderNickname]) OR ([g].[Nickname] IS NULL AND [g0].[LeaderNickname] IS NULL)) AND ([g].[SquadId] = [g0].[LeaderSquadId])
-WHERE [f].[Discriminator] = N'LocustHorde'
 ORDER BY [f].[Id], [t].[Name], [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]");
         }
 
@@ -6017,7 +6004,7 @@ LEFT JOIN (
     FROM [LocustLeaders] AS [l]
     WHERE [l].[Discriminator] = N'LocustCommander'
 ) AS [t] ON [f].[CommanderName] = [t].[Name]
-WHERE ([f].[Discriminator] = N'LocustHorde') AND [t].[Name] IS NOT NULL");
+WHERE [t].[Name] IS NOT NULL");
         }
 
         public override async Task Navigation_based_on_complex_expression3(bool async)
@@ -6031,8 +6018,7 @@ LEFT JOIN (
     SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId]
     FROM [LocustLeaders] AS [l]
     WHERE [l].[Discriminator] = N'LocustCommander'
-) AS [t] ON [f].[CommanderName] = [t].[Name]
-WHERE [f].[Discriminator] = N'LocustHorde'");
+) AS [t] ON [f].[CommanderName] = [t].[Name]");
         }
 
         public override async Task Navigation_based_on_complex_expression4(bool async)

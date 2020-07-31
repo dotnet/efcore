@@ -808,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
-            return Expression.Constant(false);
+            return null;
         }
 
         /// <summary>

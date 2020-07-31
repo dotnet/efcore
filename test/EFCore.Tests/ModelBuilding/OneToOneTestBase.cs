@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -4051,6 +4052,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependent").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOnePrincipal").GetPropertyAccessMode());
+            }
+
+            [ConditionalFact]
+            public virtual void Navigation_to_shared_type_is_no_discovered_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<ReferenceNavigationToSharedType>();
+
+                Assert.Equal(
+                    CoreStrings.NonconfiguredNavigationToSharedType("Navigation", nameof(ReferenceNavigationToSharedType)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
         }
     }

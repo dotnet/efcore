@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeBaseTypeChangedConvention,
         IEntityTypeMemberIgnoredConvention,
         INavigationAddedConvention,
+        ISkipNavigationAddedConvention,
         IForeignKeyPrincipalEndChangedConvention
         where TAttribute : Attribute
     {
@@ -172,6 +173,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
+        public virtual void ProcessSkipNavigationAdded(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            IConventionContext<IConventionSkipNavigationBuilder> context)
+        {
+            var skipNavigation = skipNavigationBuilder.Metadata;
+            var attributes = GetAttributes<TAttribute>(skipNavigation.DeclaringEntityType, skipNavigation);
+            foreach (var attribute in attributes)
+            {
+                ProcessSkipNavigationAdded(skipNavigationBuilder, attribute, context);
+                if (((IReadableConventionContext)context).ShouldStopProcessing())
+                {
+                    break;
+                }
+            }
+        }
+
+        /// <inheritdoc />
         public virtual void ProcessForeignKeyPrincipalEndChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<IConventionForeignKeyBuilder> context)
@@ -234,8 +252,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
             [NotNull] IConventionEntityType entityType, [NotNull] IConventionNavigation navigation)
             where TCustomAttribute : Attribute
+            => GetAttributes<TCustomAttribute>(entityType, navigation.GetIdentifyingMemberInfo());
+
+        /// <summary>
+        ///     Returns the attributes applied to the given skip navigation.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="skipNavigation"> The skip navigation. </param>
+        /// <typeparam name="TCustomAttribute"> The attribute type to look for. </typeparam>
+        /// <returns> The attributes applied to the given skip navigation. </returns>
+        protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
+            [NotNull] IConventionEntityType entityType, [NotNull] IConventionSkipNavigation skipNavigation)
+            where TCustomAttribute : Attribute
+            => GetAttributes<TCustomAttribute>(entityType, skipNavigation.GetIdentifyingMemberInfo());
+
+        private static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
+            [NotNull] IConventionEntityType entityType, [NotNull] MemberInfo memberInfo)
+            where TCustomAttribute : Attribute
         {
-            var memberInfo = navigation.GetIdentifyingMemberInfo();
             if (!entityType.HasClrType()
                 || memberInfo == null)
             {
@@ -311,6 +345,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] IConventionNavigationBuilder navigationBuilder,
             [NotNull] TAttribute attribute,
             [NotNull] IConventionContext<IConventionNavigationBuilder> context)
+            => throw new NotImplementedException();
+
+        /// <summary>
+        ///     Called after a skip navigation property that has an attribute is added to an entity type.
+        /// </summary>
+        /// <param name="skipNavigationBuilder"> The builder for the navigation. </param>
+        /// <param name="attribute"> The attribute. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessSkipNavigationAdded(
+            [NotNull] IConventionSkipNavigationBuilder skipNavigationBuilder,
+            [NotNull] TAttribute attribute,
+            [NotNull] IConventionContext<IConventionSkipNavigationBuilder> context)
             => throw new NotImplementedException();
 
         /// <summary>

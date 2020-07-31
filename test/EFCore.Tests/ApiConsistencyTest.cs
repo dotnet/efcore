@@ -129,7 +129,19 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.Ignore)),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new []{ typeof(Type), typeof(bool) }),
-                typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new []{ typeof(string), typeof(bool) })
+                typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new []{ typeof(string), typeof(bool) }),
+                typeof(IConventionPropertyBuilder).GetMethod(nameof(IConventionPropertyBuilder.HasField), new[] {typeof(string), typeof(bool) }),
+                typeof(IConventionPropertyBuilder).GetMethod(nameof(IConventionPropertyBuilder.HasField), new[] {typeof(FieldInfo), typeof(bool) }),
+                typeof(IConventionPropertyBuilder).GetMethod(nameof(IConventionPropertyBuilder.UsePropertyAccessMode), new[] {typeof(PropertyAccessMode), typeof(bool) }),
+                typeof(IConventionServicePropertyBuilder).GetMethod(nameof(IConventionServicePropertyBuilder.HasField), new[] {typeof(string), typeof(bool) }),
+                typeof(IConventionServicePropertyBuilder).GetMethod(nameof(IConventionServicePropertyBuilder.HasField), new[] {typeof(FieldInfo), typeof(bool) }),
+                typeof(IConventionServicePropertyBuilder).GetMethod(nameof(IConventionServicePropertyBuilder.UsePropertyAccessMode), new[] {typeof(PropertyAccessMode), typeof(bool) }),
+                typeof(IConventionNavigationBuilder).GetMethod(nameof(IConventionNavigationBuilder.HasField), new[] {typeof(string), typeof(bool) }),
+                typeof(IConventionNavigationBuilder).GetMethod(nameof(IConventionNavigationBuilder.HasField), new[] {typeof(FieldInfo), typeof(bool) }),
+                typeof(IConventionNavigationBuilder).GetMethod(nameof(IConventionNavigationBuilder.UsePropertyAccessMode), new[] {typeof(PropertyAccessMode), typeof(bool) }),
+                typeof(IConventionSkipNavigationBuilder).GetMethod(nameof(IConventionSkipNavigationBuilder.HasField), new[] {typeof(string), typeof(bool) }),
+                typeof(IConventionSkipNavigationBuilder).GetMethod(nameof(IConventionSkipNavigationBuilder.HasField), new[] {typeof(FieldInfo), typeof(bool) }),
+                typeof(IConventionSkipNavigationBuilder).GetMethod(nameof(IConventionSkipNavigationBuilder.UsePropertyAccessMode), new[] {typeof(PropertyAccessMode), typeof(bool) }),
             };
 
             public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new HashSet<MethodInfo>
@@ -142,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
                 typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
                 typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
-                typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared))
+                typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
             };
         }
     }

@@ -842,7 +842,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IUpdateEntry principalEntry, IForeignKey foreignKey)
         {
             var dependentIdentityMap = FindIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey());
-            return dependentIdentityMap != null
+            return dependentIdentityMap != null && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
                 ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry)
                 : Enumerable.Empty<IUpdateEntry>();
         }

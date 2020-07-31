@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -55,17 +57,60 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     exception);
             }
 
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new DbContextErrorEventData(
-                    definition,
-                    SaveChangesFailed,
-                    context,
-                    exception);
+                var eventData = CreateDbContextErrorEventData(context, exception, definition);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                interceptor?.SaveChangesFailed(eventData);
             }
         }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.SaveChangesFailed" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="context"> The context in use. </param>
+        /// <param name="exception"> The exception that caused this event. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="ValueTask"/> for the async result. </returns>
+        public static ValueTask SaveChangesFailedAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] Exception exception,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = CoreResources.LogExceptionDuringSaveChanges(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(
+                    diagnostics,
+                    context.GetType(), Environment.NewLine, exception,
+                    exception);
+            }
+
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = CreateDbContextErrorEventData(context, exception, definition);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.SaveChangesFailedAsync(eventData, cancellationToken);
+                }
+            }
+
+            return new ValueTask();
+        }
+
+        private static DbContextErrorEventData CreateDbContextErrorEventData(
+            DbContext context, Exception exception, EventDefinition<Type, string, Exception> definition)
+            => new DbContextErrorEventData(definition, SaveChangesFailed, context, exception);
 
         private static string SaveChangesFailed(EventDefinitionBase definition, EventData payload)
         {
@@ -92,17 +137,62 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(diagnostics, exception);
             }
 
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new DbContextErrorEventData(
-                    definition,
-                    OptimisticConcurrencyException,
-                    context,
-                    exception);
+                var eventData = CreateDbContextErrorEventData(context, exception, definition);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                interceptor?.SaveChangesFailed(eventData);
             }
         }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="context"> The context in use. </param>
+        /// <param name="exception"> The exception that caused this event. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> A <see cref="ValueTask"/> for the async result. </returns>
+        public static ValueTask OptimisticConcurrencyExceptionAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] Exception exception,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, exception);
+            }
+
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = CreateDbContextErrorEventData(context, exception, definition);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.SaveChangesFailedAsync(eventData, cancellationToken);
+                }
+            }
+
+            return new ValueTask();
+        }
+
+        private static DbContextErrorEventData CreateDbContextErrorEventData(
+            DbContext context, Exception exception, EventDefinition<Exception> definition)
+            => new DbContextErrorEventData(
+                definition,
+                OptimisticConcurrencyException,
+                context,
+                exception);
 
         private static string OptimisticConcurrencyException(EventDefinitionBase definition, EventData payload)
         {
@@ -2967,7 +3057,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context being used. </param>
-        public static void SaveChangesStarting(
+        /// <returns> The, possibly intercepted, result. </returns>
+        public static InterceptionResult<int> SaveChangesStarting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context)
         {
@@ -2978,16 +3069,62 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(diagnostics,context.GetType().ShortDisplayName());
             }
 
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new DbContextEventData(
-                    definition,
-                    SaveChangesStarting,
-                    context);
+                var eventData = CreateSaveChangesStartingEventData(context, definition);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.SavingChanges(eventData, default);
+                }
             }
+
+            return default;
         }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.SaveChangesStarting" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="context"> The context being used. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> The, possibly intercepted, result. </returns>
+        public static ValueTask<InterceptionResult<int>> SaveChangesStartingAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] DbContext context,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = CoreResources.LogSaveChangesStarting(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics,context.GetType().ShortDisplayName());
+            }
+
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = CreateSaveChangesStartingEventData(context, definition);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.SavingChangesAsync(eventData, default, cancellationToken);
+                }
+            }
+
+            return default;
+        }
+
+        private static DbContextEventData CreateSaveChangesStartingEventData(DbContext context, EventDefinition<string> definition)
+            => new DbContextEventData(
+                definition,
+                SaveChangesStarting,
+                context);
 
         private static string SaveChangesStarting(EventDefinitionBase definition, EventData payload)
         {
@@ -3002,28 +3139,79 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context being used. </param>
         /// <param name="entitiesSavedCount"> The number of entities saved. </param>
-        public static void SaveChangesCompleted(
+        /// <returns> The, possibly intercepted, result. </returns>
+        public static int SaveChangesCompleted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
             int entitiesSavedCount)
         {
             var definition = CoreResources.LogSaveChangesCompleted(diagnostics);
 
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(diagnostics,context.GetType().ShortDisplayName(), entitiesSavedCount);
             }
 
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new SaveChangesCompletedEventData(
-                    definition,
-                    SaveChangesCompleted,
-                    context,
-                    entitiesSavedCount);
+                var eventData = CreateSaveChangesCompletedEventData(context, entitiesSavedCount, definition);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.SavedChanges(eventData, entitiesSavedCount);
+                }
             }
+
+            return entitiesSavedCount;
         }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.SaveChangesCompleted" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="context"> The context being used. </param>
+        /// <param name="entitiesSavedCount"> The number of entities saved. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <returns> The, possibly intercepted, result. </returns>
+        public static ValueTask<int> SaveChangesCompletedAsync(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] DbContext context,
+            int entitiesSavedCount,
+            CancellationToken cancellationToken = default)
+        {
+            var definition = CoreResources.LogSaveChangesCompleted(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics,context.GetType().ShortDisplayName(), entitiesSavedCount);
+            }
+
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = CreateSaveChangesCompletedEventData(context, entitiesSavedCount, definition);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+                if (interceptor != null)
+                {
+                    return interceptor.SavedChangesAsync(eventData, entitiesSavedCount, cancellationToken);
+                }
+            }
+
+            return new ValueTask<int>(entitiesSavedCount);
+        }
+
+        private static SaveChangesCompletedEventData CreateSaveChangesCompletedEventData(
+            DbContext context, int entitiesSavedCount, EventDefinition<string, int> definition)
+            => new SaveChangesCompletedEventData(
+                definition,
+                SaveChangesCompleted,
+                context,
+                entitiesSavedCount);
 
         private static string SaveChangesCompleted(EventDefinitionBase definition, EventData payload)
         {

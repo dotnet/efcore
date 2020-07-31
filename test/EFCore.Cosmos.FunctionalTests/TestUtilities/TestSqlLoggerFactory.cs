@@ -43,6 +43,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     {
                         Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
                     }
+
+                    Assert.Empty(SqlStatements.Skip(expected.Length));
                 }
                 else
                 {
@@ -61,11 +63,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     new[] { _eol },
                     StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
 
-                var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
-                var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
-                var lineNumber = lineIndex > 0 ? methodCallLine.Substring(lineIndex) : "";
-
-                const string indent = FileNewLine + "                ";
+                var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
+                var testName = methodCallLine.Substring(0, indexMethodEnding);
+                var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                var fileName = parts[1][..^5];
+                var lineNumber = int.Parse(parts[2]);
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
@@ -74,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
+                const string indent = FileNewLine + "                ";
 
                 var newBaseLine = $@"            AssertSql(
                 {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
@@ -88,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
                 Logger.TestOutputHelper?.WriteLine(newBaseLine);
 
-                var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
+                var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
                 File.AppendAllText(logFile, contents);
 
