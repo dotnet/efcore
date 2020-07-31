@@ -20,8 +20,6 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
         {
-            protected override string StoreName => "SaveChangesInterception";
-
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
@@ -30,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
                 => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlServer(), injectedInterceptors);
         }
 
-        internal class SaveChangesInterceptionSqlServerTest
+        public class SaveChangesInterceptionSqlServerTest
             : SaveChangesInterceptionSqlServerTestBase, IClassFixture<SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture>
         {
             public SaveChangesInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
@@ -40,6 +38,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
+                protected override string StoreName => "SaveChangesInterception";
+
                 protected override bool ShouldSubscribeToDiagnosticListener => false;
 
                 public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        internal class SaveChangesInterceptionWithDiagnosticsSqlServerTest
+        public class SaveChangesInterceptionWithDiagnosticsSqlServerTest
             : SaveChangesInterceptionSqlServerTestBase,
                 IClassFixture<SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
         {
@@ -62,6 +62,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
+                protected override string StoreName => "SaveChangesInterceptionWithDiagnostics";
+
                 protected override bool ShouldSubscribeToDiagnosticListener => true;
 
                 public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
