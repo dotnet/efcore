@@ -234,34 +234,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l => l.HasOne<EntityTwo>().WithMany().HasForeignKey("LeftId"),
                     r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("RightId").OnDelete(DeleteBehavior.NoAction));
 
-            // TODO: convert to shared type
             // Nav:2 Payload:No Join:Shared Extra:CompositeKey
             modelBuilder.Entity<EntityTwo>()
                 .HasMany(e => e.CompositeKeySkipShared)
                 .WithMany(e => e.TwoSkipShared)
-                .UsingEntity<JoinTwoToCompositeKeyShared>(
-                    r => r.HasOne<EntityCompositeKey>().WithMany().HasForeignKey(e => new { e.CompositeId1, e.CompositeId2, e.CompositeId3 }),
-                    l => l.HasOne<EntityTwo>().WithMany().HasForeignKey(e => e.TwoId))
-                .HasKey(e => new { e.TwoId, e.CompositeId1, e.CompositeId2, e.CompositeId3 });
+                .UsingEntity<Dictionary<string, object>>(
+                    "JoinTwoToCompositeKeyShared",
+                    r => r.HasOne<EntityCompositeKey>().WithMany().HasForeignKey("CompositeId1", "CompositeId2", "CompositeId3"),
+                    l => l.HasOne<EntityTwo>().WithMany().HasForeignKey("TwoId"))
+                .HasKey("TwoId", "CompositeId1", "CompositeId2", "CompositeId3");
 
             // Nav:6 Payload:No Join:Concrete Extra:CompositeKey
             modelBuilder.Entity<EntityThree>()
                 .HasMany(e => e.CompositeKeySkipFull)
                 .WithMany(e => e.ThreeSkipFull)
                 .UsingEntity<JoinThreeToCompositeKeyFull>(
-                    l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(e => new { e.CompositeId1, e.CompositeId2, e.CompositeId3 }),
-                    r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull))
-                .HasKey(e => new { e.ThreeId, e.CompositeId1, e.CompositeId2, e.CompositeId3 });
+                    l => l.HasOne(x => x.Composite).WithMany(x => x.JoinThreeFull).HasForeignKey(e => new { e.CompositeId1, e.CompositeId2, e.CompositeId3 }).IsRequired(),
+                    r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired());
 
-            // TODO: convert to shared type
+            // Nav:2 Payload:No Join:Shared Extra:Inheritance
+            modelBuilder.Entity<EntityThree>().HasMany(e => e.RootSkipShared).WithMany(e => e.ThreeSkipShared);
+
             // Nav:2 Payload:No Join:Shared Extra:Inheritance,CompositeKey
             modelBuilder.Entity<EntityCompositeKey>()
                 .HasMany(e => e.RootSkipShared)
                 .WithMany(e => e.CompositeKeySkipShared)
-                .UsingEntity<JoinCompositeKeyToRootShared>(
-                    r => r.HasOne<EntityRoot>().WithMany().HasForeignKey(e => e.RootId),
-                    l => l.HasOne<EntityCompositeKey>().WithMany().HasForeignKey(e => new { e.CompositeId1, e.CompositeId2, e.CompositeId3 }))
-                .HasKey(e => new { e.CompositeId1, e.CompositeId2, e.CompositeId3, e.RootId });
+                .UsingEntity<Dictionary<string, object>>(
+                    "JoinCompositeKeyToRootShared",
+                    r => r.HasOne<EntityRoot>().WithMany().HasForeignKey("RootId"),
+                    l => l.HasOne<EntityCompositeKey>().WithMany().HasForeignKey("CompositeId1", "CompositeId2", "CompositeId3"))
+                .HasKey("CompositeId1", "CompositeId2", "CompositeId3", "RootId");
 
             // Nav:6 Payload:No Join:Concrete Extra:Inheritance,CompositeKey
             modelBuilder.Entity<EntityCompositeKey>()

@@ -17,6 +17,1055 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : ManyToManyTrackingTestBase<TFixture>.ManyToManyTrackingFixtureBase
     {
         [ConditionalFact]
+        public virtual void Can_insert_many_to_many_composite_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7711;
+                                e.Key2 = "7711";
+                                e.Key3 = new DateTime(7711, 1, 1);
+                            }),
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7712;
+                                e.Key2 = "7712";
+                                e.Key3 = new DateTime(7712, 1, 1);
+                            }),
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7713;
+                                e.Key2 = "7713";
+                                e.Key3 = new DateTime(7713, 1, 1);
+                            }),
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7721),
+                        context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7722),
+                        context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7723)
+                    };
+
+                    leftEntities[0].LeafSkipFull.Add(rightEntities[0]); // 11 - 21
+                    leftEntities[0].LeafSkipFull.Add(rightEntities[1]); // 11 - 22
+                    leftEntities[0].LeafSkipFull.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].CompositeKeySkipFull.Add(leftEntities[0]); // 21 - 11 (Dupe)
+                    rightEntities[0].CompositeKeySkipFull.Add(leftEntities[1]); // 21 - 12
+                    rightEntities[0].CompositeKeySkipFull.Add(leftEntities[2]); // 21 - 13
+
+                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                },
+                context =>
+                {
+                    var results = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.LeafSkipFull).ToList();
+                    Assert.Equal(3, results.Count);
+
+                    var leftEntities = context.ChangeTracker.Entries<EntityCompositeKey>()
+                        .Select(e => e.Entity).OrderBy(e => e.Key1).ToList();
+
+                    var rightEntities = context.ChangeTracker.Entries<EntityLeaf>()
+                        .Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                });
+
+            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityLeaf> rightEntities)
+            {
+                Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityLeaf>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Count());
+
+                Assert.Equal(3, leftEntities[0].LeafSkipFull.Count);
+                Assert.Single(leftEntities[1].LeafSkipFull);
+                Assert.Single(leftEntities[2].LeafSkipFull);
+
+                Assert.Equal(3, rightEntities[0].CompositeKeySkipFull.Count);
+                Assert.Single(rightEntities[1].CompositeKeySkipFull);
+                Assert.Single(rightEntities[2].CompositeKeySkipFull);
+
+                foreach (var joinEntity in context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Select(e => e.Entity).ToList())
+                {
+                    Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
+                    Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
+                    Assert.Equal(joinEntity.Composite.Key3, joinEntity.CompositeId3);
+                    Assert.Equal(joinEntity.Leaf.Id, joinEntity.LeafId);
+
+                    Assert.Contains(joinEntity, joinEntity.Composite.JoinLeafFull);
+                    Assert.Contains(joinEntity, joinEntity.Leaf.JoinCompositeKeyFull);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_update_many_to_many_composite_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.LeafSkipFull).OrderBy(e => e.Key1).ToList();
+                    var rightEntities = context.Set<EntityLeaf>().Include(e => e.CompositeKeySkipFull).ToList();
+
+                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7723));
+
+                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7711;
+                        e.Key2 = "7711";
+                        e.Key3 = new DateTime(7711, 1, 1);
+                    }));
+                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7712;
+                        e.Key2 = "7712";
+                        e.Key3 = new DateTime(7712, 1, 1);
+                    }));
+                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7713;
+                        e.Key2 = "7713";
+                        e.Key3 = new DateTime(7713, 1, 1);
+                    }));
+
+                    leftEntities[0].LeafSkipFull.Remove(leftEntities[0].LeafSkipFull.Single(e => e.Id == 21));
+                    rightEntities[1].CompositeKeySkipFull.Remove(rightEntities[1].CompositeKeySkipFull.Single(e => e.Key2 == "3_1"));
+
+                    leftEntities[2].LeafSkipFull.Remove(leftEntities[2].LeafSkipFull.Single(e => e.Id == 23));
+                    leftEntities[2].LeafSkipFull.Add(context.Set<EntityLeaf>().CreateInstance(e => e.Id = 7724));
+
+                    rightEntities[2].CompositeKeySkipFull.Remove(rightEntities[2].CompositeKeySkipFull.Single(e => e.Key2 == "8_3"));
+                    rightEntities[2].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7714;
+                        e.Key2 = "7714";
+                        e.Key3 = new DateTime(7714, 1, 1);
+                    }));
+
+                    context.ChangeTracker.DetectChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 8, 39);
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 8, 39 - 4);
+                },
+                context =>
+                {
+                    var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.LeafSkipFull).OrderBy(e => e.Key1).ToList();
+                    var rightEntities = context.Set<EntityLeaf>().Include(e => e.CompositeKeySkipFull).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 8, 39 - 4);
+                });
+
+            void ValidateFixup(
+                DbContext context,
+                List<EntityCompositeKey> leftEntities,
+                List<EntityLeaf> rightEntities,
+                int leftCount,
+                int rightCount,
+                int joinCount)
+            {
+                Assert.Equal(leftCount, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
+                Assert.Equal(rightCount, context.ChangeTracker.Entries<EntityLeaf>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Count());
+                Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
+
+                Assert.Contains(leftEntities[0].LeafSkipFull, e => e.Id == 7721);
+                Assert.Contains(leftEntities[0].LeafSkipFull, e => e.Id == 7722);
+                Assert.Contains(leftEntities[0].LeafSkipFull, e => e.Id == 7723);
+
+                Assert.Contains(rightEntities[0].CompositeKeySkipFull, e => e.Key1 == 7711);
+                Assert.Contains(rightEntities[0].CompositeKeySkipFull, e => e.Key1 == 7712);
+                Assert.Contains(rightEntities[0].CompositeKeySkipFull, e => e.Key1 == 7713);
+
+                Assert.DoesNotContain(leftEntities[0].LeafSkipFull, e => e.Id == 21);
+                Assert.DoesNotContain(rightEntities[1].CompositeKeySkipFull, e => e.Key2 == "3_1");
+
+                Assert.DoesNotContain(leftEntities[2].LeafSkipFull, e => e.Id == 23);
+                Assert.Contains(leftEntities[2].LeafSkipFull, e => e.Id == 7724);
+
+                Assert.DoesNotContain(rightEntities[2].CompositeKeySkipFull, e => e.Key2 == "8_1");
+                Assert.Contains(rightEntities[2].CompositeKeySkipFull, e => e.Key1 == 7714);
+
+                foreach (var joinEntry in context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().ToList())
+                {
+                    var joinEntity = joinEntry.Entity;
+
+                    Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
+                    Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
+                    Assert.Equal(joinEntity.Composite.Key3, joinEntity.CompositeId3);
+                    Assert.Equal(joinEntity.Leaf.Id, joinEntity.LeafId);
+
+                    Assert.Contains(joinEntity, joinEntity.Composite.JoinLeafFull);
+                    Assert.Contains(joinEntity, joinEntity.Leaf.JoinCompositeKeyFull);
+                }
+
+                var allLeft = context.ChangeTracker.Entries<EntityCompositeKey>().Select(e => e.Entity).OrderBy(e => e.Key1).ToList();
+                var allRight = context.ChangeTracker.Entries<EntityLeaf>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+
+                var count = 0;
+                foreach (var left in allLeft)
+                {
+                    foreach (var right in allRight)
+                    {
+                        if (left.LeafSkipFull?.Contains(right) == true)
+                        {
+                            Assert.Contains(left, right.CompositeKeySkipFull);
+                            count++;
+                        }
+
+                        if (right.CompositeKeySkipFull?.Contains(left) == true)
+                        {
+                            Assert.Contains(right, left.LeafSkipFull);
+                            count++;
+                        }
+                    }
+                }
+
+                var deleted = context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Count(e => e.State == EntityState.Deleted);
+                Assert.Equal(joinCount, (count / 2) + deleted);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_delete_with_many_to_many_composite_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var ones = context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key2).ToList();
+                    var threes = context.Set<EntityLeaf>().Include(e => e.CompositeKeySkipFull).ToList();
+
+                    // Make sure other related entities are loaded for delete fixup
+                    context.Set<JoinThreeToCompositeKeyFull>().Load();
+
+                    var toRemoveOne = context.Find<EntityCompositeKey>(6, "6_1", new DateTime(2006, 1, 1));
+                    var refCountOnes = threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne);
+
+                    var toRemoveThree = context.Find<EntityLeaf>(23);
+                    var refCountThrees = ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree);
+
+                    foreach (var joinEntity in context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Select(e => e.Entity).ToList())
+                    {
+                        Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
+                        Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
+                        Assert.Equal(joinEntity.Composite.Key3, joinEntity.CompositeId3);
+                        Assert.Equal(joinEntity.Leaf.Id, joinEntity.LeafId);
+                        Assert.Contains(joinEntity, joinEntity.Composite.JoinLeafFull);
+                        Assert.Contains(joinEntity, joinEntity.Leaf.JoinCompositeKeyFull);
+                    }
+
+                    context.Remove(toRemoveOne);
+                    context.Remove(toRemoveThree);
+
+                    Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
+                    Assert.Equal(refCountThrees, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
+
+                    ValidateJoinNavigations(context);
+
+                    context.ChangeTracker.DetectChanges();
+
+                    Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
+                    Assert.Equal(refCountThrees, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
+
+                    ValidateJoinNavigations(context);
+
+                    Assert.All(
+                        context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>(), e => Assert.Equal(
+                            (e.Entity.CompositeId1 == 6
+                                && e.Entity.CompositeId2 == "6_1"
+                                && e.Entity.CompositeId3 == new DateTime(2006, 1, 1))
+                            || e.Entity.LeafId == 23
+                                ? EntityState.Deleted
+                                : EntityState.Unchanged, e.State));
+
+                    context.SaveChanges();
+
+                    Assert.Equal(0, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
+                    Assert.Equal(0, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
+
+                    ValidateJoinNavigations(context);
+
+                    ones.Remove(toRemoveOne);
+                    threes.Remove(toRemoveThree);
+
+                    Assert.Equal(0, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
+                    Assert.Equal(0, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
+
+                    Assert.DoesNotContain(
+                        context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>(),
+                        e => (e.Entity.CompositeId1 == 6
+                                && e.Entity.CompositeId2 == "6_1"
+                                && e.Entity.CompositeId3 == new DateTime(2006, 1, 1))
+                            || e.Entity.LeafId == 23);
+                },
+                context =>
+                {
+                    var ones = context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key2).ToList();
+                    var threes = context.Set<EntityLeaf>().Include(e => e.CompositeKeySkipFull).ToList();
+
+                    ValidateNavigations(ones, threes);
+
+                    Assert.DoesNotContain(
+                        context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>(),
+                        e => (e.Entity.CompositeId1 == 6
+                                && e.Entity.CompositeId2 == "6_1"
+                                && e.Entity.CompositeId3 == new DateTime(2006, 1, 1))
+                            || e.Entity.LeafId == 23);
+                });
+
+            void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityLeaf> threes)
+            {
+                foreach (var one in ones)
+                {
+                    if (one.RootSkipShared != null)
+                    {
+                        Assert.DoesNotContain(one.RootSkipShared, e => e.Id == 23);
+                    }
+
+                    if (one.JoinLeafFull != null)
+                    {
+                        Assert.DoesNotContain(
+                            one.JoinLeafFull,
+                            e => e.CompositeId1 == 6
+                                && e.CompositeId2 == "6_1"
+                                && e.CompositeId3 == new DateTime(2006, 1, 1));
+
+                        Assert.DoesNotContain(one.JoinLeafFull, e => e.LeafId == 23);
+                    }
+                }
+
+                foreach (var three in threes)
+                {
+                    if (three.CompositeKeySkipFull != null)
+                    {
+                        Assert.DoesNotContain(
+                            three.CompositeKeySkipFull,
+                            e => e.Key1 == 6
+                                && e.Key2 == "6_1"
+                                && e.Key3 == new DateTime(2006, 1, 1));
+                    }
+
+                    if (three.JoinCompositeKeyFull != null)
+                    {
+                        Assert.DoesNotContain(
+                            three.JoinCompositeKeyFull,
+                            e => e.CompositeId1 == 6
+                                && e.CompositeId2 == "6_1"
+                                && e.CompositeId3 == new DateTime(2006, 1, 1));
+
+                        Assert.DoesNotContain(three.JoinCompositeKeyFull, e => e.LeafId == 23);
+                    }
+                }
+            }
+
+            void ValidateJoinNavigations(DbContext context)
+            {
+                foreach (var joinEntity in context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Select(e => e.Entity).ToList())
+                {
+                    Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
+                    Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
+                    Assert.Equal(joinEntity.Composite.Key3, joinEntity.CompositeId3);
+                    Assert.Equal(joinEntity.Leaf.Id, joinEntity.LeafId);
+
+                    Assert.Contains(joinEntity, joinEntity.Composite.JoinLeafFull);
+                    Assert.Contains(joinEntity, joinEntity.Leaf.JoinCompositeKeyFull);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_many_to_many_composite_shared_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7711;
+                                e.Key2 = "7711";
+                                e.Key3 = new DateTime(7711, 1, 1);
+                            }),
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7712;
+                                e.Key2 = "7712";
+                                e.Key3 = new DateTime(7712, 1, 1);
+                            }),
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7713;
+                                e.Key2 = "7713";
+                                e.Key3 = new DateTime(7713, 1, 1);
+                            }),
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.Set<EntityRoot>().CreateInstance(e => e.Id = 7721),
+                        context.Set<EntityRoot>().CreateInstance(e => e.Id = 7722),
+                        context.Set<EntityRoot>().CreateInstance(e => e.Id = 7723)
+                    };
+
+                    leftEntities[0].RootSkipShared.Add(rightEntities[0]); // 11 - 21
+                    leftEntities[0].RootSkipShared.Add(rightEntities[1]); // 11 - 22
+                    leftEntities[0].RootSkipShared.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].CompositeKeySkipShared.Add(leftEntities[0]); // 21 - 11 (Dupe)
+                    rightEntities[0].CompositeKeySkipShared.Add(leftEntities[1]); // 21 - 12
+                    rightEntities[0].CompositeKeySkipShared.Add(leftEntities[2]); // 21 - 13
+
+                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                },
+                context =>
+                {
+                    var results = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.RootSkipShared).ToList();
+                    Assert.Equal(3, results.Count);
+
+                    var leftEntities = context.ChangeTracker.Entries<EntityCompositeKey>()
+                        .Select(e => e.Entity).OrderBy(e => e.Key1).ToList();
+
+                    var rightEntities = context.ChangeTracker.Entries<EntityRoot>()
+                        .Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                });
+
+            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityRoot> rightEntities)
+            {
+                Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityRoot>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+
+                Assert.Equal(3, leftEntities[0].RootSkipShared.Count);
+                Assert.Single(leftEntities[1].RootSkipShared);
+                Assert.Single(leftEntities[2].RootSkipShared);
+
+                Assert.Equal(3, rightEntities[0].CompositeKeySkipShared.Count);
+                Assert.Single(rightEntities[1].CompositeKeySkipShared);
+                Assert.Single(rightEntities[2].CompositeKeySkipShared);
+            }
+        }
+        [ConditionalFact]
+        public virtual void Can_update_many_to_many_composite_shared_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key1).ToList();
+                    var rightEntities = context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).ToList();
+
+                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7723));
+
+                    rightEntities[0].CompositeKeySkipShared.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7711;
+                        e.Key2 = "7711";
+                        e.Key3 = new DateTime(7711, 1, 1);
+                    }));
+                    rightEntities[0].CompositeKeySkipShared.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7712;
+                        e.Key2 = "7712";
+                        e.Key3 = new DateTime(7712, 1, 1);
+                    }));
+                    rightEntities[0].CompositeKeySkipShared.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7713;
+                        e.Key2 = "7713";
+                        e.Key3 = new DateTime(7713, 1, 1);
+                    }));
+
+                    leftEntities[0].RootSkipShared.Remove(leftEntities[0].RootSkipShared.Single(e => e.Id == 9));
+                    rightEntities[1].CompositeKeySkipShared.Remove(rightEntities[1].CompositeKeySkipShared.Single(e => e.Key2 == "8_3"));
+
+                    leftEntities[2].RootSkipShared.Remove(leftEntities[2].RootSkipShared.Single(e => e.Id == 16));
+                    leftEntities[2].RootSkipShared.Add(context.Set<EntityRoot>().CreateInstance(e => e.Id = 7724));
+
+                    rightEntities[2].CompositeKeySkipShared.Remove(rightEntities[2].CompositeKeySkipShared.Single(e => e.Key2 == "8_2"));
+                    rightEntities[2].CompositeKeySkipShared.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7714;
+                        e.Key2 = "7714";
+                        e.Key3 = new DateTime(7714, 1, 1);
+                    }));
+
+                    context.ChangeTracker.DetectChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 24, 47);
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 24, 47 - 4);
+                },
+                context =>
+                {
+                    var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key1).ToList();
+                    var rightEntities = context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 24, 47 - 4);
+                });
+
+            void ValidateFixup(
+                DbContext context,
+                List<EntityCompositeKey> leftEntities,
+                List<EntityRoot> rightEntities,
+                int leftCount,
+                int rightCount,
+                int joinCount)
+            {
+                Assert.Equal(leftCount, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
+                Assert.Equal(rightCount, context.ChangeTracker.Entries<EntityRoot>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+                Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
+
+                Assert.Contains(leftEntities[0].RootSkipShared, e => e.Id == 7721);
+                Assert.Contains(leftEntities[0].RootSkipShared, e => e.Id == 7722);
+                Assert.Contains(leftEntities[0].RootSkipShared, e => e.Id == 7723);
+
+                Assert.Contains(rightEntities[0].CompositeKeySkipShared, e => e.Key1 == 7711);
+                Assert.Contains(rightEntities[0].CompositeKeySkipShared, e => e.Key1 == 7712);
+                Assert.Contains(rightEntities[0].CompositeKeySkipShared, e => e.Key1 == 7713);
+
+                Assert.DoesNotContain(leftEntities[0].RootSkipShared, e => e.Id == 9);
+                Assert.DoesNotContain(rightEntities[1].CompositeKeySkipShared, e => e.Key2 == "8_3");
+
+                Assert.DoesNotContain(leftEntities[2].RootSkipShared, e => e.Id == 16);
+                Assert.Contains(leftEntities[2].RootSkipShared, e => e.Id == 7724);
+
+                Assert.DoesNotContain(rightEntities[2].CompositeKeySkipShared, e => e.Key2 == "8_2");
+                Assert.Contains(rightEntities[2].CompositeKeySkipShared, e => e.Key1 == 7714);
+
+                var allLeft = context.ChangeTracker.Entries<EntityCompositeKey>().Select(e => e.Entity).OrderBy(e => e.Key1).ToList();
+                var allRight = context.ChangeTracker.Entries<EntityRoot>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+
+                var count = 0;
+                foreach (var left in allLeft)
+                {
+                    foreach (var right in allRight)
+                    {
+                        if (left.RootSkipShared?.Contains(right) == true)
+                        {
+                            Assert.Contains(left, right.CompositeKeySkipShared);
+                            count++;
+                        }
+
+                        if (right.CompositeKeySkipShared?.Contains(left) == true)
+                        {
+                            Assert.Contains(right, left.RootSkipShared);
+                            count++;
+                        }
+                    }
+                }
+
+                var deleted = context.ChangeTracker.Entries<Dictionary<string, Object>>().Count(e => e.State == EntityState.Deleted);
+                Assert.Equal(joinCount, (count / 2) + deleted);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_delete_with_many_to_many_composite_shared_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var ones = context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key2).ToList();
+                    var threes = context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).ToList();
+
+                    // Make sure other related entities are loaded for delete fixup
+                    context.Set<JoinThreeToCompositeKeyFull>().Load();
+
+                    var toRemoveOne = context.Find<EntityCompositeKey>(6, "6_1", new DateTime(2006, 1, 1));
+                    var refCountOnes = threes.SelectMany(e => e.CompositeKeySkipShared).Count(e => e == toRemoveOne);
+
+                    var toRemoveThree = context.Find<EntityRoot>(23);
+                    var refCountThrees = ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree);
+
+                    context.Remove(toRemoveOne);
+                    context.Remove(toRemoveThree);
+
+                    Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipShared).Count(e => e == toRemoveOne));
+                    Assert.Equal(refCountThrees, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
+
+                    context.ChangeTracker.DetectChanges();
+
+                    Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipShared).Count(e => e == toRemoveOne));
+                    Assert.Equal(refCountThrees, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
+
+                    Assert.All(
+                        context.ChangeTracker.Entries<Dictionary<string, object>>(), e => Assert.Equal(
+                            ((int)e.Entity["CompositeId1"] == 6
+                                && (string)e.Entity["CompositeId2"] == "6_1"
+                                && (DateTime)e.Entity["CompositeId3"] == new DateTime(2006, 1, 1))
+                            || (int)e.Entity["RootId"] == 23
+                                ? EntityState.Deleted
+                                : EntityState.Unchanged, e.State));
+
+                    context.SaveChanges();
+
+                    Assert.Equal(0, threes.SelectMany(e => e.CompositeKeySkipShared).Count(e => e == toRemoveOne));
+                    Assert.Equal(0, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
+
+                    ones.Remove(toRemoveOne);
+                    threes.Remove(toRemoveThree);
+
+                    Assert.Equal(0, threes.SelectMany(e => e.CompositeKeySkipShared).Count(e => e == toRemoveOne));
+                    Assert.Equal(0, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
+
+                    Assert.DoesNotContain(
+                        context.ChangeTracker.Entries<Dictionary<string, object>>(),
+                        e => ((int)e.Entity["CompositeId1"] == 6
+                                && (string)e.Entity["CompositeId2"] == "6_1"
+                                && (DateTime)e.Entity["CompositeId3"] == new DateTime(2006, 1, 1))
+                            || (int)e.Entity["RootId"] == 23);
+                },
+                context =>
+                {
+                    var ones = context.Set<EntityCompositeKey>().Include(e => e.RootSkipShared).OrderBy(e => e.Key2).ToList();
+                    var threes = context.Set<EntityRoot>().Include(e => e.CompositeKeySkipShared).ToList();
+
+                    ValidateNavigations(ones, threes);
+
+                    Assert.DoesNotContain(
+                        context.ChangeTracker.Entries<Dictionary<string, object>>(),
+                        e => ((int)e.Entity["CompositeId1"] == 6
+                                && (string)e.Entity["CompositeId2"] == "6_1"
+                                && (DateTime)e.Entity["CompositeId3"] == new DateTime(2006, 1, 1))
+                            || (int)e.Entity["RootId"] == 23);
+                });
+
+            void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityRoot> threes)
+            {
+                foreach (var one in ones)
+                {
+                    if (one.RootSkipShared != null)
+                    {
+                        Assert.DoesNotContain(one.RootSkipShared, e => e.Id == 23);
+                    }
+                }
+
+                foreach (var three in threes)
+                {
+                    if (three.CompositeKeySkipShared != null)
+                    {
+                        Assert.DoesNotContain(
+                            three.CompositeKeySkipShared,
+                            e => e.Key1 == 6
+                                && e.Key2 == "6_1"
+                                && e.Key3 == new DateTime(2006, 1, 1));
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_many_to_many_composite_additional_pk_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7711;
+                                e.Key2 = "7711";
+                                e.Key3 = new DateTime(7711, 1, 1);
+                            }),
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7712;
+                                e.Key2 = "7712";
+                                e.Key3 = new DateTime(7712, 1, 1);
+                            }),
+                        context.EntityCompositeKeys.CreateInstance(
+                            e =>
+                            {
+                                e.Key1 = 7713;
+                                e.Key2 = "7713";
+                                e.Key3 = new DateTime(7713, 1, 1);
+                            }),
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.Set<EntityThree>().CreateInstance(e => e.Id = 7721),
+                        context.Set<EntityThree>().CreateInstance(e => e.Id = 7722),
+                        context.Set<EntityThree>().CreateInstance(e => e.Id = 7723)
+                    };
+
+                    leftEntities[0].ThreeSkipFull.Add(rightEntities[0]); // 11 - 21
+                    leftEntities[0].ThreeSkipFull.Add(rightEntities[1]); // 11 - 22
+                    leftEntities[0].ThreeSkipFull.Add(rightEntities[2]); // 11 - 23
+
+                    rightEntities[0].CompositeKeySkipFull.Add(leftEntities[0]); // 21 - 11 (Dupe)
+                    rightEntities[0].CompositeKeySkipFull.Add(leftEntities[1]); // 21 - 12
+                    rightEntities[0].CompositeKeySkipFull.Add(leftEntities[2]); // 21 - 13
+
+                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                    context.AddRange(rightEntities[0], rightEntities[1], rightEntities[2]);
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                },
+                context =>
+                {
+                    var results = context.Set<EntityCompositeKey>().Where(e => e.Key1 > 7700).Include(e => e.ThreeSkipFull).ToList();
+                    Assert.Equal(3, results.Count);
+
+                    var leftEntities = context.ChangeTracker.Entries<EntityCompositeKey>()
+                        .Select(e => e.Entity).OrderBy(e => e.Key1).ToList();
+
+                    var rightEntities = context.ChangeTracker.Entries<EntityThree>()
+                        .Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                });
+
+            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityThree> rightEntities)
+            {
+                var entries = context.ChangeTracker.Entries();
+                Assert.Equal(11, entries.Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityThree>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Count());
+
+                Assert.Equal(3, leftEntities[0].ThreeSkipFull.Count);
+                Assert.Single(leftEntities[1].ThreeSkipFull);
+                Assert.Single(leftEntities[2].ThreeSkipFull);
+
+                Assert.Equal(3, rightEntities[0].CompositeKeySkipFull.Count);
+                Assert.Single(rightEntities[1].CompositeKeySkipFull);
+                Assert.Single(rightEntities[2].CompositeKeySkipFull);
+
+                foreach (var joinEntity in context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Select(e => e.Entity).ToList())
+                {
+                    Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
+                    Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
+                    Assert.Equal(joinEntity.Composite.Key3, joinEntity.CompositeId3);
+                    Assert.Equal(joinEntity.Three.Id, joinEntity.ThreeId);
+
+                    Assert.Contains(joinEntity, joinEntity.Composite.JoinThreeFull);
+                    Assert.Contains(joinEntity, joinEntity.Three.JoinCompositeKeyFull);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_update_many_to_many_composite_additional_pk_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Key1).ToList();
+                    var rightEntities = context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).ToList();
+
+                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7721));
+                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7722));
+                    leftEntities[0].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7723));
+
+                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7711;
+                        e.Key2 = "7711";
+                        e.Key3 = new DateTime(7711, 1, 1);
+                    }));
+                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7712;
+                        e.Key2 = "7712";
+                        e.Key3 = new DateTime(7712, 1, 1);
+                    }));
+                    rightEntities[0].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7713;
+                        e.Key2 = "7713";
+                        e.Key3 = new DateTime(7713, 1, 1);
+                    }));
+
+                    leftEntities[0].ThreeSkipFull.Remove(leftEntities[0].ThreeSkipFull.Single(e => e.Id == 2));
+                    rightEntities[1].CompositeKeySkipFull.Remove(rightEntities[1].CompositeKeySkipFull.Single(e => e.Key2 == "9_2"));
+
+                    leftEntities[3].ThreeSkipFull.Remove(leftEntities[3].ThreeSkipFull.Single(e => e.Id == 7));
+                    leftEntities[3].ThreeSkipFull.Add(context.Set<EntityThree>().CreateInstance(e => e.Id = 7724));
+
+                    rightEntities[2].CompositeKeySkipFull.Remove(rightEntities[2].CompositeKeySkipFull.Single(e => e.Key2 == "6_1"));
+                    rightEntities[2].CompositeKeySkipFull.Add(context.EntityCompositeKeys.CreateInstance(e =>
+                    {
+                        e.Key1 = 7714;
+                        e.Key2 = "7714";
+                        e.Key3 = new DateTime(7714, 1, 1);
+                    }));
+
+                    context.ChangeTracker.DetectChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 24, 53);
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 24, 53 - 4);
+                },
+                context =>
+                {
+                    var leftEntities = context.Set<EntityCompositeKey>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Key1).ToList();
+                    var rightEntities = context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities, 24, 24, 53 - 4);
+                });
+
+            void ValidateFixup(
+                DbContext context,
+                List<EntityCompositeKey> leftEntities,
+                List<EntityThree> rightEntities,
+                int leftCount,
+                int rightCount,
+                int joinCount)
+            {
+                Assert.Equal(leftCount, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
+                Assert.Equal(rightCount, context.ChangeTracker.Entries<EntityThree>().Count());
+                Assert.Equal(joinCount, context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Count());
+                Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
+
+                Assert.Contains(leftEntities[0].ThreeSkipFull, e => e.Id == 7721);
+                Assert.Contains(leftEntities[0].ThreeSkipFull, e => e.Id == 7722);
+                Assert.Contains(leftEntities[0].ThreeSkipFull, e => e.Id == 7723);
+
+                Assert.Contains(rightEntities[0].CompositeKeySkipFull, e => e.Key1 == 7711);
+                Assert.Contains(rightEntities[0].CompositeKeySkipFull, e => e.Key1 == 7712);
+                Assert.Contains(rightEntities[0].CompositeKeySkipFull, e => e.Key1 == 7713);
+
+                Assert.DoesNotContain(leftEntities[0].ThreeSkipFull, e => e.Id == 2);
+                Assert.DoesNotContain(rightEntities[1].CompositeKeySkipFull, e => e.Key2 == "9_2");
+
+                Assert.DoesNotContain(leftEntities[3].ThreeSkipFull, e => e.Id == 23);
+                Assert.Contains(leftEntities[3].ThreeSkipFull, e => e.Id == 7724);
+
+                Assert.DoesNotContain(rightEntities[2].CompositeKeySkipFull, e => e.Key2 == "6_1");
+                Assert.Contains(rightEntities[2].CompositeKeySkipFull, e => e.Key1 == 7714);
+
+                foreach (var joinEntry in context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().ToList())
+                {
+                    var joinEntity = joinEntry.Entity;
+
+                    Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
+                    Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
+                    Assert.Equal(joinEntity.Composite.Key3, joinEntity.CompositeId3);
+                    Assert.Equal(joinEntity.Three.Id, joinEntity.ThreeId);
+
+                    Assert.Contains(joinEntity, joinEntity.Composite.JoinThreeFull);
+                    Assert.Contains(joinEntity, joinEntity.Three.JoinCompositeKeyFull);
+                }
+
+                var allLeft = context.ChangeTracker.Entries<EntityCompositeKey>().Select(e => e.Entity).OrderBy(e => e.Key1).ToList();
+                var allRight = context.ChangeTracker.Entries<EntityThree>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+
+                var count = 0;
+                foreach (var left in allLeft)
+                {
+                    foreach (var right in allRight)
+                    {
+                        if (left.ThreeSkipFull?.Contains(right) == true)
+                        {
+                            Assert.Contains(left, right.CompositeKeySkipFull);
+                            count++;
+                        }
+
+                        if (right.CompositeKeySkipFull?.Contains(left) == true)
+                        {
+                            Assert.Contains(right, left.ThreeSkipFull);
+                            count++;
+                        }
+                    }
+                }
+
+                var deleted = context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Count(e => e.State == EntityState.Deleted);
+                Assert.Equal(joinCount, (count / 2) + deleted);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_delete_with_many_to_many_composite_additional_pk_with_navs()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var ones = context.Set<EntityCompositeKey>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Key2).ToList();
+                    var threes = context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).ToList();
+
+                    // Make sure other related entities are loaded for delete fixup
+                    context.Set<JoinThreeToCompositeKeyFull>().Load();
+
+                    var toRemoveOne = context.Find<EntityCompositeKey>(6, "6_1", new DateTime(2006, 1, 1));
+                    var refCountOnes = threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne);
+
+                    var toRemoveThree = context.Find<EntityThree>(17);
+                    var refCountThrees = ones.SelectMany(e => e.ThreeSkipFull).Count(e => e == toRemoveThree);
+
+                    foreach (var joinEntity in context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Select(e => e.Entity).ToList())
+                    {
+                        Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
+                        Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
+                        Assert.Equal(joinEntity.Composite.Key3, joinEntity.CompositeId3);
+                        Assert.Equal(joinEntity.Three.Id, joinEntity.ThreeId);
+                        Assert.Contains(joinEntity, joinEntity.Composite.JoinThreeFull);
+                        Assert.Contains(joinEntity, joinEntity.Three.JoinCompositeKeyFull);
+                    }
+
+                    context.Remove(toRemoveOne);
+                    context.Remove(toRemoveThree);
+
+                    Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
+                    Assert.Equal(refCountThrees, ones.SelectMany(e => e.ThreeSkipFull).Count(e => e == toRemoveThree));
+
+                    ValidateJoinNavigations(context);
+
+                    context.ChangeTracker.DetectChanges();
+
+                    Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
+                    Assert.Equal(refCountThrees, ones.SelectMany(e => e.ThreeSkipFull).Count(e => e == toRemoveThree));
+
+                    ValidateJoinNavigations(context);
+
+                    Assert.All(
+                        context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>(), e => Assert.Equal(
+                            (e.Entity.CompositeId1 == 6
+                                && e.Entity.CompositeId2 == "6_1"
+                                && e.Entity.CompositeId3 == new DateTime(2006, 1, 1))
+                            || e.Entity.ThreeId == 17
+                                ? EntityState.Deleted
+                                : EntityState.Unchanged, e.State));
+
+                    context.SaveChanges();
+
+                    Assert.Equal(0, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
+                    Assert.Equal(0, ones.SelectMany(e => e.ThreeSkipFull).Count(e => e == toRemoveThree));
+
+                    ValidateJoinNavigations(context);
+
+                    ones.Remove(toRemoveOne);
+                    threes.Remove(toRemoveThree);
+
+                    Assert.Equal(0, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
+                    Assert.Equal(0, ones.SelectMany(e => e.ThreeSkipFull).Count(e => e == toRemoveThree));
+
+                    Assert.DoesNotContain(
+                        context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>(),
+                        e => (e.Entity.CompositeId1 == 6
+                                && e.Entity.CompositeId2 == "6_1"
+                                && e.Entity.CompositeId3 == new DateTime(2006, 1, 1))
+                            || e.Entity.ThreeId == 17);
+                },
+                context =>
+                {
+                    var ones = context.Set<EntityCompositeKey>().Include(e => e.ThreeSkipFull).OrderBy(e => e.Key2).ToList();
+                    var threes = context.Set<EntityThree>().Include(e => e.CompositeKeySkipFull).ToList();
+
+                    ValidateNavigations(ones, threes);
+
+                    Assert.DoesNotContain(
+                        context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>(),
+                        e => (e.Entity.CompositeId1 == 6
+                                && e.Entity.CompositeId2 == "6_1"
+                                && e.Entity.CompositeId3 == new DateTime(2006, 1, 1))
+                            || e.Entity.ThreeId == 17);
+                });
+
+            void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityThree> threes)
+            {
+                foreach (var one in ones)
+                {
+                    if (one.ThreeSkipFull != null)
+                    {
+                        Assert.DoesNotContain(one.ThreeSkipFull, e => e.Id == 17);
+                    }
+
+                    if (one.JoinThreeFull != null)
+                    {
+                        Assert.DoesNotContain(
+                            one.JoinThreeFull,
+                            e => e.CompositeId1 == 6
+                                && e.CompositeId2 == "6_1"
+                                && e.CompositeId3 == new DateTime(2006, 1, 1));
+
+                        Assert.DoesNotContain(one.JoinThreeFull, e => e.ThreeId == 17);
+                    }
+                }
+
+                foreach (var three in threes)
+                {
+                    if (three.CompositeKeySkipFull != null)
+                    {
+                        Assert.DoesNotContain(
+                            three.CompositeKeySkipFull,
+                            e => e.Key1 == 6
+                                && e.Key2 == "6_1"
+                                && e.Key3 == new DateTime(2006, 1, 1));
+                    }
+
+                    if (three.JoinCompositeKeyFull != null)
+                    {
+                        Assert.DoesNotContain(
+                            three.JoinCompositeKeyFull,
+                            e => e.CompositeId1 == 6
+                                && e.CompositeId2 == "6_1"
+                                && e.CompositeId3 == new DateTime(2006, 1, 1));
+
+                        Assert.DoesNotContain(three.JoinCompositeKeyFull, e => e.ThreeId == 17);
+                    }
+                }
+            }
+
+            void ValidateJoinNavigations(DbContext context)
+            {
+                foreach (var joinEntity in context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Select(e => e.Entity).ToList())
+                {
+                    Assert.Equal(joinEntity.Composite.Key1, joinEntity.CompositeId1);
+                    Assert.Equal(joinEntity.Composite.Key2, joinEntity.CompositeId2);
+                    Assert.Equal(joinEntity.Composite.Key3, joinEntity.CompositeId3);
+                    Assert.Equal(joinEntity.Three.Id, joinEntity.ThreeId);
+
+                    Assert.Contains(joinEntity, joinEntity.Composite.JoinThreeFull);
+                    Assert.Contains(joinEntity, joinEntity.Three.JoinCompositeKeyFull);
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Can_insert_many_to_many_self_shared()
         {
             ExecuteWithStrategyInTransaction(

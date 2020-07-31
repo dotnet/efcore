@@ -959,6 +959,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var foreignKey = skipNavigation.ForeignKey;
             var otherForeignKey = skipNavigation.Inverse.ForeignKey;
 
+            // TODO: Perf - avoid looking up the join table key every time. See #21901
+
             if (foreignKey.Properties.Count == 1
                 && otherForeignKey.Properties.Count == 1)
             {
@@ -972,8 +974,52 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     return joinEntry;
                 }
             }
+            else
+            {
+                if (TryFindComposite(entry, otherEntry, foreignKey, otherForeignKey, out var joinEntry))
+                {
+                    return joinEntry;
+                }
 
-            throw new NotImplementedException("TODO: Other kinds of keys");
+                if (TryFindComposite(otherEntry, entry, otherForeignKey, foreignKey, out joinEntry))
+                {
+                    return joinEntry;
+                }
+            }
+
+            // Perf - see #21900
+
+            var keyValues = foreignKey.PrincipalKey.Properties.Select(p => entry[p])
+                .Concat(otherForeignKey.PrincipalKey.Properties.Select(p => otherEntry[p]))
+                .ToList();
+
+            var keyProperties = foreignKey.Properties.Concat(otherForeignKey.Properties).ToList();
+            var keyComparers = keyProperties.Select(e => e.GetKeyValueComparer()).ToList();
+            var propertiesCount = keyComparers.Count;
+
+            foreach (var candidate in entry.StateManager.Entries)
+            {
+                if (candidate.EntityType == joinEntityType
+                    && KeysEqual(candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+
+            bool KeysEqual(InternalEntityEntry candidate)
+            {
+                for (var i = 0; i < propertiesCount; i++)
+                {
+                    if (!keyComparers[i].Equals(keyValues[i], candidate[keyProperties[i]]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
 
             bool TryFind(
                 InternalEntityEntry firstEntry,
@@ -985,15 +1031,46 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var key = joinEntityType.FindKey(new[] { firstForeignKey.Properties[0], secondForeignKey.Properties[0] });
                 if (key != null)
                 {
-                    var keyValues = new[]
+                    joinEntry = entry.StateManager.TryGetEntry(key, new[]
                     {
                         firstEntry[firstForeignKey.PrincipalKey.Properties[0]],
                         secondEntry[secondForeignKey.PrincipalKey.Properties[0]]
-                    };
+                    });
+                    return true;
+                }
+
+                joinEntry = null;
+                return false;
+            }
+
+            bool TryFindComposite(
+                InternalEntityEntry firstEntry,
+                InternalEntityEntry secondEntry,
+                IForeignKey firstForeignKey,
+                IForeignKey secondForeignKey,
+                out InternalEntityEntry joinEntry)
+            {
+                var firstForeignKeyProperties = firstForeignKey.Properties;
+                var secondForeignKeyProperties = secondForeignKey.Properties;
+
+                var key = joinEntityType.FindKey(firstForeignKeyProperties.Concat(secondForeignKeyProperties).ToList());
+                if (key != null)
+                {
+                    var keyValues = new object[firstForeignKeyProperties.Count + secondForeignKeyProperties.Count];
+                    var index = 0;
+
+                    foreach (var keyProperty in firstForeignKey.PrincipalKey.Properties)
                     {
-                        joinEntry = entry.StateManager.TryGetEntry(key, keyValues);
-                        return true;
+                        keyValues[index++] = firstEntry[keyProperty];
                     }
+
+                    foreach (var keyProperty in secondForeignKey.PrincipalKey.Properties)
+                    {
+                        keyValues[index++] = secondEntry[keyProperty];
+                    }
+
+                    joinEntry = entry.StateManager.TryGetEntry(key, keyValues);
+                    return true;
                 }
 
                 joinEntry = null;

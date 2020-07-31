@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         private readonly Dictionary<string, object>[] _joinOneToTwoShareds;
         private readonly Dictionary<string, object>[] _joinOneToThreePayloadFullShareds;
         private readonly Dictionary<string, object>[] _joinTwoSelfShareds;
-        private readonly JoinTwoToCompositeKeyShared[] _joinTwoToCompositeKeyShareds;
+        private readonly Dictionary<string, object>[] _joinTwoToCompositeKeyShareds;
         private readonly Dictionary<string, object>[] _joinThreeToRootShareds;
-        private readonly JoinCompositeKeyToRootShared[] _joinCompositeKeyToRootShareds;
+        private readonly Dictionary<string, object>[] _joinCompositeKeyToRootShareds;
 
         public ManyToManyData()
         {
@@ -192,10 +192,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
             foreach (var joinEntity in _joinTwoToCompositeKeyShareds)
             {
-                var compositeKey = _compositeKeys.First(o => o.Key1 == joinEntity.CompositeId1
-                    && o.Key2 == joinEntity.CompositeId2
-                    && o.Key3 == joinEntity.CompositeId3);
-                var two = _twos.First(t => t.Id == joinEntity.TwoId);
+                var compositeKey = _compositeKeys.First(o => o.Key1 == (int)joinEntity["CompositeId1"]
+                    && o.Key2 == (string)joinEntity["CompositeId2"]
+                    && o.Key3 == (DateTime)joinEntity["CompositeId3"]);
+                var two = _twos.First(t => t.Id == (int)joinEntity["TwoId"]);
                 compositeKey.TwoSkipShared.Add(two);
                 two.CompositeKeySkipShared.Add(compositeKey);
             }
@@ -210,10 +210,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 
             foreach (var joinEntity in _joinCompositeKeyToRootShareds)
             {
-                var compositeKey = _compositeKeys.First(o => o.Key1 == joinEntity.CompositeId1
-                    && o.Key2 == joinEntity.CompositeId2
-                    && o.Key3 == joinEntity.CompositeId3);
-                var root = _roots.First(t => t.Id == joinEntity.RootId);
+                var compositeKey = _compositeKeys.First(o => o.Key1 == (int)joinEntity["CompositeId1"]
+                    && o.Key2 == (string)joinEntity["CompositeId2"]
+                    && o.Key3 == (DateTime)joinEntity["CompositeId3"]);
+                var root = _roots.First(t => t.Id == (int)joinEntity["RootId"]);
                 compositeKey.RootSkipShared.Add(root);
                 root.CompositeKeySkipShared.Add(compositeKey);
             }
@@ -278,9 +278,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             context.Set<Dictionary<string, object>>("EntityOneEntityTwo").AddRange(CreateEntityOneEntityTwos(context));
             context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").AddRange(CreateJoinOneToThreePayloadFullShareds(context));
             context.Set<Dictionary<string, object>>("JoinTwoSelfShared").AddRange(CreateJoinTwoSelfShareds(context));
-            context.Set<JoinTwoToCompositeKeyShared>().AddRange(CreateJoinTwoToCompositeKeyShareds(context));
+            context.Set<Dictionary<string, object>>("JoinTwoToCompositeKeyShared").AddRange(CreateJoinTwoToCompositeKeyShareds(context));
             context.Set<Dictionary<string, object>>("EntityRootEntityThree").AddRange(CreateEntityRootEntityThrees(context));
-            context.Set<JoinCompositeKeyToRootShared>().AddRange(CreateJoinCompositeKeyToRootShareds(context));
+            context.Set<Dictionary<string, object>>("JoinCompositeKeyToRootShared").AddRange(CreateJoinCompositeKeyToRootShareds(context));
 
             context.SaveChanges();
         }
@@ -1178,7 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                     e["RightId"] = rightId;
                 });
 
-        private static JoinTwoToCompositeKeyShared[] CreateJoinTwoToCompositeKeyShareds(ManyToManyContext context)
+        private static Dictionary<string, object>[] CreateJoinTwoToCompositeKeyShareds(ManyToManyContext context)
             => new[]
             {
                 CreateJoinTwoToCompositeKeyShared(context, 1, 1, "1_1", new DateTime(2001, 1, 1)),
@@ -1219,15 +1219,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 CreateJoinTwoToCompositeKeyShared(context, 20, 9, "9_1", new DateTime(2009, 1, 1))
             };
 
-        private static JoinTwoToCompositeKeyShared CreateJoinTwoToCompositeKeyShared(
+        private static Dictionary<string, object> CreateJoinTwoToCompositeKeyShared(
             ManyToManyContext context, int twoId, int compositeId1, string compositeId2, DateTime compositeId3)
             => CreateInstance(
-                context?.Set<JoinTwoToCompositeKeyShared>(), e =>
+                context?.Set<Dictionary<string, object>>("JoinTwoToCompositeKeyShared"), e =>
                 {
-                    e.TwoId = twoId;
-                    e.CompositeId1 = compositeId1;
-                    e.CompositeId2 = compositeId2;
-                    e.CompositeId3 = compositeId3;
+                    e["TwoId"] = twoId;
+                    e["CompositeId1"] = compositeId1;
+                    e["CompositeId2"] = compositeId2;
+                    e["CompositeId3"] = compositeId3;
                 });
 
         private static Dictionary<string, object>[] CreateEntityRootEntityThrees(ManyToManyContext context)
@@ -1273,7 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                     e["EntityRootId"] = rootId;
                 });
 
-        private static JoinCompositeKeyToRootShared[] CreateJoinCompositeKeyToRootShareds(ManyToManyContext context)
+        private static Dictionary<string, object>[] CreateJoinCompositeKeyToRootShareds(ManyToManyContext context)
             => new[]
             {
                 CreateJoinCompositeKeyToRootShared(context, 6, 1, "1_1", new DateTime(2001, 1, 1)),
@@ -1317,15 +1317,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
                 CreateJoinCompositeKeyToRootShared(context, 6, 9, "9_7", new DateTime(2009, 7, 1))
             };
 
-        private static JoinCompositeKeyToRootShared CreateJoinCompositeKeyToRootShared(
+        private static Dictionary<string, object> CreateJoinCompositeKeyToRootShared(
             ManyToManyContext context, int rootId, int compositeId1, string compositeId2, DateTime compositeId3)
             => CreateInstance(
-                context?.Set<JoinCompositeKeyToRootShared>(), e =>
+                context?.Set<Dictionary<string, object>>("JoinCompositeKeyToRootShared"), e =>
                 {
-                    e.RootId = rootId;
-                    e.CompositeId1 = compositeId1;
-                    e.CompositeId2 = compositeId2;
-                    e.CompositeId3 = compositeId3;
+                    e["RootId"] = rootId;
+                    e["CompositeId1"] = compositeId1;
+                    e["CompositeId2"] = compositeId2;
+                    e["CompositeId3"] = compositeId3;
                 });
 
         private static TEntity CreateInstance<TEntity>(DbSet<TEntity> set, Action<TEntity> configureEntity)
