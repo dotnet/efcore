@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
                 => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlServer(), injectedInterceptors);
         }
 
-        public class SaveChangesInterceptionSqlServerTest
+        internal class SaveChangesInterceptionSqlServerTest
             : SaveChangesInterceptionSqlServerTestBase, IClassFixture<SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture>
         {
             public SaveChangesInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class SaveChangesInterceptionWithDiagnosticsSqlServerTest
+        internal class SaveChangesInterceptionWithDiagnosticsSqlServerTest
             : SaveChangesInterceptionSqlServerTestBase,
                 IClassFixture<SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
         {
