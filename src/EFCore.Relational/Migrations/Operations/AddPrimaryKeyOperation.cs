@@ -36,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] Columns { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     Creates a new <see cref="AddPrimaryKeyOperation"/> for the specified primary key.
+        ///     Creates a new <see cref="AddPrimaryKeyOperation"/> from the specified primary key.
         /// </summary>
         /// <param name="primaryKey"> The primary key. </param>
         /// <returns> The operation. </returns>
-        public static AddPrimaryKeyOperation For([NotNull] IPrimaryKeyConstraint primaryKey)
+        public static AddPrimaryKeyOperation CreateFrom([NotNull] IPrimaryKeyConstraint primaryKey)
         {
             Check.NotNull(primaryKey, nameof(primaryKey));
 

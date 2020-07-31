@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual ReferentialAction OnDelete { get; set; }
 
         /// <summary>
-        ///     Creates a new <see cref="AddForeignKeyOperation"/> for the specified foreign key.
+        ///     Creates a new <see cref="AddForeignKeyOperation"/> from the specified foreign key.
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The operation. </returns>
-        public static AddForeignKeyOperation For([NotNull] IForeignKeyConstraint foreignKey)
+        public static AddForeignKeyOperation CreateFrom([NotNull] IForeignKeyConstraint foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 

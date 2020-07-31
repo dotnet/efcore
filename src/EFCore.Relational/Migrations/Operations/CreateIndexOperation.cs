@@ -46,11 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Filter { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Creates a new <see cref="CreateIndexOperation"/> for the specified index.
+        ///     Creates a new <see cref="CreateIndexOperation"/> from the specified index.
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The operation. </returns>
-        public static CreateIndexOperation For([NotNull] ITableIndex index)
+        public static CreateIndexOperation CreateFrom([NotNull] ITableIndex index)
         {
             Check.NotNull(index, nameof(index));
 

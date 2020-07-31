@@ -1177,11 +1177,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             if (target.GetIsPrimaryKey())
             {
-                yield return AddPrimaryKeyOperation.For((IPrimaryKeyConstraint)target);
+                yield return AddPrimaryKeyOperation.CreateFrom((IPrimaryKeyConstraint)target);
             }
             else
             {
-                yield return AddUniqueConstraintOperation.For(target);
+                yield return AddUniqueConstraintOperation.CreateFrom(target);
             }
         }
 
@@ -1276,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 yield break;
             }
 
-            var operation = AddForeignKeyOperation.For(target);
+            var operation = AddForeignKeyOperation.CreateFrom(target);
 
             var createTableOperation = diffContext.FindCreate(targetTable);
             if (createTableOperation != null)
@@ -1383,7 +1383,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] ITableIndex target,
             [NotNull] DiffContext diffContext)
         {
-            yield return CreateIndexOperation.For(target);
+            yield return CreateIndexOperation.CreateFrom(target);
         }
 
         /// <summary>
@@ -1450,7 +1450,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
         {
-            yield return AddCheckConstraintOperation.For(target);
+            yield return AddCheckConstraintOperation.CreateFrom(target);
         }
 
         /// <summary>

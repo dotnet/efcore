@@ -36,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] Columns { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     Creates a new <see cref="AddUniqueConstraintOperation"/> for the specified unique constraint.
+        ///     Creates a new <see cref="AddUniqueConstraintOperation"/> from the specified unique constraint.
         /// </summary>
         /// <param name="uniqueConstraint"> The unique constraint. </param>
         /// <returns> The operation. </returns>
-        public static AddUniqueConstraintOperation For([NotNull] IUniqueConstraint uniqueConstraint)
+        public static AddUniqueConstraintOperation CreateFrom([NotNull] IUniqueConstraint uniqueConstraint)
         {
             Check.NotNull(uniqueConstraint, nameof(uniqueConstraint));
 

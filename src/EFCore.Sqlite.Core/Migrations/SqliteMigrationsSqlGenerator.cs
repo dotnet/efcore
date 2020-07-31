@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                     Name = renameIndexOperation.Name
                                 });
 
-                            operations.Add(CreateIndexOperation.For(index));
+                            operations.Add(CreateIndexOperation.CreateFrom(index));
                         }
                         else
                         {
@@ -299,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var primaryKey = table.PrimaryKey;
                 if (primaryKey != null)
                 {
-                    createTableOperation.PrimaryKey = AddPrimaryKeyOperation.For(primaryKey);
+                    createTableOperation.PrimaryKey = AddPrimaryKeyOperation.CreateFrom(primaryKey);
                 }
 
                 foreach (var column in table.Columns)
@@ -325,17 +325,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 foreach (var foreignKey in table.ForeignKeyConstraints)
                 {
-                    createTableOperation.ForeignKeys.Add(AddForeignKeyOperation.For(foreignKey));
+                    createTableOperation.ForeignKeys.Add(AddForeignKeyOperation.CreateFrom(foreignKey));
                 }
 
                 foreach (var uniqueConstraint in table.UniqueConstraints.Where(c => !c.GetIsPrimaryKey()))
                 {
-                    createTableOperation.UniqueConstraints.Add(AddUniqueConstraintOperation.For(uniqueConstraint));
+                    createTableOperation.UniqueConstraints.Add(AddUniqueConstraintOperation.CreateFrom(uniqueConstraint));
                 }
 
                 foreach (var checkConstraint in table.CheckConstraints)
                 {
-                    createTableOperation.CheckConstraints.Add(AddCheckConstraintOperation.For(checkConstraint));
+                    createTableOperation.CheckConstraints.Add(AddCheckConstraintOperation.CreateFrom(checkConstraint));
                 }
 
                 createTableOperation.AddAnnotations(table.GetAnnotations());
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     if (index.IsUnique && rebuild.Value.CreateIndexesDeferred.Contains(index.Name))
                     {
-                        var createIndexOperation = CreateIndexOperation.For(index);
+                        var createIndexOperation = CreateIndexOperation.CreateFrom(index);
                         createIndexOperation.Table = createTableOperation.Name;
                         operations.Add(createIndexOperation);
                     }
@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             foreach (var index in indexesToRebuild)
             {
-                operations.Add(CreateIndexOperation.For(index));
+                operations.Add(CreateIndexOperation.CreateFrom(index));
             }
 
             return operations;

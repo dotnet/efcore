@@ -1739,7 +1739,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             foreach (var index in indexes)
             {
-                Generate(CreateIndexOperation.For(index), index.Table.Model.Model, builder, terminate: false);
+                Generate(CreateIndexOperation.CreateFrom(index), index.Table.Model.Model, builder, terminate: false);
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
         }

@@ -38,11 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Sql { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     Creates a new <see cref="AddCheckConstraintOperation"/> for the specified check constraint.
+        ///     Creates a new <see cref="AddCheckConstraintOperation"/> from the specified check constraint.
         /// </summary>
         /// <param name="checkConstraint"> The check constraint. </param>
         /// <returns> The operation. </returns>
-        public static AddCheckConstraintOperation For([NotNull] ICheckConstraint checkConstraint)
+        public static AddCheckConstraintOperation CreateFrom([NotNull] ICheckConstraint checkConstraint)
         {
             Check.NotNull(checkConstraint, nameof(checkConstraint));
 
