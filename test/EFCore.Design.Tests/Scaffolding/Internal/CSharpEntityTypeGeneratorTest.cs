@@ -533,5 +533,190 @@ namespace TestNamespace
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
         }
+
+        [ConditionalFact]
+        public void KeyAttribute_is_generated_for_property()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.Property<int>("PrimaryKey");
+                            x.HasKey("PrimaryKey");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    var entityFile = code.AdditionalFiles.First(f => f.Path == "Entity.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class Entity
+    {
+        [Key]
+        public int PrimaryKey { get; set; }
+    }
+}
+",
+                        entityFile.Code, ignoreLineEndingDifferences: true);
+                },
+                model =>
+                    Assert.Equal("PrimaryKey", model.FindEntityType("TestNamespace.Entity").FindPrimaryKey().Properties[0].Name));
+        }
+
+        [ConditionalFact]
+        public void RequiredAttribute_is_generated_for_property()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("RequiredString").IsRequired();
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    var entityFile = code.AdditionalFiles.First(f => f.Path == "Entity.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class Entity
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public string RequiredString { get; set; }
+    }
+}
+",
+                        entityFile.Code, ignoreLineEndingDifferences: true);
+                },
+                model =>
+                    Assert.False(model.FindEntityType("TestNamespace.Entity").GetProperty("RequiredString").IsNullable));
+        }
+
+        [ConditionalFact]
+        public void ColumnAttribute_is_generated_for_property()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("A").HasColumnName("propertyA");
+                            x.Property<string>("B").HasColumnType("nchar(10)");
+                            x.Property<string>("C").HasColumnName("random").HasColumnType("varchar(200)");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    var entityFile = code.AdditionalFiles.First(f => f.Path == "Entity.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class Entity
+    {
+        [Key]
+        public int Id { get; set; }
+        [Column(""propertyA"")]
+        public string A { get; set; }
+        [Column(TypeName = ""nchar(10)"")]
+        public string B { get; set; }
+        [Column(""random"", TypeName = ""varchar(200)"")]
+        public string C { get; set; }
+    }
+}
+",
+                        entityFile.Code, ignoreLineEndingDifferences: true);
+                },
+                model =>
+                {
+                    var entitType = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal("propertyA", entitType.GetProperty("A").GetColumnName());
+                    Assert.Equal("nchar(10)", entitType.GetProperty("B").GetColumnType());
+                    Assert.Equal("random", entitType.GetProperty("C").GetColumnName());
+                    Assert.Equal("varchar(200)", entitType.GetProperty("C").GetColumnType());
+                });
+        }
+
+        [ConditionalFact]
+        public void MaxLengthAttribute_is_generated_for_property()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("A").HasMaxLength(34);
+                            x.Property<byte[]>("B").HasMaxLength(10);
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    var entityFile = code.AdditionalFiles.First(f => f.Path == "Entity.cs");
+                    Assert.Equal(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class Entity
+    {
+        [Key]
+        public int Id { get; set; }
+        [StringLength(34)]
+        public string A { get; set; }
+        [MaxLength(10)]
+        public byte[] B { get; set; }
+    }
+}
+",
+                        entityFile.Code, ignoreLineEndingDifferences: true);
+                },
+                model =>
+                {
+                    var entitType = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal(34, entitType.GetProperty("A").GetMaxLength());
+                    Assert.Equal(10, entitType.GetProperty("B").GetMaxLength());
+                });
+        }
     }
 }
