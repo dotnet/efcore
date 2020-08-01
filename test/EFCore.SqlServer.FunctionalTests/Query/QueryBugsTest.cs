@@ -8103,8 +8103,7 @@ CROSS JOIN (
 
         #endregion
 
-
-        #region Issue 18510
+        #region Issue18510
 
         [ConditionalFact]
         public virtual void Invoke_inside_query_filter_gets_correctly_evaluated_during_translation()
@@ -8191,6 +8190,101 @@ WHERE (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL) AND ([e].[TenantId] = @__ef
                     var e4 = new MyEntity18510 { Name = "Foo", TenantId = 2 };
 
                     context.Entities.AddRange(e1, e2, e3, e4);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue21803
+
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public virtual async Task Select_enumerable_navigation_backed_by_collection(bool async, bool split)
+        {
+            using (CreateDatabase21803())
+            {
+                using var context = new MyContext21803(_options);
+
+                var query = context.Set<AppEntity21803>().Select(appEntity => appEntity.OtherEntities);
+
+                if (split)
+                {
+                    query = query.AsSplitQuery();
+                }
+
+                if (async)
+                {
+                    await query.ToListAsync();
+                }
+                else
+                {
+                    query.ToList();
+                }
+
+                if (split)
+                {
+                    AssertSql(
+                        @"SELECT [e].[Id]
+FROM [Entities] AS [e]
+ORDER BY [e].[Id]",
+                        //
+                        @"SELECT [o].[Id], [o].[AppEntityId], [e].[Id]
+FROM [Entities] AS [e]
+INNER JOIN [OtherEntity21803] AS [o] ON [e].[Id] = [o].[AppEntityId]
+ORDER BY [e].[Id]");
+                }
+                else
+                {
+                    AssertSql(
+                        @"SELECT [e].[Id], [o].[Id], [o].[AppEntityId]
+FROM [Entities] AS [e]
+LEFT JOIN [OtherEntity21803] AS [o] ON [e].[Id] = [o].[AppEntityId]
+ORDER BY [e].[Id], [o].[Id]");
+                }
+            }
+        }
+
+        public class AppEntity21803
+        {
+            private readonly List<OtherEntity21803> _otherEntities = new List<OtherEntity21803>();
+
+            public int Id { get; private set; }
+            public IEnumerable<OtherEntity21803> OtherEntities => _otherEntities;
+        }
+
+        public class OtherEntity21803
+        {
+            public int Id { get; private set; }
+            public AppEntity21803 AppEntity { get; set; }
+        }
+
+        private class MyContext21803 : DbContext
+        {
+            public DbSet<AppEntity21803> Entities { get; set; }
+
+            public MyContext21803(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase21803()
+            => CreateTestStore(
+                () => new MyContext21803(_options),
+                context =>
+                {
+                    var appEntity = new AppEntity21803();
+                    context.AddRange(
+                        new OtherEntity21803 { AppEntity = appEntity },
+                        new OtherEntity21803 { AppEntity = appEntity },
+                        new OtherEntity21803 { AppEntity = appEntity },
+                        new OtherEntity21803 { AppEntity = appEntity });
+
                     context.SaveChanges();
 
                     ClearLog();

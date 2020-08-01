@@ -883,6 +883,61 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region Issue21803
+
+        [ConditionalFact]
+        public virtual void Select_enumerable_navigation_backed_by_collection()
+        {
+            using (CreateScratch<MyContext21803>(Seed21803, "21803"))
+            {
+                using var context = new MyContext21803();
+
+                var query = context.Set<AppEntity21803>().Select(appEntity => appEntity.OtherEntities);
+
+                query.ToList();
+            }
+        }
+
+        private static void Seed21803(MyContext21803 context)
+        {
+            var appEntity = new AppEntity21803();
+            context.AddRange(
+                new OtherEntity21803 { AppEntity = appEntity },
+                new OtherEntity21803 { AppEntity = appEntity },
+                new OtherEntity21803 { AppEntity = appEntity },
+                new OtherEntity21803 { AppEntity = appEntity });
+
+            context.SaveChanges();
+        }
+
+        public class AppEntity21803
+        {
+            private readonly List<OtherEntity21803> _otherEntities = new List<OtherEntity21803>();
+
+            public int Id { get; private set; }
+            public IEnumerable<OtherEntity21803> OtherEntities => _otherEntities;
+        }
+
+        public class OtherEntity21803
+        {
+            public int Id { get; private set; }
+            public AppEntity21803 AppEntity { get; set; }
+        }
+
+        private class MyContext21803 : DbContext
+        {
+            public DbSet<AppEntity21803> Entities { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("21803");
+            }
+        }
+
+        #endregion
+
         #region SharedHelper
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed, string databaseName)
