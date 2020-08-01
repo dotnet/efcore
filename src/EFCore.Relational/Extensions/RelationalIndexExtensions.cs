@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The name of the index in the database. </returns>
-        public static string GetDatabaseName([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
+        public static string GetDatabaseName([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
             => (string)index[RelationalAnnotationNames.Name]
                 ?? index.Name
                 ?? index.GetDefaultDatabaseName(storeObject);
@@ -82,19 +82,27 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The default name that would be used for this index. </returns>
-        public static string GetDefaultDatabaseName([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
+        public static string GetDefaultDatabaseName([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
         {
-            var propertyNames = index.Properties.Select(p => p.GetColumnName(storeObject)).ToList();
+            var propertyNames = index.Properties.GetColumnNames(storeObject);
             var rootIndex = index;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
             // Using a hashset is detrimental to the perf when there are no cycles
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
-                var linkedIndex = rootIndex.DeclaringEntityType
+                IIndex linkedIndex = null;
+                foreach(var otherIndex in rootIndex.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
-                    .FirstOrDefault(i => i.Properties.Select(p => p.GetColumnName(storeObject)).SequenceEqual(propertyNames));
+                    .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
+                {
+                    if (otherIndex.Properties.GetColumnNames(storeObject).SequenceEqual(propertyNames))
+                    {
+                        linkedIndex = otherIndex;
+                        break;
+                    }
+                }
+
                 if (linkedIndex == null)
                 {
                     break;
@@ -201,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index filter expression. </returns>
-        public static string GetFilter([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
+        public static string GetFilter([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
         {
             var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
             if (annotation != null)
@@ -269,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
-        public static IIndex FindSharedObjectRootIndex([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
+        public static IIndex FindSharedObjectRootIndex([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(index, nameof(index));
 
@@ -280,10 +288,18 @@ namespace Microsoft.EntityFrameworkCore
             // Using a hashset is detrimental to the perf when there are no cycles
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
-                var linkedIndex = rootIndex.DeclaringEntityType
+                IIndex linkedIndex = null;
+                foreach(var otherIndex in rootIndex.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetIndexes())
-                    .FirstOrDefault(i => i.GetDatabaseName(storeObject) == indexName);
+                    .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
+                {
+                    if (otherIndex.GetDatabaseName(storeObject) == indexName)
+                    {
+                        linkedIndex = otherIndex;
+                        break;
+                    }
+                }
+
                 if (linkedIndex == null)
                 {
                     break;
@@ -308,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
         public static IMutableIndex FindSharedObjectRootIndex(
-            [NotNull] this IMutableIndex index, StoreObjectIdentifier storeObject)
+            [NotNull] this IMutableIndex index, in StoreObjectIdentifier storeObject)
             => (IMutableIndex)((IIndex)index).FindSharedObjectRootIndex(storeObject);
 
         /// <summary>
@@ -324,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
         public static IConventionIndex FindSharedObjectRootIndex(
-            [NotNull] this IConventionIndex index, StoreObjectIdentifier storeObject)
+            [NotNull] this IConventionIndex index, in StoreObjectIdentifier storeObject)
             => (IConventionIndex)((IIndex)index).FindSharedObjectRootIndex(storeObject);
     }
 }

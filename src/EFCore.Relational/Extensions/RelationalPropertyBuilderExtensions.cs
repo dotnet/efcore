@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionPropertyBuilder HasColumnName(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetColumnName(name, storeObject, fromDataAnnotation))
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         public static bool CanSetColumnName(
             [NotNull] this IConventionPropertyBuilder propertyBuilder,
             [CanBeNull] string name,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             bool fromDataAnnotation = false)
         {
             var overrides = RelationalPropertyOverrides.Find(propertyBuilder.Metadata, storeObject);

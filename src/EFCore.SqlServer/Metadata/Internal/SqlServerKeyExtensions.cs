@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatibleForSqlServer(
             [NotNull] this IKey key,
             [NotNull] IKey duplicateKey,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
             if (key.IsClustered(storeObject)

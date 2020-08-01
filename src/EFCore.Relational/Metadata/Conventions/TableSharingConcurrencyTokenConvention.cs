@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         [EntityFrameworkInternal]
         public static Dictionary<string, List<IProperty>> GetConcurrencyTokensMap(
-            StoreObjectIdentifier table, [NotNull] IReadOnlyList<IEntityType> mappedTypes)
+            in StoreObjectIdentifier storeObject, [NotNull] IReadOnlyList<IEntityType> mappedTypes)
         {
             if (mappedTypes.Count < 2)
             {
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         continue;
                     }
 
-                    var columnName = property.GetColumnName(table);
+                    var columnName = property.GetColumnName(storeObject);
                     if (columnName == null)
                     {
                         continue;

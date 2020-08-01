@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The SRID to use when creating a column for this property. </returns>
         public static int? GetSrid(
             [NotNull] this IProperty property,
-            StoreObjectIdentifier storeObject)
+            in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqliteAnnotationNames.Srid);
             if (annotation != null)

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for the
     ///     <see cref="RelationalEventId.IndexPropertiesMappedToNonOverlappingTables"/> event.
     /// </summary>
-    public class IndexInvalidPropertiesEventData : EventData
+    public class IndexWithPropertiesEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload for the <see cref="RelationalEventId.IndexPropertiesMappedToNonOverlappingTables" /> event.
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="tablesMappedToProperty1"> The tables mapped to the first property. </param>
         /// <param name="property2Name"> The name of the second property name which causes this event. </param>
         /// <param name="tablesMappedToProperty2"> The tables mapped to the second property. </param>
-        public IndexInvalidPropertiesEventData(
+        public IndexWithPropertiesEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IEntityType entityType,

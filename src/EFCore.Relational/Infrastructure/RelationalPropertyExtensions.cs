@@ -23,5 +23,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] this IEnumerable<IProperty> properties,
             StoreObjectIdentifier storeObject)
             => "{" + string.Join(", ", properties.Select(p => "'" + p.GetColumnName(storeObject) + "'")) + "}";
+
+        /// <summary>
+        ///     Creates a list of column names.
+        /// </summary>
+        /// <param name="properties"> The properties to format. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> A list of column names. </returns>
+        public static IReadOnlyList<string> GetColumnNames(
+            [NotNull] this IEnumerable<IProperty> properties,
+            in StoreObjectIdentifier storeObject)
+        {
+            var propertyNames = new List<string>();
+            foreach (var property in properties)
+            {
+                propertyNames.Add(property.GetColumnName(storeObject));
+            }
+            return propertyNames;
+        }
     }
 }
