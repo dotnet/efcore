@@ -7145,6 +7145,7 @@ CROSS APPLY (
     SELECT TOP(3) [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
     FROM [Weapons] AS [w]
     WHERE ([w].[OwnerFullName] <> [g].[FullName]) OR [w].[OwnerFullName] IS NULL
+    ORDER BY [w].[Id]
 ) AS [t]
 ORDER BY [g].[Nickname], [t].[Id]");
         }

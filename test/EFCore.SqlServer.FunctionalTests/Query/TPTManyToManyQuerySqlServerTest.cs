@@ -409,7 +409,7 @@ LEFT JOIN [EntityCompositeKeys] AS [e0] ON (
     INNER JOIN [EntityThrees] AS [e2] ON [j0].[ThreeId] = [e2].[Id]
     WHERE (([e0].[Key1] = [j0].[CompositeId1]) AND ([e0].[Key2] = [j0].[CompositeId2])) AND ([e0].[Key3] = [j0].[CompositeId3])
     ORDER BY [e2].[Id])
-ORDER BY [e].[Key1], [e0].[Key1]");
+ORDER BY [e].[Key1], [e0].[Key1], [e].[Key2], [e0].[Key2]");
         }
 
         public override async Task Select_many_over_skip_navigation(bool async)
@@ -590,7 +590,7 @@ FROM [EntityThrees] AS [e]
 LEFT JOIN (
     SELECT [t].[Key1], [t].[Key2], [t].[Key3], [t].[Name], [t].[ThreeId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3]
     FROM (
-        SELECT [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [j].[ThreeId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Key1]) AS [row]
+        SELECT [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [j].[ThreeId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Key1], [e0].[Key2]) AS [row]
         FROM [JoinThreeToCompositeKeyFull] AS [j]
         INNER JOIN [EntityCompositeKeys] AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
     ) AS [t]
