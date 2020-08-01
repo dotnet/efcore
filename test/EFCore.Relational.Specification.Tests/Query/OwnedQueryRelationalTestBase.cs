@@ -115,15 +115,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Throws_when_using_from_sql_on_owner(bool async)
+        public virtual async Task Using_from_sql_on_owner_generates_join_with_table_for_owned_shared_dependents(bool async)
         {
             using var context = CreateContext();
-            var query = context.Set<OwnedPerson>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [OwnedPersons]"));
+            var query = context.Set<OwnedPerson>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [OwnedPerson]"));
 
-            var message = async
-                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
-                : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message;
-            Assert.Equal(RelationalStrings.CustomQueryMappingOnOwner, message);
+            if (async)
+            {
+                await query.ToListAsync();
+            }
+            else
+            {
+                query.ToList();
+            }
         }
 
         protected string NormalizeDelimitersInRawString(string sql)

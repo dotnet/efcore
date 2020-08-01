@@ -1020,12 +1020,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dbFunction, entityType);
 
         /// <summary>
-        ///     Using 'FromSqlRaw' or 'FromSqlInterpolated' on an entity type which has owned reference navigations sharing same table is not supported.
-        /// </summary>
-        public static string CustomQueryMappingOnOwner
-            => GetString("CustomQueryMappingOnOwner");
-
-        /// <summary>
         ///     Nullability information should only be specified for scalar database functions.
         /// </summary>
         public static string NullabilityInfoOnlyAllowedOnScalarFunctions
