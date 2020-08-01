@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public virtual ICollection<JoinOneToThreePayloadFull> JoinThreePayloadFull { get; }
             = new ObservableCollection<JoinOneToThreePayloadFull>(); // #21684
 
+        [InverseProperty("OneSkipShared")]
         public virtual ICollection<EntityTwo> TwoSkipShared { get; } = new ObservableCollection<EntityTwo>(); // #21684
 
         public virtual ICollection<EntityThree> ThreeSkipPayloadFullShared { get; } = new ObservableCollection<EntityThree>(); // #21684

@@ -1115,18 +1115,42 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<Dictionary<string, object>> Navigation { get; set; }
         }
 
-        protected class AmbigiousManyToManyImplicitLeft
+        protected class AmbiguousManyToManyImplicitLeft
         {
             public int Id { get; set; }
-            public List<AmbigiousManyToManyImplicitRight> Navigation1 { get; } = new List<AmbigiousManyToManyImplicitRight>();
-            public List<AmbigiousManyToManyImplicitRight> Navigation2 { get; } = new List<AmbigiousManyToManyImplicitRight>();
+            public List<AmbiguousManyToManyImplicitRight> Navigation1 { get; } = new List<AmbiguousManyToManyImplicitRight>();
+            public List<AmbiguousManyToManyImplicitRight> Navigation2 { get; } = new List<AmbiguousManyToManyImplicitRight>();
         }
 
-        protected class AmbigiousManyToManyImplicitRight
+        protected class AmbiguousManyToManyImplicitRight
         {
             public int Id { get; set; }
-            public List<AmbigiousManyToManyImplicitLeft> Navigation1 { get; } = new List<AmbigiousManyToManyImplicitLeft>();
-            public List<AmbigiousManyToManyImplicitLeft> Navigation2 { get; } = new List<AmbigiousManyToManyImplicitLeft>();
+            public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
+            public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
+        }
+
+        protected class AmbiguousInversePropertyLeft
+        {
+            public int Id { get; set; }
+            public List<AmbiguousInversePropertyRight> BaseRights { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyLeftDerived : AmbiguousInversePropertyLeft
+        {
+            public List<AmbiguousInversePropertyRightDerived> DerivedRights { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyRight
+        {
+            public int Id { get; set; }
+            [InverseProperty("BaseRights")]
+            public List<AmbiguousInversePropertyLeft> BaseLefts { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyRightDerived : AmbiguousInversePropertyRight
+        {
+            [InverseProperty("BaseRights")]
+            public List<AmbiguousInversePropertyLeftDerived> DerivedLefts { get; set; }
         }
     }
 }
