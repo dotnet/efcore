@@ -10,8 +10,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     A type that represents the id of a store object
     /// </summary>
-    public struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>
+    public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>
     {
+        private StoreObjectIdentifier(StoreObjectType storeObjectType, string name, string schema = null)
+        {
+            StoreObjectType = storeObjectType;
+            Name = name;
+            Schema = schema;
+        }
+
         /// <summary>
         ///     Creates a table id.
         /// </summary>
@@ -22,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             Check.NotNull(name, nameof(name));
 
-            return new StoreObjectIdentifier { StoreObjectType = StoreObjectType.Table, Name = name, Schema = schema };
+            return new StoreObjectIdentifier(StoreObjectType.Table, name, schema);
         }
 
         /// <summary>
@@ -35,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             Check.NotNull(name, nameof(name));
 
-            return new StoreObjectIdentifier { StoreObjectType = StoreObjectType.View, Name = name, Schema = schema };
+            return new StoreObjectIdentifier(StoreObjectType.View, name, schema);
         }
 
         /// <summary>
@@ -47,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return new StoreObjectIdentifier { StoreObjectType = StoreObjectType.SqlQuery, Name = entityType.GetDefaultSqlQueryName() };
+            return new StoreObjectIdentifier(StoreObjectType.SqlQuery, entityType.GetDefaultSqlQueryName());
         }
 
         /// <summary>
@@ -59,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             Check.NotNull(name, nameof(name));
 
-            return new StoreObjectIdentifier { StoreObjectType = StoreObjectType.SqlQuery, Name = name };
+            return new StoreObjectIdentifier(StoreObjectType.SqlQuery, name);
         }
 
         /// <summary>
@@ -71,23 +78,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             Check.NotNull(modelName, nameof(modelName));
 
-            return new StoreObjectIdentifier { StoreObjectType = StoreObjectType.Function, Name = modelName };
+            return new StoreObjectIdentifier(StoreObjectType.Function, modelName);
         }
 
         /// <summary>
         ///     Gets the table-like store object type.
         /// </summary>
-        public StoreObjectType StoreObjectType { get; private set; }
+        public StoreObjectType StoreObjectType { get; }
 
         /// <summary>
         ///     Gets the table-like store object name.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         ///     Gets the table-like store object schema.
         /// </summary>
-        public string Schema { get; private set; }
+        public string Schema { get; }
 
         /// <inheritdoc />
         public int CompareTo(StoreObjectIdentifier other)

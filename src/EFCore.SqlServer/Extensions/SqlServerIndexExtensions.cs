@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if the index is clustered. </returns>
-        public static bool? IsClustered([NotNull] this IIndex index, StoreObjectIdentifier storeObject)
+        public static bool? IsClustered([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
         {
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
             if (annotation != null)
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             return GetDefaultIsClustered(index, storeObject);
         }
 
-        private static bool? GetDefaultIsClustered([NotNull] IIndex index, StoreObjectIdentifier storeObject)
+        private static bool? GetDefaultIsClustered([NotNull] IIndex index, in StoreObjectIdentifier storeObject)
         {
             var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
             return sharedTableRootIndex?.IsClustered(storeObject);

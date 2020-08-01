@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for
     ///     the events involving an invalid property name on an index.
     /// </summary>
-    public class IndexInvalidPropertyEventData : EventData
+    public class IndexWithPropertyEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload for indexes with a invalid property.
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="indexName"> The name of the index. </param>
         /// <param name="indexPropertyNames"> The names of the properties which define the index. </param>
         /// <param name="invalidPropertyName"> The property name which is invalid. </param>
-        public IndexInvalidPropertyEventData(
+        public IndexWithPropertyEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IEntityType entityType,
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EntityType = entityType;
             Name = indexName;
             PropertyNames = indexPropertyNames;
-            InvalidPropertyName = invalidPropertyName;
+            PropertyName = invalidPropertyName;
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual List<string> PropertyNames { get; }
 
         /// <summary>
-        ///     The name of the invalid property.
+        ///     The name of the specific property.
         /// </summary>
-        public virtual string InvalidPropertyName { get; }
+        public virtual string PropertyName { get; }
     }
 }

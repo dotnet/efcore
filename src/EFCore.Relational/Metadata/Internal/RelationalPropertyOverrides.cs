@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static RelationalPropertyOverrides Find([NotNull] IProperty property, StoreObjectIdentifier storeObject)
+        public static RelationalPropertyOverrides Find([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
         {
             var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
                 property[RelationalAnnotationNames.RelationalOverrides];
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IMutableProperty property, StoreObjectIdentifier storeObject)
+            [NotNull] IMutableProperty property, in StoreObjectIdentifier storeObject)
         {
             var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
                 property[RelationalAnnotationNames.RelationalOverrides];
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IConventionProperty property, StoreObjectIdentifier storeObject)
+            [NotNull] IConventionProperty property, in StoreObjectIdentifier storeObject)
             => GetOrCreate((IMutableProperty)property, storeObject);
     }
 }

@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// </summary>
         protected override void ValidateSharedColumnsCompatibility(
             IReadOnlyList<IEntityType> mappedTypes,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             base.ValidateSharedColumnsCompatibility(mappedTypes, storeObject, logger);
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             IProperty property,
             IProperty duplicateProperty,
             string columnName,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             base.ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             IKey key,
             IKey duplicateKey,
             string keyName,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             base.ValidateCompatible(key, duplicateKey, keyName, storeObject, logger);
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             IIndex index,
             IIndex duplicateIndex,
             string indexName,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             base.ValidateCompatible(index, duplicateIndex, indexName, storeObject, logger);

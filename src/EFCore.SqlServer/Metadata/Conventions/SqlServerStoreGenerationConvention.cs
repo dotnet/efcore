@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc/>
-        protected override void Validate(IConventionProperty property, StoreObjectIdentifier storeObject)
+        protected override void Validate(IConventionProperty property, in StoreObjectIdentifier storeObject)
         {
             if (property.GetValueGenerationStrategyConfigurationSource() != null)
             {

@@ -4460,7 +4460,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
                 {
-                    var eventData = new IndexInvalidPropertyEventData(
+                    var eventData = new IndexWithPropertyEventData(
                         definition,
                         UnnamedIndexPropertiesBothMappedAndNotMappedToTable,
                         entityType,
@@ -4486,7 +4486,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
                 {
-                    var eventData = new IndexInvalidPropertyEventData(
+                    var eventData = new IndexWithPropertyEventData(
                         definition,
                         NamedIndexPropertiesBothMappedAndNotMappedToTable,
                         entityType,
@@ -4502,22 +4502,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static string UnnamedIndexPropertiesBothMappedAndNotMappedToTable(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string>)definition;
-            var p = (IndexInvalidPropertyEventData)payload;
+            var p = (IndexWithPropertyEventData)payload;
             return d.GenerateMessage(
                 p.EntityType.DisplayName(),
                 p.PropertyNames.Format(),
-                p.InvalidPropertyName);
+                p.PropertyName);
         }
 
         private static string NamedIndexPropertiesBothMappedAndNotMappedToTable(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
-            var p = (IndexInvalidPropertyEventData)payload;
+            var p = (IndexWithPropertyEventData)payload;
             return d.GenerateMessage(
                 p.Name,
                 p.EntityType.DisplayName(),
                 p.PropertyNames.Format(),
-                p.InvalidPropertyName);
+                p.PropertyName);
         }
 
         /// <summary>
@@ -4556,7 +4556,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
                 {
-                    var eventData = new IndexInvalidPropertiesEventData(
+                    var eventData = new IndexWithPropertiesEventData(
                         definition,
                         UnnamedIndexPropertiesMappedToNonOverlappingTables,
                         entityType,
@@ -4592,7 +4592,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
                 {
-                    var eventData = new IndexInvalidPropertiesEventData(
+                    var eventData = new IndexWithPropertiesEventData(
                         definition,
                         NamedIndexPropertiesMappedToNonOverlappingTables,
                         entityType,
@@ -4611,7 +4611,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static string UnnamedIndexPropertiesMappedToNonOverlappingTables(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string, string, string>)definition;
-            var p = (IndexInvalidPropertiesEventData)payload;
+            var p = (IndexWithPropertiesEventData)payload;
             return d.GenerateMessage(
                 p.EntityType.DisplayName(),
                 p.PropertyNames.Format(),
@@ -4624,7 +4624,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static string NamedIndexPropertiesMappedToNonOverlappingTables(EventDefinitionBase definition, EventData payload)
         {
             var d = (FallbackEventDefinition)definition;
-            var p = (IndexInvalidPropertiesEventData)payload;
+            var p = (IndexWithPropertiesEventData)payload;
             return d.GenerateMessage(
                     l => l.Log(
                         d.Level,

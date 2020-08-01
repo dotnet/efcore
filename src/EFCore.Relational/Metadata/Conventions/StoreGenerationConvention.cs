@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         protected virtual void Validate(
             [NotNull] IConventionProperty property,
-            StoreObjectIdentifier storeObject)
+            in StoreObjectIdentifier storeObject)
         {
             if (property.GetDefaultValue(storeObject) != null)
             {
