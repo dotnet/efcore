@@ -1,7 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -1756,6 +1759,22 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [c].[City] = N'Seattle'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Include_collection_with_last_no_orderby(bool async)
+        {
+            var expectedMessage = CoreStrings.TranslationFailedWithDetails("DbSet<Customer>()    .Reverse()",
+                RelationalStrings.MissingOrderingInSqlExpression);
+
+            var exception = (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertLast(
+                        async,
+                        ss => ss.Set<Customer>().Include(c => c.Orders),
+                        entryCount: 8)));
+
+            Assert.Equal(
+                expectedMessage,
+                exception.Message.Replace("\r","").Replace("\n",""));
         }
 
         private void AssertSql(params string[] expected)

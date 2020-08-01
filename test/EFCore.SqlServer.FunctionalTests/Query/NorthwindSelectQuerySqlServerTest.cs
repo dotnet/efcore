@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -1471,6 +1474,17 @@ OUTER APPLY (
     WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND (([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
 ) AS [t0]
 ORDER BY [t].[CustomerID], [t0].[OrderID]");
+        }
+
+        public override Task Reverse_without_explicit_ordering_throws(bool async)
+        {
+             return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Employee>()
+                        .Reverse()
+                        .Select(e => $"{e.EmployeeID}")
+                ), RelationalStrings.MissingOrderingInSqlExpression);
         }
 
         private void AssertSql(params string[] expected)

@@ -892,13 +892,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Reverse_without_explicit_ordering_throws(bool async)
         {
-            return AssertTranslationFailedWithDetails(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                     async,
                     ss => ss.Set<Employee>()
                         .Reverse()
                         .Select(e => $"{e.EmployeeID}")
-                ), RelationalStrings.MissingOrderingInSqlExpression);
+                ));
         }
 
         [ConditionalTheory]
