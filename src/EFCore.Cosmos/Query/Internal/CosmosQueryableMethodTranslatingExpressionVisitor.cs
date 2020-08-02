@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -797,6 +798,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var selectExpression = (SelectExpression)source.QueryExpression;
             if (selectExpression.Orderings.Count == 0)
             {
+                AddTranslationErrorDetails(CosmosStrings.MissingOrderingInSqlExpression);
                 return null;
             }
 

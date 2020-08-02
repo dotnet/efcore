@@ -228,6 +228,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
                 derivedType, entityType);
 
+        /// <summary>
+        ///     Reverse could not be translated to the server because there is no ordering on the server side.
+        /// </summary>
+        public static string MissingOrderingInSqlExpression
+            => GetString("MissingOrderingInSqlExpression");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

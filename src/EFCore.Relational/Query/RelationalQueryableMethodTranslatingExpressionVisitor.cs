@@ -843,6 +843,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var selectExpression = (SelectExpression)source.QueryExpression;
             if (selectExpression.Orderings.Count == 0)
             {
+                AddTranslationErrorDetails(RelationalStrings.MissingOrderingInSqlExpression);
                 return null;
             }
 

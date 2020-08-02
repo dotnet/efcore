@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -206,6 +207,17 @@ FROM ""Orders"" AS ""o""");
         public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool async)
         {
             return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
+        }
+
+        public override Task Reverse_without_explicit_ordering_throws(bool async)
+        {
+             return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Employee>()
+                        .Reverse()
+                        .Select(e => $"{e.EmployeeID}")
+                ), RelationalStrings.MissingOrderingInSqlExpression);
         }
 
         private void AssertSql(params string[] expected)

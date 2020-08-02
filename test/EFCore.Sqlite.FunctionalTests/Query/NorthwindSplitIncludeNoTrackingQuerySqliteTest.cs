@@ -3,7 +3,9 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -41,5 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_collection_with_outer_apply_with_filter_non_equality(async))).Message);
+
+        public override Task Include_collection_with_last_no_orderby(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertLast(
+                        async,
+                        ss => ss.Set<Customer>().Include(c => c.Orders),
+                        entryCount: 8
+                 ), RelationalStrings.MissingOrderingInSqlExpression);
+        }
     }
 }

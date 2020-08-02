@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1142,6 +1143,17 @@ ORDER BY c[""CustomerID""]");
         public override Task Projecting_after_navigation_and_distinct_works_correctly(bool async)
         {
             return base.Projecting_after_navigation_and_distinct_works_correctly(async);
+        }
+
+        public override Task Reverse_without_explicit_ordering_throws(bool async)
+        {
+             return AssertTranslationFailedWithDetails(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Employee>()
+                        .Reverse()
+                        .Select(e => $"{e.EmployeeID}")
+                ), CosmosStrings.MissingOrderingInSqlExpression);
         }
 
         private void AssertSql(params string[] expected)
