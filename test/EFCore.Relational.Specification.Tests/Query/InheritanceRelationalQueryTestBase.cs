@@ -3,6 +3,8 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -61,6 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Single(result);
         }
+
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
 
         private string NormalizeDelimitersInRawString(string sql)
             => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimitersInRawString(sql);

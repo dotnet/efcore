@@ -539,9 +539,6 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ((
 ORDER BY [a].[Species]");
         }
 
-        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-            => facade.UseTransaction(transaction.GetDbTransaction());
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

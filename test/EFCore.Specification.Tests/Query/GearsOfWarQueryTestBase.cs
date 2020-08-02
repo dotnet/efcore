@@ -7753,7 +7753,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => from g in ss.Set<Gear>()
-                      from w in ss.Set<Weapon>().Where(x => x.OwnerFullName != g.FullName).Take(3)
+                      from w in ss.Set<Weapon>().Where(x => x.OwnerFullName != g.FullName).OrderBy(x => x.Id).Take(3)
                       orderby g.Nickname, w.Id
                       select new { g, w },
                 assertOrder: true,

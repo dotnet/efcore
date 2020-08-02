@@ -4,9 +4,10 @@
 
 // ReSharper disable InconsistentNaming
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Xunit;
 
@@ -48,5 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(RelationalStrings.NonTPHOnFromSqlNotSupported("FromSqlInterpolated", typeof(Bird).Name), message);
         }
+
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
     }
 }
