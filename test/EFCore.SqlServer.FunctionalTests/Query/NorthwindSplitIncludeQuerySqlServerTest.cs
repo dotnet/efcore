@@ -1761,20 +1761,14 @@ WHERE [c].[City] = N'Seattle'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
-        public override async Task Include_collection_with_last_no_orderby(bool async)
+        public override Task Include_collection_with_last_no_orderby(bool async)
         {
-            var expectedMessage = CoreStrings.TranslationFailedWithDetails("DbSet<Customer>()    .Reverse()",
-                RelationalStrings.MissingOrderingInSqlExpression);
-
-            var exception = (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => AssertLast(
+            return AssertTranslationFailedWithDetails(
+                () => AssertLast(
                         async,
                         ss => ss.Set<Customer>().Include(c => c.Orders),
-                        entryCount: 8)));
-
-            Assert.Equal(
-                expectedMessage,
-                exception.Message.Replace("\r","").Replace("\n",""));
+                        entryCount: 8
+                 ), RelationalStrings.MissingOrderingInSqlExpression);      
         }
 
         private void AssertSql(params string[] expected)
