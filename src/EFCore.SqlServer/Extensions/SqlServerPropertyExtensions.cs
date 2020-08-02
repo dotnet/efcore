@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The identity seed. </returns>
-        public static int? GetIdentitySeed([NotNull] this IProperty property, StoreObjectIdentifier storeObject)
+        public static int? GetIdentitySeed([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
             if (annotation != null)
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The identity increment. </returns>
-        public static int? GetIdentityIncrement([NotNull] this IProperty property, StoreObjectIdentifier storeObject)
+        public static int? GetIdentityIncrement([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement);
             if (annotation != null)
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
         public static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
             [NotNull] this IProperty property,
-            StoreObjectIdentifier storeObject)
+            in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
             if (annotation != null)

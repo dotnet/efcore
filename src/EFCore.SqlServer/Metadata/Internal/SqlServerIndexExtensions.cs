@@ -25,19 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatibleForSqlServer(
             [NotNull] this IIndex index,
             [NotNull] IIndex duplicateIndex,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
             if (index.GetIncludeProperties() != duplicateIndex.GetIncludeProperties())
             {
                 if (index.GetIncludeProperties() == null
                     || duplicateIndex.GetIncludeProperties() == null
-                    || !index.GetIncludeProperties().Select(
-                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(storeObject))
-                        .SequenceEqual(
-                            duplicateIndex.GetIncludeProperties().Select(
-                                p => duplicateIndex.DeclaringEntityType.FindProperty(p)
-                                    .GetColumnName(storeObject))))
+                    || !SameColumnNames(index, duplicateIndex, storeObject))
                 {
                     if (shouldThrow)
                     {
@@ -109,6 +104,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return true;
+
+            static bool SameColumnNames(IIndex index, IIndex duplicateIndex, StoreObjectIdentifier storeObject)
+                => index.GetIncludeProperties().Select(
+                    p => index.DeclaringEntityType.FindProperty(p).GetColumnName(storeObject))
+                    .SequenceEqual(
+                        duplicateIndex.GetIncludeProperties().Select(
+                            p => duplicateIndex.DeclaringEntityType.FindProperty(p)
+                                .GetColumnName(storeObject)));
         }
 
         private static string FormatInclude(IIndex index, StoreObjectIdentifier storeObject)

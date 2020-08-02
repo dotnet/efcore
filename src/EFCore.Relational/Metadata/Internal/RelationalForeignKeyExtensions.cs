@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatible(
             [NotNull] this IForeignKey foreignKey,
             [NotNull] IForeignKey duplicateForeignKey,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
             var principalType = foreignKey.PrincipalEntityType;
@@ -53,8 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (!foreignKey.Properties.Select(p => p.GetColumnName(storeObject))
-                .SequenceEqual(duplicateForeignKey.Properties.Select(p => p.GetColumnName(storeObject))))
+            if (!SameColumnNames(foreignKey.Properties, duplicateForeignKey.Properties, storeObject))
             {
                 if (shouldThrow)
                 {
@@ -75,8 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (!foreignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(storeObject))
-                .SequenceEqual(duplicateForeignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(storeObject))))
+            if (!SameColumnNames(foreignKey.PrincipalKey.Properties, duplicateForeignKey.PrincipalKey.Properties, storeObject))
             {
                 if (shouldThrow)
                 {
@@ -138,6 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return true;
+
+            static bool SameColumnNames(
+                IReadOnlyList<IProperty> properties,
+                IReadOnlyList<IProperty> duplicateProperties,
+                in StoreObjectIdentifier storeObject)
+                => properties.GetColumnNames(storeObject).SequenceEqual(duplicateProperties.GetColumnNames(storeObject));
         }
     }
 }

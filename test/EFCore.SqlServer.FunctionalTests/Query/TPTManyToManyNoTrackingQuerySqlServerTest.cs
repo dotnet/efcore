@@ -104,8 +104,8 @@ ORDER BY (
         FROM [Roots] AS [r]
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
-    ) AS [t] ON [j].[BranchId] = [t].[Id]
-    WHERE ([e].[Id] = [j].[OneId]) AND ([t].[Name] IS NOT NULL AND ([t].[Name] LIKE N'L%'))), [e].[Id]");
+    ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
+    WHERE ([e].[Id] = [j].[EntityOneId]) AND ([t].[Name] IS NOT NULL AND ([t].[Name] LIKE N'L%'))), [e].[Id]");
         }
 
         public override async Task Skip_navigation_long_count_without_predicate(bool async)
@@ -304,14 +304,14 @@ FROM [Roots] AS [r]
 INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[Name], [t].[BranchId], [t].[OneId]
+    SELECT [t].[Id], [t].[Name], [t].[EntityBranchId], [t].[EntityOneId]
     FROM (
-        SELECT [e].[Id], [e].[Name], [j].[BranchId], [j].[OneId], ROW_NUMBER() OVER(PARTITION BY [j].[BranchId] ORDER BY [e].[Id] DESC) AS [row]
+        SELECT [e].[Id], [e].[Name], [j].[EntityBranchId], [j].[EntityOneId], ROW_NUMBER() OVER(PARTITION BY [j].[EntityBranchId] ORDER BY [e].[Id] DESC) AS [row]
         FROM [JoinOneToBranch] AS [j]
-        INNER JOIN [EntityOnes] AS [e] ON [j].[OneId] = [e].[Id]
+        INNER JOIN [EntityOnes] AS [e] ON [j].[EntityOneId] = [e].[Id]
     ) AS [t]
     WHERE [t].[row] <= 1
-) AS [t0] ON [r].[Id] = [t0].[BranchId]");
+) AS [t0] ON [r].[Id] = [t0].[EntityBranchId]");
         }
 
         public override async Task Skip_navigation_order_by_reverse_first_or_default(bool async)
@@ -322,9 +322,9 @@ LEFT JOIN (
                 @"SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[TwoId], [t].[ThreeId]
+    SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId]
     FROM (
-        SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[TwoId], [j].[ThreeId], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Id] DESC) AS [row]
+        SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[ThreeId], [j].[TwoId], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Id] DESC) AS [row]
         FROM [JoinTwoToThree] AS [j]
         INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
     ) AS [t]
@@ -527,7 +527,7 @@ INNER JOIN (
                 @"SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
-    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[Discriminator], [j].[BranchId], [j].[OneId]
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[Discriminator], [j].[EntityBranchId], [j].[EntityOneId]
     FROM [JoinOneToBranch] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
@@ -536,8 +536,8 @@ INNER JOIN (
         FROM [Roots] AS [r]
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
-    ) AS [t] ON [j].[BranchId] = [t].[Id]
-) AS [t0] ON [e].[Id] = [t0].[OneId]");
+    ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
+) AS [t0] ON [e].[Id] = [t0].[EntityOneId]");
         }
 
         public override async Task Select_skip_navigation(bool async)
@@ -560,10 +560,10 @@ ORDER BY [e].[Id], [t].[LeftId], [t].[RightId], [t].[Id]");
             await base.Select_skip_navigation_multiple(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[TwoId], [t].[ThreeId], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[LeftId], [t0].[RightId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[TwoId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3]
+                @"SELECT [e].[Id], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[LeftId], [t0].[RightId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[TwoId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3]
 FROM [EntityTwos] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[TwoId], [j].[ThreeId]
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[ThreeId], [j].[TwoId]
     FROM [JoinTwoToThree] AS [j]
     INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
 ) AS [t] ON [e].[Id] = [t].[TwoId]
@@ -577,7 +577,7 @@ LEFT JOIN (
     FROM [JoinTwoToCompositeKeyShared] AS [j1]
     INNER JOIN [EntityCompositeKeys] AS [e2] ON (([j1].[CompositeId1] = [e2].[Key1]) AND ([j1].[CompositeId2] = [e2].[Key2])) AND ([j1].[CompositeId3] = [e2].[Key3])
 ) AS [t1] ON [e].[Id] = [t1].[TwoId]
-ORDER BY [e].[Id], [t].[TwoId], [t].[ThreeId], [t].[Id], [t0].[LeftId], [t0].[RightId], [t0].[Id], [t1].[TwoId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Key1], [t1].[Key2], [t1].[Key3]");
+ORDER BY [e].[Id], [t].[ThreeId], [t].[TwoId], [t].[Id], [t0].[LeftId], [t0].[RightId], [t0].[Id], [t1].[TwoId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Key1], [t1].[Key2], [t1].[Key3]");
         }
 
         public override async Task Select_skip_navigation_first_or_default(bool async)
@@ -643,10 +643,10 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]");
             await base.Include_skip_navigation_then_include_skip_navigation(async);
 
             AssertSql(
-                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[LeafId], [t1].[Id0], [t1].[Name0], [t1].[BranchId], [t1].[OneId]
+                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[LeafId], [t1].[Id0], [t1].[Name0], [t1].[EntityBranchId], [t1].[EntityOneId]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[LeafId], [t0].[Id] AS [Id0], [t0].[Name] AS [Name0], [t0].[BranchId], [t0].[OneId]
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[LeafId], [t0].[Id] AS [Id0], [t0].[Name] AS [Name0], [t0].[EntityBranchId], [t0].[EntityOneId]
     FROM [JoinCompositeKeyToLeaf] AS [j]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen]
@@ -655,12 +655,12 @@ LEFT JOIN (
         INNER JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[LeafId] = [t].[Id]
     LEFT JOIN (
-        SELECT [e0].[Id], [e0].[Name], [j0].[BranchId], [j0].[OneId]
+        SELECT [e0].[Id], [e0].[Name], [j0].[EntityBranchId], [j0].[EntityOneId]
         FROM [JoinOneToBranch] AS [j0]
-        INNER JOIN [EntityOnes] AS [e0] ON [j0].[OneId] = [e0].[Id]
-    ) AS [t0] ON [t].[Id] = [t0].[BranchId]
+        INNER JOIN [EntityOnes] AS [e0] ON [j0].[EntityOneId] = [e0].[Id]
+    ) AS [t0] ON [t].[Id] = [t0].[EntityBranchId]
 ) AS [t1] ON (([e].[Key1] = [t1].[CompositeId1]) AND ([e].[Key2] = [t1].[CompositeId2])) AND ([e].[Key3] = [t1].[CompositeId3])
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[LeafId], [t1].[Id], [t1].[BranchId], [t1].[OneId], [t1].[Id0]");
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[LeafId], [t1].[Id], [t1].[EntityBranchId], [t1].[EntityOneId], [t1].[Id0]");
         }
 
         public override async Task Include_skip_navigation_then_include_reference_and_skip_navigation(bool async)
@@ -721,14 +721,14 @@ ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]");
             await base.Filtered_include_skip_navigation_order_by(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[TwoId], [t].[ThreeId]
+                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[TwoId], [j].[ThreeId]
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[ThreeId], [j].[TwoId]
     FROM [JoinTwoToThree] AS [j]
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
 ) AS [t] ON [e].[Id] = [t].[ThreeId]
-ORDER BY [e].[Id], [t].[Id], [t].[TwoId], [t].[ThreeId]");
+ORDER BY [e].[Id], [t].[Id], [t].[ThreeId], [t].[TwoId]");
         }
 
         public override async Task Filtered_include_skip_navigation_order_by_skip(bool async)
@@ -871,10 +871,10 @@ ORDER BY [r].[Id], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3]
             await base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Name], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [t1].[OneId], [t1].[TwoId], [t1].[Id0], [t1].[CollectionInverseId0], [t1].[Name0], [t1].[ReferenceInverseId0], [t1].[TwoId0], [t1].[ThreeId]
+                @"SELECT [e].[Id], [e].[Name], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [t1].[OneId], [t1].[TwoId], [t1].[Id0], [t1].[CollectionInverseId0], [t1].[Name0], [t1].[ReferenceInverseId0], [t1].[ThreeId], [t1].[TwoId0]
 FROM [EntityOnes] AS [e]
 OUTER APPLY (
-    SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[OneId], [t].[TwoId], [t0].[Id] AS [Id0], [t0].[CollectionInverseId] AS [CollectionInverseId0], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId] AS [ReferenceInverseId0], [t0].[TwoId] AS [TwoId0], [t0].[ThreeId]
+    SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[OneId], [t].[TwoId], [t0].[Id] AS [Id0], [t0].[CollectionInverseId] AS [CollectionInverseId0], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId] AS [ReferenceInverseId0], [t0].[ThreeId], [t0].[TwoId] AS [TwoId0]
     FROM (
         SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId], [j].[TwoId]
         FROM [JoinOneToTwo] AS [j]
@@ -884,13 +884,13 @@ OUTER APPLY (
         OFFSET 1 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t]
     LEFT JOIN (
-        SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], [j0].[TwoId], [j0].[ThreeId]
+        SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], [j0].[ThreeId], [j0].[TwoId]
         FROM [JoinTwoToThree] AS [j0]
         INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
         WHERE [e1].[Id] < 10
     ) AS [t0] ON [t].[Id] = [t0].[TwoId]
 ) AS [t1]
-ORDER BY [e].[Id], [t1].[Id], [t1].[OneId], [t1].[TwoId], [t1].[TwoId0], [t1].[ThreeId], [t1].[Id0]");
+ORDER BY [e].[Id], [t1].[Id], [t1].[OneId], [t1].[TwoId], [t1].[ThreeId], [t1].[TwoId0], [t1].[Id0]");
         }
 
         public override async Task Filtered_include_skip_navigation_where_then_include_skip_navigation_order_by_skip_take(bool async)
@@ -898,16 +898,16 @@ ORDER BY [e].[Id], [t1].[Id], [t1].[OneId], [t1].[TwoId], [t1].[TwoId0], [t1].[T
             await base.Filtered_include_skip_navigation_where_then_include_skip_navigation_order_by_skip_take(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Name], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [t1].[OneId], [t1].[TwoId], [t1].[Id0], [t1].[CollectionInverseId0], [t1].[Name0], [t1].[ReferenceInverseId0], [t1].[TwoId0], [t1].[ThreeId]
+                @"SELECT [e].[Id], [e].[Name], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [t1].[OneId], [t1].[TwoId], [t1].[Id0], [t1].[CollectionInverseId0], [t1].[Name0], [t1].[ReferenceInverseId0], [t1].[ThreeId], [t1].[TwoId0]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId], [j].[TwoId], [t0].[Id] AS [Id0], [t0].[CollectionInverseId] AS [CollectionInverseId0], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId] AS [ReferenceInverseId0], [t0].[TwoId] AS [TwoId0], [t0].[ThreeId]
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId], [j].[TwoId], [t0].[Id] AS [Id0], [t0].[CollectionInverseId] AS [CollectionInverseId0], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId] AS [ReferenceInverseId0], [t0].[ThreeId], [t0].[TwoId] AS [TwoId0]
     FROM [JoinOneToTwo] AS [j]
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
     LEFT JOIN (
-        SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[TwoId], [t].[ThreeId]
+        SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId]
         FROM (
-            SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], [j0].[TwoId], [j0].[ThreeId], ROW_NUMBER() OVER(PARTITION BY [j0].[TwoId] ORDER BY [e1].[Id]) AS [row]
+            SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], [j0].[ThreeId], [j0].[TwoId], ROW_NUMBER() OVER(PARTITION BY [j0].[TwoId] ORDER BY [e1].[Id]) AS [row]
             FROM [JoinTwoToThree] AS [j0]
             INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
         ) AS [t]
@@ -941,10 +941,10 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0], [t].[Id1]");
             await base.Filter_include_on_skip_navigation_combined_with_filtered_then_includes(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t3].[Id], [t3].[Name], [t3].[OneId], [t3].[ThreeId], [t3].[Id0], [t3].[CollectionInverseId], [t3].[Name0], [t3].[ReferenceInverseId], [t3].[OneId0], [t3].[TwoId], [t3].[Id1], [t3].[Name1], [t3].[Number], [t3].[IsGreen], [t3].[Discriminator], [t3].[BranchId], [t3].[OneId1]
+                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t3].[Id], [t3].[Name], [t3].[OneId], [t3].[ThreeId], [t3].[Id0], [t3].[CollectionInverseId], [t3].[Name0], [t3].[ReferenceInverseId], [t3].[OneId0], [t3].[TwoId], [t3].[Id1], [t3].[Name1], [t3].[Number], [t3].[IsGreen], [t3].[Discriminator], [t3].[EntityBranchId], [t3].[EntityOneId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[Name], [j].[OneId], [j].[ThreeId], [t0].[Id] AS [Id0], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId], [t0].[OneId] AS [OneId0], [t0].[TwoId], [t2].[Id] AS [Id1], [t2].[Name] AS [Name1], [t2].[Number], [t2].[IsGreen], [t2].[Discriminator], [t2].[BranchId], [t2].[OneId] AS [OneId1]
+    SELECT [e0].[Id], [e0].[Name], [j].[OneId], [j].[ThreeId], [t0].[Id] AS [Id0], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId], [t0].[OneId] AS [OneId0], [t0].[TwoId], [t2].[Id] AS [Id1], [t2].[Name] AS [Name1], [t2].[Number], [t2].[IsGreen], [t2].[Discriminator], [t2].[EntityBranchId], [t2].[EntityOneId]
     FROM [JoinOneToThreePayloadFull] AS [j]
     INNER JOIN [EntityOnes] AS [e0] ON [j].[OneId] = [e0].[Id]
     LEFT JOIN (
@@ -957,7 +957,7 @@ LEFT JOIN (
         WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
     ) AS [t0] ON [e0].[Id] = [t0].[OneId]
     LEFT JOIN (
-        SELECT [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[Discriminator], [j1].[BranchId], [j1].[OneId]
+        SELECT [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[Discriminator], [j1].[EntityBranchId], [j1].[EntityOneId]
         FROM [JoinOneToBranch] AS [j1]
         INNER JOIN (
             SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
@@ -966,12 +966,12 @@ LEFT JOIN (
             FROM [Roots] AS [r]
             INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
             LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
-        ) AS [t1] ON [j1].[BranchId] = [t1].[Id]
+        ) AS [t1] ON [j1].[EntityBranchId] = [t1].[Id]
         WHERE [t1].[Id] < 20
-    ) AS [t2] ON [e0].[Id] = [t2].[OneId]
+    ) AS [t2] ON [e0].[Id] = [t2].[EntityOneId]
     WHERE [e0].[Id] < 10
 ) AS [t3] ON [e].[Id] = [t3].[ThreeId]
-ORDER BY [e].[Id], [t3].[OneId], [t3].[ThreeId], [t3].[Id], [t3].[OneId0], [t3].[Id0], [t3].[TwoId], [t3].[BranchId], [t3].[OneId1], [t3].[Id1]");
+ORDER BY [e].[Id], [t3].[OneId], [t3].[ThreeId], [t3].[Id], [t3].[OneId0], [t3].[Id0], [t3].[TwoId], [t3].[EntityBranchId], [t3].[EntityOneId], [t3].[Id1]");
         }
 
         public override async Task Filtered_include_on_skip_navigation_then_filtered_include_on_navigation(bool async)
@@ -1000,20 +1000,20 @@ ORDER BY [e].[Id], [t0].[OneId], [t0].[ThreeId], [t0].[Id], [t0].[Id0]");
             await base.Filtered_include_on_navigation_then_filtered_include_on_skip_navigation(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0], [t0].[CollectionInverseId0], [t0].[Name0], [t0].[ReferenceInverseId0], [t0].[TwoId], [t0].[ThreeId]
+                @"SELECT [e].[Id], [e].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0], [t0].[CollectionInverseId0], [t0].[Name0], [t0].[ReferenceInverseId0], [t0].[ThreeId], [t0].[TwoId]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [t].[Id] AS [Id0], [t].[CollectionInverseId] AS [CollectionInverseId0], [t].[Name] AS [Name0], [t].[ReferenceInverseId] AS [ReferenceInverseId0], [t].[TwoId], [t].[ThreeId]
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [t].[Id] AS [Id0], [t].[CollectionInverseId] AS [CollectionInverseId0], [t].[Name] AS [Name0], [t].[ReferenceInverseId] AS [ReferenceInverseId0], [t].[ThreeId], [t].[TwoId]
     FROM [EntityTwos] AS [e0]
     LEFT JOIN (
-        SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], [j].[TwoId], [j].[ThreeId]
+        SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], [j].[ThreeId], [j].[TwoId]
         FROM [JoinTwoToThree] AS [j]
         INNER JOIN [EntityThrees] AS [e1] ON [j].[ThreeId] = [e1].[Id]
         WHERE [e1].[Id] < 5
     ) AS [t] ON [e0].[Id] = [t].[TwoId]
     WHERE [e0].[Id] > 15
 ) AS [t0] ON [e].[Id] = [t0].[CollectionInverseId]
-ORDER BY [e].[Id], [t0].[Id], [t0].[TwoId], [t0].[ThreeId], [t0].[Id0]");
+ORDER BY [e].[Id], [t0].[Id], [t0].[ThreeId], [t0].[TwoId], [t0].[Id0]");
         }
 
         public override async Task Includes_accessed_via_different_path_are_merged(bool async)
@@ -1113,10 +1113,10 @@ INNER JOIN (
     ) AS [t] ON [j].[LeafId] = [t].[Id]
 ) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
 INNER JOIN (
-    SELECT [j0].[BranchId], [j0].[OneId], [e0].[Id], [e0].[Name]
+    SELECT [j0].[EntityBranchId], [j0].[EntityOneId], [e0].[Id], [e0].[Name]
     FROM [JoinOneToBranch] AS [j0]
-    INNER JOIN [EntityOnes] AS [e0] ON [j0].[OneId] = [e0].[Id]
-) AS [t1] ON [t0].[Id] = [t1].[BranchId]
+    INNER JOIN [EntityOnes] AS [e0] ON [j0].[EntityOneId] = [e0].[Id]
+) AS [t1] ON [t0].[Id] = [t1].[EntityBranchId]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[LeafId], [t0].[Id]");
         }
 
@@ -1208,9 +1208,9 @@ ORDER BY [e].[Id]",
                 @"SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
-    SELECT [t].[TwoId], [t].[ThreeId], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
+    SELECT [t].[ThreeId], [t].[TwoId], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
     FROM (
-        SELECT [j].[TwoId], [j].[ThreeId], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Id]) AS [row]
+        SELECT [j].[ThreeId], [j].[TwoId], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Id]) AS [row]
         FROM [JoinTwoToThree] AS [j]
         INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
     ) AS [t]
@@ -1452,7 +1452,7 @@ INNER JOIN (
     WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
 ) AS [t0] ON [e].[Id] = [t0].[OneId]
 INNER JOIN (
-    SELECT [j0].[TwoId], [j0].[ThreeId], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
+    SELECT [j0].[ThreeId], [j0].[TwoId], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
     FROM [JoinTwoToThree] AS [j0]
     INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
     WHERE [e1].[Id] < 10
@@ -1488,9 +1488,9 @@ INNER JOIN (
     WHERE [e0].[Id] < 10
 ) AS [t] ON [e].[Id] = [t].[OneId]
 INNER JOIN (
-    SELECT [t0].[TwoId], [t0].[ThreeId], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
+    SELECT [t0].[ThreeId], [t0].[TwoId], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
     FROM (
-        SELECT [j0].[TwoId], [j0].[ThreeId], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j0].[TwoId] ORDER BY [e1].[Id]) AS [row]
+        SELECT [j0].[ThreeId], [j0].[TwoId], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j0].[TwoId] ORDER BY [e1].[Id]) AS [row]
         FROM [JoinTwoToThree] AS [j0]
         INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
     ) AS [t0]
@@ -1579,7 +1579,7 @@ INNER JOIN (
     WHERE [e0].[Id] < 10
 ) AS [t] ON [e].[Id] = [t].[ThreeId]
 INNER JOIN (
-    SELECT [j0].[BranchId], [j0].[OneId], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator]
+    SELECT [j0].[EntityBranchId], [j0].[EntityOneId], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator]
     FROM [JoinOneToBranch] AS [j0]
     INNER JOIN (
         SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
@@ -1588,9 +1588,9 @@ INNER JOIN (
         FROM [Roots] AS [r]
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
-    ) AS [t0] ON [j0].[BranchId] = [t0].[Id]
+    ) AS [t0] ON [j0].[EntityBranchId] = [t0].[Id]
     WHERE [t0].[Id] < 20
-) AS [t1] ON [t].[Id] = [t1].[OneId]
+) AS [t1] ON [t].[Id] = [t1].[EntityOneId]
 ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]");
         }
 
@@ -1655,7 +1655,7 @@ INNER JOIN (
     WHERE [e0].[Id] > 15
 ) AS [t] ON [e].[Id] = [t].[CollectionInverseId]
 INNER JOIN (
-    SELECT [j].[TwoId], [j].[ThreeId], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
+    SELECT [j].[ThreeId], [j].[TwoId], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
     FROM [JoinTwoToThree] AS [j]
     INNER JOIN [EntityThrees] AS [e1] ON [j].[ThreeId] = [e1].[Id]
     WHERE [e1].[Id] < 5

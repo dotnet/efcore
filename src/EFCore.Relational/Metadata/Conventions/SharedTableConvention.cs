@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static void TryUniquifyColumnNames(
             IConventionEntityType entityType,
             Dictionary<string, IConventionProperty> properties,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             int maxLength)
         {
             foreach (var property in entityType.GetDeclaredProperties())
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void TryUniquifyKeyNames(
             IConventionEntityType entityType,
             Dictionary<string, IConventionKey> keys,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             int maxLength)
         {
             foreach (var key in entityType.GetDeclaredKeys())
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual bool AreCompatible(
             [NotNull] IKey key,
             [NotNull] IKey duplicateKey,
-            StoreObjectIdentifier storeObject)
+            in StoreObjectIdentifier storeObject)
             => key.AreCompatible(duplicateKey, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void TryUniquifyIndexNames(
             IConventionEntityType entityType,
             Dictionary<string, IConventionIndex> indexes,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             int maxLength)
         {
             foreach (var index in entityType.GetDeclaredIndexes())
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual bool AreCompatible(
             [NotNull] IIndex index,
             [NotNull] IIndex duplicateIndex,
-            StoreObjectIdentifier storeObject)
+            in StoreObjectIdentifier storeObject)
             => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void TryUniquifyForeignKeyNames(
             IConventionEntityType entityType,
             Dictionary<string, IConventionForeignKey> foreignKeys,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             int maxLength)
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual bool AreCompatible(
             [NotNull] IForeignKey foreignKey,
             [NotNull] IForeignKey duplicateForeignKey,
-            StoreObjectIdentifier storeObject)
+            in StoreObjectIdentifier storeObject)
             => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: false);
 
         private static string TryUniquify<T>(

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
@@ -36,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public virtual ICollection<JoinThreeToCompositeKeyFull> JoinCompositeKeyFull { get; }
             = new ObservableCollection<JoinThreeToCompositeKeyFull>(); // #21684
 
+        [InverseProperty("ThreeSkipShared")]
         public virtual ICollection<EntityRoot> RootSkipShared { get; } = new ObservableCollection<EntityRoot>(); // #21684
     }
 }

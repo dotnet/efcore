@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData"> Contextual information about the failure. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        ValueTask SaveChangesFailedAsync(
+        Task SaveChangesFailedAsync(
             [NotNull] DbContextErrorEventData eventData,
             CancellationToken cancellationToken = default);
     }

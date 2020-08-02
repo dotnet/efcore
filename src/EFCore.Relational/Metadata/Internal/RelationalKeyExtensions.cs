@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatible(
             [NotNull] this IKey key,
             [NotNull] IKey duplicateKey,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
-            if (!key.Properties.Select(p => p.GetColumnName(storeObject))
-                .SequenceEqual(duplicateKey.Properties.Select(p => p.GetColumnName(storeObject))))
+            if (!key.Properties.GetColumnNames(storeObject)
+                .SequenceEqual(duplicateKey.Properties.GetColumnNames(storeObject)))
             {
                 if (shouldThrow)
                 {

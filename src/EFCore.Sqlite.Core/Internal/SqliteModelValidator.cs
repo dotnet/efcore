@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             IProperty property,
             IProperty duplicateProperty,
             string columnName,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             base.ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);

@@ -766,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         public static IEnumerable<IMutableForeignKey> FindRowInternalForeignKeys(
-            [NotNull] this IMutableEntityType entityType, StoreObjectIdentifier storeObject)
+            [NotNull] this IMutableEntityType entityType, in StoreObjectIdentifier storeObject)
             => ((IEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IMutableForeignKey>();
 
         /// <summary>
@@ -776,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         public static IEnumerable<IConventionForeignKey> FindRowInternalForeignKeys(
-            [NotNull] this IConventionEntityType entityType, StoreObjectIdentifier storeObject)
+            [NotNull] this IConventionEntityType entityType, in StoreObjectIdentifier storeObject)
             => ((IEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IConventionForeignKey>();
 
         /// <summary>

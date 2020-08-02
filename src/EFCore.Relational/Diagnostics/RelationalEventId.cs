@@ -674,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
         ///     </para>
         ///     <para>
-        ///         This event uses the <see cref="IndexInvalidPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///         This event uses the <see cref="IndexWithPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId IndexPropertiesBothMappedAndNotMappedToTable = MakeValidationId(Id.IndexPropertiesBothMappedAndNotMappedToTable);
@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
         ///     </para>
         ///     <para>
-        ///         This event uses the <see cref="IndexInvalidPropertiesEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///         This event uses the <see cref="IndexWithPropertiesEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId IndexPropertiesMappedToNonOverlappingTables = MakeValidationId(Id.IndexPropertiesMappedToNonOverlappingTables);

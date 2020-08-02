@@ -502,12 +502,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<AmbigiousManyToManyImplicitLeft>();
+                modelBuilder.Entity<AmbiguousManyToManyImplicitLeft>();
 
                 Assert.Equal(
-                    CoreStrings.NavigationNotAdded(typeof(AmbigiousManyToManyImplicitLeft).DisplayName(fullName: false), "Navigation1",
-                    typeof(List<AmbigiousManyToManyImplicitRight>).DisplayName(fullName: false)),
+                    CoreStrings.NavigationNotAdded(typeof(AmbiguousManyToManyImplicitLeft).DisplayName(fullName: false), "Navigation1",
+                    typeof(List<AmbiguousManyToManyImplicitRight>).DisplayName(fullName: false)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            [ConditionalFact(Skip = "Issue#21890")]
+            public virtual void Skip_navigation_with_conflicting_inverse_property_attributes_are_removed()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<AmbiguousInversePropertyLeft>();
+                modelBuilder.Entity<AmbiguousInversePropertyLeftDerived>();
+
+                var model = modelBuilder.FinalizeModel();
             }
         }
     }

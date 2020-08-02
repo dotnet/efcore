@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="principalStoreObject"> The identifier of the principal store object. </param>
         /// <returns> The foreign key constraint name. </returns>
         public static string GetConstraintName(
-            [NotNull] this IForeignKey foreignKey, StoreObjectIdentifier storeObject, StoreObjectIdentifier principalStoreObject)
+            [NotNull] this IForeignKey foreignKey, in StoreObjectIdentifier storeObject, in StoreObjectIdentifier principalStoreObject)
         {
             var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
             return annotation != null
@@ -75,24 +75,32 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The default constraint name that would be used for this foreign key. </returns>
         public static string GetDefaultName(
             [NotNull] this IForeignKey foreignKey,
-            StoreObjectIdentifier storeObject,
-            StoreObjectIdentifier principalStoreObject)
+            in StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier principalStoreObject)
         {
-            var propertyNames = foreignKey.Properties.Select(p => p.GetColumnName(storeObject)).ToList();
-            var principalPropertyNames = foreignKey.PrincipalKey.Properties.Select(p => p.GetColumnName(storeObject)).ToList();
+            var propertyNames = foreignKey.Properties.GetColumnNames(storeObject);
+            var principalPropertyNames = foreignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject);
             var rootForeignKey = foreignKey;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
             // Using a hashset is detrimental to the perf when there are no cycles
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
-                var linkedForeignKey = rootForeignKey.DeclaringEntityType
-                    .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys())
-                    .FirstOrDefault(k => principalStoreObject.Name == k.PrincipalEntityType.GetTableName()
-                        && principalStoreObject.Schema == k.PrincipalEntityType.GetSchema()
-                        && propertyNames.SequenceEqual(k.Properties.Select(p => p.GetColumnName(storeObject)))
-                        && principalPropertyNames.SequenceEqual(k.PrincipalKey.Properties.Select(p => p.GetColumnName(storeObject))));
+                IForeignKey linkedForeignKey = null;
+                foreach (var otherForeignKey in rootForeignKey.DeclaringEntityType
+                        .FindRowInternalForeignKeys(storeObject)
+                        .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
+                {
+                    if (principalStoreObject.Name == otherForeignKey.PrincipalEntityType.GetTableName()
+                        && principalStoreObject.Schema == otherForeignKey.PrincipalEntityType.GetSchema()
+                        && propertyNames.SequenceEqual(otherForeignKey.Properties.GetColumnNames(storeObject))
+                        && principalPropertyNames.SequenceEqual(otherForeignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject)))
+                    {
+                        linkedForeignKey = otherForeignKey;
+                        break;
+                    }
+                }
+
                 if (linkedForeignKey == null)
                 {
                     break;
@@ -112,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Append("_")
                 .Append(principalStoreObject.Name)
                 .Append("_")
-                .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnName(storeObject)), "_")
+                .AppendJoin(propertyNames, "_")
                 .ToString();
 
             return Uniquifier.Truncate(baseName, foreignKey.DeclaringEntityType.Model.GetMaxIdentifierLength());
@@ -176,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The foreign key if found, or <see langword="null" /> if none was found.</returns>
-        public static IForeignKey FindSharedObjectRootForeignKey([NotNull] this IForeignKey foreignKey, StoreObjectIdentifier storeObject)
+        public static IForeignKey FindSharedObjectRootForeignKey([NotNull] this IForeignKey foreignKey, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
@@ -188,12 +196,22 @@ namespace Microsoft.EntityFrameworkCore
             // Using a hashset is detrimental to the perf when there are no cycles
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
-                var linkedKey = rootForeignKey.DeclaringEntityType
+                IForeignKey linkedKey = null;
+                foreach (var otherForeignKey in rootForeignKey.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys())
-                    .FirstOrDefault(k => k.GetConstraintName(storeObject,
-                        StoreObjectIdentifier.Table(k.PrincipalEntityType.GetTableName(), k.PrincipalEntityType.GetSchema()))
-                        == foreignKeyName);
+                    .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
+                {
+                    if (otherForeignKey.GetConstraintName(storeObject,
+                        StoreObjectIdentifier.Table(
+                            otherForeignKey.PrincipalEntityType.GetTableName(),
+                            otherForeignKey.PrincipalEntityType.GetSchema()))
+                        == foreignKeyName)
+                    {
+                        linkedKey = otherForeignKey;
+                        break;
+                    }
+                }
+
                 if (linkedKey == null)
                 {
                     break;
@@ -218,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The foreign key if found, or <see langword="null" /> if none was found.</returns>
         public static IMutableForeignKey FindSharedObjectRootForeignKey(
-            [NotNull] this IMutableForeignKey foreignKey, StoreObjectIdentifier storeObject)
+            [NotNull] this IMutableForeignKey foreignKey, in StoreObjectIdentifier storeObject)
             => (IMutableForeignKey)((IForeignKey)foreignKey).FindSharedObjectRootForeignKey(storeObject);
 
         /// <summary>
@@ -234,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The foreign key if found, or <see langword="null" /> if none was found.</returns>
         public static IConventionForeignKey FindSharedObjectRootForeignKey(
-            [NotNull] this IConventionForeignKey foreignKey, StoreObjectIdentifier storeObject)
+            [NotNull] this IConventionForeignKey foreignKey, in StoreObjectIdentifier storeObject)
             => (IConventionForeignKey)((IForeignKey)foreignKey).FindSharedObjectRootForeignKey(storeObject);
     }
 }

@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedColumnsCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var concurrencyColumns = TableSharingConcurrencyTokenConvention.GetConcurrencyTokensMap(storeObject, mappedTypes);
@@ -643,8 +643,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     foreach (var missingColumn in missingConcurrencyTokens)
                     {
-                        if (entityType.GetAllBaseTypesAscending().SelectMany(t => t.GetDeclaredProperties())
-                            .All(p => p.GetColumnName(storeObject) != missingColumn))
+                        var columnFound = false;
+                        foreach (var property in entityType.GetAllBaseTypesAscending().SelectMany(t => t.GetDeclaredProperties()))
+                        {
+                            if (property.GetColumnName(storeObject) == missingColumn)
+                            {
+                                columnFound = true;
+                                break;
+                            }
+                        }
+
+                        if (!columnFound)
                         {
                             throw new InvalidOperationException(
                                 RelationalStrings.MissingConcurrencyColumn(entityType.DisplayName(), missingColumn, storeObject.DisplayName()));
@@ -666,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IProperty property,
             [NotNull] IProperty duplicateProperty,
             [NotNull] string columnName,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (property.IsNullable != duplicateProperty.IsNullable)
@@ -862,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The object that is used as the default value for the column the property is mapped to. </returns>
         protected virtual object GetDefaultColumnValue(
             [NotNull] IProperty property,
-            StoreObjectIdentifier storeObject)
+            in StoreObjectIdentifier storeObject)
         {
             var value = property.GetDefaultValue(storeObject);
             var converter = property.GetValueConverter() ?? property.FindRelationalTypeMapping(storeObject)?.Converter;
@@ -880,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedForeignKeysCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (storeObject.StoreObjectType != StoreObjectType.Table)
@@ -925,7 +934,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IForeignKey foreignKey,
             [NotNull] IForeignKey duplicateForeignKey,
             [NotNull] string foreignKeyName,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
             => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: true);
 
@@ -937,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedIndexesCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var indexMappings = new Dictionary<string, IIndex>();
@@ -966,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IIndex index,
             [NotNull] IIndex duplicateIndex,
             [NotNull] string indexName,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
             => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: true);
 
@@ -978,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedKeysCompatibility(
             [NotNull] IReadOnlyList<IEntityType> mappedTypes,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var keyMappings = new Dictionary<string, IKey>();
@@ -1008,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IKey key,
             [NotNull] IKey duplicateKey,
             [NotNull] string keyName,
-            StoreObjectIdentifier storeObject,
+            in StoreObjectIdentifier storeObject,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             key.AreCompatible(duplicateKey, storeObject, shouldThrow: true);
