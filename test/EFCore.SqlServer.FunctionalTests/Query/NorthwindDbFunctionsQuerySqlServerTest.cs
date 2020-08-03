@@ -194,7 +194,7 @@ WHERE FREETEXT([e].[City], N'London') AND FREETEXT([e].[Title], N'Manager', LANG
                 () => context.Employees.Where(c => EF.Functions.FreeText(c.FirstName, "Fred")).ToArray());
         }
 
-        [ConditionalFact(Skip = "Issue #18199")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation()
         {
@@ -204,18 +204,20 @@ WHERE FREETEXT([e].[City], N'London') AND FREETEXT([e].[Title], N'Manager', LANG
                     c => EF.Functions.FreeText(c.Manager.Title, "President")
                         && EF.Functions.FreeText(c.Title, "Inside")
                         && c.FirstName.Contains("Lau"))
+                .OrderBy(e => e.EmployeeID)
                 .LastOrDefault();
 
             Assert.Equal(8u, result.EmployeeID);
 
             AssertSql(
-                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([e].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [e].[FirstName]) > 0)");
+LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
+WHERE (FREETEXT([e0].[Title], N'President') AND FREETEXT([e].[Title], N'Inside')) AND ([e].[FirstName] LIKE N'%Lau%')
+ORDER BY [e].[EmployeeID] DESC");
         }
 
-        [ConditionalFact(Skip = "Issue #18199")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation_with_language_terms()
         {
@@ -225,15 +227,15 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([e].[Title], 
                     c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
                         && EF.Functions.FreeText(c.Title, "Inside", 1031)
                         && c.FirstName.Contains("Lau"))
-                .LastOrDefault();
+                .FirstOrDefault();
 
             Assert.Equal(8u, result.EmployeeID);
 
             AssertSql(
-                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([e].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [e].[FirstName]) > 0)");
+LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
+WHERE (FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Title], N'Inside', LANGUAGE 1031)) AND ([e].[FirstName] LIKE N'%Lau%')");
         }
 
         [ConditionalFact]
@@ -414,7 +416,7 @@ FROM [Employees] AS [e]
 WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
         }
 
-        [ConditionalFact(Skip = "Issue #18199")]
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void Contains_through_navigation()
         {
@@ -423,16 +425,16 @@ WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
                 .Where(
                     c => EF.Functions.Contains(c.Manager.Title, "President")
                         && EF.Functions.Contains(c.Title, "\"Ins*\""))
-                .LastOrDefault();
+                .FirstOrDefault();
 
             Assert.NotNull(result);
             Assert.Equal(8u, result.EmployeeID);
 
             AssertSql(
-                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([e].[Title], N'""Ins*""'))");
+LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
+WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'""Ins*""')");
         }
 
         [ConditionalTheory]
