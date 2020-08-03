@@ -1335,11 +1335,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         var propertyExpressions = GetPropertyExpressionFromSameTable(
                             targetEntityType, table, _selectExpression, identifyingColumn, principalNullable);
-
-                        innerShaper = new RelationalEntityShaperExpression(
-                            targetEntityType, new EntityProjectionExpression(targetEntityType, propertyExpressions), true);
+                        if (propertyExpressions != null)
+                        {
+                            innerShaper = new RelationalEntityShaperExpression(
+                                targetEntityType, new EntityProjectionExpression(targetEntityType, propertyExpressions), true);
+                        }
                     }
-                    else
+
+                    // InnerShaper is still null if either it is not table sharing or we failed to find table to pick data from
+                    if (innerShaper == null)
                     {
                         var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
                         var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
@@ -1409,6 +1413,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var subqueryPropertyExpressions = GetPropertyExpressionFromSameTable(
                         entityType, table, subquery, subqueryIdentifyingColumn, nullable);
 
+                    if (subqueryPropertyExpressions == null)
+                    {
+                        return null;
+                    }
+
                     var newPropertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                     foreach (var item in subqueryPropertyExpressions)
                     {
@@ -1419,7 +1428,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return newPropertyExpressions;
                 }
 
-                throw new InvalidOperationException(RelationalStrings.CustomQueryMappingOnOwner);
+                return null;
             }
 
             private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromJoinedTable(
