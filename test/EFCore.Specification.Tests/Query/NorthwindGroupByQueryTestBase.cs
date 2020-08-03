@@ -2285,6 +2285,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 10);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_join_another_GroupBy_aggregate(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                        .GroupBy(o => o.CustomerID)
+                        .Select(g => new { g.Key, Total = g.Count() })
+                        .Join(
+                            ss.Set<Order>().Where(o => o.OrderDate.Value.Year == 1997)
+                                .GroupBy(o => o.CustomerID)
+                                .Select(g => new { g.Key, ThatYear = g.Count() }),
+                            o => o.Key,
+                            i => i.Key,
+                            (o, i) => new { o.Key, o.Total, i.ThatYear }),
+                elementSorter: o => o.Key);
+        }
+
         #endregion
 
         #region GroupByAggregateChainComposition

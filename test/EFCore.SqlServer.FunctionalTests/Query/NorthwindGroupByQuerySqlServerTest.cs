@@ -2269,6 +2269,25 @@ ORDER BY [t].[c], [c].[CustomerID]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY");
         }
 
+        public override async Task GroupBy_aggregate_join_another_GroupBy_aggregate(bool async)
+        {
+            await base.GroupBy_aggregate_join_another_GroupBy_aggregate(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID] AS [Key], [t].[c] AS [Total], [t0].[c] AS [ThatYear]
+FROM (
+    SELECT [o].[CustomerID], COUNT(*) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]
+INNER JOIN (
+    SELECT [o0].[CustomerID], COUNT(*) AS [c]
+    FROM [Orders] AS [o0]
+    WHERE DATEPART(year, [o0].[OrderDate]) = 1997
+    GROUP BY [o0].[CustomerID]
+) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]");
+        }
+
         public override async Task GroupBy_with_grouping_key_using_Like(bool async)
         {
             await base.GroupBy_with_grouping_key_using_Like(async);
