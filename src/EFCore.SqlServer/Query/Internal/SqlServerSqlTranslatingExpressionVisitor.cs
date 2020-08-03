@@ -110,18 +110,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateLongCount(Expression expression = null)
+        public override SqlExpression TranslateLongCount(SqlExpression sqlExpression)
         {
-            if (expression != null)
-            {
-                // TODO: Translate Count with predicate for GroupBy
-                return null;
-            }
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             return Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
                 Dependencies.SqlExpressionFactory.Function(
                     "COUNT_BIG",
-                    new[] { Dependencies.SqlExpressionFactory.Fragment("*") },
+                    new[] { sqlExpression },
                     nullable: false,
                     argumentsPropagateNullability: new[] { false },
                     typeof(long)));

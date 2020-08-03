@@ -37,9 +37,9 @@ GROUP BY [o].[CustomerID]");
                 Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
-        public override async Task GroupBy_Property_Select_Average_with_navigation_expansion(bool async)
+        public override async Task GroupBy_Property_Select_Average_with_group_enumerable_projected(bool async)
         {
-            await base.GroupBy_Property_Select_Average_with_navigation_expansion(async);
+            await base.GroupBy_Property_Select_Average_with_group_enumerable_projected(async);
 
             AssertSql(
                 @"");
@@ -644,7 +644,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_scalar_element_selector_Count(async);
 
             AssertSql(
-                @"SELECT COUNT(*)
+                @"SELECT COUNT([o].[OrderID])
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -654,7 +654,7 @@ GROUP BY [o].[CustomerID]");
             await base.GroupBy_Property_scalar_element_selector_LongCount(async);
 
             AssertSql(
-                @"SELECT COUNT_BIG(*)
+                @"SELECT COUNT_BIG([o].[OrderID])
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
@@ -1513,19 +1513,181 @@ ORDER BY [o1].[OrderID]");
             await base.Select_GroupBy_All(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID] AS [Order], [o].[CustomerID] AS [Customer]
-FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]");
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        GROUP BY [o].[CustomerID]
+        HAVING ([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
         }
 
-        public override async Task GroupBy_Where_in_aggregate(bool async)
+        public override async Task GroupBy_Where_Average(bool async)
         {
-            await base.GroupBy_Where_in_aggregate(async);
+            await base.GroupBy_Where_Average(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT AVG(CAST(CASE
+    WHEN [o].[OrderID] < 10300 THEN [o].[OrderID]
+END AS float))
 FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]");
+GROUP BY [o].[CustomerID]");
+        }
+
+
+        public override async Task GroupBy_Where_Count(bool async)
+        {
+            await base.GroupBy_Where_Count(async);
+
+            AssertSql(
+                @"SELECT COUNT(CASE
+    WHEN [o].[OrderID] < 10300 THEN 1
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Where_LongCount(bool async)
+        {
+            await base.GroupBy_Where_LongCount(async);
+
+            AssertSql(
+                @"SELECT COUNT_BIG(CASE
+    WHEN [o].[OrderID] < 10300 THEN 1
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Where_Max(bool async)
+        {
+            await base.GroupBy_Where_Max(async);
+
+            AssertSql(
+                @"SELECT MAX(CASE
+    WHEN [o].[OrderID] < 10300 THEN [o].[OrderID]
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Where_Min(bool async)
+        {
+            await base.GroupBy_Where_Min(async);
+
+            AssertSql(
+                @"SELECT MIN(CASE
+    WHEN [o].[OrderID] < 10300 THEN [o].[OrderID]
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Where_Sum(bool async)
+        {
+            await base.GroupBy_Where_Sum(async);
+
+            AssertSql(
+                @"SELECT COALESCE(SUM(CASE
+    WHEN [o].[OrderID] < 10300 THEN [o].[OrderID]
+END), 0)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Where_Count_with_predicate(bool async)
+        {
+            await base.GroupBy_Where_Count_with_predicate(async);
+
+            AssertSql(
+                @"SELECT COUNT(CASE
+    WHEN ([o].[OrderID] < 10300) AND ([o].[OrderDate] IS NOT NULL AND (DATEPART(year, [o].[OrderDate]) = 1997)) THEN 1
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Where_Where_Count(bool async)
+        {
+            await base.GroupBy_Where_Where_Count(async);
+
+            AssertSql(
+                @"SELECT COUNT(CASE
+    WHEN ([o].[OrderID] < 10300) AND ([o].[OrderDate] IS NOT NULL AND (DATEPART(year, [o].[OrderDate]) = 1997)) THEN 1
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Where_Select_Where_Count(bool async)
+        {
+            await base.GroupBy_Where_Select_Where_Count(async);
+
+            AssertSql(
+                @"SELECT COUNT(CASE
+    WHEN ([o].[OrderID] < 10300) AND ([o].[OrderDate] IS NOT NULL AND (DATEPART(year, [o].[OrderDate]) = 1997)) THEN [o].[OrderDate]
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Where_Select_Where_Select_Min(bool async)
+        {
+            await base.GroupBy_Where_Select_Where_Select_Min(async);
+
+            AssertSql(
+                @"SELECT MIN(CASE
+    WHEN ([o].[OrderID] < 10300) AND ([o].[OrderDate] IS NOT NULL AND (DATEPART(year, [o].[OrderDate]) = 1997)) THEN [o].[OrderID]
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_multiple_Count_with_predicate(bool async)
+        {
+            await base.GroupBy_multiple_Count_with_predicate(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID], COUNT(*) AS [All], COUNT(CASE
+    WHEN [o].[OrderID] < 11000 THEN 1
+END) AS [TenK], COUNT(CASE
+    WHEN [o].[OrderID] < 12000 THEN 1
+END) AS [EleventK]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_multiple_Sum_with_conditional_projection(bool async)
+        {
+            await base.GroupBy_multiple_Sum_with_conditional_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID], COALESCE(SUM(CASE
+    WHEN [o].[OrderID] < 11000 THEN [o].[OrderID]
+    ELSE 0
+END), 0) AS [TenK], COALESCE(SUM(CASE
+    WHEN [o].[OrderID] >= 11000 THEN [o].[OrderID]
+    ELSE 0
+END), 0) AS [EleventK]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_multiple_Sum_with_Select_conditional_projection(bool async)
+        {
+            await base.GroupBy_multiple_Sum_with_Select_conditional_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID], COALESCE(SUM(CASE
+    WHEN [o].[OrderID] < 11000 THEN [o].[OrderID]
+    ELSE 0
+END), 0) AS [TenK], COALESCE(SUM(CASE
+    WHEN [o].[OrderID] >= 11000 THEN [o].[OrderID]
+    ELSE 0
+END), 0) AS [EleventK]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
         }
 
         public override async Task GroupBy_Key_as_part_of_element_selector(bool async)
@@ -1668,14 +1830,17 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task LongCount_after_client_GroupBy(bool async)
+        public override async Task LongCount_after_GroupBy_aggregate(bool async)
         {
-            await base.LongCount_after_client_GroupBy(async);
+            await base.LongCount_after_GroupBy_aggregate(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]");
+                @"SELECT COUNT_BIG(*)
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]");
         }
 
         public override async Task MinMax_after_GroupBy_aggregate(bool async)
@@ -1947,16 +2112,28 @@ FROM (
 GROUP BY [t].[CustomerID]");
         }
 
-        public override Task GroupBy_Property_Select_Count_with_predicate(bool async)
+        public override async Task GroupBy_Property_Select_Count_with_predicate(bool async)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.GroupBy_Property_Select_Count_with_predicate(async));
+            await base.GroupBy_Property_Select_Count_with_predicate(async);
+
+            AssertSql(
+                @"SELECT COUNT(CASE
+    WHEN [o].[OrderID] < 10300 THEN 1
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
         }
 
-        public override Task GroupBy_Property_Select_LongCount_with_predicate(bool async)
+        public override async Task GroupBy_Property_Select_LongCount_with_predicate(bool async)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.GroupBy_Property_Select_LongCount_with_predicate(async));
+           await base.GroupBy_Property_Select_LongCount_with_predicate(async);
+
+            AssertSql(
+                @"SELECT COUNT_BIG(CASE
+    WHEN [o].[OrderID] < 10300 THEN 1
+END)
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
         }
 
         public override async Task GroupBy_orderby_projection_with_coalesce_operation(bool async)

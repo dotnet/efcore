@@ -196,11 +196,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateAverage(Expression expression)
+        public override SqlExpression TranslateAverage(SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
-            var visitedExpression = base.TranslateAverage(expression);
+            var visitedExpression = base.TranslateAverage(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(decimal))
             {
@@ -217,11 +217,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateMax(Expression expression)
+        public override SqlExpression TranslateMax(SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
-            var visitedExpression = base.TranslateMax(expression);
+            var visitedExpression = base.TranslateMax(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(DateTimeOffset)
                 || argumentType == typeof(decimal)
@@ -247,11 +247,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateMin(Expression expression)
+        public override SqlExpression TranslateMin(SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
-            var visitedExpression = base.TranslateMin(expression);
+            var visitedExpression = base.TranslateMin(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(DateTimeOffset)
                 || argumentType == typeof(decimal)
@@ -271,11 +271,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateSum(Expression expression)
+        public override SqlExpression TranslateSum(SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
-            var visitedExpression = base.TranslateSum(expression);
+            var visitedExpression = base.TranslateSum(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(decimal))
             {

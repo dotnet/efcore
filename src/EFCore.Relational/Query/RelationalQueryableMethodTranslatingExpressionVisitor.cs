@@ -260,7 +260,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            var projection = _sqlTranslator.TranslateAverage(newSelector);
+            var translatedSelector = TranslateExpression(newSelector);
+            if (translatedSelector == null)
+            {
+                return null;
+            }
+
+            var projection = _sqlTranslator.TranslateAverage(translatedSelector);
             return projection != null
                 ? AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType)
                 : null;
@@ -336,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             HandleGroupByForAggregate(selectExpression, eraseProjection: true);
 
-            var translation = _sqlTranslator.TranslateCount();
+            var translation = _sqlTranslator.TranslateCount(_sqlExpressionFactory.Fragment("*"));
             if (translation == null)
             {
                 return null;
@@ -692,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             HandleGroupByForAggregate(selectExpression, eraseProjection: true);
 
-            var translation = _sqlTranslator.TranslateLongCount();
+            var translation = _sqlTranslator.TranslateLongCount(_sqlExpressionFactory.Fragment("*"));
             if (translation == null)
             {
                 return null;
@@ -730,7 +736,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            var projection = _sqlTranslator.TranslateMax(newSelector);
+            var translatedSelector = TranslateExpression(newSelector);
+            if (translatedSelector == null)
+            {
+                return null;
+            }
+
+            var projection = _sqlTranslator.TranslateMax(translatedSelector);
 
             return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
         }
@@ -756,7 +768,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            var projection = _sqlTranslator.TranslateMin(newSelector);
+            var translatedSelector = TranslateExpression(newSelector);
+            if (translatedSelector == null)
+            {
+                return null;
+            }
+
+            var projection = _sqlTranslator.TranslateMin(translatedSelector);
 
             return AggregateResultShaper(source, projection, throwWhenEmpty: true, resultType);
         }
@@ -1053,7 +1071,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            var projection = _sqlTranslator.TranslateSum(newSelector);
+            var translatedSelector = TranslateExpression(newSelector);
+            if (translatedSelector == null)
+            {
+                return null;
+            }
+
+            var projection = _sqlTranslator.TranslateSum(translatedSelector);
             return projection != null
                 ? AggregateResultShaper(source, projection, throwWhenEmpty: false, resultType)
                 : null;
