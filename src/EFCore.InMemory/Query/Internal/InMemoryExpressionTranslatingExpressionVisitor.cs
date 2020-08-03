@@ -13,7 +13,6 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -414,14 +413,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                             }
 
-                            var selector = GetSelector(groupingElementExpression);
+                            var expression = ApplySelect(groupingElementExpression);
 
-                            result = selector == null
+                            result = expression == null
                                 ? null
-                                : Expression.Call(
-                                    EnumerableMethods.GetAverageWithSelector(selector.ReturnType).MakeGenericMethod(typeof(ValueBuffer)),
-                                    groupingElementExpression.Source,
-                                    selector);
+                                : Expression.Call(EnumerableMethods.GetAverageWithoutSelector(expression.Type.TryGetSequenceType()), expression);
                             break;
                         }
 
@@ -439,11 +435,23 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 }
                             }
 
-                            result = Expression.Call(
-                                EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(typeof(ValueBuffer)),
-                                groupingElementExpression.Source);
+                            var expression = ApplySelect(groupingElementExpression);
+
+                            result = expression == null
+                                ? null
+                                : Expression.Call(
+                                    EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(expression.Type.TryGetSequenceType()),
+                                    expression);
                             break;
                         }
+
+                        case nameof(Enumerable.Distinct):
+                            result = groupingElementExpression.Selector is EntityShaperExpression
+                                ? groupingElementExpression
+                                : groupingElementExpression.IsDistinct
+                                    ? null
+                                    : groupingElementExpression.ApplyDistinct();
+                            break;
 
                         case nameof(Enumerable.LongCount):
                         {
@@ -459,9 +467,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 }
                             }
 
-                            result = Expression.Call(
-                                EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(typeof(ValueBuffer)),
-                                groupingElementExpression.Source);
+                            var expression = ApplySelect(groupingElementExpression);
+
+                            result = expression == null
+                                ? null
+                                : Expression.Call(
+                                    EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(expression.Type.TryGetSequenceType()),
+                                    expression);
                             break;
                         }
 
@@ -473,20 +485,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                             }
 
-                            var selector = GetSelector(groupingElementExpression);
-                            if (selector != null)
+                            var expression = ApplySelect(groupingElementExpression);
+                            if (expression == null
+                                || expression is ParameterExpression)
                             {
-                                var aggregateMethod = EnumerableMethods.GetMaxWithSelector(selector.ReturnType);
-                                aggregateMethod = aggregateMethod.GetGenericArguments().Length == 2
-                                    ? aggregateMethod.MakeGenericMethod(typeof(ValueBuffer), selector.ReturnType)
-                                    : aggregateMethod.MakeGenericMethod(typeof(ValueBuffer));
-
-
-                                result = Expression.Call(aggregateMethod, groupingElementExpression.Source, selector);
+                                result = null;
                             }
                             else
                             {
-                                result = null;
+                                var type = expression.Type.TryGetSequenceType();
+                                var aggregateMethod = EnumerableMethods.GetMaxWithoutSelector(type);
+                                if (aggregateMethod.IsGenericMethod)
+                                {
+                                    aggregateMethod = aggregateMethod.MakeGenericMethod(type);
+                                }
+
+                                result = Expression.Call(aggregateMethod, expression);
                             }
 
                             break;
@@ -500,21 +514,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                             }
 
-                            var selector = GetSelector(groupingElementExpression);
-
-                            if (selector != null)
+                            var expression = ApplySelect(groupingElementExpression);
+                            if (expression == null
+                                || expression is ParameterExpression)
                             {
-                                var aggregateMethod = EnumerableMethods.GetMinWithSelector(selector.ReturnType);
-                                aggregateMethod = aggregateMethod.GetGenericArguments().Length == 2
-                                    ? aggregateMethod.MakeGenericMethod(typeof(ValueBuffer), selector.ReturnType)
-                                    : aggregateMethod.MakeGenericMethod(typeof(ValueBuffer));
-
-
-                                result = Expression.Call(aggregateMethod, groupingElementExpression.Source, selector);
+                                result = null;
                             }
                             else
                             {
-                                result = null;
+                                var type = expression.Type.TryGetSequenceType();
+                                var aggregateMethod = EnumerableMethods.GetMinWithoutSelector(type);
+                                if (aggregateMethod.IsGenericMethod)
+                                {
+                                    aggregateMethod = aggregateMethod.MakeGenericMethod(type);
+                                }
+
+                                result = Expression.Call(aggregateMethod, expression);
                             }
 
                             break;
@@ -532,14 +547,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                             }
 
-                            var selector = GetSelector(groupingElementExpression);
+                            var expression = ApplySelect(groupingElementExpression);
 
-                            result = selector == null
+                            result = expression == null
                                 ? null
-                                : Expression.Call(
-                                    EnumerableMethods.GetSumWithSelector(selector.ReturnType).MakeGenericMethod(typeof(ValueBuffer)),
-                                    groupingElementExpression.Source,
-                                    selector);
+                                : Expression.Call(EnumerableMethods.GetSumWithoutSelector(expression.Type.TryGetSequenceType()), expression);
                             break;
                         }
 
@@ -567,12 +579,30 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
                     }
 
-                    LambdaExpression GetSelector(GroupingElementExpression groupingElement)
+                    Expression ApplySelect(GroupingElementExpression groupingElement)
                     {
                         var selector = TranslateInternal(groupingElement.Selector);
-                        return selector == null
-                            ? null
-                            : Expression.Lambda(selector, groupingElement.ValueBufferParameter);
+
+                        if (selector == null)
+                        {
+                            return groupingElement.Selector is EntityShaperExpression
+                                ? groupingElement.Source
+                                : null;
+                        }
+
+                        var result = Expression.Call(
+                            EnumerableMethods.Select.MakeGenericMethod(typeof(ValueBuffer), selector.Type),
+                            groupingElement.Source,
+                            Expression.Lambda(selector, groupingElement.ValueBufferParameter));
+
+                        if (groupingElement.IsDistinct)
+                        {
+                            result = Expression.Call(
+                                EnumerableMethods.Distinct.MakeGenericMethod(selector.Type),
+                                result);
+                        }
+
+                        return result;
                     }
 
                     static GroupingElementExpression ApplySelector(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
@@ -1571,9 +1601,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Selector = selector;
             }
             public Expression Source { get; private set; }
+            public bool IsDistinct { get; private set; }
             public Expression Selector { get; private set; }
             public ParameterExpression ValueBufferParameter { get; }
+            public GroupingElementExpression ApplyDistinct()
+            {
+                IsDistinct = true;
 
+                return this;
+            }
             public GroupingElementExpression ApplySelector(Expression expression)
             {
                 Selector = expression;

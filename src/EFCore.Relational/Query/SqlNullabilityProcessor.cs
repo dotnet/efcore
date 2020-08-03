@@ -348,6 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
                 ColumnExpression columnExpression
                     => VisitColumn(columnExpression, allowOptimizedExpansion, out nullable),
+                DistinctSqlExpression distinctSqlExpression
+                    => VisitDistinctSql(distinctSqlExpression, allowOptimizedExpansion, out nullable),
                 ExistsExpression existsExpression
                     => VisitExists(existsExpression, allowOptimizedExpansion, out nullable),
                 InExpression inExpression
@@ -500,6 +502,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             nullable = columnExpression.IsNullable && !_nonNullableColumns.Contains(columnExpression);
 
             return columnExpression;
+        }
+
+        /// <summary>
+        ///     Visits a <see cref="DistinctSqlExpression"/> and computes its nullability.
+        /// </summary>
+        /// <param name="distinctSqlExpression"> A collate expression to visit. </param>
+        /// <param name="allowOptimizedExpansion"> A bool value indicating if optimized expansion which considers null value as false value is allowed. </param>
+        /// <param name="nullable"> A bool value indicating whether the sql expression is nullable. </param>
+        /// <returns> An optimized sql expression. </returns>
+        protected virtual SqlExpression VisitDistinctSql(
+            [NotNull] DistinctSqlExpression distinctSqlExpression, bool allowOptimizedExpansion, out bool nullable)
+        {
+            Check.NotNull(distinctSqlExpression, nameof(distinctSqlExpression));
+
+            return distinctSqlExpression.Update(Visit(distinctSqlExpression.Operand, out nullable));
         }
 
         /// <summary>

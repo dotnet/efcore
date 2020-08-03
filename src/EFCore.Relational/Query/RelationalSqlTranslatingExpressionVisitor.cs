@@ -156,8 +156,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (inputType == typeof(int)
                 || inputType == typeof(long))
             {
-                sqlExpression = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                    _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
+                sqlExpression = sqlExpression is DistinctSqlExpression distinctSqlExpression
+                    ? new DistinctSqlExpression(_sqlExpressionFactory.ApplyDefaultTypeMapping(
+                       _sqlExpressionFactory.Convert(distinctSqlExpression.Operand, typeof(double))))
+                    : _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                        _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
             }
 
             return inputType == typeof(float)
@@ -492,6 +495,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                             result = TranslateCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true));
                             break;
 
+                        case nameof(Enumerable.Distinct):
+                            result = groupingElementExpression.Element is EntityShaperExpression
+                                ? groupingElementExpression
+                                : groupingElementExpression.IsDistinct
+                                    ? null
+                                    : groupingElementExpression.ApplyDistinct();
+                            break;
+
                         case nameof(Enumerable.LongCount):
                             if (methodCallExpression.Arguments.Count == 2)
                             {
@@ -600,12 +611,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 selector = _sqlExpressionFactory.Constant(1);
                             }
 
-                            return _sqlExpressionFactory.Case(
+                            selector = _sqlExpressionFactory.Case(
                                 new List<CaseWhenClause>
                                 {
                                     new CaseWhenClause(groupingElement.Predicate, selector)
                                 },
                                 elseResult: null);
+                        }
+
+                        if (groupingElement.IsDistinct
+                            && !(selector is SqlFragmentExpression))
+                        {
+                            selector = new DistinctSqlExpression(selector);
                         }
 
                         return selector;
