@@ -52,6 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
         private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
 
+        private readonly ExpressionPrinter _expressionPrinter;
+
         private Dictionary<string, LambdaExpression> _runtimeParameters;
 
         /// <summary>
@@ -78,6 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
             _queryTranslationPostprocessorFactory = dependencies.QueryTranslationPostprocessorFactory;
             _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
+
+            _expressionPrinter = new ExpressionPrinter();
         }
 
         /// <summary>
@@ -156,6 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(query, nameof(query));
 
+            Logger.QueryCompilationStarting(_expressionPrinter, query);
+
             query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
             // Convert EntityQueryable to ShapedQueryExpression
             query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Visit(query);
@@ -179,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             finally
             {
-                Logger.QueryExecutionPlanned(new ExpressionPrinter(), queryExecutorExpression);
+                Logger.QueryExecutionPlanned(_expressionPrinter, queryExecutorExpression);
             }
         }
 

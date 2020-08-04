@@ -616,6 +616,7 @@ namespace Microsoft.EntityFrameworkCore
             return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
                 .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
+                .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
         }
 
@@ -627,6 +628,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
                 .Include(e => e.OptionalSingleDerived).ThenInclude(e => e.Single)
                 .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
+                .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
         }
 
@@ -639,6 +641,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.Root)
                 .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.DerivedRoot)
+                .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
         }
 
@@ -649,6 +652,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
+                .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
         }
 
@@ -661,6 +665,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.OptionalSingleAk).ThenInclude(e => e.SingleComposite)
                 .Include(e => e.OptionalSingleAkDerived).ThenInclude(e => e.Single)
                 .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
+                .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
         }
 
@@ -673,6 +678,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.Root)
                 .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.DerivedRoot)
+                .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
         }
 
@@ -683,6 +689,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
+                .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
         }
 
@@ -690,6 +697,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredCompositeChildren).ThenInclude(e => e.CompositeChildren)
+                .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
         }
 

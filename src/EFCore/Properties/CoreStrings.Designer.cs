@@ -4491,5 +4491,101 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
             return (EventDefinition<string, string>)definition;
         }
+
+        /// <summary>
+        ///     Query uses First/FirstOrDefault operation without OrderBy and filter, which may lead to unpredictable results.
+        /// </summary>
+        public static EventDefinition LogFirstWithoutOrderByAndFilter([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter,
+                    () => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.FirstWithoutOrderByAndFilterWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.FirstWithoutOrderByAndFilterWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.FirstWithoutOrderByAndFilterWarning,
+                            _resourceManager.GetString("LogFirstWithoutOrderByAndFilter"))));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Including navigation: '{navigation}'.
+        /// </summary>
+        public static EventDefinition<string> LogNavigationIncluded([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNavigationIncluded;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNavigationIncluded,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.NavigationIncluded,
+                        LogLevel.Debug,
+                        "CoreEventId.NavigationIncluded",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.NavigationIncluded,
+                            _resourceManager.GetString("LogNavigationIncluded"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Compiling query expression: {newline}'{queryExpression}'
+        /// </summary>
+        public static EventDefinition<string, string> LogQueryCompilationStarting([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogQueryCompilationStarting;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogQueryCompilationStarting,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.QueryCompilationStarting,
+                        LogLevel.Debug,
+                        "CoreEventId.QueryCompilationStarting",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.QueryCompilationStarting,
+                            _resourceManager.GetString("LogQueryCompilationStarting"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Query uses a row limiting operation (Skip/Take) without OrderBy, which may lead to unpredictable results.
+        /// </summary>
+        public static EventDefinition LogRowLimitingOperationWithoutOrderBy([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy,
+                    () => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.RowLimitingOperationWithoutOrderByWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.RowLimitingOperationWithoutOrderByWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.RowLimitingOperationWithoutOrderByWarning,
+                            _resourceManager.GetString("LogRowLimitingOperationWithoutOrderBy"))));
+            }
+
+            return (EventDefinition)definition;
+        }
     }
 }

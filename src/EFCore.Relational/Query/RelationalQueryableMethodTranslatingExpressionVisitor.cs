@@ -420,6 +420,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.Predicate == null
+                && selectExpression.Orderings.Count == 0)
+            {
+                _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
+            }
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
             return source.ShaperExpression.Type != returnType
@@ -1035,6 +1040,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
+            if (selectExpression.Orderings.Count == 0)
+            {
+                _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
+            }
+
             selectExpression.ApplyOffset(translation);
 
             return source;
@@ -1094,6 +1104,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (translation == null)
             {
                 return null;
+            }
+
+            if (selectExpression.Orderings.Count == 0)
+            {
+                _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
             }
 
             selectExpression.ApplyLimit(translation);

@@ -1042,7 +1042,7 @@ OFFSET 0 LIMIT 1");
                     });
             }
         }
-        
+
         [ConditionalFact]
         public async Task Can_use_detached_entities_without_discriminators()
         {
@@ -1370,7 +1370,7 @@ OFFSET 0 LIMIT 1");
             context.Add(new NonStringDiscriminator { Id = 1 });
             await context.SaveChangesAsync();
 
-            Assert.NotNull(await context.Set<NonStringDiscriminator>().FirstOrDefaultAsync());
+            Assert.NotNull(await context.Set<NonStringDiscriminator>().OrderBy(e => e.Id).FirstOrDefaultAsync());
         }
 
         private class NonStringDiscriminator

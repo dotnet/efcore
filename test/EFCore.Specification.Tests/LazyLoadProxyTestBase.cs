@@ -2315,6 +2315,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext(lazyLoadingEnabled: true);
             var query = (from p in context.Set<Parent>()
+                         orderby p.Id
                          select DtoFactory.CreateDto(p)).FirstOrDefault();
 
             Assert.NotNull(((dynamic)query).Single);
@@ -2326,7 +2327,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Entity_equality_with_proxy_parameter(bool async)
         {
             using var context = CreateContext(lazyLoadingEnabled: true);
-            var called = context.Set<Parent>().FirstOrDefault();
+            var called = context.Set<Parent>().OrderBy(e => e.Id).FirstOrDefault();
             ClearLog();
 
             var query = from Child q in context.Set<Child>()

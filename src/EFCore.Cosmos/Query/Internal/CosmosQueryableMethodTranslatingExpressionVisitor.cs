@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
     {
-        private readonly IModel _model;
+        private readonly QueryCompilationContext _queryCompilationContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IMemberTranslatorProvider _memberTranslatorProvider;
         private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
             : base(dependencies, queryCompilationContext, subquery: false)
         {
-            _model = queryCompilationContext.Model;
+            _queryCompilationContext = queryCompilationContext;
             _sqlExpressionFactory = sqlExpressionFactory;
             _memberTranslatorProvider = memberTranslatorProvider;
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _sqlExpressionFactory,
                 _memberTranslatorProvider,
                 _methodCallTranslatorProvider);
-            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
+            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, _sqlTranslator);
         }
 
         /// <summary>
@@ -69,14 +69,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             [NotNull] CosmosQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
-            _model = parentVisitor._model;
+            _queryCompilationContext = parentVisitor._queryCompilationContext;
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
                 QueryCompilationContext,
                 _sqlExpressionFactory,
                 _memberTranslatorProvider,
                 _methodCallTranslatorProvider);
-            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
+            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, _sqlTranslator);
         }
 
         /// <summary>
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var entityType = _model.FindEntityType(elementType);
+            var entityType = _queryCompilationContext.Model.FindEntityType(elementType);
             var selectExpression = _sqlExpressionFactory.Select(entityType);
 
             return new ShapedQueryExpression(
@@ -471,6 +471,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.Predicate == null
+                && selectExpression.Orderings.Count == 0)
+            {
+                _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
+            }
+
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
             return source.ShaperExpression.Type != returnType
@@ -909,6 +915,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (translation != null)
             {
+                if (selectExpression.Orderings.Count == 0)
+                {
+                    _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
+                }
+
                 selectExpression.ApplyOffset(translation);
 
                 return source;
@@ -980,6 +991,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (translation != null)
             {
+                if (selectExpression.Orderings.Count == 0)
+                {
+                    _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
+                }
+
                 selectExpression.ApplyLimit(translation);
 
                 return source;
@@ -1144,7 +1160,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         break;
 
                     case MethodCallExpression methodCallExpression
-                    when methodCallExpression.TryGetIndexerArguments(_model, out _, out var propertyName):
+                    when methodCallExpression.TryGetIndexerArguments(_queryCompilationContext.Model, out _, out var propertyName):
                         property = entityType.FindProperty(propertyName);
                         break;
                 }

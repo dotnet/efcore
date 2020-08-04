@@ -18,8 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
                     c => c
-                        .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning)
-                        .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning))
+                        .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning))
                 .EnableDetailedErrors();
 
         protected override bool ShouldLogCategory(string logCategory)

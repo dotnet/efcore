@@ -475,12 +475,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 typeof(IncludeExpandingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(FetchJoinEntity));
 
             private readonly bool _queryStateManager;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
             public IncludeExpandingExpressionVisitor(
                 NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
                 NavigationExpansionExpression source)
                 : base(navigationExpandingExpressionVisitor, source)
             {
+                _logger = navigationExpandingExpressionVisitor._queryCompilationContext.Logger;
                 _queryStateManager = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll
                     || navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             }
@@ -677,12 +679,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         convertedRoot = Expression.Convert(root, navigationBase.DeclaringEntityType.ClrType);
                     }
 
-                    var included = navigationBase switch
+                    Expression included;
+                    switch (navigationBase)
                     {
-                        INavigation navigation => ExpandNavigation(convertedRoot, entityReference, navigation, converted),
-                        ISkipNavigation skipNavigation => ExpandSkipNavigation(convertedRoot, entityReference, skipNavigation, converted),
-                        _ => throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType()))
-                    };
+                        case INavigation navigation:
+                            _logger.NavigationIncluded(navigation);
+                            included = ExpandNavigation(convertedRoot, entityReference, navigation, converted);
+                            break;
+
+                        case ISkipNavigation skipNavigation:
+                            _logger.NavigationIncluded(skipNavigation);
+                            included = ExpandSkipNavigation(convertedRoot, entityReference, skipNavigation, converted);
+                            break;
+
+                        default:
+                            throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType()));
+                    }
 
                     // Collection will expand it's includes when reducing the navigationExpansionExpression
                     if (!navigationBase.IsCollection)

@@ -1469,4 +1469,20 @@
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a skip navigation. Instead configure the underlying foreign keys.</value>
     <comment>Debug CoreEventId.RequiredAttributeOnSkipNavigation string string</comment>
   </data>
+  <data name="LogFirstWithoutOrderByAndFilter" xml:space="preserve">
+    <value>Query uses First/FirstOrDefault operation without OrderBy and filter, which may lead to unpredictable results.</value>
+    <comment>Warning CoreEventId.FirstWithoutOrderByAndFilterWarning</comment>
+  </data>
+  <data name="LogNavigationIncluded" xml:space="preserve">
+    <value>Including navigation: '{navigation}'.</value>
+    <comment>Debug CoreEventId.NavigationIncluded string</comment>
+  </data>
+  <data name="LogQueryCompilationStarting" xml:space="preserve">
+    <value>Compiling query expression: {newline}'{queryExpression}'</value>
+    <comment>Debug CoreEventId.QueryCompilationStarting string string</comment>
+  </data>
+  <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
+    <value>Query uses a row limiting operation (Skip/Take) without OrderBy, which may lead to unpredictable results.</value>
+    <comment>Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning</comment>
+  </data>
 </root>
