@@ -151,24 +151,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Safely gets the value of the property just like using the indexed property getter but
         ///     typed to the type of the generic parameter.
-        ///     If property exists it return into the out parameter, otherwise the default value of TValue
+        ///     If property exists it return to the out parameter, otherwise the default value of TValue
         /// </summary>
         /// <typeparam name="TValue"> The type of the property. </typeparam>
         /// <param name="propertyName"> The property name. </param>
         /// <param name="value"> The property value if any. </param>
         /// <returns> True if the property exists, otherwise false. </returns>
-        public bool TryGetValue<TValue>([NotNull] string propertyName, out TValue value)
-        {
-            var property = EntityType.FindProperty(propertyName);
-            if (propertyName != null)
-            {
-                value = this.GetValue<TValue>(propertyName);
-                return true;
-            }
-
-            value = default(TValue);
-            return false;
-        }
+        public abstract bool TryGetValue<TValue>([NotNull] string propertyName, out TValue value);
 
         /// <summary>
         ///     Gets the value of the property just like using the indexed property getter but

@@ -1,18 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -22,10 +16,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ArrayPropertyValues : PropertyValues
+    public class InternalMixedEntityEntry : InternalEntityEntry
     {
-        private readonly object[] _values;
-        private IReadOnlyList<IProperty> _properties;
+        private readonly ISnapshot _shadowValues;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,51 +26,90 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ArrayPropertyValues([NotNull] InternalEntityEntry internalEntry, [NotNull] object[] values)
-            : base(internalEntry) => _values = values;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override object ToObject()
-            => MaterializerSource.GetMaterializer(EntityType)(
-                new MaterializationContext(
-                    new ValueBuffer(_values),
-                    InternalEntry.StateManager.Context));
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void SetValues(object obj)
+        public InternalMixedEntityEntry(
+            [NotNull] IStateManager stateManager,
+            [NotNull] IEntityType entityType,
+            [NotNull] object entity)
+            : base(stateManager, entityType)
         {
-            Check.NotNull(obj, nameof(obj));
+            Entity = entity;
+            _shadowValues = entityType.GetEmptyShadowValuesFactory()();
 
-            if (obj.GetType() == EntityType.ClrType)
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
+            MarkShadowPropertiesNotSet(entityType);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public InternalMixedEntityEntry(
+            [NotNull] IStateManager stateManager,
+            [NotNull] IEntityType entityType,
+            [NotNull] object entity,
+            in ValueBuffer valueBuffer)
+            : base(stateManager, entityType)
+        {
+            Entity = entity;
+            _shadowValues = ((EntityType)entityType).ShadowValuesFactory(valueBuffer);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override object Entity { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override T ReadShadowValue<T>(int shadowIndex)
+            => _shadowValues.GetValue<T>(shadowIndex);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override object ReadPropertyValue(IPropertyBase propertyBase)
+            => !propertyBase.IsShadowProperty()
+                ? base.ReadPropertyValue(propertyBase)
+                : _shadowValues[propertyBase.GetShadowIndex()];
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override bool PropertyHasDefaultValue(IPropertyBase propertyBase)
+            => !propertyBase.IsShadowProperty()
+                ? base.PropertyHasDefaultValue(propertyBase)
+                : propertyBase.ClrType.IsDefaultValue(_shadowValues[propertyBase.GetShadowIndex()]);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override void WritePropertyValue(IPropertyBase propertyBase, object value, bool forMaterialization)
+        {
+            if (!propertyBase.IsShadowProperty())
             {
-                for (var i = 0; i < _values.Length; i++)
-                {
-                    if (!Properties[i].IsShadowProperty())
-                    {
-                        SetValue(i, ((Property)Properties[i]).Getter.GetClrValue(obj));
-                    }
-                }
+                base.WritePropertyValue(propertyBase, value, forMaterialization);
             }
             else
             {
-                for (var i = 0; i < _values.Length; i++)
-                {
-                    var getter = obj.GetType().GetAnyProperty(Properties[i].Name)?.FindGetterProperty();
-                    if (getter != null)
-                    {
-                        SetValue(i, getter.GetValue(obj));
-                    }
-                }
+                _shadowValues[propertyBase.GetShadowIndex()] = value;
             }
         }
 
@@ -87,28 +119,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override PropertyValues Clone()
+        public override object GetOrCreateCollection(INavigation navigation, bool forMaterialization)
+            => navigation.IsShadowProperty()
+                ? GetOrCreateCollectionTyped(navigation)
+                : base.GetOrCreateCollection(navigation, forMaterialization);
+
+        private ICollection<object> GetOrCreateCollectionTyped(INavigation navigation)
         {
-            var copies = new object[_values.Length];
-            Array.Copy(_values, copies, _values.Length);
-
-            return new ArrayPropertyValues(InternalEntry, copies);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void SetValues(PropertyValues propertyValues)
-        {
-            Check.NotNull(propertyValues, nameof(propertyValues));
-
-            for (var i = 0; i < _values.Length; i++)
+            if (!(_shadowValues[navigation.GetShadowIndex()] is ICollection<object> collection))
             {
-                SetValue(i, propertyValues[Properties[i].Name]);
+                collection = new HashSet<object>();
+                _shadowValues[navigation.GetShadowIndex()] = collection;
             }
+
+            return collection;
         }
 
         /// <summary>
@@ -117,8 +141,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IReadOnlyList<IProperty> Properties
-            => _properties ?? (_properties = EntityType.GetProperties().ToList());
+        public override bool CollectionContains(INavigation navigation, InternalEntityEntry value)
+            => navigation.IsShadowProperty()
+                ? GetOrCreateCollectionTyped(navigation).Contains(value.Entity)
+                : base.CollectionContains(navigation, value);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,49 +152,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object this[string propertyName]
+        public override bool AddToCollection(INavigation navigation, InternalEntityEntry value, bool forMaterialization)
         {
-            get => _values[EntityType.GetProperty(propertyName).GetIndex()];
-            set => SetValue(EntityType.GetProperty(propertyName).GetIndex(), value);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override object this[IProperty property]
-        {
-            get => _values[EntityType.CheckPropertyBelongsToType(property).GetIndex()];
-            set => SetValue(EntityType.CheckPropertyBelongsToType(property).GetIndex(), value);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override TValue GetValue<TValue>(string propertyName)
-            => (TValue)this[propertyName];
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override bool TryGetValue<TValue>(string propertyName, out TValue value)
-        {
-            var property = EntityType.FindProperty(propertyName);
-            if (propertyName != null)
+            if (!navigation.IsShadowProperty())
             {
-                value = this.GetValue<TValue>(propertyName);
+                return base.AddToCollection(navigation, value, forMaterialization);
+            }
+
+            if (navigation.TargetEntityType.ClrType == null)
+            {
+                return false;
+            }
+
+            var collection = GetOrCreateCollectionTyped(navigation);
+            if (!collection.Contains(value.Entity))
+            {
+                collection.Add(value.Entity);
                 return true;
             }
 
-            value = default(TValue);
             return false;
         }
 
@@ -178,41 +180,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override TValue GetValue<TValue>(IProperty property)
-            => (TValue)this[property];
-
-        private void SetValue(int index, object value)
-        {
-            var property = Properties[index];
-
-            if (value != null)
-            {
-                if (!property.ClrType.IsAssignableFrom(value.GetType()))
-                {
-                    throw new InvalidCastException(
-                        CoreStrings.InvalidType(
-                            property.Name,
-                            property.DeclaringEntityType.DisplayName(),
-                            value.GetType().DisplayName(),
-                            property.ClrType.DisplayName()));
-                }
-            }
-            else
-            {
-                if (!property.ClrType.IsNullableType())
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ValueCannotBeNull(
-                            property.Name,
-                            property.DeclaringEntityType.DisplayName(),
-                            property.ClrType.DisplayName()));
-                }
-            }
-
-            _values[index] = value;
-        }
-
-        private IEntityMaterializerSource MaterializerSource
-            => InternalEntry.StateManager.EntityMaterializerSource;
+        public override bool RemoveFromCollection(INavigation navigation, InternalEntityEntry value)
+            => navigation.IsShadowProperty()
+                ? GetOrCreateCollectionTyped(navigation).Remove(value.Entity)
+                : base.RemoveFromCollection(navigation, value);
     }
 }
