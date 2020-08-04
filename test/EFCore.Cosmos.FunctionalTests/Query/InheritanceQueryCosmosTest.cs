@@ -358,6 +358,7 @@ WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] =
 SELECT DISTINCT c
 FROM root c
 WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] = ""Kiwi""))
+ORDER BY c[""Species""]
 OFFSET 0 LIMIT @__p_0");
         }
 

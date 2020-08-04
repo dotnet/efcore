@@ -4163,6 +4163,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        [Obsolete]
         public static void QueryPossibleExceptionWithAggregateOperatorWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {

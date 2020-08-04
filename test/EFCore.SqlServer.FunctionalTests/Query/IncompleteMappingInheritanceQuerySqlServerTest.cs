@@ -479,6 +479,7 @@ FROM (
     SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
     FROM [Animals] AS [a]
     WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
+    ORDER BY [a].[Species]
 ) AS [t]
 WHERE [t].[Discriminator] = N'Kiwi'");
         }

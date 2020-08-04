@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -75,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Query events
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
             QueryPossibleUnintendedUseOfEqualsWarning,
-            QueryPossibleExceptionWithAggregateOperatorWarning,
-            ValueConversionSqlLiteralWarning, // This warning has been removed.
+            Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning,
+            Obsolete_ValueConversionSqlLiteralWarning,
             MultipleCollectionIncludeWarning,
 
             // Model validation events
@@ -611,8 +612,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning =
-            MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
+            MakeQueryId(Id.Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning);
 
         /// <summary>
         ///     <para>

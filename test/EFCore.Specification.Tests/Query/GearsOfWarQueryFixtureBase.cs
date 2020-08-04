@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -345,7 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(GearsOfWarContext context) => GearsOfWarContext.Seed(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder);
+            => base.AddOptions(builder).ConfigureWarnings(w =>
+                w.Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning));
 
         public override GearsOfWarContext CreateContext()
         {

@@ -272,7 +272,7 @@
   </data>
   <data name="LogQueryPossibleExceptionWithAggregateOperatorWarning" xml:space="preserve">
     <value>Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.</value>
-    <comment>Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning</comment>
+    <comment>Obsolete Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning</comment>
   </data>
   <data name="LogGeneratingDown" xml:space="preserve">
     <value>Generating down script for migration '{migration}'.</value>

@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public async Task<List<string>> InvokeAsync()
             {
-                var genres = await _context.Genres.Select(g => g.Name).Take(9).ToListAsync();
+                var genres = await _context.Genres.OrderBy(e => e.GenreId).Select(g => g.Name).Take(9).ToListAsync();
 
                 return genres;
             }

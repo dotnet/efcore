@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .ToList();
 
             var loggerMethods = declaredMethods
-                .ToDictionary(m => m.Name);
+                .GroupBy(e => e.Name)
+                .ToDictionary(m => m.Key, e => e.First());
 
             foreach (var eventIdField in eventIdFields)
             {

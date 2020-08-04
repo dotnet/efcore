@@ -545,6 +545,7 @@ FROM (
     INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
     LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+    ORDER BY [a].[Species]
 ) AS [t]
 WHERE [t].[Discriminator] = N'Kiwi'");
         }

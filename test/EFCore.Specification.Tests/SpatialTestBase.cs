@@ -102,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var db = Fixture.CreateContext();
             (from e in db.Set<PointEntity>()
+             orderby e.Id
              select new
              {
                  e.Id,

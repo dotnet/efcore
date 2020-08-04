@@ -173,13 +173,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var principal = context.Set<OneToOneFieldNavPrincipal>().First();
+                var principal = context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).First();
                 var dependent1 = new NavDependent { Id = 1, Name = "FirstName", OneToOneFieldNavPrincipal = principal };
                 context.Set<NavDependent>().Add(dependent1);
                 context.SaveChanges();
 
                 var dependentName =
-                    context.Set<OneToOneFieldNavPrincipal>().Select(p => p.Dependent.Name).First();
+                    context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).Select(p => p.Dependent.Name).First();
 
                 Assert.Equal("FirstName", dependentName);
 
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.SaveChanges();
 
                 dependentName =
-                    context.Set<OneToOneFieldNavPrincipal>().Select(p => p.Dependent.Name).First();
+                    context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).Select(p => p.Dependent.Name).First();
 
                 Assert.Equal("SecondName", dependentName);
             }

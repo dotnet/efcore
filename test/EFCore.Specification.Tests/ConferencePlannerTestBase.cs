@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore
             await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
-                    var track = context.Tracks.AsNoTracking().First();
+                    var track = context.Tracks.AsNoTracking().OrderBy(e => e.Id).First();
 
                     var controller = new SessionsController(context);
 

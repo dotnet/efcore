@@ -59,15 +59,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Query events
             QueryIterationFailed = CoreBaseId + 100,
             Obsolete_QueryModelCompiling,
-            Obsolete_RowLimitingOperationWithoutOrderByWarning,
-            Obsolete_FirstWithoutOrderByAndFilterWarning,
+            RowLimitingOperationWithoutOrderByWarning,
+            FirstWithoutOrderByAndFilterWarning,
             Obsolete_QueryModelOptimized,
-            Obsolete_NavigationIncluded,
+            NavigationIncluded,
             Obsolete_IncludeIgnoredWarning,
             QueryExecutionPlanned,
             PossibleUnintendedCollectionNavigationNullComparisonWarning,
             PossibleUnintendedReferenceComparisonWarning,
             InvalidIncludePathError,
+            QueryCompilationStarting,
 
             // Infrastructure events
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -214,6 +215,56 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId InvalidIncludePathError
             = MakeQueryId(Id.InvalidIncludePathError);
+
+        /// <summary>
+        ///     <para>
+        ///         Starting query compilation.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="QueryExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId QueryCompilationStarting
+            = MakeQueryId(Id.QueryCompilationStarting);
+
+        /// <summary>
+        ///     <para>
+        ///         A navigation was included in the query.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="QueryExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId NavigationIncluded
+            = MakeQueryId(Id.NavigationIncluded);
+
+        /// <summary>
+        ///     <para>
+        ///         A query uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RowLimitingOperationWithoutOrderByWarning
+            = MakeQueryId(Id.RowLimitingOperationWithoutOrderByWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A query uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId FirstWithoutOrderByAndFilterWarning
+            = MakeQueryId(Id.FirstWithoutOrderByAndFilterWarning);
 
         private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
         private static EventId MakeInfraId(Id id) => new EventId((int)id, _infraPrefix + id);

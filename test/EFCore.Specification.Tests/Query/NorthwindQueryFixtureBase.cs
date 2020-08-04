@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
                 c => c
+                    .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
+                    .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
                     .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
                     .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
     }

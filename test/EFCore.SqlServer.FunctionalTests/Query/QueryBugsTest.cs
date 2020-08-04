@@ -4579,12 +4579,13 @@ FROM [InventoryPools] AS [i]");
             using (CreateDatabase12518())
             {
                 using var context = new MyContext12518(_options);
-                var result = context.Parents.Include(p => p.Child).FirstOrDefault();
+                var result = context.Parents.Include(p => p.Child).OrderBy(e => e.Id).FirstOrDefault();
 
                 AssertSql(
                     @"SELECT TOP(1) [p].[Id], [p].[ChildId], [c].[Id], [c].[ParentId], [c].[ULongRowVersion]
 FROM [Parents] AS [p]
-LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]");
+LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
+ORDER BY [p].[Id]");
             }
         }
 
@@ -7516,7 +7517,7 @@ ORDER BY [p].[Id]"
 
             Assert.Equal(ConnectionState.Closed, dbConnection.State);
 
-            context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().Single();
+            context.Parents.Include(p => p.Children1).Include(p => p.Children2).OrderBy(e => e.Id).AsSplitQuery().Single();
 
             Assert.Equal(ConnectionState.Closed, dbConnection.State);
         }
@@ -7530,7 +7531,7 @@ ORDER BY [p].[Id]"
 
             Assert.Equal(ConnectionState.Closed, dbConnection.State);
 
-            await context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().SingleAsync();
+            await context.Parents.Include(p => p.Children1).Include(p => p.Children2).OrderBy(e => e.Id).AsSplitQuery().SingleAsync();
 
             Assert.Equal(ConnectionState.Closed, dbConnection.State);
         }

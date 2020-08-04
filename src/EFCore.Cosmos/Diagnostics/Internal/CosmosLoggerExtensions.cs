@@ -46,10 +46,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
 
             definition.Log(
                 diagnosticsLogger,
-                FormatParameters(cosmosSqlQuery.Parameters),
+                FormatParameters(cosmosSqlQuery.Parameters, ShouldLogParameterValues(diagnosticsLogger, cosmosSqlQuery)),
                 Environment.NewLine,
                 cosmosSqlQuery.Query);
         }
+
+        private static bool ShouldLogParameterValues(
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            CosmosSqlQuery cosmosSqlQuery)
+            => cosmosSqlQuery.Parameters.Count > 0
+                && diagnostics.ShouldLogSensitiveData();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,21 +83,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                 $"{partitionKey}, {resourceId}");
         }
 
-        private static string FormatParameters(IReadOnlyList<SqlParameter> parameters)
+        private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
         {
             return parameters.Count == 0
                 ? ""
-                : string.Join(", ", parameters.Select(FormatParameter));
+                : string.Join(", ", parameters.Select(e => FormatParameter(e, shouldLogParameterValues)));
         }
 
-        private static string FormatParameter(SqlParameter parameter)
+        private static string FormatParameter(SqlParameter parameter, bool shouldLogParameterValue)
         {
             var builder = new StringBuilder();
             builder
                 .Append(parameter.Name)
                 .Append("=");
 
-            FormatParameterValue(builder, parameter.Value);
+            if (shouldLogParameterValue)
+            {
+                FormatParameterValue(builder, parameter.Value);
+            }
+            else
+            {
+                builder.Append("?");
+            }
 
             return builder.ToString();
         }

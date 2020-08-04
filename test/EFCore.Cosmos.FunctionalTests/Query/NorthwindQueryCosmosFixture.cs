@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
+        protected override bool ShouldLogCategory(string logCategory)
+            => logCategory == DbLoggerCategory.Query.Name;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
