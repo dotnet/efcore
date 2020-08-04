@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -322,6 +323,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="true" /> if the given type to convert values to and from can be configured for this property.
         /// </returns>
         bool CanSetConversion([CanBeNull] Type providerClrType, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures the <see cref="CoreTypeMapping" /> for this property.
+        /// </summary>
+        /// <param name="typeMapping"> The type mapping, or <see langword="null" /> to remove any previously set type mapping. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionPropertyBuilder HasTypeMapping([CanBeNull] CoreTypeMapping typeMapping, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given <see cref="CoreTypeMapping" />
+        ///     can be configured for this property from the current configuration source.
+        /// </summary>
+        /// <param name="typeMapping"> The type mapping, or <see langword="null" /> to remove any previously set type mapping. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
+        /// </returns>
+        bool CanSetTypeMapping([CanBeNull] CoreTypeMapping typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the <see cref="ValueComparer" /> for this property.

@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -197,6 +198,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="providerClrType"> The type to use, or <see langword="null" /> to remove any previously set type. </param>
         public static void SetProviderClrType([NotNull] this IMutableProperty property, [CanBeNull] Type providerClrType)
             => property.AsProperty().SetProviderClrType(providerClrType, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Sets the <see cref="CoreTypeMapping" /> for the given property
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
+        public static CoreTypeMapping SetTypeMapping(
+            [NotNull] this IMutableProperty property,
+            [NotNull] CoreTypeMapping typeMapping)
+            => ((Property)property).SetTypeMapping(typeMapping,  ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for this property.

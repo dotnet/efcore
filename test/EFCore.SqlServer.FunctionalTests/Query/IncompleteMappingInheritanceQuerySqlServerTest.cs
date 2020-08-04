@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Xunit;
 using Xunit.Abstractions;
@@ -374,13 +372,13 @@ WHERE [c].[Id] = 1",
                 @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 @p1='1'
 @p2='Kiwi' (Nullable = false) (Size = 4000)
-@p3='Little spotted kiwi' (Size = 4000)
-@p4=NULL (Size = 100)
+@p3=NULL (Size = 100)
+@p4='0' (Nullable = true) (Size = 1)
 @p5='True' (Nullable = true)
-@p6='0' (Nullable = true) (Size = 1)
+@p6='Little spotted kiwi' (Size = 4000)
 
 SET NOCOUNT ON;
-INSERT INTO [Animals] ([Species], [CountryId], [Discriminator], [Name], [EagleId], [IsFlightless], [FoundOn])
+INSERT INTO [Animals] ([Species], [CountryId], [Discriminator], [EagleId], [FoundOn], [IsFlightless], [Name])
 VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
                 //
                 @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]

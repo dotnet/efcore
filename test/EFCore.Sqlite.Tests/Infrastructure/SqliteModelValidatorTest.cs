@@ -97,9 +97,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static void GenerateMapping(IMutableProperty property)
-            => property[CoreAnnotationNames.TypeMapping]
-                = TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()
-                    .FindMapping(property);
+            => property.SetTypeMapping(
+                  TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()
+                    .FindMapping(property));
 
         protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
     }

@@ -33,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The type mapping. </returns>
         public static CoreTypeMapping GetTypeMapping([NotNull] this IProperty property)
         {
-            var mapping = (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
-
+            var mapping = ((Property)property).TypeMapping;
             if (mapping == null)
             {
                 throw new InvalidOperationException(
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <see langword="null"/> if none was found. </returns>
         public static CoreTypeMapping FindTypeMapping([NotNull] this IProperty property)
-            => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
+            => ((Property)property).TypeMapping;
 
         /// <summary>
         ///     Finds the first principal property that the given property is constrained by
@@ -124,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true"/> if the property is used as a foreign key, otherwise <see langword="false"/>. </returns>
         public static bool IsForeignKey([NotNull] this IProperty property)
-            => Check.NotNull(property, nameof(property)).AsProperty().ForeignKeys != null;
+            => Check.NotNull((Property)property, nameof(property)).ForeignKeys != null;
 
         /// <summary>
         ///     Gets a value indicating whether this property is used as an index (or part of a composite index).
@@ -132,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true"/> if the property is used as an index, otherwise <see langword="false"/>. </returns>
         public static bool IsIndex([NotNull] this IProperty property)
-            => Check.NotNull(property, nameof(property)).AsProperty().Indexes != null;
+            => Check.NotNull((Property)property, nameof(property)).Indexes != null;
 
         /// <summary>
         ///     Gets a value indicating whether this property is used as a unique index (or part of a unique composite index).
@@ -157,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true"/> if the property is used as a key, otherwise <see langword="false"/>. </returns>
         public static bool IsKey([NotNull] this IProperty property)
-            => Check.NotNull(property, nameof(property)).AsProperty().Keys != null;
+            => Check.NotNull((Property)property, nameof(property)).Keys != null;
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -166,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to get foreign keys for. </param>
         /// <returns> The foreign keys that use this property. </returns>
         public static IEnumerable<IForeignKey> GetContainingForeignKeys([NotNull] this IProperty property)
-            => Check.NotNull(property, nameof(property)).AsProperty().GetContainingForeignKeys();
+            => Check.NotNull((Property)property, nameof(property)).GetContainingForeignKeys();
 
         /// <summary>
         ///     Gets all indexes that use this property (including composite indexes in which this property
@@ -175,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to get indexes for. </param>
         /// <returns> The indexes that use this property. </returns>
         public static IEnumerable<IIndex> GetContainingIndexes([NotNull] this IProperty property)
-            => Check.NotNull(property, nameof(property)).AsProperty().GetContainingIndexes();
+            => Check.NotNull((Property)property, nameof(property)).GetContainingIndexes();
 
         /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property
@@ -184,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to get primary key for. </param>
         /// <returns> The primary that use this property, or <see langword="null"/> if it is not part of the primary key. </returns>
         public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
-            => Check.NotNull(property, nameof(property)).AsProperty().PrimaryKey;
+            => Check.NotNull((Property)property, nameof(property)).PrimaryKey;
 
         /// <summary>
         ///     Gets all primary or alternate keys that use this property (including composite keys in which this property
@@ -193,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to get primary and alternate keys for. </param>
         /// <returns> The primary and alternate keys that use this property. </returns>
         public static IEnumerable<IKey> GetContainingKeys([NotNull] this IProperty property)
-            => Check.NotNull(property, nameof(property)).AsProperty().GetContainingKeys();
+            => Check.NotNull((Property)property, nameof(property)).GetContainingKeys();
 
         /// <summary>
         ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '

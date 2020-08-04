@@ -5167,8 +5167,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         AssertMultidimensionalArray(
                             m.Values,
                             v => Assert.Equal(43, v),
-                            v => Assert.Equal("Dog", v),
-                            v => Assert.Equal("43", v));
+                            v => Assert.Equal("43", v),
+                            v => Assert.Equal("Dog", v));
                     }),
                 downOps => Assert.Collection(
                     downOps,

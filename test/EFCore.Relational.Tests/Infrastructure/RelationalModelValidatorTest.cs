@@ -1764,11 +1764,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static void GenerateMapping(IMutableProperty property)
-            => property[CoreAnnotationNames.TypeMapping]
-                = new TestRelationalTypeMappingSource(
+            => property.SetTypeMapping(new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
-                    .FindMapping(property);
+                    .FindMapping(property));
 
         protected override void SetBaseType(IMutableEntityType entityType, IMutableEntityType baseEntityType)
         {

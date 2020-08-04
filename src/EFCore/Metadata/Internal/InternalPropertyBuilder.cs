@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -476,6 +477,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual InternalPropertyBuilder HasTypeMapping(
+            [CanBeNull] CoreTypeMapping typeMapping, ConfigurationSource configurationSource)
+        {
+            if (CanSetTypeMapping(typeMapping, configurationSource))
+            {
+                Metadata.SetTypeMapping(typeMapping, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetTypeMapping([CanBeNull] CoreTypeMapping typeMapping, ConfigurationSource? configurationSource)
+            => configurationSource.Overrides(Metadata.GetTypeMappingConfigurationSource())
+                || Metadata.TypeMapping == typeMapping;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual InternalPropertyBuilder HasValueComparer(
             [CanBeNull] ValueComparer comparer, ConfigurationSource configurationSource)
         {
@@ -919,6 +949,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         bool IConventionPropertyBuilder.CanSetConversion(Type providerClrType, bool fromDataAnnotation)
             => CanSetConversion(providerClrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        IConventionPropertyBuilder IConventionPropertyBuilder.HasTypeMapping(CoreTypeMapping typeMapping, bool fromDataAnnotation)
+            => HasTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        bool IConventionPropertyBuilder.CanSetTypeMapping(CoreTypeMapping typeMapping, bool fromDataAnnotation)
+            => CanSetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
