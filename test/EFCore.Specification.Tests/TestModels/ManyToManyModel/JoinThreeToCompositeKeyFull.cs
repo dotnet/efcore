@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     public class JoinThreeToCompositeKeyFull
     {
+        public virtual Guid Id { get; set; }
         public virtual int ThreeId { get; set; }
         public virtual int CompositeId1 { get; set; }
         public virtual string CompositeId2 { get; set; }

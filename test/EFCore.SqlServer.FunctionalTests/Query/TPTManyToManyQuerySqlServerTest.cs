@@ -158,7 +158,7 @@ INNER JOIN (
                 @"SELECT MAX([t].[Key1])
 FROM [EntityThrees] AS [e]
 INNER JOIN (
-    SELECT [e0].[Key1], [j].[ThreeId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [e0].[Key2], [e0].[Key3]
+    SELECT [e0].[Key1], [j].[Id], [e0].[Key2], [e0].[Key3], [j].[ThreeId]
     FROM [JoinThreeToCompositeKeyFull] AS [j]
     INNER JOIN [EntityCompositeKeys] AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
 ) AS [t] ON [e].[Id] = [t].[ThreeId]");
@@ -588,9 +588,9 @@ ORDER BY [e].[Id], [t].[ThreeId], [t].[TwoId], [t].[Id], [t0].[LeftId], [t0].[Ri
                 @"SELECT [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[Name]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
-    SELECT [t].[Key1], [t].[Key2], [t].[Key3], [t].[Name], [t].[ThreeId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3]
+    SELECT [t].[Key1], [t].[Key2], [t].[Key3], [t].[Name], [t].[Id], [t].[ThreeId]
     FROM (
-        SELECT [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [j].[ThreeId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Key1], [e0].[Key2]) AS [row]
+        SELECT [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [j].[Id], [j].[ThreeId], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Key1], [e0].[Key2]) AS [row]
         FROM [JoinThreeToCompositeKeyFull] AS [j]
         INNER JOIN [EntityCompositeKeys] AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
     ) AS [t]
@@ -774,18 +774,18 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
             await base.Filtered_include_skip_navigation_order_by_skip_take(async);
 
             AssertSql(
-                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[ThreeId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
+                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
-    SELECT [t].[ThreeId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
+    SELECT [t].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[ThreeId], [t].[Id0], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
     FROM (
-        SELECT [j].[ThreeId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
+        SELECT [j].[Id], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[ThreeId], [e0].[Id] AS [Id0], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
         FROM [JoinThreeToCompositeKeyFull] AS [j]
         INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
     ) AS [t]
     WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
 ) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[ThreeId]");
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id0], [t0].[Id]");
         }
 
         public override async Task Filtered_then_include_skip_navigation_where(bool async)
@@ -822,25 +822,25 @@ ORDER BY [r].[Id], [t0].[EntityRootId], [t0].[EntityThreeId], [t0].[Id], [t0].[O
                 @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
     WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
     WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
-END AS [Discriminator], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[ThreeId], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name0], [t1].[ReferenceInverseId]
+END AS [Discriminator], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[Id], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30], [t1].[ThreeId], [t1].[Id0], [t1].[CollectionInverseId], [t1].[Name0], [t1].[ReferenceInverseId]
 FROM [Roots] AS [r]
 LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 LEFT JOIN (
-    SELECT [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId], [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[ThreeId], [t0].[CompositeId1] AS [CompositeId10], [t0].[CompositeId2] AS [CompositeId20], [t0].[CompositeId3] AS [CompositeId30], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId]
+    SELECT [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId], [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[CompositeId1] AS [CompositeId10], [t0].[CompositeId2] AS [CompositeId20], [t0].[CompositeId3] AS [CompositeId30], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId]
     FROM [JoinCompositeKeyToRootShared] AS [j]
     INNER JOIN [EntityCompositeKeys] AS [e] ON (([j].[CompositeId1] = [e].[Key1]) AND ([j].[CompositeId2] = [e].[Key2])) AND ([j].[CompositeId3] = [e].[Key3])
     LEFT JOIN (
-        SELECT [t].[ThreeId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
+        SELECT [t].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[ThreeId], [t].[Id0], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
         FROM (
-            SELECT [j0].[ThreeId], [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
+            SELECT [j0].[Id], [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3], [j0].[ThreeId], [e0].[Id] AS [Id0], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
             FROM [JoinThreeToCompositeKeyFull] AS [j0]
             INNER JOIN [EntityThrees] AS [e0] ON [j0].[ThreeId] = [e0].[Id]
         ) AS [t]
         WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
     ) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
 ) AS [t1] ON [r].[Id] = [t1].[RootId]
-ORDER BY [r].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30], [t1].[Id], [t1].[ThreeId]");
+ORDER BY [r].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30], [t1].[Id0], [t1].[Id]");
         }
 
         public override async Task Filtered_include_skip_navigation_where_then_include_skip_navigation(bool async)
@@ -1274,18 +1274,18 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
 FROM [EntityCompositeKeys] AS [e]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3]",
                 //
-                @"SELECT [t0].[ThreeId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Key1], [e].[Key2], [e].[Key3]
+                @"SELECT [t0].[Id], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Key1], [e].[Key2], [e].[Key3]
 FROM [EntityCompositeKeys] AS [e]
 INNER JOIN (
-    SELECT [t].[ThreeId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
+    SELECT [t].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[ThreeId], [t].[Id0], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
     FROM (
-        SELECT [j].[ThreeId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
+        SELECT [j].[Id], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[ThreeId], [e0].[Id] AS [Id0], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
         FROM [JoinThreeToCompositeKeyFull] AS [j]
         INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
     ) AS [t]
     WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
 ) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id]");
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id0]");
         }
 
         public override async Task Filtered_then_include_skip_navigation_where_split(bool async)
@@ -1356,7 +1356,7 @@ INNER JOIN (
 ) AS [t] ON [r].[Id] = [t].[RootId]
 ORDER BY [r].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId], [t].[Key1], [t].[Key2], [t].[Key3]",
                 //
-                @"SELECT [t1].[ThreeId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [r].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId], [t].[Key1], [t].[Key2], [t].[Key3]
+                @"SELECT [t1].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[ThreeId], [t1].[Id0], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [r].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId], [t].[Key1], [t].[Key2], [t].[Key3]
 FROM [Roots] AS [r]
 LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
@@ -1366,15 +1366,15 @@ INNER JOIN (
     INNER JOIN [EntityCompositeKeys] AS [e] ON (([j].[CompositeId1] = [e].[Key1]) AND ([j].[CompositeId2] = [e].[Key2])) AND ([j].[CompositeId3] = [e].[Key3])
 ) AS [t] ON [r].[Id] = [t].[RootId]
 INNER JOIN (
-    SELECT [t0].[ThreeId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
+    SELECT [t0].[Id], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
     FROM (
-        SELECT [j0].[ThreeId], [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
+        SELECT [j0].[Id], [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3], [j0].[ThreeId], [e0].[Id] AS [Id0], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
         FROM [JoinThreeToCompositeKeyFull] AS [j0]
         INNER JOIN [EntityThrees] AS [e0] ON [j0].[ThreeId] = [e0].[Id]
     ) AS [t0]
     WHERE (1 < [t0].[row]) AND ([t0].[row] <= 3)
 ) AS [t1] ON (([t].[Key1] = [t1].[CompositeId1]) AND ([t].[Key2] = [t1].[CompositeId2])) AND ([t].[Key3] = [t1].[CompositeId3])
-ORDER BY [r].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId], [t].[Key1], [t].[Key2], [t].[Key3], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Id]");
+ORDER BY [r].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId], [t].[Key1], [t].[Key2], [t].[Key3], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Id0]");
         }
 
         public override async Task Filtered_include_skip_navigation_where_then_include_skip_navigation_split(bool async)
