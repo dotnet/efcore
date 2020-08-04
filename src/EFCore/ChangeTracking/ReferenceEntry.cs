@@ -50,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private void LocalDetectChanges()
         {
-            if (!Metadata.IsOnDependent)
+            if (!(Metadata is INavigation navigation
+                && navigation.IsOnDependent))
             {
                 var target = GetTargetEntry();
                 if (target != null)

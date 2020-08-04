@@ -141,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 return new PropertyEntry(InternalEntry, propertyName);
             }
 
-            var navigation = InternalEntry.EntityType.FindNavigation(propertyName);
+            var navigation = (INavigationBase)InternalEntry.EntityType.FindNavigation(propertyName)
+                ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
             if (navigation != null)
             {
                 return navigation.IsCollection
@@ -170,7 +171,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
-            var navigation = InternalEntry.EntityType.FindNavigation(propertyName);
+            var navigation = (INavigationBase)InternalEntry.EntityType.FindNavigation(propertyName)
+                ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
+
             if (navigation != null)
             {
                 return navigation.IsCollection

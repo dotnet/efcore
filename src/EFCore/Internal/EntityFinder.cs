@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Load(INavigation navigation, InternalEntityEntry entry)
+        public virtual void Load(INavigationBase navigation, InternalEntityEntry entry)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task LoadAsync(
-            INavigation navigation,
+            INavigationBase navigation,
             InternalEntityEntry entry,
             CancellationToken cancellationToken = default)
         {
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry)
+        public virtual IQueryable<TEntity> Query(INavigationBase navigation, InternalEntityEntry entry)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .Select(BuildProjection(entityType));
         }
 
-        private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
+        private IQueryable<TEntity> Query(INavigationBase navigation, object[] keyValues)
             => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues))).AsTracking();
 
         /// <summary>
@@ -245,14 +245,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IQueryable IEntityFinder.Query(INavigation navigation, InternalEntityEntry entry)
+        IQueryable IEntityFinder.Query(INavigationBase navigation, InternalEntityEntry entry)
             => Query(navigation, entry);
 
-        private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
+        private static object[] GetLoadValues(INavigationBase navigation, InternalEntityEntry entry)
         {
-            var properties = navigation.IsOnDependent
-                ? navigation.ForeignKey.Properties
-                : navigation.ForeignKey.PrincipalKey.Properties;
+            var properties = ((INavigation)navigation).IsOnDependent
+                ? ((INavigation)navigation).ForeignKey.Properties
+                : ((INavigation)navigation).ForeignKey.PrincipalKey.Properties;
 
             var values = new object[properties.Count];
 
@@ -270,10 +270,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return values;
         }
 
-        private static IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
-            => navigation.IsOnDependent
-                ? navigation.ForeignKey.PrincipalKey.Properties
-                : navigation.ForeignKey.Properties;
+        private static IReadOnlyList<IProperty> GetLoadProperties(INavigationBase navigation)
+            => ((INavigation)navigation).IsOnDependent
+                ? ((INavigation)navigation).ForeignKey.PrincipalKey.Properties
+                : ((INavigation)navigation).ForeignKey.Properties;
 
         private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {
