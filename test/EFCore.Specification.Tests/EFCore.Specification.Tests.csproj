@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="2.0.0" />
+    <PackageReference Include="NetTopologySuite" Version="2.1.0" />
     <PackageReference Include="xunit.assert" Version="$(XUnitVersion)" />
     <PackageReference Include="xunit.core" Version="$(XUnitVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
