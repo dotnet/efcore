@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => foreignKey.AsForeignKey()).Message);
         }
 
-        private class FakeForeignKey : IForeignKey
+        public class FakeForeignKey : IForeignKey
         {
             public object this[string name] => throw new NotImplementedException();
             public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
@@ -32,12 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IReadOnlyList<IProperty> Properties { get; }
             public IEntityType PrincipalEntityType { get; }
             public IKey PrincipalKey { get; }
-            public INavigation DependentToPrincipal { get; }
-            public INavigation PrincipalToDependent { get; }
+            public INavigation DependentToPrincipal { get; set; }
+            public INavigation PrincipalToDependent { get; set; }
             public bool IsUnique { get; }
             public bool IsRequired { get; }
+            public bool IsRequiredDependent { get; }
             public bool IsOwnership { get; }
             public DeleteBehavior DeleteBehavior { get; }
+
         }
 
         [ConditionalFact]
@@ -240,6 +242,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(dependentProp2.IsNullable);
         }
 
+        [ConditionalFact]
+        public void IsRequiredDependent_throws_for_incompatible_uniqueness()
+        {
+            var foreignKey = CreateOneToManyFK();
+            
+            Assert.Equal(
+                CoreStrings.NonUniqueRequiredDependentForeignKey(
+                    "{'Id'}",
+                    nameof(OneToManyDependent)),
+                Assert.Throws<InvalidOperationException>(() => foreignKey.IsRequiredDependent = true).Message);
+        }
+
         private IMutableForeignKey CreateOneToManyFK()
         {
             var model = CreateModel();
@@ -366,9 +380,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(OneToManyDependent),
                     foreignKey2.Properties.Format(),
                     foreignKey1.Properties.Format()),
-                Assert.Throws<InvalidOperationException>(
-                    ()
-                        => foreignKey2.SetDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => foreignKey2.SetDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
+        }
+
+        [ConditionalFact]
+        public void IsUnique_throws_for_incompatible_navigation()
+        {
+            var foreignKey = CreateOneToManyFK();
+            foreignKey.SetPrincipalToDependent(nameof(OneToManyPrincipal.Deception));
+
+            Assert.Equal(
+                CoreStrings.UnableToSetIsUnique(
+                    "True",
+                    nameof(OneToManyPrincipal.Deception),
+                    nameof(OneToManyPrincipal)),
+                Assert.Throws<InvalidOperationException>(() => foreignKey.IsUnique = true).Message);
+        }
+
+        [ConditionalFact]
+        public void IsUnique_throws_for_incompatible_required_dependent()
+        {
+            var foreignKey = CreateOneToManyFK();
+            foreignKey.SetPrincipalToDependent((string)null);
+            foreignKey.IsUnique = true;
+            foreignKey.IsRequiredDependent = true;
+
+            Assert.Equal(
+                CoreStrings.NonUniqueRequiredDependentForeignKey(
+                    "{'Id'}",
+                    nameof(OneToManyDependent)),
+                Assert.Throws<InvalidOperationException>(() => foreignKey.IsUnique = false).Message);
         }
 
         private IMutableForeignKey CreateSelfRefFK(bool useAltKey = false)

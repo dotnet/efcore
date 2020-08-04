@@ -3097,10 +3097,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         var ownershipBuilder = existingNavigation.ForeignKey.Builder;
                         ownershipBuilder = ownershipBuilder
-                            .IsRequired(true, configurationSource)
-                            ?.HasEntityTypes(
+                            .HasEntityTypes(
                                 Metadata, ownershipBuilder.Metadata.FindNavigationsFromInHierarchy(Metadata).Single().TargetEntityType,
                                 configurationSource)
+                            ?.IsRequired(true, configurationSource)
                             ?.HasNavigations(inverse, navigation, configurationSource)
                             ?.IsOwnership(true, configurationSource);
 

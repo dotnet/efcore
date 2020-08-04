@@ -69,30 +69,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var relationshipBuilder = foreignKey.Builder;
-            if (!navigation.IsOnDependent)
+            if (foreignKey.GetPrincipalEndConfigurationSource() != null)
             {
-                var inverse = navigation.Inverse;
-                if (inverse != null)
+                if (navigation.IsOnDependent)
                 {
-                    var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse);
-                    if (attributes.Any())
-                    {
-                        Dependencies.Logger.RequiredAttributeOnBothNavigations(navigation, inverse);
-                        return;
-                    }
+                    foreignKey.Builder.IsRequired(true, fromDataAnnotation: true);
                 }
-
-                if (foreignKey.GetPrincipalEndConfigurationSource() != null)
+                else
                 {
-                    Dependencies.Logger.RequiredAttributeOnDependent(foreignKey.PrincipalToDependent);
-                    return;
+                    foreignKey.Builder.IsRequiredDependent(true, fromDataAnnotation: true);
                 }
-
-                return;
             }
+        }
 
-            relationshipBuilder.IsRequired(true, fromDataAnnotation: true);
+        /// <inheritdoc />
+        public override void ProcessSkipNavigationAdded(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            RequiredAttribute attribute,
+            IConventionContext<IConventionSkipNavigationBuilder> context)
+        {
+            Dependencies.Logger.RequiredAttributeOnSkipNavigation(skipNavigationBuilder.Metadata);
         }
     }
 }

@@ -60,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var navigation = navigationBuilder.Metadata;
             var foreignKey = navigation.ForeignKey;
-            var relationshipBuilder = foreignKey.Builder;
             var modelBuilder = navigationBuilder.ModelBuilder;
 
             if (!IsNonNullable(modelBuilder, navigation)
@@ -69,28 +68,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            if (!navigation.IsOnDependent)
+            if (foreignKey.GetPrincipalEndConfigurationSource() != null)
             {
-                var inverse = navigation.Inverse;
-                if (inverse != null)
+                if (navigation.IsOnDependent)
                 {
-                    if (IsNonNullable(modelBuilder, inverse))
-                    {
-                        Dependencies.Logger.NonNullableReferenceOnBothNavigations(navigation, inverse);
-                        return;
-                    }
+                    foreignKey.Builder.IsRequired(true);
                 }
-
-                if (foreignKey.GetPrincipalEndConfigurationSource() != null)
+                else
                 {
-                    Dependencies.Logger.NonNullableReferenceOnDependent(navigation.ForeignKey.PrincipalToDependent);
-                    return;
+                    foreignKey.Builder.IsRequiredDependent(true);
                 }
-
-                return;
             }
-
-            relationshipBuilder.IsRequired(true);
         }
 
         private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)

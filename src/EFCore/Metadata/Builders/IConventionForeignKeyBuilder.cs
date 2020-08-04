@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Configures whether this is a required relationship (i.e. whether none the foreign key properties can
+        ///     Configures whether this is a required relationship (i.e. whether none of the foreign key properties can
         ///     be assigned <see langword="null" />).
         /// </summary>
         /// <param name="required">
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionForeignKeyBuilder IsRequired(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns a value indicating whether this relationship requiredness can be configured
+        ///     Returns a value indicating whether the relationship requiredness can be configured
         ///     from the current configuration source.
         /// </summary>
         /// <param name="required">
@@ -323,6 +323,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the relationship requiredness can be configured. </returns>
         bool CanSetIsRequired(bool? required, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures whether the dependent end is required (i.e. whether the principal to dependent navigation can
+        ///     be assigned <see langword="null" />).
+        /// </summary>
+        /// <param name="required">
+        ///     A value indicating whether the dependent end is required.
+        ///     <see langword="null" /> to reset to default.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the dependent end requiredness was configured,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionForeignKeyBuilder IsRequiredDependent(bool? required, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the dependent end requiredness can be configured
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="required">
+        ///     A value indicating whether this is a required relationship.
+        ///     <see langword="null" /> to reset to default.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the relationship requiredness can be configured. </returns>
+        bool CanSetIsRequiredDependent(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures whether this relationship defines an ownership

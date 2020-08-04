@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -156,6 +158,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(metadata.GetIsEagerLoadedConfigurationSource());
         }
 
+        [ConditionalFact]
+        public void Configuring_IsRequired_on_to_dependent_nonUnique_throws()
+        {
+            var builder = CreateInternalNavigationBuilder();
+
+            Assert.Equal(
+                CoreStrings.NonUniqueRequiredDependentNavigation(nameof(Order), nameof(Order.Details)),
+                Assert.Throws<InvalidOperationException>(() => builder.IsRequired(true, ConfigurationSource.Explicit)).Message);
+        }
+
+        [ConditionalFact]
+        public void Can_configure_IsRequired_on_to_principal_nonUnique()
+        {
+            var builder = CreateInternalNavigationBuilder()
+                .Metadata.ForeignKey.Builder.HasNavigation(nameof(OrderDetails.Order), pointsToPrincipal: true, ConfigurationSource.Explicit)
+                .Metadata.DependentToPrincipal.Builder;
+            builder.IsRequired(true, ConfigurationSource.Explicit);
+
+            Assert.True(builder.Metadata.ForeignKey.IsRequired);
+        }
+
+        [ConditionalFact]
+        public void Can_configure_IsRequired_on_to_dependent_unique()
+        {
+            var foreignKey = CreateInternalNavigationBuilder()
+                .Metadata.ForeignKey;
+            foreignKey = foreignKey.Builder.HasNavigations(nameof(OrderDetails.Order), nameof(Order.SingleDetails), ConfigurationSource.Explicit)
+                .Metadata;
+
+            foreignKey.PrincipalToDependent.Builder.IsRequired(true, ConfigurationSource.Explicit);
+
+            Assert.True(foreignKey.IsRequiredDependent);
+        }
+
+        [ConditionalFact]
+        public void Can_configure_IsRequired_on_to_principal_unique()
+        {
+            var foreignKey = CreateInternalNavigationBuilder()
+                .Metadata.ForeignKey;
+            foreignKey = foreignKey.Builder.HasNavigations(nameof(OrderDetails.Order), nameof(Order.SingleDetails), ConfigurationSource.Explicit)
+                .Metadata;
+
+            foreignKey.PrincipalToDependent.Builder.IsRequired(true, ConfigurationSource.Explicit);
+
+            Assert.True(foreignKey.IsRequiredDependent);
+        }
+
         private InternalNavigationBuilder CreateInternalNavigationBuilder()
         {
             var modelBuilder = (InternalModelBuilder)
@@ -163,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             var detailsEntityBuilder = modelBuilder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
             orderEntityBuilder
-                .HasRelationship(detailsEntityBuilder.Metadata, nameof(Order.Details), ConfigurationSource.Convention, targetIsPrincipal: false)
+                .HasRelationship(detailsEntityBuilder.Metadata, nameof(Order.Details), ConfigurationSource.DataAnnotation, targetIsPrincipal: false)
                 .IsUnique(false, ConfigurationSource.Convention);
             var navigation = (Navigation)orderEntityBuilder.Navigation(nameof(Order.Details));
 
@@ -181,12 +230,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             private ICollection<OrderDetails> _details;
             private readonly ICollection<OrderDetails> _otherDetails = new List<OrderDetails>();
+            public OrderDetails SingleDetails { get; set; }
             public ICollection<OrderDetails> Details { get => _details; set => _details = value; }
         }
 
         protected class OrderDetails
         {
             public int Id { get; set; }
+            public Order Order { get; set; }
         }
     }
 }

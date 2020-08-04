@@ -1284,6 +1284,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
+        [Obsolete]
         private static string RequiredAttributeInverted(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
@@ -1319,6 +1320,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
+        [Obsolete]
         private static string NonNullableInverted(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
@@ -1332,6 +1334,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="firstNavigation"> The first navigation property. </param>
         /// <param name="secondNavigation"> The second navigation property. </param>
+        [Obsolete]
         public static void RequiredAttributeOnBothNavigations(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation firstNavigation,
@@ -1361,6 +1364,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
+        [Obsolete]
         private static string RequiredAttributeOnBothNavigations(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
@@ -1380,6 +1384,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="firstNavigation"> The first navigation property. </param>
         /// <param name="secondNavigation"> The second navigation property. </param>
+        [Obsolete]
         public static void NonNullableReferenceOnBothNavigations(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation firstNavigation,
@@ -1409,6 +1414,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
+        [Obsolete]
         private static string NonNullableReferenceOnBothNavigations(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
@@ -1427,6 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation property. </param>
+        [Obsolete]
         public static void RequiredAttributeOnDependent(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation navigation)
@@ -1451,6 +1458,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
+        [Obsolete]
         private static string RequiredAttributeOnDependent(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
@@ -1463,6 +1471,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation property. </param>
+        [Obsolete]
         public static void NonNullableReferenceOnDependent(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation navigation)
@@ -1488,6 +1497,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
+        [Obsolete]
         private static string NonNullableReferenceOnDependent(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
@@ -1526,6 +1536,40 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (NavigationEventData)payload;
+            return d.GenerateMessage(p.Navigation.DeclaringEntityType.DisplayName(), p.Navigation.Name);
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnSkipNavigation" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation property. </param>
+        public static void RequiredAttributeOnSkipNavigation(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] ISkipNavigation navigation)
+        {
+            var definition = CoreResources.LogRequiredAttributeOnSkipNavigation(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, navigation.DeclaringEntityType.DisplayName(), navigation.Name);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new SkipNavigationEventData(
+                    definition,
+                    RequiredAttributeOnSkipNavigation,
+                    navigation);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string RequiredAttributeOnSkipNavigation(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (SkipNavigationEventData)payload;
             return d.GenerateMessage(p.Navigation.DeclaringEntityType.DisplayName(), p.Navigation.Name);
         }
 

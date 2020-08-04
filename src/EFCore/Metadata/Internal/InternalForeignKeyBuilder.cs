@@ -935,6 +935,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
+            if (required == true
+                && Metadata.GetPrincipalEndConfigurationSource() == null
+                && configurationSource == ConfigurationSource.Explicit)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.AmbiguousEndRequired(
+                        Metadata.Properties.Format(),
+                        Metadata.DeclaringEntityType.DisplayName()));
+            }
+
             Metadata.SetIsRequired(required, configurationSource);
 
             return this;
@@ -949,6 +959,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetIsRequired(bool? required, ConfigurationSource? configurationSource)
             => Metadata.IsRequired == required
                 || configurationSource.Overrides(Metadata.GetIsRequiredConfigurationSource());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalForeignKeyBuilder IsRequiredDependent(bool? required, ConfigurationSource configurationSource)
+        {
+            if (!CanSetIsRequiredDependent(required, configurationSource))
+            {
+                return null;
+            }
+
+            if (required == true
+                && Metadata.GetPrincipalEndConfigurationSource() == null
+                && configurationSource == ConfigurationSource.Explicit)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.AmbiguousEndRequiredDependent(
+                        Metadata.Properties.Format(),
+                        Metadata.DeclaringEntityType.DisplayName()));
+            }
+
+            if (required == true
+                && !Metadata.IsUnique)
+            {
+                IsUnique(null, configurationSource);
+            }
+
+            Metadata.SetIsRequiredDependent(required, configurationSource);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetIsRequiredDependent(bool? required, ConfigurationSource? configurationSource)
+            => Metadata.IsRequiredDependent == required
+                || ((required != true
+                    || Metadata.IsUnique
+                    || configurationSource.Value.Overrides(Metadata.GetIsUniqueConfigurationSource()))
+                    && configurationSource.Overrides(Metadata.GetIsRequiredDependentConfigurationSource()));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1220,6 +1277,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
+            if (unique == false
+                && Metadata.IsRequiredDependent)
+            {
+                builder.IsRequiredDependent(null, configurationSource);
+            }
+
             builder.Metadata.SetIsUnique(unique, configurationSource);
 
             return batch.Run(builder);
@@ -1244,6 +1307,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (!configurationSource.HasValue
                 || !configurationSource.Value.Overrides(Metadata.GetIsUniqueConfigurationSource()))
+            {
+                return false;
+            }
+
+            if (unique == false
+                && Metadata.IsRequiredDependent
+                && !configurationSource.Value.Overrides(Metadata.GetIsRequiredDependentConfigurationSource()))
             {
                 return false;
             }
@@ -1465,11 +1535,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 principalEntityType = principalEntityType.LeastDerivedType(Metadata.DeclaringEntityType);
                 dependentEntityType = dependentEntityType.LeastDerivedType(Metadata.PrincipalEntityType);
-
-                if (Metadata.GetIsRequiredConfigurationSource() != ConfigurationSource.Explicit)
-                {
-                    Metadata.SetIsRequiredConfigurationSource(configurationSource: null);
-                }
             }
             else
             {
@@ -2028,6 +2093,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<Property> principalProperties = null,
             bool? isUnique = null,
             bool? isRequired = null,
+            bool? isRequiredDependent = null,
             bool? isOwnership = null,
             DeleteBehavior? deleteBehavior = null,
             bool removeCurrent = false,
@@ -2091,14 +2157,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? Metadata.IsUnique
                 : (bool?)null);
 
-            isRequired ??= ((Metadata.GetIsRequiredConfigurationSource()?.Overrides(configurationSource) ?? false)
-                ? Metadata.IsRequired
-                : (bool?)null);
-
-            isOwnership ??= ((Metadata.GetIsOwnershipConfigurationSource()?.Overrides(configurationSource) ?? false)
-                && !oldRelationshipInverted
-                    ? Metadata.IsOwnership
+            isRequired ??= !oldRelationshipInverted
+                ? ((Metadata.GetIsRequiredConfigurationSource()?.Overrides(configurationSource) ?? false)
+                    ? Metadata.IsRequired
+                    : (bool?)null)
+                : ((Metadata.GetIsRequiredDependentConfigurationSource()?.Overrides(ConfigurationSource.Explicit) ?? false)
+                    ? Metadata.IsRequiredDependent
                     : (bool?)null);
+
+            isRequiredDependent ??= !oldRelationshipInverted
+                ? ((Metadata.GetIsRequiredDependentConfigurationSource()?.Overrides(configurationSource) ?? false)
+                    ? Metadata.IsRequiredDependent
+                    : (bool?)null)
+                : ((Metadata.GetIsRequiredConfigurationSource()?.Overrides(ConfigurationSource.Explicit) ?? false)
+                    ? Metadata.IsRequired
+                    : (bool?)null);
+
+            isOwnership ??= !oldRelationshipInverted
+                && (Metadata.GetIsOwnershipConfigurationSource()?.Overrides(configurationSource) ?? false)
+                    ? Metadata.IsOwnership
+                    : (bool?)null;
 
             deleteBehavior ??= ((Metadata.GetDeleteBehaviorConfigurationSource()?.Overrides(configurationSource) ?? false)
                 ? Metadata.DeleteBehavior
@@ -2123,6 +2201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 principalProperties,
                 isUnique,
                 isRequired,
+                isRequiredDependent,
                 isOwnership,
                 deleteBehavior,
                 removeCurrent,
@@ -2141,6 +2220,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
+            bool? isRequiredDependent,
             bool? isOwnership,
             DeleteBehavior? deleteBehavior,
             bool removeCurrent,
@@ -2433,14 +2513,70 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             isRequiredConfigurationSource)
                         ?? newRelationshipBuilder;
                 }
-                else if (!oldRelationshipInverted
-                    && Metadata.GetIsRequiredConfigurationSource().HasValue
-                    && !newRelationshipBuilder.Metadata.GetIsRequiredConfigurationSource().HasValue)
+                else
                 {
-                    newRelationshipBuilder = newRelationshipBuilder.IsRequired(
-                            Metadata.IsRequired,
-                            Metadata.GetIsRequiredConfigurationSource().Value)
+                    if (!oldRelationshipInverted)
+                    {
+                        if (Metadata.GetIsRequiredConfigurationSource().HasValue
+                            && !newRelationshipBuilder.Metadata.GetIsRequiredConfigurationSource().HasValue)
+                        {
+                            newRelationshipBuilder = newRelationshipBuilder.IsRequired(
+                                    Metadata.IsRequired,
+                                    Metadata.GetIsRequiredConfigurationSource().Value)
+                                ?? newRelationshipBuilder;
+                        }
+                    }
+                    else
+                    {
+                        if (Metadata.GetIsRequiredDependentConfigurationSource().Overrides(ConfigurationSource.Explicit)
+                            && !newRelationshipBuilder.Metadata.GetIsRequiredConfigurationSource().HasValue)
+                        {
+                            newRelationshipBuilder = newRelationshipBuilder.IsRequired(
+                                    Metadata.IsRequiredDependent,
+                                    Metadata.GetIsRequiredDependentConfigurationSource().Value)
+                                ?? newRelationshipBuilder;
+                        }
+                    }
+                }
+
+                if (isRequiredDependent.HasValue)
+                {
+                    var isRequiredDependentConfigurationSource = configurationSource;
+                    if (isRequiredDependent.Value == Metadata.IsRequiredDependent)
+                    {
+                        isRequiredDependentConfigurationSource = isRequiredDependentConfigurationSource.Max(
+                            Metadata.GetIsRequiredDependentConfigurationSource());
+                    }
+
+                    newRelationshipBuilder = newRelationshipBuilder.IsRequiredDependent(
+                            isRequiredDependent.Value,
+                            isRequiredDependentConfigurationSource)
                         ?? newRelationshipBuilder;
+                }
+                else
+                {
+                    if (!oldRelationshipInverted)
+                    {
+                        if (Metadata.GetIsRequiredDependentConfigurationSource().HasValue
+                            && !newRelationshipBuilder.Metadata.GetIsRequiredDependentConfigurationSource().HasValue)
+                        {
+                            newRelationshipBuilder = newRelationshipBuilder.IsRequiredDependent(
+                                    Metadata.IsRequiredDependent,
+                                    Metadata.GetIsRequiredDependentConfigurationSource().Value)
+                                ?? newRelationshipBuilder;
+                        }
+                    }
+                    else
+                    {
+                        if (Metadata.GetIsRequiredConfigurationSource().Overrides(ConfigurationSource.Explicit)
+                            && !newRelationshipBuilder.Metadata.GetIsRequiredDependentConfigurationSource().HasValue)
+                        {
+                            newRelationshipBuilder = newRelationshipBuilder.IsRequiredDependent(
+                                    Metadata.IsRequired,
+                                    Metadata.GetIsRequiredConfigurationSource().Value)
+                                ?? newRelationshipBuilder;
+                        }
+                    }
                 }
 
                 if (deleteBehavior.HasValue)
@@ -2625,6 +2761,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && builder.CanSetField(oldNavigation.FieldInfo, oldFieldInfoConfigurationSource))
             {
                 builder = builder.HasField(oldNavigation.FieldInfo, oldFieldInfoConfigurationSource.Value);
+            }
+
+            var oldIsEagerLoadedConfigurationSource = ((IConventionNavigation)oldNavigation).GetIsEagerLoadedConfigurationSource();
+            if (oldIsEagerLoadedConfigurationSource.HasValue
+                && builder.CanSetAutoInclude(((INavigation)oldNavigation).IsEagerLoaded, oldIsEagerLoadedConfigurationSource.Value))
+            {
+                builder = builder.AutoInclude(((INavigation)oldNavigation).IsEagerLoaded, oldIsEagerLoadedConfigurationSource.Value);
             }
 
             return builder.Metadata.ForeignKey.Builder;
@@ -3846,23 +3989,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ResetDependentProperties = 1 << 3
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         IConventionForeignKey IConventionForeignKeyBuilder.Metadata
         {
             [DebuggerStepThrough] get => Metadata;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasEntityTypes(
             IConventionEntityType principalEntityType, IConventionEntityType dependentEntityType, bool fromDataAnnotation)
@@ -3870,12 +4003,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (EntityType)principalEntityType, (EntityType)dependentEntityType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetEntityTypes(
             IConventionEntityType principalEntityType, IConventionEntityType dependentEntityType, bool fromDataAnnotation)
@@ -3883,24 +4011,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (EntityType)principalEntityType, (EntityType)dependentEntityType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanInvert(IReadOnlyList<IConventionProperty> newForeignKeyProperties, bool fromDataAnnotation)
             => CanInvert(
                 (IReadOnlyList<Property>)newForeignKeyProperties,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasForeignKey(
             [CanBeNull] IReadOnlyList<string> properties, bool fromDataAnnotation)
@@ -3908,12 +4026,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 properties,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasForeignKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
@@ -3921,12 +4034,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetForeignKey(
             [CanBeNull] IReadOnlyList<string> properties, bool fromDataAnnotation)
@@ -3934,24 +4042,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 properties,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetForeignKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetForeignKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasPrincipalKey(
             [CanBeNull] IReadOnlyList<string> properties, bool fromDataAnnotation)
@@ -3959,12 +4057,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 properties,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasPrincipalKey(
             IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
@@ -3972,12 +4065,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetPrincipalKey(
             [CanBeNull] IReadOnlyList<string> properties, bool fromDataAnnotation)
@@ -3985,24 +4073,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 properties,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetPrincipalKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation)
             => CanSetPrincipalKey(
                 properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasNavigation(
             string name, bool pointsToPrincipal, bool fromDataAnnotation)
@@ -4010,12 +4088,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 name, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasNavigation(
             MemberInfo property, bool pointsToPrincipal, bool fromDataAnnotation)
@@ -4023,12 +4096,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasNavigations(
             string navigationToPrincipalName, string navigationToDependentName, bool fromDataAnnotation)
@@ -4036,12 +4104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToPrincipalName, navigationToDependentName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.HasNavigations(
             MemberInfo navigationToPrincipal, MemberInfo navigationToDependent, bool fromDataAnnotation)
@@ -4049,12 +4112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToPrincipal, navigationToDependent,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetNavigation(
             MemberInfo property, bool pointsToPrincipal, bool fromDataAnnotation)
@@ -4062,24 +4120,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetNavigation(string name, bool pointsToPrincipal, bool fromDataAnnotation)
             => CanSetNavigation(
                 name, pointsToPrincipal,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetNavigations(
             MemberInfo navigationToPrincipal, MemberInfo navigationToDependent, bool fromDataAnnotation)
@@ -4087,12 +4135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToPrincipal, navigationToDependent,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetNavigations(
             string navigationToPrincipalName, string navigationToDependentName, bool fromDataAnnotation)
@@ -4100,25 +4143,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToPrincipalName, navigationToDependentName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder IConventionForeignKeyBuilder.IsRequired(bool? required, bool fromDataAnnotation)
             => IsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionForeignKeyBuilder.CanSetIsRequired(bool? required, bool fromDataAnnotation)
             => CanSetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionForeignKeyBuilder IConventionForeignKeyBuilder.IsRequiredDependent(bool? required, bool fromDataAnnotation)
+            => IsRequiredDependent(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        bool IConventionForeignKeyBuilder.CanSetIsRequiredDependent(bool? required, bool fromDataAnnotation)
+            => CanSetIsRequiredDependent(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

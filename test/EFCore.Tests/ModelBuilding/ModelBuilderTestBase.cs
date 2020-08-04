@@ -351,6 +351,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public abstract TestNavigationBuilder HasAnnotation(string annotation, object value);
             public abstract TestNavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+            public abstract TestNavigationBuilder HasField(string fieldName);
+            public abstract TestNavigationBuilder AutoInclude(bool autoInclude = true);
+            public abstract TestNavigationBuilder IsRequired(bool required = true);
         }
 
         public abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>

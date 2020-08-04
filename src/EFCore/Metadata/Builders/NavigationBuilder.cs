@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -35,12 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             InternalSkipNavigationBuilder = (navigationOrSkipNavigation as SkipNavigation)?.Builder;
             Metadata = navigationOrSkipNavigation;
 
-            Check.DebugAssert(InternalNavigationBuilder != null || InternalSkipNavigationBuilder != null, "Expected either a Navigation or SkipNavigation");
+            Check.DebugAssert(InternalNavigationBuilder != null || InternalSkipNavigationBuilder != null,
+                "Expected either a Navigation or SkipNavigation");
         }
 
-        private InternalNavigationBuilder InternalNavigationBuilder { get; }
+        private InternalNavigationBuilder InternalNavigationBuilder { get; set; }
 
-        private InternalSkipNavigationBuilder InternalSkipNavigationBuilder { get; }
+        private InternalSkipNavigationBuilder InternalSkipNavigationBuilder { get; set; }
 
         /// <summary>
         ///     The navigation being configured.
@@ -136,6 +139,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             else
             {
                 InternalSkipNavigationBuilder.AutoInclude(autoInclude, ConfigurationSource.Explicit);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures whether this navigation is required.
+        /// </summary>
+        /// <param name="required"> A value indicating whether the navigation should be required. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual NavigationBuilder IsRequired(bool required = true)
+        {
+            if (InternalNavigationBuilder != null)
+            {
+                InternalNavigationBuilder = InternalNavigationBuilder.IsRequired(required, ConfigurationSource.Explicit);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.RequiredSkipNavigation(
+                        InternalSkipNavigationBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                        InternalSkipNavigationBuilder.Metadata.Name));
             }
 
             return this;

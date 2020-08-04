@@ -511,6 +511,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return _boolConventionContext.Result;
             }
 
+            public override bool? OnForeignKeyDependentRequirednessChanged(
+                [NotNull] IConventionForeignKeyBuilder relationshipBuilder)
+            {
+                using (_dispatcher.DelayConventions())
+                {
+                    _boolConventionContext.ResetState(relationshipBuilder.Metadata.IsRequiredDependent);
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyDependentRequirednessChangedConventions)
+                    {
+                        if (relationshipBuilder.Metadata.Builder == null)
+                        {
+                            return null;
+                        }
+
+                        foreignKeyConvention.ProcessForeignKeyDependentRequirednessChanged(relationshipBuilder, _boolConventionContext);
+
+                        if (_boolConventionContext.ShouldStopProcessing())
+                        {
+                            return _boolConventionContext.Result;
+                        }
+                    }
+                }
+
+                if (relationshipBuilder.Metadata.Builder == null)
+                {
+                    return null;
+                }
+
+                return _boolConventionContext.Result;
+            }
+
             public override bool? OnForeignKeyOwnershipChanged(
                 IConventionForeignKeyBuilder relationshipBuilder)
             {

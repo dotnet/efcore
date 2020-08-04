@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -1392,6 +1391,108 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 Assert.NotNull(relationshipBuilder.Metadata.Builder);
 
                 Calls.Add(relationshipBuilder.Metadata.IsRequired);
+
+                if (_terminate)
+                {
+                    context.StopProcessing();
+                }
+            }
+        }
+
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        [ConditionalTheory]
+        public void OnForeignKeyDependentRequirednessChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+        {
+            var conventions = new ConventionSet();
+
+            var convention1 = new ForeignKeyDependentRequirednessChangedConvention(terminate: false);
+            var convention2 = new ForeignKeyDependentRequirednessChangedConvention(terminate: true);
+            var convention3 = new ForeignKeyDependentRequirednessChangedConvention(terminate: false);
+            conventions.ForeignKeyDependentRequirednessChangedConventions.Add(convention1);
+            conventions.ForeignKeyDependentRequirednessChangedConventions.Add(convention2);
+            conventions.ForeignKeyDependentRequirednessChangedConventions.Add(convention3);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+            var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
+            var foreignKey = dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention)
+                .IsUnique(true, ConfigurationSource.Convention)
+                .HasEntityTypes(principalEntityBuilder.Metadata, dependentEntityBuilder.Metadata, ConfigurationSource.Convention)
+                .Metadata;
+
+            var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+            if (useBuilder)
+            {
+                foreignKey.Builder.IsRequiredDependent(true, ConfigurationSource.Convention);
+            }
+            else
+            {
+                foreignKey.IsRequiredDependent = true;
+            }
+
+            if (useScope)
+            {
+                Assert.Empty(convention1.Calls);
+                Assert.Empty(convention2.Calls);
+                scope.Dispose();
+            }
+
+            Assert.Equal(new[] { true }, convention1.Calls);
+            Assert.Equal(new[] { true }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                foreignKey.Builder.IsRequiredDependent(true, ConfigurationSource.Convention);
+            }
+            else
+            {
+                foreignKey.IsRequiredDependent = true;
+            }
+
+            Assert.Equal(new[] { true }, convention1.Calls);
+            Assert.Equal(new[] { true }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                foreignKey.Builder.IsRequiredDependent(false, ConfigurationSource.Convention);
+            }
+            else
+            {
+                foreignKey.IsRequiredDependent = false;
+            }
+
+            Assert.Equal(new[] { true, false }, convention1.Calls);
+            Assert.Equal(new[] { true, false }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            Assert.Same(
+                foreignKey,
+                dependentEntityBuilder.Metadata.RemoveForeignKey(
+                    foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+        }
+
+        private class ForeignKeyDependentRequirednessChangedConvention : IForeignKeyDependentRequirednessChangedConvention
+        {
+            private readonly bool _terminate;
+            public readonly List<bool> Calls = new List<bool>();
+
+            public ForeignKeyDependentRequirednessChangedConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public void ProcessForeignKeyDependentRequirednessChanged(
+                IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
+            {
+                Assert.NotNull(relationshipBuilder.Metadata.Builder);
+
+                Calls.Add(relationshipBuilder.Metadata.IsRequiredDependent);
 
                 if (_terminate)
                 {

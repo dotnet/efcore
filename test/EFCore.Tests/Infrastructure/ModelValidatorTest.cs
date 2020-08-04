@@ -315,9 +315,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<A>();
             modelBuilder.Entity<B>();
             modelBuilder.Entity<C>().HasBaseType((string)null);
-            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
-            modelBuilder.Entity<A>().HasOne<C>().WithOne().IsRequired().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
-            modelBuilder.Entity<C>().HasOne<B>().WithOne().IsRequired().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id);
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+            modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
+            modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
 
             VerifyError(
                 CoreStrings.IdentifyingRelationshipCycle(nameof(A)),

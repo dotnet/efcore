@@ -86,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ShadowPropertyCreated = CoreBaseId + 600,
             RedundantIndexRemoved,
             IncompatibleMatchingForeignKeyProperties,
-            RequiredAttributeOnDependent,
-            RequiredAttributeOnBothNavigations,
+            RequiredAttributeOnDependent, // Unused
+            RequiredAttributeOnBothNavigations, // Unused
             ConflictingShadowForeignKeysWarning,
             MultiplePrimaryKeyCandidates,
             MultipleNavigationProperties,
@@ -99,13 +99,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
             RedundantForeignKeyWarning,
             NonNullableInverted, // Unused
-            NonNullableReferenceOnBothNavigations,
-            NonNullableReferenceOnDependent,
+            NonNullableReferenceOnBothNavigations, // Unused
+            NonNullableReferenceOnDependent, // Unused
             RequiredAttributeInverted, // Unused
             RequiredAttributeOnCollection,
             CollectionWithoutComparer,
             ConflictingKeylessAndKeyAttributesWarning,
             PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
+            RequiredAttributeOnSkipNavigation,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -435,6 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId RequiredAttributeOnBothNavigations = MakeModelId(Id.RequiredAttributeOnBothNavigations);
 
         /// <summary>
@@ -448,6 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId NonNullableReferenceOnBothNavigations = MakeModelId(Id.NonNullableReferenceOnBothNavigations);
 
         /// <summary>
@@ -461,6 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId RequiredAttributeOnDependent = MakeModelId(Id.RequiredAttributeOnDependent);
 
         /// <summary>
@@ -474,6 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId NonNullableReferenceOnDependent = MakeModelId(Id.NonNullableReferenceOnDependent);
 
         /// <summary>
@@ -488,6 +493,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId RequiredAttributeOnCollection = MakeModelId(Id.RequiredAttributeOnCollection);
+
+        /// <summary>
+        ///     <para>
+        ///         The <see cref="RequiredAttribute" /> on the skip navigation property was ignored.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="SkipNavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RequiredAttributeOnSkipNavigation = MakeModelId(Id.RequiredAttributeOnSkipNavigation);
 
         /// <summary>
         ///     <para>

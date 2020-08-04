@@ -285,6 +285,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return relationshipBuilder.Metadata.IsRequired;
             }
 
+            public override bool? OnForeignKeyDependentRequirednessChanged(
+                IConventionForeignKeyBuilder relationshipBuilder)
+            {
+                Add(new OnForeignKeyDependentRequirednessChangedNode(relationshipBuilder));
+                return relationshipBuilder.Metadata.IsRequiredDependent;
+            }
+
             public override bool? OnForeignKeyOwnershipChanged(
                 IConventionForeignKeyBuilder relationshipBuilder)
             {
@@ -563,6 +570,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnForeignKeyRequirednessChanged(RelationshipBuilder);
+        }
+
+        private sealed class OnForeignKeyDependentRequirednessChangedNode : ConventionNode
+        {
+            public OnForeignKeyDependentRequirednessChangedNode(IConventionForeignKeyBuilder relationshipBuilder)
+            {
+                RelationshipBuilder = relationshipBuilder;
+            }
+
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnForeignKeyDependentRequirednessChanged(RelationshipBuilder);
         }
 
         private sealed class OnForeignKeyOwnershipChangedNode : ConventionNode

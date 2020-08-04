@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var navigation = new FakeNavigation();
 
-            var fk = new FakeForeignKey() { PrincipalToDependent = navigation };
+            var fk = new ForeignKeyTest.FakeForeignKey() { PrincipalToDependent = navigation };
             navigation.ForeignKey = fk;
             navigation.PropertyInfo = MyEntity.AsICollectionProperty;
 
@@ -59,23 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public object Create() => throw new NotImplementedException();
             public object GetOrCreate(object entity, bool forMaterialization) => throw new NotImplementedException();
             public Type CollectionType { get; }
-        }
-
-        private class FakeForeignKey : IForeignKey
-        {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
-            public IEntityType DeclaringEntityType { get; }
-            public IReadOnlyList<IProperty> Properties { get; }
-            public IEntityType PrincipalEntityType { get; }
-            public IKey PrincipalKey { get; }
-            public INavigation DependentToPrincipal { get; set; }
-            public INavigation PrincipalToDependent { get; set; }
-            public bool IsUnique { get; }
-            public bool IsRequired { get; }
-            public bool IsOwnership { get; }
-            public DeleteBehavior DeleteBehavior { get; }
         }
 
         [ConditionalFact]

@@ -1634,7 +1634,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Principal_and_dependent_can_be_flipped_twice_separately()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
                 modelBuilder.Entity<Order>();
                 modelBuilder.Entity<OrderDetails>()
                     .HasOne(e => e.Order).WithOne(e => e.Details)
@@ -1647,8 +1646,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasForeignKey<OrderDetails>(e => e.OrderId);
 
                 modelBuilder
+                    .Entity<OrderDetails>().Navigation(e => e.Order).IsRequired();
+                modelBuilder
+                    .Entity<Order>().Navigation(e => e.Details).IsRequired();
+
+                modelBuilder
                     .Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details)
                     .HasPrincipalKey<OrderDetails>(e => e.OrderId);
+
+                var model = modelBuilder.FinalizeModel();
 
                 var dependentType = model.FindEntityType(typeof(Order));
                 var principalType = model.FindEntityType(typeof(OrderDetails));
@@ -1662,6 +1668,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(fk.PrincipalKey, principalType.GetKeys().First(k => !k.IsPrimaryKey()));
                 Assert.Empty(dependentType.GetIndexes());
                 Assert.Empty(principalType.GetIndexes());
+                Assert.True(fk.IsUnique);
+                Assert.True(fk.IsRequired);
+                Assert.True(fk.IsRequiredDependent);
             }
 
             [ConditionalFact]
@@ -3230,15 +3239,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Nob>()
-                    .Ignore(e => e.Hobs);
+                    .Ignore(e => e.Hobs)
+                    .Property(e => e.HobId1).IsRequired(false);
+
+                modelBuilder
+                    .Entity<Nob>()
+                    .Property(e => e.HobId2).IsRequired(false);
 
                 modelBuilder
                     .Entity<Hob>()
                     .Ignore(e => e.Nobs)
                     .HasOne(e => e.Nob).WithOne(e => e.Hob)
-                    .IsRequired()
                     .HasForeignKey<Nob>(
-                        e => new { e.HobId1, e.HobId2 });
+                        e => new { e.HobId1, e.HobId2 })
+                    .IsRequired();
 
                 modelBuilder.FinalizeModel();
 
@@ -3376,9 +3390,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
-                    .IsRequired()
                     .HasPrincipalKey<Nob>(
-                        e => new { e.Id1, e.Id2 });
+                        e => new { e.Id1, e.Id2 })
+                    .IsRequired();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.True(fk.IsRequired);
@@ -3387,6 +3401,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
                 expectedDependentProperties.AddRange(fk.Properties);
                 AssertEqual(expectedDependentProperties, dependentType.GetProperties());
+            }
+
+            [ConditionalFact]
+            public virtual void Throws_if_ambiguous_FK_made_required()
+            {
+                var modelBuilder = HobNobBuilder();
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousEndRequired("{'NobId11', 'NobId21'}", typeof(Hob).Name),
+                    Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder
+                        .Entity<Hob>()
+                        .HasOne(e => e.Nob).WithOne(e => e.Hob)
+                        .IsRequired()).Message);
             }
 
             [ConditionalFact]
@@ -3722,7 +3750,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     b => b.Ignore(e => e.OneToOnePrincipalEntityId));
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity)
-                    .WithOne(e => e.NavOneToOnePrincipalEntity).IsRequired();
+                    .WithOne(e => e.NavOneToOnePrincipalEntity);
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>(
                     b =>
