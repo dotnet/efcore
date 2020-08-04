@@ -637,6 +637,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
+        protected override Expression VisitDistinctSql(DistinctSqlExpression distinctSqlExpression)
+        {
+            Check.NotNull(distinctSqlExpression, nameof(distinctSqlExpression));
+
+            _relationalCommandBuilder.Append("DISTINCT (");
+            Visit(distinctSqlExpression.Operand);
+            _relationalCommandBuilder.Append(")");
+
+            return distinctSqlExpression;
+        }
+
+        /// <inheritdoc />
         protected override Expression VisitCase(CaseExpression caseExpression)
         {
             Check.NotNull(caseExpression, nameof(caseExpression));

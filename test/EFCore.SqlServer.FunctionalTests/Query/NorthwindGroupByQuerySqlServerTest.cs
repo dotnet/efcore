@@ -1843,6 +1843,38 @@ FROM (
 ) AS [t]");
         }
 
+        public override async Task GroupBy_Select_Distinct_aggregate(bool async)
+        {
+            await base.GroupBy_Select_Distinct_aggregate(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], AVG(DISTINCT (CAST([o].[OrderID] AS float))) AS [Average], COUNT(DISTINCT ([o].[EmployeeID])) AS [Count], COUNT_BIG(DISTINCT ([o].[EmployeeID])) AS [LongCount], MAX(DISTINCT ([o].[OrderDate])) AS [Max], MIN(DISTINCT ([o].[OrderDate])) AS [Min], COALESCE(SUM(DISTINCT ([o].[OrderID])), 0) AS [Sum]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_group_Distinct_Select_Distinct_aggregate(bool async)
+        {
+            await base.GroupBy_group_Distinct_Select_Distinct_aggregate(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], MAX(DISTINCT ([o].[OrderDate])) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_group_Where_Select_Distinct_aggregate(bool async)
+        {
+            await base.GroupBy_group_Where_Select_Distinct_aggregate(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], MAX(DISTINCT (CASE
+    WHEN [o].[OrderDate] IS NOT NULL THEN [o].[OrderDate]
+END)) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
         public override async Task MinMax_after_GroupBy_aggregate(bool async)
         {
             await base.MinMax_after_GroupBy_aggregate(async);
