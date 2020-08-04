@@ -4155,6 +4155,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.Max_on_empty_sequence_throws(async);
         }
 
+        [ConditionalTheory(Skip = "string.IndexOf Issue#17246")]
+        public override Task Distinct_followed_by_ordering_on_condition(bool async)
+        {
+            return base.Distinct_followed_by_ordering_on_condition(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
