@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             // ReSharper disable once InconsistentlySynchronizedField
             if (_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TResult> compiledQuery))
             {
+                EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
                 return compiledQuery;
             }
 
@@ -66,8 +68,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 lock (compilationLock)
                 {
-                    if (!_memoryCache.TryGetValue(cacheKey, out compiledQuery))
+                    if (_memoryCache.TryGetValue(cacheKey, out compiledQuery))
                     {
+                        EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
+                    }
+                    else
+                    {
+                        EntityFrameworkEventSource.Log.CompiledQueryCacheMiss();
+
                         compiledQuery = compiler();
                         _memoryCache.Set(cacheKey, compiledQuery, new MemoryCacheEntryOptions { Size = 10 });
                     }

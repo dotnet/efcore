@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -182,6 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool InitializeReader(DbContext _, bool result)
             {
+                EntityFrameworkEventSource.Log.QueryExecuting();
+
                 var relationalCommand = _relationalCommandCache.GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
                 _dataReader
@@ -286,6 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private async Task<bool> InitializeReaderAsync(DbContext _, bool result, CancellationToken cancellationToken)
             {
+                EntityFrameworkEventSource.Log.QueryExecuting();
+
                 var relationalCommand = _relationalCommandCache.GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
                 _dataReader

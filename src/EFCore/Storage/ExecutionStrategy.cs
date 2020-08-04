@@ -176,6 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 catch (Exception ex)
                 {
                     Suspended = false;
+
+                    EntityFrameworkEventSource.Log.ExecutionStrategyOperationFailure();
+
                     if (verifySucceeded != null
                         && CallOnWrappedException(ex, ShouldVerifySuccessOn))
                     {
