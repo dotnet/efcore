@@ -939,10 +939,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && Metadata.GetPrincipalEndConfigurationSource() == null
                 && configurationSource == ConfigurationSource.Explicit)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.AmbiguousEndRequired(
-                        Metadata.Properties.Format(),
-                        Metadata.DeclaringEntityType.DisplayName()));
+                Metadata.DeclaringEntityType.Model.ModelDependencies?.Logger.AmbiguousEndRequiredWarning(Metadata);
             }
 
             Metadata.SetIsRequired(required, configurationSource);
@@ -2100,6 +2097,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? principalEndConfigurationSource = null,
             bool oldRelationshipInverted = false)
         {
+            if (oldRelationshipInverted
+                && Metadata.IsRequired
+                && Metadata.GetIsRequiredConfigurationSource() == ConfigurationSource.Explicit
+                && Metadata.GetPrincipalEndConfigurationSource() == null)
+            {
+                throw new InvalidOperationException(CoreStrings.AmbiguousEndRequiredInverted(
+                    Metadata.Properties.Format(),
+                    Metadata.DeclaringEntityType.DisplayName(),
+                    Metadata.PrincipalEntityType.DisplayName()));
+            }
+
             principalEntityTypeBuilder ??= (oldRelationshipInverted
                 ? Metadata.DeclaringEntityType.Builder
                 : Metadata.PrincipalEntityType.Builder);

@@ -18,5 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         protected override ConventionSet GetConventionSet() => SqlServerConventionSetBuilder.Build();
+        protected override ModelBuilder GetModelBuilder() => SqlServerConventionSetBuilder.CreateModelBuilder();
     }
 }

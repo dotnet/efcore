@@ -275,10 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
                 .With(CreateLogger());
 
-        private InternalModelBuilder CreateInternalModeBuilder()
-        {
-            return new InternalModelBuilder(new Model(new ConventionSet()));
-        }
+        private InternalModelBuilder CreateInternalModeBuilder() => new Model().Builder;
 
         private class ManyToManyFirst
         {

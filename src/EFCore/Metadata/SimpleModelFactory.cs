@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -23,6 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates an empty model with no conventions. All aspects of the model must be exhaustively configured.
         /// </summary>
         /// <returns> The newly created model. </returns>
-        public virtual IMutableModel Create() => new Model(new ConventionSet());
+        public virtual IMutableModel Create() => new Model();
     }
 }

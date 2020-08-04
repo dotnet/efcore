@@ -1231,6 +1231,45 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.AmbiguousEndRequiredWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="foreignKey"> The foreign key. </param>
+        public static void AmbiguousEndRequiredWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] IForeignKey foreignKey)
+        {
+            var definition = CoreResources.LogAmbiguousEndRequired(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(
+                    diagnostics,
+                    foreignKey.Properties.Format(),
+                    foreignKey.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new ForeignKeyEventData(
+                    definition,
+                    AmbiguousEndRequiredWarning,
+                    foreignKey);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string AmbiguousEndRequiredWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ForeignKeyEventData)payload;
+            return d.GenerateMessage(
+                p.ForeignKey.Properties.Format(),
+                p.ForeignKey.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.RequiredAttributeInverted" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

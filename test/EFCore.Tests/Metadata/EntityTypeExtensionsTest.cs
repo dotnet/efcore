@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Setting_discriminator_on_non_root_type_throws()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Setting_discriminator_from_different_entity_type_throws()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_discriminator_value()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Setting_discriminator_value_when_discriminator_not_set_throws()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Setting_incompatible_discriminator_value_throws()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()

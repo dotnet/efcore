@@ -9,10 +9,11 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -189,11 +190,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected override ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
         {
             var conventionSet = new ConventionSet();
+            var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
 
-            var dependencies = CreateDependencies(sensitiveDataLoggingEnabled);
+            // Use public API to add conventions, issue #214
+            var dependencies = serviceProvider.GetService<ProviderConventionSetBuilderDependencies>();
             conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
 
-            return new ModelBuilder(conventionSet);
+            return new ModelBuilder(conventionSet, serviceProvider.GetService<ModelDependencies>());
         }
 
         protected virtual Action<IModel> CreatePropertyMappingValidator()

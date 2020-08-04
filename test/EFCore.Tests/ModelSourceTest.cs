@@ -25,8 +25,10 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ModelSourceTest
     {
-        private readonly IConventionSetBuilder _nullConventionSetBuilder
-            = new NullConventionSetBuilder();
+        private readonly IConventionSetBuilder _nullConventionSetBuilder =
+            new NullConventionSetBuilder();
+        private readonly ModelDependencies _testModelDependencies =
+            new ModelDependencies(new TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions>());
 
         [ConditionalFact]
         public void OnModelCreating_is_only_called_once()
@@ -73,15 +75,17 @@ namespace Microsoft.EntityFrameworkCore
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
             var setFinder = new FakeSetFinder();
+            var context = InMemoryTestHelpers.Instance.CreateContext();
+            var serviceProvider = context.GetInfrastructure();
 
             var model = CreateDefaultModelSource(setFinder)
                 .GetModel(
-                    InMemoryTestHelpers.Instance.CreateContext(),
+                    context,
                     new RuntimeConventionSetBuilder(
                         new ProviderConventionSetBuilder(
-                            InMemoryTestHelpers.Instance.CreateContextServices()
-                                .GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                                .With(setFinder)), new List<IConventionSetPlugin>()));
+                            serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                                .With(setFinder)), new List<IConventionSetPlugin>()),
+                    serviceProvider.GetRequiredService<ModelDependencies>());
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -129,12 +133,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder);
-            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder);
+            var model1 = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _testModelDependencies);
+            var model2 = modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _testModelDependencies);
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _testModelDependencies));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), _nullConventionSetBuilder, _testModelDependencies));
         }
 
         [ConditionalFact]
@@ -142,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder);
+            var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _testModelDependencies);
             var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                 .Single(m => m.Key == "PackageVersion").Value;
 
@@ -163,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder)
+        private static IModelSource CreateDefaultModelSource(IDbSetFinder setFinder)
             => new ConcreteModelSource(setFinder);
 
         private class ConcreteModelSource : ModelSource

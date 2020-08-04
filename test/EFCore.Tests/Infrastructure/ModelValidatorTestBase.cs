@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -317,17 +318,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
         {
             var conventionSet = new ConventionSet();
+            var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
 
-            var dependencies = CreateDependencies(sensitiveDataLoggingEnabled);
+            // Use public API to add conventions, issue #214
+            var dependencies = serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>();
             conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
             conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(dependencies));
 
-            return new ModelBuilder(conventionSet);
+            return new ModelBuilder(conventionSet, serviceProvider.GetRequiredService<ModelDependencies>());
         }
 
+        protected IServiceProvider CreateServiceProvider(bool sensitiveDataLoggingEnabled = false)
+            => TestHelpers.CreateContextServices(
+                new ServiceCollection()
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => CreateModelLogger(sensitiveDataLoggingEnabled))
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(_ => CreateValidationLogger(sensitiveDataLoggingEnabled)));
+
         protected ProviderConventionSetBuilderDependencies CreateDependencies(bool sensitiveDataLoggingEnabled = false)
-            => TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                .With(CreateValidationLogger(sensitiveDataLoggingEnabled));
+            => CreateServiceProvider(sensitiveDataLoggingEnabled).GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         protected virtual TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
 

@@ -2789,12 +2789,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
-        ///     The foreign key {foreignKey} on entity type '{entityType}' cannot be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        ///     The foreign key {foreignKey} on entity type '{entityType}' cannot be flipped to entity type '{principalEntityType}' since it was configured as required before the dependent side was configured. Configure the foreign key property or the principal key before configuring the foreign key as required. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
         /// </summary>
-        public static string AmbiguousEndRequired([CanBeNull] object foreignKey, [CanBeNull] object entityType)
+        public static string AmbiguousEndRequiredInverted([CanBeNull] object foreignKey, [CanBeNull] object entityType, [CanBeNull] object principalEntityType)
             => string.Format(
-                GetString("AmbiguousEndRequired", nameof(foreignKey), nameof(entityType)),
-                foreignKey, entityType);
+                GetString("AmbiguousEndRequiredInverted", nameof(foreignKey), nameof(entityType), nameof(principalEntityType)),
+                foreignKey, entityType, principalEntityType);
 
         /// <summary>
         ///     The foreign key {foreignKey} on entity type '{entityType}' cannot be configured as having a required dependent since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
@@ -4487,6 +4487,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.RequiredAttributeOnSkipNavigation,
                             _resourceManager.GetString("LogRequiredAttributeOnSkipNavigation"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The foreign key {foreignKey} on entity type '{entityType}' should not be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property or the principal key before configuring the foreign key as required. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        /// </summary>
+        public static EventDefinition<string, string> LogAmbiguousEndRequired([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogAmbiguousEndRequired;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogAmbiguousEndRequired,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.AmbiguousEndRequiredWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.AmbiguousEndRequiredWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.AmbiguousEndRequiredWarning,
+                            _resourceManager.GetString("LogAmbiguousEndRequired"))));
             }
 
             return (EventDefinition<string, string>)definition;

@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(databaseModel, nameof(databaseModel));
             Check.NotNull(options, nameof(options));
 
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             _tableNamer = new CSharpUniqueNamer<DatabaseTable>(
                 options.UseDatabaseNames

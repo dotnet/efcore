@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -26,70 +23,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class DbContextServices : IDbContextServices
+    public sealed class ModelCreationDependencies : IModelCreationDependencies
     {
-        private IServiceProvider _scopedProvider;
-        private IDbContextOptions _contextOptions;
-        private ICurrentDbContext _currentContext;
-        private IModel _modelFromSource;
-        private bool _inOnModelCreating;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDbContextServices Initialize(
-            IServiceProvider scopedProvider,
-            IDbContextOptions contextOptions,
-            DbContext context)
+        public ModelCreationDependencies(
+            [NotNull] IModelSource modelSource,
+            [NotNull] IConventionSetBuilder conventionSetBuilder,
+            [NotNull] ModelDependencies modelDependencies)
         {
-            _scopedProvider = scopedProvider;
-            _contextOptions = contextOptions;
-            _currentContext = new CurrentDbContext(context);
+            Check.NotNull(modelSource, nameof(modelSource));
+            Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
+            Check.NotNull(modelDependencies, nameof(modelDependencies));
 
-            var providers = _scopedProvider.GetService<IEnumerable<IDatabaseProvider>>()?.ToList();
-            var providerCount = providers?.Count ?? 0;
-
-            if (providerCount > 1)
-            {
-                throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(providers)));
-            }
-
-            if (providerCount == 0
-                || !providers[0].IsConfigured(contextOptions))
-            {
-                throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
-            }
-
-            return this;
-        }
-
-        private static string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)
-            => string.Join(", ", available.Select(e => "'" + e.Name + "'"));
-
-        private IModel CreateModel()
-        {
-            if (_inOnModelCreating)
-            {
-                throw new InvalidOperationException(CoreStrings.RecursiveOnModelCreating);
-            }
-
-            try
-            {
-                _inOnModelCreating = true;
-
-                var dependencies = _scopedProvider.GetService<IModelCreationDependencies>();
-                return dependencies.ModelSource.GetModel(
-                    _currentContext.Context,
-                    dependencies.ConventionSetBuilder,
-                    dependencies.ModelDependencies);
-            }
-            finally
-            {
-                _inOnModelCreating = false;
-            }
+            ModelSource = modelSource;
+            ConventionSetBuilder = conventionSetBuilder;
+            ModelDependencies = modelDependencies;
         }
 
         /// <summary>
@@ -98,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ICurrentDbContext CurrentContext => _currentContext;
+        public IModelSource ModelSource { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,12 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Model
-            => CoreOptions?.Model
-                ?? (_modelFromSource ??= CreateModel());
-
-        private CoreOptionsExtension CoreOptions
-            => _contextOptions?.FindExtension<CoreOptionsExtension>();
+        public IConventionSetBuilder ConventionSetBuilder { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,14 +67,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDbContextOptions ContextOptions => _contextOptions;
+        public ModelDependencies ModelDependencies { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        public virtual IServiceProvider InternalServiceProvider => _scopedProvider;
+        /// <param name="modelSource"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelCreationDependencies With([NotNull] IModelSource modelSource)
+            => new ModelCreationDependencies(modelSource, ConventionSetBuilder, ModelDependencies);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="conventionSetBuilder"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelCreationDependencies With([NotNull] IConventionSetBuilder conventionSetBuilder)
+            => new ModelCreationDependencies(ModelSource, conventionSetBuilder, ModelDependencies);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="modelDependencies"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelCreationDependencies With([NotNull] ModelDependencies modelDependencies)
+            => new ModelCreationDependencies(ModelSource, ConventionSetBuilder, modelDependencies);
     }
 }

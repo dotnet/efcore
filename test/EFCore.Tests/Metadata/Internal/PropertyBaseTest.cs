@@ -777,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return navigation;
         }
 
-        private static ModelBuilder CreateModelBuilder() => new ModelBuilder(InMemoryConventionSetBuilder.Build());
+        private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         private void MemberInfoTest(
             IMutableProperty property, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)

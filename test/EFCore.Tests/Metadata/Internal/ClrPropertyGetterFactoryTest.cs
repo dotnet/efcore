@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -42,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_IProperty_property()
         {
-            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            var modelBuilder = CreateModelBuilder();
             var idProperty = modelBuilder.Entity<Customer>().Property(e => e.Id).Metadata;
             modelBuilder.FinalizeModel();
 
@@ -62,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_IProperty_struct_property()
         {
-            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Customer>().Property(e => e.Id);
             var fuelProperty = modelBuilder.Entity<Customer>().Property(e => e.Fuel).Metadata;
             modelBuilder.FinalizeModel();
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_index_property()
         {
-            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<IndexedClass>().Property(e => e.Id);
             var propertyA = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyA", typeof(string));
             var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyB", typeof(int));
@@ -94,6 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create(propertyA).GetClrValue(new IndexedClass { Id = 7 }));
             Assert.Equal(123, new ClrPropertyGetterFactory().Create(propertyB).GetClrValue(new IndexedClass { Id = 7 }));
         }
+
+        private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         private class Customer
         {

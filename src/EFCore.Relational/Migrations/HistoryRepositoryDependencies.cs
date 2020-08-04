@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -69,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         /// </summary>
+#pragma warning disable CS0612 // Type or member is obsolete
         [EntityFrameworkInternal]
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,
@@ -79,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IConventionSetBuilder conventionSetBuilder,
+            [NotNull] ModelDependencies modelDependencies,
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
@@ -92,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
+            Check.NotNull(modelDependencies, nameof(modelDependencies));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(modelLogger, nameof(modelLogger));
@@ -105,11 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationsSqlGenerator = migrationsSqlGenerator;
             SqlGenerationHelper = sqlGenerationHelper;
             ConventionSetBuilder = conventionSetBuilder;
+            ModelDependencies = modelDependencies;
             TypeMappingSource = typeMappingSource;
             CurrentContext = currentContext;
-            ModelLogger = modelLogger;
+            ModelLogger = modelDependencies.Logger;
             CommandLogger = commandLogger;
         }
+#pragma warning restore CS0612 // Type or member is obsolete
 
         /// <summary>
         ///     The database creator.
@@ -152,6 +158,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public IConventionSetBuilder ConventionSetBuilder { get; }
 
         /// <summary>
+        ///     The model dependencies.
+        /// </summary>
+        public ModelDependencies ModelDependencies { get; }
+
+        /// <summary>
         ///     The type mapper.
         /// </summary>
         public IRelationalTypeMappingSource TypeMappingSource { get; }
@@ -164,6 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The model logger
         /// </summary>
+        [Obsolete]
         public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; }
 
         /// <summary>
@@ -171,6 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
 
+#pragma warning disable CS0612 // Type or member is obsolete
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
@@ -186,6 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -206,6 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -226,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -246,6 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -266,6 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -286,6 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 migrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -306,6 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 sqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -326,6 +346,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 conventionSetBuilder,
+                ModelDependencies,
+                TypeMappingSource,
+                CurrentContext,
+                ModelLogger,
+                CommandLogger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="modelDependencies"> The core convention set to use when creating the model. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] ModelDependencies modelDependencies)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                Options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                SqlGenerationHelper,
+                ConventionSetBuilder,
+                modelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -346,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 typeMappingSource,
                 CurrentContext,
                 ModelLogger,
@@ -366,6 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 currentContext,
                 ModelLogger,
@@ -376,6 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="modelLogger"> The type mapper. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [Obsolete]
         public HistoryRepositoryDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger)
             => new HistoryRepositoryDependencies(
                 DatabaseCreator,
@@ -386,6 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies.With(modelLogger),
                 TypeMappingSource,
                 CurrentContext,
                 modelLogger,
@@ -406,9 +452,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 ConventionSetBuilder,
+                ModelDependencies,
                 TypeMappingSource,
                 CurrentContext,
                 ModelLogger,
                 commandLogger);
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 }

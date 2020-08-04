@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class ConventionDispatcherTest
     {
+        // Use public API to add conventions, issue #214
+
         [InlineData(false)]
         [InlineData(true)]
         [ConditionalTheory]
@@ -3130,14 +3132,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventions.PropertyNullabilityChangedConventions.Add(convention2);
             conventions.PropertyNullabilityChangedConventions.Add(convention3);
 
-            var builder = new ModelBuilder(conventions);
+            var model = new Model(conventions);
 
-            var scope = useScope ? ((Model)builder.Model).ConventionDispatcher.DelayConventions() : null;
+            var scope = useScope ? model.ConventionDispatcher.DelayConventions() : null;
 
-            var propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
+            var propertyBuilder = model.Builder.Entity(typeof(Order), ConfigurationSource.Convention)
+                .Property(typeof(string), "Name", ConfigurationSource.Convention);
             if (useBuilder)
             {
-                propertyBuilder.IsRequired();
+                propertyBuilder.IsRequired(true, ConfigurationSource.Convention);
             }
             else
             {
@@ -3157,10 +3160,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Empty(convention3.Calls);
 
-            propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
             if (useBuilder)
             {
-                propertyBuilder.IsRequired(false);
+                propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
             }
             else
             {
@@ -3180,10 +3182,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Empty(convention3.Calls);
 
-            propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
             if (useBuilder)
             {
-                propertyBuilder.IsRequired(false);
+                propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
             }
             else
             {
@@ -3203,11 +3204,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Empty(convention3.Calls);
 
-            propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
-
             if (useBuilder)
             {
-                propertyBuilder.IsRequired();
+                propertyBuilder.IsRequired(true, ConfigurationSource.Convention);
             }
             else
             {

@@ -108,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ConflictingKeylessAndKeyAttributesWarning,
             PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
             RequiredAttributeOnSkipNavigation,
+            AmbiguousEndRequiredWarning,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -445,6 +446,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId IncompatibleMatchingForeignKeyProperties = MakeModelId(Id.IncompatibleMatchingForeignKeyProperties);
+
+        /// <summary>
+        ///     <para>
+        ///         Foreign key configured as required before the dependent end was determined.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId AmbiguousEndRequiredWarning = MakeModelId(Id.AmbiguousEndRequiredWarning);
 
         /// <summary>
         ///     <para>

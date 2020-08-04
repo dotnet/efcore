@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(((IConventionEntityType)entityType).GetETagPropertyNameConfigurationSource());
         }
 
-        private static ModelBuilder CreateModelBuilder() => new ModelBuilder(new ConventionSet());
+        private static ModelBuilder CreateModelBuilder() => new ModelBuilder();
 
         private class Customer
         {

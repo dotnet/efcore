@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -13,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -143,6 +141,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (skipValidation)
             {
+                // Use public API to remove convention, issue #214
                 ConventionSet.Remove(conventionSet.ModelFinalizedConventions, typeof(ValidatingConvention));
             }
 
@@ -155,7 +154,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public ModelBuilder CreateConventionBuilder(
             DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
             DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
-                => new ModelBuilder(CreateConventionalConventionSet(modelLogger, validationLogger));
+        {
+            var contextServices = CreateContextServices(
+                new ServiceCollection()
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => modelLogger)
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(_ => validationLogger));
+
+            return new ModelBuilder(
+                contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet(),
+                contextServices.GetRequiredService<ModelDependencies>().With(modelLogger));
+        }
 
         public ConventionSet CreateConventionalConventionSet(
             DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,

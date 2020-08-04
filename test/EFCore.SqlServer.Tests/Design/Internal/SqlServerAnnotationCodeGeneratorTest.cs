@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var generator = CreateGenerator();
 
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.Entity(
                 "Post",
                 x =>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IKey_works_when_nonclustered()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.Entity(
                 "Post",
                 x =>
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IIndex_works_when_clustered()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.Entity(
                 "Post",
                 x =>
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IIndex_works_when_nonclustered()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.Entity(
                 "Post",
                 x =>
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IIndex_works_with_fillfactor()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.Entity(
                 "Post",
                 x =>
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IIndex_works_with_includes()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.Entity(
                 "Post",
                 x =>
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IModel_works_with_identity()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.UseIdentityColumns(seed: 5, increment: 10);
 
             var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IProperty_works_with_identity()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.Entity("Post", x => x.Property<int>("Id").UseIdentityColumn(5, 10));
             var property = modelBuilder.Model.FindEntityType("Post").FindProperty("Id");
 
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IModel_works_with_HiLo()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.UseHiLo("HiLoIndexName", "HiLoIndexSchema");
 
             var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void GenerateFluentApi_IProperty_works_with_HiLo()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
             modelBuilder.Entity("Post", x => x.Property<int>("Id").UseHiLo("HiLoIndexName", "HiLoIndexSchema"));
             var property = modelBuilder.Model.FindEntityType("Post").FindProperty("Id");
 

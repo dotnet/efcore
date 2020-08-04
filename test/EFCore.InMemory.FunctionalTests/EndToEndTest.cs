@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         private void Can_add_update_delete_end_to_end<T>()
             where T : class, new()
         {
-            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Entity<T>(
                 eb =>
                 {

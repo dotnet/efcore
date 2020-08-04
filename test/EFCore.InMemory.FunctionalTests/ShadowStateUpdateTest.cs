@@ -4,9 +4,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Can_add_update_delete_end_to_end_using_partial_shadow_state()
         {
-            IMutableModel model = new Model(InMemoryConventionSetBuilder.Build());
+            IMutableModel model = InMemoryTestHelpers.Instance.CreateConventionBuilder().Model;
 
             var customerType = model.AddEntityType(typeof(Customer));
             customerType.AddProperty("Name", typeof(string));

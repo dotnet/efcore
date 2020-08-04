@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -10,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore
     public class F1SqlServerFixture : F1RelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-
-        public override ModelBuilder CreateModelBuilder()
-            => new ModelBuilder(SqlServerConventionSetBuilder.Build());
+        public override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 
         protected override void BuildModelExternal(ModelBuilder modelBuilder)
         {

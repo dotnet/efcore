@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -619,6 +620,12 @@ namespace Microsoft.EntityFrameworkCore
             public IModel GetModel(
                 DbContext context,
                 IConventionSetBuilder conventionSetBuilder)
+                => new Model();
+
+            public IModel GetModel(
+                DbContext context,
+                IConventionSetBuilder conventionSetBuilder,
+                ModelDependencies modelDependencies)
                 => new Model();
         }
 

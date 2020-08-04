@@ -120,13 +120,11 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual ModelBuilder CreateModelBuilder()
         {
-            var conventionSet = CreateConventionSetBuilder(CreateContext()).CreateConventionSet();
-
-            return new ModelBuilder(conventionSet);
+            var context = CreateContext();
+            return new ModelBuilder(
+                context.GetService<IConventionSetBuilder>().CreateConventionSet(),
+                context.GetService<ModelDependencies>());
         }
-
-        protected virtual IConventionSetBuilder CreateConventionSetBuilder(DbContext context)
-            => context.GetService<IConventionSetBuilder>();
 
         protected virtual IModel Validate(ModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel();
