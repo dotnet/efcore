@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -47,14 +46,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected NavigationEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
+        protected NavigationEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigationBase navigation)
             : base(internalEntry, navigation)
         {
         }
 
-        private static INavigation GetNavigation(InternalEntityEntry internalEntry, string name, bool collection)
+        private static INavigationBase GetNavigation(InternalEntityEntry internalEntry, string name, bool collection)
         {
-            var navigation = internalEntry.EntityType.FindNavigation(name);
+            var navigation = (INavigationBase)internalEntry.EntityType.FindNavigation(name)
+                ?? internalEntry.EntityType.FindSkipNavigation(name);
+
             if (navigation == null)
             {
                 if (internalEntry.EntityType.FindProperty(name) != null)
@@ -178,102 +179,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType);
 
         /// <summary>
-        ///     Gets or sets a value indicating whether any of foreign key property values associated
-        ///     with this navigation property have been modified and should be updated in the database
-        ///     when <see cref="DbContext.SaveChanges()" /> is called.
-        /// </summary>
-        public override bool IsModified
-        {
-            get
-            {
-                if (Metadata.IsOnDependent)
-                {
-                    return AnyFkPropertiesModified(InternalEntry);
-                }
-
-                var navigationValue = CurrentValue;
-
-                return navigationValue != null
-                    && (Metadata.IsCollection
-                        ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
-                        : AnyFkPropertiesModified(navigationValue));
-            }
-            set
-            {
-                if (Metadata.IsOnDependent)
-                {
-                    SetFkPropertiesModified(InternalEntry, value);
-                }
-                else
-                {
-                    var navigationValue = CurrentValue;
-                    if (navigationValue != null)
-                    {
-                        if (Metadata.IsCollection)
-                        {
-                            foreach (var relatedEntity in (IEnumerable)navigationValue)
-                            {
-                                SetFkPropertiesModified(relatedEntity, value);
-                            }
-                        }
-                        else
-                        {
-                            SetFkPropertiesModified(navigationValue, value);
-                        }
-                    }
-                }
-            }
-        }
-
-        private bool CollectionContainsNewOrChangedRelationships(object relatedEntity)
-        {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
-
-            return relatedEntry != null
-                && (relatedEntry.EntityState == EntityState.Added
-                    || relatedEntry.EntityState == EntityState.Deleted
-                    || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
-        }
-
-        private bool AnyFkPropertiesModified(object relatedEntity)
-        {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
-
-            return relatedEntry != null
-                && (relatedEntry.EntityState == EntityState.Added
-                || relatedEntry.EntityState == EntityState.Deleted
-                || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
-        }
-
-        private void SetFkPropertiesModified(object relatedEntity, bool modified)
-        {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
-            if (relatedEntry != null)
-            {
-                SetFkPropertiesModified(relatedEntry, modified);
-            }
-        }
-
-        private void SetFkPropertiesModified(InternalEntityEntry internalEntityEntry, bool modified)
-        {
-            var anyNonPk = Metadata.ForeignKey.Properties.Any(p => !p.IsPrimaryKey());
-            foreach (var property in Metadata.ForeignKey.Properties)
-            {
-                if (anyNonPk
-                    && !property.IsPrimaryKey())
-                {
-                    internalEntityEntry.SetPropertyModified(property, isModified: modified, acceptChanges: false);
-                }
-            }
-        }
-
-        private bool AnyFkPropertiesModified(InternalEntityEntry internalEntityEntry)
-            => Metadata.ForeignKey.Properties.Any(internalEntityEntry.IsModified);
-
-        /// <summary>
         ///     Gets the metadata that describes the facets of this property and how it maps to the database.
         /// </summary>
-        public new virtual INavigation Metadata
-            => (INavigation)base.Metadata;
+        public new virtual INavigationBase Metadata
+            => (INavigationBase)base.Metadata;
     }
 }

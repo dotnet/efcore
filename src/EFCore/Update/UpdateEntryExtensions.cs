@@ -145,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             if ((options & ChangeTrackerDebugStringOptions.IncludeNavigations) != 0)
             {
-                foreach (var navigation in entry.EntityType.GetNavigations())
+                foreach (var navigation in entry.EntityType.GetNavigations()
+                    .Concat<INavigationBase>(entry.EntityType.GetSkipNavigations()))
                 {
                     builder.AppendLine().Append(indentString);
 
