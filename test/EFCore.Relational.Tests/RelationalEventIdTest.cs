@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -18,6 +19,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -72,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(TypeInfo), () => typeof(object).GetTypeInfo() },
                 { typeof(Type), () => typeof(object) },
                 { typeof(ValueConverter), () => new BoolToZeroOneConverter<int>() },
-                { typeof(DbContext), () => new FakeDbContext() }
+                { typeof(DbContext), () => new FakeDbContext() },
+                { typeof(SqlExpression), () => new FakeSqlExpression() }
             };
 
             TestEventLogging(
@@ -116,6 +120,16 @@ namespace Microsoft.EntityFrameworkCore
         private class FakeMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder) => throw new NotImplementedException();
+        }
+
+        private class FakeSqlExpression : SqlExpression
+        {
+            public FakeSqlExpression()
+                : base(typeof(object), null)
+            {
+            }
+
+            protected override void Print([NotNull] ExpressionPrinter expressionPrinter) => expressionPrinter.Append("FakeSqlExpression");
         }
 
         private class FakeMigrator : IMigrator

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
@@ -26,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             [NotNull] IModel model,
             [CanBeNull] SqlExpression instance,
             [NotNull] MethodInfo method,
-            [NotNull] IReadOnlyList<SqlExpression> arguments);
+            [NotNull] IReadOnlyList<SqlExpression> arguments,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);
     }
 }

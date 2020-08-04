@@ -1618,27 +1618,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.
+        ///     Possible unintended use of method Equals(object) for arguments '{left}' and '{right}' of different types in query. This comparison will always return 'false'.
         /// </summary>
-        public static EventDefinition<object> LogPossibleUnintendedUseOfEquals([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogPossibleUnintendedUseOfEquals([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogPossibleUnintendedUseOfEquals;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogPossibleUnintendedUseOfEquals,
-                    () => new EventDefinition<object>(
+                    () => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
                         LogLevel.Warning,
                         "RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning",
-                        level => LoggerMessage.Define<object>(
+                        level => LoggerMessage.Define<string, string>(
                             level,
                             RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
                             _resourceManager.GetString("LogPossibleUnintendedUseOfEquals"))));
             }
 
-            return (EventDefinition<object>)definition;
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>

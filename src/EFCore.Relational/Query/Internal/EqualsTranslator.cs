@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -38,10 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
+        public virtual SqlExpression Translate(
+            SqlExpression instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(method, nameof(method));
             Check.NotNull(arguments, nameof(arguments));
+            Check.NotNull(logger, nameof(logger));
 
             SqlExpression left = null;
             SqlExpression right = null;
@@ -64,11 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (left != null
                 && right != null)
             {
-                return left.Type == right.Type
+                if (left.Type == right.Type
                     || (right.Type == typeof(object) && right is SqlParameterExpression)
-                    || (left.Type == typeof(object) && left is SqlParameterExpression)
-                    ? _sqlExpressionFactory.Equal(left, right)
-                    : (SqlExpression)_sqlExpressionFactory.Constant(false);
+                    || (left.Type == typeof(object) && left is SqlParameterExpression))
+                {
+                    return _sqlExpressionFactory.Equal(left, right);
+                }
+
+                logger.QueryPossibleUnintendedUseOfEqualsWarning(left, right);
+
+                return _sqlExpressionFactory.Constant(false);
             }
 
             return null;

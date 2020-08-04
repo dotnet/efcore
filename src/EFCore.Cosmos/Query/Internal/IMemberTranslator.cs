@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        SqlExpression Translate([NotNull] SqlExpression instance, [NotNull] MemberInfo member, [NotNull] Type returnType);
+        SqlExpression Translate([NotNull] SqlExpression instance, [NotNull] MemberInfo member, [NotNull] Type returnType,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);
     }
 }
