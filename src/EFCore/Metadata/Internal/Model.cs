@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Model()
-            : this(new ConventionSet())
+            : this(new ConventionSet(), null)
         {
         }
 
@@ -78,8 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Model([NotNull] ConventionSet conventions)
+        public Model([NotNull] ConventionSet conventions, [CanBeNull] ModelDependencies modelDependencies = null)
         {
+            ModelDependencies = modelDependencies;
             var dispatcher = new ConventionDispatcher(conventions);
             var builder = new InternalModelBuilder(this);
             ConventionDispatcher = dispatcher;
@@ -93,7 +94,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConventionDispatcher ConventionDispatcher { [DebuggerStepThrough] get; private set; }
+        public virtual ConventionDispatcher ConventionDispatcher { get; private set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ModelDependencies ModelDependencies { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -957,6 +966,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IModel MakeReadonly()
         {
             ConventionDispatcher = null;
+            ModelDependencies = null;
             IsValidated = true;
             return this;
         }

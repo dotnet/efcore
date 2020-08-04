@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    // This is used by Relational, but is still internal since it's only for an optimization; no provider needs access.
     public interface IDatabaseFacadeDependencies
     {
         /// <summary>

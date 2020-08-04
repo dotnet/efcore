@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static IEntityType CreateEntityType()
         {
-            var model = new Model(new ConventionSet());
+            var model = new Model();
             var entityType = model.AddEntityType(typeof(object), ConfigurationSource.Convention);
             model.FinalizeModel();
             return entityType;

@@ -1184,7 +1184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 conventions.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
             }
 
-            return new InternalModelBuilder(new Model(conventions));
+            return new Model(conventions).Builder;
         }
 
         private InternalEntityTypeBuilder CreateInternalEntityBuilder<T>(params Action<IConventionEntityTypeBuilder>[] onEntityAdded)

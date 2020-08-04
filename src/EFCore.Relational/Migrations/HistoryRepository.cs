@@ -94,8 +94,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (_model == null)
             {
                 var conventionSet = Dependencies.ConventionSetBuilder.CreateConventionSet();
-                ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
 
+                // Use public API to remove the convention, issue #214
+                ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
                 var modelBuilder = new ModelBuilder(conventionSet);
                 modelBuilder.Entity<HistoryRow>(
                     x =>

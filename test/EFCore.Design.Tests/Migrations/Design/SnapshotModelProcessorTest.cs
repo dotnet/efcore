@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [ConditionalFact]
         public void Updates_provider_annotations_on_model()
         {
-            var builder = new ModelBuilder(new ConventionSet());
+            var builder = new ModelBuilder();
 
             var model = builder.Model;
             ((Model)model).SetProductVersion("1.1.2");
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [ConditionalFact]
         public void Does_not_warn_for_duplicate_non_conflicting_annotations()
         {
-            var model = new ModelBuilder(new ConventionSet()).Model;
+            var model = new ModelBuilder().Model;
             model.SetProductVersion("1.1.2");
             model["Unicorn:DefaultSchema"] = "Value";
             model["Hippo:DefaultSchema"] = "Value";
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [ConditionalFact]
         public void Sets_owned_type_keys()
         {
-            var builder = new ModelBuilder(new ConventionSet());
+            var builder = new ModelBuilder();
 
             var model = builder.Model;
             ((Model)model).SetProductVersion("2.1.0");

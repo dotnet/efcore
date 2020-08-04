@@ -36,10 +36,27 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="conventions"> The conventions to be applied to the model. </param>
         public ModelBuilder([NotNull] ConventionSet conventions)
+            : this(conventions, null, true)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
+        ///     apply a set of conventions.
+        /// </summary>
+        /// <param name="conventions"> The conventions to be applied to the model. </param>
+        /// <param name="modelDependencies"> The dependencies object for the model. </param>
+        public ModelBuilder([NotNull] ConventionSet conventions, [NotNull] ModelDependencies modelDependencies)
+            : this(conventions, modelDependencies, true)
+        {
+            Check.NotNull(modelDependencies, nameof(modelDependencies));
+        }
+
+        private ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies, bool _)
         {
             Check.NotNull(conventions, nameof(conventions));
 
-            _builder = new InternalModelBuilder(new Model(conventions));
+            _builder = new Model(conventions, modelDependencies).Builder;
 
             _builder.Metadata.SetProductVersion(ProductInfo.GetVersion());
         }

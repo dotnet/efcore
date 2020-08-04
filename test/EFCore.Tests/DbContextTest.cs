@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Set_throws_for_weak_types()
         {
-            var model = new Model(new ConventionSet());
+            var model = new Model();
             var question = model.AddEntityType(typeof(Question), ConfigurationSource.Explicit);
             model.AddEntityType(typeof(User), nameof(Question.Author), question, ConfigurationSource.Explicit);
 
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Set_throws_for_shared_types()
         {
-            var model = new Model(new ConventionSet());
+            var model = new Model();
             var question = model.AddEntityType("SharedQuestion", typeof(Question), ConfigurationSource.Explicit);
 
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddScoped<IStateManager, FakeStateManager>()
                 .AddScoped<IChangeDetector, FakeChangeDetector>();
 
-            var model = new ModelBuilder(new ConventionSet()).Entity<User>().Metadata.Model;
+            var model = new ModelBuilder().Entity<User>().Metadata.Model;
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
             using var context = new DbContext(

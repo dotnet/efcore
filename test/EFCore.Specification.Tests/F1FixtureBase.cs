@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -33,7 +34,9 @@ namespace Microsoft.EntityFrameworkCore
             return builder.FinalizeModel();
         }
 
-        public abstract ModelBuilder CreateModelBuilder();
+        public abstract TestHelpers TestHelpers { get; }
+
+        public ModelBuilder CreateModelBuilder() => TestHelpers.CreateConventionBuilder();
 
         protected virtual void BuildModelExternal(ModelBuilder modelBuilder)
         {

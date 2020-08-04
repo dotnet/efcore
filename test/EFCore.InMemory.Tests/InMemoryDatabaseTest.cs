@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static IModel CreateModel()
         {
-            var modelBuilder = new ModelBuilder(InMemoryConventionSetBuilder.Build());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<Customer>(
                 b =>

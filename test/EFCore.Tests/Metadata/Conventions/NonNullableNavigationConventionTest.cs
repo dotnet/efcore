@@ -1,12 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -14,7 +17,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -147,31 +149,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
+            var dependencies = CreateDependencies();
+            // Use public API to add conventions, issue #214
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
-                new PropertyDiscoveryConvention(CreateDependencies()));
+                new PropertyDiscoveryConvention(dependencies));
 
-            conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(CreateDependencies()));
+            conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(dependencies));
 
-            var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
+            var modelBuilder = new Model(conventionSet).Builder;
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
         private ModelBuilder CreateModelBuilder()
         {
-            var dependencies = CreateDependencies();
-
-            return new ModelBuilder(
-                new RuntimeConventionSetBuilder(
-                        new ProviderConventionSetBuilder(dependencies),
-                        Enumerable.Empty<IConventionSetPlugin>())
-                    .CreateConventionSet());
+            var serviceProvider = CreateServiceProvider();
+            return new ModelBuilder(serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
+                serviceProvider.GetService<ModelDependencies>());
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
-            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                .With(CreateLogger());
+            => CreateServiceProvider().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
+        protected IServiceProvider CreateServiceProvider()
+            => InMemoryTestHelpers.Instance.CreateContextServices(
+                new ServiceCollection()
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => CreateLogger()));
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {

@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -4525,7 +4524,7 @@ namespace RootNamespace
                 new[] { typeof(ModelBuilder) },
                 null);
 
-            var builder = new ModelBuilder(new ConventionSet());
+            var builder = new ModelBuilder();
             builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
 
             buildModelMethod.Invoke(
@@ -4540,18 +4539,12 @@ namespace RootNamespace
 
         protected ModelBuilder CreateConventionalModelBuilder()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddEntityFrameworkSqlServerNetTopologySuite()
-                .AddDbContext<DbContext>(
-                    (p, o) =>
-                        o.UseSqlServer("Server=.", b => b.UseNetTopologySuite())
-                            .UseInternalServiceProvider(p))
-                .BuildServiceProvider();
+            var serviceProvider = SqlServerTestHelpers.Instance.CreateContextServices(new ServiceCollection()
+                .AddEntityFrameworkSqlServerNetTopologySuite());
 
-            using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
-            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
-            return new ModelBuilder(ConventionSet.CreateConventionSet(context));
+            return new ModelBuilder(
+                serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
+                serviceProvider.GetService<ModelDependencies>());
         }
 
         protected CSharpMigrationsGenerator CreateMigrationsGenerator()
@@ -4564,8 +4557,7 @@ namespace RootNamespace
                         new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
                     }));
 
-            var codeHelper = new CSharpHelper(
-                sqlServerTypeMappingSource);
+            var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 
             var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
                 new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));

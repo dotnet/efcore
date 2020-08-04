@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             conventionSet.EntityTypeAddedConventions.Add(
                 new PropertyDiscoveryConvention(CreateDependencies()));
 
-            var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
+            var modelBuilder = new Model(conventionSet).Builder;
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }

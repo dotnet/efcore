@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static IModel CreateModel()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             modelBuilder.Entity<Test>(
                 b =>

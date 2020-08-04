@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -3408,13 +3410,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = HobNobBuilder();
 
+                var foreignKeyBuilder = modelBuilder
+                    .Entity<Hob>()
+                    .HasOne(e => e.Nob).WithOne(e => e.Hob)
+                    .IsRequired();
+
+                Assert.Contains(modelBuilder.ModelLoggerFactory.Log, l => l.Level == LogLevel.Warning
+                    && l.Message == CoreResources.LogAmbiguousEndRequired(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage("{'NobId11', 'NobId21'}", typeof(Hob).Name));
+
                 Assert.Equal(
-                    CoreStrings.AmbiguousEndRequired("{'NobId11', 'NobId21'}", typeof(Hob).Name),
+                    CoreStrings.AmbiguousEndRequiredInverted("{'NobId11', 'NobId21'}", typeof(Hob).Name, typeof(Nob).Name),
                     Assert.Throws<InvalidOperationException>(() =>
-                    modelBuilder
-                        .Entity<Hob>()
-                        .HasOne(e => e.Nob).WithOne(e => e.Hob)
-                        .IsRequired()).Message);
+                        foreignKeyBuilder.HasForeignKey<Nob>()).Message);
             }
 
             [ConditionalFact]

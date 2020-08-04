@@ -123,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IUpdateAdapterFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICurrentDbContext), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextDependencies), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IModelCreationDependencies), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDatabaseFacadeDependencies), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextOptions), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDatabase), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -225,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IValueGenerationManager, ValueGenerationManager>();
             TryAdd<IChangeTrackerFactory, ChangeTrackerFactory>();
             TryAdd<IChangeDetector, ChangeDetector>();
-            TryAdd<IDbContextServices, DbContextServices>();
+            TryAdd<IDbContextServices, DbContextServices>(); 
+            TryAdd<IModelCreationDependencies, ModelCreationDependencies>();
             TryAdd<IDbContextDependencies, DbContextDependencies>();
             TryAdd<IDatabaseFacadeDependencies, DatabaseFacadeDependencies>();
             TryAdd<IValueGeneratorSelector, ValueGeneratorSelector>();
@@ -295,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()
                 .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
-                .AddDependencyScoped<DatabaseDependencies>();
+                .AddDependencyScoped<DatabaseDependencies>()
+                .AddDependencyScoped<ModelDependencies>();
 
             ServiceCollectionMap.TryAddSingleton<IRegisteredServices>(
                 new RegisteredServices(ServiceCollectionMap.ServiceCollection.Select(s => s.ServiceType)));

@@ -1459,8 +1459,8 @@
   <data name="NonconfiguredNavigationToSharedType" xml:space="preserve">
     <value>The navigation '{navigation}' on '{entityType}' must be configured using Fluent API with an explicit name for the target shared type entity type or excluded by calling 'EntityTypeBuilder.Ignore'.</value>
   </data>
-  <data name="AmbiguousEndRequired" xml:space="preserve">
-    <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
+  <data name="AmbiguousEndRequiredInverted" xml:space="preserve">
+    <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be flipped to entity type '{principalEntityType}' since it was configured as required before the dependent side was configured. Configure the foreign key property or the principal key before configuring the foreign key as required. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
   </data>
   <data name="AmbiguousEndRequiredDependent" xml:space="preserve">
     <value>The foreign key {foreignKey} on entity type '{entityType}' cannot be configured as having a required dependent since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
@@ -1468,6 +1468,10 @@
   <data name="LogRequiredAttributeOnSkipNavigation" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a skip navigation. Instead configure the underlying foreign keys.</value>
     <comment>Debug CoreEventId.RequiredAttributeOnSkipNavigation string string</comment>
+  </data>
+  <data name="LogAmbiguousEndRequired" xml:space="preserve">
+    <value>The foreign key {foreignKey} on entity type '{entityType}' should not be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property or the principal key before configuring the foreign key as required. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
+    <comment>Warning CoreEventId.AmbiguousEndRequiredWarning string string</comment>
   </data>
   <data name="LogFirstWithoutOrderByAndFilter" xml:space="preserve">
     <value>Query uses First/FirstOrDefault operation without OrderBy and filter, which may lead to unpredictable results.</value>

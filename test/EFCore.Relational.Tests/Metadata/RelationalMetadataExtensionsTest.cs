@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_fixed_length()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_index_filter()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var index = modelBuilder
                 .Entity<Customer>()
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_column_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_table_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_schema_name_on_entity_type()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_table_and_schema_name_for_non_owned_entity_types_with_defining_navigation()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var orderType = modelBuilder
                 .Entity<Order>()
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Gets_model_schema_if_schema_on_entity_type_not_set()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_column_type()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_column_default_expression()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_column_computed_expression()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_column_default_value()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_column_default_value_of_enum_type()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Throws_when_setting_column_default_value_of_wrong_type()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_column_key_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var key = modelBuilder
                 .Entity<Customer>()
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_column_foreign_key_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             modelBuilder
                 .Entity<Customer>()
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_index_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var index = modelBuilder
                 .Entity<Customer>()
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_discriminator()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_schema_name_on_model()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.GetDefaultSchema());
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
 
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.FindDbFunction(testMethod));
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_sequence()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.FindSequence("Foo"));
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_sequence_with_schema_name()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.FindSequence("Foo", "Smoo"));
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Sequence_is_in_model_schema_if_schema_not_specified()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
             var model = modelBuilder.Model;
             model.SetDefaultSchema("Smoo");
 
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Returns_same_sequence_if_schema_not_specified_explicitly()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
             var model = modelBuilder.Model;
 
             Assert.Null(model.FindSequence("Foo"));
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_multiple_sequences()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
             var model = modelBuilder.Model;
 
             model.AddSequence("Fibonacci");
