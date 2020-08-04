@@ -5222,6 +5222,26 @@ WHERE [c1].[CustomerID] LIKE N'F%'
 ORDER BY [c1].[CustomerID]");
         }
 
+        public override async Task Distinct_followed_by_ordering_on_condition(bool async)
+        {
+            await base.Distinct_followed_by_ordering_on_condition(async);
+
+            AssertSql(
+                @"@__p_1='5'
+@__searchTerm_0='c' (Size = 4000)
+
+SELECT TOP(@__p_1) [t].[City]
+FROM (
+    SELECT DISTINCT [c].[City]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
+) AS [t]
+ORDER BY CASE
+    WHEN @__searchTerm_0 = N'' THEN 0
+    ELSE CAST(CHARINDEX(@__searchTerm_0, [t].[City]) AS int) - 1
+END, [t].[City]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

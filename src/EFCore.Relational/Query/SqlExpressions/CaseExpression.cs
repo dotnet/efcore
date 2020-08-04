@@ -98,7 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             changed |= elseResult != ElseResult;
 
             return changed
-                ? new CaseExpression(operand, whenClauses, elseResult)
+                ? operand == null
+                    ? new CaseExpression(whenClauses, elseResult)
+                    : new CaseExpression(operand, whenClauses, elseResult)
                 : this;
         }
 

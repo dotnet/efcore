@@ -6099,5 +6099,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }),
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Distinct_followed_by_ordering_on_condition(bool async)
+        {
+            var searchTerm = "c";
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                        .Where(c => c.CustomerID != "VAFFE" && c.CustomerID != "DRACD")
+                        .Select(e => e.City)
+                        .Distinct()
+                        .OrderBy(x => x.IndexOf(searchTerm))
+                        .ThenBy(x => x)
+                        .Take(5),
+                assertOrder: true);
+        }
     }
 }
