@@ -49,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.OwnedTypes,
-                CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueComparer,
 #pragma warning disable 618
@@ -210,10 +209,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     RelationalAnnotationNames.DefaultValue,
                     ("1", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}(""1"")")
-                },
-                {
-                    CoreAnnotationNames.TypeMapping,
-                    (new LongTypeMapping("bigint"), $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""bigint"")")
                 },
                 {
                     RelationalAnnotationNames.IsFixedLength,

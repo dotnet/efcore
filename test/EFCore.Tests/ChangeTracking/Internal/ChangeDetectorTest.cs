@@ -351,11 +351,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (UseTypeMapping)
                 {
-                    property[CoreAnnotationNames.TypeMapping]
-                        = new ConcreteTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer);
+                    property.SetTypeMapping(
+                        new ConcreteTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer));
 
-                    shadowProperty[CoreAnnotationNames.TypeMapping]
-                        = new ConcreteTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer);
+                    shadowProperty.SetTypeMapping(
+                        new ConcreteTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer));
                 }
                 else
                 {

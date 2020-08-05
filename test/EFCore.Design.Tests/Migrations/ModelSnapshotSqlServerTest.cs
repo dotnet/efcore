@@ -2029,8 +2029,7 @@ namespace RootNamespace
                 {
                     builder.Entity<EntityWithOneProperty>()
                         .Property<int>("Id")
-                        .HasAnnotation("AnnotationName", "AnnotationValue")
-                        .HasAnnotation(CoreAnnotationNames.TypeMapping, new IntTypeMapping("int"));
+                        .HasAnnotation("AnnotationName", "AnnotationValue");
 
                     builder.Ignore<EntityWithTwoProperties>();
                 },
@@ -2751,7 +2750,7 @@ namespace RootNamespace
                 o =>
                 {
                     var property = o.GetEntityTypes().First().FindProperty("AlternateId");
-                    Assert.Equal(6, property.GetAnnotations().Count());
+                    Assert.Equal(5, property.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", property["AnnotationName"]);
                     Assert.Equal("CName", property["Relational:ColumnName"]);
                     Assert.Equal("int", property["Relational:ColumnType"]);

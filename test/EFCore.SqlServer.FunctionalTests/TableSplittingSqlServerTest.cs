@@ -223,11 +223,11 @@ WHERE [v1].[FuelType] IS NOT NULL AND [v1].[Capacity] IS NOT NULL");
             AssertSql(
                 @"@p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='LicensedOperator' (Size = 4000)
-@p1='repairman' (Size = 4000)
-@p2='Repair' (Size = 4000)
+@p1='Repair' (Size = 4000)
+@p2='repairman' (Size = 4000)
 
 SET NOCOUNT ON;
-UPDATE [Vehicles] SET [Operator_Discriminator] = @p0, [Operator_Name] = @p1, [LicenseType] = @p2
+UPDATE [Vehicles] SET [Operator_Discriminator] = @p0, [LicenseType] = @p1, [Operator_Name] = @p2
 WHERE [Name] = @p3;
 SELECT @@ROWCOUNT;",
                 //

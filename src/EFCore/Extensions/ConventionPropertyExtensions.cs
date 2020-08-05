@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -82,12 +83,25 @@ namespace Microsoft.EntityFrameworkCore
             => ((Property)property).GetContainingKeys();
 
         /// <summary>
+        ///     Sets the <see cref="CoreTypeMapping" /> for the given property
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static CoreTypeMapping SetTypeMapping(
+            [NotNull] this IConventionProperty property,
+            [NotNull] CoreTypeMapping typeMapping,
+            bool fromDataAnnotation = false)
+            => ((Property)property).SetTypeMapping(
+                typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />. </returns>
         public static ConfigurationSource? GetTypeMappingConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(CoreAnnotationNames.TypeMapping)?.GetConfigurationSource();
+            => ((Property)property).GetTypeMappingConfigurationSource();
 
         /// <summary>
         ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
@@ -115,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     For example, if the property is a <see cref="decimal" />
         ///     then this is the maximum number of digits.
         /// </summary>
-        /// <param name="property"> The property to get the precision of. </param>
+        /// <param name="property"> The property. </param>
         /// <param name="precision"> The maximum number of digits that is allowed in this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static int? SetPrecision([NotNull] this IConventionProperty property, int? precision, bool fromDataAnnotation = false)
@@ -135,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     For example, if the property is a <see cref="decimal" />
         ///     then this is the maximum number of decimal places.
         /// </summary>
-        /// <param name="property"> The property to get the precision of. </param>
+        /// <param name="property"> The property. </param>
         /// <param name="scale"> The maximum number of decimal places that is allowed in this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static int? SetScale([NotNull] this IConventionProperty property, int? scale, bool fromDataAnnotation = false)

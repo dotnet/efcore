@@ -284,17 +284,27 @@ namespace Microsoft.EntityFrameworkCore.Update
                     && (entry.EntityState == EntityState.Deleted
                         || entry.EntityState == EntityState.Added);
 
-                foreach (var property in entry.EntityType.GetProperties())
+                ITableMappingBase tableMapping = null;
+                foreach (var mapping in entry.EntityType.GetTableMappings())
                 {
-                    var columnMapping = property.GetTableColumnMappings()
-                           .Where(m => m.TableMapping.Table.Name == TableName && m.TableMapping.Table.Schema == Schema)
-                           .FirstOrDefault();
-                    if (columnMapping == null)
+                    var table = ((ITableMappingBase)mapping).Table;
+                    if (table.Name == TableName
+                        && table.Schema == Schema)
                     {
-                        continue;
+                        tableMapping = mapping;
+                        break;
                     }
+                }
 
-                    var column = columnMapping.Column;
+                if (tableMapping == null)
+                {
+                    continue;
+                }
+
+                foreach (var columnMapping in tableMapping.ColumnMappings)
+                {
+                    var property = columnMapping.Property;
+                    var column = (IColumn)columnMapping.Column;
                     var isKey = property.IsPrimaryKey();
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
                     var readValue = state != EntityState.Deleted && entry.IsStoreGenerated(property);

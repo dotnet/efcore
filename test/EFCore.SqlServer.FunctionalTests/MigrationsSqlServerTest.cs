@@ -1717,7 +1717,7 @@ SELECT @@ROWCOUNT;");
             // TODO remove rowcount
             AssertSql(
                 @"DELETE FROM [Person]
-WHERE [Id] = 2 AND [AnotherId] = 12;
+WHERE [AnotherId] = 12 AND [Id] = 2;
 SELECT @@ROWCOUNT;");
         }
 
@@ -1739,7 +1739,7 @@ SELECT @@ROWCOUNT;");
             // TODO remove rowcount
             AssertSql(
                 @"UPDATE [Person] SET [Name] = N'Another John Snow'
-WHERE [Id] = 2 AND [AnotherId] = 11;
+WHERE [AnotherId] = 11 AND [Id] = 2;
 SELECT @@ROWCOUNT;");
         }
 

@@ -58,17 +58,17 @@ SET NOCOUNT ON;
 INSERT INTO [Categories] ([Id], [Name], [PrincipalId])
 VALUES (@p0, @p1, @p2);",
                 //
-                @"@p0='ProductWithBytes' (Nullable = false) (Size = 4000)
-@p1=NULL (Size = 8000) (DbType = Binary)
+                @"@p0=NULL (Size = 8000) (DbType = Binary)
+@p1='ProductWithBytes' (Nullable = false) (Size = 4000)
 @p2=NULL (Size = 4000)
 
 SET NOCOUNT ON;
 DECLARE @inserted0 TABLE ([Id] uniqueidentifier, [_Position] [int]);
 MERGE [ProductBase] USING (
-VALUES (@p0, @p1, @p2, 0)) AS i ([Discriminator], [Bytes], [ProductWithBytes_Name], _Position) ON 1=0
+VALUES (@p0, @p1, @p2, 0)) AS i ([Bytes], [Discriminator], [ProductWithBytes_Name], _Position) ON 1=0
 WHEN NOT MATCHED THEN
-INSERT ([Discriminator], [Bytes], [ProductWithBytes_Name])
-VALUES (i.[Discriminator], i.[Bytes], i.[ProductWithBytes_Name])
+INSERT ([Bytes], [Discriminator], [ProductWithBytes_Name])
+VALUES (i.[Bytes], i.[Discriminator], i.[ProductWithBytes_Name])
 OUTPUT INSERTED.[Id], i._Position
 INTO @inserted0;
 

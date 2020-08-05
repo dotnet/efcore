@@ -583,11 +583,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static void GenerateMapping(IMutableProperty property)
-            => property[CoreAnnotationNames.TypeMapping] =
+            => property.SetTypeMapping(
                 new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
-                    .FindMapping(property);
+                    .FindMapping(property));
 
         private class Cheese
         {
