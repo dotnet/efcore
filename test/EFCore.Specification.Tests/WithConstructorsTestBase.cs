@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +19,8 @@ using Xunit;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0052 // Remove unread private members
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixture>
@@ -742,41 +745,22 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual async Task Add_immutable_record()
         {
-            using var context = CreateContext();
-            var BlogTitle = "xyzzy";
-            var immutableBlog = new BlogAsImmutableRecord(BlogTitle);
-
-            context.Add(immutableBlog);
-            await context.SaveChangesAsync();
-
-            Assert.NotEqual(0, immutableBlog.BlogId);
-            Assert.Equal(BlogTitle, immutableBlog.Title);
-        }
-#endif
-
-
-#if NET5_0
-        protected record BlogAsImmutableRecord
-        {
-            public int BlogId { get; init; }
-            public string Title { get; init; }
-            public int? MonthlyRevenue { get; init; }
-
-            private BlogAsImmutableRecord(
-               int blogId,
-               string title,
-               int? monthlyRevenue)
+            var title = "xyzzy";
+            int blogId;
+            using (var context = CreateContext())
             {
-                BlogId = blogId;
-                Title = title;
-                MonthlyRevenue = monthlyRevenue;
+                var immutableBlog = new BlogAsImmutableRecord(title);
+
+                context.Add(immutableBlog);
+                await context.SaveChangesAsync();
+
+                Assert.NotEqual(0, immutableBlog.BlogId);
+                blogId = immutableBlog.BlogId;
             }
 
-            public BlogAsImmutableRecord(
-                string title,
-                int? monthlyRevenue = null)
-                : this(0, title, monthlyRevenue)
+            using (var context = CreateContext())
             {
+                Assert.Equal(title, context.Set<BlogAsImmutableRecord>().Single(e => e.BlogId == blogId).Title);
             }
         }
 #endif
@@ -1564,6 +1548,33 @@ namespace Microsoft.EntityFrameworkCore
             public LazyAsyncBlog LazyAsyncBlog { get; set; }
         }
 
+#if NET5_0
+        protected record BlogAsImmutableRecord
+        {
+            public BlogAsImmutableRecord(
+                string title,
+                int? monthlyRevenue = null)
+                : this(0, title, monthlyRevenue)
+            {
+            }
+
+            private BlogAsImmutableRecord(
+               int blogId,
+               string title,
+               int? monthlyRevenue)
+            {
+                BlogId = blogId;
+                Title = title;
+                MonthlyRevenue = monthlyRevenue;
+            }
+
+            [Key]
+            public int BlogId { get; init; }
+            public string Title { get; init; }
+            public int? MonthlyRevenue { get; init; }
+        }
+#endif
+
         public class OtherContext : DbContext
         {
         }
@@ -1582,16 +1593,6 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-
-#if NET5_0
-                modelBuilder.Entity<BlogAsImmutableRecord>(
-                   b =>
-                   {
-                       b.HasKey(e => e.BlogId);
-                       b.Property(e => e.Title);
-                   });
-#endif
-
                 modelBuilder.Entity<Blog>(
                     b =>
                     {
@@ -1644,6 +1645,10 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<LazyPsBlog>();
                 modelBuilder.Entity<LazyAsyncPsBlog>();
                 modelBuilder.Entity<LazyPcsBlog>();
+
+#if NET5_0
+                modelBuilder.Entity<BlogAsImmutableRecord>();
+#endif
 
                 // Manually configure service fields since there is no public API yet
 
