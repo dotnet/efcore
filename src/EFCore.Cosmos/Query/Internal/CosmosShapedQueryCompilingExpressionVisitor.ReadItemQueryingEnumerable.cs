@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -110,6 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                     throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
                                 }
 
+                                EntityFrameworkEventSource.Log.QueryExecuting();
+
                                 _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
                                     _readItemExpression.Container,
                                     partitionKey,
@@ -147,6 +150,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 {
                                     throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
                                 }
+
+                                EntityFrameworkEventSource.Log.QueryExecuting();
 
                                 _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
                                     _readItemExpression.Container,
