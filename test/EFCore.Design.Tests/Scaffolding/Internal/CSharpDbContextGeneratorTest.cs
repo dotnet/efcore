@@ -251,7 +251,8 @@ namespace TestNamespace
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
-                ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
+                ContextNamespace = "TestNamespace",
+                ModelNamespace = "AnotherNamespaceOfModel"
             };
 
             const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
@@ -484,10 +485,10 @@ namespace TestNamespace
         {
             modelBuilder.Entity<EntityWithIndexes>(entity =>
             {
-                entity.HasIndex(x => new { x.A, x.B }, ""IndexOnAAndB"")
+                entity.HasIndex(e => new { e.A, e.B }, ""IndexOnAAndB"")
                     .IsUnique();
 
-                entity.HasIndex(x => new { x.B, x.C }, ""IndexOnBAndC"")
+                entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
                     .HasFilter(""Filter SQL"")
                     .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
@@ -568,7 +569,7 @@ namespace TestNamespace
         {
             modelBuilder.Entity<EntityWithIndexes>(entity =>
             {
-                entity.HasIndex(x => new { x.B, x.C }, ""IndexOnBAndC"")
+                entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
                     .HasFilter(""Filter SQL"")
                     .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
@@ -588,6 +589,105 @@ namespace TestNamespace
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
         }
+
+        [ConditionalFact]
+        public void Entity_lambda_uses_correct_identifiers()
+        {
+            Test(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity("PrincipalEntity", b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("PrincipalId");
+                        b.Property<int>("AlternateId");
+                        b.HasKey("AlternateId");
+                    });
+                    modelBuilder.Entity("DependentEntity", b =>
+                    {
+                        b.Property<int>("Id");
+                        b.Property<int>("DependentId");
+                        b.HasOne("PrincipalEntity", "NavigationToPrincipal")
+                            .WithOne("NavigationToDependent")
+                            .HasForeignKey("DependentEntity", "DependentId")
+                            .HasPrincipalKey("PrincipalEntity", "PrincipalId");
+                    });
+                },
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<DependentEntity> DependentEntity { get; set; }
+        public virtual DbSet<PrincipalEntity> PrincipalEntity { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DependentEntity>(entity =>
+            {
+                entity.HasIndex(e => e.DependentId, ""IX_DependentEntity_DependentId"")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).UseIdentityColumn();
+
+                entity.Property(e => e.DependentId).ValueGeneratedNever();
+
+                entity.HasOne(d => d.NavigationToPrincipal)
+                    .WithOne(p => p.NavigationToDependent)
+                    .HasPrincipalKey<PrincipalEntity>(p => p.PrincipalId)
+                    .HasForeignKey<DependentEntity>(d => d.DependentId);
+            });
+
+            modelBuilder.Entity<PrincipalEntity>(entity =>
+            {
+                entity.HasKey(e => e.AlternateId);
+
+                entity.Property(e => e.AlternateId).UseIdentityColumn();
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile.Code,
+                        ignoreLineEndingDifferences: true);
+                },
+                model => { });
+                }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {

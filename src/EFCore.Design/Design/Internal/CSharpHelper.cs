@@ -176,23 +176,27 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Lambda(IReadOnlyList<string> properties)
+        public virtual string Lambda(IReadOnlyList<string> properties, string lambdaIdentifier)
         {
             Check.NotNull(properties, nameof(properties));
+            Check.NullButNotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
 
+            lambdaIdentifier ??= "x";
             var builder = new StringBuilder();
-            builder.Append("x => ");
+            builder.Append(lambdaIdentifier);
+            builder.Append(" => ");
 
             if (properties.Count == 1)
             {
                 builder
-                    .Append("x.")
+                    .Append(lambdaIdentifier)
+                    .Append(".")
                     .Append(properties[0]);
             }
             else
             {
                 builder.Append("new { ");
-                builder.AppendJoin(", ", properties.Select(p => "x." + p));
+                builder.AppendJoin(", ", properties.Select(p => $"{lambdaIdentifier}.{p}"));
                 builder.Append(" }");
             }
 
