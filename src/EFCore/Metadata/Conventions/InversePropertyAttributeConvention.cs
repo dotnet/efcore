@@ -139,35 +139,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 if (entityType.FindSkipNavigation(navigationMemberInfo) is IConventionSkipNavigation existingSkipNavigation)
                 {
+                    var existingSkipNavigationInverse = existingSkipNavigation.Inverse;
                     var inverseSkipNavigation = targetEntityTypeBuilder.Metadata.FindSkipNavigation(inverseNavigationPropertyInfo);
-                    if (inverseSkipNavigation != null)
+                    var existingInverse = inverseSkipNavigation?.Inverse;
+                    var existingInverseType = existingInverse?.DeclaringEntityType;
+                    if (existingInverse != null
+                        && IsAmbiguousInverse(
+                            existingInverse.GetIdentifyingMemberInfo(), existingInverseType, referencingNavigationsWithAttribute))
                     {
-                        if (inverseSkipNavigation.Inverse == null
-                            || inverseSkipNavigation.Inverse.Equals(existingSkipNavigation))
-                        {
-                            existingSkipNavigation.Builder.HasInverse(inverseSkipNavigation, fromDataAnnotation: true);
-                        }
-                        else
-                        {
-                            var existingInverseSkipnavigation = inverseSkipNavigation.Inverse;
-
-                            entityType.Builder.HasNoSkipNavigation(existingSkipNavigation, fromDataAnnotation: true);
-                            inverseSkipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(
-                                inverseSkipNavigation, fromDataAnnotation: true);
-                            existingInverseSkipnavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(
-                                existingInverseSkipnavigation, fromDataAnnotation: true);
-                        }
+                        existingInverse.DeclaringEntityType.Builder.HasNoSkipNavigation(existingInverse, fromDataAnnotation: true);
+                        inverseSkipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(inverseSkipNavigation, fromDataAnnotation: true);
                     }
 
-                    var ambiguousInverseSkipNavigation = FindActualEntityType(ambiguousInverse.Value.Item2)
+                    if (existingSkipNavigation.Builder != null)
+                    {
+                        entityType.Builder.HasNoSkipNavigation(existingSkipNavigation, fromDataAnnotation: true);
+                    }
+
+                    if (existingSkipNavigationInverse?.Builder != null)
+                    {
+                        existingSkipNavigationInverse.DeclaringEntityType.Builder
+                            .HasNoSkipNavigation(existingSkipNavigationInverse, fromDataAnnotation: true);
+                    }
+
+                    var existingAmbiguousNavigation = FindActualEntityType(ambiguousInverse.Value.Item2)
                         .FindSkipNavigation(ambiguousInverse.Value.Item1);
-                    if (ambiguousInverseSkipNavigation != null)
+                    if (existingAmbiguousNavigation != null)
                     {
-                        ambiguousInverseSkipNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(
-                            ambiguousInverseSkipNavigation, fromDataAnnotation: true);
+                        existingAmbiguousNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(
+                            existingAmbiguousNavigation, fromDataAnnotation: true);
                     }
 
-                    throw new InvalidOperationException("Issue#21890");
+                    return entityType.FindSkipNavigation(navigationMemberInfo)?.ForeignKey.Builder;
                 }
                 else
                 {
