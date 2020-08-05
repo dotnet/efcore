@@ -51,6 +51,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override void Can_configure_owned_type_collection_with_one_call_afterwards()
             {
             }
+
+            // Owned type's CLR type is not used
+            public override void Cannot_add_owned_type_with_same_clr_type_as_shared_type_entity_type()
+            {
+            }
         }
 
         public class NonGenericStringOneToManyType : OneToManyTestBase

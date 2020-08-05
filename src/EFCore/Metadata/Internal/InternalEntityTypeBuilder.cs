@@ -2972,7 +2972,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
             => HasOwnership(
-                new TypeIdentity(targetEntityTypeName), MemberIdentity.Create(navigationName), inverse: null, configurationSource);
+                new TypeIdentity(targetEntityTypeName),
+                MemberIdentity.Create(navigationName), inverse: null, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2985,7 +2986,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
             => HasOwnership(
-                new TypeIdentity(targetEntityType, Metadata.Model), MemberIdentity.Create(navigationName), inverse: null, configurationSource);
+                new TypeIdentity(targetEntityType, Metadata.Model),
+                MemberIdentity.Create(navigationName), inverse: null, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2998,7 +3000,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] MemberInfo navigationMember,
             ConfigurationSource configurationSource)
             => HasOwnership(
-                new TypeIdentity(targetEntityType, Metadata.Model), MemberIdentity.Create(navigationMember), inverse: null, configurationSource);
+                new TypeIdentity(targetEntityType, Metadata.Model),
+                MemberIdentity.Create(navigationMember), inverse: null, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3012,6 +3015,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
             => HasOwnership(
                 new TypeIdentity(targetEntityType, Metadata.Model), navigation, inverse: null, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalForeignKeyBuilder HasOwnership(
+            in TypeIdentity typeIdentity,
+            MemberIdentity navigation,
+            ConfigurationSource configurationSource)
+            => HasOwnership(
+                typeIdentity, navigation, inverse: null, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3066,15 +3082,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         // Upgrade configurationSource for existing entity type
                         if (existingOwnedEntityType.HasDefiningNavigation())
                         {
-                            if (targetEntityType.Type != null)
-                            {
-                                ModelBuilder.Entity(
-                                    targetEntityType.Type,
-                                    existingOwnedEntityType.DefiningNavigationName,
-                                    existingOwnedEntityType.DefiningEntityType,
-                                    configurationSource);
-                            }
-                            else
+                            if (targetEntityType.IsNamed)
                             {
                                 ModelBuilder.Entity(
                                     targetEntityType.Name,
@@ -3082,16 +3090,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     existingOwnedEntityType.DefiningEntityType,
                                     configurationSource);
                             }
+                            else
+                            {
+                                ModelBuilder.Entity(
+                                    targetEntityType.Type,
+                                    existingOwnedEntityType.DefiningNavigationName,
+                                    existingOwnedEntityType.DefiningEntityType,
+                                    configurationSource);
+                            }
                         }
                         else
                         {
-                            if (targetEntityType.Type != null)
+                            if (targetEntityType.IsNamed)
                             {
-                                ModelBuilder.Entity(targetEntityType.Type, configurationSource, shouldBeOwned: true);
+                                if (targetEntityType.Type != null)
+                                {
+                                    ModelBuilder.SharedTypeEntity(targetEntityType.Name, targetEntityType.Type, configurationSource, shouldBeOwned: true);
+                                }
+                                else
+                                {
+                                    ModelBuilder.Entity(targetEntityType.Name, configurationSource, shouldBeOwned: true);
+                                }
                             }
                             else
                             {
-                                ModelBuilder.Entity(targetEntityType.Name, configurationSource, shouldBeOwned: true);
+                                ModelBuilder.Entity(targetEntityType.Type, configurationSource, shouldBeOwned: true);
                             }
                         }
 
@@ -3127,7 +3150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                ownedEntityType = targetType == null
+                ownedEntityType = targetEntityType.IsNamed
                     ? ModelBuilder.Metadata.FindEntityType(targetTypeName)?.Builder
                     : ModelBuilder.Metadata.FindEntityType(targetType)?.Builder;
                 if (ownedEntityType == null)
@@ -3155,8 +3178,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         ModelBuilder.Metadata.RemoveIgnored(targetTypeName);
 
-                        ownedEntityType = targetType == null
-                            ? ModelBuilder.Entity(targetTypeName, configurationSource, shouldBeOwned: true)
+                        ownedEntityType = targetEntityType.IsNamed
+                            ? targetType == null
+                                ? ModelBuilder.Entity(targetTypeName, configurationSource, shouldBeOwned: true)
+                                : ModelBuilder.SharedTypeEntity(targetTypeName, targetType, configurationSource, shouldBeOwned: true)
                             : ModelBuilder.Entity(targetType, configurationSource, shouldBeOwned: true);
                     }
 
@@ -3171,7 +3196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (otherOwnership != null)
                     {
                         if (!configurationSource.Overrides(ConfigurationSource.Explicit)
-                            && (targetType == null
+                            && (targetEntityType.IsNamed
                                 ? Metadata.IsInDefinitionPath(targetTypeName)
                                 : Metadata.IsInDefinitionPath(targetType)))
                         {

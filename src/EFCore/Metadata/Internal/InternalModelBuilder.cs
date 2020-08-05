@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Entity(
             [NotNull] string name, ConfigurationSource configurationSource, bool? shouldBeOwned = false)
-            => Entity(new TypeIdentity(name), null, configurationSource, shouldBeOwned);
+            => Entity(new TypeIdentity(name), configurationSource, shouldBeOwned);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder SharedTypeEntity(
             [NotNull] string name, [NotNull] Type type, ConfigurationSource configurationSource, bool? shouldBeOwned = false)
-            => Entity(new TypeIdentity(name), Check.NotNull(type, nameof(type)), configurationSource, shouldBeOwned);
+            => Entity(new TypeIdentity(name, Check.NotNull(type, nameof(type))), configurationSource, shouldBeOwned);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,10 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalEntityTypeBuilder Entity(
             [NotNull] Type type, ConfigurationSource configurationSource, bool? shouldBeOwned = false)
-            => Entity(new TypeIdentity(type, Metadata), null, configurationSource, shouldBeOwned);
+            => Entity(new TypeIdentity(type, Metadata), configurationSource, shouldBeOwned);
 
         private InternalEntityTypeBuilder Entity(
-            in TypeIdentity type, Type sharedTypeClrType, ConfigurationSource configurationSource, bool? shouldBeOwned)
+            in TypeIdentity type, ConfigurationSource configurationSource, bool? shouldBeOwned)
         {
             if (IsIgnored(type, configurationSource))
             {
@@ -80,7 +80,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var clrType = type.Type;
             EntityType entityType;
-            if (clrType != null)
+            if (type.IsNamed)
+            {
+                if (type.Type != null
+                    && (Metadata.FindEntityType(Metadata.GetDisplayName(type.Type)) != null
+                        || Metadata.HasEntityTypeWithDefiningNavigation(type.Type)))
+                {
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(type.Name, type.Type.DisplayName()))
+                        : (InternalEntityTypeBuilder)null;
+                }
+
+                entityType = Metadata.FindEntityType(type.Name);
+            }
+            else
             {
                 if (Metadata.IsShared(clrType))
                 {
@@ -90,17 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 entityType = Metadata.FindEntityType(clrType);
-            }
-            else
-            {
-                if (sharedTypeClrType != null && Metadata.FindEntityType(Metadata.GetDisplayName(sharedTypeClrType)) != null)
-                {
-                    return configurationSource == ConfigurationSource.Explicit
-                        ? throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(type.Name))
-                        : (InternalEntityTypeBuilder)null;
-                }
-
-                entityType = Metadata.FindEntityType(type.Name);
             }
 
             if (shouldBeOwned == false
@@ -137,9 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (entityType != null)
             {
-                if (sharedTypeClrType != null)
+                if (type.IsNamed && type.Type != null)
                 {
-                    if (entityType.ClrType != sharedTypeClrType)
+                    if (entityType.ClrType != type.Type)
                     {
                         throw new InvalidOperationException(CoreStrings.ClashingMismatchedSharedType(type.Name));
                     }
@@ -150,11 +152,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Metadata.RemoveIgnored(type.Name);
-            entityType = clrType != null
-                ? Metadata.AddEntityType(clrType, configurationSource)
-                : sharedTypeClrType != null
-                    ? Metadata.AddEntityType(type.Name, sharedTypeClrType, configurationSource)
-                    : Metadata.AddEntityType(type.Name, configurationSource);
+            entityType = type.IsNamed
+                ? type.Type == null
+                    ? Metadata.AddEntityType(type.Name, configurationSource)
+                    : Metadata.AddEntityType(type.Name, type.Type, configurationSource)
+                : Metadata.AddEntityType(clrType, configurationSource);
 
             return entityType?.Builder;
         }

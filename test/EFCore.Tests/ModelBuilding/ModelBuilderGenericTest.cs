@@ -225,6 +225,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
                 => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsOne<TRelatedEntity>(navigationName));
 
+            public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
+                string entityTypeName, string navigationName)
+                => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
+                    EntityTypeBuilder.OwnsOne<TRelatedEntity>(entityTypeName, navigationName));
+
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 string navigationName,
                 Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
@@ -233,9 +238,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         navigationName,
                         r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
+            public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
+                string entityTypeName, string navigationName,
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
+                => Wrap(
+                    EntityTypeBuilder.OwnsOne<TRelatedEntity>(
+                        entityTypeName, navigationName,
+                        r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
+
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
                 => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsOne(navigationExpression));
+
+            public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
+                string entityTypeName, Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
+                => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.OwnsOne(
+                    entityTypeName, navigationExpression));
 
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
@@ -245,9 +263,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         navigationExpression,
                         r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
+            public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
+                string entityTypeName, Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
+                => Wrap(
+                    EntityTypeBuilder.OwnsOne(
+                        entityTypeName, navigationExpression,
+                        r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
+
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(string navigationName)
                 => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.OwnsMany<TRelatedEntity>(navigationName));
+            public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
+                string entityTypeName, string navigationName)
+                => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
+                    EntityTypeBuilder.OwnsMany<TRelatedEntity>(entityTypeName, navigationName));
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
                 string navigationName,
                 Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
@@ -256,10 +286,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         navigationName,
                         r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
+            public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
+                string entityTypeName, string navigationName,
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
+                => Wrap(
+                    EntityTypeBuilder.OwnsMany<TRelatedEntity>(
+                        entityTypeName, navigationName,
+                        r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
+
             public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
                 => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
                     EntityTypeBuilder.OwnsMany(navigationExpression));
+
+            public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
+                string entityTypeName, Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
+                => new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
+                    EntityTypeBuilder.OwnsMany(entityTypeName, navigationExpression));
 
             public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
                 Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression,
@@ -267,6 +310,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(
                     EntityTypeBuilder.OwnsMany(
                         navigationExpression,
+                        r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
+
+            public override TestEntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
+                string entityTypeName, Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression,
+                Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
+                => Wrap(
+                    EntityTypeBuilder.OwnsMany(
+                        entityTypeName, navigationExpression,
                         r => buildAction(new GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(string navigationName)
@@ -834,19 +885,37 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
                 => Wrap(OwnedNavigationBuilder.OwnsOne(navigationExpression));
 
+            public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
+                string entityTypeName, Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
+                => Wrap(OwnedNavigationBuilder.OwnsOne(entityTypeName, navigationExpression));
+
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression,
                 Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
                 => Wrap(OwnedNavigationBuilder.OwnsOne(navigationExpression, r => buildAction(Wrap(r))));
 
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
+                string entityTypeName, Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression,
+                Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+                => Wrap(OwnedNavigationBuilder.OwnsOne(entityTypeName, navigationExpression, r => buildAction(Wrap(r))));
+
             public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
                 => Wrap(OwnedNavigationBuilder.OwnsMany(navigationExpression));
+
+            public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
+                string entityTypeName, Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
+                => Wrap(OwnedNavigationBuilder.OwnsMany(entityTypeName, navigationExpression));
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression,
                 Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
                 => Wrap(OwnedNavigationBuilder.OwnsMany(navigationExpression, r => buildAction(Wrap(r))));
+
+            public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
+                string entityTypeName, Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression,
+                Action<TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+                => Wrap(OwnedNavigationBuilder.OwnsMany(entityTypeName, navigationExpression, r => buildAction(Wrap(r))));
 
             public override TestReferenceNavigationBuilder<TDependentEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TDependentEntity, TRelatedEntity>> navigationExpression = null)

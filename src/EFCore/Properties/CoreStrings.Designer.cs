@@ -2709,12 +2709,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The shared type entity type '{entityType}' cannot be added to the model because a non shared entity type with the same clr type already exists.
+        ///     The shared type entity type '{entityType}' with clr type '{type}' cannot be added to the model because a non shared entity type with the same clr type already exists.
         /// </summary>
-        public static string ClashingNonSharedType([CanBeNull] object entityType)
+        public static string ClashingNonSharedType([CanBeNull] object entityType, [CanBeNull] object type)
             => string.Format(
-                GetString("ClashingNonSharedType", nameof(entityType)),
-                entityType);
+                GetString("ClashingNonSharedType", nameof(entityType), nameof(type)),
+                entityType, type);
 
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because it is configured as an shared type entity type and should be accessed through entity type name based Set method.

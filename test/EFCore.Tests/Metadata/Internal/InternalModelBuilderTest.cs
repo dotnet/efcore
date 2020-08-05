@@ -487,8 +487,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit));
 
             Assert.Equal(
-                CoreStrings.ClashingNonSharedType(typeof(Product).DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.Explicit)).Message);
+                CoreStrings.ClashingNonSharedType(typeof(Product).DisplayName(), typeof(Product).DisplayName()),
+                Assert.Throws<InvalidOperationException>(() =>
+                modelBuilder.SharedTypeEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.Explicit)).Message);
         }
 
         private static void Cleanup(InternalModelBuilder modelBuilder)
