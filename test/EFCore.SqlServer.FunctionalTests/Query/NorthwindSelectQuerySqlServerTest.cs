@@ -1478,13 +1478,18 @@ ORDER BY [t].[CustomerID], [t0].[OrderID]");
 
         public override Task Reverse_without_explicit_ordering_throws(bool async)
         {
-             return AssertTranslationFailedWithDetails(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Employee>()
-                        .Reverse()
-                        .Select(e => $"{e.EmployeeID}")
-                ), RelationalStrings.MissingOrderingInSqlExpression);
+            return AssertTranslationFailedWithDetails(
+               () => base.Reverse_without_explicit_ordering_throws(async), RelationalStrings.MissingOrderingInSqlExpression);
+        }
+
+        public override async Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
+        {
+            await base.Custom_projection_reference_navigation_PK_to_FK_optimization(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [c].[CustomerID], [c].[City], [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
 
         private void AssertSql(params string[] expected)

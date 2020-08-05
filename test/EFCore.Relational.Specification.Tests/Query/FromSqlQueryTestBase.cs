@@ -974,6 +974,19 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             Assert.NotNull(Assert.Single(actual));
         }
 
+        [ConditionalFact]
+        public virtual void Line_endings_after_Select()
+        {
+            using var context = CreateContext();
+
+            var actual = context.Set<Customer>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT" + Environment.NewLine + "* FROM [Customers]"))
+                .Where(e => e.City == "Seattle")
+                .ToArray();
+
+            Assert.NotNull(actual);
+        }
+
         protected string NormalizeDelimitersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 

@@ -1147,13 +1147,14 @@ ORDER BY c[""CustomerID""]");
 
         public override Task Reverse_without_explicit_ordering_throws(bool async)
         {
-             return AssertTranslationFailedWithDetails(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Employee>()
-                        .Reverse()
-                        .Select(e => $"{e.EmployeeID}")
-                ), CosmosStrings.MissingOrderingInSqlExpression);
+            return AssertTranslationFailedWithDetails(
+               () => base.Reverse_without_explicit_ordering_throws(async), CosmosStrings.MissingOrderingInSqlExpression);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
+        {
+            return base.Custom_projection_reference_navigation_PK_to_FK_optimization(async);
         }
 
         private void AssertSql(params string[] expected)

@@ -4161,6 +4161,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
             return base.Distinct_followed_by_ordering_on_condition(async);
         }
 
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task DefaultIfEmpty_Sum_over_collection_navigation(bool async)
+        {
+            return base.DefaultIfEmpty_Sum_over_collection_navigation(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => caller != null ? result(caller) : null;
 
         public static IEnumerable<TResult> MaybeDefaultIfEmpty<TResult>(this IEnumerable<TResult> caller)
-            where TResult : class
             => caller == null ? new List<TResult> { default } : caller.DefaultIfEmpty();
     }
 }

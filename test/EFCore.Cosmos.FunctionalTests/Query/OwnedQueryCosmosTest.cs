@@ -466,6 +466,14 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
             return base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async);
         }
 
+        [ConditionalTheory(Skip = "No Composite index to process custom ordering #17246")]
+        public override async Task Ordering_by_identifying_projection(bool async)
+        {
+            await base.Ordering_by_identifying_projection(async);
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
