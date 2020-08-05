@@ -470,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasKey)}({_code.Lambda(key.Properties)})" };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasKey)}({_code.Lambda(key.Properties, "e")})" };
 
             if (explicitName)
             {
@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var lines = new List<string> {
                 $".{nameof(EntityTypeBuilder.HasIndex)}" +
-                $"({_code.Lambda(index.Properties)}, " +
+                $"({_code.Lambda(index.Properties, "e")}, " +
                 $"{_code.Literal(index.GetDatabaseName())})" };
             annotations.Remove(RelationalAnnotationNames.Name);
 
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateProperty(IProperty property, bool useDataAnnotations)
         {
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}(e => e.{property.Name})" };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}({_code.Lambda(new [] { property.Name }, "e")})" };
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -701,13 +701,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add(
                     $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
                     + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")
-                    + $"({_code.Lambda(foreignKey.PrincipalKey.Properties)})");
+                    + $"({_code.Lambda(foreignKey.PrincipalKey.Properties, "p")})");
             }
 
             lines.Add(
                 $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
                 + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")
-                + $"({_code.Lambda(foreignKey.Properties)})");
+                + $"({_code.Lambda(foreignKey.Properties, "d")})");
 
             var defaultOnDeleteAction = foreignKey.IsRequired
                 ? DeleteBehavior.Cascade
