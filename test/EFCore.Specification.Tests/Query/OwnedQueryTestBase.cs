@@ -812,7 +812,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-
         public virtual async Task Non_nullable_property_through_optional_navigation(bool async)
         {
             Assert.Equal(
@@ -821,6 +820,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => AssertQuery(
                         async,
                         ss => ss.Set<Barton>().Select(e => new { e.Throned.Value })))).Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+
+        public virtual Task Ordering_by_identifying_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().OrderBy(p => p.PersonAddress.PlaceType).ThenBy(e => e.Id),
+                assertOrder: true);
         }
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();

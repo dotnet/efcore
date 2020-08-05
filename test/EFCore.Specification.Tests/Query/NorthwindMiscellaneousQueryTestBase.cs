@@ -6116,5 +6116,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Take(5),
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DefaultIfEmpty_Sum_over_collection_navigation(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                        .Select(c => new
+                        {
+                            c.CustomerID,
+                            Sum = c.Orders.Select(o => o.OrderID).DefaultIfEmpty().Sum()
+                        }),
+                elementSorter: c => c.CustomerID);
+        }
     }
 }

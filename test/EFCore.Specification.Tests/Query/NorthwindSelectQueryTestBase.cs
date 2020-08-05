@@ -891,13 +891,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Reverse_without_explicit_ordering_throws(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Employee>()
-                        .Reverse()
-                        .Select(e => $"{e.EmployeeID}")
-                ));
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Employee>().Reverse().Select(e => e.EmployeeID));
         }
 
         [ConditionalTheory]
@@ -1822,6 +1818,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
                     AssertCollection(e.Orders, a.Orders, elementSorter: ee => ee.CustomerID);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Select(o => new Order
+                    {
+                        OrderID = o.OrderID,
+                        Customer = new Customer
+                        {
+                            CustomerID = o.Customer.CustomerID,
+                            City = o.Customer.City
+                        },
+                        OrderDate = o.OrderDate
+                    }),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e, a);
+                    AssertEqual(e.Customer, a.Customer);
                 });
         }
     }

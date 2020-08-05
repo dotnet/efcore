@@ -833,6 +833,19 @@ FROM (
             base.FromSqlRaw_queryable_simple_columns_out_of_order_and_not_enough_columns_throws();
         }
 
+        public override void Line_endings_after_Select()
+        {
+            base.Line_endings_after_Select();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT
+    * FROM ""Customers""
+) AS [c]
+WHERE [c].[City] = N'Seattle'");
+        }
+
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqlParameter { ParameterName = name, Value = value };
 

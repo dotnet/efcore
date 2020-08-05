@@ -933,6 +933,17 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]");
         }
 
+        public override async Task Ordering_by_identifying_projection(bool async)
+        {
+            await base.Ordering_by_identifying_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId], [o0].[ClientId], [o0].[Id], [o0].[OrderDate]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
+ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [o0].[ClientId], [o0].[Id]");
+        }
+
         public override async Task Using_from_sql_on_owner_generates_join_with_table_for_owned_shared_dependents(bool async)
         {
             await base.Using_from_sql_on_owner_generates_join_with_table_for_owned_shared_dependents(async);
