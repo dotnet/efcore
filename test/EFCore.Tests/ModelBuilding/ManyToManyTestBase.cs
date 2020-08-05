@@ -525,17 +525,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     typeof(List<AmbiguousManyToManyImplicitRight>).DisplayName(fullName: false)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
-
-            [ConditionalFact(Skip = "Issue#21890")]
-            public virtual void Skip_navigation_with_conflicting_inverse_property_attributes_are_removed()
-            {
-                var modelBuilder = CreateModelBuilder();
-
-                modelBuilder.Entity<AmbiguousInversePropertyLeft>();
-                modelBuilder.Entity<AmbiguousInversePropertyLeftDerived>();
-
-                var model = modelBuilder.FinalizeModel();
-            }
         }
     }
 }

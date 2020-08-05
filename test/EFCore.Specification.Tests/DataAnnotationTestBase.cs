@@ -1977,6 +1977,51 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void InversePropertyAttribute_pointing_to_same_skip_nav_on_base_causes_ambiguity()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<AmbiguousInversePropertyLeft>();
+            modelBuilder.Entity<AmbiguousInversePropertyLeftDerived>();
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    CoreEventId.MultipleInversePropertiesSameTargetWarning,
+                    CoreResources.LogMultipleInversePropertiesSameTarget(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(
+                            $"{nameof(AmbiguousInversePropertyRightDerived)}.{nameof(AmbiguousInversePropertyRightDerived.DerivedLefts)},"
+                            + $" {nameof(AmbiguousInversePropertyRight)}.{nameof(AmbiguousInversePropertyRight.BaseLefts)}",
+                            nameof(AmbiguousInversePropertyLeft.BaseRights)),
+                    "CoreEventId.MultipleInversePropertiesSameTargetWarning"),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+        }
+
+        protected class AmbiguousInversePropertyLeft
+        {
+            public int Id { get; set; }
+            public List<AmbiguousInversePropertyRight> BaseRights { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyLeftDerived : AmbiguousInversePropertyLeft
+        {
+            public List<AmbiguousInversePropertyRightDerived> DerivedRights { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyRight
+        {
+            public int Id { get; set; }
+
+            [InverseProperty("BaseRights")]
+            public List<AmbiguousInversePropertyLeft> BaseLefts { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyRightDerived : AmbiguousInversePropertyRight
+        {
+            [InverseProperty("BaseRights")]
+            public List<AmbiguousInversePropertyLeftDerived> DerivedLefts { get; set; }
+        }
+
+        [ConditionalFact]
         public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_property_on_both_side()
         {
             var modelBuilder = CreateModelBuilder();

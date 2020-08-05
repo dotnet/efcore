@@ -1128,29 +1128,5 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
             public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
         }
-
-        protected class AmbiguousInversePropertyLeft
-        {
-            public int Id { get; set; }
-            public List<AmbiguousInversePropertyRight> BaseRights { get; set; }
-        }
-
-        protected class AmbiguousInversePropertyLeftDerived : AmbiguousInversePropertyLeft
-        {
-            public List<AmbiguousInversePropertyRightDerived> DerivedRights { get; set; }
-        }
-
-        protected class AmbiguousInversePropertyRight
-        {
-            public int Id { get; set; }
-            [InverseProperty("BaseRights")]
-            public List<AmbiguousInversePropertyLeft> BaseLefts { get; set; }
-        }
-
-        protected class AmbiguousInversePropertyRightDerived : AmbiguousInversePropertyRight
-        {
-            [InverseProperty("BaseRights")]
-            public List<AmbiguousInversePropertyLeftDerived> DerivedLefts { get; set; }
-        }
     }
 }
