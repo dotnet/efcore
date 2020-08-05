@@ -1,7 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -526,10 +529,7 @@ WHERE [e].[EmployeeID] = 1");
 FROM [Employees] AS [e]
 WHERE 0 = 1");
 
-            // See issue#17498
-            //Assert.Contains(
-            //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
-            //        "e.EmployeeID.Equals(Convert(__longPrm_0, Object))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+            Assert.Contains("Possible unintended use of method Equals(object) for arguments 'e.EmployeeID' and '@__longPrm_0' of different types in query. This comparison will always return 'false'.", Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Where_equals_using_int_overload_on_mismatched_types(bool async)
@@ -557,14 +557,8 @@ WHERE 0 = 1",
 FROM [Employees] AS [e]
 WHERE 0 = 1");
 
-            // See issue#17498
-            //Assert.Contains(
-            //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
-            //        "__longPrm_0.Equals(Convert(e.ReportsTo, Object))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
-
-            //Assert.Contains(
-            //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
-            //        "e.ReportsTo.Equals(Convert(__longPrm_0, Object))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+            Assert.Contains("Possible unintended use of method Equals(object) for arguments 'e.ReportsTo' and '@__longPrm_0' of different types in query. This comparison will always return 'false'.", Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+            Assert.Contains("Possible unintended use of method Equals(object) for arguments '@__longPrm_0' and 'e.ReportsTo' of different types in query. This comparison will always return 'false'.", Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Where_equals_on_mismatched_types_nullable_long_nullable_int(bool async)
@@ -580,16 +574,8 @@ WHERE 0 = 1",
 FROM [Employees] AS [e]
 WHERE 0 = 1");
 
-            // See issue#17498
-            //Assert.Contains(
-            //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
-            //        "__nullableLongPrm_0.Equals(Convert(e.ReportsTo, Object))"),
-            //    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
-
-            //Assert.Contains(
-            //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
-            //        "e.ReportsTo.Equals(Convert(__nullableLongPrm_0, Object))"),
-            //    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+            Assert.Contains("Possible unintended use of method Equals(object) for arguments 'e.ReportsTo' and '@__nullableLongPrm_0' of different types in query. This comparison will always return 'false'.", Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+            Assert.Contains("Possible unintended use of method Equals(object) for arguments '@__nullableLongPrm_0' and 'e.ReportsTo' of different types in query. This comparison will always return 'false'.", Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
         }
 
         public override async Task Where_equals_on_mismatched_types_int_nullable_int(bool async)

@@ -344,7 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member))
                 ?? (TranslationFailed(memberExpression.Expression, innerExpression, out var sqlInnerExpression)
                     ? null
-                    : _memberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type));
+                    : _memberTranslatorProvider.Translate(
+                        sqlInnerExpression, memberExpression.Member, memberExpression.Type, _queryCompilationContext.Logger));
         }
 
         /// <summary>
@@ -490,7 +491,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
             }
 
-            var translation = _methodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+            var translation = _methodCallTranslatorProvider.Translate(
+                _model, sqlObject, methodCallExpression.Method, arguments, _queryCompilationContext.Logger);
 
             if (translation == null)
             {

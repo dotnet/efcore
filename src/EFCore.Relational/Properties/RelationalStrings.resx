@@ -267,8 +267,8 @@
     <comment>Warning RelationalEventId.AmbientTransactionWarning</comment>
   </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
-    <value>Possible unintended use of method Equals(object) for arguments of different types in expression '{expression}'. This comparison will always return 'false'.</value>
-    <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning object</comment>
+    <value>Possible unintended use of method Equals(object) for arguments '{left}' and '{right}' of different types in query. This comparison will always return 'false'.</value>
+    <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning string string</comment>
   </data>
   <data name="LogQueryPossibleExceptionWithAggregateOperatorWarning" xml:space="preserve">
     <value>Possible unintended use of a potentially throwing aggregate method (Min, Max, Average) in a subquery. Client evaluation will be used and operator will throw if no data exists. Changing the subquery result type to a nullable type will allow full translation.</value>

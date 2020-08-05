@@ -15,10 +15,13 @@ using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -4129,24 +4132,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="methodCallExpression"> The expression representing the problematic method call. </param>
+        /// <param name="left"> The left SQL expression of the Equals. </param>
+        /// <param name="right"> The right SQL expression of the Equals. </param>
         public static void QueryPossibleUnintendedUseOfEqualsWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] MethodCallExpression methodCallExpression)
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right)
         {
             var definition = RelationalResources.LogPossibleUnintendedUseOfEquals(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, methodCallExpression);
+                definition.Log(diagnostics, left.Print(), right.Print());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new ExpressionEventData(
+                var eventData = new TwoSqlExpressionEventData(
                     definition,
                     QueryPossibleUnintendedUseOfEqualsWarning,
-                    methodCallExpression);
+                    left,
+                    right);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
@@ -4154,9 +4160,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string QueryPossibleUnintendedUseOfEqualsWarning(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<object>)definition;
-            var p = (ExpressionEventData)payload;
-            return d.GenerateMessage(p.Expression);
+            var d = (EventDefinition<string, string>)definition;
+            var p = (TwoSqlExpressionEventData)payload;
+            return d.GenerateMessage(p.Left.Print(), p.Right.Print());
         }
 
         /// <summary>

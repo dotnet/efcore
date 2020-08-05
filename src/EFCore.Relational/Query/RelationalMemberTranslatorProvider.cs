@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -44,13 +45,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
+        public virtual SqlExpression Translate(
+            SqlExpression instance, MemberInfo member, Type returnType, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(member, nameof(member));
             Check.NotNull(returnType, nameof(returnType));
+            Check.NotNull(logger, nameof(logger));
 
             return _plugins.Concat(_translators)
-                .Select(t => t.Translate(instance, member, returnType)).FirstOrDefault(t => t != null);
+                .Select(t => t.Translate(instance, member, returnType, logger)).FirstOrDefault(t => t != null);
         }
 
         /// <summary>

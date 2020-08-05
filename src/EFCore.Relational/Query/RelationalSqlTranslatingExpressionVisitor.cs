@@ -432,7 +432,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member))
                 ?? (TranslationFailed(memberExpression.Expression, Visit(memberExpression.Expression), out var sqlInnerExpression)
                     ? null
-                    : Dependencies.MemberTranslatorProvider.Translate(sqlInnerExpression, memberExpression.Member, memberExpression.Type));
+                    : Dependencies.MemberTranslatorProvider.Translate(
+                        sqlInnerExpression, memberExpression.Member, memberExpression.Type, _queryCompilationContext.Logger));
         }
 
         /// <inheritdoc />
@@ -835,7 +836,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            var translation = Dependencies.MethodCallTranslatorProvider.Translate(_model, sqlObject, methodCallExpression.Method, arguments);
+            var translation = Dependencies.MethodCallTranslatorProvider.Translate(
+                _model, sqlObject, methodCallExpression.Method, arguments, _queryCompilationContext.Logger);
 
             if (translation == null)
             {
