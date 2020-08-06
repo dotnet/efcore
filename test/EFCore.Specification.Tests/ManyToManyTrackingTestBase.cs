@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityLeaf> rightEntities)
+            static void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityLeaf> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 8, 39 - 4);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityCompositeKey> leftEntities,
                 List<EntityLeaf> rightEntities,
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore
                             || e.Entity.LeafId == 23);
                 });
 
-            void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityLeaf> threes)
+            static void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityLeaf> threes)
             {
                 foreach (var one in ones)
                 {
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            void ValidateJoinNavigations(DbContext context)
+            static void ValidateJoinNavigations(DbContext context)
             {
                 foreach (var joinEntity in context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Select(e => e.Entity).ToList())
                 {
@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityRoot> rightEntities)
+            static void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityRoot> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityCompositeKey>().Count());
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 47 - 4);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityCompositeKey> leftEntities,
                 List<EntityRoot> rightEntities,
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                var deleted = context.ChangeTracker.Entries<Dictionary<string, Object>>().Count(e => e.State == EntityState.Deleted);
+                var deleted = context.ChangeTracker.Entries<Dictionary<string, object>>().Count(e => e.State == EntityState.Deleted);
                 Assert.Equal(joinCount, (count / 2) + deleted);
             }
         }
@@ -665,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore
                             || (int)e.Entity["RootId"] == 23);
                 });
 
-            void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityRoot> threes)
+            static void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityRoot> threes)
             {
                 foreach (var one in ones)
                 {
@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityThree> rightEntities)
+            static void ValidateFixup(DbContext context, IList<EntityCompositeKey> leftEntities, IList<EntityThree> rightEntities)
             {
                 var entries = context.ChangeTracker.Entries();
                 Assert.Equal(11, entries.Count());
@@ -848,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 53 - 4);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityCompositeKey> leftEntities,
                 List<EntityThree> rightEntities,
@@ -1005,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore
                             || e.Entity.ThreeId == 17);
                 });
 
-            void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityThree> threes)
+            static void ValidateNavigations(List<EntityCompositeKey> ones, List<EntityThree> threes)
             {
                 foreach (var one in ones)
                 {
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            void ValidateJoinNavigations(DbContext context)
+            static void ValidateJoinNavigations(DbContext context)
             {
                 foreach (var joinEntity in context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Select(e => e.Entity).ToList())
                 {
@@ -1121,7 +1121,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityTwo> rightEntities)
+            static void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityTwo> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(6, context.ChangeTracker.Entries<EntityTwo>().Count());
@@ -1179,7 +1179,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 28, 42 - 4);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityTwo> leftEntities,
                 List<EntityTwo> rightEntities,
@@ -1281,7 +1281,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityThree> rightEntities)
+            static void ValidateFixup(DbContext context, IList<EntityTwo> leftEntities, IList<EntityThree> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
@@ -1348,7 +1348,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 60 - 4);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityTwo> leftEntities,
                 List<EntityThree> rightEntities,
@@ -1461,7 +1461,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityBranch> rightEntities)
+            static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityBranch> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -1520,7 +1520,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 14, 55 - 4);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityOne> leftEntities,
                 List<EntityBranch> rightEntities,
@@ -1712,7 +1712,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 28, 37 - 4, postSave: true);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityOne> leftEntities,
                 List<EntityOne> rightEntities,
@@ -1910,7 +1910,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 48 - 4, postSave: true);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityOne> leftEntities,
                 List<EntityThree> rightEntities,
@@ -2034,7 +2034,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+            static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -2093,7 +2093,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 49);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityOne> leftEntities,
                 List<EntityTwo> rightEntities,
@@ -2272,7 +2272,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 123 - 4, postSave: true);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityOne> leftEntities,
                 List<EntityThree> rightEntities,
@@ -2432,7 +2432,7 @@ namespace Microsoft.EntityFrameworkCore
                         e => e.Entity.OneId == 1 || e.Entity.ThreeId == 1);
                 });
 
-            void ValidateNavigations(List<EntityOne> ones, List<EntityThree> threes)
+            static void ValidateNavigations(List<EntityOne> ones, List<EntityThree> threes)
             {
                 foreach (var one in ones)
                 {
@@ -2463,7 +2463,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            void ValidateJoinNavigations(DbContext context)
+            static void ValidateJoinNavigations(DbContext context)
             {
                 foreach (var joinEntity in context.ChangeTracker.Entries<JoinOneToThreePayloadFull>().Select(e => e.Entity).ToList())
                 {
@@ -2522,7 +2522,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities);
                 });
 
-            void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+            static void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
@@ -2581,7 +2581,7 @@ namespace Microsoft.EntityFrameworkCore
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 116);
                 });
 
-            void ValidateFixup(
+            static void ValidateFixup(
                 DbContext context,
                 List<EntityOne> leftEntities,
                 List<EntityTwo> rightEntities,
@@ -2700,7 +2700,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.DoesNotContain(context.ChangeTracker.Entries<JoinOneToTwo>(), e => e.Entity.OneId == 1 || e.Entity.TwoId == 1);
                 });
 
-            void ValidateNavigations(List<EntityOne> ones, List<EntityTwo> twos)
+            static void ValidateNavigations(List<EntityOne> ones, List<EntityTwo> twos)
             {
                 foreach (var one in ones)
                 {
@@ -2778,7 +2778,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Single(rightEntities[2].As);
                 });
 
-            void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
+            static void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
             {
                 Assert.Equal(11, context.ChangeTracker.Entries().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyA>().Count());
@@ -2817,15 +2817,10 @@ namespace Microsoft.EntityFrameworkCore
                 }).Load();
             }
 
-            ValidateCounts(context, 152, 20, 20, 112);
-        }
-
-        private static void ValidateCounts(DbContext context, int total, int ones, int twos, int joins)
-        {
-            Assert.Equal(total, context.ChangeTracker.Entries().Count());
-            Assert.Equal(ones, context.ChangeTracker.Entries<EntityOne>().Count());
-            Assert.Equal(twos, context.ChangeTracker.Entries<EntityTwo>().Count());
-            Assert.Equal(joins, context.ChangeTracker.Entries<JoinOneToTwo>().Count());
+            Assert.Equal(152, context.ChangeTracker.Entries().Count());
+            Assert.Equal(20, context.ChangeTracker.Entries<EntityOne>().Count());
+            Assert.Equal(20, context.ChangeTracker.Entries<EntityTwo>().Count());
+            Assert.Equal(112, context.ChangeTracker.Entries<JoinOneToTwo>().Count());
 
             var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
             var rightEntities = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
@@ -2850,7 +2845,53 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var deleted = context.ChangeTracker.Entries<JoinOneToTwo>().Count(e => e.State == EntityState.Deleted);
-            Assert.Equal(joins, (joinCount / 2) + deleted);
+            Assert.Equal(112, (joinCount / 2) + deleted);
+        }
+
+        [ConditionalFact]
+        public void Can_insert_update_delete_shared_type_entity_type()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").CreateInstance(
+                        c =>
+                        {
+                            c["OneId"] = 1;
+                            c["ThreeId"] = 1;
+                            c["Payload"] = "NewlyAdded";
+                        });
+                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Add(entity);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                            .Single(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1);
+
+                    Assert.Equal("NewlyAdded", (string)entity["Payload"]);
+
+                    entity["Payload"] = "AlreadyUpdated";
+
+                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Update(entity);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                            .Single(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1);
+
+                    Assert.Equal("AlreadyUpdated", (string)entity["Payload"]);
+
+                    context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Remove(entity);
+
+                    context.SaveChanges();
+
+                    Assert.False(context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                            .Any(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1));
+                });
         }
 
         protected ManyToManyTrackingTestBase(TFixture fixture) => Fixture = fixture;

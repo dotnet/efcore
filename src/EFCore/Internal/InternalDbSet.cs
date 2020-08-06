@@ -96,6 +96,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     throw new InvalidOperationException(CoreStrings.InvalidSetTypeOwned(typeof(TEntity).ShortDisplayName()));
                 }
 
+                if (_entityType.ClrType != typeof(TEntity))
+                {
+                    var message = CoreStrings.DbSetIncorrectGenericType(
+                        _entityType.ShortName(), _entityType.ClrType.ShortDisplayName(), typeof(TEntity).ShortDisplayName());
+                    _entityType = null;
+
+                    throw new InvalidOperationException(message);
+                }
+
                 return _entityType;
             }
         }
