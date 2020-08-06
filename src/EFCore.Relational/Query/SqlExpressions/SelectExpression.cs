@@ -10,6 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -1066,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var identifiers = _identifier.ToList();
             _identifier.Clear();
-            // TODO: See issue#15873
+
             foreach (var identifier in identifiers)
             {
                 if (projectionMap.TryGetValue(identifier.Column, out var outerColumn))
@@ -1083,7 +1084,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var childIdentifiers = _childIdentifiers.ToList();
             _childIdentifiers.Clear();
-            // TODO: See issue#15873
+
             foreach (var identifier in childIdentifiers)
             {
                 if (projectionMap.TryGetValue(identifier.Column, out var outerColumn))
@@ -1426,6 +1427,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier);
                 var innerClientEval = innerSelectExpression.Projection.Count > 0;
                 innerSelectExpression.ApplyProjection();
+
+                if (innerSelectExpression.IsDistinct
+                    || innerSelectExpression.GroupBy.Count > 0)
+                {
+                    var innerSelectProjectionExpressions = innerSelectExpression._projection.Select(p => p.Expression).ToList();
+                    foreach (var innerSelectIdentifier in innerSelectExpression._identifier)
+                    {
+                        if (!innerSelectProjectionExpressions.Contains(innerSelectIdentifier.Column))
+                        {
+                            throw new InvalidOperationException(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery(
+                                innerSelectIdentifier.Column.Table.Alias + "." + innerSelectIdentifier.Column.Name));
+                        }
+                    }
+                }
 
                 if (collectionIndex == 0)
                 {

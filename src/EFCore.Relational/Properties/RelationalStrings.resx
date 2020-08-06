@@ -735,4 +735,7 @@
   <data name="MissingOrderingInSqlExpression" xml:space="preserve">
     <value>Reverse could not be translated to the server because there is no ordering on the server side.</value>
   </data>
+  <data name="MissingIdentifyingProjectionInDistinctGroupBySubquery" xml:space="preserve">
+    <value>Collection subquery that uses 'Distinct' or 'Group By' operations must project key columns of all of it's tables. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.</value>
+  </data>
 </root>

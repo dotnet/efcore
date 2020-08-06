@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -206,6 +208,22 @@ WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
 
         [ConditionalTheory(Skip = "Issue#18844")]
         public override Task Where_TimeSpan_Milliseconds(bool async) => base.Where_TimeSpan_Milliseconds(async);
+
+        public override async Task Correlated_collection_with_Distinct_missing_indentifying_columns_in_projection(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_Distinct_missing_indentifying_columns_in_projection(async))).Message;
+
+            Assert.Equal(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery("w.Id"), message);
+        }
+
+        public override async Task Correlated_collection_with_GroupBy_missing_indentifying_columns_in_projection(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_GroupBy_missing_indentifying_columns_in_projection(async))).Message;
+
+            Assert.Equal(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery("s.MissionId"), message);
+        }
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

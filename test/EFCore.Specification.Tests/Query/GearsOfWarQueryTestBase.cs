@@ -7764,6 +7764,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_Distinct_missing_indentifying_columns_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .OrderBy(g => g.Nickname)
+                    .Select(g => g.Weapons.SelectMany(x => x.Owner.AssignedCity.BornGears)
+                    .Select(x => (bool?)x.HasSoulPatch).Distinct().ToList()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_GroupBy_missing_indentifying_columns_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>()
+                    .Select(m => new
+                    {
+                        m.Id,
+                        grouping = m.ParticipatingSquads
+                            .Select(ps => ps.SquadId)
+                            .GroupBy(s => s)
+                            .Select(g => new { g.Key, Count = g.Count() })
+                    }));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

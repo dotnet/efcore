@@ -1039,6 +1039,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string MissingOrderingInSqlExpression
             => GetString("MissingOrderingInSqlExpression");
 
+        /// <summary>
+        ///     Collection subquery that uses 'Distinct' or 'Group By' operations must project key columns of all of it's tables. Missing column: {column}. Either add column(s) to the projection or rewrite query to not use 'GroupBy'/'Distinct' operation.
+        /// </summary>
+        public static string MissingIdentifyingProjectionInDistinctGroupBySubquery([CanBeNull] object column)
+            => string.Format(GetString("MissingIdentifyingProjectionInDistinctGroupBySubquery", nameof(column)), column);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

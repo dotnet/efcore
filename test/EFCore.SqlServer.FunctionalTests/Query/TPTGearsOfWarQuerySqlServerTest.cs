@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Xunit;
 using Xunit.Abstractions;
@@ -8567,6 +8569,22 @@ LEFT JOIN (
 LEFT JOIN [Cities] AS [c] ON [t].[CityOfBirthName] = [c].[Name]
 GROUP BY [c].[Name], [c].[Location]
 ORDER BY [c].[Location]");
+        }
+
+        public override async Task Correlated_collection_with_Distinct_missing_indentifying_columns_in_projection(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_Distinct_missing_indentifying_columns_in_projection(async))).Message;
+
+            Assert.Equal(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery("w.Id"), message);
+        }
+
+        public override async Task Correlated_collection_with_GroupBy_missing_indentifying_columns_in_projection(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_GroupBy_missing_indentifying_columns_in_projection(async))).Message;
+
+            Assert.Equal(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery("s.MissionId"), message);
         }
 
         private void AssertSql(params string[] expected)

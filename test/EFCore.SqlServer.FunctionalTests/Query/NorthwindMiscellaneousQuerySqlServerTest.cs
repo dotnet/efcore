@@ -5260,6 +5260,33 @@ END, [t].[City]");
 FROM [Customers] AS [c]");
         }
 
+        public override async Task SelectMany_correlated_subquery_hard(bool async)
+        {
+            await base.SelectMany_correlated_subquery_hard(async);
+
+            AssertSql(
+                @"@__p_0='91'
+
+SELECT [t0].[City] AS [c1], [t1].[City], [t1].[City0] AS [c1]
+FROM (
+    SELECT DISTINCT [t].[City]
+    FROM (
+        SELECT TOP(@__p_0) [c].[City], [c].[CustomerID]
+        FROM [Customers] AS [c]
+    ) AS [t]
+) AS [t0]
+CROSS APPLY (
+    SELECT TOP(9) [e].[City], [t0].[City] AS [City0], [e].[EmployeeID]
+    FROM [Employees] AS [e]
+    WHERE ([t0].[City] = [e].[City]) OR ([t0].[City] IS NULL AND [e].[City] IS NULL)
+) AS [t1]
+CROSS APPLY (
+    SELECT TOP(9) [t0].[City], [e0].[EmployeeID]
+    FROM [Employees] AS [e0]
+    WHERE ([t1].[City] = [e0].[City]) OR ([t1].[City] IS NULL AND [e0].[City] IS NULL)
+) AS [t2]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
