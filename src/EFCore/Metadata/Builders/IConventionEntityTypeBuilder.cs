@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures a relationship between this and the target entity type.
         /// </summary>
         /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigationToTargetName">
+        /// <param name="navigationName">
         ///     The name of the navigation property on this entity type that is part of the relationship.
         /// </param>
         /// <param name="setTargetAsPrincipal"> A value indicating whether the target entity type should be configured as the principal end. </param>
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType,
-            [NotNull] string navigationToTargetName,
+            [NotNull] string navigationName,
             bool setTargetAsPrincipal = false,
             bool fromDataAnnotation = false);
 
@@ -418,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures a relationship between this and the target entity type.
         /// </summary>
         /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigationToTarget"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
         /// <param name="setTargetAsPrincipal"> A value indicating whether the target entity type should be configured as the principal end. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType,
-            [NotNull] MemberInfo navigationToTarget,
+            [NotNull] MemberInfo navigation,
             bool setTargetAsPrincipal = false,
             bool fromDataAnnotation = false);
 
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures a relationship between this and the target entity type.
         /// </summary>
         /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigationToTargetName"> The name of the navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="navigationName"> The name of the navigation property on this entity type that is part of the relationship. </param>
         /// <param name="inverseNavigationName">
         ///     The name of the navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType,
-            [NotNull] string navigationToTargetName,
+            [NotNull] string navigationName,
             [CanBeNull] string inverseNavigationName,
             bool setTargetAsPrincipal = false,
             bool fromDataAnnotation = false);
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures a relationship between this and the target entity type.
         /// </summary>
         /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigationToTarget"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
         /// <param name="inverseNavigation">
         ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
@@ -470,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder HasRelationship(
             [NotNull] IConventionEntityType targetEntityType,
-            [NotNull] MemberInfo navigationToTarget,
+            [NotNull] MemberInfo navigation,
             [CanBeNull] MemberInfo inverseNavigation,
             bool setTargetAsPrincipal = false,
             bool fromDataAnnotation = false);
@@ -479,19 +479,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
         /// <param name="targetEntityType"> The type that this relationship targets. </param>
-        /// <param name="navigationToTargetName"> The name of the navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="navigationName"> The name of the navigation property on this entity type that is part of the relationship. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         IConventionForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
-            [NotNull] string navigationToTargetName,
+            [NotNull] string navigationName,
             bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
         /// <param name="targetEntityType"> The type that this relationship targets. </param>
-        /// <param name="navigationToTarget"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
@@ -499,14 +499,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
-            [NotNull] MemberInfo navigationToTarget,
+            [NotNull] MemberInfo navigation,
             bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
         /// <param name="targetEntityType"> The type that this relationship targets. </param>
-        /// <param name="navigationToTargetName"> The name of the navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="navigationName"> The name of the navigation property on this entity type that is part of the relationship. </param>
         /// <param name="inverseNavigationName">
         ///     The name of the navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
@@ -518,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
-            [NotNull] string navigationToTargetName,
+            [NotNull] string navigationName,
             [CanBeNull] string inverseNavigationName,
             bool fromDataAnnotation = false);
 
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
         /// <param name="targetEntityType"> The type that this relationship targets. </param>
-        /// <param name="navigationToTarget"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
         /// <param name="inverseNavigation">
         ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
@@ -538,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder HasOwnership(
             [NotNull] Type targetEntityType,
-            [NotNull] MemberInfo navigationToTarget,
+            [NotNull] MemberInfo navigation,
             [CanBeNull] MemberInfo inverseNavigation,
             bool fromDataAnnotation = false);
 
@@ -631,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures a skip navigation and the inverse between this and the target entity type.
         /// </summary>
         /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigationToTarget"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
         /// <param name="inverseNavigation">
         ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionSkipNavigationBuilder HasSkipNavigation(
-            [NotNull] MemberInfo navigationToTarget,
+            [NotNull] MemberInfo navigation,
             [NotNull] IConventionEntityType targetEntityType,
             [NotNull] MemberInfo inverseNavigation,
             bool? collections = null,
@@ -656,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures a skip navigation between this and the target entity type.
         /// </summary>
-        /// <param name="navigationToTarget"> The navigation property. </param>
+        /// <param name="navigation"> The navigation property. </param>
         /// <param name="targetEntityType"> The entity type that the navigation targets. </param>
         /// <param name="collection"> Whether the navigation property is a collection property. </param>
         /// <param name="onDependent">
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionSkipNavigationBuilder HasSkipNavigation(
-            [NotNull] MemberInfo navigationToTarget,
+            [NotNull] MemberInfo navigation,
             [NotNull] IConventionEntityType targetEntityType,
             bool? collection = null,
             bool? onDependent = null,

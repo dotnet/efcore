@@ -411,8 +411,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id).IsRequired();
-            modelBuilder.Entity<A>().ToTable("Table", t => t.IsExcludedFromMigrations());
-            modelBuilder.Entity<B>().ToTable("Table", t => t.IsExcludedFromMigrations());
+            modelBuilder.Entity<A>().ToTable("Table", t => t.ExcludeFromMigrations());
+            modelBuilder.Entity<B>().ToTable("Table", t => t.ExcludeFromMigrations());
 
             Validate(modelBuilder.Model);
         }
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<B>().OwnsOne(b => b.A);
-            modelBuilder.Entity<B>().ToTable("Table", t => t.IsExcludedFromMigrations());
+            modelBuilder.Entity<B>().ToTable("Table", t => t.ExcludeFromMigrations());
 
             var model = Validate(modelBuilder.Model);
 
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<A>().ToTable("Table", t => t.IsExcludedFromMigrations());
+            modelBuilder.Entity<A>().ToTable("Table", t => t.ExcludeFromMigrations());
             modelBuilder.Entity<C>();
 
             var model = Validate(modelBuilder.Model);
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id).IsRequired();
-            modelBuilder.Entity<A>().ToTable("Table", t => t.IsExcludedFromMigrations());
+            modelBuilder.Entity<A>().ToTable("Table", t => t.ExcludeFromMigrations());
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(

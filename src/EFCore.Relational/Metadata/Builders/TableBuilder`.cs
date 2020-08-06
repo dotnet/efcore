@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="excluded"> A value indicating whether the table should be managed by migrations. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual TableBuilder<TEntity> IsExcludedFromMigrations(bool excluded = true)
-            => (TableBuilder<TEntity>)base.IsExcludedFromMigrations(excluded);
+        public new virtual TableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
+            => (TableBuilder<TEntity>)base.ExcludeFromMigrations(excluded);
     }
 }
