@@ -125,6 +125,26 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
         ///     and removes the annotations.
         /// </summary>
+        /// <param name="navigation"> The navigation to which the annotations are applied. </param>
+        /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
+        IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+            [NotNull] INavigation navigation, [NotNull] IDictionary<string, IAnnotation> annotations)
+            => Array.Empty<MethodCallCodeFragment>();
+
+        /// <summary>
+        ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
+        ///     and removes the annotations.
+        /// </summary>
+        /// <param name="navigation"> The skip navigation to which the annotations are applied. </param>
+        /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
+        IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+            [NotNull] ISkipNavigation navigation, [NotNull] IDictionary<string, IAnnotation> annotations)
+            => Array.Empty<MethodCallCodeFragment>();
+
+        /// <summary>
+        ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
+        ///     and removes the annotations.
+        /// </summary>
         /// <param name="index"> The index to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(

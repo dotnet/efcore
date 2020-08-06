@@ -193,7 +193,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Name = "Electric scooter",
                             SeatingCapacity = 1,
-                            Engine = new Engine()
+                            Engine = new Engine(),
+                            Operator = new Operator { Name = "Kai Saunders" }
                         });
 
                     scooterEntry.Reference(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue = 1;

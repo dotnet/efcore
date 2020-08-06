@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            IForeignKey foreignKey, IDictionary<string, IAnnotation> annotations)
+            IForeignKey navigation, IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -222,7 +222,29 @@ namespace Microsoft.EntityFrameworkCore.Design
                 annotations,
                 RelationalAnnotationNames.Name, nameof(RelationalForeignKeyBuilderExtensions.HasConstraintName), methodCallCodeFragments);
 
-            methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(foreignKey, annotations, GenerateFluentApi));
+            methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(navigation, annotations, GenerateFluentApi));
+
+            return methodCallCodeFragments;
+        }
+
+        /// <inheritdoc />
+        public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+            INavigation navigation, IDictionary<string, IAnnotation> annotations)
+        {
+            var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+            methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(navigation, annotations, GenerateFluentApi));
+
+            return methodCallCodeFragments;
+        }
+
+        /// <inheritdoc />
+        public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+            ISkipNavigation navigation, IDictionary<string, IAnnotation> annotations)
+        {
+            var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+            methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(navigation, annotations, GenerateFluentApi));
 
             return methodCallCodeFragments;
         }
@@ -496,6 +518,46 @@ namespace Microsoft.EntityFrameworkCore.Design
         protected virtual MethodCallCodeFragment GenerateFluentApi([NotNull] IForeignKey foreignKey, [NotNull] IAnnotation annotation)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(annotation, nameof(annotation));
+
+            return null;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///         if no fluent API call exists for it.
+        ///     </para>
+        ///     <para>
+        ///         The default implementation always returns <see langword="null" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigation"> The <see cref="INavigation" />. </param>
+        /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
+        /// <returns> <see langword="null" />. </returns>
+        protected virtual MethodCallCodeFragment GenerateFluentApi([NotNull] INavigation navigation, [NotNull] IAnnotation annotation)
+        {
+            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(annotation, nameof(annotation));
+
+            return null;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///         if no fluent API call exists for it.
+        ///     </para>
+        ///     <para>
+        ///         The default implementation always returns <see langword="null" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigation"> The <see cref="ISkipNavigation" />. </param>
+        /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
+        /// <returns> <see langword="null" />. </returns>
+        protected virtual MethodCallCodeFragment GenerateFluentApi([NotNull] ISkipNavigation navigation, [NotNull] IAnnotation annotation)
+        {
+            Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(annotation, nameof(annotation));
 
             return null;

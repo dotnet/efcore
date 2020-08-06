@@ -88,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 IForeignKey linkedForeignKey = null;
                 foreach (var otherForeignKey in rootForeignKey.DeclaringEntityType
-                        .FindRowInternalForeignKeys(storeObject)
-                        .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
+                    .FindRowInternalForeignKeys(storeObject)
+                    .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
                 {
                     if (principalStoreObject.Name == otherForeignKey.PrincipalEntityType.GetTableName()
                         && principalStoreObject.Schema == otherForeignKey.PrincipalEntityType.GetSchema()
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore
             // Using a hashset is detrimental to the perf when there are no cycles
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
-                IForeignKey linkedKey = null;
+                IForeignKey linkedForeignKey = null;
                 foreach (var otherForeignKey in rootForeignKey.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
@@ -207,17 +207,17 @@ namespace Microsoft.EntityFrameworkCore
                             otherForeignKey.PrincipalEntityType.GetSchema()))
                         == foreignKeyName)
                     {
-                        linkedKey = otherForeignKey;
+                        linkedForeignKey = otherForeignKey;
                         break;
                     }
                 }
 
-                if (linkedKey == null)
+                if (linkedForeignKey == null)
                 {
                     break;
                 }
 
-                rootForeignKey = linkedKey;
+                rootForeignKey = linkedForeignKey;
             }
 
             return rootForeignKey == foreignKey ? null : rootForeignKey;
