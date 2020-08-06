@@ -2783,9 +2783,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation '{navigation}' on '{entityType}' must be configured using Fluent API with an explicit name for the target shared type entity type or excluded by calling 'EntityTypeBuilder.Ignore'.
         /// </summary>
-        public static string NonconfiguredNavigationToSharedType([CanBeNull] object navigation, [CanBeNull] object entityType)
+        public static string NonConfiguredNavigationToSharedType([CanBeNull] object navigation, [CanBeNull] object entityType)
             => string.Format(
-                GetString("NonconfiguredNavigationToSharedType", nameof(navigation), nameof(entityType)),
+                GetString("NonConfiguredNavigationToSharedType", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
 
         /// <summary>
@@ -4551,22 +4551,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Including navigation: '{navigation}'.
         /// </summary>
-        public static EventDefinition<string> LogNavigationIncluded([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogNavigationBaseIncluded([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogNavigationIncluded;
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNavigationBaseIncluded;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogNavigationIncluded,
+                    ref ((LoggingDefinitions)logger.Definitions).LogNavigationBaseIncluded,
                     () => new EventDefinition<string>(
                         logger.Options,
-                        CoreEventId.NavigationIncluded,
+                        CoreEventId.NavigationBaseIncluded,
                         LogLevel.Debug,
-                        "CoreEventId.NavigationIncluded",
+                        "CoreEventId.NavigationBaseIncluded",
                         level => LoggerMessage.Define<string>(
                             level,
-                            CoreEventId.NavigationIncluded,
-                            _resourceManager.GetString("LogNavigationIncluded"))));
+                            CoreEventId.NavigationBaseIncluded,
+                            _resourceManager.GetString("LogNavigationBaseIncluded"))));
             }
 
             return (EventDefinition<string>)definition;

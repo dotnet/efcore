@@ -974,10 +974,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanHaveNavigationBase([NotNull] string skipNavigationName, ConfigurationSource? configurationSource)
+        public virtual bool CanHaveSkipNavigation([NotNull] string skipNavigationName, ConfigurationSource? configurationSource)
             => !IsIgnored(skipNavigationName, configurationSource)
                 && Metadata.FindPropertiesInHierarchy(skipNavigationName).Cast<IConventionPropertyBase>()
                     .Concat(Metadata.FindServicePropertiesInHierarchy(skipNavigationName))
+                    .Concat(Metadata.FindNavigationsInHierarchy(skipNavigationName))
                     .All(m => configurationSource.Overrides(m.GetConfigurationSource()));
 
         /// <summary>
@@ -4915,9 +4916,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        bool IConventionEntityTypeBuilder.CanHaveNavigationBase(string navigationBaseName, bool fromDataAnnotation)
-            => CanHaveNavigationBase(
-                navigationBaseName,
+        bool IConventionEntityTypeBuilder.CanHaveSkipNavigation(string skipNavigationName, bool fromDataAnnotation)
+            => CanHaveSkipNavigation(
+                skipNavigationName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />

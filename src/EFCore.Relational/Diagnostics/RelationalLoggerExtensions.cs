@@ -4148,7 +4148,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new TwoSqlExpressionEventData(
+                var eventData = new TwoSqlExpressionsEventData(
                     definition,
                     QueryPossibleUnintendedUseOfEqualsWarning,
                     left,
@@ -4161,7 +4161,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static string QueryPossibleUnintendedUseOfEqualsWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
-            var p = (TwoSqlExpressionEventData)payload;
+            var p = (TwoSqlExpressionsEventData)payload;
             return d.GenerateMessage(p.Left.Print(), p.Right.Print());
         }
 

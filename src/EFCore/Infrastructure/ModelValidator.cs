@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         || (targetSequenceType != null && model.IsShared(targetSequenceType)))
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.NonconfiguredNavigationToSharedType(actualProperty.Name, entityType.DisplayName()));
+                            CoreStrings.NonConfiguredNavigationToSharedType(actualProperty.Name, entityType.DisplayName()));
                     }
 
                     var targetType = FindCandidateNavigationPropertyType(actualProperty);

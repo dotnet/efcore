@@ -348,8 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
                 ColumnExpression columnExpression
                     => VisitColumn(columnExpression, allowOptimizedExpansion, out nullable),
-                DistinctSqlExpression distinctSqlExpression
-                    => VisitDistinctSql(distinctSqlExpression, allowOptimizedExpansion, out nullable),
+                DistinctExpression distinctExpression
+                    => VisitDistinct(distinctExpression, allowOptimizedExpansion, out nullable),
                 ExistsExpression existsExpression
                     => VisitExists(existsExpression, allowOptimizedExpansion, out nullable),
                 InExpression inExpression
@@ -505,18 +505,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Visits a <see cref="DistinctSqlExpression"/> and computes its nullability.
+        ///     Visits a <see cref="DistinctExpression"/> and computes its nullability.
         /// </summary>
-        /// <param name="distinctSqlExpression"> A collate expression to visit. </param>
+        /// <param name="distinctExpression"> A collate expression to visit. </param>
         /// <param name="allowOptimizedExpansion"> A bool value indicating if optimized expansion which considers null value as false value is allowed. </param>
         /// <param name="nullable"> A bool value indicating whether the sql expression is nullable. </param>
         /// <returns> An optimized sql expression. </returns>
-        protected virtual SqlExpression VisitDistinctSql(
-            [NotNull] DistinctSqlExpression distinctSqlExpression, bool allowOptimizedExpansion, out bool nullable)
+        protected virtual SqlExpression VisitDistinct(
+            [NotNull] DistinctExpression distinctExpression, bool allowOptimizedExpansion, out bool nullable)
         {
-            Check.NotNull(distinctSqlExpression, nameof(distinctSqlExpression));
+            Check.NotNull(distinctExpression, nameof(distinctExpression));
 
-            return distinctSqlExpression.Update(Visit(distinctSqlExpression.Operand, out nullable));
+            return distinctExpression.Update(Visit(distinctExpression.Operand, out nullable));
         }
 
         /// <summary>

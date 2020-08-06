@@ -376,15 +376,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs for the <see cref="CoreEventId.NavigationIncluded" /> event.
+        ///     Logs for the <see cref="CoreEventId.NavigationBaseIncluded" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation being included. </param>
-        public static void NavigationIncluded(
+        public static void NavigationBaseIncluded(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] INavigation navigation)
+            [NotNull] INavigationBase navigation)
         {
-            var definition = CoreResources.LogNavigationIncluded(diagnostics);
+            var definition = CoreResources.LogNavigationBaseIncluded(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
@@ -393,54 +393,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new NavigationEventData(
+                var eventData = new NavigationBaseEventData(
                     definition,
-                    NavigationIncluded,
+                    NavigationBaseIncluded,
                     navigation);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
-        private static string NavigationIncluded(EventDefinitionBase definition, EventData payload)
+        private static string NavigationBaseIncluded(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string>)definition;
-            var p = (NavigationEventData)payload;
-            return d.GenerateMessage(p.Navigation.DeclaringEntityType.ShortName() + "." + p.Navigation.Name);
-        }
-
-        /// <summary>
-        ///     Logs for the <see cref="CoreEventId.NavigationIncluded" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="skipNavigation"> The navigation being included. </param>
-        public static void NavigationIncluded(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] ISkipNavigation skipNavigation)
-        {
-            var definition = CoreResources.LogNavigationIncluded(diagnostics);
-
-            if (diagnostics.ShouldLog(definition))
-            {
-                definition.Log(diagnostics, skipNavigation.DeclaringEntityType.ShortName() + "." + skipNavigation.Name);
-            }
-
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-            {
-                var eventData = new SkipNavigationEventData(
-                    definition,
-                    SkipNavigationIncluded,
-                    skipNavigation);
-
-                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-            }
-        }
-
-        private static string SkipNavigationIncluded(EventDefinitionBase definition, EventData payload)
-        {
-            var d = (EventDefinition<string>)definition;
-            var p = (SkipNavigationEventData)payload;
-            return d.GenerateMessage(p.Navigation.DeclaringEntityType.ShortName() + "." + p.Navigation.Name);
+            var p = (NavigationBaseEventData)payload;
+            return d.GenerateMessage(p.NavigationBase.DeclaringEntityType.ShortName() + "." + p.NavigationBase.Name);
         }
 
         /// <summary>

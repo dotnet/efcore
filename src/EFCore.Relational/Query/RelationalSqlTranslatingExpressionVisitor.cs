@@ -156,9 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (inputType == typeof(int)
                 || inputType == typeof(long))
             {
-                sqlExpression = sqlExpression is DistinctSqlExpression distinctSqlExpression
-                    ? new DistinctSqlExpression(_sqlExpressionFactory.ApplyDefaultTypeMapping(
-                       _sqlExpressionFactory.Convert(distinctSqlExpression.Operand, typeof(double))))
+                sqlExpression = sqlExpression is DistinctExpression distinctExpression
+                    ? new DistinctExpression(_sqlExpressionFactory.ApplyDefaultTypeMapping(
+                       _sqlExpressionFactory.Convert(distinctExpression.Operand, typeof(double))))
                     : _sqlExpressionFactory.ApplyDefaultTypeMapping(
                         _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
             }
@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         if (groupingElement.IsDistinct
                             && !(selector is SqlFragmentExpression))
                         {
-                            selector = new DistinctSqlExpression(selector);
+                            selector = new DistinctExpression(selector);
                         }
 
                         return selector;

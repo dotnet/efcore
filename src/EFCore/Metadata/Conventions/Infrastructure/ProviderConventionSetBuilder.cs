@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.NavigationAddedConventions.Add(foreignKeyAttributeConvention);
 
             var manyToManyJoinEntityTypeConvention = new ManyToManyJoinEntityTypeConvention(Dependencies);
-            conventionSet.SkipNavigationAddedConventions.Add(new SkipNavigationBackingFieldAttributeConvention(Dependencies));
+            conventionSet.SkipNavigationAddedConventions.Add(new NavigationBackingFieldAttributeConvention(Dependencies));
             conventionSet.SkipNavigationAddedConventions.Add(backingFieldConvention);
             conventionSet.SkipNavigationAddedConventions.Add(manyToManyJoinEntityTypeConvention);
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -33,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var navigation = new Navigation("N", propertyInfo, null, foreignKey);
             var skipNavigation = new SkipNavigation(
                 "SN", propertyInfo, null, entityType, otherEntityType, true, false, ConfigurationSource.Convention);
+            var navigationBase = new FakeNavigationBase("FNB", ConfigurationSource.Convention, entityType);
 
             entityType.Model.FinalizeModel();
             var options = new DbContextOptionsBuilder()
@@ -63,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IProperty), () => property },
                 { typeof(INavigation), () => navigation },
                 { typeof(ISkipNavigation), () => skipNavigation },
+                { typeof(INavigationBase), () => navigationBase },
                 { typeof(IForeignKey), () => foreignKey },
                 { typeof(InternalEntityEntry), () => new FakeInternalEntityEntry(entityType) },
                 { typeof(ISet<object>), () => new HashSet<object>() },
@@ -93,6 +96,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             public override object Entity { get; }
+        }
+
+        private class FakeNavigationBase : PropertyBase, INavigationBase
+        {
+            public FakeNavigationBase(string name, ConfigurationSource configurationSource, EntityType entityType)
+                : base(name, null, null, configurationSource)
+            {
+                DeclaringType = entityType;
+            }
+
+            public IEntityType DeclaringEntityType => (IEntityType)DeclaringType;
+
+            public IEntityType TargetEntityType => throw new NotImplementedException();
+
+            public INavigationBase Inverse => throw new NotImplementedException();
+
+            public bool IsCollection => throw new NotImplementedException();
+
+            public override TypeBase DeclaringType { get; }
+
+            public override Type ClrType => throw new NotImplementedException();
+
+            public IClrCollectionAccessor GetCollectionAccessor()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
