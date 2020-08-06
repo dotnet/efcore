@@ -137,6 +137,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 GenerateEntityTypeRelationships(builderName, entityType, stringBuilder);
             }
+
+            foreach (var entityType in entityTypes.Where(
+                e => !e.HasDefiningNavigation()
+                     && e.FindOwnership() == null
+                     && e.GetDeclaredNavigations().Any(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership)))
+            {
+                stringBuilder.AppendLine();
+
+                GenerateEntityTypeNavigations(builderName, entityType, stringBuilder);
+            }
         }
 
         /// <summary>
@@ -215,6 +225,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     if (ownerNavigation != null)
                     {
                         GenerateRelationships(builderName, entityType, stringBuilder);
+
+                        GenerateNavigations(builderName, entityType.GetDeclaredNavigations()
+                            .Where(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership), stringBuilder);
                     }
 
                     GenerateData(builderName, entityType.GetProperties(), entityType.GetSeedData(providerValues: true), stringBuilder);
@@ -318,6 +331,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateForeignKeys(builderName, entityType.GetDeclaredForeignKeys(), stringBuilder);
 
             GenerateOwnedTypes(builderName, entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership), stringBuilder);
+
+            GenerateNavigations(builderName, entityType.GetDeclaredNavigations()
+                .Where(n => n.IsOnDependent || (!n.IsOnDependent && n.ForeignKey.IsOwnership)), stringBuilder);
         }
 
         /// <summary>
@@ -1179,6 +1195,128 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             foreach (var methodCallCodeFragment in
                 Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(foreignKey, annotations))
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(Code.Fragment(methodCallCodeFragment));
+            }
+
+            GenerateAnnotations(annotations.Values, stringBuilder);
+        }
+
+        /// <summary>
+        ///     Generates code for the navigations of an <see cref="IEntityType" />.
+        /// </summary>
+        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateEntityTypeNavigations(
+            [NotNull] string builderName,
+            [NotNull] IEntityType entityType,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotEmpty(builderName, nameof(builderName));
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            stringBuilder
+                .Append(builderName)
+                .Append(".Entity(")
+                .Append(Code.Literal(entityType.Name))
+                .AppendLine(", b =>");
+
+            using (stringBuilder.Indent())
+            {
+                stringBuilder.Append("{");
+
+                using (stringBuilder.Indent())
+                {
+                    GenerateNavigations("b", entityType.GetDeclaredNavigations()
+                        .Where(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership), stringBuilder);
+                }
+
+                stringBuilder.AppendLine("});");
+            }
+        }
+
+        /// <summary>
+        ///     Generates code for <see cref="INavigation" /> objects.
+        /// </summary>
+        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="navigations"> The navigations. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateNavigations(
+            [NotNull] string builderName,
+            [NotNull] IEnumerable<INavigation> navigations,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(navigations, nameof(navigations));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            foreach (var navigation in navigations)
+            {
+                stringBuilder.AppendLine();
+
+                GenerateNavigation(builderName, navigation, stringBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     Generates code for an <see cref="INavigation" />.
+        /// </summary>
+        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="navigation"> The navigation. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateNavigation(
+            [NotNull] string builderName,
+            [NotNull] INavigation navigation,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            stringBuilder
+                .Append(builderName)
+                .Append(".Navigation(")
+                .Append(Code.Literal(navigation.Name))
+                .Append(")");
+
+            using (stringBuilder.Indent())
+            {
+                if (!navigation.IsOnDependent
+                    && !navigation.IsCollection
+                    && navigation.ForeignKey.IsRequiredDependent)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".IsRequired()");
+                }
+
+                GenerateNavigationAnnotations(navigation, stringBuilder);
+            }
+
+            stringBuilder.AppendLine(";");
+        }
+
+        /// <summary>
+        ///     Generates code for the annotations on a navigation.
+        /// </summary>
+        /// <param name="navigation"> The navigation. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateNavigationAnnotations(
+            [NotNull] INavigation navigation, [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            var annotations = Dependencies.AnnotationCodeGenerator
+                .FilterIgnoredAnnotations(navigation.GetAnnotations())
+                .ToDictionary(a => a.Name, a => a);
+
+            foreach (var methodCallCodeFragment in
+                Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(navigation, annotations))
             {
                 stringBuilder
                     .AppendLine()

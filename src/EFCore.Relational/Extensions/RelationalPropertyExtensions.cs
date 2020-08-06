@@ -825,7 +825,25 @@ namespace Microsoft.EntityFrameworkCore
 
             return property.IsNullable
                     || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.GetDiscriminatorProperty() != null)
-                    || property.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any();
+                    || IsOptionalSharingDependent(property.DeclaringEntityType, storeObject, 0);
+        }
+
+        private static bool IsOptionalSharingDependent(IEntityType entityType, in StoreObjectIdentifier storeObject, int recursionDepth)
+        {
+            if (recursionDepth++ == Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable)
+            {
+                return true;
+            }
+
+            bool? optional = null;
+            foreach (var linkingForeignKey in entityType.FindRowInternalForeignKeys(storeObject))
+            {
+                optional = (optional ?? true)
+                    && (!linkingForeignKey.IsRequiredDependent
+                        || IsOptionalSharingDependent(linkingForeignKey.PrincipalEntityType, storeObject, recursionDepth));
+            }
+
+            return optional ?? false;
         }
 
         /// <summary>

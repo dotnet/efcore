@@ -48,6 +48,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 });
             modelBuilder.Entity<LicensedOperator>();
 
+            modelBuilder.Entity<Vehicle>(vb =>
+            {
+                vb.Navigation(v => v.Operator).IsRequired();
+            });
+
             modelBuilder.Entity<FuelTank>(
                 eb =>
                 {

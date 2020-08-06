@@ -28,7 +28,6 @@ LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
     FROM [Vehicles] AS [v0]
     INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
-    WHERE [v0].[Operator_Discriminator] IS NOT NULL
 ) AS [t] ON [v].[Name] = [t].[Name]
 LEFT JOIN (
     SELECT [v2].[Name], [v2].[Type], [t0].[Name] AS [Name0], [t0].[Name0] AS [Name00]
@@ -37,7 +36,6 @@ LEFT JOIN (
         SELECT [v3].[Name], [v3].[Operator_Discriminator], [v3].[Operator_Name], [v3].[LicenseType], [v4].[Name] AS [Name0]
         FROM [Vehicles] AS [v3]
         INNER JOIN [Vehicles] AS [v4] ON [v3].[Name] = [v4].[Name]
-        WHERE [v3].[Operator_Discriminator] IS NOT NULL
     ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Type] IS NOT NULL
 ) AS [t1] ON [t].[Name] = [t1].[Name]
@@ -85,8 +83,7 @@ ORDER BY [v].[Name]");
             AssertSql(
                 @"SELECT [v].[Name], [v].[Operator_Discriminator], [v].[Operator_Name], [v].[LicenseType]
 FROM [Vehicles] AS [v]
-INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]
-WHERE [v].[Operator_Discriminator] IS NOT NULL");
+INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]");
         }
 
         public override void Can_query_shared_nonhierarchy()
@@ -222,7 +219,7 @@ WHERE [v1].[FuelType] IS NOT NULL AND [v1].[Capacity] IS NOT NULL");
 
             AssertSql(
                 @"@p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
-@p0='LicensedOperator' (Size = 4000)
+@p0='LicensedOperator' (Nullable = false) (Size = 4000)
 @p1='Repair' (Size = 4000)
 @p2='repairman' (Size = 4000)
 
@@ -237,7 +234,6 @@ LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
     FROM [Vehicles] AS [v0]
     INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
-    WHERE [v0].[Operator_Discriminator] IS NOT NULL
 ) AS [t] ON [v].[Name] = [t].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }
@@ -261,7 +257,6 @@ LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
     FROM [Vehicles] AS [v0]
     INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
-    WHERE [v0].[Operator_Discriminator] IS NOT NULL
 ) AS [t] ON [v].[Name] = [t].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }

@@ -6595,6 +6595,36 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Create_shared_table_with_required_dependent()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity("Order").ToTable("Orders").Property<int>("Id");
+                    modelBuilder.Entity(
+                        "OrderDetails", eb =>
+                        {
+                            eb.Property<int>("Id");
+                            eb.Property<DateTime>("Time");
+                            eb.HasOne("Order").WithOne("OrderDetails").HasForeignKey("OrderDetails", "Id");
+                            eb.ToTable("Orders");
+                        });
+                    modelBuilder.Entity("Order").Navigation("OrderDetails").IsRequired();
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Equal(2, createTableOperation.Columns.Count);
+                    var timeColumn = createTableOperation.Columns[1];
+                    Assert.Equal("Time", timeColumn.Name);
+                    Assert.False(timeColumn.IsNullable);
+                });
+        }
+
+        [ConditionalFact]
         public void Create_shared_table_with_inheritance_and_three_entity_types()
         {
             Execute(

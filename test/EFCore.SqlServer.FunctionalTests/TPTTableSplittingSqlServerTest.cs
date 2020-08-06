@@ -38,7 +38,6 @@ LEFT JOIN (
         FROM [Vehicles] AS [v1]
         LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
-    WHERE [v0].[RequiredInt] IS NOT NULL
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 LEFT JOIN (
     SELECT [v2].[Name], [v2].[Type], [t2].[Name] AS [Name0], [t2].[Name0] AS [Name00]
@@ -56,7 +55,6 @@ LEFT JOIN (
             FROM [Vehicles] AS [v4]
             LEFT JOIN [PoweredVehicles] AS [p1] ON [v4].[Name] = [p1].[Name]
         ) AS [t1] ON [v3].[Name] = [t1].[Name]
-        WHERE [v3].[RequiredInt] IS NOT NULL
     ) AS [t2] ON [v2].[Name] = [t2].[Name]
     WHERE [v2].[Type] IS NOT NULL
 ) AS [t3] ON [t0].[Name] = [t3].[Name]
@@ -117,8 +115,7 @@ INNER JOIN (
     END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
-) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[RequiredInt] IS NOT NULL");
+) AS [t] ON [v].[Name] = [t].[Name]");
         }
 
         public override void Can_query_shared_nonhierarchy()
@@ -134,8 +131,7 @@ INNER JOIN (
     END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
-) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[RequiredInt] IS NOT NULL");
+) AS [t] ON [v].[Name] = [t].[Name]");
         }
 
         public override void Can_query_shared_nonhierarchy_with_nonshared_dependent()
@@ -151,8 +147,7 @@ INNER JOIN (
     END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
-) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[RequiredInt] IS NOT NULL");
+) AS [t] ON [v].[Name] = [t].[Name]");
         }
 
         public override void Can_query_shared_derived_hierarchy()
@@ -264,7 +259,6 @@ LEFT JOIN (
         FROM [Vehicles] AS [v1]
         LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
-    WHERE [v0].[RequiredInt] IS NOT NULL
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }
@@ -300,7 +294,6 @@ LEFT JOIN (
         FROM [Vehicles] AS [v1]
         LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
-    WHERE [v0].[RequiredInt] IS NOT NULL
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }
