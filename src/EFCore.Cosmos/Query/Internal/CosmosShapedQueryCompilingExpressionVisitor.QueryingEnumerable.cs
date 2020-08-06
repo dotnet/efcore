@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Newtonsoft.Json.Linq;
 
@@ -138,6 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             {
                                 var sqlQuery = _queryingEnumerable.GenerateQuery();
 
+                                EntityFrameworkEventSource.Log.QueryExecuting();
+
                                 _enumerator = _cosmosQueryContext.CosmosClient
                                     .ExecuteSqlQuery(
                                        _selectExpression.Container,
@@ -212,6 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             if (_enumerator == null)
                             {
                                 var sqlQuery = _queryingEnumerable.GenerateQuery();
+
+                                EntityFrameworkEventSource.Log.QueryExecuting();
 
                                 _enumerator = _cosmosQueryContext.CosmosClient
                                     .ExecuteSqlQueryAsync(

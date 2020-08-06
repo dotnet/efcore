@@ -1072,6 +1072,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (_concurrencyDetector.EnterCriticalSection())
             {
+                EntityFrameworkEventSource.Log.SavingChanges();
+
                 return _database.SaveChanges(entriesToSave);
             }
         }

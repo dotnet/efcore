@@ -340,6 +340,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     _initializing = true;
 
+                    EntityFrameworkEventSource.Log.DbContextInitializing();
+
                     var optionsBuilder = new DbContextOptionsBuilder(_options);
 
                     OnConfiguring(optionsBuilder);
@@ -506,6 +508,8 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (DbUpdateConcurrencyException exception)
             {
+                EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
+
                 DbContextDependencies.UpdateLogger.OptimisticConcurrencyException(this, exception);
 
                 SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
@@ -815,6 +819,8 @@ namespace Microsoft.EntityFrameworkCore
             }
             else if (!_disposed)
             {
+                EntityFrameworkEventSource.Log.DbContextDisposing();
+
                 _dbContextDependencies?.InfrastructureLogger.ContextDisposed(this);
 
                 _disposed = true;

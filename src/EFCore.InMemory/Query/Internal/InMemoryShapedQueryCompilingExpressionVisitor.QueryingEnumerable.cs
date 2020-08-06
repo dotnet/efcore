@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -121,6 +122,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     if (_enumerator == null)
                     {
+                        EntityFrameworkEventSource.Log.QueryExecuting();
+
                         _enumerator = _innerEnumerable.GetEnumerator();
                         _queryContext.InitializeStateManager(_standAloneStateManager);
                     }
