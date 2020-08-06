@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == entityType.ClrType))
                     {
-                        throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(entityType.DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(entityType.Name, entityType.ClrType.DisplayName()));
                     }
 
                     if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingConfigurationSource))

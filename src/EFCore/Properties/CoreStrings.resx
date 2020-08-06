@@ -1430,7 +1430,7 @@
     <value>The shared type entity type '{entityType}' cannot be added to the model because a shared entity type with the same name but different clr type already exists.</value>
   </data>
   <data name="ClashingNonSharedType" xml:space="preserve">
-    <value>The shared type entity type '{entityType}' cannot be added to the model because a non shared entity type with the same clr type already exists.</value>
+    <value>The shared type entity type '{entityType}' with clr type '{type}' cannot be added to the model because a non shared entity type with the same clr type already exists.</value>
   </data>
   <data name="InvalidSetSharedType" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an shared type entity type and should be accessed through entity type name based Set method.</value>

@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual ModelValidatorDependencies Dependencies { get; }
 
-        /// <summary> 
+        /// <summary>
         ///     Validates a model, throwing an exception if any errors are found.
         /// </summary>
         /// <param name="model"> The model to validate. </param>
@@ -149,9 +149,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in conventionModel.GetEntityTypes())
             {
-                var unmappedProperty = entityType.GetProperties().FirstOrDefault(
+                var unmappedProperty = entityType.GetDeclaredProperties().FirstOrDefault(
                     p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
-                            || !p.IsShadowProperty())
+                            // Use a better condition of non-persisted properties when issue#14121 is implemented
+                            || !(p.IsShadowProperty() || (p.DeclaringEntityType.IsPropertyBag && p.IsIndexerProperty())))
                         && p.FindTypeMapping() == null);
 
                 if (unmappedProperty != null)

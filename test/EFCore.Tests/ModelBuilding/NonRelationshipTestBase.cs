@@ -1572,11 +1572,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<SharedTypeEntityType>();
+                modelBuilder.Entity<Customer>();
 
                 Assert.Equal(
-                    CoreStrings.ClashingNonSharedType("Shared1"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity<SharedTypeEntityType>("Shared1")).Message);
+                    CoreStrings.ClashingNonSharedType("Shared1", typeof(Customer).DisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity<Customer>("Shared1")).Message);
             }
         }
     }

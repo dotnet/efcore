@@ -1566,6 +1566,66 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 .Entity<OneToManyNavPrincipalOwner>()
                                 .OwnsOne<OwnedOneToManyNavDependent>("OwnedDependents")).Message);
             }
+
+            [ConditionalFact]
+            public virtual void Shared_type_can_be_used_as_owned_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OwnerOfSharedType>(
+                    b =>
+                    {
+                        b.OwnsOne<Dictionary<string, object>>("Shared1", e => e.Reference).IndexerProperty<int>("Value");
+                        b.OwnsMany("Shared2", e => e.Collection).IndexerProperty<bool>("IsDeleted");
+                        b.OwnsOne(e => e.OwnedNavigation,
+                            o =>
+                            {
+                                o.OwnsOne<Dictionary<string, object>>("Shared3", e => e.Reference).IndexerProperty<int>("NestedValue");
+                                o.OwnsMany("Shared4", e => e.Collection).IndexerProperty<long>("NestedLong");
+                            });
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Collection(
+                    model.GetEntityTypes().OrderBy(e => e.Name),
+                    t => { Assert.Equal(typeof(NestedOwnerOfSharedType), t.ClrType); },
+                    t => { Assert.Equal(typeof(OwnerOfSharedType), t.ClrType); },
+                    t => { Assert.Equal("Shared1", t.Name); Assert.NotNull(t.FindProperty("Value")); },
+                    t => { Assert.Equal("Shared2", t.Name); Assert.NotNull(t.FindProperty("IsDeleted")); },
+                    t => { Assert.Equal("Shared3", t.Name); Assert.NotNull(t.FindProperty("NestedValue")); },
+                    t => { Assert.Equal("Shared4", t.Name); Assert.NotNull(t.FindProperty("NestedLong")); });
+            }
+
+            [ConditionalFact]
+            public virtual void Cannot_add_shared_type_with_same_clr_type_as_weak_entity_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<BillingOwner>(
+                    b =>
+                    {
+                        b.OwnsOne(e => e.Bill1);
+                        b.OwnsOne(e => e.Bill2);
+                    });
+
+                Assert.Equal(
+                    CoreStrings.ClashingNonSharedType("Shared1", typeof(BillingDetail).DisplayName()),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.SharedTypeEntity<BillingDetail>("Shared1")).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Cannot_add_owned_type_with_same_clr_type_as_shared_type_entity_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var entityTypeBuilder = modelBuilder.Entity<OwnerOfSharedType>();
+
+                Assert.Equal(
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).DisplayName()),
+                    Assert.Throws<InvalidOperationException>(
+                        () => entityTypeBuilder.OwnsOne(e => e.Reference)).Message);
+            }
         }
     }
 }

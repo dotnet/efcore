@@ -1060,49 +1060,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<ImplicitManyToManyA> As { get; set; }
         }
 
-        protected class SharedHolderAlpha
-        {
-            public int Id { get; set; }
-            [NotMapped]
-            public SharedTypeEntityType SharedReference { get; set; }
-            [NotMapped]
-            public List<SharedTypeEntityType> SharedCollection { get; set; }
-        }
-
-        protected class SharedHolderBeta
-        {
-            public int Id { get; set; }
-            [NotMapped]
-            public SharedTypeEntityType SharedReference { get; set; }
-            [NotMapped]
-            public List<SharedTypeEntityType> SharedCollection { get; set; }
-        }
-
-        protected class SharedTypeEntityType
-        {
-            [NotMapped]
-            public int Random { get; set; }
-            [NotMapped]
-            public SharedNestedOwnedEntityType NestedReference { get; set; }
-            [NotMapped]
-            public List<SharedNestedOwnedEntityType> NestedCollection { get; set; }
-            [NotMapped]
-            public NestedReference ReferenceNavigation { get; set; }
-        }
-
-        protected class SharedNestedOwnedEntityType
-        {
-            [NotMapped]
-            public int NestedRandom { get; set; }
-        }
-
-        protected class NestedReference
-        {
-            public int Id { get; set; }
-            [NotMapped]
-            public string Value { get; set; }
-        }
-
         protected class ReferenceNavigationToSharedType
         {
             public int Id { get; set; }
@@ -1127,6 +1084,45 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
             public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
             public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
+        }
+
+        protected class AmbiguousInversePropertyLeft
+        {
+            public int Id { get; set; }
+            public List<AmbiguousInversePropertyRight> BaseRights { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyLeftDerived : AmbiguousInversePropertyLeft
+        {
+            public List<AmbiguousInversePropertyRightDerived> DerivedRights { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyRight
+        {
+            public int Id { get; set; }
+            [InverseProperty("BaseRights")]
+            public List<AmbiguousInversePropertyLeft> BaseLefts { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyRightDerived : AmbiguousInversePropertyRight
+        {
+            [InverseProperty("BaseRights")]
+            public List<AmbiguousInversePropertyLeftDerived> DerivedLefts { get; set; }
+        }
+
+        protected class OwnerOfSharedType
+        {
+            public int Id { get; set; }
+            public Dictionary<string, object> Reference { get; set; }
+            public List<Dictionary<string, object>> Collection { get; set; }
+            public NestedOwnerOfSharedType OwnedNavigation { get; set; }
+        }
+
+        protected class NestedOwnerOfSharedType
+        {
+            public int Id { get; set; }
+            public Dictionary<string, object> Reference { get; set; }
+            public List<Dictionary<string, object>> Collection { get; set; }
         }
     }
 }
