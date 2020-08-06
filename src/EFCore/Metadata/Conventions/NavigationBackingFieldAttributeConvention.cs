@@ -35,5 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             navigationBuilder.HasField(attribute.Name, fromDataAnnotation: true);
         }
+
+        /// <inheritdoc />
+        public override void ProcessSkipNavigationAdded(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            BackingFieldAttribute attribute,
+            IConventionContext<IConventionSkipNavigationBuilder> context)
+        {
+            skipNavigationBuilder.HasField(attribute.Name, fromDataAnnotation: true);
+        }
     }
 }

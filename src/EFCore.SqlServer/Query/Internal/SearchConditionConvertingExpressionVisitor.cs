@@ -158,16 +158,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitDistinctSql(DistinctSqlExpression distinctSqlExpression)
+        protected override Expression VisitDistinct(DistinctExpression distinctExpression)
         {
-            Check.NotNull(distinctSqlExpression, nameof(distinctSqlExpression));
+            Check.NotNull(distinctExpression, nameof(distinctExpression));
 
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
-            var operand = (SqlExpression)Visit(distinctSqlExpression.Operand);
+            var operand = (SqlExpression)Visit(distinctExpression.Operand);
             _isSearchCondition = parentSearchCondition;
 
-            return ApplyConversion(distinctSqlExpression.Update(operand), condition: false);
+            return ApplyConversion(distinctExpression.Update(operand), condition: false);
         }
 
         /// <summary>

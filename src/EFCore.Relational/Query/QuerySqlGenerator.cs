@@ -637,15 +637,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        protected override Expression VisitDistinctSql(DistinctSqlExpression distinctSqlExpression)
+        protected override Expression VisitDistinct(DistinctExpression distinctExpression)
         {
-            Check.NotNull(distinctSqlExpression, nameof(distinctSqlExpression));
+            Check.NotNull(distinctExpression, nameof(distinctExpression));
 
             _relationalCommandBuilder.Append("DISTINCT (");
-            Visit(distinctSqlExpression.Operand);
+            Visit(distinctExpression.Operand);
             _relationalCommandBuilder.Append(")");
 
-            return distinctSqlExpression;
+            return distinctExpression;
         }
 
         /// <inheritdoc />

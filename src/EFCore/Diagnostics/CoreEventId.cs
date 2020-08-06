@@ -62,13 +62,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             RowLimitingOperationWithoutOrderByWarning,
             FirstWithoutOrderByAndFilterWarning,
             Obsolete_QueryModelOptimized,
-            NavigationIncluded,
+            Obsolete_NavigationIncluded,
             Obsolete_IncludeIgnoredWarning,
             QueryExecutionPlanned,
             PossibleUnintendedCollectionNavigationNullComparisonWarning,
             PossibleUnintendedReferenceComparisonWarning,
             InvalidIncludePathError,
             QueryCompilationStarting,
+            NavigationBaseIncluded,
 
             // Infrastructure events
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -233,17 +234,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A navigation was included in the query.
+        ///         A navigation base was included in the query.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         ///     <para>
-        ///         This event uses the <see cref="QueryExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///         This event uses the <see cref="NavigationBaseEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId NavigationIncluded
-            = MakeQueryId(Id.NavigationIncluded);
+        public static readonly EventId NavigationBaseIncluded
+            = MakeQueryId(Id.NavigationBaseIncluded);
 
         /// <summary>
         ///     <para>

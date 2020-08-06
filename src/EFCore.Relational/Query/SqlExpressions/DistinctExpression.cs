@@ -17,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class DistinctSqlExpression : SqlExpression
+    public class DistinctExpression : SqlExpression
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="DistinctSqlExpression" /> class.
+        ///     Creates a new instance of the <see cref="DistinctExpression" /> class.
         /// </summary>
         /// <param name="operand"> An expression on which DISTINCT is applied. </param>
-        public DistinctSqlExpression([NotNull] SqlExpression operand)
+        public DistinctExpression([NotNull] SqlExpression operand)
             : base(operand.Type, operand.TypeMapping)
         {
             Check.NotNull(operand, nameof(operand));
@@ -50,12 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="operand"> The <see cref="Operand"/> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual DistinctSqlExpression Update([NotNull] SqlExpression operand)
+        public virtual DistinctExpression Update([NotNull] SqlExpression operand)
         {
             Check.NotNull(operand, nameof(operand));
 
             return operand != Operand
-                ? new DistinctSqlExpression(operand)
+                ? new DistinctExpression(operand)
                 : this;
         }
 
@@ -73,12 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
-                    || obj is DistinctSqlExpression distinctSqlExpression
-                    && Equals(distinctSqlExpression));
+                    || obj is DistinctExpression distinctExpression
+                    && Equals(distinctExpression));
 
-        private bool Equals(DistinctSqlExpression distinctSqlExpression)
-            => base.Equals(distinctSqlExpression)
-                && Operand.Equals(distinctSqlExpression.Operand);
+        private bool Equals(DistinctExpression distinctExpression)
+            => base.Equals(distinctExpression)
+                && Operand.Equals(distinctExpression.Operand);
 
         /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Operand);

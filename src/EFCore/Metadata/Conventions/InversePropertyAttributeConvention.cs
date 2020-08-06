@@ -53,8 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityTypeBuilder entityTypeBuilder, MemberInfo navigationMemberInfo, Type targetClrType,
             InversePropertyAttribute attribute)
         {
-            if (!entityTypeBuilder.CanHaveNavigationBase(
-                navigationMemberInfo.GetSimpleMemberName(), fromDataAnnotation: true))
+            var entityType = (EntityType)entityTypeBuilder.Metadata;
+            var navigationName = navigationMemberInfo.GetSimpleMemberName();
+            if (entityTypeBuilder.IsIgnored(navigationName, fromDataAnnotation: true)
+                || entityType.FindPropertiesInHierarchy(navigationName).Cast<IConventionPropertyBase>()
+                    .Concat(entityType.FindServicePropertiesInHierarchy(navigationName))
+                    .Any(m => !ConfigurationSource.DataAnnotation.Overrides(m.GetConfigurationSource())))
             {
                 return;
             }

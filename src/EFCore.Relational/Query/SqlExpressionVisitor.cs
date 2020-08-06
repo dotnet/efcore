@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case CrossJoinExpression crossJoinExpression:
                     return VisitCrossJoin(crossJoinExpression);
 
-                case DistinctSqlExpression distinctSqlExpression:
-                    return VisitDistinctSql(distinctSqlExpression);
+                case DistinctExpression distinctExpression:
+                    return VisitDistinct(distinctExpression);
 
                 case ExceptExpression exceptExpression:
                     return VisitExcept(exceptExpression);
@@ -152,11 +152,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
         protected abstract Expression VisitCrossJoin([NotNull] CrossJoinExpression crossJoinExpression);
         /// <summary>
-        ///     Visits the children of the distinct SQL expression.
+        ///     Visits the children of the distinct expression.
         /// </summary>
-        /// <param name="distinctSqlExpression"> The expression to visit. </param>
+        /// <param name="distinctExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitDistinctSql([NotNull] DistinctSqlExpression distinctSqlExpression);
+        protected abstract Expression VisitDistinct([NotNull] DistinctExpression distinctExpression);
         /// <summary>
         ///     Visits the children of the except expression.
         /// </summary>

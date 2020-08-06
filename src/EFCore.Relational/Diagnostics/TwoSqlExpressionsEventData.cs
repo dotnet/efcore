@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload base class for events that
     ///     references two <see cref="SqlExpression"/>.
     /// </summary>
-    public class TwoSqlExpressionEventData : EventData
+    public class TwoSqlExpressionsEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="left"> The left SqlExpression. </param>
         /// <param name="right"> The right SqlExpression. </param>
-        public TwoSqlExpressionEventData(
+        public TwoSqlExpressionsEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] SqlExpression left,

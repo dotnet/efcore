@@ -679,22 +679,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         convertedRoot = Expression.Convert(root, navigationBase.DeclaringEntityType.ClrType);
                     }
 
-                    Expression included;
-                    switch (navigationBase)
+                    var included = navigationBase switch
                     {
-                        case INavigation navigation:
-                            _logger.NavigationIncluded(navigation);
-                            included = ExpandNavigation(convertedRoot, entityReference, navigation, converted);
-                            break;
-
-                        case ISkipNavigation skipNavigation:
-                            _logger.NavigationIncluded(skipNavigation);
-                            included = ExpandSkipNavigation(convertedRoot, entityReference, skipNavigation, converted);
-                            break;
-
-                        default:
-                            throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType()));
-                    }
+                        INavigation navigation => ExpandNavigation(convertedRoot, entityReference, navigation, converted),
+                        ISkipNavigation skipNavigation => ExpandSkipNavigation(convertedRoot, entityReference, skipNavigation, converted),
+                        _ => throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType())),
+                    };
+                    _logger.NavigationBaseIncluded(navigationBase);
 
                     // Collection will expand it's includes when reducing the navigationExpansionExpression
                     if (!navigationBase.IsCollection)
