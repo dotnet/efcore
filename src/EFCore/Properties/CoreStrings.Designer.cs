@@ -2804,6 +2804,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("AmbiguousEndRequiredDependent", nameof(foreignKey), nameof(entityType)),
                 foreignKey, entityType);
 
+        /// <summary>
+        ///     Cannot create DbSet for entity type '{entityType}' since it is of type '{entityClrType}' but the generic type provided is of type '{genericType}'.
+        /// </summary>
+        public static string DbSetIncorrectGenericType([CanBeNull] object entityType, [CanBeNull] object entityClrType, [CanBeNull] object genericType)
+            => string.Format(
+                GetString("DbSetIncorrectGenericType", nameof(entityType), nameof(entityClrType), nameof(genericType)),
+                entityType, entityClrType, genericType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -98,6 +98,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Using_shared_type_entity_type_db_set_with_incorrect_return_type_throws()
+        {
+            using var context = new EarlyLearningCenter();
+
+            var dbSet = context.Set<Dictionary<string, object>>("SharedEntity");
+
+            Assert.NotNull(dbSet.Add(new Dictionary<string, object> { { "Id", 1 } }));
+            Assert.NotNull(dbSet.ToList());
+
+            var wrongDbSet = context.Set<Category>("SharedEntity");
+
+            Assert.Equal(
+                CoreStrings.DbSetIncorrectGenericType("SharedEntity", "Dictionary<string, object>", "Category"),
+                Assert.Throws<InvalidOperationException>(() => wrongDbSet.Add(new Category())).Message);
+            Assert.Equal(
+                CoreStrings.DbSetIncorrectGenericType("SharedEntity", "Dictionary<string, object>", "Category"),
+                Assert.Throws<InvalidOperationException>(() => wrongDbSet.ToList()).Message);
+        }
+
+        [ConditionalFact]
         public void Use_of_LocalView_throws_if_context_is_disposed()
         {
             LocalView<Category> view;
@@ -694,6 +714,13 @@ namespace Microsoft.EntityFrameworkCore
                 => optionsBuilder
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider());
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("SharedEntity").IndexerProperty<int>("Id");
+            }
         }
     }
 }

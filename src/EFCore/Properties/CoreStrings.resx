@@ -1489,4 +1489,7 @@
     <value>Query uses a row limiting operation (Skip/Take) without OrderBy, which may lead to unpredictable results.</value>
     <comment>Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning</comment>
   </data>
+  <data name="DbSetIncorrectGenericType" xml:space="preserve">
+    <value>Cannot create DbSet for entity type '{entityType}' since it is of type '{entityClrType}' but the generic type provided is of type '{genericType}'.</value>
+  </data>
 </root>
