@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     An <see cref="EventSource" /> emitting Entity Framework performance counter data.
     /// </summary>
-    public class EntityFrameworkEventSource : EventSource
+    public sealed class EntityFrameworkEventSource : EventSource
     {
         private long _activeDbContexts, _totalQueries, _totalSaveChanges;
         private long _totalExecutionStrategyOperationFailures, _totalOptimisticConcurrencyFailures;
