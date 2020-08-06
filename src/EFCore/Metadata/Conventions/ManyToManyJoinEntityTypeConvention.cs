@@ -153,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .HasRelationship(
                     skipNavigation.DeclaringEntityType,
                     ConfigurationSource.Convention,
-                    required: true)
+                    required: true,
+                    skipNavigation.Inverse.Name)
                 .IsUnique(false, ConfigurationSource.Convention)
                 .Metadata;
     }

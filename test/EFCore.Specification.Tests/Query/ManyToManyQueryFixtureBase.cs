@@ -165,6 +165,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithOne(e => e.ReferenceInverse)
                 .HasForeignKey<EntityTwo>(e => e.ReferenceInverseId);
 
+            // TODO: Remove UsingEntity
+            modelBuilder.Entity<EntityOne>()
+                .HasMany(e => e.TwoSkipShared)
+                .WithMany(e => e.OneSkipShared)
+                .UsingEntity<Dictionary<string, object>>(
+                    "EntityOneEntityTwo",
+                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("EntityTwoId"),
+                    l => l.HasOne<EntityOne>().WithMany().HasForeignKey("EntityOneId"));
+
             // Nav:2 Payload:No Join:Concrete Extra:None
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.TwoSkip)
@@ -226,6 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l => l.HasOne(x => x.Two).WithMany(e => e.JoinThreeFull));
 
             // Nav:2 Payload:No Join:Shared Extra:Self-ref
+            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityTwo>()
                 .HasMany(e => e.SelfSkipSharedLeft)
                 .WithMany(e => e.SelfSkipSharedRight)
@@ -235,6 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("RightId"));
 
             // Nav:2 Payload:No Join:Shared Extra:CompositeKey
+            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityTwo>()
                 .HasMany(e => e.CompositeKeySkipShared)
                 .WithMany(e => e.TwoSkipShared)
@@ -253,9 +264,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired());
 
             // Nav:2 Payload:No Join:Shared Extra:Inheritance
-            modelBuilder.Entity<EntityThree>().HasMany(e => e.RootSkipShared).WithMany(e => e.ThreeSkipShared);
+            // TODO: Remove UsingEntity
+            modelBuilder.Entity<EntityThree>().HasMany(e => e.RootSkipShared).WithMany(e => e.ThreeSkipShared)
+                .UsingEntity<Dictionary<string, object>>(
+                    "EntityRootEntityThree",
+                    r => r.HasOne<EntityRoot>().WithMany().HasForeignKey("EntityRootId"),
+                    l => l.HasOne<EntityThree>().WithMany().HasForeignKey("EntityThreeId"));
 
             // Nav:2 Payload:No Join:Shared Extra:Inheritance,CompositeKey
+            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityCompositeKey>()
                 .HasMany(e => e.RootSkipShared)
                 .WithMany(e => e.CompositeKeySkipShared)

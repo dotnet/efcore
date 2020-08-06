@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
-        public void ProcessSkipNavigationForeignKeyChanged(
+        public virtual void ProcessSkipNavigationForeignKeyChanged(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
             IConventionForeignKey foreignKey,
             IConventionForeignKey oldForeignKey,
@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var selfReferencingSkipNavigation = skipNavigationBuilder.Metadata;
             if (foreignKey == null
+                || foreignKey.DeleteBehavior != DeleteBehavior.Cascade
                 || selfReferencingSkipNavigation.Inverse == null
                 || selfReferencingSkipNavigation.TargetEntityType != selfReferencingSkipNavigation.DeclaringEntityType)
             {

@@ -475,7 +475,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var property in entityType.GetProperties())
             {
-                if ((!property.IsShadowProperty() || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+                if ((!(property.IsShadowProperty() || entityType.IsPropertyBag && property.IsIndexerProperty())
+                    || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
                     && property.Name.Length == prefix.Length + suffix.Length
                     && property.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
                     && property.Name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
@@ -801,14 +802,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static string GetPropertyBaseName(IConventionForeignKey foreignKey)
-            => foreignKey.DependentToPrincipal?.Name ?? foreignKey.PrincipalEntityType.ShortName();
+            => foreignKey.DependentToPrincipal?.Name
+            ?? foreignKey.GetReferencingSkipNavigations().FirstOrDefault()?.Inverse?.Name
+            ?? foreignKey.PrincipalEntityType.ShortName();
 
         private static bool HasUniquifiedProperties(IConventionForeignKey foreignKey)
         {
             var fkBaseName = GetPropertyBaseName(foreignKey);
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                var fkPropertyName = foreignKey.Properties[i].Name;
+                var property = foreignKey.Properties[i];
+                if (!ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+                {
+                    return false;
+                }
+
+                var fkPropertyName = property.Name;
                 var pkPropertyName = foreignKey.PrincipalKey.Properties[i].Name;
                 if (fkPropertyName.Length != fkBaseName.Length + pkPropertyName.Length
                     || !fkPropertyName.StartsWith(fkBaseName, StringComparison.Ordinal)
