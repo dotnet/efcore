@@ -2797,7 +2797,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             targetEntityType.Builder,
                             dependentProperties: null,
                             principalKey: null,
-                            navigationToPrincipalName: navigationProperty?.GetSimpleMemberName(),
+                            propertyBaseName: navigationProperty?.GetSimpleMemberName(),
                             required: required,
                             configurationSource: configurationSource);
                     }
@@ -2813,7 +2813,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             this,
                             dependentProperties: null,
                             principalKey: null,
-                            navigationToPrincipalName: navigationProperty?.GetSimpleMemberName(),
+                            propertyBaseName: navigationProperty?.GetSimpleMemberName(),
                             required: null,
                             configurationSource: configurationSource);
                     }
@@ -2905,8 +2905,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalForeignKeyBuilder HasRelationship(
             [NotNull] EntityType principalEntityType,
             ConfigurationSource configurationSource,
-            bool? required = null)
-            => HasRelationshipInternal(principalEntityType, principalKey: null, configurationSource, required);
+            bool? required = null,
+            [NotNull] string propertyBaseName = null)
+            => HasRelationshipInternal(principalEntityType, principalKey: null, configurationSource, required, propertyBaseName);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2918,14 +2919,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] EntityType principalEntityType,
             [NotNull] Key principalKey,
             ConfigurationSource configurationSource,
-            bool? required = null)
-            => HasRelationshipInternal(principalEntityType, principalKey, configurationSource, required);
+            bool? required = null,
+            [NotNull] string propertyBaseName = null)
+            => HasRelationshipInternal(principalEntityType, principalKey, configurationSource, required, propertyBaseName);
 
         private InternalForeignKeyBuilder HasRelationshipInternal(
             EntityType targetEntityType,
             Key principalKey,
             ConfigurationSource configurationSource,
-            bool? required = null)
+            bool? required = null,
+            string propertyBaseName = null)
         {
             InternalForeignKeyBuilder relationship;
             InternalForeignKeyBuilder newRelationship;
@@ -2935,7 +2938,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     targetEntityType.Builder,
                     null,
                     principalKey,
-                    null,
+                    propertyBaseName,
                     required,
                     configurationSource);
 
@@ -3395,14 +3398,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] Key principalKey,
-            [CanBeNull] string navigationToPrincipalName,
+            [CanBeNull] string propertyBaseName,
             bool? required,
             ConfigurationSource configurationSource)
         {
             using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
             var foreignKey = SetOrAddForeignKey(
-                null, principalEntityTypeBuilder,
-                dependentProperties, principalKey, navigationToPrincipalName, required, configurationSource);
+                foreignKey: null, principalEntityTypeBuilder, dependentProperties, principalKey,
+                propertyBaseName, required, configurationSource);
 
             if (required.HasValue
                 && foreignKey?.IsRequired == required.Value)
@@ -3423,14 +3426,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] ForeignKey foreignKey,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] Key principalKey,
-            [CanBeNull] string navigationToPrincipalName,
+            [CanBeNull] string propertyBaseName,
             bool? isRequired,
             ConfigurationSource? configurationSource)
         {
             using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
             foreignKey = SetOrAddForeignKey(
-                foreignKey, foreignKey.PrincipalEntityType.Builder,
-                dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
+                foreignKey, foreignKey.PrincipalEntityType.Builder, dependentProperties, principalKey,
+                propertyBaseName, isRequired, configurationSource);
 
             return (InternalForeignKeyBuilder)batch.Run(foreignKey)?.Builder;
         }
@@ -3440,7 +3443,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             InternalEntityTypeBuilder principalEntityTypeBuilder,
             IReadOnlyList<Property> dependentProperties,
             Key principalKey,
-            string navigationToPrincipalName,
+            string propertyBaseName,
             bool? isRequired,
             ConfigurationSource? configurationSource)
         {
@@ -3528,9 +3531,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                var baseName = string.IsNullOrEmpty(navigationToPrincipalName)
+                var baseName = string.IsNullOrEmpty(propertyBaseName)
                     ? principalType.ShortName()
-                    : navigationToPrincipalName;
+                    : propertyBaseName;
                 dependentProperties = CreateUniqueProperties(null, principalKey.Properties, isRequired ?? false, baseName);
             }
 
@@ -3804,7 +3807,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.PrincipalKey.Properties.Select(p => p.Name),
                 foreignKey.IsRequired
                     && foreignKey.GetIsRequiredConfigurationSource().Overrides(ConfigurationSource.Convention),
-                foreignKey.DependentToPrincipal?.Name ?? foreignKey.PrincipalEntityType.ShortName())
+                foreignKey.DependentToPrincipal?.Name
+                    ?? foreignKey.ReferencingSkipNavigations?.FirstOrDefault()?.Inverse?.Name
+                    ?? foreignKey.PrincipalEntityType.ShortName())
                 .Item1;
 
         /// <summary>

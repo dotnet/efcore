@@ -158,8 +158,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var key = joinEntityType.FindPrimaryKey();
                 Assert.Equal(
                     new[] {
-                        nameof(ImplicitManyToManyA) + nameof(ImplicitManyToManyA.Id),
-                        nameof(ImplicitManyToManyB) + nameof(ImplicitManyToManyB.Id) },
+                        nameof(ImplicitManyToManyB.As) + nameof(ImplicitManyToManyA.Id),
+                        nameof(ImplicitManyToManyA.Bs) + nameof(ImplicitManyToManyB.Id) },
                     key.Properties.Select(p => p.Name));
 
                 Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());

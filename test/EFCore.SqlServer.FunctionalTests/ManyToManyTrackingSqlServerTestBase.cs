@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ManyToManyTrackingSqlServerTestBase<TFixture> : ManyToManyTrackingTestBase<TFixture>
-        where TFixture : ManyToManyTrackingTestBase<TFixture>.ManyToManyTrackingFixtureBase
+        where TFixture : ManyToManyTrackingSqlServerTestBase<TFixture>.ManyToManyTrackingSqlServerFixtureBase
     {
         protected ManyToManyTrackingSqlServerTestBase(TFixture fixture)
             : base(fixture)

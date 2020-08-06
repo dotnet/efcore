@@ -1622,7 +1622,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             using var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
 
             var temporaryProperties = Metadata.Properties.Where(
-                p => p.IsShadowProperty()
+                p => (p.IsShadowProperty() || p.DeclaringEntityType.IsPropertyBag && p.IsIndexerProperty())
                     && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
 
             var keysToDetach = temporaryProperties.SelectMany(
@@ -2465,7 +2465,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey,
                             dependentProperties?.Count == 0 ? null : dependentProperties,
                             principalKey,
-                            navigationToPrincipal?.Name,
+                            navigationToPrincipal?.Name
+                                ?? referencingSkipNavigations?.FirstOrDefault().Navigation?.Inverse?.Name,
                             isRequired,
                             configurationSource: null);
 
@@ -2833,6 +2834,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : null;
 
             var removedForeignKeys = new List<ForeignKey>();
+            var referencingSkipNavigationName = Metadata.ReferencingSkipNavigations?.FirstOrDefault()?.Inverse?.Name;
             if (Metadata.Builder == null)
             {
                 removedForeignKeys.Add(Metadata);
@@ -2975,7 +2977,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     principalEntityType.Builder,
                     dependentProperties,
                     principalKey,
-                    navigationToPrincipal?.Name,
+                    navigationToPrincipal?.Name ?? referencingSkipNavigationName,
                     isRequired,
                     ConfigurationSource.Convention);
             }

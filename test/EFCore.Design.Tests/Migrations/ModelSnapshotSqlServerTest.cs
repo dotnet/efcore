@@ -1131,15 +1131,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     + @"
             modelBuilder.Entity(""ManyToManyLeftManyToManyRight"", b =>
                 {
-                    b.Property<int>(""ManyToManyLeftId"")
+                    b.Property<int>(""LeftsId"")
                         .HasColumnType(""int"");
 
-                    b.Property<int>(""ManyToManyRightId"")
+                    b.Property<int>(""RightsId"")
                         .HasColumnType(""int"");
 
-                    b.HasKey(""ManyToManyLeftId"", ""ManyToManyRightId"");
+                    b.HasKey(""LeftsId"", ""RightsId"");
 
-                    b.HasIndex(""ManyToManyRightId"");
+                    b.HasIndex(""RightsId"");
 
                     b.ToTable(""ManyToManyLeftManyToManyRight"");
                 });
@@ -1178,13 +1178,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", null)
                         .WithMany()
-                        .HasForeignKey(""ManyToManyLeftId"")
+                        .HasForeignKey(""LeftsId"")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight"", null)
                         .WithMany()
-                        .HasForeignKey(""ManyToManyRightId"")
+                        .HasForeignKey(""RightsId"")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });"),
@@ -1195,22 +1195,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Collection(joinEntity.GetDeclaredProperties(),
                         p =>
                         {
-                            Assert.Equal("ManyToManyLeftId", p.Name);
+                            Assert.Equal("LeftsId", p.Name);
                             Assert.True(p.IsShadowProperty());
                         },
                         p =>
                         {
-                            Assert.Equal("ManyToManyRightId", p.Name);
+                            Assert.Equal("RightsId", p.Name);
                             Assert.True(p.IsShadowProperty());
                         });
                     Assert.Collection(joinEntity.FindDeclaredPrimaryKey().Properties,
                         p =>
                         {
-                            Assert.Equal("ManyToManyLeftId", p.Name);
+                            Assert.Equal("LeftsId", p.Name);
                         },
                         p =>
                         {
-                            Assert.Equal("ManyToManyRightId", p.Name);
+                            Assert.Equal("RightsId", p.Name);
                         });
                     Assert.Collection(joinEntity.GetDeclaredForeignKeys(),
                         fk =>
@@ -1224,7 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.Collection(fk.Properties,
                                 p =>
                                 {
-                                    Assert.Equal("ManyToManyLeftId", p.Name);
+                                    Assert.Equal("LeftsId", p.Name);
                                 });
                         },
                         fk =>
@@ -1238,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.Collection(fk.Properties,
                                 p =>
                                 {
-                                    Assert.Equal("ManyToManyRightId", p.Name);
+                                    Assert.Equal("RightsId", p.Name);
                                 });
                         });
                 });
@@ -1261,15 +1261,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     + @"
             modelBuilder.Entity(""ManyToManyLeftManyToManyRight"", b =>
                 {
-                    b.Property<int>(""ManyToManyLeftId"")
+                    b.Property<int>(""LeftsId"")
                         .HasColumnType(""int"");
 
-                    b.Property<int>(""ManyToManyRightId"")
+                    b.Property<int>(""RightsId"")
                         .HasColumnType(""int"");
 
-                    b.HasKey(""ManyToManyLeftId"", ""ManyToManyRightId"");
+                    b.HasKey(""LeftsId"", ""RightsId"");
 
-                    b.HasIndex(""ManyToManyRightId"");
+                    b.HasIndex(""RightsId"");
 
                     b.ToTable(""MyJoinTable"");
                 });
@@ -1308,13 +1308,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", null)
                         .WithMany()
-                        .HasForeignKey(""ManyToManyLeftId"")
+                        .HasForeignKey(""LeftsId"")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight"", null)
                         .WithMany()
-                        .HasForeignKey(""ManyToManyRightId"")
+                        .HasForeignKey(""RightsId"")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });"),
@@ -1326,22 +1326,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Collection(joinEntity.GetDeclaredProperties(),
                         p =>
                         {
-                            Assert.Equal("ManyToManyLeftId", p.Name);
+                            Assert.Equal("LeftsId", p.Name);
                             Assert.True(p.IsShadowProperty());
                         },
                         p =>
                         {
-                            Assert.Equal("ManyToManyRightId", p.Name);
+                            Assert.Equal("RightsId", p.Name);
                             Assert.True(p.IsShadowProperty());
                         });
                     Assert.Collection(joinEntity.FindDeclaredPrimaryKey().Properties,
                         p =>
                         {
-                            Assert.Equal("ManyToManyLeftId", p.Name);
+                            Assert.Equal("LeftsId", p.Name);
                         },
                         p =>
                         {
-                            Assert.Equal("ManyToManyRightId", p.Name);
+                            Assert.Equal("RightsId", p.Name);
                         });
                     Assert.Collection(joinEntity.GetDeclaredForeignKeys(),
                         fk =>
@@ -1355,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.Collection(fk.Properties,
                                 p =>
                                 {
-                                    Assert.Equal("ManyToManyLeftId", p.Name);
+                                    Assert.Equal("LeftsId", p.Name);
                                 });
                         },
                         fk =>
@@ -1369,7 +1369,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.Collection(fk.Properties,
                                 p =>
                                 {
-                                    Assert.Equal("ManyToManyRightId", p.Name);
+                                    Assert.Equal("RightsId", p.Name);
                                 });
                         });
                 });
