@@ -45,8 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(firstSkipNav);
 
-            Assert.Single(manyToManySelf.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
+            var joinEntityType = manyToManySelf.Metadata.Model.GetEntityTypes()
+                .Single(et => et.IsImplicitlyCreatedJoinEntityType);
+            Assert.Equal("ManyToManySelfManyToManySelf", joinEntityType.Name);
         }
 
         [ConditionalFact]
@@ -222,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ConfigurationSource.Convention);
             skipNavOnFirst.HasInverse(skipNavOnSecond.Metadata, ConfigurationSource.Convention);
 
-            RunConvention(skipNavOnFirst);
+            RunConvention(skipNavOnSecond);
 
             var joinEntityType = manyToManyFirst.Metadata.Model.GetEntityTypes()
                 .Single(et => et.IsImplicitlyCreatedJoinEntityType);

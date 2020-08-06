@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithMany(e => e.SelfSkipPayloadRight)
                 .UsingEntity<JoinOneSelfPayload>(
                     l => l.HasOne(x => x.Left).WithMany(x => x.JoinSelfPayloadLeft),
-                    r => r.HasOne(x => x.Right).WithMany(x => x.JoinSelfPayloadRight).OnDelete(DeleteBehavior.ClientCascade));
+                    r => r.HasOne(x => x.Right).WithMany(x => x.JoinSelfPayloadRight));
 
             // Nav:2 Payload:No Join:Concrete Extra:Inheritance
             modelBuilder.Entity<EntityOne>()
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .UsingEntity<Dictionary<string, object>>(
                     "JoinTwoSelfShared",
                     l => l.HasOne<EntityTwo>().WithMany().HasForeignKey("LeftId"),
-                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("RightId").OnDelete(DeleteBehavior.NoAction));
+                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("RightId"));
 
             // Nav:2 Payload:No Join:Shared Extra:CompositeKey
             modelBuilder.Entity<EntityTwo>()

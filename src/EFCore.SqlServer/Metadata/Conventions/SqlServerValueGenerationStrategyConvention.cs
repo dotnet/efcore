@@ -23,13 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] ProviderConventionSetBuilderDependencies dependencies,
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
-            Dependencies = dependencies;
         }
-
-        /// <summary>
-        ///     Parameter object containing service dependencies.
-        /// </summary>
-        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
         ///     Called after a model is initialized.

@@ -73,6 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(new SqlServerOnDeleteConvention(Dependencies, RelationalDependencies));
+
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
 

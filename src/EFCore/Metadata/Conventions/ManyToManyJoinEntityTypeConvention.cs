@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -109,7 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var inverseEntityType = inverseSkipNavigation.DeclaringEntityType;
             var model = declaringEntityType.Model;
 
-            var joinEntityTypeName = declaringEntityType.ShortName() + inverseEntityType.ShortName();
+            var joinEntityTypeName = declaringEntityType.ShortName();
+            var inverseName = inverseEntityType.ShortName();
+            joinEntityTypeName = StringComparer.Ordinal.Compare(joinEntityTypeName, inverseName) < 0
+                ? joinEntityTypeName + inverseName
+                : inverseName + joinEntityTypeName;
+
             if (model.FindEntityType(joinEntityTypeName) != null)
             {
                 var otherIdentifiers = model.GetEntityTypes().ToDictionary(et => et.Name, et => 0);
