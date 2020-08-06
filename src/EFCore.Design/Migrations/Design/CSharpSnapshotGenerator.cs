@@ -805,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         if (((bool?)isExcludedAnnotation.Value) == true)
                         {
                             stringBuilder
-                                .Append(", t => t.IsExcludedFromMigrations()");
+                                .Append(", t => t.ExcludeFromMigrations()");
                         }
                         annotations.Remove(isExcludedAnnotation.Name);
                     }
