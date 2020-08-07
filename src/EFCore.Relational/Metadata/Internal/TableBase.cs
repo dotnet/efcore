@@ -93,6 +93,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>> ReferencingRowInternalForeignKeys { get; [param: NotNull] set; }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Dictionary<IEntityType, bool> OptionalEntityTypes { get; [param: NotNull] set; }
+
+        /// <inheritdoc/>
+        public virtual bool IsOptional(IEntityType entityType)
+            => OptionalEntityTypes == null
+                || !OptionalEntityTypes.TryGetValue(entityType, out var optional)
+                || optional;
+
         /// <inheritdoc/>
         IRelationalModel ITableBase.Model => Model;
 

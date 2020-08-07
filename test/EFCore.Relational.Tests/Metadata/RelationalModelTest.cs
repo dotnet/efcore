@@ -176,6 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             Assert.Same(ordersView, orderDetailsType.GetViewMappings().Single().View);
             Assert.Equal(ordersView.GetReferencingRowInternalForeignKeys(orderType), ordersView.GetRowInternalForeignKeys(orderDetailsType));
+            Assert.False(ordersView.IsOptional(orderType));
+            Assert.True(ordersView.IsOptional(orderDetailsType));
 
             var orderDetailsDate = orderDetailsType.FindProperty(nameof(OrderDetails.OrderDate));
 
@@ -347,6 +349,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             Assert.Same(ordersTable, orderDetailsType.GetTableMappings().Single().Table);
             Assert.Equal(ordersTable.GetReferencingRowInternalForeignKeys(orderType), ordersTable.GetRowInternalForeignKeys(orderDetailsType));
+            Assert.False(ordersTable.IsOptional(orderType));
+            Assert.True(ordersTable.IsOptional(orderDetailsType));
             Assert.Empty(orderDetailsOwnership.GetMappedConstraints());
             Assert.Equal(2, orderDetailsType.GetForeignKeys().Count());
 

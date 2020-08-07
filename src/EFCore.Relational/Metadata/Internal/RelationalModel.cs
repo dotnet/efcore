@@ -979,17 +979,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     internalForeignKeyMap[entityType] = rowInternalForeignKeys;
+                    table.IsShared = true;
                 }
 
                 if (rowInternalForeignKeys == null)
                 {
-                    if (((ITableBase)table).EntityTypeMappings.Any(m =>
-                        !m.EntityType.IsAssignableFrom(entityType)
-                        && !entityType.IsAssignableFrom(m.EntityType)))
-                    {
-                        table.IsShared = true;
-                    }
-
                     if (mainMapping == null
                         || entityTypeMapping.EntityType.IsAssignableFrom(mainMapping.EntityType))
                     {
@@ -1015,6 +1009,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (referencingInternalForeignKeyMap != null)
             {
                 table.ReferencingRowInternalForeignKeys = referencingInternalForeignKeyMap;
+
+                var optionalTypes = new Dictionary<IEntityType, bool>();
+                var entityTypesToVisit = new Queue<(IEntityType, bool)>();
+                entityTypesToVisit.Enqueue((mainMapping.EntityType, false));
+
+                while (entityTypesToVisit.Count > 0)
+                {
+                    var (entityType, optional) = entityTypesToVisit.Dequeue();
+                    if (optionalTypes.TryGetValue(entityType, out var previouslyOptional)
+                        && (!previouslyOptional || optional))
+                    {
+                        continue;
+                    }
+                    optionalTypes[entityType] = optional;
+
+                    if (!referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))
+                    {
+                        continue;
+                    }
+
+                    foreach (var referencingForeignKey in referencingInternalForeignKeys)
+                    {
+                        entityTypesToVisit.Enqueue(
+                            (referencingForeignKey.DeclaringEntityType, optional || !referencingForeignKey.IsRequiredDependent));
+                    }
+                }
+
+                table.OptionalEntityTypes = optionalTypes;
             }
         }
 
