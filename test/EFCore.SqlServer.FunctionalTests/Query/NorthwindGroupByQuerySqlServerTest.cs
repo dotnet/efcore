@@ -865,7 +865,7 @@ GROUP BY [o].[CustomerID]");
 
 SELECT AVG(CAST([t].[OrderID] AS float))
 FROM (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
     OFFSET @__p_0 ROWS
@@ -882,7 +882,7 @@ GROUP BY [t].[CustomerID]");
 
 SELECT MIN([t].[OrderID])
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t]
@@ -899,7 +899,7 @@ GROUP BY [t].[CustomerID]");
 
 SELECT MAX([t].[OrderID])
 FROM (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
@@ -977,13 +977,13 @@ GROUP BY [o0].[CustomerID]");
 
 SELECT [t0].[CustomerID] AS [Key], AVG(CAST([t].[OrderID] AS float)) AS [Count]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10400
     ORDER BY [o].[OrderDate]
 ) AS [t]
 INNER JOIN (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] NOT IN (N'DRACD', N'FOLKO')
     ORDER BY [c].[City]
@@ -1070,14 +1070,14 @@ GROUP BY [c].[Country]");
 
 SELECT [t0].[CustomerID] AS [Key], AVG(CAST([t0].[OrderID] AS float)) AS [Count]
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] NOT IN (N'DRACD', N'FOLKO')
     ORDER BY [c].[City]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
 INNER JOIN (
-    SELECT TOP(@__p_2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_2) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10400
     ORDER BY [o].[OrderDate]
@@ -1391,10 +1391,10 @@ WHERE [c].[CustomerID] LIKE N'A%'");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM [Orders] AS [o]
 INNER JOIN (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID] AS [CustomerID0], [t].[c]
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     INNER JOIN (
-        SELECT [o0].[CustomerID], MAX([o0].[OrderID]) AS [c]
+        SELECT [o0].[CustomerID]
         FROM [Orders] AS [o0]
         GROUP BY [o0].[CustomerID]
         HAVING COUNT(*) > 5
@@ -2136,7 +2136,7 @@ GROUP BY [c].[Country]");
 
 SELECT COALESCE(SUM([t].[OrderID]), 0)
 FROM (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[CustomerID], [o].[OrderID]
     OFFSET @__p_0 ROWS

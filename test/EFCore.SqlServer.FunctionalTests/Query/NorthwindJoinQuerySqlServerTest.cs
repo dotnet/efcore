@@ -107,7 +107,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [c].[ContactName], [t].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE [t].[CustomerID] = N'ALFKI'");
@@ -123,7 +123,7 @@ WHERE [t].[CustomerID] = N'ALFKI'");
 SELECT [c].[ContactName], [t].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -169,7 +169,7 @@ WHERE [t].[CustomerID] = N'ALFKI'");
                 @"SELECT [c].[ContactName], [t].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] > 0
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -186,7 +186,7 @@ WHERE [t].[CustomerID] = N'ALFKI'");
 SELECT [c].[ContactName], [t].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] > 0
     ORDER BY [o].[OrderID]
@@ -337,7 +337,7 @@ LEFT JOIN [Orders] AS [o] ON [e].[EmployeeID] = [o].[EmployeeID]");
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
@@ -409,7 +409,7 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [c].[ContactName], [t].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] > 5
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
@@ -461,9 +461,9 @@ ORDER BY [c].[CustomerID]");
 SELECT [c].[CustomerID], [t0].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+    SELECT [t].[OrderID], [t].[CustomerID]
     FROM (
-        SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
         FROM [Orders] AS [o]
         ORDER BY [o].[OrderID]
     ) AS [t]
@@ -480,12 +480,12 @@ INNER JOIN (
 
 SELECT [t].[CustomerID], [t0].[OrderID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
 CROSS JOIN (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t0]
@@ -501,12 +501,12 @@ ORDER BY [t].[CustomerID]");
 
 SELECT [t].[CustomerID], [t0].[OrderID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t0] ON 1 = 1

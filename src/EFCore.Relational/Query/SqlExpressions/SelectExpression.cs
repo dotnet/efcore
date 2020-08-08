@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             = new List<(ColumnExpression Column, ValueComparer Comparer)>();
         private readonly List<SelectExpression> _pendingCollections = new List<SelectExpression>();
 
+        private List<int> _tptLeftJoinTables = new List<int>();
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
 
         /// <summary>
@@ -238,6 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
 
                     var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate);
+                    _tptLeftJoinTables.Add(_tables.Count);
                     _tables.Add(joinExpression);
                 }
 
@@ -1024,9 +1026,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Predicate = Predicate,
                 Having = Having,
                 Offset = Offset,
-                Limit = Limit
+                Limit = Limit,
+                _tptLeftJoinTables = _tptLeftJoinTables
             };
 
+            _tptLeftJoinTables = null;
             var projectionMap = new Dictionary<SqlExpression, ColumnExpression>();
 
             // Projections may be present if added by lifting SingleResult/Enumerable in projection through join
@@ -2498,6 +2502,147 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         #endregion
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public SelectExpression Prune()
+            => Prune(referencedColumns: null);
+
+        private SelectExpression Prune(IReadOnlyCollection<string> referencedColumns = null)
+        {
+            if (referencedColumns != null
+                && !IsDistinct)
+            {
+                var indexesToRemove = new List<int>();
+                for (var i = _projection.Count - 1; i >=0; i--)
+                {
+                    if (!referencedColumns.Contains(_projection[i].Alias))
+                    {
+                        indexesToRemove.Add(i);
+                    }
+                }
+
+                foreach (var index in indexesToRemove)
+                {
+                    _projection.RemoveAt(index);
+                }
+            }
+
+            var columnExpressionFindingExpressionVisitor = new ColumnExpressionFindingExpressionVisitor();
+            var columnsMap = columnExpressionFindingExpressionVisitor.FindColumns(this);
+            var removedTableCount = 0;
+            for (var i = 0; i < _tables.Count; i++)
+            {
+                var table = _tables[i];
+                var tableAlias = table is JoinExpressionBase joinExpressionBase
+                    ? joinExpressionBase.Table.Alias
+                    : table.Alias;
+                if (columnsMap[tableAlias] == null
+                    && (table is LeftJoinExpression
+                        || table is OuterApplyExpression)
+                    && _tptLeftJoinTables?.Contains(i + removedTableCount) == true)
+                {
+                    _tables.RemoveAt(i);
+                    removedTableCount++;
+                    i--;
+
+                    continue;
+                }
+
+                var innerSelectExpression = (table as SelectExpression)
+                    ?? ((table as JoinExpressionBase)?.Table as SelectExpression);
+
+                if (innerSelectExpression != null)
+                {
+                    innerSelectExpression.Prune(columnsMap[tableAlias]);
+                }
+            }
+
+            return this;
+        }
+
+        private sealed class ColumnExpressionFindingExpressionVisitor : ExpressionVisitor
+        {
+            private Dictionary<string, HashSet<string>> _columnReferenced;
+            private Dictionary<string, HashSet<string>> _columnsUsedInJoinCondition;
+
+            public Dictionary<string, HashSet<string>> FindColumns(SelectExpression selectExpression)
+            {
+                _columnReferenced = new Dictionary<string, HashSet<string>>();
+                _columnsUsedInJoinCondition = new Dictionary<string, HashSet<string>>();
+
+                foreach (var table in selectExpression.Tables)
+                {
+                    var tableAlias = table is JoinExpressionBase joinExpressionBase
+                        ? joinExpressionBase.Table.Alias
+                        : table.Alias;
+                    _columnReferenced[tableAlias] = null;
+                }
+
+                Visit(selectExpression);
+
+                foreach (var keyValuePair in _columnsUsedInJoinCondition)
+                {
+                    var tableAlias = keyValuePair.Key;
+                    if (_columnReferenced[tableAlias] != null)
+                    {
+                        _columnReferenced[tableAlias].UnionWith(_columnsUsedInJoinCondition[tableAlias]);
+                    }
+                }
+
+                return _columnReferenced;
+            }
+
+            public override Expression Visit(Expression expression)
+            {
+                switch (expression)
+                {
+                    case ColumnExpression columnExpression:
+                        var tableAlias = columnExpression.Table.Alias;
+                        if (_columnReferenced.ContainsKey(tableAlias))
+                        {
+                            if (_columnReferenced[tableAlias] == null)
+                            {
+                                _columnReferenced[tableAlias] = new HashSet<string>();
+                            }
+
+                            _columnReferenced[tableAlias].Add(columnExpression.Name);
+                        }
+
+                        // Always skip the table of ColumnExpression since it will traverse into deeper subquery
+                        return columnExpression;
+
+                    case LeftJoinExpression leftJoinExpression:
+                        var leftJoinTableAlias = leftJoinExpression.Table.Alias;
+                        // Visiting the join predicate will add some columns for join table.
+                        // But if all the referenced columns are in join predicate only then we can remove the join table.
+                        // So if there are no referenced columns yet means there is still potential to remove this table,
+                        // In such case we moved the columns encountered in join predicate to other dictionary and later merge
+                        // if there are more references to the join table outside of join predicate.
+                        // We currently do this only for LeftJoin since that is the only predicate join table we remove.
+                        // We should also remove references to the outer if this column gets removed then that subquery can also remove projections
+                        // But currently we only remove table for TPT scenario in which there are all table expressions which connects via joins.
+                        var joinOnSameLevel = _columnReferenced.ContainsKey(leftJoinTableAlias);
+                        var noReferences = !joinOnSameLevel || _columnReferenced[leftJoinTableAlias] == null;
+                        base.Visit(leftJoinExpression);
+                        if (noReferences && joinOnSameLevel)
+                        {
+                            _columnsUsedInJoinCondition[leftJoinTableAlias] = _columnReferenced[leftJoinTableAlias];
+                            _columnReferenced[leftJoinTableAlias] = null;
+                        }
+
+                        return leftJoinExpression;
+
+                    default:
+                        return base.Visit(expression);
+                }
+            }
+        }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)

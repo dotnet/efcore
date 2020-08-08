@@ -216,7 +216,6 @@ ORDER BY [a].[Species]");
     WHEN [d].[Species] IS NOT NULL THEN N'Daisy'
 END AS [Discriminator]
 FROM [Plants] AS [p]
-LEFT JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
 LEFT JOIN [Daisies] AS [d] ON [p].[Species] = [d].[Species]
 LEFT JOIN [Roses] AS [r] ON [p].[Species] = [r].[Species]
 ORDER BY [p].[Species]");
@@ -322,8 +321,6 @@ WHERE [k].[Species] IS NOT NULL");
     ELSE CAST(0 AS bit)
 END
 FROM [Animals] AS [a]
-LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
-LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
         }
 
@@ -433,7 +430,6 @@ WHERE [k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL");
 END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
-LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 WHERE [k].[Species] IS NOT NULL");
         }
@@ -448,7 +444,6 @@ WHERE [k].[Species] IS NOT NULL");
 END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
-LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 WHERE [k].[Species] IS NOT NULL AND ([k].[FoundOn] = CAST(0 AS tinyint))");
         }
@@ -463,7 +458,6 @@ WHERE [k].[Species] IS NOT NULL AND ([k].[FoundOn] = CAST(0 AS tinyint))");
 END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
-LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 WHERE [k].[Species] IS NOT NULL AND ([k].[FoundOn] = CAST(1 AS tinyint))");
         }
@@ -477,8 +471,6 @@ WHERE [k].[Species] IS NOT NULL AND ([k].[FoundOn] = CAST(1 AS tinyint))");
     WHEN [r].[Species] IS NOT NULL THEN N'Rose'
 END AS [Discriminator]
 FROM [Plants] AS [p]
-LEFT JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
-LEFT JOIN [Daisies] AS [d] ON [p].[Species] = [d].[Species]
 LEFT JOIN [Roses] AS [r] ON [p].[Species] = [r].[Species]
 WHERE [r].[Species] IS NOT NULL");
         }
@@ -537,7 +529,7 @@ VALUES (@p0, @p1, @p2);");
 
 SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn], [t].[Discriminator]
 FROM (
-    SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
         WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
         WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
     END AS [Discriminator]
@@ -592,6 +584,25 @@ WHERE EXISTS (
     ) AS [t]
     WHERE [t].[Species0] IS NOT NULL)
 ORDER BY [a].[Species]");
+        }
+
+        public override async Task Selecting_only_base_properties_on_base_type(bool async)
+        {
+            await base.Selecting_only_base_properties_on_base_type(async);
+
+            AssertSql(
+                @"SELECT [a].[Name]
+FROM [Animals] AS [a]");
+        }
+
+        public override async Task Selecting_only_base_properties_on_derived_type(bool async)
+        {
+            await base.Selecting_only_base_properties_on_derived_type(async);
+
+            AssertSql(
+                @"SELECT [a].[Name]
+FROM [Animals] AS [a]
+INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]");
         }
 
         private void AssertSql(params string[] expected)

@@ -93,7 +93,7 @@ ORDER BY [t].[CompanyName] DESC, [t].[CustomerID]",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(1) [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
     ORDER BY [c].[CompanyName] DESC
 ) AS [t]
@@ -138,7 +138,7 @@ ORDER BY [t].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
 ) AS [t]
 INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
@@ -252,7 +252,7 @@ ORDER BY [t].[OrderID], [t].[CustomerID0]",
                 //
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [t].[OrderID], [t].[CustomerID0]
 FROM (
-    SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(1) [o].[OrderID], [c].[CustomerID] AS [CustomerID0]
     FROM [Orders] AS [o]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
     WHERE [o].[OrderID] = 10248
@@ -276,7 +276,7 @@ ORDER BY [t].[OrderID]",
                 //
                 @"SELECT [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice], [t0].[ProductID0], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice0], [t0].[UnitsInStock], [t].[OrderID]
 FROM (
-    SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] = 10248
 ) AS [t]
@@ -327,7 +327,7 @@ ORDER BY [t].[c] DESC, [t].[CustomerID]",
                 //
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
+    SELECT TOP(1) [c].[CustomerID], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -393,7 +393,7 @@ ORDER BY [t].[ContactTitle], [t].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[ContactTitle]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactTitle]
 ) AS [t]
@@ -421,7 +421,7 @@ ORDER BY [t].[ContactTitle], [t].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].[CustomerID], [c].[ContactTitle]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactTitle]
     OFFSET @__p_0 ROWS
@@ -445,7 +445,7 @@ ORDER BY [t].[CompanyName] DESC, [t].[CustomerID]",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(1) [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
     ORDER BY [c].[CompanyName] DESC
 ) AS [t]
@@ -477,7 +477,7 @@ ORDER BY [t].[c], [t].[CustomerID]",
                 //
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
+    SELECT TOP(1) [c].[CustomerID], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -513,7 +513,7 @@ ORDER BY [t].[CustomerID]",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(1) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
 ) AS [t]
@@ -656,7 +656,7 @@ ORDER BY [c].[CustomerID], [o].[OrderID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID]
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t]
@@ -666,7 +666,7 @@ ORDER BY [c].[CustomerID], [t].[OrderID]",
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [t].[OrderID]
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t]
@@ -683,7 +683,7 @@ ORDER BY [c].[CustomerID], [t].[OrderID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [c].[CustomerID]
@@ -694,7 +694,7 @@ ORDER BY [c].[CustomerID], [t].[OrderID]",
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [t].[OrderID]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [c].[CustomerID]
@@ -712,7 +712,7 @@ ORDER BY [c].[CustomerID], [t].[OrderID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [c].[CustomerID]
@@ -723,7 +723,7 @@ ORDER BY [c].[CustomerID], [t].[OrderID]",
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [t].[OrderID]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [c].[CustomerID]
@@ -750,7 +750,7 @@ ORDER BY [c].[CustomerID], [t].[CustomerID]",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [t].[CustomerID]
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] = N'ALFKI'
 ) AS [t]
@@ -767,7 +767,7 @@ ORDER BY [c].[CustomerID], [t].[CustomerID]");
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [t].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
@@ -778,7 +778,7 @@ ORDER BY [t].[CustomerID], [c0].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [c0].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
@@ -812,12 +812,12 @@ ORDER BY [t].[CustomerID], [t0].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t0].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
 CROSS JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
     OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
@@ -829,12 +829,12 @@ ORDER BY [t].[CustomerID], [t0].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t0].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
 CROSS JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     ORDER BY [c0].[CustomerID]
     OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
@@ -874,14 +874,14 @@ ORDER BY [t1].[CustomerID], [t1].[CustomerID0]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t1].[CustomerID], [t1].[CustomerID0]
 FROM (
-    SELECT TOP(@__p_1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [t0].[CustomerID] AS [CustomerID0], [t0].[Address] AS [Address0], [t0].[City] AS [City0], [t0].[CompanyName] AS [CompanyName0], [t0].[ContactName] AS [ContactName0], [t0].[ContactTitle] AS [ContactTitle0], [t0].[Country] AS [Country0], [t0].[Fax] AS [Fax0], [t0].[Phone] AS [Phone0], [t0].[PostalCode] AS [PostalCode0], [t0].[Region] AS [Region0]
+    SELECT TOP(@__p_1) [t].[CustomerID], [t0].[CustomerID] AS [CustomerID0]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(@__p_0) [c].[CustomerID]
         FROM [Customers] AS [c]
         ORDER BY [c].[CustomerID]
     ) AS [t]
     CROSS JOIN (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        SELECT [c0].[CustomerID]
         FROM [Customers] AS [c0]
         ORDER BY [c0].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
@@ -896,14 +896,14 @@ ORDER BY [t1].[CustomerID], [t1].[CustomerID0]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t1].[CustomerID], [t1].[CustomerID0]
 FROM (
-    SELECT TOP(@__p_1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [t0].[CustomerID] AS [CustomerID0], [t0].[Address] AS [Address0], [t0].[City] AS [City0], [t0].[CompanyName] AS [CompanyName0], [t0].[ContactName] AS [ContactName0], [t0].[ContactTitle] AS [ContactTitle0], [t0].[Country] AS [Country0], [t0].[Fax] AS [Fax0], [t0].[Phone] AS [Phone0], [t0].[PostalCode] AS [PostalCode0], [t0].[Region] AS [Region0]
+    SELECT TOP(@__p_1) [t].[CustomerID], [t0].[CustomerID] AS [CustomerID0]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(@__p_0) [c].[CustomerID]
         FROM [Customers] AS [c]
         ORDER BY [c].[CustomerID]
     ) AS [t]
     CROSS JOIN (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        SELECT [c0].[CustomerID]
         FROM [Customers] AS [c0]
         ORDER BY [c0].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
@@ -941,7 +941,7 @@ ORDER BY [c].[City], [c].[CustomerID], [o].[OrderID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] <> [c].[CustomerID]) OR [o].[CustomerID] IS NULL
     ORDER BY [c].[CustomerID]
@@ -952,7 +952,7 @@ ORDER BY [c].[CustomerID], [t].[OrderID]",
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [t].[OrderID]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] <> [c].[CustomerID]) OR [o].[CustomerID] IS NULL
     ORDER BY [c].[CustomerID]
@@ -989,7 +989,7 @@ ORDER BY [t].[CustomerID]");
 
 SELECT [o0].[CustomerID]
 FROM (
-    SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+    SELECT [o].[OrderID], [o].[ProductID]
     FROM [Order Details] AS [o]
     WHERE [o].[Quantity] = CAST(10 AS smallint)
     ORDER BY [o].[OrderID], [o].[ProductID]
@@ -1030,14 +1030,14 @@ ORDER BY [t1].[CustomerID], [t1].[CustomerID0]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t1].[CustomerID], [t1].[CustomerID0]
 FROM (
-    SELECT TOP(@__p_1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [t0].[CustomerID] AS [CustomerID0], [t0].[Address] AS [Address0], [t0].[City] AS [City0], [t0].[CompanyName] AS [CompanyName0], [t0].[ContactName] AS [ContactName0], [t0].[ContactTitle] AS [ContactTitle0], [t0].[Country] AS [Country0], [t0].[Fax] AS [Fax0], [t0].[Phone] AS [Phone0], [t0].[PostalCode] AS [PostalCode0], [t0].[Region] AS [Region0]
+    SELECT TOP(@__p_1) [t].[CustomerID], [t0].[CustomerID] AS [CustomerID0]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(@__p_0) [c].[CustomerID]
         FROM [Customers] AS [c]
         ORDER BY [c].[CustomerID]
     ) AS [t]
     CROSS JOIN (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        SELECT [c0].[CustomerID]
         FROM [Customers] AS [c0]
         ORDER BY [c0].[CustomerID]
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
@@ -1189,7 +1189,7 @@ ORDER BY [t].[CustomerID]",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(1) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
 ) AS [t]
@@ -1258,7 +1258,7 @@ ORDER BY [t].[ContactName] DESC, [t].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[ContactName]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName] DESC
 ) AS [t]
@@ -1286,7 +1286,7 @@ ORDER BY [t].[ContactName], [t].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].[CustomerID], [c].[ContactName]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
     OFFSET @__p_0 ROWS
@@ -1327,7 +1327,7 @@ ORDER BY [t].[c], [t].[c0], [t].[OrderID], [t].[CustomerID0]",
 
 SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [t].[OrderID], [t].[CustomerID0]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID] AS [CustomerID0], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
+    SELECT TOP(@__p_0) [o].[OrderID], [c].[CustomerID] AS [CustomerID0], CASE
         WHEN [o].[OrderID] > 0 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], CASE
@@ -1372,7 +1372,7 @@ ORDER BY [t].[c] DESC, [t].[CustomerID]",
                 //
                 @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
+    SELECT TOP(1) [c].[CustomerID], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -1390,7 +1390,7 @@ ORDER BY [t].[c] DESC, [t].[CustomerID], [o0].[OrderID]",
                 //
                 @"SELECT [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice], [t].[CustomerID], [o0].[OrderID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
+    SELECT TOP(1) [c].[CustomerID], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -1564,7 +1564,7 @@ ORDER BY [t].[c], [t].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
+    SELECT [c].[CustomerID], CASE
         WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
@@ -1607,7 +1607,7 @@ ORDER BY [t].[c], [t].[CustomerID]",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
+    SELECT [c].[CustomerID], CASE
         WHEN [c].[CustomerID] <> N'ALFKI' THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]

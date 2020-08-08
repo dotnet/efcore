@@ -64,7 +64,7 @@ ORDER BY [o].[OrderID], [o].[ProductID]");
 
 SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
@@ -120,7 +120,7 @@ ORDER BY [c].[CustomerID]");
 
 SELECT [t1].[CustomerID], [t1].[OrderID], [t1].[c]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[CustomerID]
@@ -145,7 +145,7 @@ ORDER BY [t].[CustomerID]");
 
 SELECT [t1].[CustomerID], [t1].[OrderID], [t1].[c]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[CustomerID]
@@ -170,7 +170,7 @@ ORDER BY [t].[CustomerID]");
 
 SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
@@ -194,7 +194,7 @@ ORDER BY [t].[CustomerID]");
 
 SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
     OFFSET @__p_0 ROWS
@@ -320,7 +320,7 @@ WHERE ([c].[City] = N'Seattle') AND (([c].[Phone] <> N'555 555 5555') OR [c].[Ph
                 @"SELECT [o].[CustomerID], [t].[CustomerID] AS [C2]
 FROM [Orders] AS [o]
 CROSS JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT [o0].[CustomerID]
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10400
 ) AS [t]
@@ -682,9 +682,9 @@ ORDER BY [c].[CustomerID]");
                 @"SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [t].[OrderID], [t].[CustomerID0]
+    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [t].[CustomerID0]
     FROM (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID], [c0].[CustomerID]) AS [row]
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID], [c0].[CustomerID]) AS [row]
         FROM [Orders] AS [o]
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
         WHERE [o].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
@@ -902,7 +902,7 @@ SELECT [t].[OrderID], COALESCE((
     WHERE [t].[OrderID] = [o].[OrderID]
     ORDER BY [o].[OrderID], [o].[ProductID]), 0) AS [OrderDetail], [c].[City]
 FROM (
-    SELECT TOP(@__p_0) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT TOP(@__p_0) [o0].[OrderID], [o0].[CustomerID]
     FROM [Orders] AS [o0]
     ORDER BY [o0].[OrderID]
 ) AS [t]

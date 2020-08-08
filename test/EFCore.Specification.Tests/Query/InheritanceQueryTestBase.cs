@@ -537,6 +537,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Selecting_only_base_properties_on_base_type(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Animal>().Select(a => new { a.Name }),
+                elementSorter: e => e.Name);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Selecting_only_base_properties_on_derived_type(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Bird>().Select(a => new { a.Name }),
+                elementSorter: e => e.Name);
+        }
+
         protected InheritanceContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

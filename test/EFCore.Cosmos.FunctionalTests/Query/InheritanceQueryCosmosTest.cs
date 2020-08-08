@@ -409,6 +409,26 @@ ORDER BY c[""Name""]");
             AssertSql(" ");
         }
 
+        public override async Task Selecting_only_base_properties_on_base_type(bool async)
+        {
+            await base.Selecting_only_base_properties_on_base_type(async);
+
+            AssertSql(
+                @"SELECT c[""Name""]
+FROM root c
+WHERE c[""Discriminator""] IN (""Eagle"", ""Kiwi"")");
+        }
+
+        public override async Task Selecting_only_base_properties_on_derived_type(bool async)
+        {
+            await base.Selecting_only_base_properties_on_derived_type(async);
+
+            AssertSql(
+                @"SELECT c[""Name""]
+FROM root c
+WHERE c[""Discriminator""] IN (""Eagle"", ""Kiwi"")");
+        }
+
         protected override bool EnforcesFkConstraints => false;
 
         private void AssertSql(params string[] expected)

@@ -25,25 +25,25 @@ namespace Microsoft.EntityFrameworkCore
                 @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t1].[Name], [t1].[Type], [t3].[Name], [t3].[Computed], [t3].[Description], [t3].[Engine_Discriminator], [t7].[Name], [t7].[Capacity], [t7].[FuelTank_Discriminator], [t7].[FuelType], [t7].[GrainGeometry]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
-    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
+    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
     FROM [Vehicles] AS [v0]
     INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]
 LEFT JOIN (
-    SELECT [v2].[Name], [v2].[Type], [t0].[Name] AS [Name0], [t0].[Name0] AS [Name00]
+    SELECT [v2].[Name], [v2].[Type]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
-        SELECT [v3].[Name], [v3].[Operator_Discriminator], [v3].[Operator_Name], [v3].[LicenseType], [v4].[Name] AS [Name0]
+        SELECT [v3].[Name]
         FROM [Vehicles] AS [v3]
         INNER JOIN [Vehicles] AS [v4] ON [v3].[Name] = [v4].[Name]
     ) AS [t0] ON [v2].[Name] = [t0].[Name]
     WHERE [v2].[Type] IS NOT NULL
 ) AS [t1] ON [t].[Name] = [t1].[Name]
 LEFT JOIN (
-    SELECT [v5].[Name], [v5].[Computed], [v5].[Description], [v5].[Engine_Discriminator], [t2].[Name] AS [Name0]
+    SELECT [v5].[Name], [v5].[Computed], [v5].[Description], [v5].[Engine_Discriminator]
     FROM [Vehicles] AS [v5]
     INNER JOIN (
-        SELECT [v6].[Name], [v6].[Discriminator], [v6].[SeatingCapacity]
+        SELECT [v6].[Name]
         FROM [Vehicles] AS [v6]
         WHERE [v6].[Discriminator] = N'PoweredVehicle'
     ) AS [t2] ON [v5].[Name] = [t2].[Name]
@@ -231,7 +231,7 @@ SELECT @@ROWCOUNT;",
                 @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
-    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
+    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
     FROM [Vehicles] AS [v0]
     INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]
@@ -254,7 +254,7 @@ SELECT @@ROWCOUNT;",
                 @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
-    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v1].[Name] AS [Name0]
+    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
     FROM [Vehicles] AS [v0]
     INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]

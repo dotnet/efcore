@@ -3178,7 +3178,7 @@ FROM [Bases] AS [b]");
                     @"SELECT [t2].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[AnotherEntity11818_Name], [t1].[Id] AS [Id0]
+    SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
     INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
     WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
@@ -3211,13 +3211,13 @@ GROUP BY [t2].[AnotherEntity11818_Name]");
                     @"SELECT [t2].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[AnotherEntity11818_Name], [t1].[Id] AS [Id0]
+    SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
     INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
     WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
 ) AS [t2] ON [t].[Id] = [t2].[Id]
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Name], [t4].[Id] AS [Id0]
+    SELECT [t3].[Id], [t3].[MaumarEntity11818_Name]
     FROM [Table] AS [t3]
     INNER JOIN [Table] AS [t4] ON [t3].[Id] = [t4].[Id]
     WHERE [t3].[MaumarEntity11818_Name] IS NOT NULL

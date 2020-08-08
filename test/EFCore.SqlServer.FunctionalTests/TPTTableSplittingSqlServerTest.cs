@@ -28,32 +28,23 @@ LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-    END AS [Discriminator], [t].[Name] AS [Name0]
+    END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [LicensedOperators] AS [l] ON [v0].[Name] = [l].[VehicleName]
     INNER JOIN (
-        SELECT [v1].[Name], [v1].[SeatingCapacity], CASE
-            WHEN [p0].[Name] IS NOT NULL THEN N'PoweredVehicle'
-        END AS [Discriminator]
+        SELECT [v1].[Name]
         FROM [Vehicles] AS [v1]
-        LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 LEFT JOIN (
-    SELECT [v2].[Name], [v2].[Type], [t2].[Name] AS [Name0], [t2].[Name0] AS [Name00]
+    SELECT [v2].[Name], [v2].[Type]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
-        SELECT [v3].[Name], [v3].[Operator_Name], [v3].[RequiredInt], [l0].[LicenseType], CASE
-            WHEN [l0].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-        END AS [Discriminator], [t1].[Name] AS [Name0]
+        SELECT [v3].[Name]
         FROM [Vehicles] AS [v3]
-        LEFT JOIN [LicensedOperators] AS [l0] ON [v3].[Name] = [l0].[VehicleName]
         INNER JOIN (
-            SELECT [v4].[Name], [v4].[SeatingCapacity], CASE
-                WHEN [p1].[Name] IS NOT NULL THEN N'PoweredVehicle'
-            END AS [Discriminator]
+            SELECT [v4].[Name]
             FROM [Vehicles] AS [v4]
-            LEFT JOIN [PoweredVehicles] AS [p1] ON [v4].[Name] = [p1].[Name]
         ) AS [t1] ON [v3].[Name] = [t1].[Name]
     ) AS [t2] ON [v2].[Name] = [t2].[Name]
     WHERE [v2].[Type] IS NOT NULL
@@ -63,14 +54,13 @@ LEFT JOIN (
         WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
         WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
         WHEN [c0].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-    END AS [Discriminator], [t4].[Name] AS [Name0]
+    END AS [Discriminator]
     FROM [PoweredVehicles] AS [p2]
-    LEFT JOIN [CombustionEngines] AS [c] ON [p2].[Name] = [c].[VehicleName]
     LEFT JOIN [ContinuousCombustionEngines] AS [c0] ON [p2].[Name] = [c0].[VehicleName]
     LEFT JOIN [IntermittentCombustionEngines] AS [i] ON [p2].[Name] = [i].[VehicleName]
     LEFT JOIN [SolidRockets] AS [s] ON [p2].[Name] = [s].[VehicleName]
     INNER JOIN (
-        SELECT [v5].[Name], [v5].[SeatingCapacity]
+        SELECT [v5].[Name]
         FROM [Vehicles] AS [v5]
         INNER JOIN [PoweredVehicles] AS [p3] ON [v5].[Name] = [p3].[Name]
     ) AS [t4] ON [p2].[Name] = [t4].[Name]
@@ -79,20 +69,13 @@ LEFT JOIN (
 LEFT JOIN (
     SELECT [c1].[VehicleName], [c1].[Capacity], [c1].[FuelType], [s0].[GrainGeometry], CASE
         WHEN [s0].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
-    END AS [Discriminator], [t6].[Name]
+    END AS [Discriminator]
     FROM [CombustionEngines] AS [c1]
     LEFT JOIN [SolidFuelTanks] AS [s0] ON [c1].[VehicleName] = [s0].[VehicleName]
     INNER JOIN (
-        SELECT [p4].[Name], [p4].[Computed], [p4].[Description], CASE
-            WHEN [s1].[VehicleName] IS NOT NULL THEN N'SolidRocket'
-            WHEN [i0].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
-            WHEN [c3].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-        END AS [Discriminator]
+        SELECT [p4].[Name]
         FROM [PoweredVehicles] AS [p4]
         INNER JOIN [CombustionEngines] AS [c2] ON [p4].[Name] = [c2].[VehicleName]
-        LEFT JOIN [ContinuousCombustionEngines] AS [c3] ON [p4].[Name] = [c3].[VehicleName]
-        LEFT JOIN [IntermittentCombustionEngines] AS [i0] ON [p4].[Name] = [i0].[VehicleName]
-        LEFT JOIN [SolidRockets] AS [s1] ON [p4].[Name] = [s1].[VehicleName]
     ) AS [t6] ON [c1].[VehicleName] = [t6].[Name]
     WHERE [c1].[FuelType] IS NOT NULL OR [c1].[Capacity] IS NOT NULL
 ) AS [t7] ON [t5].[Name] = [t7].[VehicleName]
@@ -110,11 +93,8 @@ END AS [Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [LicensedOperators] AS [l] ON [v].[Name] = [l].[VehicleName]
 INNER JOIN (
-    SELECT [v0].[Name], [v0].[SeatingCapacity], CASE
-        WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-    END AS [Discriminator]
+    SELECT [v0].[Name]
     FROM [Vehicles] AS [v0]
-    LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]");
         }
 
@@ -126,11 +106,8 @@ INNER JOIN (
                 @"SELECT [v].[Name], [v].[Operator_Name], [v].[RequiredInt]
 FROM [Vehicles] AS [v]
 INNER JOIN (
-    SELECT [v0].[Name], [v0].[SeatingCapacity], CASE
-        WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-    END AS [Discriminator]
+    SELECT [v0].[Name]
     FROM [Vehicles] AS [v0]
-    LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]");
         }
 
@@ -142,11 +119,8 @@ INNER JOIN (
                 @"SELECT [v].[Name], [v].[Operator_Name], [v].[RequiredInt]
 FROM [Vehicles] AS [v]
 INNER JOIN (
-    SELECT [v0].[Name], [v0].[SeatingCapacity], CASE
-        WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-    END AS [Discriminator]
+    SELECT [v0].[Name]
     FROM [Vehicles] AS [v0]
-    LEFT JOIN [PoweredVehicles] AS [p] ON [v0].[Name] = [p].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]");
         }
 
@@ -161,16 +135,9 @@ END AS [Discriminator]
 FROM [CombustionEngines] AS [c]
 LEFT JOIN [SolidFuelTanks] AS [s] ON [c].[VehicleName] = [s].[VehicleName]
 INNER JOIN (
-    SELECT [p].[Name], [p].[Computed], [p].[Description], CASE
-        WHEN [s0].[VehicleName] IS NOT NULL THEN N'SolidRocket'
-        WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
-        WHEN [c1].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-    END AS [Discriminator]
+    SELECT [p].[Name]
     FROM [PoweredVehicles] AS [p]
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
-    LEFT JOIN [ContinuousCombustionEngines] AS [c1] ON [p].[Name] = [c1].[VehicleName]
-    LEFT JOIN [IntermittentCombustionEngines] AS [i] ON [p].[Name] = [i].[VehicleName]
-    LEFT JOIN [SolidRockets] AS [s0] ON [p].[Name] = [s0].[VehicleName]
 ) AS [t] ON [c].[VehicleName] = [t].[Name]
 WHERE [c].[FuelType] IS NOT NULL OR [c].[Capacity] IS NOT NULL");
         }
@@ -183,16 +150,9 @@ WHERE [c].[FuelType] IS NOT NULL OR [c].[Capacity] IS NOT NULL");
                 @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
 INNER JOIN (
-    SELECT [p].[Name], [p].[Computed], [p].[Description], CASE
-        WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
-        WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
-        WHEN [c1].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-    END AS [Discriminator]
+    SELECT [p].[Name]
     FROM [PoweredVehicles] AS [p]
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
-    LEFT JOIN [ContinuousCombustionEngines] AS [c1] ON [p].[Name] = [c1].[VehicleName]
-    LEFT JOIN [IntermittentCombustionEngines] AS [i] ON [p].[Name] = [i].[VehicleName]
-    LEFT JOIN [SolidRockets] AS [s] ON [p].[Name] = [s].[VehicleName]
 ) AS [t] ON [c].[VehicleName] = [t].[Name]
 WHERE [c].[FuelType] IS NOT NULL OR [c].[Capacity] IS NOT NULL");
         }
@@ -205,16 +165,9 @@ WHERE [c].[FuelType] IS NOT NULL OR [c].[Capacity] IS NOT NULL");
                 @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
 INNER JOIN (
-    SELECT [p].[Name], [p].[Computed], [p].[Description], CASE
-        WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
-        WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
-        WHEN [c1].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
-    END AS [Discriminator]
+    SELECT [p].[Name]
     FROM [PoweredVehicles] AS [p]
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
-    LEFT JOIN [ContinuousCombustionEngines] AS [c1] ON [p].[Name] = [c1].[VehicleName]
-    LEFT JOIN [IntermittentCombustionEngines] AS [i] ON [p].[Name] = [i].[VehicleName]
-    LEFT JOIN [SolidRockets] AS [s] ON [p].[Name] = [s].[VehicleName]
 ) AS [t] ON [c].[VehicleName] = [t].[Name]
 WHERE [c].[FuelType] IS NOT NULL AND [c].[Capacity] IS NOT NULL");
         }
@@ -249,15 +202,12 @@ LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-    END AS [Discriminator], [t].[Name] AS [Name0]
+    END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [LicensedOperators] AS [l] ON [v0].[Name] = [l].[VehicleName]
     INNER JOIN (
-        SELECT [v1].[Name], [v1].[SeatingCapacity], CASE
-            WHEN [p0].[Name] IS NOT NULL THEN N'PoweredVehicle'
-        END AS [Discriminator]
+        SELECT [v1].[Name]
         FROM [Vehicles] AS [v1]
-        LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
@@ -284,15 +234,12 @@ LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
-    END AS [Discriminator], [t].[Name] AS [Name0]
+    END AS [Discriminator]
     FROM [Vehicles] AS [v0]
     LEFT JOIN [LicensedOperators] AS [l] ON [v0].[Name] = [l].[VehicleName]
     INNER JOIN (
-        SELECT [v1].[Name], [v1].[SeatingCapacity], CASE
-            WHEN [p0].[Name] IS NOT NULL THEN N'PoweredVehicle'
-        END AS [Discriminator]
+        SELECT [v1].[Name]
         FROM [Vehicles] AS [v1]
-        LEFT JOIN [PoweredVehicles] AS [p0] ON [v1].[Name] = [p0].[Name]
     ) AS [t] ON [v0].[Name] = [t].[Name]
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");

@@ -121,7 +121,7 @@ LEFT JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID] AS [CustomerID0]
     FROM [Orders] AS [o]
     LEFT JOIN (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        SELECT [c0].[CustomerID], [c0].[CompanyName]
         FROM [Customers] AS [c0]
         WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c0].[CompanyName] IS NOT NULL AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
     ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
@@ -170,10 +170,10 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL");
 SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
 FROM [Order Details] AS [o]
 INNER JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [t].[CustomerID] AS [CustomerID0], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
     LEFT JOIN (
-        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT [c].[CustomerID], [c].[CompanyName]
         FROM [Customers] AS [c]
         WHERE (@__ef_filter__TenantPrefix_1 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1)) = @__ef_filter__TenantPrefix_1))
     ) AS [t] ON [o0].[CustomerID] = [t].[CustomerID]
@@ -193,17 +193,17 @@ WHERE [o].[Quantity] > @__ef_filter___quantity_0");
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID] AS [CustomerID0]
+    SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     LEFT JOIN (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        SELECT [c0].[CustomerID], [c0].[CompanyName]
         FROM [Customers] AS [c0]
         WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c0].[CompanyName] IS NOT NULL AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
     ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
     WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 INNER JOIN (
-    SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+    SELECT [o0].[OrderID], [o0].[Discount]
     FROM [Order Details] AS [o0]
     WHERE [o0].[Quantity] > @__ef_filter___quantity_1
 ) AS [t1] ON [t0].[OrderID] = [t1].[OrderID]
@@ -248,7 +248,7 @@ FROM (
     select * from Orders
 ) AS [o]
 LEFT JOIN (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
     WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
 ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
@@ -285,7 +285,7 @@ WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AN
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
     WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
 ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
