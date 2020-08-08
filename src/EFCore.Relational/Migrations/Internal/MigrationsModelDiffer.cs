@@ -88,7 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
+#pragma warning disable EF1001 // Internal EF Core API usage.
             Check.NotNull(changeDetector, nameof(changeDetector));
+#pragma warning restore EF1001 // Internal EF Core API usage.
             Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
             Check.NotNull(commandBatchPreparerDependencies, nameof(commandBatchPreparerDependencies));
 

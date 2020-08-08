@@ -254,10 +254,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
 
-#pragma warning disable EF1001
+#pragma warning disable EF1001 // Internal EF Core API usage.
                     var internalEntityEntry = new InternalEntityEntryFactory().Create(
                         _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
-#pragma warning restore EF1001
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
                     foreach (var keyProperty in _readItemExpression.EntityType.FindPrimaryKey().Properties)
                     {
@@ -265,17 +265,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                         if (TryGetParameterValue(property, out var parameterValue))
                         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
                             internalEntityEntry[property] = parameterValue;
+#pragma warning restore EF1001 // Internal EF Core API usage.
                         }
                     }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     internalEntityEntry.SetEntityState(EntityState.Added);
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                     value = internalEntityEntry[idProperty];
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
                     internalEntityEntry.SetEntityState(EntityState.Detached);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
