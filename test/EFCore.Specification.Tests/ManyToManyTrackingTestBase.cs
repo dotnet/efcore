@@ -158,7 +158,10 @@ namespace Microsoft.EntityFrameworkCore
                         e.Key3 = new DateTime(7714, 1, 1);
                     }));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 8, 39);
 
@@ -280,7 +283,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     ValidateJoinNavigations(context);
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
                     Assert.Equal(refCountThrees, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
@@ -521,7 +527,10 @@ namespace Microsoft.EntityFrameworkCore
                         e.Key3 = new DateTime(7714, 1, 1);
                     }));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 47);
 
@@ -618,7 +627,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipShared).Count(e => e == toRemoveOne));
                     Assert.Equal(refCountThrees, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipShared).Count(e => e == toRemoveOne));
                     Assert.Equal(refCountThrees, ones.SelectMany(e => e.RootSkipShared).Count(e => e == toRemoveThree));
@@ -832,7 +844,10 @@ namespace Microsoft.EntityFrameworkCore
                         e.Key3 = new DateTime(7714, 1, 1);
                     }));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 53);
 
@@ -954,7 +969,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     ValidateJoinNavigations(context);
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     Assert.Equal(refCountOnes, threes.SelectMany(e => e.CompositeKeySkipFull).Count(e => e == toRemoveOne));
                     Assert.Equal(refCountThrees, ones.SelectMany(e => e.ThreeSkipFull).Count(e => e == toRemoveThree));
@@ -1163,7 +1181,10 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[3].SelfSkipSharedLeft.Remove(rightEntities[3].SelfSkipSharedLeft.Single(e => e.Id == 9));
                     rightEntities[3].SelfSkipSharedLeft.Add(context.EntityTwos.CreateInstance(e => e.Id = 7714));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 28, 42);
 
@@ -1332,7 +1353,10 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[2].TwoSkipFull.Remove(rightEntities[2].TwoSkipFull.Single(e => e.Id == 6));
                     rightEntities[2].TwoSkipFull.Add(context.EntityTwos.CreateInstance(e => e.Id = 7714));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 60);
 
@@ -1504,7 +1528,10 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[2].OneSkip.Remove(rightEntities[2].OneSkip.Single(e => e.Id == 8));
                     rightEntities[2].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 14, 55);
 
@@ -1693,7 +1720,10 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[4].SelfSkipPayloadLeft.Remove(rightEntities[4].SelfSkipPayloadLeft.Single(e => e.Id == 6));
                     rightEntities[4].SelfSkipPayloadLeft.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     context.Find<JoinOneSelfPayload>(7712, 1).Payload = new DateTime(1973, 9, 3);
                     context.Find<JoinOneSelfPayload>(20, 16).Payload = new DateTime(1969, 8, 3);
@@ -1891,7 +1921,10 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[2].OneSkipPayloadFullShared.Remove(rightEntities[2].OneSkipPayloadFullShared.Single(e => e.Id == 13));
                     rightEntities[2].OneSkipPayloadFullShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Find(7712, 1)["Payload"] = "Set!";
                     context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").Find(20, 16)["Payload"] = "Changed!";
@@ -2077,7 +2110,10 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[2].OneSkipShared.Remove(rightEntities[2].OneSkipShared.Single(e => e.Id == 7));
                     rightEntities[2].OneSkipShared.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 53);
 
@@ -2253,10 +2289,18 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[2].OneSkipPayloadFull.Remove(rightEntities[2].OneSkipPayloadFull.Single(e => e.Id == 8));
                     rightEntities[2].OneSkipPayloadFull.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     context.Find<JoinOneToThreePayloadFull>(7712, 1).Payload = "Set!";
                     context.Find<JoinOneToThreePayloadFull>(20, 20).Payload = "Changed!";
+
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 123, postSave: false);
 
@@ -2389,7 +2433,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     ValidateJoinNavigations(context);
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     Assert.Equal(refCountOnes, threes.SelectMany(e => e.OneSkipPayloadFull).Count(e => e == toRemoveOne));
                     Assert.Equal(refCountThrees, ones.SelectMany(e => e.ThreeSkipPayloadFull).Count(e => e == toRemoveThree));
@@ -2565,7 +2612,10 @@ namespace Microsoft.EntityFrameworkCore
                     rightEntities[2].OneSkip.Remove(rightEntities[2].OneSkip.Single(e => e.Id == 1));
                     rightEntities[2].OneSkip.Add(context.EntityOnes.CreateInstance(e => e.Id = 7714));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     ValidateFixup(context, leftEntities, rightEntities, 24, 24, 120);
 
@@ -2664,7 +2714,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(refCountOnes, twos.SelectMany(e => e.OneSkip).Count(e => e == toRemoveOne));
                     Assert.Equal(refCountTwos, ones.SelectMany(e => e.TwoSkip).Count(e => e == toRemoveTwo));
 
-                    context.ChangeTracker.DetectChanges();
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
 
                     Assert.Equal(refCountOnes, twos.SelectMany(e => e.OneSkip).Count(e => e == toRemoveOne));
                     Assert.Equal(refCountTwos, ones.SelectMany(e => e.TwoSkip).Count(e => e == toRemoveTwo));
@@ -2795,6 +2848,65 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Initial_tracking_uses_skip_navigations()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7711),
+                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7712),
+                        context.Set<ImplicitManyToManyA>().CreateInstance(e => e.Id = 7713)
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7721),
+                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7722),
+                        context.Set<ImplicitManyToManyB>().CreateInstance(e => e.Id = 7723)
+                    };
+
+                    leftEntities[0].Bs.Add(rightEntities[0]); // 11 - 21
+                    leftEntities[0].Bs.Add(rightEntities[1]); // 11 - 22
+                    leftEntities[0].Bs.Add(rightEntities[2]); // 11 - 23
+
+                    context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    context.SaveChanges();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                },
+                context =>
+                {
+                    var results = context.Set<ImplicitManyToManyA>().Where(e => e.Id > 7700).Include(e => e.Bs).ToList();
+                    Assert.Equal(3, results.Count);
+
+                    var leftEntities = context.ChangeTracker.Entries<ImplicitManyToManyA>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+                    var rightEntities = context.ChangeTracker.Entries<ImplicitManyToManyB>().Select(e => e.Entity).OrderBy(e => e.Id).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                });
+
+            static void ValidateFixup(DbContext context, IList<ImplicitManyToManyA> leftEntities, IList<ImplicitManyToManyB> rightEntities)
+            {
+                Assert.Equal(9, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyA>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<ImplicitManyToManyB>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
+
+                Assert.Equal(3, leftEntities[0].Bs.Count);
+                Assert.Empty(leftEntities[1].Bs);
+                Assert.Empty(leftEntities[2].Bs);
+
+                Assert.Single(rightEntities[0].As);
+                Assert.Single(rightEntities[1].As);
+                Assert.Single(rightEntities[2].As);
+            }
+        }
+
         [ConditionalTheory]
         [InlineData(new[] { 1, 2, 3 })]
         [InlineData(new[] { 2, 1, 3 })]
@@ -2915,8 +3027,18 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual bool SupportsDatabaseDefaults => true;
 
+        protected virtual bool RequiresDetectChanges => true;
+
         public abstract class ManyToManyTrackingFixtureBase : ManyToManyQueryFixtureBase
         {
+            public override ManyToManyContext CreateContext()
+            {
+                var context = base.CreateContext();
+                context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+                return context;
+            }
+
             protected override string StoreName { get; } = "ManyToManyTracking";
         }
     }
