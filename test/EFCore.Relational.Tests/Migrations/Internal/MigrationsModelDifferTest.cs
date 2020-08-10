@@ -9619,10 +9619,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         c => Assert.Equal("Id2", c.Name),
                         c => Assert.Equal("Id1", c.Name),
                         c => Assert.Equal("ShadowPk", c.Name),
-                        c => Assert.Equal("RealFkNavigationId", c.Name),
-                        c => Assert.Equal("ShadowFkNavigationId", c.Name),
                         c => Assert.Equal("Value", c.Name),
-                        c => Assert.Equal("AnotherShadowProperty", c.Name));
+                        c => Assert.Equal("AnotherShadowProperty", c.Name),
+                        c => Assert.Equal("RealFkNavigationId", c.Name),
+                        c => Assert.Equal("ShadowFkNavigationId", c.Name));
                 });
         }
 

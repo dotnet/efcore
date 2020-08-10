@@ -827,9 +827,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Select(pi => primaryKeyPropertyGroups.ContainsKey(pi) ? primaryKeyPropertyGroups[pi] : null)
                 .Where(e => e != null)
                 .Concat(leastPriorityPrimaryKeyProperties)
-                .Concat(sortedPropertyInfos.Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi)).SelectMany(p => groups[p]))
+                .Concat(sortedPropertyInfos.Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && entityType.ClrType.IsAssignableFrom(pi.DeclaringType)).SelectMany(p => groups[p]))
                 .Concat(leastPriorityProperties)
-                .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(et => GetSortedProperties(et, table)));
+                .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(et => GetSortedProperties(et, table)))
+                .Concat(sortedPropertyInfos.Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && !entityType.ClrType.IsAssignableFrom(pi.DeclaringType)).SelectMany(p => groups[p]));
         }
 
         private sealed class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>
