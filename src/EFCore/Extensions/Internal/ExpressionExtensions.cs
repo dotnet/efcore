@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -196,5 +197,61 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return expression;
         }
+
+        private static readonly MethodInfo _objectEqualsMethodInfo
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static Expression BuildPredicate(
+            [NotNull] IReadOnlyList<IProperty> keyProperties,
+            ValueBuffer keyValues,
+            [NotNull] ParameterExpression entityParameter)
+        {
+            var keyValuesConstant = Expression.Constant(keyValues);
+
+            var predicate = GenerateEqualExpression(entityParameter, keyValuesConstant, keyProperties[0], 0);
+
+            for (var i = 1; i < keyProperties.Count; i++)
+            {
+                predicate = Expression.AndAlso(predicate, GenerateEqualExpression(entityParameter, keyValuesConstant, keyProperties[i], i));
+            }
+
+            return predicate;
+
+            static Expression GenerateEqualExpression(
+                Expression entityParameterExpression, Expression keyValuesConstantExpression, IProperty property, int i)
+                => property.ClrType.IsValueType
+                    && property.ClrType.UnwrapNullableType() is Type nonNullableType
+                    && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
+                    ? Expression.Call(
+                        _objectEqualsMethodInfo,
+                        Expression.Call(
+                            EF.PropertyMethod.MakeGenericMethod(typeof(object)),
+                            entityParameterExpression,
+                            Expression.Constant(property.Name, typeof(string))),
+                        Expression.Convert(
+                            Expression.Call(
+                                keyValuesConstantExpression,
+                                ValueBuffer.GetValueMethod,
+                                Expression.Constant(i)),
+                            typeof(object)))
+                    : (Expression)Expression.Equal(
+                        Expression.Call(
+                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
+                            entityParameterExpression,
+                            Expression.Constant(property.Name, typeof(string))),
+                        Expression.Convert(
+                            Expression.Call(
+                                keyValuesConstantExpression,
+                                ValueBuffer.GetValueMethod,
+                                Expression.Constant(i)),
+                            property.ClrType));
+        }
+
     }
 }

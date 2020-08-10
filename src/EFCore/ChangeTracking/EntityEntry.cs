@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
+        private IEntityFinder _finder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -413,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private IEntityFinder Finder
-            => InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
+            => _finder ??= InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
 
         /// <summary>
         ///     Returns a string that represents the current object.

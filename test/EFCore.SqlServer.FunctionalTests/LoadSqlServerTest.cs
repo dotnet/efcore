@@ -373,9 +373,9 @@ WHERE ([s].[ParentAlternateId] = @__p_0) AND ([s].[ParentId] = @__p_1)");
             AssertSql("");
         }
 
-        public override async Task Load_collection(EntityState state, bool async)
+        public override async Task Load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
         {
-            await base.Load_collection(state, async);
+            await base.Load_collection(state, queryTrackingBehavior, async);
 
             AssertSql(
                 @"@__p_0='707' (Nullable = true)

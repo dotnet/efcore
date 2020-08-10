@@ -26,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public class CollectionEntry : NavigationEntry
     {
+        private ICollectionLoader _loader;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -59,10 +61,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var targetType = Metadata.TargetEntityType;
                 var context = InternalEntry.StateManager.Context;
+
                 var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
                     && (string)context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true"
                         ? context.GetDependencies().ChangeDetector
                         : null;
+
                 foreach (var entity in collection.OfType<object>().ToList())
                 {
                     var entry = InternalEntry.StateManager.GetOrCreateEntry(entity, targetType);
@@ -200,7 +204,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             EnsureInitialized();
 
-            base.Load();
+            if (!IsLoaded)
+            {
+                TargetLoader.Load(InternalEntry);
+            }
         }
 
         /// <summary>
@@ -226,7 +233,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             EnsureInitialized();
 
-            return base.LoadAsync(cancellationToken);
+            return IsLoaded
+                ? Task.CompletedTask
+                : TargetLoader.LoadAsync(InternalEntry, cancellationToken);
         }
 
         /// <summary>
@@ -243,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             EnsureInitialized();
 
-            return base.Query();
+            return TargetLoader.Query(InternalEntry);
         }
 
         private void EnsureInitialized()
@@ -274,5 +283,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 || !Metadata.GetCollectionAccessor().Contains(InternalEntry.Entity, entity)
                     ? null
                     : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
+
+        private ICollectionLoader TargetLoader
+            => _loader ??= Metadata is ISkipNavigation skipNavigation
+                ? skipNavigation.GetManyToManyLoader()
+                : new EntityFinderCollectionLoaderAdapter(
+                    InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType),
+                    (INavigation)Metadata);
     }
 }
