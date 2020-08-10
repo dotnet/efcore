@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -147,6 +148,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="propertyName"> The property name. </param>
         /// <returns> The value of the property. </returns>
         public abstract TValue GetValue<TValue>([NotNull] string propertyName);
+
+        /// <summary>
+        ///     Try to gets the value of the property just like using the indexed property getter but
+        ///     typed to the type of the generic parameter.
+        ///     If property exists it return the value into the out parameter, otherwise the default value of TValue
+        /// </summary>
+        /// <typeparam name="TValue"> The type of the property. </typeparam>
+        /// <param name="propertyName"> The property name. </param>
+        /// <param name="value"> The property value if any. </param>
+        /// <returns> True if the property exists, otherwise false. </returns>
+        public virtual bool TryGetValue<TValue>([NotNull] string propertyName, out TValue value)
+        {
+            var property = Properties.FirstOrDefault(p=> p.Name == propertyName);
+            if (property != null)
+            {
+                value = GetValue<TValue>(propertyName);
+                return true;
+            }
+
+            value = default(TValue);
+            return false;
+        }
 
         /// <summary>
         ///     Gets the value of the property just like using the indexed property getter but
