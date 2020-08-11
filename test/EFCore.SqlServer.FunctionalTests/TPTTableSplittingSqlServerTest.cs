@@ -22,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore
             AssertSql(
                 @"SELECT [v].[Name], [v].[SeatingCapacity], CASE
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[Discriminator], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Computed], [t5].[Description], [t5].[Discriminator], [t7].[VehicleName], [t7].[Capacity], [t7].[FuelType], [t7].[GrainGeometry], [t7].[Discriminator]
+END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Computed], [t5].[Description], [t5].[Discriminator], [t7].[VehicleName], [t7].[Capacity], [t7].[FuelType], [t7].[GrainGeometry], [t7].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
-    SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
+    SELECT [v0].[Name], [v0].[Operator_Name], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
     END AS [Discriminator]
     FROM [Vehicles] AS [v0]
@@ -87,7 +87,7 @@ ORDER BY [v].[Name]");
             base.Can_query_shared();
 
             AssertSql(
-                @"SELECT [v].[Name], [v].[Operator_Name], [v].[RequiredInt], [l].[LicenseType], CASE
+                @"SELECT [v].[Name], [v].[Operator_Name], [l].[LicenseType], CASE
     WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
 END AS [Discriminator]
 FROM [Vehicles] AS [v]
@@ -103,7 +103,7 @@ INNER JOIN (
             base.Can_query_shared_nonhierarchy();
 
             AssertSql(
-                @"SELECT [v].[Name], [v].[Operator_Name], [v].[RequiredInt]
+                @"SELECT [v].[Name], [v].[Operator_Name]
 FROM [Vehicles] AS [v]
 INNER JOIN (
     SELECT [v0].[Name]
@@ -116,7 +116,7 @@ INNER JOIN (
             base.Can_query_shared_nonhierarchy_with_nonshared_dependent();
 
             AssertSql(
-                @"SELECT [v].[Name], [v].[Operator_Name], [v].[RequiredInt]
+                @"SELECT [v].[Name], [v].[Operator_Name]
 FROM [Vehicles] AS [v]
 INNER JOIN (
     SELECT [v0].[Name]
@@ -183,9 +183,7 @@ WHERE [c].[FuelType] IS NOT NULL AND [c].[Capacity] IS NOT NULL");
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Name] = @p0
 WHERE [Name] = @p1;
-SELECT [RequiredInt]
-FROM [Vehicles]
-WHERE @@ROWCOUNT = 1 AND [Name] = @p1;",
+SELECT @@ROWCOUNT;",
                 //
                 @"@p2='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p3='Repair' (Size = 4000)
@@ -196,11 +194,11 @@ VALUES (@p2, @p3);",
                 //
                 @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[Discriminator]
+END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
-    SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
+    SELECT [v0].[Name], [v0].[Operator_Name], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
     END AS [Discriminator]
     FROM [Vehicles] AS [v0]
@@ -228,11 +226,11 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[RequiredInt], [t0].[LicenseType], [t0].[Discriminator]
+END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN (
-    SELECT [v0].[Name], [v0].[Operator_Name], [v0].[RequiredInt], [l].[LicenseType], CASE
+    SELECT [v0].[Name], [v0].[Operator_Name], [l].[LicenseType], CASE
         WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
     END AS [Discriminator]
     FROM [Vehicles] AS [v0]

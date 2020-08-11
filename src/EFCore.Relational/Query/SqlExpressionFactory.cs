@@ -805,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // Add conditions if dependent sharing table with principal
             table ??= entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
             if (table != null
-                && table.GetRowInternalForeignKeys(entityType).Any()
+                && table.IsOptional(entityType)
                 && !discriminatorAdded)
             {
                 AddOptionalDependentConditions(selectExpression, entityType, table);
@@ -948,7 +948,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var otherSelectExpression = new SelectExpression(entityType, this);
 
-                        var sameTable = table.GetRowInternalForeignKeys(referencingFk.DeclaringEntityType).Any();
+                        var sameTable = table.IsOptional(referencingFk.DeclaringEntityType);
                         AddInnerJoin(
                             otherSelectExpression, referencingFk,
                             sameTable ? table : null);

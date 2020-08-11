@@ -103,9 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc/>
         public virtual bool IsOptional(IEntityType entityType)
-            => OptionalEntityTypes == null
-                || !OptionalEntityTypes.TryGetValue(entityType, out var optional)
-                || optional;
+            => OptionalEntityTypes != null
+                && OptionalEntityTypes.TryGetValue(entityType, out var optional)
+                && optional;
 
         /// <inheritdoc/>
         IRelationalModel ITableBase.Model => Model;

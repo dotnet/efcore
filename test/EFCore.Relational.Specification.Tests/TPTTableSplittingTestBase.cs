@@ -21,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Vehicle>().ToTable("Vehicles");
             modelBuilder.Entity<PoweredVehicle>().ToTable("PoweredVehicles");
 
-            modelBuilder.Entity<Operator>().ToTable("Vehicles")
-                .Property<int>("RequiredInt").HasDefaultValue(0);
+            modelBuilder.Entity<Operator>().ToTable("Vehicles");
             modelBuilder.Entity<LicensedOperator>().ToTable("LicensedOperators");
 
             modelBuilder.Entity<OperatorDetails>().ToTable("Vehicles");

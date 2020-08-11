@@ -103,9 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (entityType.FindPrimaryKey() != null)
             {
-                var linkingFks = entityType.GetViewOrTableMappings().FirstOrDefault()?.Table.GetRowInternalForeignKeys(entityType);
-                if (linkingFks != null
-                    && linkingFks.Any())
+                if (entityType.GetViewOrTableMappings().FirstOrDefault()?.Table.IsOptional(entityType) == true)
                 {
                     // Optional dependent
                     var body = baseCondition.Body;
