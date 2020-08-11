@@ -803,6 +803,11 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Append(" Base: ").Append(entityType.BaseType.DisplayName());
             }
 
+            if (entityType.HasSharedClrType)
+            {
+                builder.Append(" CLR Type: ").Append(entityType.ClrType.ShortDisplayName());
+            }
+
             if (entityType.IsAbstract())
             {
                 builder.Append(" Abstract");
