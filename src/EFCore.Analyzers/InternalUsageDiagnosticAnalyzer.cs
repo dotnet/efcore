@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
                 OperationKind.VariableDeclaration,
                 OperationKind.TypeOf);
 
-            context.RegisterSyntaxNodeAction(AnalyzeClassDeclaration, SyntaxKind.ClassDeclaration);
+            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
         }
 
         private static void AnalyzeNode(OperationAnalysisContext context)
@@ -186,16 +186,35 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static void AnalyzeClassDeclaration(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeSymbol(SymbolAnalysisContext context)
         {
-            var declarationSyntax = (ClassDeclarationSyntax)context.Node;
-
-            if (context.SemanticModel.GetDeclaredSymbol(declarationSyntax)?.BaseType is ISymbol symbol
-                && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly)
-                && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol))
-                && declarationSyntax.BaseList?.Types.Count > 0)
+            switch (context.Symbol)
             {
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, declarationSyntax.BaseList.Types[0].GetLocation(), symbol));
+                case INamedTypeSymbol namedTypeSymbol:
+                    AnalyzeNamedTypeSymbol(context, namedTypeSymbol);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unexpected {nameof(ISymbol)}: {context.Symbol.GetType().Name}");
+            }
+        }
+
+        private static void AnalyzeNamedTypeSymbol(SymbolAnalysisContext context, INamedTypeSymbol symbol)
+        {
+            if (symbol.BaseType is ISymbol baseSymbol
+                && !Equals(baseSymbol.ContainingAssembly, context.Compilation.Assembly)
+                && (IsInInternalNamespace(baseSymbol) || HasInternalAttribute(baseSymbol)))
+            {
+                foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
+                {
+                    var syntax = declaringSyntax.GetSyntax();
+                    if (syntax is ClassDeclarationSyntax classDeclarationSyntax
+                        && classDeclarationSyntax.BaseList?.Types.Count > 0)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(_descriptor, classDeclarationSyntax.BaseList.Types[0].GetLocation(), baseSymbol));
+                    }
+                    // context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, baseSymbol));
+                }
             }
         }
 
