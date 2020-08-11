@@ -83,6 +83,111 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether any of foreign key property values associated
+        ///     with this navigation property have been modified and should be updated in the database
+        ///     when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        public override bool IsModified
+        {
+            get
+            {
+                var stateManager = InternalEntry.StateManager;
+
+                if (Metadata is ISkipNavigation skipNavigation)
+                {
+                    if (InternalEntry.EntityState != EntityState.Unchanged
+                        && InternalEntry.EntityState != EntityState.Detached)
+                    {
+                        return true;
+                    }
+
+                    var joinEntityType = skipNavigation.JoinEntityType;
+                    var foreignKey = skipNavigation.ForeignKey;
+                    var inverseForeignKey = skipNavigation.Inverse.ForeignKey;
+                    foreach (var joinEntry in stateManager.Entries)
+                    {
+                        if (joinEntry.EntityType == joinEntityType
+                            && stateManager.FindPrincipal(joinEntry, foreignKey) == InternalEntry
+                            && (joinEntry.EntityState == EntityState.Added
+                                || joinEntry.EntityState == EntityState.Deleted
+                                || foreignKey.Properties.Any(joinEntry.IsModified)
+                                || inverseForeignKey.Properties.Any(joinEntry.IsModified)
+                                || (stateManager.FindPrincipal(joinEntry, inverseForeignKey)?.EntityState == EntityState.Deleted)))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    var navigationValue = CurrentValue;
+                    if (navigationValue != null)
+                    {
+                        var targetEntityType = Metadata.TargetEntityType;
+                        var foreignKey = ((INavigation)Metadata).ForeignKey;
+
+                        foreach (var relatedEntity in navigationValue)
+                        {
+                            var relatedEntry = stateManager.TryGetEntry(relatedEntity, targetEntityType);
+
+                            if (relatedEntry != null
+                                && (relatedEntry.EntityState == EntityState.Added
+                                    || relatedEntry.EntityState == EntityState.Deleted
+                                    || foreignKey.Properties.Any(relatedEntry.IsModified)))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
+            set
+            {
+                var stateManager = InternalEntry.StateManager;
+
+                if (Metadata is ISkipNavigation skipNavigation)
+                {
+                    var joinEntityType = skipNavigation.JoinEntityType;
+                    var foreignKey = skipNavigation.ForeignKey;
+                    foreach (var joinEntry in stateManager
+                        .GetEntriesForState(added: !value, modified: !value, deleted: !value, unchanged: value).Where(
+                            e => e.EntityType == joinEntityType
+                                && stateManager.FindPrincipal(e, foreignKey) == InternalEntry)
+                        .ToList())
+                    {
+                        joinEntry.SetEntityState(value ? EntityState.Modified : EntityState.Unchanged);
+                    }
+                }
+                else
+                {
+                    var foreignKey = ((INavigation)Metadata).ForeignKey;
+                    var navigationValue = CurrentValue;
+                    if (navigationValue != null)
+                    {
+                        foreach (var relatedEntity in navigationValue)
+                        {
+                            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
+                            if (relatedEntry != null)
+                            {
+                                var anyNonPk = foreignKey.Properties.Any(p => !p.IsPrimaryKey());
+                                foreach (var property in foreignKey.Properties)
+                                {
+                                    if (anyNonPk
+                                        && !property.IsPrimaryKey())
+                                    {
+                                        relatedEntry.SetPropertyModified(property, isModified: value, acceptChanges: false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         ///     <para>
         ///         Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
         ///         is already set to true.

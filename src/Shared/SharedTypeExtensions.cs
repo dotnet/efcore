@@ -507,6 +507,7 @@ namespace System
         private static readonly MethodInfo _generateDefaultValueConstantMethod =
             typeof(SharedTypeExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant));
 
-        private static ConstantExpression GenerateDefaultValueConstant<TDefault>() => Expression.Constant(default(TDefault));
+        private static ConstantExpression GenerateDefaultValueConstant<TDefault>()
+            => Expression.Constant(default(TDefault), typeof(TDefault));
     }
 }
