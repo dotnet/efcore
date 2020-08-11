@@ -488,7 +488,7 @@ namespace Microsoft.Data.Sqlite
         /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
-        public SqliteTransaction BeginTransaction(bool deferred)
+        public virtual SqliteTransaction BeginTransaction(bool deferred)
             => BeginTransaction(IsolationLevel.Unspecified, deferred);
 
         /// <summary>
@@ -526,7 +526,7 @@ namespace Microsoft.Data.Sqlite
         /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
-        public SqliteTransaction BeginTransaction(IsolationLevel isolationLevel, bool deferred)
+        public virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel, bool deferred)
         {
             if (State != ConnectionState.Open)
             {
