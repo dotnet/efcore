@@ -28,4 +28,7 @@
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>5.0.0-rc.1.20402.3</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>5.0.0-rc.1.20402.3</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
+  <PropertyGroup Label="Other dependencies">
+    <MicrosoftCodeAnalysisVersion>3.7.0</MicrosoftCodeAnalysisVersion>
+  </PropertyGroup>
 </Project>
