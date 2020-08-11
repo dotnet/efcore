@@ -5,10 +5,11 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+
+using CSharpSyntax = Microsoft.CodeAnalysis.CSharp.Syntax;
+using VBSyntax = Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -125,16 +126,24 @@ namespace Microsoft.EntityFrameworkCore
 
             void ReportDiagnostic(object messageArg)
             {
-                // For C# member access expressions, report a narrowed-down diagnostic, otherwise take the whole invocation.
+                // For certain member access expressions, report a narrowed-down diagnostic, otherwise take the whole invocation.
                 var syntax = context.Operation.Syntax switch
                 {
-                    InvocationExpressionSyntax invocationSyntax
-                        when invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessSyntax
+                    CSharpSyntax.InvocationExpressionSyntax s
+                        when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
                         => memberAccessSyntax.Name,
-                    MemberAccessExpressionSyntax memberAccessSyntax
+                    CSharpSyntax.MemberAccessExpressionSyntax s
+                        => s.Name,
+                    CSharpSyntax.ObjectCreationExpressionSyntax s
+                        => s.Type,
+
+                    VBSyntax.InvocationExpressionSyntax s
+                        when s.Expression is VBSyntax.MemberAccessExpressionSyntax memberAccessSyntax
                         => memberAccessSyntax.Name,
-                    ObjectCreationExpressionSyntax objectCreationSyntax
-                        => objectCreationSyntax.Type,
+                    VBSyntax.MemberAccessExpressionSyntax s
+                        => s.Name,
+                    VBSyntax.ObjectCreationExpressionSyntax s
+                        => s.Type,
                     _
                         => context.Operation.Syntax
                 };
@@ -164,11 +173,13 @@ namespace Microsoft.EntityFrameworkCore
             {
                 if (IsTypeInternal(context, declarator.Symbol.Type))
                 {
-                    context.ReportDiagnostic(
-                        Diagnostic.Create(
-                            _descriptor,
-                            ((VariableDeclarationSyntax)context.Operation.Syntax).Type.GetLocation(),
-                            declarator.Symbol.Type));
+                    var syntax = context.Operation.Syntax switch
+                    {
+                        CSharpSyntax.VariableDeclarationSyntax s => s.Type,
+                        // TODO: VB
+                        _ => context.Operation.Syntax
+                    };
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), declarator.Symbol.Type));
                     return;
                 }
             }
@@ -178,11 +189,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (IsTypeInternal(context, typeOf.TypeOperand))
             {
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        _descriptor,
-                        ((TypeOfExpressionSyntax)context.Operation.Syntax).Type.GetLocation(),
-                        typeOf.TypeOperand));
+                var syntax = context.Operation.Syntax switch
+                {
+                    CSharpSyntax.TypeOfExpressionSyntax s => s.Type,
+                    VBSyntax.TypeOfExpressionSyntax s => s.Type,
+                    _ => context.Operation.Syntax
+                };
+
+                context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), typeOf.TypeOperand));
             }
         }
 
@@ -207,13 +221,15 @@ namespace Microsoft.EntityFrameworkCore
             {
                 foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
                 {
-                    var syntax = declaringSyntax.GetSyntax();
-                    if (syntax is ClassDeclarationSyntax classDeclarationSyntax
-                        && classDeclarationSyntax.BaseList?.Types.Count > 0)
+                    var syntax = declaringSyntax.GetSyntax() switch
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(_descriptor, classDeclarationSyntax.BaseList.Types[0].GetLocation(), baseSymbol));
-                    }
-                    // context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, baseSymbol));
+                        CSharpSyntax.ClassDeclarationSyntax s when s.BaseList?.Types.Count > 0
+                            => s.BaseList.Types[0],
+                        // TODO: VB
+                        { } otherSyntax => otherSyntax
+                    };
+
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), baseSymbol));
                 }
             }
         }
