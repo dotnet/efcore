@@ -91,21 +91,9 @@ INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]");
             base.Can_query_shared_nonhierarchy();
 
             AssertSql(
-                @"SELECT [t0].[Name], [t0].[Operator_Name]
-FROM (
-    SELECT [v].[Name], [v].[Operator_Name]
-    FROM [Vehicles] AS [v]
-    WHERE [v].[Operator_Name] IS NOT NULL
-    UNION
-    SELECT [v0].[Name], [v0].[Operator_Name]
-    FROM [Vehicles] AS [v0]
-    INNER JOIN (
-        SELECT [v1].[Name], [v1].[Type]
-        FROM [Vehicles] AS [v1]
-        WHERE [v1].[Type] IS NOT NULL
-    ) AS [t] ON [v0].[Name] = [t].[Name]
-) AS [t0]
-INNER JOIN [Vehicles] AS [v2] ON [t0].[Name] = [v2].[Name]");
+                @"SELECT [v].[Name], [v].[Operator_Name]
+FROM [Vehicles] AS [v]
+INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]");
         }
 
         public override void Can_query_shared_nonhierarchy_with_nonshared_dependent()
@@ -113,17 +101,9 @@ INNER JOIN [Vehicles] AS [v2] ON [t0].[Name] = [v2].[Name]");
             base.Can_query_shared_nonhierarchy_with_nonshared_dependent();
 
             AssertSql(
-                @"SELECT [t].[Name], [t].[Operator_Name]
-FROM (
-    SELECT [v].[Name], [v].[Operator_Name]
-    FROM [Vehicles] AS [v]
-    WHERE [v].[Operator_Name] IS NOT NULL
-    UNION
-    SELECT [v0].[Name], [v0].[Operator_Name]
-    FROM [Vehicles] AS [v0]
-    INNER JOIN [OperatorDetails] AS [o] ON [v0].[Name] = [o].[VehicleName]
-) AS [t]
-INNER JOIN [Vehicles] AS [v1] ON [t].[Name] = [v1].[Name]");
+                @"SELECT [v].[Name], [v].[Operator_Name]
+FROM [Vehicles] AS [v]
+INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]");
         }
 
         public override void Can_query_shared_derived_hierarchy()

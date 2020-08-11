@@ -1241,9 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var nonNullEntityReference = IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference;
                 var entityType1 = nonNullEntityReference.EntityType;
 
-                var linkingFks = entityType1.GetViewOrTableMappings().FirstOrDefault()?.Table.GetRowInternalForeignKeys(entityType1);
-                if (linkingFks != null
-                    && linkingFks.Any())
+                if (entityType1.GetViewOrTableMappings().FirstOrDefault()?.Table.IsOptional(entityType1) == true)
                 {
                     // Optional dependent sharing table
                     var requiredNonPkProperties = entityType1.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();

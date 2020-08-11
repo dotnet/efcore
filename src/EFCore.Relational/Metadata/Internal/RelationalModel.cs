@@ -923,9 +923,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             SortedDictionary<IEntityType, IEnumerable<IForeignKey>> internalForeignKeyMap = null;
             SortedDictionary<IEntityType, IEnumerable<IForeignKey>> referencingInternalForeignKeyMap = null;
             TableMappingBase mainMapping = null;
+            var mappedEntityTypes = new HashSet<IEntityType>();
             foreach (TableMappingBase entityTypeMapping in ((ITableBase)table).EntityTypeMappings)
             {
                 var entityType = entityTypeMapping.EntityType;
+                mappedEntityTypes.Add(entityType);
                 var primaryKey = entityType.FindPrimaryKey();
                 if (primaryKey == null)
                 {
@@ -1033,6 +1035,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         entityTypesToVisit.Enqueue(
                             (referencingForeignKey.DeclaringEntityType, optional || !referencingForeignKey.IsRequiredDependent));
+                    }
+
+                    if (table.EntityTypeMappings.Single(etm => etm.EntityType == entityType).IncludesDerivedTypes)
+                    {
+                        foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
+                        {
+                            if (mappedEntityTypes.Contains(directlyDerivedEntityType))
+                            {
+                                entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
+                            }
+                        }
                     }
                 }
 

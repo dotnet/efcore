@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -26,8 +25,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
-
-#pragma warning disable IDE0063 // Use simple 'using' statement
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Local
@@ -1977,9 +1974,7 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
         }
 
         [Flags]
-#pragma warning disable CA2217 // Do not mark enums with FlagsAttribute
         private enum PermissionByte : byte
-#pragma warning restore CA2217 // Do not mark enums with FlagsAttribute
         {
             NONE = 1,
             READ_ONLY = 2,
@@ -1987,9 +1982,7 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
         }
 
         [Flags]
-#pragma warning disable CA2217 // Do not mark enums with FlagsAttribute
         private enum PermissionShort : short
-#pragma warning restore CA2217 // Do not mark enums with FlagsAttribute
         {
             NONE = 1,
             READ_ONLY = 2,
@@ -1997,9 +1990,7 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
         }
 
         [Flags]
-#pragma warning disable CA2217 // Do not mark enums with FlagsAttribute
         private enum Permission : long
-#pragma warning restore CA2217 // Do not mark enums with FlagsAttribute
         {
             NONE = 0x01,
             READ_ONLY = 0x02,
@@ -4891,7 +4882,7 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
             public string Name { get; set; }
         }
 
-        public enum CategoryStatus15684
+        private enum CategoryStatus15684
         {
             Active = 0,
             Removed = 1
@@ -8064,13 +8055,13 @@ CROSS JOIN (
             }
         }
 
-        public class Test19206
+        private class Test19206
         {
             public int Id { get; set; }
             public TestType19206 Type { get; set; }
         }
 
-        public enum TestType19206
+        private enum TestType19206
         {
             Unit,
             Integration,
@@ -8111,9 +8102,11 @@ CROSS JOIN (
         {
             using (CreateDatabase18510())
             {
-                using var context = new MyContext18510(_options);
+                using var context = new MyContext18510(_options)
+                {
+                    TenantId = 1
+                };
 
-                context.TenantId = 1;
                 var query1 = context.Entities.ToList();
                 Assert.True(query1.All(x => x.TenantId == 1));
 
@@ -8136,7 +8129,7 @@ WHERE (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL) AND ([e].[TenantId] = @__ef
             }
         }
 
-        public class MyEntity18510
+        private class MyEntity18510
         {
             public int Id { get; set; }
             public string Name { get; set; }
@@ -8250,7 +8243,7 @@ ORDER BY [e].[Id], [o].[Id]");
             }
         }
 
-        public class AppEntity21803
+        private class AppEntity21803
         {
             private readonly List<OtherEntity21803> _otherEntities = new List<OtherEntity21803>();
 
@@ -8258,7 +8251,7 @@ ORDER BY [e].[Id], [o].[Id]");
             public IEnumerable<OtherEntity21803> OtherEntities => _otherEntities;
         }
 
-        public class OtherEntity21803
+        private class OtherEntity21803
         {
             public int Id { get; private set; }
             public AppEntity21803 AppEntity { get; set; }
@@ -8285,6 +8278,95 @@ ORDER BY [e].[Id], [o].[Id]");
                         new OtherEntity21803 { AppEntity = appEntity },
                         new OtherEntity21803 { AppEntity = appEntity },
                         new OtherEntity21803 { AppEntity = appEntity });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
+        #region Issue21807
+
+        [ConditionalFact]
+        public virtual void Nested_owned_required_dependents_are_materialized()
+        {
+            using (CreateDatabase21807())
+            {
+                using var context = new MyContext21807(_options);
+
+                var query = context.Set<Entity21807>().ToList();
+
+                var result = Assert.Single(query);
+                Assert.NotNull(result.Contact);
+                Assert.NotNull(result.Contact.Address);
+                Assert.Equal("12345", result.Contact.Address.Zip);
+
+                AssertSql(
+                    @"SELECT [e].[Id], [e].[Contact_Name], [e].[Contact_Address_City], [e].[Contact_Address_State], [e].[Contact_Address_Street], [e].[Contact_Address_Zip]
+FROM [Entity21807] AS [e]");
+            }
+        }
+
+        private class Entity21807
+        {
+            public string Id { get; set; }
+            public Contact21807 Contact { get; set; }
+        }
+
+        private class Contact21807
+        {
+            public string Name { get; set; }
+            public Address21807 Address { get; set; }
+        }
+
+        private class Address21807
+        {
+            public string Street { get; set; }
+            public string City { get; set; }
+            public string State { get; set; }
+            public string Zip { get; set; }
+        }
+
+        private class MyContext21807 : DbContext
+        {
+            public MyContext21807(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Entity21807>(builder =>
+                {
+                    builder.HasKey(x => x.Id);
+
+                    builder.OwnsOne(x => x.Contact, contact =>
+                    {
+                        contact.OwnsOne(c => c.Address);
+                    });
+
+                    builder.Navigation(x => x.Contact).IsRequired();
+                });
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase21807()
+            => CreateTestStore(
+                () => new MyContext21807(_options),
+                context =>
+                {
+                    context.Add(new Entity21807
+                    {
+                        Id = "1",
+                        Contact = new Contact21807
+                        {
+                            Address = new Address21807
+                            {
+                                Zip = "12345"
+                            }
+                        }
+                    });
 
                     context.SaveChanges();
 
