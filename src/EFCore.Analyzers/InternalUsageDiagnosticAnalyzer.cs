@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void AnalyzeMember(OperationAnalysisContext context, ISymbol symbol)
         {
-            if (Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
+            if ((object)symbol.ContainingAssembly == context.Compilation.Assembly)
             {
                 // Skip all methods inside the same assembly - internal access is fine
                 return;
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore
         private static void AnalyzeNamedTypeSymbol(SymbolAnalysisContext context, INamedTypeSymbol symbol)
         {
             if (symbol.BaseType is ISymbol baseSymbol
-                && !Equals(baseSymbol.ContainingAssembly, context.Compilation.Assembly)
+                && (object)baseSymbol.ContainingAssembly != context.Compilation.Assembly
                 && (IsInInternalNamespace(baseSymbol) || HasInternalAttribute(baseSymbol)))
             {
                 foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static bool IsTypeInternal(OperationAnalysisContext context, ISymbol symbol)
-            => !Equals(symbol.ContainingAssembly, context.Compilation.Assembly)
+            => (object)symbol.ContainingAssembly != context.Compilation.Assembly
                 && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
         private static bool HasInternalAttribute(ISymbol symbol)
