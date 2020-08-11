@@ -204,11 +204,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
                 => new GenericTestPropertyBuilder<TProperty>(EntityTypeBuilder.IndexerProperty<TProperty>(propertyName));
 
-            public override TestNavigationBuilder Navigation<TNavigation>(Expression<Func<TEntity, TNavigation>> navigationExpression)
-                => new GenericTestNavigationBuilder(EntityTypeBuilder.Navigation(navigationExpression));
+            public override TestNavigationBuilder Navigation<TNavigation>(
+                Expression<Func<TEntity, TNavigation>> navigationExpression)
+                => new GenericTestNavigationBuilder<TEntity, TNavigation>(EntityTypeBuilder.Navigation(navigationExpression));
 
-            public override TestNavigationBuilder Navigation(string propertyName)
-                => new GenericTestNavigationBuilder(EntityTypeBuilder.Navigation(propertyName));
+            public override TestNavigationBuilder Navigation<TNavigation>(
+                Expression<Func<TEntity, IEnumerable<TNavigation>>> navigationExpression)
+                => new GenericTestNavigationBuilder<TEntity, TNavigation>(EntityTypeBuilder.Navigation(navigationExpression));
 
             public override TestEntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object>> propertyExpression)
                 => Wrap(EntityTypeBuilder.Ignore(propertyExpression));
@@ -527,29 +529,31 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             IndexBuilder<TEntity> IInfrastructure<IndexBuilder<TEntity>>.Instance => IndexBuilder;
         }
 
-        protected class GenericTestNavigationBuilder : TestNavigationBuilder
+        protected class GenericTestNavigationBuilder<TSource, TTarget> : TestNavigationBuilder
+            where TSource : class
+            where TTarget : class
         {
-            public GenericTestNavigationBuilder(NavigationBuilder navigationBuilder)
+            public GenericTestNavigationBuilder(NavigationBuilder<TSource, TTarget> navigationBuilder)
             {
                 NavigationBuilder = navigationBuilder;
             }
 
-            private NavigationBuilder NavigationBuilder { get; }
+            private NavigationBuilder<TSource, TTarget> NavigationBuilder { get; }
 
             public override TestNavigationBuilder HasAnnotation(string annotation, object value)
-                => new GenericTestNavigationBuilder(NavigationBuilder.HasAnnotation(annotation, value));
+                => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.HasAnnotation(annotation, value));
 
             public override TestNavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
-                => new GenericTestNavigationBuilder(NavigationBuilder.UsePropertyAccessMode(propertyAccessMode));
+                => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.UsePropertyAccessMode(propertyAccessMode));
 
             public override TestNavigationBuilder HasField(string fieldName)
-                => new GenericTestNavigationBuilder(NavigationBuilder.HasField(fieldName));
+                => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.HasField(fieldName));
 
             public override TestNavigationBuilder AutoInclude(bool autoInclude = true)
-                => new GenericTestNavigationBuilder(NavigationBuilder.AutoInclude(autoInclude));
+                => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.AutoInclude(autoInclude));
 
             public override TestNavigationBuilder IsRequired(bool required = true)
-                => new GenericTestNavigationBuilder(NavigationBuilder.IsRequired(required));
+                => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.IsRequired(required));
         }
 
         protected class
@@ -853,11 +857,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TDependentEntity, TProperty>> propertyExpression)
                 => new GenericTestPropertyBuilder<TProperty>(OwnedNavigationBuilder.Property(propertyExpression));
 
-            public override TestNavigationBuilder Navigation<TNavigation>(string navigationName)
-                => new GenericTestNavigationBuilder(OwnedNavigationBuilder.Navigation(navigationName));
             public override TestNavigationBuilder Navigation<TNavigation>(
                 Expression<Func<TDependentEntity, TNavigation>> navigationExpression)
-                => new GenericTestNavigationBuilder(OwnedNavigationBuilder.Navigation(navigationExpression));
+                where TNavigation : class
+                => new GenericTestNavigationBuilder<TDependentEntity, TNavigation>(OwnedNavigationBuilder.Navigation(navigationExpression));
+
+            public override TestNavigationBuilder Navigation<TNavigation>(
+                Expression<Func<TDependentEntity, IEnumerable<TNavigation>>> navigationExpression)
+                where TNavigation : class
+                => new GenericTestNavigationBuilder<TDependentEntity, TNavigation>(OwnedNavigationBuilder.Navigation(navigationExpression));
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(string propertyName)
                 => Wrap(OwnedNavigationBuilder.Ignore(propertyName));

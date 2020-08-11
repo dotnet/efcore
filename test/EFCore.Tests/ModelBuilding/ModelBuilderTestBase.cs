@@ -198,8 +198,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
             public abstract TestNavigationBuilder Navigation<TNavigation>(
-                Expression<Func<TEntity, TNavigation>> propertyExpression);
-            public abstract TestNavigationBuilder Navigation(string propertyName);
+                Expression<Func<TEntity, TNavigation>> navigationExpression)
+            where TNavigation : class;
+
+            public abstract TestNavigationBuilder Navigation<TNavigation>(
+                Expression<Func<TEntity, IEnumerable<TNavigation>>> navigationExpression)
+            where TNavigation : class;
 
             public abstract TestEntityTypeBuilder<TEntity> Ignore(
                 Expression<Func<TEntity, object>> propertyExpression);
@@ -554,9 +558,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
                 Expression<Func<TDependentEntity, TProperty>> propertyExpression);
 
-            public abstract TestNavigationBuilder Navigation<TNavigation>(string navigationName);
             public abstract TestNavigationBuilder Navigation<TNavigation>(
-                Expression<Func<TDependentEntity, TNavigation>> navigationExpression);
+                Expression<Func<TDependentEntity, TNavigation>> navigationExpression)
+            where TNavigation : class;
+
+            public abstract TestNavigationBuilder Navigation<TNavigation>(
+                Expression<Func<TDependentEntity, IEnumerable<TNavigation>>> navigationExpression)
+            where TNavigation : class;
 
             public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(string propertyName);
 

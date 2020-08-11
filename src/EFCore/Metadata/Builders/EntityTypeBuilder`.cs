@@ -162,13 +162,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Returns an object that can be used to configure an existing navigation property of the entity type.
         ///         It is an error for the navigation property not to exist.
         /// </summary>
+        /// <typeparam name="TNavigation"> The target entity type. </typeparam>
         /// <param name="navigationExpression">
         ///     A lambda expression representing the navigation property to be configured (
         ///     <c>blog => blog.Posts</c>).
         /// </param>
         /// <returns> An object that can be used to configure the navigation property. </returns>
-        public virtual NavigationBuilder Navigation<TNavigation>([NotNull] Expression<Func<TEntity, TNavigation>> navigationExpression)
-            => new NavigationBuilder(
+        public virtual NavigationBuilder<TEntity, TNavigation> Navigation<TNavigation>(
+            [NotNull] Expression<Func<TEntity, TNavigation>> navigationExpression)
+            where TNavigation : class
+            => new NavigationBuilder<TEntity, TNavigation>(
+                Builder.Navigation(
+                    Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+
+        /// <summary>
+        ///         Returns an object that can be used to configure an existing navigation property of the entity type.
+        ///         It is an error for the navigation property not to exist.
+        /// </summary>
+        /// <typeparam name="TNavigation"> The target entity type. </typeparam>
+        /// <param name="navigationExpression">
+        ///     A lambda expression representing the navigation property to be configured (
+        ///     <c>blog => blog.Posts</c>).
+        /// </param>
+        /// <returns> An object that can be used to configure the navigation property. </returns>
+        public virtual NavigationBuilder<TEntity, TNavigation> Navigation<TNavigation>(
+            [NotNull] Expression<Func<TEntity, IEnumerable<TNavigation>>> navigationExpression)
+            where TNavigation : class
+            => new NavigationBuilder<TEntity, TNavigation>(
                 Builder.Navigation(
                     Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
@@ -191,6 +211,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be removed from the entity type. </param>
         public new virtual EntityTypeBuilder<TEntity> Ignore([NotNull] string propertyName)
             => (EntityTypeBuilder<TEntity>)base.Ignore(propertyName);
+
+        /// <summary>
+        ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
+        ///     this entity type.
+        /// </summary>
+        /// <param name="filter"> The LINQ predicate expression. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual EntityTypeBuilder<TEntity> HasQueryFilter([CanBeNull] LambdaExpression filter)
+            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
 
         /// <summary>
         ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
@@ -466,28 +495,117 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
+        ///         <see cref="OwnedNavigationBuilder.WithOwner" /> to fully configure the relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents the relationship.
+        /// </param>
+        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public new virtual EntityTypeBuilder<TEntity> OwnsOne(
+            [NotNull] string ownedTypeName,
+            [NotNull] string navigationName,
+            [NotNull] Action<OwnedNavigationBuilder> buildAction)
+            => (EntityTypeBuilder<TEntity>)base.OwnsOne(ownedTypeName, navigationName, buildAction);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     </para>
+        ///     <para>
+        ///         The target entity type for each ownership relationship is treated as a different entity type
+        ///         even if the navigation is of the same type. Configuration of the target entity type
+        ///         isn't applied to the target entity type of other ownership relationships.
+        ///     </para>
+        ///     <para>
+        ///         Most operations on an owned entity require accessing it through the owner entity using the corresponding navigation.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see cref="OwnedNavigationBuilder.WithOwner" /> to fully configure the relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="ownedType"> The entity type that this relationship targets. </param>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents the relationship.
+        /// </param>
+        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public new virtual EntityTypeBuilder<TEntity> OwnsOne(
+            [NotNull] Type ownedType,
+            [NotNull] string navigationName,
+            [NotNull] Action<OwnedNavigationBuilder> buildAction)
+            => (EntityTypeBuilder<TEntity>)base.OwnsOne(ownedType, navigationName, buildAction);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     </para>
+        ///     <para>
+        ///         The target entity type for each ownership relationship is treated as a different entity type
+        ///         even if the navigation is of the same type. Configuration of the target entity type
+        ///         isn't applied to the target entity type of other ownership relationships.
+        ///     </para>
+        ///     <para>
+        ///         Most operations on an owned entity require accessing it through the owner entity using the corresponding navigation.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see cref="OwnedNavigationBuilder.WithOwner" /> to fully configure the relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="ownedType"> The CLR type of the entity type that this relationship targets. </param>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents the relationship.
+        /// </param>
+        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public new virtual EntityTypeBuilder<TEntity> OwnsOne(
+            [NotNull] string ownedTypeName,
+            [NotNull] Type ownedType,
+            [NotNull] string navigationName,
+            [NotNull] Action<OwnedNavigationBuilder> buildAction)
+            => (EntityTypeBuilder<TEntity>)base.OwnsOne(ownedTypeName, ownedType, navigationName, buildAction);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     </para>
+        ///     <para>
+        ///         The target entity type for each ownership relationship is treated as a different entity type
+        ///         even if the navigation is of the same type. Configuration of the target entity type
+        ///         isn't applied to the target entity type of other ownership relationships.
+        ///     </para>
+        ///     <para>
+        ///         Most operations on an owned entity require accessing it through the owner entity using the corresponding navigation.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
         ///         <see cref="OwnedNavigationBuilder{TEntity,TRelatedEntity}.WithOwner(string)" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="entityTypeName"> The name of the target entity. </param>
+        /// <param name="ownedTypeName">  The name of the entity type that this relationship targets. </param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
         /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
-            [NotNull] string entityTypeName,
+            [NotNull] string ownedTypeName,
             [NotNull] string navigationName,
             [NotNull] Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
             where TRelatedEntity : class
         {
-            Check.NotEmpty(entityTypeName, nameof(entityTypeName));
+            Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(entityTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
+                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
             return this;
         }
 
@@ -546,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="entityTypeName"> The name of the target entity. </param>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
@@ -554,17 +672,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
-            [NotNull] string entityTypeName,
+            [NotNull] string ownedTypeName,
             [NotNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
             [NotNull] Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
             where TRelatedEntity : class
         {
-            Check.NotEmpty(entityTypeName, nameof(entityTypeName));
+            Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(entityTypeName), new MemberIdentity(navigationExpression.GetMemberAccess())));
+                new TypeIdentity(ownedTypeName), new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
@@ -633,17 +751,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="entityTypeName"> The name of the target entity. </param>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
         /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
-            [NotNull] string entityTypeName,
+            [NotNull] string ownedTypeName,
             [NotNull] string navigationName)
             where TRelatedEntity : class
             => OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(entityTypeName, typeof(TRelatedEntity)),
+                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)),
                 new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
 
         /// <summary>
@@ -694,18 +812,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="entityTypeName"> The name of the target entity. </param>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
         /// </param>
         /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
-            [NotNull] string entityTypeName,
+            [NotNull] string ownedTypeName,
             [NotNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression)
             where TRelatedEntity : class
             => OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(entityTypeName, typeof(TRelatedEntity)),
+                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)),
                 new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
         /// <summary>
@@ -758,28 +876,117 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
+        ///         <see cref="OwnedNavigationBuilder.WithOwner" /> to fully configure the relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents the relationship.
+        /// </param>
+        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public new virtual EntityTypeBuilder<TEntity> OwnsMany(
+            [NotNull] string ownedTypeName,
+            [NotNull] string navigationName,
+            [NotNull] Action<OwnedNavigationBuilder> buildAction)
+            => (EntityTypeBuilder<TEntity>)base.OwnsMany(ownedTypeName, navigationName, buildAction);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     </para>
+        ///     <para>
+        ///         The target entity type for each ownership relationship is treated as a different entity type
+        ///         even if the navigation is of the same type. Configuration of the target entity type
+        ///         isn't applied to the target entity type of other ownership relationships.
+        ///     </para>
+        ///     <para>
+        ///         Most operations on an owned entity require accessing it through the owner entity using the corresponding navigation.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see cref="OwnedNavigationBuilder.WithOwner" /> to fully configure the relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="ownedType"> The entity type that this relationship targets. </param>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents the relationship.
+        /// </param>
+        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public new virtual EntityTypeBuilder<TEntity> OwnsMany(
+            [NotNull] Type ownedType,
+            [NotNull] string navigationName,
+            [NotNull] Action<OwnedNavigationBuilder> buildAction)
+            => (EntityTypeBuilder<TEntity>)base.OwnsMany(ownedType, navigationName, buildAction);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     </para>
+        ///     <para>
+        ///         The target entity type for each ownership relationship is treated as a different entity type
+        ///         even if the navigation is of the same type. Configuration of the target entity type
+        ///         isn't applied to the target entity type of other ownership relationships.
+        ///     </para>
+        ///     <para>
+        ///         Most operations on an owned entity require accessing it through the owner entity using the corresponding navigation.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see cref="OwnedNavigationBuilder.WithOwner" /> to fully configure the relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="ownedType"> The CLR type of the entity type that this relationship targets. </param>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents the relationship.
+        /// </param>
+        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public new virtual EntityTypeBuilder<TEntity> OwnsMany(
+            [NotNull] string ownedTypeName,
+            [NotNull] Type ownedType,
+            [NotNull] string navigationName,
+            [NotNull] Action<OwnedNavigationBuilder> buildAction)
+            => (EntityTypeBuilder<TEntity>)base.OwnsMany(ownedTypeName, ownedType, navigationName, buildAction);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     </para>
+        ///     <para>
+        ///         The target entity type for each ownership relationship is treated as a different entity type
+        ///         even if the navigation is of the same type. Configuration of the target entity type
+        ///         isn't applied to the target entity type of other ownership relationships.
+        ///     </para>
+        ///     <para>
+        ///         Most operations on an owned entity require accessing it through the owner entity using the corresponding navigation.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
         ///         <see cref="OwnedNavigationBuilder{TEntity,TRelatedEntity}.WithOwner(string)" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="entityTypeName"> The name of the target entity. </param>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
         /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
-            [NotNull] string entityTypeName,
+            [NotNull] string ownedTypeName,
             [NotNull] string navigationName,
             [NotNull] Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
             where TRelatedEntity : class
         {
-            Check.NotEmpty(entityTypeName, nameof(entityTypeName));
+            Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
             Check.NotEmpty(navigationName, nameof(navigationName));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(entityTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
+                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
             return this;
         }
 
