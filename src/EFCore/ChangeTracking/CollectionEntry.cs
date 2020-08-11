@@ -103,36 +103,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                     var joinEntityType = skipNavigation.JoinEntityType;
                     var foreignKey = skipNavigation.ForeignKey;
+                    var inverseForeignKey = skipNavigation.Inverse.ForeignKey;
                     foreach (var joinEntry in stateManager.Entries)
                     {
                         if (joinEntry.EntityType == joinEntityType
-                            && joinEntry.EntityState != EntityState.Unchanged
-                            && joinEntry.EntityState != EntityState.Detached
-                            && stateManager.FindPrincipal(joinEntry, foreignKey) == InternalEntry)
+                            && stateManager.FindPrincipal(joinEntry, foreignKey) == InternalEntry
+                            && (joinEntry.EntityState == EntityState.Added
+                                || joinEntry.EntityState == EntityState.Deleted
+                                || foreignKey.Properties.Any(joinEntry.IsModified)
+                                || inverseForeignKey.Properties.Any(joinEntry.IsModified)
+                                || (stateManager.FindPrincipal(joinEntry, inverseForeignKey)?.EntityState == EntityState.Deleted)))
                         {
                             return true;
                         }
                     }
                 }
-
-                var navigationValue = CurrentValue;
-                if (navigationValue != null)
+                else
                 {
-                    var targetEntityType = Metadata.TargetEntityType;
-                    var foreignKey = Metadata is INavigation navigation
-                        ? navigation.ForeignKey
-                        : ((ISkipNavigation)Metadata).ForeignKey;
-
-                    foreach (var relatedEntity in navigationValue)
+                    var navigationValue = CurrentValue;
+                    if (navigationValue != null)
                     {
-                        var relatedEntry = stateManager.TryGetEntry(relatedEntity, targetEntityType);
+                        var targetEntityType = Metadata.TargetEntityType;
+                        var foreignKey = ((INavigation)Metadata).ForeignKey;
 
-                        if (relatedEntry != null
-                            && (relatedEntry.EntityState == EntityState.Added
-                                || relatedEntry.EntityState == EntityState.Deleted
-                                || (foreignKey.Properties.Any(relatedEntry.IsModified))))
+                        foreach (var relatedEntity in navigationValue)
                         {
-                            return true;
+                            var relatedEntry = stateManager.TryGetEntry(relatedEntity, targetEntityType);
+
+                            if (relatedEntry != null
+                                && (relatedEntry.EntityState == EntityState.Added
+                                    || relatedEntry.EntityState == EntityState.Deleted
+                                    || foreignKey.Properties.Any(relatedEntry.IsModified)))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -147,10 +151,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 {
                     var joinEntityType = skipNavigation.JoinEntityType;
                     var foreignKey = skipNavigation.ForeignKey;
-                    foreach (var joinEntry in stateManager.Entries.Where(
+                    foreach (var joinEntry in stateManager
+                        .GetEntriesForState(added: !value, modified: !value, deleted: !value, unchanged: value).Where(
                             e => e.EntityType == joinEntityType
-                                && e.EntityState != EntityState.Detached
-                                && (value == (e.EntityState == EntityState.Unchanged))
                                 && stateManager.FindPrincipal(e, foreignKey) == InternalEntry)
                         .ToList())
                     {

@@ -266,11 +266,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void IsModified_tracks_detects_deletion_of_related_entity(bool useExplicitPk)
+        [InlineData(false, CascadeTiming.Immediate)]
+        [InlineData(true, CascadeTiming.Immediate)]
+        [InlineData(false, CascadeTiming.OnSaveChanges)]
+        [InlineData(true, CascadeTiming.OnSaveChanges)]
+        [InlineData(false, CascadeTiming.Never)]
+        [InlineData(true, CascadeTiming.Never)]
+        public void IsModified_tracks_detects_deletion_of_related_entity(bool useExplicitPk, CascadeTiming cascadeTiming)
         {
             using var context = useExplicitPk ? new ExplicitFreezerContext() : new FreezerContext();
+
+            context.ChangeTracker.CascadeDeleteTiming = cascadeTiming;
 
             var cherry1 = new Cherry { Id = 1 };
             var cherry2 = new Cherry { Id = 2 };
