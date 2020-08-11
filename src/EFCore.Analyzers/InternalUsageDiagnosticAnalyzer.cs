@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
                 OperationKind.VariableDeclaration,
                 OperationKind.TypeOf);
 
-            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
+            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType, SymbolKind.Property, SymbolKind.Field, SymbolKind.Event);
         }
 
         private static void AnalyzeNode(OperationAnalysisContext context)
@@ -113,42 +113,15 @@ namespace Microsoft.EntityFrameworkCore
                 case IEventSymbol _:
                     if (HasInternalAttribute(symbol))
                     {
-                        ReportDiagnostic(symbol.Name == ".ctor" ? (object)containingType : $"{containingType}.{symbol.Name}");
+                        ReportDiagnostic(context, symbol.Name == ".ctor" ? (object)containingType : $"{containingType}.{symbol.Name}");
                         return;
                     }
                     break;
             }
 
-            if (IsTypeInternal(context, containingType))
+            if (IsInternal(context, containingType))
             {
-                ReportDiagnostic(containingType);
-            }
-
-            void ReportDiagnostic(object messageArg)
-            {
-                // For certain member access expressions, report a narrowed-down diagnostic, otherwise take the whole invocation.
-                var syntax = context.Operation.Syntax switch
-                {
-                    CSharpSyntax.InvocationExpressionSyntax s
-                        when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                        => memberAccessSyntax.Name,
-                    CSharpSyntax.MemberAccessExpressionSyntax s
-                        => s.Name,
-                    CSharpSyntax.ObjectCreationExpressionSyntax s
-                        => s.Type,
-
-                    VBSyntax.InvocationExpressionSyntax s
-                        when s.Expression is VBSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                        => memberAccessSyntax.Name,
-                    VBSyntax.MemberAccessExpressionSyntax s
-                        => s.Name,
-                    VBSyntax.ObjectCreationExpressionSyntax s
-                        => s.Type,
-                    _
-                        => context.Operation.Syntax
-                };
-
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), messageArg));
+                ReportDiagnostic(context, containingType);
             }
         }
 
@@ -157,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
             // First check for any internal type parameters
             foreach (var a in invocation.TargetMethod.TypeArguments)
             {
-                if (IsTypeInternal(context, a))
+                if (IsInternal(context, a))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(_descriptor, context.Operation.Syntax.GetLocation(), a));
                 }
@@ -171,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             foreach (var declarator in variableDeclaration.Declarators)
             {
-                if (IsTypeInternal(context, declarator.Symbol.Type))
+                if (IsInternal(context, declarator.Symbol.Type))
                 {
                     var syntax = context.Operation.Syntax switch
                     {
@@ -187,16 +160,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void AnalyzeTypeof(OperationAnalysisContext context, ITypeOfOperation typeOf)
         {
-            if (IsTypeInternal(context, typeOf.TypeOperand))
+            if (IsInternal(context, typeOf.TypeOperand))
             {
-                var syntax = context.Operation.Syntax switch
-                {
-                    CSharpSyntax.TypeOfExpressionSyntax s => s.Type,
-                    VBSyntax.TypeOfExpressionSyntax s => s.Type,
-                    _ => context.Operation.Syntax
-                };
-
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), typeOf.TypeOperand));
+                ReportDiagnostic(context, typeOf.TypeOperand);
             }
         }
 
@@ -204,8 +170,20 @@ namespace Microsoft.EntityFrameworkCore
         {
             switch (context.Symbol)
             {
-                case INamedTypeSymbol namedTypeSymbol:
-                    AnalyzeNamedTypeSymbol(context, namedTypeSymbol);
+                case INamedTypeSymbol symbol:
+                    AnalyzeNamedTypeSymbol(context, symbol);
+                    break;
+
+                case IFieldSymbol symbol:
+                    AnalyzeMemberDeclarationTypeSymbol(context, symbol, symbol.Type);
+                    break;
+
+                case IPropertySymbol symbol:
+                    AnalyzeMemberDeclarationTypeSymbol(context, symbol, symbol.Type);
+                    break;
+
+                case IEventSymbol symbol:
+                    AnalyzeMemberDeclarationTypeSymbol(context, symbol, symbol.Type);
                     break;
 
                 default:
@@ -215,26 +193,96 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void AnalyzeNamedTypeSymbol(SymbolAnalysisContext context, INamedTypeSymbol symbol)
         {
-            if (symbol.BaseType is ISymbol baseSymbol
-                && (object)baseSymbol.ContainingAssembly != context.Compilation.Assembly
-                && (IsInInternalNamespace(baseSymbol) || HasInternalAttribute(baseSymbol)))
+            if (symbol.BaseType is ITypeSymbol baseSymbol
+                && IsInternal(context, baseSymbol))
             {
                 foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
                 {
-                    var syntax = declaringSyntax.GetSyntax() switch
+                    var location = declaringSyntax.GetSyntax() switch
                     {
                         CSharpSyntax.ClassDeclarationSyntax s when s.BaseList?.Types.Count > 0
-                            => s.BaseList.Types[0],
+                            => s.BaseList.Types[0].GetLocation(),
                         // TODO: VB
-                        { } otherSyntax => otherSyntax
+                        { } otherSyntax => otherSyntax.GetLocation()
                     };
 
-                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), baseSymbol));
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, baseSymbol));
+                }
+            }
+
+            foreach (var iface in symbol.Interfaces.Where(i => IsInternal(context, i)))
+            {
+                foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
+                {
+                    var location = declaringSyntax.GetSyntax() switch
+                    {
+                        // TODO: Report the location of the internal interface
+                        CSharpSyntax.ClassDeclarationSyntax s => s.Identifier.GetLocation(),
+                        // TODO: VB
+                        { } otherSyntax => otherSyntax.GetLocation()
+                    };
+
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, iface));
                 }
             }
         }
 
-        private static bool IsTypeInternal(OperationAnalysisContext context, ISymbol symbol)
+        private static void AnalyzeMemberDeclarationTypeSymbol(
+            SymbolAnalysisContext context,
+            ISymbol declarationSymbol,
+            ITypeSymbol typeSymbol)
+        {
+            if (IsInternal(context, typeSymbol))
+            {
+                foreach (var declaringSyntax in declarationSymbol.DeclaringSyntaxReferences)
+                {
+                    ReportDiagnostic(context, declaringSyntax.GetSyntax(), typeSymbol);
+                }
+            }
+        }
+
+        private static void ReportDiagnostic(OperationAnalysisContext context, object messageArg)
+            => context.ReportDiagnostic(Diagnostic.Create(_descriptor, NarrowDownSyntax(context.Operation.Syntax).GetLocation(), messageArg));
+
+        private static void ReportDiagnostic(SymbolAnalysisContext context, SyntaxNode syntax, object messageArg)
+            => context.ReportDiagnostic(Diagnostic.Create(_descriptor, NarrowDownSyntax(syntax).GetLocation(), messageArg));
+
+        /// <summary>
+        ///     Given a syntax node, pattern matches some known types and returns a narrowed-down node for the type syntax which
+        ///     should be reported in diagnostics.
+        /// </summary>
+        private static SyntaxNode NarrowDownSyntax(SyntaxNode syntax)
+            => syntax switch
+            {
+                CSharpSyntax.InvocationExpressionSyntax s
+                    when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
+                    => memberAccessSyntax.Name,
+                CSharpSyntax.MemberAccessExpressionSyntax s => s.Name,
+                CSharpSyntax.ObjectCreationExpressionSyntax s => s.Type,
+                CSharpSyntax.PropertyDeclarationSyntax s => s.Type,
+                CSharpSyntax.VariableDeclaratorSyntax declarator
+                    => declarator.Parent is CSharpSyntax.VariableDeclarationSyntax declaration
+                        ? declaration.Type
+                        : (SyntaxNode)declarator,
+                CSharpSyntax.TypeOfExpressionSyntax s => s.Type,
+
+                VBSyntax.InvocationExpressionSyntax s
+                    when s.Expression is VBSyntax.MemberAccessExpressionSyntax memberAccessSyntax
+                    => memberAccessSyntax.Name,
+                VBSyntax.MemberAccessExpressionSyntax s => s.Name,
+                VBSyntax.ObjectCreationExpressionSyntax s => s.Type,
+                VBSyntax.TypeOfExpressionSyntax s => s.Type,
+
+                // TODO: Complete VB syntax handling corresponding to the C# ones above
+
+                _ => syntax
+            };
+
+        private static bool IsInternal(SymbolAnalysisContext context, ITypeSymbol symbol)
+            => (object)symbol.ContainingAssembly != context.Compilation.Assembly
+                && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
+
+        private static bool IsInternal(OperationAnalysisContext context, ITypeSymbol symbol)
             => (object)symbol.ContainingAssembly != context.Compilation.Assembly
                 && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 

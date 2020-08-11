@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
                 "CoreSingletonOptions");
 
         [ConditionalFact]
-        public async Task Subclassing_type_in_internal_namespace()
+        public async Task Base_type()
         {
             var source = @"
 class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter {
@@ -68,6 +68,22 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
         }
 
         [ConditionalFact]
+        public Task Implemented_interface()
+            => TestFullSource(
+                @"
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
+
+class MyClass : IDbContextPool {
+    public IDbContextPoolable Rent() => default;
+    public void Return(IDbContextPoolable context) {}
+    public ValueTask ReturnAsync(IDbContextPoolable context, CancellationToken cancellationToken = default) => default;
+}",
+                "Microsoft.EntityFrameworkCore.Internal.IDbContextPool",
+                "MyClass");
+
+        [ConditionalFact]
         public Task Access_property_with_internal_attribute()
             => Test(
                 "var x = Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices.Count;",
@@ -82,7 +98,7 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
                 "Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies");
 
         [ConditionalFact]
-        public Task Variable_declaration()
+        public Task Local_variable_declaration()
             => Test(
                 "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager state = null;",
                 "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
@@ -102,6 +118,26 @@ SomeGenericMethod<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateMa
         public Task Typeof()
             => Test(
                 "var t = typeof(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager);",
+                "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
+                "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+
+        [ConditionalFact]
+        public Task Field_declaration()
+            => TestFullSource(
+                @"
+class MyClass {
+    private readonly Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager StateManager;
+}",
+                "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
+                "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+
+        [ConditionalFact]
+        public Task Property_declaration()
+            => TestFullSource(
+                @"
+class MyClass {
+    private Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager StateManager { get; set; }
+}",
                 "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
                 "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
@@ -145,6 +181,24 @@ namespace Bar
             string expectedDiagnosticSpan)
         {
             var (diagnostics, fullSource) = await GetDiagnosticsAsync(source);
+            var diagnostic = Assert.Single(diagnostics);
+
+            Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
+            Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
+            Assert.Equal(
+                string.Format(InternalUsageDiagnosticAnalyzer.MessageFormat, expectedInternalApi),
+                diagnostic.GetMessage());
+
+            var span = diagnostic.Location.SourceSpan;
+            Assert.Equal(expectedDiagnosticSpan, fullSource[span.Start..span.End]);
+        }
+
+        private async Task TestFullSource(
+            string fullSource,
+            string expectedInternalApi,
+            string expectedDiagnosticSpan)
+        {
+            var diagnostics = await GetDiagnosticsFullSourceAsync(fullSource);
             var diagnostic = Assert.Single(diagnostics);
 
             Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
