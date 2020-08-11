@@ -253,9 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            newRelationshipBuilder = newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
-
-            return newRelationshipBuilder;
+            return newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
         }
 
         private static IConventionForeignKeyBuilder SplitNavigationsToSeparateRelationships(

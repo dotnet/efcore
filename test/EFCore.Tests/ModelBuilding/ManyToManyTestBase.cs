@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Navigation_properties_can_set_access_mode_using_expressions()
+            public virtual void Navigation_properties_can_set_access_mode()
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -348,35 +348,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Navigation_properties_can_set_access_mode_using_navigation_names()
-            {
-                var modelBuilder = CreateModelBuilder();
-
-                modelBuilder.Entity<ManyToManyNavPrincipal>()
-                    .HasMany<NavDependent>("Dependents")
-                    .WithMany("ManyToManyPrincipals");
-
-                modelBuilder.Entity<ManyToManyNavPrincipal>()
-                    .Navigation("Dependents")
-                    .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-                modelBuilder.Entity<NavDependent>()
-                    .Navigation("ManyToManyPrincipals")
-                    .UsePropertyAccessMode(PropertyAccessMode.Property);
-
-                modelBuilder.Entity<NavDependent>()
-                    .Ignore(n => n.OneToOnePrincipal);
-
-                var model = modelBuilder.FinalizeModel();
-
-                var principal = model.FindEntityType(typeof(ManyToManyNavPrincipal));
-                var dependent = model.FindEntityType(typeof(NavDependent));
-
-                Assert.Equal(PropertyAccessMode.Field, principal.FindSkipNavigation("Dependents").GetPropertyAccessMode());
-                Assert.Equal(PropertyAccessMode.Property, dependent.FindSkipNavigation("ManyToManyPrincipals").GetPropertyAccessMode());
-            }
-
-            [ConditionalFact]
             public virtual void IsRequired_throws()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -388,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.RequiredSkipNavigation(nameof(ManyToManyNavPrincipal), nameof(ManyToManyNavPrincipal.Dependents)),
                         Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ManyToManyNavPrincipal>()
-                        .Navigation("Dependents")
+                        .Navigation(p => p.Dependents)
                         .IsRequired()).Message);
             }
 

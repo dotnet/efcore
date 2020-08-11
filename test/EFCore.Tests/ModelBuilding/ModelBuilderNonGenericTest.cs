@@ -163,8 +163,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new NonGenericTestNavigationBuilder(
                     EntityTypeBuilder.Navigation(navigationExpression.GetMemberAccess().GetSimpleMemberName()));
 
-            public override TestNavigationBuilder Navigation(string propertyName)
-                => new NonGenericTestNavigationBuilder(EntityTypeBuilder.Navigation(propertyName));
+            public override TestNavigationBuilder Navigation<TNavigation>(
+                Expression<Func<TEntity, IEnumerable<TNavigation>>> navigationExpression)
+                => new NonGenericTestNavigationBuilder(
+                    EntityTypeBuilder.Navigation(navigationExpression.GetMemberAccess().GetSimpleMemberName()));
 
             public override TestEntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object>> propertyExpression)
                 => Wrap(EntityTypeBuilder.Ignore(propertyExpression.GetMemberAccess().GetSimpleMemberName()));
@@ -871,10 +873,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     OwnedNavigationBuilder.Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
             }
 
-            public override TestNavigationBuilder Navigation<TNavigation>(string navigationName)
-                => new NonGenericTestNavigationBuilder(OwnedNavigationBuilder.Navigation(navigationName));
             public override TestNavigationBuilder Navigation<TNavigation>(
                 Expression<Func<TDependentEntity, TNavigation>> navigationExpression)
+                => new NonGenericTestNavigationBuilder(
+                    OwnedNavigationBuilder.Navigation(navigationExpression.GetMemberAccess().GetSimpleMemberName()));
+
+            public override TestNavigationBuilder Navigation<TNavigation>(
+                Expression<Func<TDependentEntity, IEnumerable<TNavigation>>> navigationExpression)
+                where TNavigation : class
                 => new NonGenericTestNavigationBuilder(
                     OwnedNavigationBuilder.Navigation(navigationExpression.GetMemberAccess().GetSimpleMemberName()));
 

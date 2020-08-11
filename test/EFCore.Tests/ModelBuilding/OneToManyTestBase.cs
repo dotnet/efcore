@@ -2489,7 +2489,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Navigation_properties_can_set_access_mode_using_expressions()
+            public virtual void Navigation_properties_can_set_access_mode()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -2511,50 +2511,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependents").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
-            }
-
-            [ConditionalFact]
-            public virtual void Navigation_properties_can_set_access_mode_using_navigation_names()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
-
-                modelBuilder.Entity<NavDependent>()
-                    .HasOne<OneToManyNavPrincipal>("OneToManyPrincipal")
-                    .WithMany("Dependents");
-
-                modelBuilder.Entity<NavDependent>()
-                    .Navigation("OneToManyPrincipal")
-                    .UsePropertyAccessMode(PropertyAccessMode.Property);
-
-                modelBuilder.Entity<OneToManyNavPrincipal>()
-                    .Navigation("Dependents")
-                    .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipal));
-                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
-
-                Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependents").GetPropertyAccessMode());
-                Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyPrincipal").GetPropertyAccessMode());
-            }
-
-            [ConditionalFact]
-            public virtual void Attempt_to_configure_non_existent_Navigation_property_throws()
-            {
-                var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
-
-                modelBuilder.Entity<NavDependent>()
-                    .HasOne(e => e.OneToManyPrincipal)
-                    .WithMany(e => e.Dependents);
-
-                Assert.Equal(
-                    CoreStrings.CanOnlyConfigureExistingNavigations("NonExistent", "NavDependent"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<NavDependent>()
-                        .Navigation("NonExistent")
-                        .UsePropertyAccessMode(PropertyAccessMode.Property)
-                        ).Message);
             }
 
             [ConditionalFact]

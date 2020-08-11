@@ -1,13 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -20,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilder>, IInfrastructure<IConventionNavigationBuilder>
+    public class NavigationBuilder<TSource, TTarget> : NavigationBuilder
+        where TSource : class
+        where TTarget : class
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,25 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public NavigationBuilder([NotNull] IMutableNavigationBase navigationOrSkipNavigation)
+            : base(navigationOrSkipNavigation)
         {
-            Check.NotNull(navigationOrSkipNavigation, nameof(navigationOrSkipNavigation));
-
-            InternalNavigationBuilder = (navigationOrSkipNavigation as Navigation)?.Builder;
-            InternalSkipNavigationBuilder = (navigationOrSkipNavigation as SkipNavigation)?.Builder;
-            Metadata = navigationOrSkipNavigation;
-
-            Check.DebugAssert(InternalNavigationBuilder != null || InternalSkipNavigationBuilder != null,
-                "Expected either a Navigation or SkipNavigation");
         }
-
-        private InternalNavigationBuilder InternalNavigationBuilder { get; set; }
-
-        private InternalSkipNavigationBuilder InternalSkipNavigationBuilder { get; set; }
-
-        /// <summary>
-        ///     The navigation being configured.
-        /// </summary>
-        public virtual IMutableNavigationBase Metadata { get; private set; }
 
         /// <summary>
         ///     Adds or updates an annotation on the navigation property. If an annotation
@@ -58,22 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
-        {
-            Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
-
-            if (InternalNavigationBuilder != null)
-            {
-                InternalNavigationBuilder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
-            }
-            else
-            {
-                InternalSkipNavigationBuilder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
-            }
-
-            return this;
-        }
+        public new virtual NavigationBuilder<TSource, TTarget> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+            => (NavigationBuilder<TSource, TTarget>)base.HasAnnotation(annotation, value);
 
         /// <summary>
         ///     <para>
@@ -92,89 +60,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
-        {
-            if (InternalNavigationBuilder != null)
-            {
-                InternalNavigationBuilder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
-            }
-            else
-            {
-                InternalSkipNavigationBuilder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
-            }
-
-            return this;
-        }
+        public new virtual NavigationBuilder<TSource, TTarget> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+            => (NavigationBuilder<TSource, TTarget>)base.UsePropertyAccessMode(propertyAccessMode);
 
         /// <summary>
         ///     Sets a backing field to use for this navigation property.
         /// </summary>
         /// <param name="fieldName"> The name of the field to use for this navigation property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder HasField([CanBeNull] string fieldName)
-        {
-            if (InternalNavigationBuilder != null)
-            {
-                InternalNavigationBuilder.HasField(fieldName, ConfigurationSource.Explicit);
-            }
-            else
-            {
-                InternalSkipNavigationBuilder.HasField(fieldName, ConfigurationSource.Explicit);
-            }
-
-            return this;
-        }
+        public new virtual NavigationBuilder<TSource, TTarget> HasField([CanBeNull] string fieldName)
+            => (NavigationBuilder<TSource, TTarget>)base.HasField(fieldName);
 
         /// <summary>
         ///     Configures whether this navigation should be automatically included in a query.
         /// </summary>
         /// <param name="autoInclude"> A value indicating if the navigation should be automatically included. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder AutoInclude(bool autoInclude = true)
-        {
-            if (InternalNavigationBuilder != null)
-            {
-                InternalNavigationBuilder.AutoInclude(autoInclude, ConfigurationSource.Explicit);
-            }
-            else
-            {
-                InternalSkipNavigationBuilder.AutoInclude(autoInclude, ConfigurationSource.Explicit);
-            }
-
-            return this;
-        }
+        public new virtual NavigationBuilder<TSource, TTarget> AutoInclude(bool autoInclude = true)
+            => (NavigationBuilder<TSource, TTarget>)base.AutoInclude(autoInclude);
 
         /// <summary>
         ///     Configures whether this navigation is required.
         /// </summary>
         /// <param name="required"> A value indicating whether the navigation should be required. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder IsRequired(bool required = true)
-        {
-            if (InternalNavigationBuilder != null)
-            {
-                InternalNavigationBuilder = InternalNavigationBuilder.IsRequired(required, ConfigurationSource.Explicit);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.RequiredSkipNavigation(
-                        InternalSkipNavigationBuilder.Metadata.DeclaringEntityType.DisplayName(),
-                        InternalSkipNavigationBuilder.Metadata.Name));
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        ///     The internal builder being used to configure the skip navigation.
-        /// </summary>
-        IConventionSkipNavigationBuilder IInfrastructure<IConventionSkipNavigationBuilder>.Instance => InternalSkipNavigationBuilder;
-
-        /// <summary>
-        ///     The internal builder being used to configure the navigation.
-        /// </summary>
-        IConventionNavigationBuilder IInfrastructure<IConventionNavigationBuilder>.Instance => InternalNavigationBuilder;
+        public new virtual NavigationBuilder<TSource, TTarget> IsRequired(bool required = true)
+            => (NavigationBuilder<TSource, TTarget>)base.IsRequired(required);
 
         #region Hidden System.Object members
 

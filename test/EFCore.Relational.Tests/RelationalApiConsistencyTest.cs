@@ -159,6 +159,8 @@ namespace Microsoft.EntityFrameworkCore
                     RelationalMetadataMethods.Add(readOnlyMethods);
                 }
 
+                GenericFluentApiTypes.Add(typeof(TableBuilder), typeof(TableBuilder<>));
+
                 base.Initialize();
             }
         }

@@ -55,6 +55,86 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Generic_fluent_api_methods_should_return_generic_types()
+        {
+            var nonGenericMethods = new List<(Type Type, MethodInfo Method)>();
+            foreach (var type in GetAllTypes(Fixture.FluentApiTypes))
+            {
+                if (!type.IsVisible
+                       || !type.IsGenericType
+                       || type.BaseType == typeof(object)
+                       || type.BaseType.IsGenericType)
+                {
+                    continue;
+                }
+
+                foreach (var method in type.GetMethods(PublicInstance))
+                {
+                    if (method.ReturnType == type.BaseType
+                        && !Fixture.UnmatchedMetadataMethods.Contains(method))
+                    {
+                        var hidingMethod = type.GetMethod(
+                           method.Name,
+                           method.GetGenericArguments().Length,
+                           PublicInstance | BindingFlags.DeclaredOnly,
+                           null,
+                           method.GetParameters().Select(p => p.ParameterType).ToArray(),
+                           null);
+                        if (hidingMethod == null || hidingMethod == method || hidingMethod.ReturnType != type)
+                        {
+                            nonGenericMethods.Add((type, method));
+                        }
+                    }
+                }
+            }
+
+            foreach (var type in GetAllTypes(Fixture.FluentApiTypes))
+            {
+                if (!type.IsVisible)
+                {
+                    continue;
+                }
+
+                // Look for extension methods
+                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
+                {
+                    if (method.ReturnType != (method.GetParameters().FirstOrDefault()?.ParameterType)
+                        || !Fixture.GenericFluentApiTypes.TryGetValue(method.ReturnType, out var genericType)
+                        || Fixture.UnmatchedMetadataMethods.Contains(method))
+                    {
+                        continue;
+                    }
+
+                    var methodFound = false;
+                    foreach (var hidingMethod in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
+                    {
+                        if (method.Name != hidingMethod.Name
+                            || hidingMethod.GetGenericArguments().Length != genericType.GetGenericArguments().Length
+                            || hidingMethod.ReturnType.GetGenericTypeDefinition() != genericType
+                            || !hidingMethod.GetParameters().Skip(1).Select(p => p.ParameterType).SequenceEqual(
+                                method.GetParameters().Skip(1).Select(p => p.ParameterType)))
+                        {
+                            continue;
+                        }
+
+                        methodFound = true;
+                        break;
+                    }
+
+                    if (!methodFound)
+                    {
+                        nonGenericMethods.Add((type, method));
+                    }
+                }
+            }
+
+            Assert.False(
+                nonGenericMethods.Count > 0,
+                "\r\n-- Non-generic fluent returns --\r\n" + string.Join(Environment.NewLine, nonGenericMethods.Select(m =>
+                    $"{m.Method.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}({Format(m.Method.GetParameters())})")));
+        }
+
+        [ConditionalFact]
         public void Metadata_types_have_expected_structure()
         {
             var errors = Fixture.MetadataTypes.Select(ValidateMetadata)
@@ -907,6 +987,27 @@ namespace Microsoft.EntityFrameworkCore
             public abstract bool TryGetProviderOptionsDelegate (out Action<DbContextOptionsBuilder> configureOptions);
 
             public virtual HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>();
+
+            public virtual Dictionary<Type, Type> GenericFluentApiTypes { get; } = new Dictionary<Type, Type>
+            {
+                { typeof(CollectionCollectionBuilder), typeof(CollectionCollectionBuilder<,>) },
+                { typeof(CollectionNavigationBuilder), typeof(CollectionNavigationBuilder<,>) },
+                { typeof(DataBuilder), typeof(DataBuilder<>) },
+                { typeof(DiscriminatorBuilder), typeof(DiscriminatorBuilder<>) },
+                { typeof(EntityTypeBuilder), typeof(EntityTypeBuilder<>) },
+                { typeof(IndexBuilder), typeof(IndexBuilder<>) },
+                { typeof(KeyBuilder), typeof(KeyBuilder<>) },
+                { typeof(NavigationBuilder), typeof(NavigationBuilder<,>) },
+                { typeof(OwnedNavigationBuilder), typeof(OwnedNavigationBuilder<,>) },
+                { typeof(OwnedEntityTypeBuilder), typeof(OwnedEntityTypeBuilder<>) },
+                { typeof(OwnershipBuilder), typeof(OwnershipBuilder<,>) },
+                { typeof(PropertyBuilder), typeof(PropertyBuilder<>) },
+                { typeof(ReferenceCollectionBuilder), typeof(ReferenceCollectionBuilder<,>) },
+                { typeof(ReferenceNavigationBuilder), typeof(ReferenceNavigationBuilder<,>) },
+                { typeof(ReferenceReferenceBuilder), typeof(ReferenceReferenceBuilder<,>) },
+                { typeof(DbContextOptionsBuilder), typeof(DbContextOptionsBuilder<>) }
+            };
+
             public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = new HashSet<MethodInfo>();
             public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new HashSet<MethodInfo>();
             public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = new HashSet<MethodInfo>();

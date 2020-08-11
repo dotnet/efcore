@@ -107,6 +107,23 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures index include properties when targeting SQL Server.
         /// </summary>
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="propertyNames"> An array of property names to be used in 'include' clause. </param>
+        /// <returns> A builder to further configure the index. </returns>
+        public static IndexBuilder<TEntity> IncludeProperties<TEntity>(
+            [NotNull] this IndexBuilder<TEntity> indexBuilder, [NotNull] params string[] propertyNames)
+        {
+            Check.NotNull(indexBuilder, nameof(indexBuilder));
+            Check.NotNull(propertyNames, nameof(propertyNames));
+
+            indexBuilder.Metadata.SetIncludeProperties(propertyNames);
+
+            return indexBuilder;
+        }
+
+        /// <summary>
+        ///     Configures index include properties when targeting SQL Server.
+        /// </summary>
+        /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="includeExpression">
         ///     <para>
         ///         A lambda expression representing the property(s) to be included in the 'include' clause

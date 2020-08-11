@@ -59,7 +59,9 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IndexBuilder<>),
                 typeof(InvertibleRelationshipBuilderBase),
                 typeof(KeyBuilder),
+                typeof(KeyBuilder<>),
                 typeof(NavigationBuilder),
+                typeof(NavigationBuilder<,>),
                 typeof(OwnedNavigationBuilder),
                 typeof(OwnedNavigationBuilder<,>),
                 typeof(OwnedEntityTypeBuilder),
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(ReferenceReferenceBuilder<,>),
                 typeof(RelationshipBuilderBase),
                 typeof(DbContextOptionsBuilder),
-                typeof(DbContextOptionsBuilder<DbContext>),
+                typeof(DbContextOptionsBuilder<>),
                 typeof(EntityFrameworkServiceCollectionExtensions)
             };
 
@@ -111,6 +113,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
             {
+                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsOne), 0, new []{ typeof(string), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsOne), 0, new []{ typeof(string), typeof(Type), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsOne), 0, new []{ typeof(Type), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsMany), 0, new []{ typeof(string), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsMany), 0, new []{ typeof(string), typeof(Type), typeof(string) }),
+                typeof(OwnedNavigationBuilder<,>).GetMethod(nameof(OwnedNavigationBuilder.OwnsMany), 0, new []{ typeof(Type), typeof(string) }),
                 typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new []{ typeof(string), typeof(bool) }),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindAnnotation)),
                 typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetAnnotations)),
