@@ -474,7 +474,7 @@ WHERE ([t].[FoundOn] = CAST(0 AS tinyint)) AND [t].[FoundOn] IS NOT NULL");
 
 SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
 FROM (
-    SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+    SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
     FROM [Animals] AS [a]
     WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
     ORDER BY [a].[Species]
@@ -536,6 +536,26 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ((
     FROM [Animals] AS [a0]
     WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a0].[Name] = N'Great spotted kiwi')) = N'Kiwi')
 ORDER BY [a].[Species]");
+        }
+
+        public override async Task Selecting_only_base_properties_on_base_type(bool async)
+        {
+            await base.Selecting_only_base_properties_on_base_type(async);
+
+            AssertSql(
+                @"SELECT [a].[Name]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')");
+        }
+
+        public override async Task Selecting_only_base_properties_on_derived_type(bool async)
+        {
+            await base.Selecting_only_base_properties_on_derived_type(async);
+
+            AssertSql(
+                @"SELECT [a].[Name]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')");
         }
 
         private void AssertSql(params string[] expected)

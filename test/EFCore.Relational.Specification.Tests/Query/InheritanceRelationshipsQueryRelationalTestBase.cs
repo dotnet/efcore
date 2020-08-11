@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase),
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
         }
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseCollectionOnBase>().Include(e => e.BaseParent),
+                ss => ss.Set<BaseCollectionOnBase>().Include(e => e.BaseParent).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
         }
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).Where(e => e.Name != "Bar"),
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).Where(e => e.Name != "Bar").AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
         }
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseCollectionOnBase>().Include(e => e.BaseParent).Where(e => e.Name != "Bar"),
+                ss => ss.Set<BaseCollectionOnBase>().Include(e => e.BaseParent).Where(e => e.Name != "Bar").AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
         }
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.CollectionOnBase),
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.CollectionOnBase).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.CollectionOnBase)));
         }
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<CollectionOnBase>().Include(e => e.Parent),
+                ss => ss.Set<CollectionOnBase>().Include(e => e.Parent).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
         }
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.CollectionOnBase).Where(e => e.Name != "Bar"),
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.CollectionOnBase).Where(e => e.Name != "Bar").AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.CollectionOnBase)));
         }
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<CollectionOnBase>().Include(e => e.Parent).Where(e => e.Name != "Bar"),
+                ss => ss.Set<CollectionOnBase>().Include(e => e.Parent).Where(e => e.Name != "Bar").AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
         }
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase),
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
         }
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnDerived),
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnDerived).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseCollectionOnDerived)));
         }
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.DerivedCollectionOnDerived),
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.DerivedCollectionOnDerived).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.DerivedCollectionOnDerived)));
         }
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseCollectionOnDerived>().Include(e => e.BaseParent),
+                ss => ss.Set<BaseCollectionOnDerived>().Include(e => e.BaseParent).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<BaseCollectionOnDerived>(x => x.BaseParent)));
         }
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedCollection),
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedCollection).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
                     new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedCollection),
+                ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedCollection).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
                     new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentReference.BaseParent),
+                ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentReference.BaseParent).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<NestedCollectionBase>(x => x.ParentReference),
                     new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
@@ -191,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).ThenInclude(e => e.NestedReference),
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase)
+                    .ThenInclude(e => e.NestedReference).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
                     new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedReference)));
@@ -203,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<NestedReferenceBase>().Include(e => e.ParentCollection.BaseParent),
+                ss => ss.Set<NestedReferenceBase>().Include(e => e.ParentCollection.BaseParent).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<NestedReferenceBase>(x => x.ParentCollection),
                     new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
@@ -215,7 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase).ThenInclude(e => e.NestedCollection),
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseCollectionOnBase)
+                    .ThenInclude(e => e.NestedCollection).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
                     new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedCollection)));
@@ -227,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentCollection.BaseParent),
+                ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentCollection.BaseParent).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<NestedCollectionBase>(x => x.ParentCollection),
                     new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
@@ -239,10 +241,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<ReferencedEntity>().Include(e => e.Principals).ThenInclude(e => e.Reference),
+                ss => ss.Set<ReferencedEntity>().Include(e => e.Principals).ThenInclude(e => e.Reference).AsSplitQuery(),
                 elementAsserter: (e, a) => AssertInclude(e, a,
                     new ExpectedInclude<ReferencedEntity>(x => x.Principals),
                     new ExpectedInclude<PrincipalEntity>(x => x.Reference)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_on_base_type_split(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().AsSplitQuery().Select(e =>
+                    new
+                    {
+                        e.Id,
+                        e.BaseCollectionOnBase
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.BaseCollectionOnBase, a.BaseCollectionOnBase);
+                });
         }
     }
 }

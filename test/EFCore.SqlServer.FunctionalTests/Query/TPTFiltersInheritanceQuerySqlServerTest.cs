@@ -73,8 +73,6 @@ WHERE ([a].[CountryId] = 1) AND ([k].[Species] IS NOT NULL AND ([a].[CountryId] 
     ELSE CAST(0 AS bit)
 END
 FROM [Animals] AS [a]
-LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
-LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 WHERE [a].[CountryId] = 1");
         }
@@ -153,7 +151,6 @@ ORDER BY [a].[Species]");
 END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
-LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 WHERE ([a].[CountryId] = 1) AND [k].[Species] IS NOT NULL");
         }

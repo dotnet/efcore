@@ -82,17 +82,17 @@ FROM [Level1] AS [l]");
 
 SELECT [t1].[Level2_Name]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [t].[Id] AS [Id0], [t].[Date] AS [Date0], [t].[Name] AS [Name0], [t].[Id0] AS [Id00], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id]
+    SELECT TOP(@__p_0) [l].[Id], [t].[Id0] AS [Id00]
     FROM [Level1] AS [l]
     LEFT JOIN (
-        SELECT [l0].[Id], [l0].[Date], [l0].[Name], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[Id] AS [Id0]
+        SELECT [l0].[Level1_Optional_Id], [l0].[Id] AS [Id0]
         FROM [Level1] AS [l0]
         WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL) AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
     ORDER BY [l].[Id]
 ) AS [t0]
 LEFT JOIN (
-    SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[Id] AS [Id0]
+    SELECT [l1].[Level1_Optional_Id], [l1].[Level2_Name]
     FROM [Level1] AS [l1]
     WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL) AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Id00] = [t1].[Level1_Optional_Id]
@@ -109,7 +109,7 @@ FROM (
     SELECT DISTINCT [l].[Id], [l].[Date], [l].[Name]
     FROM [Level1] AS [l]
     LEFT JOIN (
-        SELECT [l0].[Id], [l0].[Date], [l0].[Name], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[Id] AS [Id0]
+        SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
         FROM [Level1] AS [l0]
         WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL) AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
@@ -128,7 +128,7 @@ FROM (
 END), 0)
 FROM [Level1] AS [l]
 LEFT JOIN (
-    SELECT [l0].[Id], [l0].[Date], [l0].[Name], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[Id] AS [Id0]
+    SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
     WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL) AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]");
@@ -151,7 +151,7 @@ LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id], [t0].[Id] AS [Id0], [t0].[Id0] AS [Id00]
     FROM [Level1] AS [l2]
     INNER JOIN (
-        SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id], [l4].[Id] AS [Id0]
+        SELECT [l3].[Id], [l4].[Id] AS [Id0]
         FROM [Level1] AS [l3]
         INNER JOIN [Level1] AS [l4] ON [l3].[Id] = [l4].[Id]
         WHERE [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToOne_Required_PK_Date] IS NOT NULL)

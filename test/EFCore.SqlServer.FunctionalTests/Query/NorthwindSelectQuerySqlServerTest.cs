@@ -800,9 +800,9 @@ WHERE [o0].[OrderID] < 10300");
                 @"SELECT [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice]
 FROM [Orders] AS [o]
 OUTER APPLY (
-    SELECT TOP(1) [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[ProductID0], [t].[ProductName]
+    SELECT TOP(1) [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice]
     FROM (
-        SELECT TOP(1) [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductID] AS [ProductID0], [p].[ProductName]
+        SELECT TOP(1) [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductName]
         FROM [Order Details] AS [o0]
         INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
         WHERE [o].[OrderID] = [o0].[OrderID]
@@ -1031,7 +1031,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[City] AS [o]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [c].[City], [o].[OrderID]
+    SELECT [c].[City]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1045,7 +1045,7 @@ CROSS APPLY (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
+    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [c].[City], [o].[OrderID]
@@ -1060,7 +1060,7 @@ CROSS APPLY (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[City] AS [o]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [c].[City], [o].[OrderID]
+    SELECT [c].[City]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1074,7 +1074,7 @@ OUTER APPLY (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
+    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [c].[City], [o].[OrderID]
@@ -1089,7 +1089,7 @@ OUTER APPLY (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[City] AS [o]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [c].[City], [o].[OrderID]
+    SELECT [c].[City]
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] <> [o].[CustomerID]) OR [o].[CustomerID] IS NULL
 ) AS [t]");
@@ -1103,7 +1103,7 @@ OUTER APPLY (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
+    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] <> [o].[CustomerID]) OR [o].[CustomerID] IS NULL
     ORDER BY [c].[City], [o].[OrderID]
@@ -1118,7 +1118,7 @@ OUTER APPLY (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[City]
+    SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE CAST(LEN([c].[CustomerID]) AS int) >= CAST(LEN([o].[CustomerID]) AS int)
     ORDER BY [c].[City], [o].[OrderID]
@@ -1197,7 +1197,7 @@ ORDER BY [c].[CustomerID], [t].[OrderID]");
                 @"SELECT [t].[CustomerID] AS [OrderProperty], [t].[CustomerID0] AS [CustomerProperty]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [o].[CustomerID], [c].[CustomerID] AS [CustomerID0], [o].[OrderID]
+    SELECT [o].[CustomerID], [c].[CustomerID] AS [CustomerID0]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1269,7 +1269,7 @@ WHERE [o].[OrderID] = 10243");
                 @"SELECT [t].[OrderDate], [t].[City] AS [CustomerCity]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [o].[OrderDate], [c].[City], [o].[OrderID]
+    SELECT [o].[OrderDate], [c].[City]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");

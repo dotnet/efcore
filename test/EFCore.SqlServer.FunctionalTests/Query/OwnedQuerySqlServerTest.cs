@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId], [t].[Id], [o1].[ClientId], [o1].[Id], [o1].[OrderDate]
 FROM [OwnedPerson] AS [o]
 CROSS JOIN (
-    SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType]
+    SELECT [o0].[Id]
     FROM [OwnedPerson] AS [o0]
     WHERE [o0].[Discriminator] = N'LeafB'
 ) AS [t]
@@ -826,7 +826,7 @@ ORDER BY [t0].[Id]",
 
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [t0].[Id]
 FROM (
-    SELECT TOP(@__p_0) [t].[Id], [t].[Discriminator], [t].[Name]
+    SELECT TOP(@__p_0) [t].[Id]
     FROM (
         SELECT DISTINCT [o].[Id], [o].[Discriminator], [o].[Name]
         FROM [OwnedPerson] AS [o]
@@ -975,7 +975,7 @@ LEFT JOIN (
         ) AS [t0] ON [o3].[Id] = [t0].[Id]
     ) AS [t1]
     INNER JOIN (
-        SELECT [o5].[Id], [o5].[Discriminator], [o5].[Name]
+        SELECT [o5].[Id]
         FROM [OwnedPerson] AS [o5]
         WHERE [o5].[Discriminator] IN (N'Branch', N'LeafA')
     ) AS [t2] ON [t1].[Id] = [t2].[Id]
@@ -984,7 +984,7 @@ LEFT JOIN (
     SELECT [o6].[Id], [o6].[BranchAddress_Country_Name], [o6].[BranchAddress_Country_PlanetId], [t7].[Id] AS [Id0], [t7].[Id0] AS [Id00]
     FROM [OwnedPerson] AS [o6]
     INNER JOIN (
-        SELECT [t5].[Id], [t5].[BranchAddress_BranchName], [t5].[BranchAddress_PlaceType], [t6].[Id] AS [Id0]
+        SELECT [t5].[Id], [t6].[Id] AS [Id0]
         FROM (
             SELECT [o7].[Id], [o7].[BranchAddress_BranchName], [o7].[BranchAddress_PlaceType]
             FROM [OwnedPerson] AS [o7]
@@ -999,7 +999,7 @@ LEFT JOIN (
             ) AS [t4] ON [o8].[Id] = [t4].[Id]
         ) AS [t5]
         INNER JOIN (
-            SELECT [o10].[Id], [o10].[Discriminator], [o10].[Name]
+            SELECT [o10].[Id]
             FROM [OwnedPerson] AS [o10]
             WHERE [o10].[Discriminator] IN (N'Branch', N'LeafA')
         ) AS [t6] ON [t5].[Id] = [t6].[Id]
@@ -1022,7 +1022,7 @@ LEFT JOIN (
         ) AS [t9] ON [o12].[Id] = [t9].[Id]
     ) AS [t10]
     INNER JOIN (
-        SELECT [o14].[Id], [o14].[Discriminator], [o14].[Name]
+        SELECT [o14].[Id]
         FROM [OwnedPerson] AS [o14]
         WHERE [o14].[Discriminator] = N'LeafB'
     ) AS [t11] ON [t10].[Id] = [t11].[Id]
@@ -1031,7 +1031,7 @@ LEFT JOIN (
     SELECT [o15].[Id], [o15].[LeafBAddress_Country_Name], [o15].[LeafBAddress_Country_PlanetId], [t16].[Id] AS [Id0], [t16].[Id0] AS [Id00]
     FROM [OwnedPerson] AS [o15]
     INNER JOIN (
-        SELECT [t14].[Id], [t14].[LeafBAddress_LeafBType], [t14].[LeafBAddress_PlaceType], [t15].[Id] AS [Id0]
+        SELECT [t14].[Id], [t15].[Id] AS [Id0]
         FROM (
             SELECT [o16].[Id], [o16].[LeafBAddress_LeafBType], [o16].[LeafBAddress_PlaceType]
             FROM [OwnedPerson] AS [o16]
@@ -1046,7 +1046,7 @@ LEFT JOIN (
             ) AS [t13] ON [o17].[Id] = [t13].[Id]
         ) AS [t14]
         INNER JOIN (
-            SELECT [o19].[Id], [o19].[Discriminator], [o19].[Name]
+            SELECT [o19].[Id]
             FROM [OwnedPerson] AS [o19]
             WHERE [o19].[Discriminator] = N'LeafB'
         ) AS [t15] ON [t14].[Id] = [t15].[Id]
@@ -1057,7 +1057,7 @@ LEFT JOIN (
     SELECT [o20].[Id], [o20].[LeafAAddress_LeafType], [o20].[LeafAAddress_PlaceType], [t18].[Id] AS [Id0], [o20].[Id] AS [Id1], [o20].[LeafAAddress_Country_Name], [o20].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] AS [o20]
     INNER JOIN (
-        SELECT [o21].[Id], [o21].[Discriminator], [o21].[Name]
+        SELECT [o21].[Id]
         FROM [OwnedPerson] AS [o21]
         WHERE [o21].[Discriminator] = N'LeafA'
     ) AS [t18] ON [o20].[Id] = [t18].[Id]

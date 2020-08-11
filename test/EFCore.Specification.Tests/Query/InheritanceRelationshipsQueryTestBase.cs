@@ -573,6 +573,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<PrincipalEntity>(x => x.Reference)));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_on_base_type(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>().Select(e =>
+                    new
+                    {
+                        e.Id,
+                        e.BaseCollectionOnBase
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.BaseCollectionOnBase, a.BaseCollectionOnBase);
+                });
+        }
+
         protected InheritanceRelationshipsContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
