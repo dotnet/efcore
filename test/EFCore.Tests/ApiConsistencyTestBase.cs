@@ -1020,9 +1020,6 @@ namespace Microsoft.EntityFrameworkCore
                     typeof(ProviderConventionSetBuilderDependencies).GetProperty(nameof(ProviderConventionSetBuilderDependencies.ContextType)),
                     typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
                     typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.QueryTrackingBehavior)),
-#pragma warning disable CS0618 // Type or member is obsolete
-                    typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.IsTracking)),
-#pragma warning restore CS0618 // Type or member is obsolete
                     typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager)),
 #pragma warning disable CS0618 // Type or member is obsolete
                     typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.QueryProvider))

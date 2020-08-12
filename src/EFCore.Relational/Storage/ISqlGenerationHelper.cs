@@ -36,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the SQL for a START TRANSACTION statement.
         /// </summary>
-        string StartTransaction { get; }
+        string StartTransactionStatement { get; }
 
         /// <summary>
         ///     Gets the SQL for a COMMIT statement.
         /// </summary>
-        string Commit { get; }
+        string CommitTransactionStatement { get; }
 
         /// <summary>
         ///     The default single-line comment prefix.

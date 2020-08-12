@@ -358,9 +358,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The configured value. </returns>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
-        public static ValueComparer SetKeyValueComparer(
+        public static void SetKeyValueComparer(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)
@@ -383,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
-        public static ValueComparer SetStructuralValueComparer(
+        public static void SetStructuralValueComparer(
             [NotNull] this IConventionProperty property,
             [CanBeNull] ValueComparer comparer,
             bool fromDataAnnotation = false)

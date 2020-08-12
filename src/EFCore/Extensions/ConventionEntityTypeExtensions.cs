@@ -639,9 +639,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <param name="definingQuery"> The LINQ query used as the default source. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The configured entity type. </returns>
         [Obsolete("Use InMemoryEntityTypeExtensions.SetInMemoryQuery")]
-        public static LambdaExpression SetDefiningQuery(
+        public static void SetDefiningQuery(
             [NotNull] this IConventionEntityType entityType,
             [CanBeNull] LambdaExpression definingQuery,
             bool fromDataAnnotation = false)

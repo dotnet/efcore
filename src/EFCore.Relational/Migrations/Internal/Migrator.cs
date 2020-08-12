@@ -359,14 +359,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         if (!transactionStarted && !command.TransactionSuppressed)
                         {
                             builder
-                                .AppendLine(_sqlGenerationHelper.StartTransaction)
+                                .AppendLine(_sqlGenerationHelper.StartTransactionStatement)
                                 .Append(_sqlGenerationHelper.BatchTerminator);
                             transactionStarted = true;
                         }
                         if (transactionStarted && command.TransactionSuppressed)
                         {
                             builder
-                                .AppendLine(_sqlGenerationHelper.Commit)
+                                .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
                                 .Append(_sqlGenerationHelper.BatchTerminator);
                             transactionStarted = false;
                         }
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 if (!noTransactions && transactionStarted)
                 {
                     builder
-                        .AppendLine(_sqlGenerationHelper.Commit)
+                        .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
                         .Append(_sqlGenerationHelper.BatchTerminator);
                     transactionStarted = false;
                 }
@@ -410,14 +410,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         if (!transactionStarted && !command.TransactionSuppressed)
                         {
                             builder
-                                .AppendLine(_sqlGenerationHelper.StartTransaction)
+                                .AppendLine(_sqlGenerationHelper.StartTransactionStatement)
                                 .Append(_sqlGenerationHelper.BatchTerminator);
                             transactionStarted = true;
                         }
                         if (transactionStarted && command.TransactionSuppressed)
                         {
                             builder
-                                .AppendLine(_sqlGenerationHelper.Commit)
+                                .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
                                 .Append(_sqlGenerationHelper.BatchTerminator);
                             transactionStarted = false;
                         }
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 if (!noTransactions && transactionStarted)
                 {
                     builder
-                        .AppendLine(_sqlGenerationHelper.Commit)
+                        .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
                         .Append(_sqlGenerationHelper.BatchTerminator);
                     transactionStarted = false;
                 }
