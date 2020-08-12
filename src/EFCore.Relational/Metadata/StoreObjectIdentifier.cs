@@ -10,13 +10,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     A type that represents the id of a store object
     /// </summary>
-    public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>
+    public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>, IEquatable<StoreObjectIdentifier>
     {
         private StoreObjectIdentifier(StoreObjectType storeObjectType, string name, string schema = null)
         {
             StoreObjectType = storeObjectType;
             Name = name;
             Schema = schema;
+        }
+
+        /// <summary>
+        ///     Creates an id for the store object that the given entity type is mapped to />.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="type"> The store object type. </param>
+        /// <returns> The store object id. </returns>
+        public static StoreObjectIdentifier? Create([NotNull] IEntityType entityType, StoreObjectType type)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            switch (type)
+            {
+                case StoreObjectType.Table:
+                    var tableName = entityType.GetTableName();
+                    return tableName == null ? (StoreObjectIdentifier?)null : Table(tableName, entityType.GetSchema());
+                case StoreObjectType.View:
+                    var viewName = entityType.GetViewName();
+                    return viewName == null ? (StoreObjectIdentifier?)null : View(viewName, entityType.GetViewSchema());
+                case StoreObjectType.SqlQuery:
+                    var query = entityType.GetSqlQuery();
+                    return query == null ? (StoreObjectIdentifier?)null : SqlQuery(entityType);
+                case StoreObjectType.Function:
+                    var functionName = entityType.GetFunctionName();
+                    return functionName == null ? (StoreObjectIdentifier?)null : DbFunction(functionName);
+                default:
+                    return null;
+            }
         }
 
         /// <summary>
@@ -121,5 +150,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <inheritdoc />
         public override string ToString() => StoreObjectType.ToString() + " " + DisplayName();
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+            => obj is StoreObjectIdentifier identifier && Equals(identifier);
+
+        /// <inheritdoc />
+        public bool Equals(StoreObjectIdentifier other)
+            => StoreObjectType == other.StoreObjectType &&
+                   Name == other.Name &&
+                   Schema == other.Schema;
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+            => HashCode.Combine(StoreObjectType, Name, Schema);
+
+        /// <summary>
+        ///     Compares one id to another id to see if they represent the same store object.
+        /// </summary>
+        /// <param name="left"> The first id. </param>
+        /// <param name="right"> The second id. </param>
+        /// <returns> <see langword="true"/> if they represent the same store object; <see langword="false"/> otherwise. </returns>
+        public static bool operator ==(StoreObjectIdentifier left, StoreObjectIdentifier right)
+            => left.Equals(right);
+
+        /// <summary>
+        ///     Compares one id to another id to see if they represent the same store object.
+        /// </summary>
+        /// <param name="left"> The first id. </param>
+        /// <param name="right"> The second id. </param>
+        /// <returns> <see langword="false"/> if they represent the same store object; <see langword="true"/> otherwise. </returns>
+        public static bool operator !=(StoreObjectIdentifier left, StoreObjectIdentifier right)
+            => !(left == right);
     }
 }

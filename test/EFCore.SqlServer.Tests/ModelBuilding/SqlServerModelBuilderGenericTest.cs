@@ -262,13 +262,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
 
-                Assert.Equal(
-                    nameof(BookLabel.Id),
-                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                Assert.Null(bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
                         .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
-                Assert.Equal(
-                    nameof(BookLabel.Id),
-                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                Assert.Null(bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
                         .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label).ToTable("Label");

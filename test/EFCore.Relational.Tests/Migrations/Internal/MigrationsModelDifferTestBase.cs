@@ -147,10 +147,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private ConventionSet CreateEmptyConventionSet()
         {
             var conventions = new ConventionSet();
-            var conventionSetDependencies = TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
-            var relationalConventionSetDependencies = new RelationalConventionSetBuilderDependencies(
-                new RelationalAnnotationProvider(
-                    new RelationalAnnotationProviderDependencies()));
+            var conventionSetDependencies = TestHelpers.CreateContextServices()
+                .GetRequiredService<ProviderConventionSetBuilderDependencies>();
+            var relationalConventionSetDependencies = TestHelpers.CreateContextServices()
+                .GetRequiredService<RelationalConventionSetBuilderDependencies>();
             conventions.ModelFinalizingConventions.Add(new TypeMappingConvention(conventionSetDependencies));
             conventions.ModelFinalizedConventions.Add(new RelationalModelConvention(conventionSetDependencies, relationalConventionSetDependencies));
             return conventions;
@@ -158,16 +158,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         {
-            var ctx = TestHelpers.CreateContext(options);
+            var context = TestHelpers.CreateContext(options);
             return new MigrationsModelDiffer(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new MigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
-                ctx.GetService<IChangeDetector>(),
-                ctx.GetService<IUpdateAdapterFactory>(),
-                ctx.GetService<CommandBatchPreparerDependencies>());
+                context.GetService<IChangeDetector>(),
+                context.GetService<IUpdateAdapterFactory>(),
+                context.GetService<CommandBatchPreparerDependencies>());
         }
     }
 }
