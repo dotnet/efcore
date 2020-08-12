@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerUdtTypeMapping(
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [NotNull] string storeType,
             [NotNull] Func<object, Expression> literalGenerator,
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.None,
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
-                        clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength,
+                        type, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength,
                     precision, scale))
 
         {

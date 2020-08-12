@@ -34,21 +34,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object.
             /// </summary>
-            /// <param name="clrType"> The .NET type used in the EF model. </param>
+            /// <param name="type"> The .NET type used in the EF model. </param>
             /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
             /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
             /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
             /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
             public CoreTypeMappingParameters(
-                [NotNull] Type clrType,
+                [NotNull] Type type,
                 [CanBeNull] ValueConverter converter = null,
                 [CanBeNull] ValueComparer comparer = null,
                 [CanBeNull] ValueComparer keyComparer = null,
                 [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory = null)
             {
-                Check.NotNull(clrType, nameof(clrType));
+                Check.NotNull(type, nameof(type));
 
-                ClrType = clrType;
+                ClrType = type;
                 Converter = converter;
                 Comparer = comparer;
                 KeyComparer = keyComparer;
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object.
             /// </summary>
-            /// <param name="clrType"> The .NET type used in the EF model. </param>
+            /// <param name="type"> The .NET type used in the EF model. </param>
             /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
             /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
             /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
@@ -66,16 +66,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
             [Obsolete("Use overload without 'structuralComparer'. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
             public CoreTypeMappingParameters(
-                [NotNull] Type clrType,
+                [NotNull] Type type,
                 [CanBeNull] ValueConverter converter,
                 [CanBeNull] ValueComparer comparer,
                 [CanBeNull] ValueComparer keyComparer,
                 [CanBeNull] ValueComparer structuralComparer,
                 [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
             {
-                Check.NotNull(clrType, nameof(clrType));
+                Check.NotNull(type, nameof(type));
 
-                ClrType = clrType;
+                ClrType = type;
                 Converter = converter;
                 Comparer = comparer;
                 KeyComparer = keyComparer;

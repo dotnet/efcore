@@ -44,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds an entity type to the model.
         /// </summary>
-        /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
+        /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType AddEntityType([NotNull] Type clrType, bool fromDataAnnotation = false);
+        IConventionEntityType AddEntityType([NotNull] Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     <para>
@@ -59,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         /// <param name="name"> The name of the entity to be added. </param>
-        /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
+        /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType AddEntityType([NotNull] string name, [NotNull] Type clrType, bool fromDataAnnotation = false);
+        IConventionEntityType AddEntityType([NotNull] string name, [NotNull] Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
@@ -81,13 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
         /// </summary>
-        /// <param name="clrType"> The CLR class that is used to represent instances of this entity type. </param>
+        /// <param name="type"> The CLR class that is used to represent instances of this entity type. </param>
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
         IConventionEntityType AddEntityType(
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] IConventionEntityType definingEntityType,
             bool fromDataAnnotation = false);
@@ -145,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets whether the CLR type is used by shared type entities in the model.
         /// </summary>
-        /// <param name="clrType"> The CLR type. </param>
+        /// <param name="type"> The CLR type. </param>
         /// <returns> Whether the CLR type is used by shared type entities in the model. </returns>
-        bool IsShared([NotNull] Type clrType);
+        bool IsShared([NotNull] Type type);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.

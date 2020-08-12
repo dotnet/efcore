@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public TypeScaffoldingInfo(
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             bool inferred,
             bool? scaffoldUnicode,
             int? scaffoldMaxLength,
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             int? scaffoldPrecision,
             int? scaffoldScale)
         {
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(type, nameof(type));
 
             IsInferred = inferred;
             ScaffoldUnicode = scaffoldUnicode;
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ScaffoldPrecision = scaffoldPrecision;
             ScaffoldScale = scaffoldScale;
             ScaffoldFixedLength = scaffoldFixedLength;
-            ClrType = clrType;
+            ClrType = type;
         }
 
         /// <summary>

@@ -55,13 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(typeof(UIntTypeMapping), typeof(uint))]
         [InlineData(typeof(ULongTypeMapping), typeof(ulong))]
         [InlineData(typeof(UShortTypeMapping), typeof(ushort))]
-        public virtual void Create_and_clone_with_converter(Type mappingType, Type clrType)
+        public virtual void Create_and_clone_with_converter(Type mappingType, Type type)
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
                 mappingType,
                 BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
                 null,
-                new[] { FakeTypeMapping.CreateParameters(clrType) },
+                new[] { FakeTypeMapping.CreateParameters(type) },
                 null,
                 null);
 
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         protected virtual void ConversionCloneTest(
             Type mappingType,
-            Type clrType,
+            Type type,
             params object[] additionalArgs)
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new[]
                 {
                     FakeTypeMapping.CreateParameters(
-                        clrType,
+                        type,
                         size: 33,
                         fixedLength: true,
                         storeTypePostfix: StoreTypePostfix.Size)
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         protected virtual void UnicodeConversionCloneTest(
             Type mappingType,
-            Type clrType,
+            Type type,
             params object[] additionalArgs)
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new[]
                 {
                     FakeTypeMapping.CreateParameters(
-                        clrType,
+                        type,
                         size: 33,
                         unicode: false,
                         fixedLength: true,
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             public static object CreateParameters(
-                Type clrType,
+                Type type,
                 int? size = null,
                 bool unicode = false,
                 bool fixedLength = false,
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 return new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
-                        clrType,
+                        type,
                         new FakeValueConverter(),
                         new FakeValueComparer(),
                         new FakeValueComparer()),

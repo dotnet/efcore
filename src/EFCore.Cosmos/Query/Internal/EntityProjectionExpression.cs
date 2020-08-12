@@ -182,8 +182,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression BindMember(
-            [NotNull] string name, [NotNull] Type entityClrType, bool clientEval, [NotNull] out IPropertyBase propertyBase)
-            => BindMember(MemberIdentity.Create(name), entityClrType, clientEval, out propertyBase);
+            [NotNull] string name, [NotNull] Type entityType, bool clientEval, [NotNull] out IPropertyBase propertyBase)
+            => BindMember(MemberIdentity.Create(name), entityType, clientEval, out propertyBase);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -192,8 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression BindMember(
-            [NotNull] MemberInfo memberInfo, [NotNull] Type entityClrType, bool clientEval, [NotNull] out IPropertyBase propertyBase)
-            => BindMember(MemberIdentity.Create(memberInfo), entityClrType, clientEval, out propertyBase);
+            [NotNull] MemberInfo memberInfo, [NotNull] Type entityType, bool clientEval, [NotNull] out IPropertyBase propertyBase)
+            => BindMember(MemberIdentity.Create(memberInfo), entityType, clientEval, out propertyBase);
 
         private Expression BindMember(MemberIdentity member, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
         {

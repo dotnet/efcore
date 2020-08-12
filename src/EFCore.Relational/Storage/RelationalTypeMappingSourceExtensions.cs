@@ -61,22 +61,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the relational database type for a given .NET type, throwing if no mapping is found.
         /// </summary>
         /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="clrType"> The type to get the mapping for. </param>
+        /// <param name="type"> The type to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] Type clrType)
+            [NotNull] Type type)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(type, nameof(type));
 
-            var mapping = typeMappingSource.FindMapping(clrType);
+            var mapping = typeMappingSource.FindMapping(type);
             if (mapping != null)
             {
                 return mapping;
             }
 
-            throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType.ShortDisplayName()));
+            throw new InvalidOperationException(RelationalStrings.UnsupportedType(type.ShortDisplayName()));
         }
 
         /// <summary>

@@ -24,12 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosTypeMapping(
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [CanBeNull] ValueComparer comparer = null,
             [CanBeNull] ValueComparer keyComparer = null)
             : base(
                 new CoreTypeMappingParameters(
-                    clrType,
+                    type,
                     converter: null,
                     comparer,
                     keyComparer))

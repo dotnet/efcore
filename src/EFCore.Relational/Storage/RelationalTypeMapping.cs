@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="clrType"> The .NET type. </param>
+        /// <param name="type"> The .NET type. </param>
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="scale"> The scale of data the property is configured to store, or null if no scale is configured. </param>
         protected RelationalTypeMapping(
             [NotNull] string storeType,
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null,
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? scale = null)
             : this(
                 new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision, scale))
+                    new CoreTypeMappingParameters(type), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision, scale))
         {
         }
 

@@ -236,19 +236,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool IsCompatible(
             [NotNull] FieldInfo fieldInfo,
             [CanBeNull] Type propertyType,
-            [CanBeNull] Type entityClrType,
+            [CanBeNull] Type entityType,
             [CanBeNull] string propertyName,
             bool shouldThrow)
         {
             Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
 
-            if (entityClrType == null
-                || !fieldInfo.DeclaringType.IsAssignableFrom(entityClrType))
+            if (entityType == null
+                || !fieldInfo.DeclaringType.IsAssignableFrom(entityType))
             {
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityClrType?.ShortDisplayName()));
+                        CoreStrings.MissingBackingField(fieldInfo.Name, propertyName, entityType?.ShortDisplayName()));
                 }
 
                 return false;
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.BadBackingFieldType(
                             fieldInfo.Name,
                             fieldInfo.FieldType.ShortDisplayName(),
-                            entityClrType.ShortDisplayName(),
+                            entityType.ShortDisplayName(),
                             propertyName,
                             propertyType.ShortDisplayName()));
                 }

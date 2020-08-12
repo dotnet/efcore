@@ -312,8 +312,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
             }
 
-            public ConcreteTypeMapping(Type clrType, ValueConverter converter, ValueComparer comparer)
-                : base(new CoreTypeMappingParameters(clrType, converter, comparer))
+            public ConcreteTypeMapping(Type type, ValueConverter converter, ValueComparer comparer)
+                : base(new CoreTypeMappingParameters(type, converter, comparer))
             {
             }
 

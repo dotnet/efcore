@@ -105,29 +105,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the relationships to the entity types participating in the many-to-many relationship.
         /// </summary>
-        /// <param name="joinEntityClrType"> The CLR type of the join entity. </param>
+        /// <param name="joinEntityType"> The CLR type of the join entity. </param>
         /// <param name="configureRight"> The configuration for the relationship to the right entity type. </param>
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
         /// <returns> The builder for the join entity type. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] Type joinEntityClrType,
+            [NotNull] Type joinEntityType,
             [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
             [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
         {
-            Check.NotNull(joinEntityClrType, nameof(joinEntityClrType));
+            Check.NotNull(joinEntityType, nameof(joinEntityType));
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
             var existingJoinEntityType = (EntityType)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType joinEntityType = null;
+            EntityType joinType = null;
             if (existingJoinEntityType != null)
             {
-                if (existingJoinEntityType.ClrType == joinEntityClrType
+                if (existingJoinEntityType.ClrType == joinEntityType
                     && !existingJoinEntityType.HasSharedClrType)
                 {
-                    joinEntityType = existingJoinEntityType;
+                    joinType = existingJoinEntityType;
                 }
                 else
                 {
@@ -135,12 +135,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
             }
 
-            if (joinEntityType == null)
+            if (joinType == null)
             {
-                joinEntityType = ModelBuilder.Entity(joinEntityClrType, ConfigurationSource.Explicit).Metadata;
+                joinType = ModelBuilder.Entity(joinEntityType, ConfigurationSource.Explicit).Metadata;
             }
 
-            var entityTypeBuilder = new EntityTypeBuilder(joinEntityType);
+            var entityTypeBuilder = new EntityTypeBuilder(joinType);
 
             var leftForeignKey = configureLeft(entityTypeBuilder).Metadata;
             var rightForeignKey = configureRight(entityTypeBuilder).Metadata;
@@ -154,31 +154,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the relationships to the entity types participating in the many-to-many relationship.
         /// </summary>
         /// <param name="joinEntityName"> The name of the join entity. </param>
-        /// <param name="joinEntityClrType"> The CLR type of the join entity. </param>
+        /// <param name="joinEntityType"> The CLR type of the join entity. </param>
         /// <param name="configureRight"> The configuration for the relationship to the right entity type. </param>
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
         /// <returns> The builder for the join entity type. </returns>
         public virtual EntityTypeBuilder UsingEntity(
             [NotNull] string joinEntityName,
-            [NotNull] Type joinEntityClrType,
+            [NotNull] Type joinEntityType,
             [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
             [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
         {
             Check.NotEmpty(joinEntityName, nameof(joinEntityName));
-            Check.NotNull(joinEntityClrType, nameof(joinEntityClrType));
+            Check.NotNull(joinEntityType, nameof(joinEntityType));
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
             var existingJoinEntityType = (EntityType)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType joinEntityType = null;
+            EntityType entityType = null;
             if (existingJoinEntityType != null)
             {
-                if (existingJoinEntityType.ClrType == joinEntityClrType
+                if (existingJoinEntityType.ClrType == joinEntityType
                     && string.Equals(existingJoinEntityType.Name, joinEntityName, StringComparison.Ordinal))
                 {
-                    joinEntityType = existingJoinEntityType;
+                    entityType = existingJoinEntityType;
                 }
                 else
                 {
@@ -186,25 +186,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
             }
 
-            if (joinEntityType == null)
+            if (entityType == null)
             {
                 var existingEntityType = ModelBuilder.Metadata.FindEntityType(joinEntityName);
-                if (existingEntityType?.ClrType == joinEntityClrType)
+                if (existingEntityType?.ClrType == joinEntityType)
                 {
-                    joinEntityType = existingEntityType;
+                    entityType = existingEntityType;
                 }
                 else
                 {
-                    if (!ModelBuilder.Metadata.IsShared(joinEntityClrType))
+                    if (!ModelBuilder.Metadata.IsShared(joinEntityType))
                     {
-                        throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(joinEntityClrType.DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(joinEntityType.DisplayName()));
                     }
 
-                    joinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityClrType, ConfigurationSource.Explicit).Metadata;
+                    entityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityType, ConfigurationSource.Explicit).Metadata;
                 }
             }
 
-            var entityTypeBuilder = new EntityTypeBuilder(joinEntityType);
+            var entityTypeBuilder = new EntityTypeBuilder(entityType);
 
             var leftForeignKey = configureLeft(entityTypeBuilder).Metadata;
             var rightForeignKey = configureRight(entityTypeBuilder).Metadata;

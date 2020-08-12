@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public Property(
             [NotNull] string name,
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [CanBeNull] PropertyInfo propertyInfo,
             [CanBeNull] FieldInfo fieldInfo,
             [NotNull] EntityType declaringEntityType,
@@ -53,11 +53,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? typeConfigurationSource)
             : base(name, propertyInfo, fieldInfo, configurationSource)
         {
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(type, nameof(type));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             DeclaringEntityType = declaringEntityType;
-            ClrType = clrType;
+            ClrType = type;
             _typeConfigurationSource = typeConfigurationSource;
 
             Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);

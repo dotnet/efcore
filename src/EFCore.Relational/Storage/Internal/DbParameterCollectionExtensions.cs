@@ -191,57 +191,57 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type clrType)
+        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type type)
         {
             if (!hasValue
-                || clrType == null
-                || clrType == typeof(DBNull))
+                || type == null
+                || type == typeof(DBNull))
             {
                 return dbType != DbType.String;
             }
 
-            clrType = clrType.UnwrapNullableType().UnwrapEnumType();
+            type = type.UnwrapNullableType().UnwrapEnumType();
 
             switch (dbType)
             {
                 case DbType.Binary:
-                    return clrType != typeof(byte[]);
+                    return type != typeof(byte[]);
                 case DbType.Byte:
-                    return clrType != typeof(byte);
+                    return type != typeof(byte);
                 case DbType.Boolean:
-                    return clrType != typeof(bool);
+                    return type != typeof(bool);
                 case DbType.Decimal:
-                    return clrType != typeof(decimal);
+                    return type != typeof(decimal);
                 case DbType.Double:
-                    return clrType != typeof(double);
+                    return type != typeof(double);
                 case DbType.Guid:
-                    return clrType != typeof(Guid);
+                    return type != typeof(Guid);
                 case DbType.Int16:
-                    return clrType != typeof(short);
+                    return type != typeof(short);
                 case DbType.Int32:
-                    return clrType != typeof(int);
+                    return type != typeof(int);
                 case DbType.Int64:
-                    return clrType != typeof(long);
+                    return type != typeof(long);
                 case DbType.Object:
-                    return clrType != typeof(object);
+                    return type != typeof(object);
                 case DbType.SByte:
-                    return clrType != typeof(sbyte);
+                    return type != typeof(sbyte);
                 case DbType.Single:
-                    return clrType != typeof(float);
+                    return type != typeof(float);
                 case DbType.String:
-                    return clrType != typeof(string);
+                    return type != typeof(string);
                 case DbType.Time:
-                    return clrType != typeof(TimeSpan);
+                    return type != typeof(TimeSpan);
                 case DbType.UInt16:
-                    return clrType != typeof(ushort);
+                    return type != typeof(ushort);
                 case DbType.UInt32:
-                    return clrType != typeof(uint);
+                    return type != typeof(uint);
                 case DbType.UInt64:
-                    return clrType != typeof(ulong);
+                    return type != typeof(ulong);
                 case DbType.DateTime2:
-                    return clrType != typeof(DateTime);
+                    return type != typeof(DateTime);
                 case DbType.DateTimeOffset:
-                    return clrType != typeof(DateTimeOffset);
+                    return type != typeof(DateTimeOffset);
                 //case DbType.AnsiString:
                 //case DbType.VarNumeric:
                 //case DbType.AnsiStringFixedLength:

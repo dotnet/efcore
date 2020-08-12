@@ -1064,11 +1064,11 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("varchar(333)", typeof(string), 333, false, false)]
         [InlineData("varchar(max)", typeof(string), null, false, false)]
         [InlineData("VARCHAR(max)", typeof(string), null, false, false, "VARCHAR(max)")]
-        public void Can_map_by_type_name(string typeName, Type clrType, int? size, bool unicode, bool fixedLength, string expectedType = null)
+        public void Can_map_by_type_name(string typeName, Type type, int? size, bool unicode, bool fixedLength, string expectedType = null)
         {
             var mapping = CreateTypeMapper().FindMapping(typeName);
 
-            Assert.Equal(clrType, mapping.ClrType);
+            Assert.Equal(type, mapping.ClrType);
             Assert.Equal(size, mapping.Size);
             Assert.Equal(unicode, mapping.IsUnicode);
             Assert.Equal(fixedLength, mapping.IsFixedLength);

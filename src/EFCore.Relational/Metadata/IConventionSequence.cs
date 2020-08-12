@@ -88,10 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Sets the <see cref="Type" /> of values returned by the sequence.
         /// </summary>
-        /// <param name="clrType"> The <see cref="Type" /> of values returned by the sequence. </param>
+        /// <param name="type"> The <see cref="Type" /> of values returned by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        Type SetClrType([CanBeNull] Type clrType, bool fromDataAnnotation = false);
+        Type SetClrType([CanBeNull] Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="ISequence.ClrType" />.

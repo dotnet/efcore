@@ -467,21 +467,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type SetClrType([CanBeNull] Type clrType, ConfigurationSource configurationSource)
+        public virtual Type SetClrType([CanBeNull] Type type, ConfigurationSource configurationSource)
         {
-            if (clrType != null
-                && !SupportedTypes.Contains(clrType))
+            if (type != null
+                && !SupportedTypes.Contains(type))
             {
                 throw new ArgumentException(RelationalStrings.BadSequenceType);
             }
 
-            _clrType = clrType;
+            _clrType = type;
 
-            _clrTypeConfigurationSource = clrType == null
+            _clrTypeConfigurationSource = type == null
                 ? (ConfigurationSource?)null
                 : configurationSource.Max(_clrTypeConfigurationSource);
 
-            return clrType;
+            return type;
         }
 
         /// <summary>
@@ -605,8 +605,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Type IConventionSequence.SetClrType(Type clrType, bool fromDataAnnotation)
-            => SetClrType(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        Type IConventionSequence.SetClrType(Type type, bool fromDataAnnotation)
+            => SetClrType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

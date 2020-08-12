@@ -38,15 +38,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public DbFunctionParameter(
             [NotNull] DbFunction function,
             [NotNull] string name,
-            [NotNull] Type clrType)
+            [NotNull] Type type)
         {
             Check.NotNull(function, nameof(function));
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(type, nameof(type));
 
             Name = name;
             Function = function;
-            ClrType = clrType;
+            ClrType = type;
             Builder = new InternalDbFunctionParameterBuilder(this, function.Builder.ModelBuilder);
         }
 

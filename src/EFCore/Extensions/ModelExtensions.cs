@@ -125,11 +125,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets whether the CLR type is used by shared type entities in the model.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
-        /// <param name="clrType"> The CLR type. </param>
+        /// <param name="type"> The CLR type. </param>
         /// <returns> Whether the CLR type is used by shared type entities in the model. </returns>
         [DebuggerStepThrough]
-        public static bool IsShared([NotNull] this IModel model, [NotNull] Type clrType)
-            => Check.NotNull(model, nameof(model)).AsModel().IsShared(Check.NotNull(clrType, nameof(clrType)));
+        public static bool IsShared([NotNull] this IModel model, [NotNull] Type type)
+            => Check.NotNull(model, nameof(model)).AsModel().IsShared(Check.NotNull(type, nameof(type)));
 
         /// <summary>
         ///     Gets the default change tracking strategy being used for entities in the model. This strategy indicates how the
