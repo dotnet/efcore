@@ -36,14 +36,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="name">The name of the function in the database.</param>
         /// <param name="schema">The schema of the function in the database.</param>
-        /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
-        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string schema = null, bool builtIn = false)
+        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
             _name = name;
             _schema = schema;
-            _builtIn = builtIn;
         }
 
         /// <summary>

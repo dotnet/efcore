@@ -15,44 +15,47 @@ namespace Microsoft.EntityFrameworkCore
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class IndexAttribute : Attribute
     {
-        private static readonly bool DefaultIsUnique = false;
         private bool? _isUnique;
+        private string _name;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IndexAttribute" /> class.
+        ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
         /// </summary>
         /// <param name="propertyNames"> The properties which constitute the index, in order (there must be at least one). </param>
-        public IndexAttribute(params string[] propertyNames)
+        public IndexAttribute([CanBeNull] params string[] propertyNames)
         {
             Check.NotEmpty(propertyNames, nameof(propertyNames));
             Check.HasNoEmptyElements(propertyNames, nameof(propertyNames));
+
             PropertyNames = propertyNames.ToList();
         }
 
         /// <summary>
         ///     The properties which constitute the index, in order.
         /// </summary>
-        public List<string> PropertyNames { get; }
+        public IReadOnlyList<string> PropertyNames { get; }
 
         /// <summary>
         ///     The name of the index.
         /// </summary>
-        public string Name { get; [param: NotNull] set; }
-
+        public string Name
+        {
+            get => _name;
+            [param: NotNull] set => _name = Check.NotNull(value, nameof(value));
+        }
 
         /// <summary>
         ///     Whether the index is unique.
         /// </summary>
         public bool IsUnique
         {
-            get => _isUnique ?? DefaultIsUnique;
+            get => _isUnique ?? false;
             set => _isUnique = value;
         }
 
         /// <summary>
-        ///     Use this method if you want to know the uniqueness of
-        ///     the index or <see langword="null"/> if it was not specified.
+        ///     Checks whether <see cref="IsUnique" /> has been explicitly set to a value.
         /// </summary>
-        public bool? GetIsUnique() => _isUnique;
+        public bool IsUniqueHasValue => _isUnique.HasValue;
     }
 }

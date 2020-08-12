@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -16,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures database indexes based on the <see cref="IndexAttribute" />.
     /// </summary>
-    public class IndexAttributeConvention : IEntityTypeAddedConvention,
-        IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
+    public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="IndexAttributeConvention" />.
@@ -37,9 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionContext<IConventionEntityTypeBuilder> context)
-        {
-            CheckIndexAttributesAndEnsureIndex(entityTypeBuilder.Metadata, false);
-        }
+            => CheckIndexAttributesAndEnsureIndex(entityTypeBuilder.Metadata, false);
 
         /// <inheritdoc/>
         public virtual void ProcessEntityTypeBaseTypeChanged(
@@ -67,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private void CheckIndexAttributesAndEnsureIndex(
+        private static void CheckIndexAttributesAndEnsureIndex(
             IConventionEntityType entityType,
             bool shouldThrow)
         {
@@ -79,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var indexAttribute in
                 entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
             {
-                IConventionIndexBuilder indexBuilder = null;
+                IConventionIndexBuilder indexBuilder;
                 if (!shouldThrow)
                 {
                     var indexProperties = new List<IConventionProperty>();
@@ -125,18 +121,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     CheckIgnoredProperties(indexAttribute, entityType);
                 }
-                else
+                else if (indexAttribute.IsUniqueHasValue)
                 {
-                    var shouldBeUnique = indexAttribute.GetIsUnique();
-                    if (shouldBeUnique.HasValue)
-                    {
-                        indexBuilder.IsUnique(shouldBeUnique.Value, fromDataAnnotation: true);
-                    }
+                    indexBuilder.IsUnique(indexAttribute.IsUnique, fromDataAnnotation: true);
                 }
             }
         }
 
-        private void CheckIgnoredProperties(
+        private static void CheckIgnoredProperties(
             IndexAttribute indexAttribute,
             IConventionEntityType entityType)
         {
@@ -152,20 +144,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 indexAttribute.PropertyNames.Format(),
                                 propertyName));
                     }
-                    else
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NamedIndexDefinedOnIgnoredProperty(
-                                indexAttribute.Name,
-                                entityType.DisplayName(),
-                                indexAttribute.PropertyNames.Format(),
-                                propertyName));
-                    }
+
+                    throw new InvalidOperationException(
+                        CoreStrings.NamedIndexDefinedOnIgnoredProperty(
+                            indexAttribute.Name,
+                            entityType.DisplayName(),
+                            indexAttribute.PropertyNames.Format(),
+                            propertyName));
                 }
             }
         }
 
-        private void CheckMissingProperties(
+        private static void CheckMissingProperties(
             IndexAttribute indexAttribute,
             IConventionEntityType entityType,
             InvalidOperationException innerException)
@@ -184,16 +174,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 propertyName),
                             innerException);
                     }
-                    else
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NamedIndexDefinedOnNonExistentProperty(
-                                indexAttribute.Name,
-                                entityType.DisplayName(),
-                                indexAttribute.PropertyNames.Format(),
-                                propertyName),
-                            innerException);
-                    }
+
+                    throw new InvalidOperationException(
+                        CoreStrings.NamedIndexDefinedOnNonExistentProperty(
+                            indexAttribute.Name,
+                            entityType.DisplayName(),
+                            indexAttribute.PropertyNames.Format(),
+                            propertyName),
+                        innerException);
                 }
             }
         }
