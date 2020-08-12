@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);
                 if (openParen > 0)
                 {
-                    string storeTypeNameBase = storeTypeName.Substring(0, openParen).Trim();
+                    var storeTypeNameBase = storeTypeName.Substring(0, openParen).Trim();
                     var closeParen = storeTypeName.IndexOf(")", openParen + 1, StringComparison.Ordinal);
                     if (closeParen > openParen)
                     {
@@ -435,15 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         else if (int.TryParse(
                             storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim(), out var parsedSize))
                         {
-                            if (StoreTypeNameBaseUsesPrecision(storeTypeNameBase))
-                            {
-                                precision = parsedSize;
-                                scale = 0;
-                            }
-                            else
-                            {
-                                size = parsedSize;
-                            }
+                            size = parsedSize;
                         }
 
                         return storeTypeNameBase;
@@ -453,17 +445,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return storeTypeName;
         }
-
-        /// <summary>
-        /// Returns whether the store type name base interprets
-        /// nameBase(n) as a precision rather than a length
-        /// </summary>
-        /// <param name="storeTypeNameBase"> The name base of the store type </param>
-        /// <returns>
-        /// <see langword="true" /> if the store type name base interprets nameBase(n)
-        /// as a precision rather than a length, <see langword="false" /> otherwise.
-        /// </returns>
-        protected virtual bool StoreTypeNameBaseUsesPrecision([NotNull] string storeTypeNameBase)
-            => false;
     }
 }

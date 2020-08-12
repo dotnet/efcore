@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 scale: mapping.Scale);
 
             if (defaultTypeMapping != null
-                && string.Equals(defaultTypeMapping.StoreType, storeType, StringComparison.OrdinalIgnoreCase))
+                && string.Equals(defaultTypeMapping.StoreType, storeType, StringComparison.Ordinal))
             {
                 canInfer = true;
 
