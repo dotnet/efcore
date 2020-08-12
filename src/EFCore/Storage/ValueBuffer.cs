@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public readonly struct ValueBuffer
+    public readonly struct ValueBuffer : IEquatable<ValueBuffer>
     {
         /// <summary>
         ///     A buffer with no values in it.
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 && obj is ValueBuffer buffer
                 && Equals(buffer);
 
-        private bool Equals(ValueBuffer other)
+        public bool Equals(ValueBuffer other)
         {
             if (_values.Length != other._values.Length)
             {
