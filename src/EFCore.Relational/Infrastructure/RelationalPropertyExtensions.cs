@@ -37,7 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var propertyNames = new List<string>();
             foreach (var property in properties)
             {
-                propertyNames.Add(property.GetColumnName(storeObject));
+                var columnName = property.GetColumnName(storeObject);
+                if (columnName == null)
+                {
+                    return null;
+                }
+                propertyNames.Add(columnName);
             }
             return propertyNames;
         }

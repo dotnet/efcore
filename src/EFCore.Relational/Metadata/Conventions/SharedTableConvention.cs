@@ -240,6 +240,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var key in entityType.GetDeclaredKeys())
             {
                 var keyName = key.GetName(storeObject);
+                if (keyName == null)
+                {
+                    continue;
+                }
+
                 if (!keys.TryGetValue(keyName, out var otherKey))
                 {
                     keys[keyName] = key;
@@ -304,6 +309,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var index in entityType.GetDeclaredIndexes())
             {
                 var indexName = index.GetDatabaseName(storeObject);
+                if (indexName == null)
+                {
+                    continue;
+                }
+
                 if (!indexes.TryGetValue(indexName, out var otherIndex))
                 {
                     indexes[indexName] = index;
@@ -365,17 +375,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
             {
-                var principalTable = foreignKey.PrincipalEntityType.GetTableName();
-                var principalSchema = foreignKey.PrincipalEntityType.GetSchema();
+                var principalTable = foreignKey.PrincipalKey.IsPrimaryKey()
+                    ? StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, StoreObjectType.Table)
+                    : StoreObjectIdentifier.Create(foreignKey.PrincipalKey.DeclaringEntityType, StoreObjectType.Table);
                 if (principalTable == null
-                    || (foreignKey.DeclaringEntityType.GetTableName() == principalTable
-                        && foreignKey.DeclaringEntityType.GetSchema() == principalSchema))
+                    || storeObject == principalTable.Value)
                 {
                     continue;
                 }
 
-                var foreignKeyName = foreignKey.GetConstraintName(storeObject,
-                    StoreObjectIdentifier.Table(principalTable, principalSchema));
+                var foreignKeyName = foreignKey.GetConstraintName(storeObject, principalTable.Value);
                 if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
                 {
                     foreignKeys[foreignKeyName] = foreignKey;

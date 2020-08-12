@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(2, specialCustomerTable.EntityTypeMappings.Count());
             Assert.True(specialCustomerTable.EntityTypeMappings.First().IsSharedTablePrincipal);
 
-            Assert.Equal(specialCustomerType.GetDiscriminatorProperty() == null ? 7 : 8, specialCustomerTable.Columns.Count());
+            Assert.Equal(specialCustomerType.GetDiscriminatorProperty() == null ? 8 : 9, specialCustomerTable.Columns.Count());
 
             var specialityColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
             Assert.Equal(specialCustomerType.GetDiscriminatorProperty() != null, specialityColumn.IsNullable);
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 var specialCustomerView = specialCustomerType.GetViewMappings().Select(t => t.Table).First(t => t.Name == "SpecialCustomerView");
                 Assert.Null(specialCustomerView.Schema);
-                Assert.Equal(3, specialCustomerView.Columns.Count());
+                Assert.Equal(4, specialCustomerView.Columns.Count());
 
                 Assert.True(specialCustomerView.EntityTypeMappings.Single().IsSharedTablePrincipal);
 
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 var specialCustomerTable = specialCustomerType.GetTableMappings().Select(t => t.Table).First(t => t.Name == "SpecialCustomer");
                 Assert.Equal("SpecialSchema", specialCustomerTable.Schema);
-                Assert.Equal(3, specialCustomerTable.Columns.Count());
+                Assert.Equal(4, specialCustomerTable.Columns.Count());
 
                 Assert.True(specialCustomerTable.EntityTypeMappings.Single().IsSharedTablePrincipal);
 
@@ -425,14 +425,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("AK_Customer_SpecialityAk", specialCustomerUniqueConstraint.Name);
                 Assert.NotNull(specialCustomerUniqueConstraint.MappedKeys.Single());
 
-                var specialCustomerFkConstraint = specialCustomerTable.ForeignKeyConstraints.Single();
+                var specialCustomerFkConstraint = specialCustomerTable.ForeignKeyConstraints.First();
                 Assert.Equal("FK_SpecialCustomer_Customer_RelatedCustomerSpeciality", specialCustomerFkConstraint.Name);
-                Assert.Same(customerTable, specialCustomerFkConstraint.PrincipalTable);
                 Assert.NotNull(specialCustomerFkConstraint.MappedForeignKeys.Single());
+                Assert.Same(customerTable, specialCustomerFkConstraint.PrincipalTable);
 
-                var specialCustomerDbIndex = specialCustomerTable.Indexes.Single();
+                var anotherSpecialCustomerFkConstraint = specialCustomerTable.ForeignKeyConstraints.Last();
+                Assert.Equal("FK_SpecialCustomer_SpecialCustomer_AnotherRelatedCustomerId", anotherSpecialCustomerFkConstraint.Name);
+                Assert.NotNull(anotherSpecialCustomerFkConstraint.MappedForeignKeys.Single());
+                Assert.Same(specialCustomerTable, anotherSpecialCustomerFkConstraint.PrincipalTable);
+
+                var specialCustomerDbIndex = specialCustomerTable.Indexes.Last();
                 Assert.Equal("IX_SpecialCustomer_RelatedCustomerSpeciality", specialCustomerDbIndex.Name);
                 Assert.NotNull(specialCustomerDbIndex.MappedIndexes.Single());
+
+                var anotherSpecialCustomerDbIndex = specialCustomerTable.Indexes.First();
+                Assert.Equal("IX_SpecialCustomer_AnotherRelatedCustomerId", anotherSpecialCustomerDbIndex.Name);
+                Assert.NotNull(anotherSpecialCustomerDbIndex.MappedIndexes.Single());
 
                 Assert.Null(customerType.GetDiscriminatorProperty());
                 Assert.Null(customerType.GetDiscriminatorValue());
@@ -466,12 +475,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("AK_Customer_SpecialityAk", specialCustomerUniqueConstraint.Name);
                 Assert.NotNull(specialCustomerUniqueConstraint.MappedKeys.Single());
 
-                var specialCustomerFkConstraint = specialCustomerTable.ForeignKeyConstraints.Single();
+                var specialCustomerFkConstraint = specialCustomerTable.ForeignKeyConstraints.Last();
                 Assert.Equal("FK_Customer_Customer_RelatedCustomerSpeciality", specialCustomerFkConstraint.Name);
                 Assert.NotNull(specialCustomerFkConstraint.MappedForeignKeys.Single());
 
-                var specialCustomerDbIndex = specialCustomerTable.Indexes.Single();
+                var anotherSpecialCustomerFkConstraint = specialCustomerTable.ForeignKeyConstraints.First();
+                Assert.Equal("FK_Customer_Customer_AnotherRelatedCustomerId", anotherSpecialCustomerFkConstraint.Name);
+                Assert.NotNull(anotherSpecialCustomerFkConstraint.MappedForeignKeys.Single());
+
+                var specialCustomerDbIndex = specialCustomerTable.Indexes.Last();
                 Assert.Equal("IX_Customer_RelatedCustomerSpeciality", specialCustomerDbIndex.Name);
+                Assert.NotNull(specialCustomerDbIndex.MappedIndexes.Single());
+
+                var anotherSpecialCustomerDbIndex = specialCustomerTable.Indexes.First();
+                Assert.Equal("IX_Customer_AnotherRelatedCustomerId", anotherSpecialCustomerDbIndex.Name);
                 Assert.NotNull(specialCustomerDbIndex.MappedIndexes.Single());
             }
         }
@@ -513,6 +530,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.HasOne(c => c.RelatedCustomer).WithOne()
                     .HasForeignKey<SpecialCustomer>(c => c.RelatedCustomerSpeciality)
                     .HasPrincipalKey<SpecialCustomer>("SpecialityAk"); // TODO: Use the derived one, #2611
+
+                cb.HasOne<SpecialCustomer>().WithOne()
+                    .HasForeignKey<SpecialCustomer>("AnotherRelatedCustomerId");
             });
 
             modelBuilder.Entity<Order>(ob =>
@@ -535,6 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     var alternateId = odb.Property(o => o.AlternateId).HasColumnName("AlternateId").Metadata;
 
                     odb.OwnedEntityType.AddKey(new[] { alternateId });
+                    // Issue #20948
                     //odb.HasAlternateKey(o => o.AlternateId);
                     odb.HasOne(od => od.DateDetails).WithOne()
                         .HasForeignKey<OrderDetails>(o => o.OrderDate).HasPrincipalKey<DateDetails>(o => o.Date);

@@ -901,17 +901,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var foreignKey in mappedTypes.SelectMany(et => et.GetDeclaredForeignKeys()))
             {
-                var principalTable = foreignKey.PrincipalEntityType.GetTableName();
-                var principalSchema = foreignKey.PrincipalEntityType.GetSchema();
-
+                var principalTable = foreignKey.PrincipalKey.IsPrimaryKey()
+                    ? StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, StoreObjectType.Table)
+                    : StoreObjectIdentifier.Create(foreignKey.PrincipalKey.DeclaringEntityType, StoreObjectType.Table);
                 if (principalTable == null)
                 {
                     continue;
                 }
 
-                var foreignKeyName = foreignKey.GetConstraintName(
-                    storeObject,
-                    StoreObjectIdentifier.Table(principalTable, principalSchema));
+                var foreignKeyName = foreignKey.GetConstraintName(storeObject, principalTable.Value);
+                if (foreignKeyName == null)
+                {
+                    continue;
+                }
+
                 if (!foreignKeyMappings.TryGetValue(foreignKeyName, out var duplicateForeignKey))
                 {
                     foreignKeyMappings[foreignKeyName] = foreignKey;
@@ -953,6 +956,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var index in mappedTypes.SelectMany(et => et.GetDeclaredIndexes()))
             {
                 var indexName = index.GetDatabaseName(storeObject);
+                if (indexName == null)
+                {
+                    continue;
+                }
+
                 if (!indexMappings.TryGetValue(indexName, out var duplicateIndex))
                 {
                     indexMappings[indexName] = index;
@@ -994,6 +1002,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var key in mappedTypes.SelectMany(et => et.GetDeclaredKeys()))
             {
                 var keyName = key.GetName(storeObject);
+                if (keyName == null)
+                {
+                    continue;
+                }
 
                 if (!keyMappings.TryGetValue(keyName, out var duplicateKey))
                 {

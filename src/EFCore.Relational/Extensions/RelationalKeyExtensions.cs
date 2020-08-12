@@ -98,6 +98,11 @@ namespace Microsoft.EntityFrameworkCore
             else
             {
                 var propertyNames = key.Properties.GetColumnNames(storeObject);
+                if (propertyNames == null)
+                {
+                    return null;
+                }
+
                 var rootKey = key;
 
                 // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)

@@ -333,68 +333,68 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 checkConstraint, entityType);
 
         /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but use different columns ({columnNames1} and {columnNames2}).
         /// </summary>
-        public static string DuplicateForeignKeyColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+        public static string DuplicateForeignKeyColumnMismatch([CanBeNull] object foreignKeyProperties1, [CanBeNull] object entityType1, [CanBeNull] object foreignKeyProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
             => string.Format(
-                GetString("DuplicateForeignKeyColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(columnNames1), nameof(columnNames2)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName, columnNames1, columnNames2);
+                GetString("DuplicateForeignKeyColumnMismatch", nameof(foreignKeyProperties1), nameof(entityType1), nameof(foreignKeyProperties2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(columnNames1), nameof(columnNames2)),
+                foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName, columnNames1, columnNames2);
 
         /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').
         /// </summary>
-        public static string DuplicateForeignKeyDeleteBehaviorMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object deleteBehavior1, [CanBeNull] object deleteBehavior2)
+        public static string DuplicateForeignKeyDeleteBehaviorMismatch([CanBeNull] object foreignKeyProperties1, [CanBeNull] object entityType1, [CanBeNull] object foreignKeyProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object deleteBehavior1, [CanBeNull] object deleteBehavior2)
             => string.Format(
-                GetString("DuplicateForeignKeyDeleteBehaviorMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(deleteBehavior1), nameof(deleteBehavior2)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName, deleteBehavior1, deleteBehavior2);
+                GetString("DuplicateForeignKeyDeleteBehaviorMismatch", nameof(foreignKeyProperties1), nameof(entityType1), nameof(foreignKeyProperties2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(deleteBehavior1), nameof(deleteBehavior2)),
+                foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName, deleteBehavior1, deleteBehavior2);
 
         /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).
         /// </summary>
-        public static string DuplicateForeignKeyPrincipalColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalColumnNames1, [CanBeNull] object principalColumnNames2)
+        public static string DuplicateForeignKeyPrincipalColumnMismatch([CanBeNull] object foreignKeyProperties1, [CanBeNull] object entityType1, [CanBeNull] object foreignKeyProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalColumnNames1, [CanBeNull] object principalColumnNames2)
             => string.Format(
-                GetString("DuplicateForeignKeyPrincipalColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(principalColumnNames1), nameof(principalColumnNames2)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName, principalColumnNames1, principalColumnNames2);
+                GetString("DuplicateForeignKeyPrincipalColumnMismatch", nameof(foreignKeyProperties1), nameof(entityType1), nameof(foreignKeyProperties2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(principalColumnNames1), nameof(principalColumnNames2)),
+                foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName, principalColumnNames1, principalColumnNames2);
 
         /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal tables ('{principalTable1}' and '{principalTable2}').
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but referencing different principal tables ('{principalTable1}' and '{principalTable2}').
         /// </summary>
-        public static string DuplicateForeignKeyPrincipalTableMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalTable1, [CanBeNull] object principalTable2)
+        public static string DuplicateForeignKeyPrincipalTableMismatch([CanBeNull] object foreignKeyProperties1, [CanBeNull] object entityType1, [CanBeNull] object foreignKeyProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName, [CanBeNull] object principalTable1, [CanBeNull] object principalTable2)
             => string.Format(
-                GetString("DuplicateForeignKeyPrincipalTableMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(principalTable1), nameof(principalTable2)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName, principalTable1, principalTable2);
+                GetString("DuplicateForeignKeyPrincipalTableMismatch", nameof(foreignKeyProperties1), nameof(entityType1), nameof(foreignKeyProperties2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(principalTable1), nameof(principalTable2)),
+                foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName, principalTable1, principalTable2);
 
         /// <summary>
-        ///     The foreign keys {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different uniqueness.
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}' but with different uniqueness.
         /// </summary>
-        public static string DuplicateForeignKeyUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName)
+        public static string DuplicateForeignKeyUniquenessMismatch([CanBeNull] object foreignKeyProperties1, [CanBeNull] object entityType1, [CanBeNull] object foreignKeyProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object foreignKeyName)
             => string.Format(
-                GetString("DuplicateForeignKeyUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(foreignKeyName)),
-                index1, entityType1, index2, entityType2, table, foreignKeyName);
+                GetString("DuplicateForeignKeyUniquenessMismatch", nameof(foreignKeyProperties1), nameof(entityType1), nameof(foreignKeyProperties2), nameof(entityType2), nameof(table), nameof(foreignKeyName)),
+                foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different columns ({columnNames1} and {columnNames2}).
+        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different columns ({columnNames1} and {columnNames2}).
         /// </summary>
-        public static string DuplicateIndexColumnMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+        public static string DuplicateIndexColumnMismatch([CanBeNull] object indexProperties1, [CanBeNull] object entityType1, [CanBeNull] object indexProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
             => string.Format(
-                GetString("DuplicateIndexColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(columnNames1), nameof(columnNames2)),
-                index1, entityType1, index2, entityType2, table, indexName, columnNames1, columnNames2);
+                GetString("DuplicateIndexColumnMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName), nameof(columnNames1), nameof(columnNames2)),
+                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName, columnNames1, columnNames2);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different uniqueness.
+        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different uniqueness.
         /// </summary>
-        public static string DuplicateIndexUniquenessMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+        public static string DuplicateIndexUniquenessMismatch([CanBeNull] object indexProperties1, [CanBeNull] object entityType1, [CanBeNull] object indexProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
             => string.Format(
-                GetString("DuplicateIndexUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
-                index1, entityType1, index2, entityType2, table, indexName);
+                GetString("DuplicateIndexUniquenessMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName)),
+                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different columns ({columnNames1} and {columnNames2}).
+        ///     The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different columns ({columnNames1} and {columnNames2}).
         /// </summary>
-        public static string DuplicateKeyColumnMismatch([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
+        public static string DuplicateKeyColumnMismatch([CanBeNull] object keyProperties1, [CanBeNull] object entityType1, [CanBeNull] object keyProperties2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName, [CanBeNull] object columnNames1, [CanBeNull] object columnNames2)
             => string.Format(
-                GetString("DuplicateKeyColumnMismatch", nameof(key1), nameof(entityType1), nameof(key2), nameof(entityType2), nameof(table), nameof(keyName), nameof(columnNames1), nameof(columnNames2)),
-                key1, entityType1, key2, entityType2, table, keyName, columnNames1, columnNames2);
+                GetString("DuplicateKeyColumnMismatch", nameof(keyProperties1), nameof(entityType1), nameof(keyProperties2), nameof(entityType2), nameof(table), nameof(keyName), nameof(columnNames1), nameof(columnNames2)),
+                keyProperties1, entityType1, keyProperties2, entityType2, table, keyName, columnNames1, columnNames2);
 
         /// <summary>
         ///     No mapping to a relational type can be found for property '{entity}.{property}' with the CLR type '{clrType}'.
@@ -1038,6 +1038,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string MissingOrderingInSqlExpression
             => GetString("MissingOrderingInSqlExpression");
+
+        /// <summary>
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{foreignKeyName}' but are declared on different tables ('{table1}' and '{table2}').
+        /// </summary>
+        public static string DuplicateForeignKeyTableMismatch([CanBeNull] object foreignKeyProperties1, [CanBeNull] object entityType1, [CanBeNull] object foreignKeyProperties2, [CanBeNull] object entityType2, [CanBeNull] object foreignKeyName, [CanBeNull] object table1, [CanBeNull] object table2)
+            => string.Format(
+                GetString("DuplicateForeignKeyTableMismatch", nameof(foreignKeyProperties1), nameof(entityType1), nameof(foreignKeyProperties2), nameof(entityType2), nameof(foreignKeyName), nameof(table1), nameof(table2)),
+                foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, foreignKeyName, table1, table2);
+
+        /// <summary>
+        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{indexName}' but are declared on different tables ('{table1}' and '{table2}').
+        /// </summary>
+        public static string DuplicateIndexTableMismatch([CanBeNull] object indexProperties1, [CanBeNull] object entityType1, [CanBeNull] object indexProperties2, [CanBeNull] object entityType2, [CanBeNull] object indexName, [CanBeNull] object table1, [CanBeNull] object table2)
+            => string.Format(
+                GetString("DuplicateIndexTableMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(indexName), nameof(table1), nameof(table2)),
+                indexProperties1, entityType1, indexProperties2, entityType2, indexName, table1, table2);
+
+        /// <summary>
+        ///     The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{keyName}' but with different columns ('{table1}' and '{table2}').
+        /// </summary>
+        public static string DuplicateKeyTableMismatch([CanBeNull] object keyProperties1, [CanBeNull] object entityType1, [CanBeNull] object keyProperties2, [CanBeNull] object entityType2, [CanBeNull] object keyName, [CanBeNull] object table1, [CanBeNull] object table2)
+            => string.Format(
+                GetString("DuplicateKeyTableMismatch", nameof(keyProperties1), nameof(entityType1), nameof(keyProperties2), nameof(entityType2), nameof(keyName), nameof(table1), nameof(table2)),
+                keyProperties1, entityType1, keyProperties2, entityType2, keyName, table1, table2);
 
         private static string GetString(string name, params string[] formatterNames)
         {
