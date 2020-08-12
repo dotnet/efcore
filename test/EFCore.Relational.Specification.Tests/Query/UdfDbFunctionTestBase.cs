@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Fall
             }
 
-            [DbFunction(Name = "len", IsBuiltIn = true)]
+            [DbFunction("len", IsBuiltIn = true)]
             public static long MyCustomLengthStatic(string s) => throw new Exception();
             public static bool IsDateStatic(string date) => throw new Exception();
             public static int AddOneStatic(int num) => num + 1;

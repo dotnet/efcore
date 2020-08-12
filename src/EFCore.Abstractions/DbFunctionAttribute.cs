@@ -17,8 +17,6 @@ namespace Microsoft.EntityFrameworkCore
     public class DbFunctionAttribute : Attribute
 #pragma warning restore CA1813 // Avoid unsealed attributes
     {
-        private static readonly bool DefaultNullable = true;
-
         private string _name;
         private string _schema;
         private bool _builtIn;
@@ -36,14 +34,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="name">The name of the function in the database.</param>
         /// <param name="schema">The schema of the function in the database.</param>
-        /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
-        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string schema = null, bool builtIn = false)
+        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
             _name = name;
             _schema = schema;
-            _builtIn = builtIn;
         }
 
         /// <summary>
@@ -84,14 +80,13 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual bool IsNullable
         {
-            get => _nullable ?? DefaultNullable;
+            get => _nullable ?? true;
             set => _nullable = value;
         }
 
         /// <summary>
-        ///     Use this method if you want to know the nullability of
-        ///     the database function or <see langword="null"/> if it was not specified.
+        ///     Checks whether <see cref="IsNullable" /> has been explicitly set to a value.
         /// </summary>
-        public bool? GetIsNullable() => _nullable;
+        public bool IsNullableHasValue => _nullable.HasValue;
     }
 }

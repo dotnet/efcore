@@ -94,7 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return value;
         }
 
-
         public static IReadOnlyList<string> HasNoEmptyElements(IReadOnlyList<string> value, [InvokerParameterName][NotNull] string parameterName)
         {
             NotNull(value, parameterName);

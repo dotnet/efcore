@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 throw new NotImplementedException();
             }
 
-            [DbFunction(Schema = "bar", Name = "MethodFoo")]
+            [DbFunction("MethodFoo", "bar")]
             public static int MethodB(string c, int d)
             {
                 throw new NotImplementedException();
