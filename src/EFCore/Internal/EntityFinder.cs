@@ -26,9 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         where TEntity : class
     {
-        private static readonly MethodInfo _objectEqualsMethodInfo
-                = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
-
         private readonly IStateManager _stateManager;
         private readonly IDbSetSource _setSource;
         private readonly IDbSetCache _setCache;
@@ -61,12 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual TEntity Find(object[] keyValues)
-        {
-            return keyValues == null || keyValues.Any(v => v == null)
+            => keyValues == null || keyValues.Any(v => v == null)
                 ? null
                 : (FindTracked(keyValues, out var keyProperties)
                     ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues))));
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Load(INavigationBase navigation, InternalEntityEntry entry)
+        public virtual void Load(INavigation navigation, InternalEntityEntry entry)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -150,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task LoadAsync(
-            INavigationBase navigation,
+            INavigation navigation,
             InternalEntityEntry entry,
             CancellationToken cancellationToken = default)
         {
@@ -176,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IQueryable<TEntity> Query(INavigationBase navigation, InternalEntityEntry entry)
+        public virtual IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -236,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .Select(BuildProjection(entityType));
         }
 
-        private IQueryable<TEntity> Query(INavigationBase navigation, object[] keyValues)
+        private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
             => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues))).AsTracking();
 
         /// <summary>
@@ -245,14 +240,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IQueryable IEntityFinder.Query(INavigationBase navigation, InternalEntityEntry entry)
+        IQueryable IEntityFinder.Query(INavigation navigation, InternalEntityEntry entry)
             => Query(navigation, entry);
 
-        private static object[] GetLoadValues(INavigationBase navigation, InternalEntityEntry entry)
+        private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
         {
-            var properties = ((INavigation)navigation).IsOnDependent
-                ? ((INavigation)navigation).ForeignKey.Properties
-                : ((INavigation)navigation).ForeignKey.PrincipalKey.Properties;
+            var properties = navigation.IsOnDependent
+                ? navigation.ForeignKey.Properties
+                : navigation.ForeignKey.PrincipalKey.Properties;
 
             var values = new object[properties.Count];
 
@@ -270,10 +265,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return values;
         }
 
-        private static IReadOnlyList<IProperty> GetLoadProperties(INavigationBase navigation)
-            => ((INavigation)navigation).IsOnDependent
-                ? ((INavigation)navigation).ForeignKey.PrincipalKey.Properties
-                : ((INavigation)navigation).ForeignKey.Properties;
+        private static IReadOnlyList<IProperty> GetLoadProperties(INavigation navigation)
+            => navigation.IsOnDependent
+                ? navigation.ForeignKey.PrincipalKey.Properties
+                : navigation.ForeignKey.Properties;
 
         private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {
@@ -312,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var entityParameter = Expression.Parameter(typeof(TEntity), "e");
 
             return Expression.Lambda<Func<TEntity, bool>>(
-                BuildPredicate(keyProperties, keyValues, entityParameter), entityParameter);
+                ExpressionExtensions.BuildPredicate(keyProperties, keyValues, entityParameter), entityParameter);
         }
 
         private static Expression<Func<object, bool>> BuildObjectLambda(IReadOnlyList<IProperty> keyProperties, ValueBuffer keyValues)
@@ -320,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var entityParameter = Expression.Parameter(typeof(object), "e");
 
             return Expression.Lambda<Func<object, bool>>(
-                BuildPredicate(keyProperties, keyValues, entityParameter), entityParameter);
+                ExpressionExtensions.BuildPredicate(keyProperties, keyValues, entityParameter), entityParameter);
         }
 
         private IQueryable BuildQueryRoot(IEntityType entityType)
@@ -355,52 +350,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 Expression.Lambda<Func<TSource, TResult>>(
                     Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)),
                     parameter));
-        }
-
-        private static Expression BuildPredicate(
-            IReadOnlyList<IProperty> keyProperties,
-            ValueBuffer keyValues,
-            ParameterExpression entityParameter)
-        {
-            var keyValuesConstant = Expression.Constant(keyValues);
-
-            var predicate = GenerateEqualExpression(entityParameter, keyValuesConstant, keyProperties[0], 0);
-
-            for (var i = 1; i < keyProperties.Count; i++)
-            {
-                predicate = Expression.AndAlso(predicate, GenerateEqualExpression(entityParameter, keyValuesConstant, keyProperties[i], i));
-            }
-
-            return predicate;
-
-            static Expression GenerateEqualExpression(
-                Expression entityParameterExpression, Expression keyValuesConstantExpression, IProperty property, int i)
-                => property.ClrType.IsValueType
-                    && property.ClrType.UnwrapNullableType() is Type nonNullableType
-                    && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
-                    ? Expression.Call(
-                        _objectEqualsMethodInfo,
-                        Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(typeof(object)),
-                            entityParameterExpression,
-                            Expression.Constant(property.Name, typeof(string))),
-                        Expression.Convert(
-                            Expression.Call(
-                                keyValuesConstantExpression,
-                                ValueBuffer.GetValueMethod,
-                                Expression.Constant(i)),
-                            typeof(object)))
-                    : (Expression)Expression.Equal(
-                        Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
-                            entityParameterExpression,
-                            Expression.Constant(property.Name, typeof(string))),
-                        Expression.Convert(
-                            Expression.Call(
-                                keyValuesConstantExpression,
-                                ValueBuffer.GetValueMethod,
-                                Expression.Constant(i)),
-                            property.ClrType));
         }
 
         private static Expression<Func<object, object[]>> BuildProjection(IEntityType entityType)

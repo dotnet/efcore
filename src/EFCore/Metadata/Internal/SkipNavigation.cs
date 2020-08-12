@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrCollectionAccessor _collectionAccessor;
+        private ICollectionLoader _manyToManyLoader;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -315,6 +316,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IClrCollectionAccessor CollectionAccessor
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _collectionAccessor, this, n => new ClrCollectionAccessorFactory().Create(n));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ICollectionLoader ManyToManyLoader
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _manyToManyLoader, this, n => new ManyToManyLoaderFactory().Create(this));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

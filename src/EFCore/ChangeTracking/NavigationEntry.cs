@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -100,13 +99,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         /// </summary>
-        public virtual void Load()
-        {
-            if (!IsLoaded)
-            {
-                TargetFinder.Load(Metadata, InternalEntry);
-            }
-        }
+        public abstract void Load();
 
         /// <summary>
         ///     <para>
@@ -127,10 +120,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
-        public virtual Task LoadAsync(CancellationToken cancellationToken = default)
-            => IsLoaded
-                ? Task.CompletedTask
-                : TargetFinder.LoadAsync(Metadata, InternalEntry, cancellationToken);
+        public abstract Task LoadAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     <para>
@@ -143,8 +133,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <returns> The query to load related entities. </returns>
-        public virtual IQueryable Query()
-            => TargetFinder.Query(Metadata, InternalEntry);
+        public abstract IQueryable Query();
 
         /// <summary>
         ///     <para>
@@ -174,9 +163,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             get => InternalEntry.IsLoaded(Metadata);
             set => InternalEntry.SetIsLoaded(Metadata, value);
         }
-
-        private IEntityFinder TargetFinder
-            => InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType);
 
         /// <summary>
         ///     Gets the metadata that describes the facets of this property and how it maps to the database.
