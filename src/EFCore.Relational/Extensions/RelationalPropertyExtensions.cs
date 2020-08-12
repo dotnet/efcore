@@ -50,6 +50,14 @@ namespace Microsoft.EntityFrameworkCore
                 return overrides.ColumnName;
             }
 
+            if (!property.IsPrimaryKey()
+                && storeObject.StoreObjectType != StoreObjectType.Function
+                && storeObject.StoreObjectType != StoreObjectType.SqlQuery
+                && StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType) != storeObject)
+            {
+                return null;
+            }
+
             var columnAnnotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
             if (columnAnnotation != null)
             {

@@ -88,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ShadowPropertyCreated = CoreBaseId + 600,
             RedundantIndexRemoved,
             IncompatibleMatchingForeignKeyProperties,
-            RequiredAttributeOnDependent, // Unused
-            RequiredAttributeOnBothNavigations, // Unused
+            Obsolete_RequiredAttributeOnDependent,
+            Obsolete_RequiredAttributeOnBothNavigations,
             ConflictingShadowForeignKeysWarning,
             MultiplePrimaryKeyCandidates,
             MultipleNavigationProperties,
@@ -100,10 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ForeignKeyAttributesOnBothNavigationsWarning,
             ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
             RedundantForeignKeyWarning,
-            NonNullableInverted, // Unused
-            NonNullableReferenceOnBothNavigations, // Unused
-            NonNullableReferenceOnDependent, // Unused
-            RequiredAttributeInverted, // Unused
+            Obsolete_NonNullableInverted,
+            Obsolete_NonNullableReferenceOnBothNavigations,
+            Obsolete_NonNullableReferenceOnDependent,
+            Obsolete_RequiredAttributeInverted,
             RequiredAttributeOnCollection,
             CollectionWithoutComparer,
             ConflictingKeylessAndKeyAttributesWarning,
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         [Obsolete]
-        public static readonly EventId RequiredAttributeInverted = MakeModelId(Id.RequiredAttributeInverted);
+        public static readonly EventId RequiredAttributeInverted = MakeModelId(Id.Obsolete_RequiredAttributeInverted);
 
         /// <summary>
         ///     <para>
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         [Obsolete]
-        public static readonly EventId NonNullableInverted = MakeModelId(Id.NonNullableInverted);
+        public static readonly EventId NonNullableInverted = MakeModelId(Id.Obsolete_NonNullableInverted);
 
         /// <summary>
         ///     <para>
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         [Obsolete]
-        public static readonly EventId RequiredAttributeOnBothNavigations = MakeModelId(Id.RequiredAttributeOnBothNavigations);
+        public static readonly EventId RequiredAttributeOnBothNavigations = MakeModelId(Id.Obsolete_RequiredAttributeOnBothNavigations);
 
         /// <summary>
         ///     <para>
@@ -518,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         [Obsolete]
-        public static readonly EventId NonNullableReferenceOnBothNavigations = MakeModelId(Id.NonNullableReferenceOnBothNavigations);
+        public static readonly EventId NonNullableReferenceOnBothNavigations = MakeModelId(Id.Obsolete_NonNullableReferenceOnBothNavigations);
 
         /// <summary>
         ///     <para>
@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         [Obsolete]
-        public static readonly EventId RequiredAttributeOnDependent = MakeModelId(Id.RequiredAttributeOnDependent);
+        public static readonly EventId RequiredAttributeOnDependent = MakeModelId(Id.Obsolete_RequiredAttributeOnDependent);
 
         /// <summary>
         ///     <para>
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         [Obsolete]
-        public static readonly EventId NonNullableReferenceOnDependent = MakeModelId(Id.NonNullableReferenceOnDependent);
+        public static readonly EventId NonNullableReferenceOnDependent = MakeModelId(Id.Obsolete_NonNullableReferenceOnDependent);
 
         /// <summary>
         ///     <para>

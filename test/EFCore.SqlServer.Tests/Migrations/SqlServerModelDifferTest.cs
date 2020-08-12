@@ -927,6 +927,153 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
+        [ConditionalFact]
+        public void Noop_TPT_with_FKs_and_seed_data()
+        {
+            Execute(
+                modelBuilder =>
+                {
+                },
+                source =>
+                {
+                    source.Entity("Animal", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int")
+                            .UseIdentityColumn();
+
+                        b.Property<int?>("MouseId")
+                            .HasColumnType("int");
+
+                        b.HasKey("Id");
+
+                        b.HasIndex("MouseId");
+
+                        b.ToTable("Animal");
+                    });
+
+                    source.Entity("Cat", b =>
+                    {
+                        b.HasBaseType("Animal");
+
+                        b.Property<int?>("PreyId")
+                            .HasColumnType("int")
+                            .HasColumnName("PreyId");
+
+                        b.HasIndex("PreyId");
+
+                        b.ToTable("Cats");
+
+                        b.HasData(
+                            new
+                            {
+                                Id = 11,
+                                MouseId = 31
+                            });
+                    });
+
+                    source.Entity("Dog", b =>
+                    {
+                        b.HasBaseType("Animal");
+
+                        b.Property<int?>("PreyId")
+                            .HasColumnType("int")
+                            .HasColumnName("PreyId");
+
+                        b.HasIndex("PreyId");
+
+                        b.ToTable("Dogs");
+
+                        b.HasData(
+                            new
+                            {
+                                Id = 21,
+                                PreyId = 31
+                            });
+                    });
+
+                    source.Entity("Mouse", b =>
+                    {
+                        b.HasBaseType("Animal");
+
+                        b.ToTable("Mice");
+
+                        b.HasData(
+                            new
+                            {
+                                Id = 31
+                            });
+                    });
+
+                    source.Entity("Animal", b =>
+                    {
+                        b.HasOne("Mouse", null)
+                            .WithMany()
+                            .HasForeignKey("MouseId");
+                    });
+
+                    source.Entity("Cat", b =>
+                    {
+                        b.HasOne("Animal", null)
+                            .WithMany()
+                            .HasForeignKey("PreyId");
+                    });
+
+                    source.Entity("Dog", b =>
+                    {
+                        b.HasOne("Animal", null)
+                            .WithMany()
+                            .HasForeignKey("PreyId");
+                    });
+                },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Animal", x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int?>("MouseId");
+
+                            x.HasOne("Mouse").WithMany().HasForeignKey("MouseId");
+                        });
+                    modelBuilder.Entity(
+                        "Cat", x =>
+                        {
+                            x.HasBaseType("Animal");
+                            x.ToTable("Cats");
+                            x.Property<int?>("PreyId").HasColumnName("PreyId");
+
+                            x.HasOne("Animal").WithMany().HasForeignKey("PreyId");
+                            x.HasData(
+                                new { Id = 11, MouseId = 31 });
+                        });
+                    modelBuilder.Entity(
+                        "Dog", x =>
+                        {
+                            x.HasBaseType("Animal");
+                            x.ToTable("Dogs");
+                            x.Property<int?>("PreyId").HasColumnName("PreyId");
+
+                            x.HasOne("Animal").WithMany().HasForeignKey("PreyId");
+                            x.HasData(
+                                new { Id = 21, PreyId = 31 });
+                        });
+                    modelBuilder.Entity(
+                        "Mouse", x =>
+                        {
+                            x.HasBaseType("Animal");
+                            x.ToTable("Mice");
+
+                            x.HasData(
+                                new { Id = 31 });
+                        });
+                },
+                upOps => Assert.Empty(upOps),
+                downOps => Assert.Empty(downOps),
+                skipSourceConventions: true);
+        }
+
         protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 
         protected override MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)

@@ -43,15 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         || schema != entityType.BaseType.GetSchema()))
                 {
                     nonTphRoots.Add(entityType.GetRootType());
-                    foreach (var property in entityType.BaseType.GetProperties())
-                    {
-                        if (property.IsPrimaryKey())
-                        {
-                            continue;
-                        }
-
-                        property.Builder.HasColumnName(null, StoreObjectIdentifier.Table(tableName, schema));
-                    }
                 }
 
                 var viewName = entityType.GetViewName();
@@ -61,15 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         || viewSchema != entityType.BaseType.GetViewSchema()))
                 {
                     nonTphRoots.Add(entityType.GetRootType());
-                    foreach (var property in entityType.BaseType.GetProperties())
-                    {
-                        if (property.IsPrimaryKey())
-                        {
-                            continue;
-                        }
-
-                        property.Builder.HasColumnName(null, StoreObjectIdentifier.View(viewName, viewSchema));
-                    }
                 }
             }
 
