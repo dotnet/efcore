@@ -285,6 +285,20 @@ FROM ""Orders"" AS ""o""");
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async))).Message);
 
+
+        public override async Task Select_subquery_recursive_trivial(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Select_subquery_recursive_trivial(async))).Message);
+
+
+        public override async Task Select_correlated_subquery_ordered(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Select_correlated_subquery_ordered(async))).Message);
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

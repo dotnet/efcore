@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select c.City);
         }
 
-        [ConditionalTheory(Skip = "Issue#16314")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection(bool async)
         {
@@ -471,7 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             o => o.CustomerID == c.CustomerID
                                 && o.OrderDate.Value.Year == 1997)
                         .Select(o => o.OrderID)
-                        .OrderBy(o => o),
+                        .OrderBy(o => o)
+                        .ToList(),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
         }
@@ -621,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Count);
         }
 
-        [ConditionalTheory(Skip = "Issue#16314")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection_deep(bool async)
         {
@@ -638,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select (from o2 in ss.Set<Order>()
                                     where o1.CustomerID == c.CustomerID
                                     orderby o2.OrderID
-                                    select o1.OrderID)),
+                                    select o1.OrderID).ToList()).ToList(),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(
                     e,

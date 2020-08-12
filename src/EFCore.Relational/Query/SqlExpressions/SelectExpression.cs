@@ -2137,14 +2137,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
                 else
                 {
-                    if (limit != null)
-                    {
-                        innerSelectExpression.ApplyLimit(limit);
-                    }
-
+                    // Order matters Apply Offset before Limit
                     if (offset != null)
                     {
                         innerSelectExpression.ApplyOffset(offset);
+                    }
+
+                    if (limit != null)
+                    {
+                        innerSelectExpression.ApplyLimit(limit);
                     }
                 }
             }

@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -2284,13 +2285,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
-        [ConditionalTheory(Skip = "Issue#16314")]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Select_correlated_filtered_collection_returning_queryable_throws(bool async)
+        {
+            Assert.Equal(
+                CoreStrings.QueryInvalidMaterializationType(
+                    @"t => DbSet<Gear>()
+    .Where(g => g.Nickname == t.GearNickName)", typeof(IQueryable<Gear>).ShortDisplayName()),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQuery(
+                        async,
+                        ss => ss.Set<CogTag>().OrderBy(t => t.Note).Select(t => ss.Set<Gear>().Where(g => g.Nickname == t.GearNickName)),
+                        assertOrder: true,
+                        elementAsserter: (e, a) => AssertCollection(e, a)))).Message,
+                ignoreLineEndingDifferences: true);
+        }
+
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_correlated_filtered_collection_works_with_caching(bool async)
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<CogTag>().OrderBy(t => t.Note).Select(t => ss.Set<Gear>().Where(g => g.Nickname == t.GearNickName)),
+                ss => ss.Set<CogTag>().OrderBy(t => t.Note).Select(t => ss.Set<Gear>().Where(g => g.Nickname == t.GearNickName).ToList()),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
@@ -5089,7 +5107,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => (e.Id, e.TagId)));
         }
 
-        [ConditionalTheory(Skip = "Issue#16314")]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Streaming_correlated_collection_issue_11403_returning_ordered_enumerable_throws(bool async)
+        {
+            Assert.Equal(
+                CoreStrings.QueryInvalidMaterializationType(
+                    @"g => g.Weapons
+    .Where(w => !(w.IsAutomatic))
+    .OrderBy(w => w.Id)", typeof(IOrderedEnumerable<Weapon>).ShortDisplayName()),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertFirstOrDefault(
+                            async,
+                            ss => ss.Set<Gear>()
+                                .OrderBy(g => g.Nickname)
+                                .Select(g => g.Weapons.Where(w => !w.IsAutomatic).OrderBy(w => w.Id)),
+                            asserter: (e, a) => AssertCollection(e, a, ordered: true)))).Message,
+                ignoreLineEndingDifferences: true);
+        }
+
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Streaming_correlated_collection_issue_11403(bool async)
         {
@@ -5097,7 +5134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Gear>()
                     .OrderBy(g => g.Nickname)
-                    .Select(g => g.Weapons.Where(w => !w.IsAutomatic).OrderBy(w => w.Id)),
+                    .Select(g => g.Weapons.Where(w => !w.IsAutomatic).OrderBy(w => w.Id).ToList()),
                 asserter: (e, a) => AssertCollection(e, a, ordered: true));
         }
 

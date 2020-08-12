@@ -455,6 +455,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalFact(Skip = "Cross collection join Issue#17246")]
         public override void Select_Subquery_Single()
         {
             base.Select_Subquery_Single();
@@ -1930,16 +1931,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override async Task Select_correlated_subquery_projection(bool async)
-        {
-            await base.Select_correlated_subquery_projection(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override async Task Select_correlated_subquery_filtered(bool async)
         {
             await base.Select_correlated_subquery_filtered(async);
@@ -1950,6 +1942,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override async Task Select_correlated_subquery_ordered(bool async)
         {
             await base.Select_correlated_subquery_ordered(async);
@@ -1958,6 +1951,18 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Select_nested_collection_in_anonymous_type(bool async)
+        {
+            return base.Select_nested_collection_in_anonymous_type(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Select_subquery_recursive_trivial(bool async)
+        {
+            return base.Select_subquery_recursive_trivial(async);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -3621,6 +3626,7 @@ ORDER BY c[""CustomerID""]
 OFFSET @__p_0 LIMIT @__p_1");
         }
 
+        [ConditionalFact(Skip = "Cross collection join Issue#17246")]
         public override void Streaming_chained_sync_query()
         {
             using (var context = CreateContext())

@@ -1332,7 +1332,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16314")]
+        [ConditionalFact]
         public virtual void QF_Anonymous_Collection_No_IQueryable_In_Projection_Throws()
         {
             using (var context = CreateContext())

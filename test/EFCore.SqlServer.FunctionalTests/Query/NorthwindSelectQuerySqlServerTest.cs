@@ -275,52 +275,15 @@ WHERE [c].[City] = N'London'");
             await base.Select_nested_collection(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID]
+                @"SELECT [c].[CustomerID], [t].[OrderID]
 FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE DATEPART(year, [o].[OrderDate]) = 1997
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE [c].[City] = N'London'
-ORDER BY [c].[CustomerID]",
-                //
-                @"@_outer_CustomerID='AROUT' (Size = 5)
-
-SELECT [o].[OrderID]
-FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
-ORDER BY [o].[OrderID]",
-                //
-                @"@_outer_CustomerID='BSBEV' (Size = 5)
-
-SELECT [o].[OrderID]
-FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
-ORDER BY [o].[OrderID]",
-                //
-                @"@_outer_CustomerID='CONSH' (Size = 5)
-
-SELECT [o].[OrderID]
-FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
-ORDER BY [o].[OrderID]",
-                //
-                @"@_outer_CustomerID='EASTC' (Size = 5)
-
-SELECT [o].[OrderID]
-FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
-ORDER BY [o].[OrderID]",
-                //
-                @"@_outer_CustomerID='NORTS' (Size = 5)
-
-SELECT [o].[OrderID]
-FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
-ORDER BY [o].[OrderID]",
-                //
-                @"@_outer_CustomerID='SEVES' (Size = 5)
-
-SELECT [o].[OrderID]
-FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = @_outer_CustomerID) AND (DATEPART(year, [o].[OrderDate]) = 1997)
-ORDER BY [o].[OrderID]");
+ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
         public override void Select_nested_collection_multi_level()

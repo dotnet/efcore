@@ -321,6 +321,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override async Task Select_nested_collection(bool async)
         {
             await base.Select_nested_collection(async);
@@ -1155,6 +1156,12 @@ ORDER BY c[""CustomerID""]");
         public override Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
         {
             return base.Custom_projection_reference_navigation_PK_to_FK_optimization(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Select_nested_collection_deep(bool async)
+        {
+            return base.Select_nested_collection_deep(async);
         }
 
         private void AssertSql(params string[] expected)
