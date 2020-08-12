@@ -18,9 +18,57 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false, true)]
         [InlineData(true, false)]
         [InlineData(true, true)]
-        public void Maps_text_column(bool keyOrIndex, bool rowVersion)
+        public void Maps_text_column_with_abnormal_casing(bool keyOrIndex, bool rowVersion)
         {
             var mapping = CreateMapper().FindMapping("text", keyOrIndex, rowVersion);
+
+            AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Maps_integer_column_with_abnormal_casing(bool keyOrIndex, bool rowVersion)
+        {
+            var mapping = CreateMapper().FindMapping("integer", keyOrIndex, rowVersion);
+
+            AssertMapping<long>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Maps_blob_column_with_abnormal_casing(bool keyOrIndex, bool rowVersion)
+        {
+            var mapping = CreateMapper().FindMapping("blob", keyOrIndex, rowVersion);
+
+            AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Maps_real_column_with_abnormal_casing(bool keyOrIndex, bool rowVersion)
+        {
+            var mapping = CreateMapper().FindMapping("real", keyOrIndex, rowVersion);
+
+            AssertMapping<double>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Maps_text_column(bool keyOrIndex, bool rowVersion)
+        {
+            var mapping = CreateMapper().FindMapping("TEXT", keyOrIndex, rowVersion);
 
             AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
         }
@@ -32,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public void Maps_integer_column(bool keyOrIndex, bool rowVersion)
         {
-            var mapping = CreateMapper().FindMapping("integer", keyOrIndex, rowVersion);
+            var mapping = CreateMapper().FindMapping("INTEGER", keyOrIndex, rowVersion);
 
             AssertMapping<long>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
         }
@@ -44,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public void Maps_blob_column(bool keyOrIndex, bool rowVersion)
         {
-            var mapping = CreateMapper().FindMapping("blob", keyOrIndex, rowVersion);
+            var mapping = CreateMapper().FindMapping("BLOB", keyOrIndex, rowVersion);
 
             AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
         }
@@ -56,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public void Maps_real_column(bool keyOrIndex, bool rowVersion)
         {
-            var mapping = CreateMapper().FindMapping("real", keyOrIndex, rowVersion);
+            var mapping = CreateMapper().FindMapping("REAL", keyOrIndex, rowVersion);
 
             AssertMapping<double>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
         }

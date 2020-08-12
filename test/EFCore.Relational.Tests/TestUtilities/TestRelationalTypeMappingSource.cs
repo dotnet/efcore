@@ -236,7 +236,24 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     : null;
         }
 
-        protected override bool StoreTypeNameBaseUsesPrecision(string storeTypeNameBase)
-            => "default_decimal_mapping" == storeTypeNameBase;
+        protected override string ParseStoreTypeName(
+            string storeTypeName,
+            out bool? unicode,
+            out int? size,
+            out int? precision,
+            out int? scale)
+        {
+            var parsedName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
+
+            if (size.HasValue
+                && storeTypeName?.StartsWith("default_decimal_mapping", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                precision = size;
+                size = null;
+                scale = 0;
+            }
+
+            return parsedName;
+        }
     }
 }

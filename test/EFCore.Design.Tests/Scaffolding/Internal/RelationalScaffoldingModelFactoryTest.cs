@@ -303,9 +303,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [InlineData("nvarchar(450)", null)]
         [InlineData("datetime2(4)", null)]
         [InlineData("DateTime2(4)", "DateTime2(4)")]
-        public void Column_type_annotation(string StoreType, string expectedColumnType)
+        public void Column_type_annotation(string storeType, string expectedColumnType)
         {
-            var column = new DatabaseColumn { Table = Table, Name = "Col", StoreType = StoreType };
+            var column = new DatabaseColumn { Table = Table, Name = "Col", StoreType = storeType };
 
             var info = new DatabaseModel
             {
