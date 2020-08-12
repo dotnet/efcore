@@ -5517,5 +5517,102 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => new { g.Key, Max = g.Max(e => e.Id) })
                         .Where(x => x.Max < 2 || x.Max > 2));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Member_over_null_check_ternary_and_nested_dto_type(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                        .Select(l1 => new Level1Dto
+                        {
+                            Id = l1.Id,
+                            Name = l1.Name,
+                            Level2 = l1.OneToOne_Optional_FK1 == null
+                                ? null
+                                : new Level2Dto
+                                {
+                                    Id = l1.OneToOne_Optional_FK1.Id,
+                                    Name = l1.OneToOne_Optional_FK1.Name,
+                                }
+                        })
+                        .OrderBy(e => e.Level2.Name)
+                        .ThenBy(e => e.Id),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.Equal(e.Name, a.Name);
+                    if (e.Level2 == null)
+                    {
+                        Assert.Null(a.Level2);
+                    }
+                    else
+                    {
+                        Assert.NotNull(a.Level2);
+                        Assert.Equal(e.Level2.Id, a.Level2.Id);
+                        Assert.Equal(e.Level2.Name, a.Level2.Name);
+                    }
+                });
+        }
+
+        private class Level1Dto
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public Level2Dto Level2 { get; set; }
+        }
+
+        private class Level2Dto
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Member_over_null_check_ternary_and_nested_anonymous_type(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                        .Select(l1 => new
+                        {
+                            l1.Id,
+                            l1.Name,
+                            Level2 = l1.OneToOne_Optional_FK1 == null
+                                ? null
+                                : new
+                                {
+                                    Id = l1.OneToOne_Optional_FK1.Id,
+                                    Name = l1.OneToOne_Optional_FK1.Name,
+                                    Level3 = l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2 == null
+                                        ? null
+                                        : new
+                                        {
+                                            l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Id,
+                                            l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Name
+                                        }
+                                }
+                        })
+                        .Where(e => e.Level2.Level3.Name != "L"),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.Equal(e.Name, a.Name);
+                    if (e.Level2 == null)
+                    {
+                        Assert.Null(a.Level2);
+                    }
+                    else
+                    {
+                        Assert.NotNull(a.Level2);
+                        Assert.Equal(e.Level2.Id, a.Level2.Id);
+                        Assert.Equal(e.Level2.Name, a.Level2.Name);
+                    }
+                });
+        }
     }
 }
