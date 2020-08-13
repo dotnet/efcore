@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -63,25 +64,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalSkipNavigationBuilder HasForeignKey([CanBeNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
-            if (CanSetForeignKey(foreignKey, configurationSource))
+            if (!CanSetForeignKey(foreignKey, configurationSource))
             {
-                if (foreignKey != null)
-                {
-                    foreignKey.UpdateConfigurationSource(configurationSource);
-
-                    if (Metadata.Inverse?.JoinEntityType != null
-                        && Metadata.Inverse.JoinEntityType
-                            != (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType))
-                    {
-                        Metadata.Inverse.Builder.HasForeignKey(null, configurationSource);
-                    }
-                }
-
-                Metadata.SetForeignKey(foreignKey, configurationSource);
-                return this;
+                return null;
             }
 
-            return null;
+            if (foreignKey != null)
+            {
+                foreignKey.UpdateConfigurationSource(configurationSource);
+
+                if (Metadata.Inverse?.JoinEntityType != null
+                    && Metadata.Inverse.JoinEntityType
+                        != (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType))
+                {
+                    Metadata.Inverse.Builder.HasForeignKey(null, configurationSource);
+                }
+            }
+
+            var oldForeignKey = Metadata.ForeignKey;
+
+            Metadata.SetForeignKey(foreignKey, configurationSource);
+
+            if (oldForeignKey?.Builder != null
+                && oldForeignKey != foreignKey
+                && oldForeignKey.ReferencingSkipNavigations?.Any() != true)
+            {
+                oldForeignKey.DeclaringEntityType.Builder.HasNoRelationship(oldForeignKey, ConfigurationSource.Convention);
+            }
+
+            return this;
         }
 
         /// <summary>

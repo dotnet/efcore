@@ -1565,6 +1565,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         foreach (var key in Metadata.GetKeys())
                         {
                             if (key.ReferencingForeignKeys == null
+                                || !key.ReferencingForeignKeys.Any()
                                 || !key.Properties.Any(p => removedInheritedProperties.Contains(p)))
                             {
                                 continue;
@@ -2124,12 +2125,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void RemoveKeyIfUnused(Key key, ConfigurationSource configurationSource = ConfigurationSource.Convention)
         {
-            if (Metadata.FindPrimaryKey() == key)
-            {
-                return;
-            }
-
-            if (key.GetReferencingForeignKeys().Any())
+            if (Metadata.FindPrimaryKey() == key
+                || key.ReferencingForeignKeys?.Any() == true)
             {
                 return;
             }

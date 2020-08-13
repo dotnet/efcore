@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (foreignKey.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
             {
-                foreignKey.DeclaringEntityType.RemoveForeignKey(foreignKey);
+                foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, ConfigurationSource.Explicit);
                 Builder = null;
                 return ((EntityType)DeclaringEntityType).Builder.HasSkipNavigation(
                     navigationMember,
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             {
                 if (conflictingNavigation != null)
                 {
-                    foreignKey.DeclaringEntityType.RemoveForeignKey(foreignKey);
+                    foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, ConfigurationSource.Explicit);
                 }
                 else
                 {
