@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private readonly struct CommandCacheKey
+        private readonly struct CommandCacheKey : IEquatable<CommandCacheKey>
         {
             private readonly SelectExpression _selectExpression;
             private readonly IReadOnlyDictionary<string, object> _parameterValues;
@@ -129,11 +130,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public override bool Equals(object obj)
-                => obj != null
-                    && obj is CommandCacheKey commandCacheKey
+                => obj is CommandCacheKey commandCacheKey
                     && Equals(commandCacheKey);
 
-            private bool Equals(CommandCacheKey commandCacheKey)
+            public bool Equals(CommandCacheKey commandCacheKey)
             {
                 if (!ReferenceEquals(_selectExpression, commandCacheKey._selectExpression))
                 {

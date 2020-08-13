@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual RelationalValueBufferFactoryDependencies Dependencies { get; }
 
-        private readonly struct CacheKey
+        private readonly struct CacheKey : IEquatable<CacheKey>
         {
             public CacheKey(IReadOnlyList<TypeMaterializationInfo> materializationInfo)
                 => TypeMaterializationInfo = materializationInfo;
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public override bool Equals(object obj)
                 => obj is CacheKey cacheKey && Equals(cacheKey);
 
-            private bool Equals(CacheKey other)
+            public bool Equals(CacheKey other)
                 => TypeMaterializationInfo.SequenceEqual(other.TypeMaterializationInfo);
 
             public override int GetHashCode()
