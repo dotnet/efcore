@@ -29,8 +29,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
-            if (!index.Properties.GetColumnNames(storeObject)
-                    .SequenceEqual(duplicateIndex.Properties.GetColumnNames(storeObject)))
+            var columnNames = index.Properties.GetColumnNames(storeObject);
+            var duplicateColumnNames = duplicateIndex.Properties.GetColumnNames(storeObject);
+            if (columnNames == null
+                || duplicateColumnNames == null)
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.DuplicateIndexTableMismatch(
+                            index.Properties.Format(),
+                            index.DeclaringEntityType.DisplayName(),
+                            duplicateIndex.Properties.Format(),
+                            duplicateIndex.DeclaringEntityType.DisplayName(),
+                            index.GetDatabaseName(storeObject),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            duplicateIndex.DeclaringEntityType.GetSchemaQualifiedTableName()));
+                }
+
+                return false;
+            }
+
+            if (!columnNames.SequenceEqual(duplicateColumnNames))
             {
                 if (shouldThrow)
                 {

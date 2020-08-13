@@ -85,6 +85,11 @@ namespace Microsoft.EntityFrameworkCore
         public static string GetDefaultDatabaseName([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
         {
             var propertyNames = index.Properties.GetColumnNames(storeObject);
+            if (propertyNames == null)
+            {
+                return null;
+            }
+
             var rootIndex = index;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -92,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
                 IIndex linkedIndex = null;
-                foreach(var otherIndex in rootIndex.DeclaringEntityType
+                foreach (var otherIndex in rootIndex.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
                 {

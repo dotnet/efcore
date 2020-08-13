@@ -29,21 +29,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
-            if (!key.Properties.GetColumnNames(storeObject)
-                .SequenceEqual(duplicateKey.Properties.GetColumnNames(storeObject)))
+            var columnNames = key.Properties.GetColumnNames(storeObject);
+            var duplicateColumnNames = duplicateKey.Properties.GetColumnNames(storeObject);
+            if (columnNames == null
+                || duplicateColumnNames == null)
             {
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
-                    RelationalStrings.DuplicateKeyColumnMismatch(
-                        key.Properties.Format(),
-                        key.DeclaringEntityType.DisplayName(),
-                        duplicateKey.Properties.Format(),
-                        duplicateKey.DeclaringEntityType.DisplayName(),
-                        key.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        key.GetName(storeObject),
-                        key.Properties.FormatColumns(storeObject),
-                        duplicateKey.Properties.FormatColumns(storeObject)));
+                        RelationalStrings.DuplicateKeyTableMismatch(
+                            key.Properties.Format(),
+                            key.DeclaringEntityType.DisplayName(),
+                            duplicateKey.Properties.Format(),
+                            duplicateKey.DeclaringEntityType.DisplayName(),
+                            key.GetName(storeObject),
+                            key.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            duplicateKey.DeclaringEntityType.GetSchemaQualifiedTableName()));
+                }
+
+                return false;
+            }
+
+            if (!columnNames.SequenceEqual(duplicateColumnNames))
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.DuplicateKeyColumnMismatch(
+                            key.Properties.Format(),
+                            key.DeclaringEntityType.DisplayName(),
+                            duplicateKey.Properties.Format(),
+                            duplicateKey.DeclaringEntityType.DisplayName(),
+                            key.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            key.GetName(storeObject),
+                            key.Properties.FormatColumns(storeObject),
+                            duplicateKey.Properties.FormatColumns(storeObject)));
                 }
 
                 return false;

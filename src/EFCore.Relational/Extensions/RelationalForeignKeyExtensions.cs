@@ -24,8 +24,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The foreign key constraint name. </returns>
         public static string GetConstraintName([NotNull] this IForeignKey foreignKey)
             => foreignKey.GetConstraintName(
-                StoreObjectIdentifier.Table(foreignKey.DeclaringEntityType.GetTableName(), foreignKey.DeclaringEntityType.GetSchema()),
-                StoreObjectIdentifier.Table(foreignKey.PrincipalEntityType.GetTableName(), foreignKey.PrincipalEntityType.GetSchema()));
+                StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, StoreObjectType.Table).Value,
+                StoreObjectIdentifier.Create(foreignKey.PrincipalKey.IsPrimaryKey()
+                    ? foreignKey.PrincipalEntityType
+                    : foreignKey.PrincipalKey.DeclaringEntityType,
+                    StoreObjectType.Table).Value);
 
         /// <summary>
         ///     Returns the foreign key constraint name.
@@ -80,6 +83,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var propertyNames = foreignKey.Properties.GetColumnNames(storeObject);
             var principalPropertyNames = foreignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject);
+            if (propertyNames == null
+                || principalPropertyNames == null)
+            {
+                return null;
+            }
+
             var rootForeignKey = foreignKey;
 
             // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)

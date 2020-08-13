@@ -30,11 +30,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
-            var principalType = foreignKey.PrincipalEntityType;
+            var principalType = foreignKey.PrincipalKey.IsPrimaryKey()
+               ? foreignKey.PrincipalEntityType
+               : foreignKey.PrincipalKey.DeclaringEntityType;
             var principalTable = StoreObjectIdentifier.Create(principalType, StoreObjectType.Table);
-            var duplicatePrincipalType = duplicateForeignKey.PrincipalEntityType;
+
+            var duplicatePrincipalType = duplicateForeignKey.PrincipalKey.IsPrimaryKey()
+                ? duplicateForeignKey.PrincipalEntityType
+                : duplicateForeignKey.PrincipalKey.DeclaringEntityType;
             var duplicatePrincipalTable = StoreObjectIdentifier.Create(duplicatePrincipalType, StoreObjectType.Table);
-            if (principalTable != duplicatePrincipalTable)
+
+            var columnNames = foreignKey.Properties.GetColumnNames(storeObject);
+            var duplicateColumnNames = duplicateForeignKey.Properties.GetColumnNames(storeObject);
+            if (columnNames == null
+                || duplicateColumnNames == null)
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.DuplicateForeignKeyTableMismatch(
+                            foreignKey.Properties.Format(),
+                            foreignKey.DeclaringEntityType.DisplayName(),
+                            duplicateForeignKey.Properties.Format(),
+                            duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                            foreignKey.GetConstraintName(storeObject, principalTable.Value),
+                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            duplicateForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName()));
+                }
+
+                return false;
+            }
+
+            var principalColumns = foreignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value);
+            var duplicatePrincipalColumns = duplicateForeignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value);
+            if (principalTable != duplicatePrincipalTable
+                || principalColumns == null
+                || duplicatePrincipalColumns == null)
             {
                 if (shouldThrow)
                 {
@@ -53,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (!SameColumnNames(foreignKey.Properties, duplicateForeignKey.Properties, storeObject))
+            if (!columnNames.SequenceEqual(duplicateColumnNames))
             {
                 if (shouldThrow)
                 {
@@ -72,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (!SameColumnNames(foreignKey.PrincipalKey.Properties, duplicateForeignKey.PrincipalKey.Properties, principalTable.Value))
+            if (!principalColumns.SequenceEqual(duplicatePrincipalColumns))
             {
                 if (shouldThrow)
                 {
@@ -128,12 +159,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return true;
-
-            static bool SameColumnNames(
-                IReadOnlyList<IProperty> properties,
-                IReadOnlyList<IProperty> duplicateProperties,
-                in StoreObjectIdentifier storeObject)
-                => properties.GetColumnNames(storeObject).SequenceEqual(duplicateProperties.GetColumnNames(storeObject));
         }
     }
 }

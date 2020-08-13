@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var entityType = (IConventionEntityType)entityTypeMapping.EntityType;
                 foreach (var foreignKey in entityType.GetForeignKeys())
                 {
-                    foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings())
+                    foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings().Reverse())
                     {
                         if (!principalMapping.IncludesDerivedTypes
                             && foreignKey.PrincipalEntityType.GetDirectlyDerivedTypes().Any())
@@ -842,6 +842,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreach (var key in entityType.GetKeys())
                 {
                     var name = key.GetName(storeObject);
+                    if (name == null)
+                    {
+                        continue;
+                    }
+
                     var constraint = table.FindUniqueConstraint(name);
                     if (constraint == null)
                     {
@@ -883,6 +888,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreach (var index in entityType.GetIndexes())
                 {
                     var name = index.GetDatabaseName(storeObject);
+                    if (name == null)
+                    {
+                        continue;
+                    }
+
                     if (!table.Indexes.TryGetValue(name, out var tableIndex))
                     {
                         var columns = new Column[index.Properties.Count];

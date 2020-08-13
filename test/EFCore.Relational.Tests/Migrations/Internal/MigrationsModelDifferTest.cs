@@ -5288,6 +5288,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Animal_MouseId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropForeignKeyOperation>(o);
                         Assert.Equal("FK_Animal_Animal_PreyId", operation.Name);
                         Assert.Equal("Animal", operation.Table);
                     },
@@ -5527,6 +5533,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Mice_MouseId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal("Mice", operation.PrincipalTable);
+                        Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                        Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, operation.OnDelete);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddForeignKeyOperation>(o);
                         Assert.Equal("FK_Dogs_Animal_PreyId", operation.Name);
                         Assert.Equal("Dogs", operation.Table);
                         Assert.Equal("Animal", operation.PrincipalTable);
@@ -5536,6 +5552,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 downOps => Assert.Collection(
                     downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Mice_MouseId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                    },
                     o =>
                     {
                         var operation = Assert.IsType<DropForeignKeyOperation>(o);
@@ -5743,6 +5765,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Animal_MouseId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal("Animal", operation.PrincipalTable);
+                        Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                        Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, operation.OnDelete);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddForeignKeyOperation>(o);
                         Assert.Equal("FK_Animal_Animal_PreyId", operation.Name);
                         Assert.Equal("Animal", operation.Table);
                         Assert.Equal("Animal", operation.PrincipalTable);
@@ -5851,6 +5883,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 },
                 upOps => Assert.Collection(
                     upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Animal_MouseId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                    },
                     o =>
                     {
                         var operation = Assert.IsType<DropForeignKeyOperation>(o);
@@ -6093,6 +6131,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o =>
                     {
                         var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Mice_MouseId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal("Mice", operation.PrincipalTable);
+                        Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                        Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, operation.OnDelete);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddForeignKeyOperation>(o);
                         Assert.Equal("FK_Dogs_Animal_PreyId", operation.Name);
                         Assert.Equal("Dogs", operation.Table);
                         Assert.Equal("Animal", operation.PrincipalTable);
@@ -6102,6 +6150,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 downOps => Assert.Collection(
                     downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Mice_MouseId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                    },
                     o =>
                     {
                         var operation = Assert.IsType<DropForeignKeyOperation>(o);
@@ -6342,6 +6396,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("IX_Animal_PreyId", operation.Name);
                         Assert.Equal("Animal", operation.Table);
                         Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                        Assert.Equal("FK_Animal_Animal_MouseId", operation.Name);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal("Animal", operation.PrincipalTable);
+                        Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                        Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Restrict, operation.OnDelete);
                     },
                     o =>
                     {
