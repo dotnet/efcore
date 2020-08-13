@@ -2820,6 +2820,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("QueryInvalidMaterializationType", nameof(projection), nameof(queryableType)),
                 projection, queryableType);
 
+        /// <summary>
+        ///     There is already an entity type named '{ownedTypeName}'. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}'.
+        /// </summary>
+        public static string ClashingNamedOwnedType([CanBeNull] object ownedTypeName, [CanBeNull] object ownerEntityType, [CanBeNull] object navigation)
+            => string.Format(
+                GetString("ClashingNamedOwnedType", nameof(ownedTypeName), nameof(ownerEntityType), nameof(navigation)),
+                ownedTypeName, ownerEntityType, navigation);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

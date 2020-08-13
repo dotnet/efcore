@@ -3204,6 +3204,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return null;
                         }
 
+                        if (targetEntityType.IsNamed
+                            && targetType != null)
+                        {
+                            if (configurationSource == ConfigurationSource.Explicit)
+                            {
+                                throw new InvalidOperationException(CoreStrings.ClashingNamedOwnedType(
+                                    targetTypeName, Metadata.DisplayName(), navigation.Name));
+                            }
+
+                            return null;
+                        }
+
                         var newOtherOwnership = otherOwnership.Builder.AddToDeclaringTypeDefinition(configurationSource);
                         if (newOtherOwnership == null)
                         {

@@ -1495,4 +1495,7 @@
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
     <value>The query contains a final projection '{projection}' to type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList()' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>
   </data>
+  <data name="ClashingNamedOwnedType" xml:space="preserve">
+    <value>There is already an entity type named '{ownedTypeName}'. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}'.</value>
+  </data>
 </root>
