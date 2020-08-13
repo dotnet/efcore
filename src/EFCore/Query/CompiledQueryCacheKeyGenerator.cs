@@ -112,17 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     <see langword="true"/> if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise <see langword="false"/>. 
             /// </returns>
             public override bool Equals(object obj)
-            {
-                if (obj is null
-                    || !(obj is CompiledQueryCacheKey))
-                {
-                    return false;
-                }
-
-                var other = (CompiledQueryCacheKey)obj;
-
-                return Equals(other);
-            }
+                => obj is CompiledQueryCacheKey other && Equals(other);
 
             /// <summary>
             ///     Indicates whether the current object is equal to another object of the same type.
@@ -136,9 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             public bool Equals(CompiledQueryCacheKey other)
             {
                 return ReferenceEquals(_model, other._model)
-                   && _queryTrackingBehavior == other._queryTrackingBehavior
-                   && _async == other._async
-                   && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
+                    && _queryTrackingBehavior == other._queryTrackingBehavior
+                    && _async == other._async
+                    && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
             }
 
             /// <summary>
