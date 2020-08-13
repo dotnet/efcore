@@ -746,6 +746,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (navigationToPrincipalProperty != null
+                && dependentEntityType.ClrType != null
+                && principalEntityType.ClrType != null
                 && !IsCompatible(
                     navigationToPrincipalProperty,
                     pointsToPrincipal: true,
@@ -763,6 +765,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (navigationToDependentProperty != null
+                && dependentEntityType.ClrType != null
+                && principalEntityType.ClrType != null
                 && !IsCompatible(
                     navigationToDependentProperty,
                     pointsToPrincipal: false,
