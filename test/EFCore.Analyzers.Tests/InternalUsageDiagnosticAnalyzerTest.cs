@@ -71,16 +71,15 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
         public Task Implemented_interface()
             => TestFullSource(
                 @"
-using System.Threading;
-using System.Threading.Tasks;
+using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 
-class MyClass : IDbContextPool {
-    public IDbContextPoolable Rent() => default;
-    public void Return(IDbContextPoolable context) {}
-    public ValueTask ReturnAsync(IDbContextPoolable context, CancellationToken cancellationToken = default) => default;
+class MyClass : IDbSetSource {
+    public object Create(DbContext context, Type type) => null;
+    public object Create(DbContext context, string name, Type type) => null;
 }",
-                "Microsoft.EntityFrameworkCore.Internal.IDbContextPool",
+                "Microsoft.EntityFrameworkCore.Internal.IDbSetSource",
                 "MyClass");
 
         [ConditionalFact]
@@ -137,6 +136,26 @@ class MyClass {
                 @"
 class MyClass {
     private Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager StateManager { get; set; }
+}",
+                "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
+                "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+
+        [ConditionalFact]
+        public Task Method_declaration_return_type()
+            => TestFullSource(
+                @"
+class MyClass {
+    private Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager Foo() => null;
+}",
+                "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
+                "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+
+        [ConditionalFact]
+        public Task Method_declaration_parameter()
+            => TestFullSource(
+                @"
+class MyClass {
+    private void Foo(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager stateManager) {}
 }",
                 "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
                 "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");

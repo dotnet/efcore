@@ -54,7 +54,12 @@ namespace Microsoft.EntityFrameworkCore
                 OperationKind.VariableDeclaration,
                 OperationKind.TypeOf);
 
-            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType, SymbolKind.Property, SymbolKind.Field, SymbolKind.Event);
+            context.RegisterSymbolAction(AnalyzeSymbol,
+                SymbolKind.NamedType,
+                SymbolKind.Method,
+                SymbolKind.Property,
+                SymbolKind.Field,
+                SymbolKind.Event);
         }
 
         private static void AnalyzeNode(OperationAnalysisContext context)
@@ -169,6 +174,10 @@ namespace Microsoft.EntityFrameworkCore
                     AnalyzeNamedTypeSymbol(context, symbol);
                     break;
 
+                case IMethodSymbol symbol:
+                    AnalyzeMethodTypeSymbol(context, symbol);
+                    break;
+
                 case IFieldSymbol symbol:
                     AnalyzeMemberDeclarationTypeSymbol(context, symbol, symbol.Type);
                     break;
@@ -215,6 +224,43 @@ namespace Microsoft.EntityFrameworkCore
                     };
 
                     context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, iface));
+                }
+            }
+        }
+
+        private static void AnalyzeMethodTypeSymbol(SymbolAnalysisContext context, IMethodSymbol symbol)
+        {
+            if (symbol.MethodKind == MethodKind.PropertyGet
+                || symbol.MethodKind == MethodKind.PropertySet)
+            {
+                // Property getters/setters are handled via IPropertySymbol
+                return;
+            }
+            if (IsInternal(context, symbol.ReturnType))
+            {
+                foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
+                {
+                    var location = declaringSyntax.GetSyntax() switch
+                    {
+                        CSharpSyntax.MethodDeclarationSyntax s => s.ReturnType.GetLocation(),
+                        { } otherSyntax => otherSyntax.GetLocation()
+                    };
+
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, symbol.ReturnType));
+                }
+            }
+
+            foreach (var paramSymbol in symbol.Parameters.Where(ps => IsInternal(context, ps.Type)))
+            {
+                foreach (var declaringSyntax in paramSymbol.DeclaringSyntaxReferences)
+                {
+                    var location = declaringSyntax.GetSyntax() switch
+                    {
+                        CSharpSyntax.ParameterSyntax s when s.Type != null => s.Type.GetLocation(),
+                        { } otherSyntax => otherSyntax.GetLocation()
+                    };
+
+                    context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, paramSymbol.Type));
                 }
             }
         }
