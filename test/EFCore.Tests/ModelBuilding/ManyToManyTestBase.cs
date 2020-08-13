@@ -67,6 +67,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = (IModel)modelBuilder.Model;
 
+                modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(p => p.Dependents)
+                    .WithMany(d => d.ManyToManyPrincipals)
+                    .UsingEntity<ManyToManyJoinWithFields>(
+                        jwf => jwf.HasOne<DependentWithField>(j => j.DependentWithField)
+                            .WithMany(),
+                        jwf => jwf.HasOne<ManyToManyPrincipalWithField>(j => j.ManyToManyPrincipalWithField)
+                            .WithMany())
+                    .HasKey(j => new { j.DependentWithFieldId, j.ManyToManyPrincipalWithFieldId });
+
                 modelBuilder.Entity<ManyToManyPrincipalWithField>(e =>
                 {
                     e.Property(p => p.Id);
@@ -81,16 +91,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     e.Ignore(d => d.OneToOnePrincipal);
                     e.HasKey(d => d.DependentWithFieldId);
                 });
-
-                modelBuilder.Entity<ManyToManyPrincipalWithField>()
-                    .HasMany(p => p.Dependents)
-                    .WithMany(d => d.ManyToManyPrincipals)
-                    .UsingEntity<ManyToManyJoinWithFields>(
-                        jwf => jwf.HasOne<DependentWithField>(j => j.DependentWithField)
-                            .WithMany(),
-                        jwf => jwf.HasOne<ManyToManyPrincipalWithField>(j => j.ManyToManyPrincipalWithField)
-                            .WithMany())
-                    .HasKey(j => new { j.DependentWithFieldId, j.ManyToManyPrincipalWithFieldId });
 
                 var principalEntityType = model.FindEntityType(typeof(ManyToManyPrincipalWithField));
                 var dependentEntityType = model.FindEntityType(typeof(DependentWithField));
@@ -119,6 +119,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Same(principalToJoinNav, principalEntityType.GetSkipNavigations().Single());
                 Assert.Same(dependentToJoinNav, dependentEntityType.GetSkipNavigations().Single());
+                Assert.Single(principalEntityType.GetDeclaredKeys());
+                Assert.Single(dependentEntityType.GetDeclaredKeys());
+                Assert.Single(joinEntityType.GetDeclaredKeys());
                 Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
                 Assert.Same(principalToDependentFk, joinEntityType.GetForeignKeys().Last());
                 Assert.Same(dependentToPrincipalFk, joinEntityType.GetForeignKeys().First());
