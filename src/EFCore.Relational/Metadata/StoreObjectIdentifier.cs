@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     A type that represents the id of a store object
     /// </summary>
-    public struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>
+    public struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>, IEquatable<StoreObjectIdentifier>
     {
         /// <summary>
         ///     Creates a table id.
@@ -114,5 +114,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <inheritdoc />
         public override string ToString() => StoreObjectType.ToString() + " " + DisplayName();
+
+        /// <summary>
+        ///     Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">
+        ///     An object to compare with this object.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Equals(StoreObjectIdentifier other)
+        {
+            return Name == other.Name
+                && Schema == other.Schema
+                && StoreObjectType == other.StoreObjectType;
+        }
+
+        /// <summary>
+        ///     Determines if this key is equivalent to a given object (i.e. if they are keys for the same query).
+        /// </summary>
+        /// <param name="obj">
+        ///     The object to compare this key to.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true"/> if the object is a <see cref="StoreObjectIdentifier" /> and is for the same query,
+        ///     otherwise <see langword="false"/>.
+        /// </returns>
+        public override bool Equals(object obj)
+            => obj is StoreObjectIdentifier other && Equals(other);
+
+        /// <summary>
+        ///     Gets the hash code for this object.
+        /// </summary>
+        /// <returns>
+        ///     The hash code.
+        /// </returns>
+        public override int GetHashCode()
+            => HashCode.Combine(Name, Schema, StoreObjectType);
     }
 }
