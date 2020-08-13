@@ -76,19 +76,15 @@ namespace Microsoft.EntityFrameworkCore
                 case OperationKind.ObjectCreation:
                     AnalyzeMember(context, ((IObjectCreationOperation)context.Operation).Constructor);
                     break;
-
                 case OperationKind.Invocation:
                     AnalyzeInvocation(context, (IInvocationOperation)context.Operation);
                     break;
-
                 case OperationKind.VariableDeclaration:
                     AnalyzeVariableDeclaration(context, ((IVariableDeclarationOperation)context.Operation));
                     break;
-
                 case OperationKind.TypeOf:
                     AnalyzeTypeof(context, ((ITypeOfOperation)context.Operation));
                     break;
-
                 default:
                     throw new ArgumentException($"Unexpected {nameof(OperationKind)}: {context.Operation.Kind}");
             }
@@ -149,7 +145,6 @@ namespace Microsoft.EntityFrameworkCore
                     var syntax = context.Operation.Syntax switch
                     {
                         CSharpSyntax.VariableDeclarationSyntax s => s.Type,
-                        // TODO: VB
                         _ => context.Operation.Syntax
                     };
                     context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), declarator.Symbol.Type));
@@ -202,7 +197,6 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         CSharpSyntax.ClassDeclarationSyntax s when s.BaseList?.Types.Count > 0
                             => s.BaseList.Types[0].GetLocation(),
-                        // TODO: VB
                         { } otherSyntax => otherSyntax.GetLocation()
                     };
 
@@ -216,9 +210,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var location = declaringSyntax.GetSyntax() switch
                     {
-                        // TODO: Report the location of the internal interface
                         CSharpSyntax.ClassDeclarationSyntax s => s.Identifier.GetLocation(),
-                        // TODO: VB
                         { } otherSyntax => otherSyntax.GetLocation()
                     };
 
@@ -272,8 +264,6 @@ namespace Microsoft.EntityFrameworkCore
                 VBSyntax.MemberAccessExpressionSyntax s => s.Name,
                 VBSyntax.ObjectCreationExpressionSyntax s => s.Type,
                 VBSyntax.TypeOfExpressionSyntax s => s.Type,
-
-                // TODO: Complete VB syntax handling corresponding to the C# ones above
 
                 _ => syntax
             };
