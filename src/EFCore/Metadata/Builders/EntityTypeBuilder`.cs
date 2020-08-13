@@ -370,17 +370,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="entityTypeName"> The name of the target entity. </param>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
         /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
-            [NotNull] string entityTypeName,
+            [NotNull] string ownedTypeName,
             [NotNull] string navigationName)
             where TRelatedEntity : class
             => OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(Check.NotEmpty(entityTypeName, nameof(entityTypeName)), typeof(TRelatedEntity)),
+                new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TRelatedEntity)),
                 new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
 
         /// <summary>
@@ -431,18 +431,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="entityTypeName"> The name of the target entity. </param>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
         /// </param>
         /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
-            [NotNull] string entityTypeName,
+            [NotNull] string ownedTypeName,
             [NotNull] Expression<Func<TEntity, TRelatedEntity>> navigationExpression)
             where TRelatedEntity : class
             => OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(Check.NotEmpty(entityTypeName, nameof(entityTypeName)), typeof(TRelatedEntity)),
+                new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TRelatedEntity)),
                 new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
         /// <summary>
@@ -682,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName), new MemberIdentity(navigationExpression.GetMemberAccess())));
+                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 
@@ -1045,7 +1045,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </summary>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="entityTypeName"> The name of the target entity. </param>
+        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
@@ -1053,17 +1053,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
-            [NotNull] string entityTypeName,
+            [NotNull] string ownedTypeName,
             [NotNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression,
             [NotNull] Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
             where TRelatedEntity : class
         {
-            Check.NotEmpty(entityTypeName, nameof(entityTypeName));
+            Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
             Check.NotNull(navigationExpression, nameof(navigationExpression));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(entityTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
+                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
             return this;
         }
 

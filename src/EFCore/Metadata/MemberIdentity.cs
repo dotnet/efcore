@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -11,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents the identity of an entity type member, can be based on <see cref="MemberInfo" /> or just the name.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
-    public readonly struct MemberIdentity
+    public readonly struct MemberIdentity : IEquatable<MemberIdentity>
     {
         private readonly object _nameOrMember;
 
@@ -88,5 +90,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private string DebuggerDisplay()
             => Name ?? "NONE";
+
+        /// <inheritdoc />
+        public override bool Equals(object obj) => obj is MemberIdentity identity && Equals(identity);
+
+        /// <inheritdoc />
+        public bool Equals(MemberIdentity other)
+            => EqualityComparer<object>.Default.Equals(_nameOrMember, other._nameOrMember);
+
+        /// <inheritdoc />
+        public override int GetHashCode() => HashCode.Combine(_nameOrMember);
+
+        /// <summary>
+        ///     Compares one id to another id to see if they represent the same member.
+        /// </summary>
+        /// <param name="left"> The first id. </param>
+        /// <param name="right"> The second id. </param>
+        /// <returns> <see langword="true"/> if they represent the same member; <see langword="false"/> otherwise. </returns>
+        public static bool operator ==(MemberIdentity left, MemberIdentity right)
+            => left.Equals(right);
+
+        /// <summary>
+        ///     Compares one id to another id to see if they represent different members.
+        /// </summary>
+        /// <param name="left"> The first id. </param>
+        /// <param name="right"> The second id. </param>
+        /// <returns> <see langword="true"/> if they represent different members; <see langword="false"/> otherwise. </returns>
+        public static bool operator !=(MemberIdentity left, MemberIdentity right)
+            => !(left == right);
     }
 }

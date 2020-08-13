@@ -1521,12 +1521,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OwnerOfSharedType>(
                     b =>
                     {
-                        b.OwnsOne<Dictionary<string, object>>("Shared1", e => e.Reference).IndexerProperty<int>("Value");
+                        b.OwnsOne<Dictionary<string, object>>("Shared1", e => e.Reference, sb =>
+                        {
+                            sb.IndexerProperty<int>("Value");
+                        });
                         b.OwnsMany("Shared2", e => e.Collection).IndexerProperty<bool>("IsDeleted");
                         b.OwnsOne(e => e.OwnedNavigation,
                             o =>
                             {
-                                o.OwnsOne<Dictionary<string, object>>("Shared3", e => e.Reference).IndexerProperty<int>("NestedValue");
+                                o.OwnsOne<Dictionary<string, object>>("Shared3", e => e.Reference, sb =>
+                                {
+                                    sb.IndexerProperty<int>("NestedValue");
+                                });
                                 o.OwnsMany("Shared4", e => e.Collection).IndexerProperty<long>("NestedLong");
                             });
                     });
