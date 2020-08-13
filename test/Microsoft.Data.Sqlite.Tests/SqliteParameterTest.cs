@@ -13,14 +13,6 @@ namespace Microsoft.Data.Sqlite
     public class SqliteParameterTest
     {
         [Fact]
-        public void Ctor_validates_arguments()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new SqliteParameter(null, 1));
-
-            Assert.Equal("name", ex.ParamName);
-        }
-
-        [Fact]
         public void Ctor_sets_name_and_value()
         {
             var result = new SqliteParameter("@Parameter", 1);
@@ -77,20 +69,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void ParameterName_validates_value()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new SqliteParameter().ParameterName = null);
-            Assert.Equal("value", ex.ParamName);
-        }
-
-        [Fact]
         public void ResetDbType_works()
         {
-            var parameter = new SqliteParameter
-            {
-                DbType = DbType.Int64,
-                SqliteType = SqliteType.Integer
-            };
+            var parameter = new SqliteParameter { DbType = DbType.Int64, SqliteType = SqliteType.Integer };
 
             parameter.ResetDbType();
 
@@ -101,11 +82,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void ResetSqliteType_works()
         {
-            var parameter = new SqliteParameter
-            {
-                DbType = DbType.Int64,
-                SqliteType = SqliteType.Integer
-            };
+            var parameter = new SqliteParameter { DbType = DbType.Int64, SqliteType = SqliteType.Integer };
 
             parameter.ResetSqliteType();
 
@@ -162,8 +139,8 @@ namespace Microsoft.Data.Sqlite
         [Theory]
         [InlineData(true, 1L)]
         [InlineData((byte)1, 1L)]
-        [InlineData('A', 65L)]
-        [InlineData('A', "A", SqliteType.Text)]
+        [InlineData('A', 65L, SqliteType.Integer)]
+        [InlineData('A', "A")]
         [InlineData(3.14, 3.14)]
         [InlineData(3f, 3.0)]
         [InlineData(1, 1L)]
@@ -259,17 +236,17 @@ namespace Microsoft.Data.Sqlite
             => Bind_works(MyEnum.One, 1L);
 
         [Fact]
+        public void Bind_works_when_Guid_with_SqliteType_Blob()
+            => Bind_works(
+                new Guid("1c902ddb-f4b6-4945-af38-0dc1b0760465"),
+                new byte[] { 0xDB, 0x2D, 0x90, 0x1C, 0xB6, 0xF4, 0x45, 0x49, 0xAF, 0x38, 0x0D, 0xC1, 0xB0, 0x76, 0x04, 0x65 },
+                SqliteType.Blob);
+
+        [Fact]
         public void Bind_works_when_Guid()
             => Bind_works(
                 new Guid("1c902ddb-f4b6-4945-af38-0dc1b0760465"),
-                new byte[] { 0xDB, 0x2D, 0x90, 0x1C, 0xB6, 0xF4, 0x45, 0x49, 0xAF, 0x38, 0x0D, 0xC1, 0xB0, 0x76, 0x04, 0x65 });
-
-        [Fact]
-        public void Bind_works_when_Guid_with_SqliteType_Text()
-            => Bind_works(
-                new Guid("1c902ddb-f4b6-4945-af38-0dc1b0760465"),
-                "1C902DDB-F4B6-4945-AF38-0DC1B0760465",
-                SqliteType.Text);
+                "1C902DDB-F4B6-4945-AF38-0DC1B0760465");
 
         [Fact]
         public void Bind_works_when_Nullable()
@@ -436,7 +413,8 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact, UseCulture("ar-SA")]
+        [Fact]
+        [UseCulture("ar-SA")]
         public void Bind_DateTime_with_Arabic_Culture()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -463,7 +441,8 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact, UseCulture("ar-SA")]
+        [Fact]
+        [UseCulture("ar-SA")]
         public void Bind_DateTimeOffset_with_Arabic_Culture()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

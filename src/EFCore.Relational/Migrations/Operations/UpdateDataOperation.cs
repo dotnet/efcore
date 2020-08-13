@@ -5,16 +5,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for updating seed data in an existing table.
     /// </summary>
+    [DebuggerDisplay("UPDATE {Table}")]
     public class UpdateDataOperation : MigrationOperation
     {
         /// <summary>
@@ -56,11 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <returns> The commands that correspond to this operation. </returns>
         public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
         {
-            Debug.Assert(KeyColumns.Length == KeyValues.GetLength(1),
+            Debug.Assert(
+                KeyColumns.Length == KeyValues.GetLength(1),
                 $"The number of key values doesn't match the number of keys (${KeyColumns.Length})");
-            Debug.Assert(Columns.Length == Values.GetLength(1),
+            Debug.Assert(
+                Columns.Length == Values.GetLength(1),
                 $"The number of values doesn't match the number of keys (${Columns.Length})");
-            Debug.Assert(KeyValues.GetLength(0) == Values.GetLength(0),
+            Debug.Assert(
+                KeyValues.GetLength(0) == Values.GetLength(0),
                 $"The number of key values doesn't match the number of values (${KeyValues.GetLength(0)})");
 
             var properties = model != null
@@ -74,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     keys[j] = new ColumnModification(
                         KeyColumns[j], originalValue: null, value: KeyValues[i, j], property: properties?.Find(KeyColumns[j]),
-                        isRead: false, isWrite: false, isKey: true, isCondition: true);
+                        isRead: false, isWrite: false, isKey: true, isCondition: true, sensitiveLoggingEnabled: true);
                 }
 
                 var modifications = new ColumnModification[Columns.Length];
@@ -82,10 +86,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     modifications[j] = new ColumnModification(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?.Find(Columns[j]),
-                        isRead: false, isWrite: true, isKey: true, isCondition: false);
+                        isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 
-                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray());
+                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: true);
             }
         }
     }

@@ -9,10 +9,10 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryIntegerValueGeneratorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Creates_values()
         {
-            var generator = new InMemoryIntegerValueGenerator<int>();
+            var generator = new InMemoryIntegerValueGenerator<int>(0);
 
             Assert.Equal(1, generator.Next(null));
             Assert.Equal(2, generator.Next(null));
@@ -21,29 +21,29 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(5, generator.Next(null));
             Assert.Equal(6, generator.Next(null));
 
-            generator = new InMemoryIntegerValueGenerator<int>();
+            generator = new InMemoryIntegerValueGenerator<int>(0);
 
             Assert.Equal(1, generator.Next(null));
             Assert.Equal(2, generator.Next(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_values_for_all_integer_types()
         {
-            Assert.Equal(1, new InMemoryIntegerValueGenerator<int>().Next(null));
-            Assert.Equal(1L, new InMemoryIntegerValueGenerator<long>().Next(null));
-            Assert.Equal((short)1, new InMemoryIntegerValueGenerator<short>().Next(null));
-            Assert.Equal((byte)1, new InMemoryIntegerValueGenerator<byte>().Next(null));
-            Assert.Equal((uint)1, new InMemoryIntegerValueGenerator<uint>().Next(null));
-            Assert.Equal((ulong)1, new InMemoryIntegerValueGenerator<ulong>().Next(null));
-            Assert.Equal((ushort)1, new InMemoryIntegerValueGenerator<ushort>().Next(null));
-            Assert.Equal((sbyte)1, new InMemoryIntegerValueGenerator<sbyte>().Next(null));
+            Assert.Equal(1, new InMemoryIntegerValueGenerator<int>(0).Next(null));
+            Assert.Equal(1L, new InMemoryIntegerValueGenerator<long>(0).Next(null));
+            Assert.Equal((short)1, new InMemoryIntegerValueGenerator<short>(0).Next(null));
+            Assert.Equal((byte)1, new InMemoryIntegerValueGenerator<byte>(0).Next(null));
+            Assert.Equal((uint)1, new InMemoryIntegerValueGenerator<uint>(0).Next(null));
+            Assert.Equal((ulong)1, new InMemoryIntegerValueGenerator<ulong>(0).Next(null));
+            Assert.Equal((ushort)1, new InMemoryIntegerValueGenerator<ushort>(0).Next(null));
+            Assert.Equal((sbyte)1, new InMemoryIntegerValueGenerator<sbyte>(0).Next(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_type_conversion_would_overflow()
         {
-            var generator = new InMemoryIntegerValueGenerator<byte>();
+            var generator = new InMemoryIntegerValueGenerator<byte>(0);
 
             for (var i = 1; i < 256; i++)
             {
@@ -53,10 +53,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<OverflowException>(() => generator.Next(null));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Does_not_generate_temp_values()
         {
-            Assert.False(new InMemoryIntegerValueGenerator<int>().GeneratesTemporaryValues);
+            Assert.False(new InMemoryIntegerValueGenerator<int>(0).GeneratesTemporaryValues);
         }
     }
 }

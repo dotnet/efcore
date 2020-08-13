@@ -17,14 +17,13 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class InMemoryDbContextOptionsExtensions
     {
-        private const string LegacySharedName = "___Shared_Database___";
-
         /// <summary>
         ///     Configures the context to connect to an in-memory database.
         ///     The in-memory database is shared anywhere the same name is used, but only for a given
         ///     service provider. To use the same in-memory database across service providers, call
-        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
-        ///     passing a shared <see cref="InMemoryDatabaseRoot"/> on which to root the database.
+        ///     <see
+        ///         cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
+        ///     passing a shared <see cref="InMemoryDatabaseRoot" /> on which to root the database.
         /// </summary>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The in-memory database is shared anywhere the same name is used, but only for a given
         ///     service provider. To use the same in-memory database across service providers, call
         ///     <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
-        ///     passing a shared <see cref="InMemoryDatabaseRoot"/> on which to root the database.
+        ///     passing a shared <see cref="InMemoryDatabaseRoot" /> on which to root the database.
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="databaseName">
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(databaseName, nameof(databaseName));
 
             var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
-                            ?? new InMemoryOptionsExtension();
+                ?? new InMemoryOptionsExtension();
 
             extension = extension.WithStoreName(databaseName);
 
@@ -134,42 +133,12 @@ namespace Microsoft.EntityFrameworkCore
             return optionsBuilder;
         }
 
-        /// <summary>
-        ///     Configures the context to connect to the legacy shared in-memory database.
-        ///     This method is obsolete. Use
-        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},Action{InMemoryDbContextOptionsBuilder})" /> instead.
-        /// </summary>
-        /// <typeparam name="TContext"> The type of context being configured. </typeparam>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
-        /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
-        [Obsolete("Use UseInMemoryDatabase(string, InMemoryDatabaseRoot) instead.")]
-        public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
-            where TContext : DbContext
-            => optionsBuilder.UseInMemoryDatabase(LegacySharedName, null, inMemoryOptionsAction);
-
-        /// <summary>
-        ///     Configures the context to connect to the legacy shared in-memory database.
-        ///     This method is obsolete. Use <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,Action{InMemoryDbContextOptionsBuilder})" />
-        ///     instead.
-        /// </summary>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
-        /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
-        [Obsolete("Use UseInMemoryDatabase(string, InMemoryDatabaseRoot) instead.")]
-        public static DbContextOptionsBuilder UseInMemoryDatabase(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
-            => optionsBuilder.UseInMemoryDatabase(LegacySharedName, null, inMemoryOptionsAction);
-
         private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
         {
             // Set warnings defaults
             var coreOptionsExtension
                 = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
-                  ?? new CoreOptionsExtension();
+                ?? new CoreOptionsExtension();
 
             coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
                 coreOptionsExtension.WarningsConfiguration.TryWithExplicit(

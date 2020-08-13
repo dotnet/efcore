@@ -19,6 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Update
     public interface IUpdateEntry
     {
         /// <summary>
+        ///     Sets the original value of the given property.
+        /// </summary>
+        /// <param name="property"> The property to set. </param>
+        /// <param name="value"> The value to set. </param>
+        void SetOriginalValue([NotNull] IProperty property, [CanBeNull] object value);
+
+        /// <summary>
+        ///     Marks the given property as modified.
+        /// </summary>
+        /// <param name="property"> The property to mark as modified. </param>
+        void SetPropertyModified([NotNull] IProperty property);
+
+        /// <summary>
         ///     The type of entity to be saved to the database.
         /// </summary>
         IEntityType EntityType { get; }
@@ -26,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The state of the entity to be saved.
         /// </summary>
-        EntityState EntityState { get; }
+        EntityState EntityState { get; set; }
 
         /// <summary>
         ///     The other entry that has the same key values, if one exists.
@@ -86,11 +99,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         TProperty GetOriginalValue<TProperty>([NotNull] IProperty property);
 
         /// <summary>
-        ///     Gets the value assigned to the property.
+        ///     Assign a store-generated value to the property.
         /// </summary>
-        /// <param name="propertyBase"> The property to set the value for. </param>
+        /// <param name="property"> The property to set the value for. </param>
         /// <param name="value"> The value to set. </param>
-        void SetCurrentValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value);
+        void SetStoreGeneratedValue([NotNull] IProperty property, [CanBeNull] object value);
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry" /> for the entity being saved. <see cref="EntityEntry" /> is an API optimized for

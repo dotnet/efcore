@@ -6,8 +6,8 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryFilterFuncletizationSqliteTest
-        : QueryFilterFuncletizationTestBase<QueryFilterFuncletizationSqliteTest.QueryFilterFuncletizationSqliteFixture>
+    public class QueryFilterFuncletizationSqliteTest : QueryFilterFuncletizationTestBase<
+        QueryFilterFuncletizationSqliteTest.QueryFilterFuncletizationSqliteFixture>
     {
         public QueryFilterFuncletizationSqliteTest(
             QueryFilterFuncletizationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
@@ -16,9 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
-
-        private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class QueryFilterFuncletizationSqliteFixture : QueryFilterFuncletizationRelationalFixture
         {

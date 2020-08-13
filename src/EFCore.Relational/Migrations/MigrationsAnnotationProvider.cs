@@ -7,12 +7,20 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     A base class inherited by database providers that gives access to annotations
-    ///     used by EF Core Migrations on various elements of the <see cref="IModel" />.
+    ///     <para>
+    ///         A base class inherited by database providers that gives access to annotations
+    ///         used by EF Core Migrations on various elements of the <see cref="IModel" />.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
     public class MigrationsAnnotationProvider : IMigrationsAnnotationProvider
     {
@@ -111,6 +119,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         /// <summary>
         ///     <para>
+        ///         Gets provider-specific Migrations annotations for the given <see cref="ICheckConstraint" />.
+        ///     </para>
+        ///     <para>
+        ///         The default implementation returns an empty collection.
+        ///     </para>
+        /// </summary>
+        /// <param name="checkConstraint"> The check constraint. </param>
+        /// <returns> The annotations. </returns>
+        public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint) => Enumerable.Empty<IAnnotation>();
+
+        /// <summary>
+        ///     <para>
         ///         Gets provider-specific Migrations annotations for the given <see cref="IModel" />
         ///         when it is being removed/altered.
         ///     </para>
@@ -199,5 +219,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="sequence"> The sequence. </param>
         /// <returns> The annotations. </returns>
         public virtual IEnumerable<IAnnotation> ForRemove(ISequence sequence) => Enumerable.Empty<IAnnotation>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets provider-specific Migrations annotations for the given <see cref="ICheckConstraint" />
+        ///         when it is being removed/altered.
+        ///     </para>
+        ///     <para>
+        ///         The default implementation returns an empty collection.
+        ///     </para>
+        /// </summary>
+        /// <param name="checkConstraint"> The check constraint. </param>
+        /// <returns> The annotations. </returns>
+        public virtual IEnumerable<IAnnotation> ForRemove(ICheckConstraint checkConstraint) => Enumerable.Empty<IAnnotation>();
     }
 }

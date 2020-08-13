@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DbSetSourceTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_create_new_generic_DbSet()
         {
             var context = InMemoryTestHelpers.Instance.CreateContext();
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.IsType<InternalDbSet<Random>>(set);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Always_creates_a_new_DbSet_instance()
         {
             var context = InMemoryTestHelpers.Instance.CreateContext();

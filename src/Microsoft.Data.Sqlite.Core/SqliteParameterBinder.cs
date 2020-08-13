@@ -1,8 +1,9 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using SQLitePCL;
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -29,20 +30,20 @@ namespace Microsoft.Data.Sqlite
                 Array.Copy(value, blob, _size.Value);
             }
 
-            raw.sqlite3_bind_blob(_stmt, _index, blob);
+            sqlite3_bind_blob(_stmt, _index, blob);
         }
 
         protected override void BindDoubleCore(double value)
-            => raw.sqlite3_bind_double(_stmt, _index, value);
+            => sqlite3_bind_double(_stmt, _index, value);
 
         protected override void BindInt64(long value)
-            => raw.sqlite3_bind_int64(_stmt, _index, value);
+            => sqlite3_bind_int64(_stmt, _index, value);
 
         protected override void BindNull()
-            => raw.sqlite3_bind_null(_stmt, _index);
+            => sqlite3_bind_null(_stmt, _index);
 
         protected override void BindText(string value)
-            => raw.sqlite3_bind_text(
+            => sqlite3_bind_text(
                 _stmt,
                 _index,
                 ShouldTruncate(value.Length)

@@ -7,21 +7,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class StateDataTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_read_and_manipulate_modification_flags()
         {
             for (var i = 0; i < 70; i++)
             {
                 PropertyManipulation(
                     i,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Modified,
                     InternalEntityEntry.PropertyFlag.Null,
                     InternalEntityEntry.PropertyFlag.Unknown,
                     InternalEntityEntry.PropertyFlag.IsLoaded);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_read_and_manipulate_null_flags()
         {
             for (var i = 0; i < 70; i++)
@@ -29,13 +29,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 PropertyManipulation(
                     i,
                     InternalEntityEntry.PropertyFlag.Null,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Modified,
                     InternalEntityEntry.PropertyFlag.Unknown,
                     InternalEntityEntry.PropertyFlag.IsLoaded);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_read_and_manipulate_not_set_flags()
         {
             for (var i = 0; i < 70; i++)
@@ -43,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 PropertyManipulation(
                     i,
                     InternalEntityEntry.PropertyFlag.Unknown,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Modified,
                     InternalEntityEntry.PropertyFlag.Null,
                     InternalEntityEntry.PropertyFlag.IsLoaded);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_read_and_manipulate_is_loaded_flags()
         {
             for (var i = 0; i < 70; i++)
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 PropertyManipulation(
                     i,
                     InternalEntityEntry.PropertyFlag.IsLoaded,
-                    InternalEntityEntry.PropertyFlag.TemporaryOrModified,
+                    InternalEntityEntry.PropertyFlag.Modified,
                     InternalEntityEntry.PropertyFlag.Null,
                     InternalEntityEntry.PropertyFlag.Unknown);
             }
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_get_and_set_EntityState()
         {
             var data = new InternalEntityEntry.StateData(70, 0);
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             data.EntityState = EntityState.Deleted;
             Assert.Equal(EntityState.Deleted, data.EntityState);
 
-            data.FlagAllProperties(70, InternalEntityEntry.PropertyFlag.TemporaryOrModified, flagged: true);
+            data.FlagAllProperties(70, InternalEntityEntry.PropertyFlag.Modified, flagged: true);
 
             Assert.Equal(EntityState.Deleted, data.EntityState);
 

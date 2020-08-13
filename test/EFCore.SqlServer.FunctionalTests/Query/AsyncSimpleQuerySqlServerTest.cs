@@ -4,12 +4,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,15 +18,34 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class AsyncSimpleQuerySqlServerTest : AsyncSimpleQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         // ReSharper disable once UnusedParameter.Local
-        public AsyncSimpleQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public AsyncSimpleQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalFact]
-        public async Task Query_compiler_concurrency()
+        [ConditionalFact(Skip = "Issue#16314")]
+        public override Task Throws_on_concurrent_query_list()
+        {
+            return Task.CompletedTask;
+        }
+
+        [ConditionalFact(Skip = "Issue#16314")]
+        public override Task Concat_non_entity()
+        {
+            return Task.CompletedTask;
+        }
+
+        [ConditionalFact(Skip = "Issue#16314")]
+        public override Task Concat_simple()
+        {
+            return Task.CompletedTask;
+        }
+
+        [ConditionalFact(Skip = "Issue#16314")]
+        public Task Query_compiler_concurrency()
         {
             const int threadCount = 50;
 
@@ -38,32 +55,32 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 tasks[i] = Task.Run(
                     () =>
+                    {
+                        using (var context = CreateContext())
                         {
-                            using (var context = CreateContext())
+                            using ((from c in context.Customers
+                                    where c.City == "London"
+                                    orderby c.CustomerID
+                                    select (from o1 in context.Orders
+                                            where o1.CustomerID == c.CustomerID
+                                                && o1.OrderDate.Value.Year == 1997
+                                            orderby o1.OrderID
+                                            select (from o2 in context.Orders
+                                                    where o1.CustomerID == c.CustomerID
+                                                    orderby o2.OrderID
+                                                    select o1.OrderID)))
+                                .GetEnumerator())
                             {
-                                using ((from c in context.Customers
-                                        where c.City == "London"
-                                        orderby c.CustomerID
-                                        select (from o1 in context.Orders
-                                                where o1.CustomerID == c.CustomerID
-                                                      && o1.OrderDate.Value.Year == 1997
-                                                orderby o1.OrderID
-                                                select (from o2 in context.Orders
-                                                        where o1.CustomerID == c.CustomerID
-                                                        orderby o2.OrderID
-                                                        select o1.OrderID)))
-                                    .GetEnumerator())
-                                {
-                                }
                             }
-                        });
+                        }
+                    });
             }
 
-            await Task.WhenAll(tasks);
+            return Task.WhenAll(tasks);
         }
 
-        [ConditionalFact]
-        public async Task Race_when_context_disposed_before_query_termination()
+        [ConditionalFact(Skip = "Issue#16218")]
+        public Task Race_when_context_disposed_before_query_termination()
         {
             DbSet<Customer> task;
 
@@ -72,56 +89,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 task = context.Customers;
             }
 
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
+            return Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
         }
 
-        public override async Task String_Contains_Literal()
+        [ConditionalFact]
+        public Task Single_Predicate_Cancellation()
         {
-            await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
-                entryCount: 34);
+            return Assert.ThrowsAnyAsync<OperationCanceledException>(
+                () => Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
         }
 
-        public override async Task String_Contains_MethodCall()
-        {
-            await AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1().ToLower()) || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
-                entryCount: 34);
-        }
-
-        public async Task Skip_when_no_order_by()
-        {
-            await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
-        }
-
-        [Fact]
-        public async Task Single_Predicate_Cancellation()
-        {
-            await Assert.ThrowsAsync<TaskCanceledException>(
-                async () =>
-                    await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
-        }
-
-        [Fact]
-        public async Task Concurrent_async_queries_are_serialized()
-        {
-            using (var context = CreateContext())
-            {
-                var task1 = context.Customers.Where(c => c.City == "México D.F.").ToListAsync();
-                var task2 = context.Customers.Where(c => c.City == "London").ToListAsync();
-                var task3 = context.Customers.Where(c => c.City == "Sao Paulo").ToListAsync();
-
-                var tasks = await Task.WhenAll(task1, task2, task3);
-
-                Assert.Equal(5, tasks[0].Count);
-                Assert.Equal(6, tasks[1].Count);
-                Assert.Equal(4, tasks[2].Count);
-            }
-        }
-
-        [Fact]
+        [ConditionalFact]
         public async Task Concurrent_async_queries_are_serialized2()
         {
             using (var context = CreateContext())
@@ -137,98 +115,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact]
-        public async Task Concurrent_async_queries_are_serialized_find()
-        {
-            using (var context = CreateContext())
-            {
-                var task1 = context.Customers.FindAsync("ALFKI");
-                var task2 = context.Customers.FindAsync("ANATR");
-                var task3 = context.Customers.FindAsync("FISSA");
-
-                var tasks = await Task.WhenAll(task1, task2, task3);
-
-                Assert.NotNull(tasks[0]);
-                Assert.NotNull(tasks[1]);
-                Assert.NotNull(tasks[2]);
-            }
-        }
-
-        [Fact]
-        public async Task Concurrent_async_queries_are_serialized_mixed1()
-        {
-            using (var context = CreateContext())
-            {
-                await context.Customers.ForEachAsync(
-                    // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                    c => { context.Orders.Where(o => o.CustomerID == c.CustomerID).ToList(); });
-            }
-        }
-
-        [Fact]
-        public async Task Concurrent_async_queries_are_serialized_mixed2()
-        {
-            using (var context = CreateContext())
-            {
-                foreach (var c in context.Customers)
-                {
-                    await context.Orders.Where(o => o.CustomerID == c.CustomerID).ToListAsync();
-                }
-            }
-        }
-
-        [Fact]
+        [ConditionalFact]
         public async Task Concurrent_async_queries_when_raw_query()
         {
             using (var context = CreateContext())
             {
-                using (var asyncEnumerator = context.Customers.AsAsyncEnumerable().GetEnumerator())
+                await using (var asyncEnumerator = context.Customers.AsAsyncEnumerable().GetAsyncEnumerator())
                 {
-                    while (await asyncEnumerator.MoveNext(default))
+                    while (await asyncEnumerator.MoveNextAsync())
                     {
-                        if (!context.GetService<IRelationalConnection>().IsMultipleActiveResultSetsEnabled)
-                        {
-                            // Not supported, we could make it work by triggering buffering
-                            // from RelationalCommand.
-
-                            await Assert.ThrowsAsync<InvalidOperationException>(
-                                () => context.Database.ExecuteSqlCommandAsync(
-                                    "[dbo].[CustOrderHist] @CustomerID = {0}",
-                                    asyncEnumerator.Current.CustomerID));
-                        }
-                        else
-                        {
-                            await context.Database.ExecuteSqlCommandAsync(
-                                "[dbo].[CustOrderHist] @CustomerID = {0}",
-                                asyncEnumerator.Current.CustomerID);
-                        }
+                        // Outer query is buffered by default
+                        await context.Database.ExecuteSqlRawAsync(
+                            "[dbo].[CustOrderHist] @CustomerID = {0}",
+                            asyncEnumerator.Current.CustomerID);
                     }
                 }
             }
         }
 
-        [Fact]
-        public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
+        [ConditionalFact(Skip = "Issue#16218")]
+        public override Task Select_bitwise_and_with_logical_and()
         {
-            await AssertQuery<Order>(
-                os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }),
-                elementSorter: e => e.City + " " + e.Count);
+            return base.Select_bitwise_and_with_logical_and();
         }
 
-        [Fact]
-        public async Task Sum_with_no_data_nullable_legacy_behavior()
+        [ConditionalFact(Skip = "Issue#16218")]
+        public override Task Mixed_sync_async_in_query_cache()
         {
-            AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12314", true);
-
-            try
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () => await AssertSingleResult<Order>(os => os.Where(o => o.OrderID < 0).Select(o => (int?)o.OrderID).SumAsync()));
-            }
-            finally
-            {
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue12314", false);
-            }
+            return base.Mixed_sync_async_in_query_cache();
         }
     }
 }

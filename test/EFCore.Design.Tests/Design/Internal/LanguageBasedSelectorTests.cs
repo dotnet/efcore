@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     public class LanguageBasedSelectorTests
     {
-        [Fact]
+        [ConditionalFact]
         public void Select_works()
         {
             var vbService = new TestLanguageBasedService("VB");
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Same(vbService, result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Select_favors_legacy_services()
         {
             var legacyService = new TestLanguageBasedService(null);
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Same(legacyService, result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Select_ignores_case()
         {
             var csharpService = new TestLanguageBasedService("C#");
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Same(csharpService, result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Select_picks_csharp_when_no_language()
         {
             var csharpService = new TestLanguageBasedService("C#");
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Same(csharpService, result);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Select_throws_when_no_service()
         {
             var selector = new TestLanguageBasedSelector(new TestLanguageBasedService("C#"));
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(DesignStrings.NoLanguageService("VB", "TestLanguageBasedService"), ex.Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Select_uses_last_when_multiple_services()
         {
             var lastService = new TestLanguageBasedService("C#");

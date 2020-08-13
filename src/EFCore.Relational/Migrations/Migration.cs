@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -21,31 +20,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string InitialDatabase = "0";
 
-        private readonly LazyRef<IModel> _targetModel;
-        private readonly LazyRef<List<MigrationOperation>> _upOperations;
-        private readonly LazyRef<List<MigrationOperation>> _downOperations;
-
-        /// <summary>
-        ///     Creates a <see cref="Migration" /> instance.
-        /// </summary>
-        protected Migration()
-        {
-            _targetModel = new LazyRef<IModel>(
-                () =>
-                    {
-                        var modelBuilder = new ModelBuilder(new ConventionSet());
-                        BuildTargetModel(modelBuilder);
-
-                        return modelBuilder.Model;
-                    });
-            _upOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Up));
-            _downOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Down));
-        }
+        private IModel _targetModel;
+        private List<MigrationOperation> _upOperations;
+        private List<MigrationOperation> _downOperations;
 
         /// <summary>
         ///     The <see cref="IModel" /> that the database will map to after the migration has been applied.
         /// </summary>
-        public virtual IModel TargetModel => _targetModel.Value;
+        public virtual IModel TargetModel
+        {
+            get
+            {
+                IModel Create()
+                {
+                    var model = new Model();
+                    var modelBuilder = new ModelBuilder(model);
+                    BuildTargetModel(modelBuilder);
+
+                    return model.FinalizeModel();
+                }
+
+                return _targetModel ??= Create();
+            }
+        }
 
         /// <summary>
         ///     <para>
@@ -57,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         with regard to this migration.
         ///     </para>
         /// </summary>
-        public virtual IReadOnlyList<MigrationOperation> UpOperations => _upOperations.Value;
+        public virtual IReadOnlyList<MigrationOperation> UpOperations
+            => _upOperations ??= BuildOperations(Up);
 
         /// <summary>
         ///     <para>
@@ -69,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         state that it was in before this migration was applied.
         ///     </para>
         /// </summary>
-        public virtual IReadOnlyList<MigrationOperation> DownOperations => _downOperations.Value;
+        public virtual IReadOnlyList<MigrationOperation> DownOperations
+            => _downOperations ??= BuildOperations(Down);
 
         /// <summary>
         ///     <para>

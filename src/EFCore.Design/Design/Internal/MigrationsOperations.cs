@@ -18,8 +18,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class MigrationsOperations
     {
@@ -32,8 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly DbContextOperations _contextOperations;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public MigrationsOperations(
             [NotNull] IOperationReporter reporter,
@@ -62,12 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 startupAssembly,
                 args);
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter, args);
+            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual MigrationFiles AddMigration(
             [NotNull] string name,
@@ -102,8 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         // => "namespace $(rootnamespace).A.B.C"
         private string SubnamespaceFromOutputPath(string outputDir)
         {
-            if (outputDir == null
-                || !outputDir.StartsWith(_projectDir, StringComparison.Ordinal))
+            if (outputDir?.StartsWith(_projectDir, StringComparison.Ordinal) != true)
             {
                 return null;
             }
@@ -120,8 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<MigrationInfo> GetMigrations(
             [CanBeNull] string contextType)
@@ -140,8 +147,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string ScriptMigration(
             [CanBeNull] string fromMigration,
@@ -161,8 +170,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateDatabase(
             [CanBeNull] string targetMigration,
@@ -182,8 +193,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual MigrationFiles RemoveMigration(
             [CanBeNull] string contextType, bool force)

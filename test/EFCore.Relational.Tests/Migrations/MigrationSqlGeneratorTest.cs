@@ -13,310 +13,331 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddColumnOperation_with_defaultValue();
 
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" ADD \"Name\" varchar(30) NOT NULL DEFAULT 'John Doe';" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
+");
         }
 
         public override void AddColumnOperation_with_defaultValueSql()
         {
             base.AddColumnOperation_with_defaultValueSql();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date NULL DEFAULT (CURRENT_TIMESTAMP);" + EOL,
-                Sql);
-        }
-
-        public override void AddColumnOperation_with_computed_column_SQL()
-        {
-            base.AddColumnOperation_with_computed_column_SQL();
-
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Birthday\" date NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Birthday"" date NULL DEFAULT (CURRENT_TIMESTAMP);
+");
         }
 
         public override void AddColumnOperation_without_column_type()
         {
             base.AddColumnOperation_without_column_type();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Alias\" just_string(max) NOT NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Alias"" just_string(max) NOT NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength()
         {
             base.AddColumnOperation_with_maxLength();
 
-            Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" just_string(30) NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" just_string(30) NULL;
+");
         }
 
         public override void AddColumnOperation_with_maxLength_on_derived()
         {
             base.AddColumnOperation_with_maxLength_on_derived();
 
-            Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" just_string(30) NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" just_string(30) NULL;
+");
         }
 
         public override void AddColumnOperation_with_shared_column()
         {
             base.AddColumnOperation_with_shared_column();
 
-            Assert.Equal(
-                "ALTER TABLE \"Base\" ADD \"Foo\" just_string(max) NULL;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""Base"" ADD ""Foo"" just_string(max) NULL;
+");
         }
 
         public override void AddForeignKeyOperation_with_name()
         {
             base.AddForeignKeyOperation_with_name();
 
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"FK_People_Companies\" FOREIGN KEY (\"EmployerId1\", \"EmployerId2\") REFERENCES \"hr\".\"Companies\" (\"Id1\", \"Id2\") ON DELETE CASCADE;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""FK_People_Companies"" FOREIGN KEY (""EmployerId1"", ""EmployerId2"") REFERENCES ""hr"".""Companies"" (""Id1"", ""Id2"") ON DELETE CASCADE;
+");
         }
 
         public override void AddForeignKeyOperation_without_name()
         {
             base.AddForeignKeyOperation_without_name();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD FOREIGN KEY (\"SpouseId\") REFERENCES \"People\" (\"Id\");" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD FOREIGN KEY (""SpouseId"") REFERENCES ""People"" (""Id"");
+");
         }
 
         public override void AddForeignKeyOperation_without_principal_columns()
         {
             base.AddForeignKeyOperation_without_principal_columns();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD FOREIGN KEY (\"SpouseId\") REFERENCES \"People\";" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD FOREIGN KEY (""SpouseId"") REFERENCES ""People"";
+");
         }
 
         public override void AddPrimaryKeyOperation_with_name()
         {
             base.AddPrimaryKeyOperation_with_name();
 
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"PK_People\" PRIMARY KEY (\"Id1\", \"Id2\");" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""PK_People"" PRIMARY KEY (""Id1"", ""Id2"");
+");
         }
 
         public override void AddPrimaryKeyOperation_without_name()
         {
             base.AddPrimaryKeyOperation_without_name();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD PRIMARY KEY (\"Id\");" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD PRIMARY KEY (""Id"");
+");
         }
 
         public override void AddUniqueConstraintOperation_with_name()
         {
             base.AddUniqueConstraintOperation_with_name();
 
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" ADD CONSTRAINT \"AK_People_DriverLicense\" UNIQUE (\"DriverLicense_State\", \"DriverLicense_Number\");" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""AK_People_DriverLicense"" UNIQUE (""DriverLicense_State"", ""DriverLicense_Number"");
+");
         }
 
         public override void AddUniqueConstraintOperation_without_name()
         {
             base.AddUniqueConstraintOperation_without_name();
 
-            Assert.Equal(
-                "ALTER TABLE \"People\" ADD UNIQUE (\"SSN\");" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD UNIQUE (""SSN"");
+");
+        }
+
+        public override void CreateCheckConstraintOperation_with_name()
+        {
+            base.CreateCheckConstraintOperation_with_name();
+
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""CK_People_DriverLicense"" CHECK (DriverLicense_Number > 0);
+");
         }
 
         public override void AlterSequenceOperation_with_minValue_and_maxValue()
         {
             base.AlterSequenceOperation_with_minValue_and_maxValue();
 
-            Assert.Equal(
-                "ALTER SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
+");
         }
 
         public override void AlterSequenceOperation_without_minValue_and_maxValue()
         {
             base.AlterSequenceOperation_without_minValue_and_maxValue();
 
-            Assert.Equal(
-                "ALTER SEQUENCE \"EntityFrameworkHiLoSequence\" INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER SEQUENCE ""EntityFrameworkHiLoSequence"" INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+");
         }
 
         public override void CreateIndexOperation_unique()
         {
             base.CreateIndexOperation_unique();
 
-            Assert.Equal(
-                "CREATE UNIQUE INDEX \"IX_People_Name\" ON \"dbo\".\"People\" (\"FirstName\", \"LastName\");" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE UNIQUE INDEX ""IX_People_Name"" ON ""dbo"".""People"" (""FirstName"", ""LastName"");
+");
         }
 
         public override void CreateIndexOperation_nonunique()
         {
             base.CreateIndexOperation_nonunique();
 
-            Assert.Equal(
-                "CREATE INDEX \"IX_People_Name\" ON \"People\" (\"Name\");" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE INDEX ""IX_People_Name"" ON ""People"" (""Name"");
+");
         }
 
         public override void CreateIndexOperation_with_where_clauses()
         {
             base.CreateIndexOperation_with_where_clauses();
 
-            Assert.Equal(
-                "CREATE INDEX \"IX_People_Name\" ON \"People\" (\"Name\") WHERE [Id] > 2;" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE INDEX ""IX_People_Name"" ON ""People"" (""Name"") WHERE [Id] > 2;
+");
         }
 
         public override void CreateSequenceOperation_with_minValue_and_maxValue()
         {
             base.CreateSequenceOperation_with_minValue_and_maxValue();
 
-            Assert.Equal(
-                "CREATE SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
+");
         }
 
         public override void CreateSequenceOperation_with_minValue_and_maxValue_not_long()
         {
             base.CreateSequenceOperation_with_minValue_and_maxValue_not_long();
 
-            Assert.Equal(
-                "CREATE SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" AS default_int_mapping START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" AS default_int_mapping START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
+");
         }
 
         public override void CreateSequenceOperation_without_minValue_and_maxValue()
         {
             base.CreateSequenceOperation_without_minValue_and_maxValue();
 
-            Assert.Equal(
-                "CREATE SEQUENCE \"EntityFrameworkHiLoSequence\" START WITH 3 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE SEQUENCE ""EntityFrameworkHiLoSequence"" START WITH 3 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+");
         }
 
         public override void CreateTableOperation()
         {
             base.CreateTableOperation();
 
-            Assert.Equal(
-                "CREATE TABLE \"dbo\".\"People\" (" + EOL +
-                "    \"Id\" default_int_mapping NOT NULL," + EOL +
-                "    \"EmployerId\" default_int_mapping NULL," + EOL +
-                "    \"SSN\" char(11) NULL," + EOL +
-                "    PRIMARY KEY (\"Id\")," + EOL +
-                "    UNIQUE (\"SSN\")," + EOL +
-                "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\" (\"Id\")" + EOL +
-                ");" + EOL,
-                Sql);
+            AssertSql(
+                @"CREATE TABLE ""dbo"".""People"" (
+    ""Id"" default_int_mapping NOT NULL,
+    ""EmployerId"" default_int_mapping NULL,
+    ""SSN"" char(11) NULL,
+    PRIMARY KEY (""Id""),
+    UNIQUE (""SSN""),
+    CHECK (SSN > 0),
+    FOREIGN KEY (""EmployerId"") REFERENCES ""Companies"" (""Id"")
+);
+");
+        }
+
+        public override void CreateTableOperation_no_key()
+        {
+            base.CreateTableOperation_no_key();
+
+            AssertSql(
+                @"CREATE TABLE ""Anonymous"" (
+    ""Value"" default_int_mapping NOT NULL
+);
+");
         }
 
         public override void DropColumnOperation()
         {
             base.DropColumnOperation();
 
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" DROP COLUMN \"LuckyNumber\";" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP COLUMN ""LuckyNumber"";
+");
         }
 
         public override void DropForeignKeyOperation()
         {
             base.DropForeignKeyOperation();
 
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" DROP CONSTRAINT \"FK_People_Companies\";" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""FK_People_Companies"";
+");
         }
 
         public override void DropPrimaryKeyOperation()
         {
             base.DropPrimaryKeyOperation();
 
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" DROP CONSTRAINT \"PK_People\";" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""PK_People"";
+");
         }
 
         public override void DropSequenceOperation()
         {
             base.DropSequenceOperation();
 
-            Assert.Equal(
-                "DROP SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\";" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"";
+");
         }
 
         public override void DropTableOperation()
         {
             base.DropTableOperation();
 
-            Assert.Equal(
-                "DROP TABLE \"dbo\".\"People\";" + EOL,
-                Sql);
+            AssertSql(
+                @"DROP TABLE ""dbo"".""People"";
+");
         }
 
         public override void DropUniqueConstraintOperation()
         {
             base.DropUniqueConstraintOperation();
 
-            Assert.Equal(
-                "ALTER TABLE \"dbo\".\"People\" DROP CONSTRAINT \"AK_People_SSN\";" + EOL,
-                Sql);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""AK_People_SSN"";
+");
+        }
+
+        public override void DropCheckConstraintOperation()
+        {
+            base.DropCheckConstraintOperation();
+
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""CK_People_SSN"";
+");
         }
 
         public override void SqlOperation()
         {
             base.SqlOperation();
 
-            Assert.Equal(
-                "-- I <3 DDL" + EOL,
-                Sql);
+            AssertSql(
+                @"-- I <3 DDL
+");
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Generate_doesnt_batch_by_default()
         {
             Generate(
                 new SqlOperation { Sql = "SELECT 1;" },
                 new SqlOperation { Sql = "SELECT 2;" });
 
-            Assert.Equal(
-                "SELECT 1;" + EOL +
-                "GO" + EOL +
-                EOL +
-                "SELECT 2;" + EOL,
-                Sql);
+            AssertSql(
+                @"SELECT 1;
+GO
+
+SELECT 2;
+");
         }
 
         public override void InsertDataOperation()
         {
             base.InsertDataOperation();
 
-            Assert.Equal(
-                "INSERT INTO \"People\" (\"Id\", \"Full Name\")" + EOL +
-                "VALUES (0, NULL);" + EOL +
-                "INSERT INTO \"People\" (\"Id\", \"Full Name\")" + EOL +
-                "VALUES (1, 'Daenerys Targaryen');" + EOL +
-                "INSERT INTO \"People\" (\"Id\", \"Full Name\")" + EOL +
-                "VALUES (2, 'John Snow');" + EOL +
-                "INSERT INTO \"People\" (\"Id\", \"Full Name\")" + EOL +
-                "VALUES (3, 'Arya Stark');" + EOL +
-                "INSERT INTO \"People\" (\"Id\", \"Full Name\")" + EOL +
-                "VALUES (4, 'Harry Strickland');" + EOL,
-                Sql);
+            AssertSql(
+                @"INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (0, NULL);
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (1, 'Daenerys Targaryen');
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (2, 'John Snow');
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (3, 'Arya Stark');
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (4, 'Harry Strickland');
+");
         }
 
         public override void DeleteDataOperation_simple_key()
@@ -324,14 +345,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.DeleteDataOperation_simple_key();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "DELETE FROM \"People\"" + EOL +
-                "WHERE \"Id\" = 2;" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL +
-                "DELETE FROM \"People\"" + EOL +
-                "WHERE \"Id\" = 4;" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"DELETE FROM ""People""
+WHERE ""Id"" = 2;
+SELECT provider_specific_rowcount();
+
+DELETE FROM ""People""
+WHERE ""Id"" = 4;
+SELECT provider_specific_rowcount();
+
+");
         }
 
         public override void DeleteDataOperation_composite_key()
@@ -339,14 +362,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.DeleteDataOperation_composite_key();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "DELETE FROM \"People\"" + EOL +
-                "WHERE \"First Name\" = 'Hodor' AND \"Last Name\" IS NULL;" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL +
-                "DELETE FROM \"People\"" + EOL +
-                "WHERE \"First Name\" = 'Daenerys' AND \"Last Name\" = 'Targaryen';" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"DELETE FROM ""People""
+WHERE ""First Name"" = 'Hodor' AND ""Last Name"" IS NULL;
+SELECT provider_specific_rowcount();
+
+DELETE FROM ""People""
+WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen';
+SELECT provider_specific_rowcount();
+
+");
         }
 
         public override void UpdateDataOperation_simple_key()
@@ -354,14 +379,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.UpdateDataOperation_simple_key();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "UPDATE \"People\" SET \"Full Name\" = 'Daenerys Stormborn'" + EOL +
-                "WHERE \"Id\" = 1;" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL +
-                "UPDATE \"People\" SET \"Full Name\" = 'Homeless Harry Strickland'" + EOL +
-                "WHERE \"Id\" = 4;" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"UPDATE ""People"" SET ""Full Name"" = 'Daenerys Stormborn'
+WHERE ""Id"" = 1;
+SELECT provider_specific_rowcount();
+
+UPDATE ""People"" SET ""Full Name"" = 'Homeless Harry Strickland'
+WHERE ""Id"" = 4;
+SELECT provider_specific_rowcount();
+
+");
         }
 
         public override void UpdateDataOperation_composite_key()
@@ -369,14 +396,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.UpdateDataOperation_composite_key();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "UPDATE \"People\" SET \"First Name\" = 'Hodor'" + EOL +
-                "WHERE \"Id\" = 0 AND \"Last Name\" IS NULL;" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL +
-                "UPDATE \"People\" SET \"First Name\" = 'Harry'" + EOL +
-                "WHERE \"Id\" = 4 AND \"Last Name\" = 'Strickland';" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"UPDATE ""People"" SET ""First Name"" = 'Hodor'
+WHERE ""Id"" = 0 AND ""Last Name"" IS NULL;
+SELECT provider_specific_rowcount();
+
+UPDATE ""People"" SET ""First Name"" = 'Harry'
+WHERE ""Id"" = 4 AND ""Last Name"" = 'Strickland';
+SELECT provider_specific_rowcount();
+
+");
         }
 
         public override void UpdateDataOperation_multiple_columns()
@@ -384,14 +413,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.UpdateDataOperation_multiple_columns();
 
             // TODO remove rowcount
-            Assert.Equal(
-                "UPDATE \"People\" SET \"First Name\" = 'Daenerys', \"Nickname\" = 'Dany'" + EOL +
-                "WHERE \"Id\" = 1;" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL +
-                "UPDATE \"People\" SET \"First Name\" = 'Harry', \"Nickname\" = 'Homeless'" + EOL +
-                "WHERE \"Id\" = 4;" + EOL +
-                "SELECT provider_specific_rowcount();" + EOL + EOL,
-                Sql);
+            AssertSql(
+                @"UPDATE ""People"" SET ""First Name"" = 'Daenerys', ""Nickname"" = 'Dany'
+WHERE ""Id"" = 1;
+SELECT provider_specific_rowcount();
+
+UPDATE ""People"" SET ""First Name"" = 'Harry', ""Nickname"" = 'Homeless'
+WHERE ""Id"" = 4;
+SELECT provider_specific_rowcount();
+
+");
         }
 
         public MigrationSqlGeneratorTest()

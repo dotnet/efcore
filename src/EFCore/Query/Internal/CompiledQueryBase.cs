@@ -14,8 +14,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public abstract class CompiledQueryBase<TContext, TResult>
         where TContext : DbContext
@@ -25,8 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private Func<QueryContext, TResult> _executor;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected CompiledQueryBase([NotNull] LambdaExpression queryExpression)
         {
@@ -34,8 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
@@ -43,8 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => ExecuteCore(context, default, parameters);
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
@@ -68,8 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected abstract Func<QueryContext, TResult> CreateCompiledQuery(
             [NotNull] IQueryCompiler queryCompiler, [NotNull] Expression expression);
@@ -80,12 +90,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 context,
                 _queryExpression,
                 (c, q) =>
-                    {
-                        var queryCompiler = context.GetService<IQueryCompiler>();
-                        var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
+                {
+                    var queryCompiler = context.GetService<IQueryCompiler>();
+                    var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
 
-                        return CreateCompiledQuery(queryCompiler, expression);
-                    });
+                    return CreateCompiledQuery(queryCompiler, expression);
+                });
 
         private sealed class QueryExpressionRewriter : ExpressionVisitor
         {
@@ -106,14 +116,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return Expression.Constant(_context);
                 }
 
-                if (_parameters.Contains(parameterExpression))
-                {
-                    return Expression.Parameter(
+                return _parameters.Contains(parameterExpression)
+                    ? Expression.Parameter(
                         parameterExpression.Type,
-                        CompiledQueryCache.CompiledQueryParameterPrefix + parameterExpression.Name);
-                }
-
-                return parameterExpression;
+                        CompiledQueryCache.CompiledQueryParameterPrefix + parameterExpression.Name)
+                    : parameterExpression;
             }
         }
     }

@@ -8,25 +8,36 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
     public class EntityEntryGraphIterator : IEntityEntryGraphIterator
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void TraverseGraph<TState>(
-            EntityEntryGraphNode node,
-            TState state,
-            Func<EntityEntryGraphNode, TState, bool> handleNode)
+            EntityEntryGraphNode<TState> node,
+            Func<EntityEntryGraphNode<TState>, bool> handleNode)
         {
-            if (!handleNode(node, state))
+            if (!handleNode(node))
             {
                 return;
             }
@@ -41,25 +52,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (navigationValue != null)
                 {
+                    var targetEntityType = navigation.GetTargetType();
                     if (navigation.IsCollection())
                     {
                         foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
+                            var targetEntry = stateManager.GetOrCreateEntry(relatedEntity, targetEntityType);
                             TraverseGraph(
-                                node.CreateNode(node, stateManager.GetOrCreateEntry(relatedEntity), navigation),
-                                state,
+                                (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                                 handleNode);
                         }
                     }
                     else
                     {
-                        var targetEntityType = navigation.GetTargetType();
-                        var targetEntry = targetEntityType.HasDefiningNavigation()
-                            ? stateManager.GetOrCreateEntry(navigationValue, targetEntityType)
-                            : stateManager.GetOrCreateEntry(navigationValue);
+                        var targetEntry = stateManager.GetOrCreateEntry(navigationValue, targetEntityType);
                         TraverseGraph(
-                            node.CreateNode(node, targetEntry, navigation),
-                            state,
+                            (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                             handleNode);
                     }
                 }
@@ -67,16 +75,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task TraverseGraphAsync<TState>(
-            EntityEntryGraphNode node,
-            TState state,
-            Func<EntityEntryGraphNode, TState, CancellationToken, Task<bool>> handleNode,
+            EntityEntryGraphNode<TState> node,
+            Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,
             CancellationToken cancellationToken = default)
         {
-            if (!await handleNode(node, state, cancellationToken))
+            if (!await handleNode(node, cancellationToken))
             {
                 return;
             }
@@ -91,26 +100,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (navigationValue != null)
                 {
+                    var targetType = navigation.GetTargetType();
                     if (navigation.IsCollection())
                     {
                         foreach (var relatedEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
                         {
+                            var targetEntry = stateManager.GetOrCreateEntry(relatedEntity, targetType);
                             await TraverseGraphAsync(
-                                node.CreateNode(node, stateManager.GetOrCreateEntry(relatedEntity), navigation),
-                                state,
+                                (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                                 handleNode,
                                 cancellationToken);
                         }
                     }
                     else
                     {
-                        var targetType = navigation.GetTargetType();
-                        var entry = targetType.HasDefiningNavigation()
-                            ? stateManager.GetOrCreateEntry(navigationValue, targetType)
-                            : stateManager.GetOrCreateEntry(navigationValue);
+                        var targetEntry = stateManager.GetOrCreateEntry(navigationValue, targetType);
                         await TraverseGraphAsync(
-                            node.CreateNode(node, entry, navigation),
-                            state,
+                            (EntityEntryGraphNode<TState>)node.CreateNode(node, targetEntry, navigation),
                             handleNode,
                             cancellationToken);
                     }

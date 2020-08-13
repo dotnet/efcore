@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -18,8 +19,10 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class DbContextOperations
     {
@@ -30,8 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly AppServiceProviderFactory _appServicesFactory;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbContextOperations(
             [NotNull] IOperationReporter reporter,
@@ -43,8 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected DbContextOperations(
             [NotNull] IOperationReporter reporter,
@@ -66,8 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void DropDatabase([CanBeNull] string contextType)
         {
@@ -87,8 +96,24 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string ScriptDbContext([CanBeNull] string contextType)
+        {
+            using (var context = CreateContext(contextType))
+            {
+                return context.Database.GenerateCreateScript();
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DbContext CreateContext([CanBeNull] string contextType)
             => CreateContext(FindContextType(contextType).Value);
@@ -105,15 +130,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<Type> GetContextTypes()
             => FindContextTypes().Keys;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Type GetContextType([CanBeNull] string name)
             => FindContextType(name).Key;
@@ -176,24 +205,26 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 contexts.Add(
                     context,
                     FindContextFactory(context) ?? (() =>
+                    {
+                        try
                         {
-                            try
-                            {
-                                return (DbContext)Activator.CreateInstance(context);
-                            }
-                            catch (MissingMethodException ex)
-                            {
-                                throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
-                            }
-                        }));
+                            return (DbContext)Activator.CreateInstance(context);
+                        }
+                        catch (MissingMethodException ex)
+                        {
+                            throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
+                        }
+                    }));
             }
 
             return contexts;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ContextInfo GetContextInfo([CanBeNull] string contextType)
         {
@@ -219,14 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var factoryInterface = typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
             var factory = contextType.GetTypeInfo().Assembly.GetConstructibleTypes()
-                .Where(t => factoryInterface.IsAssignableFrom(t))
-                .FirstOrDefault();
-            if (factory == null)
-            {
-                return null;
-            }
-
-            return () => CreateContextFromFactory(factory.AsType());
+                .FirstOrDefault(t => factoryInterface.IsAssignableFrom(t));
+            return factory == null ? (Func<DbContext>)null : (() => CreateContextFromFactory(factory.AsType()));
         }
 
         private DbContext CreateContextFromFactory(Type factory)
@@ -247,6 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
                 }
+
                 if (types.Count == 1)
                 {
                     return types.First();
@@ -260,6 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 throw new OperationException(DesignStrings.NoContextWithName(name));
             }
+
             if (candidates.Count == 1)
             {
                 return candidates.First();
@@ -271,6 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 throw new OperationException(DesignStrings.MultipleContextsWithName(name));
             }
+
             if (candidates.Count == 1)
             {
                 return candidates.First();

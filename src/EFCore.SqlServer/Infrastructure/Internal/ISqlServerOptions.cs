@@ -3,11 +3,21 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
 {
     /// <summary>
-    ///     Options set at the <see cref="IServiceProvider" /> singleton level to control SqlServer specific options.
+    ///     <para>
+    ///         Options set at the <see cref="IServiceProvider" /> singleton level to control
+    ///         SQL Server specific options.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations
+    ///         are allowed. This means a single instance of each service is used by many <see cref="DbContext" />
+    ///         instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     </para>
     /// </summary>
     public interface ISqlServerOptions : ISingletonOptions
     {

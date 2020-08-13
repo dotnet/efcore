@@ -2,15 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDatabaseFacadeTest
     {
-        [Fact]
-        public void IsSqlServer_when_using_OnConfguring()
+        [ConditionalFact]
+        public void IsSqlServer_when_using_OnConfiguring()
         {
             using (var context = new SqlServerOnConfiguringContext())
             {
@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public void IsSqlServer_in_OnModelCreating_when_using_OnConfguring()
+        [ConditionalFact]
+        public void IsSqlServer_in_OnModelCreating_when_using_OnConfiguring()
         {
             using (var context = new SqlServerOnModelContext())
             {
@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public void IsSqlServer_in_constructor_when_using_OnConfguring()
+        [ConditionalFact]
+        public void IsSqlServer_in_constructor_when_using_OnConfiguring()
         {
             using (var context = new SqlServerConstructorContext())
             {
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public void Cannot_use_IsSqlServer_in_OnConfguring()
+        [ConditionalFact]
+        public void Cannot_use_IsSqlServer_in_OnConfiguring()
         {
             using (var context = new SqlServerUseInOnConfiguringContext())
             {
@@ -47,65 +47,75 @@ namespace Microsoft.EntityFrameworkCore
                     CoreStrings.RecursiveOnConfiguring,
                     Assert.Throws<InvalidOperationException>(
                         () =>
-                            {
-                                var _ = context.Model; // Trigger context initialization
-                            }).Message);
+                        {
+                            var _ = context.Model; // Trigger context initialization
+                        }).Message);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_when_using_constructor()
         {
             using (var context = new ProviderContext(
-                new DbContextOptionsBuilder().UseSqlServer("Database=Maltesers").Options))
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Database=Maltesers").Options))
             {
                 Assert.True(context.Database.IsSqlServer());
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_in_OnModelCreating_when_using_constructor()
         {
             using (var context = new ProviderOnModelContext(
-                new DbContextOptionsBuilder().UseSqlServer("Database=Maltesers").Options))
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Database=Maltesers").Options))
             {
                 var _ = context.Model; // Trigger context initialization
                 Assert.True(context.IsSqlServerSet);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void IsSqlServer_in_constructor_when_using_constructor()
         {
             using (var context = new ProviderConstructorContext(
-                new DbContextOptionsBuilder().UseSqlServer("Database=Maltesers").Options))
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Database=Maltesers").Options))
             {
                 var _ = context.Model; // Trigger context initialization
                 Assert.True(context.IsSqlServerSet);
             }
         }
 
-        [Fact]
-        public void Cannot_use_IsSqlServer_in_OnConfguring_with_constructor()
+        [ConditionalFact]
+        public void Cannot_use_IsSqlServer_in_OnConfiguring_with_constructor()
         {
             using (var context = new ProviderUseInOnConfiguringContext(
-                new DbContextOptionsBuilder().UseSqlServer("Database=Maltesers").Options))
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Database=Maltesers").Options))
             {
                 Assert.Equal(
                     CoreStrings.RecursiveOnConfiguring,
                     Assert.Throws<InvalidOperationException>(
                         () =>
-                            {
-                                var _ = context.Model; // Trigger context initialization
-                            }).Message);
+                        {
+                            var _ = context.Model; // Trigger context initialization
+                        }).Message);
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Not_IsSqlServer_when_using_different_provider()
         {
             using (var context = new ProviderContext(
-                new DbContextOptionsBuilder().UseInMemoryDatabase("Maltesers").Options))
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("Maltesers").Options))
             {
                 Assert.False(context.Database.IsSqlServer());
             }
@@ -128,7 +138,9 @@ namespace Microsoft.EntityFrameworkCore
         private class SqlServerOnConfiguringContext : ProviderContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer("Database=Maltesers");
+                => optionsBuilder
+                    .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
+                    .UseSqlServer("Database=Maltesers");
         }
 
         private class SqlServerOnModelContext : SqlServerOnConfiguringContext

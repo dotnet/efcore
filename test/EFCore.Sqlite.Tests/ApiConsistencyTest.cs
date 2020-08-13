@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             typeof(SqliteServiceCollectionExtensions),
             typeof(SqliteDbContextOptionsBuilderExtensions),
-            typeof(SqliteDbContextOptionsBuilder)
+            typeof(SqliteDbContextOptionsBuilder),
+            typeof(SqlitePropertyBuilderExtensions)
         };
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;

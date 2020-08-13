@@ -3,13 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -20,6 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
     public abstract class Database : IDatabase
@@ -45,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="entries"> Entries representing the changes to be persisted. </param>
         /// <returns> The number of state entries persisted to the database. </returns>
-        public abstract int SaveChanges(IReadOnlyList<IUpdateEntry> entries);
+        public abstract int SaveChanges(IList<IUpdateEntry> entries);
 
         /// <summary>
         ///     Asynchronously persists changes from the supplied entries to the database.
@@ -57,31 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     number of entries persisted to the database.
         /// </returns>
         public abstract Task<int> SaveChangesAsync(
-            IReadOnlyList<IUpdateEntry> entries,
+            IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
 
-        /// <summary>
-        ///     Translates a query model into a function that can be executed to get query results from the database.
-        /// </summary>
-        /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
-        /// <param name="queryModel"> An object model representing the query to be executed. </param>
-        /// <returns> A function that will execute the query. </returns>
-        public virtual Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
+        public virtual Func<QueryContext, TResult> CompileQuery<TResult>(Expression query, bool async)
             => Dependencies.QueryCompilationContextFactory
-                .Create(async: false)
-                .CreateQueryModelVisitor()
-                .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
-
-        /// <summary>
-        ///     Translates a query model into a function that can be executed to asynchronously get query results from the database.
-        /// </summary>
-        /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
-        /// <param name="queryModel"> An object model representing the query to be executed. </param>
-        /// <returns> A function that will asynchronously execute the query. </returns>
-        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
-            => Dependencies.QueryCompilationContextFactory
-                .Create(async: true)
-                .CreateQueryModelVisitor()
-                .CreateAsyncQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
+                .Create(async)
+                .CreateQueryExecutor<TResult>(query);
     }
 }

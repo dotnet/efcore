@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class PropertyInfoExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void IsStatic_identifies_static_properties()
         {
             Assert.True(typeof(KitKat).GetAnyProperty("Yummy").IsStatic());

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDatabaseSourceTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Returns_appropriate_name()
         {
             Assert.Equal(
@@ -19,21 +19,23 @@ namespace Microsoft.EntityFrameworkCore
                 new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).Name);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Is_configured_when_configuration_contains_associated_extension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
-            Assert.True(new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
+            Assert.True(
+                new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Is_not_configured_when_configuration_does_not_contain_associated_extension()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            Assert.False(new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
+            Assert.False(
+                new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
         }
     }
 }

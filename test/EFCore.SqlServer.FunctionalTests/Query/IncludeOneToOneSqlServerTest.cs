@@ -1,11 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -22,56 +18,49 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Include_person();
 
-            Assert.Equal(
-                @"SELECT [a].[Id], [a].[City], [a].[Street], [a.Resident].[Id], [a.Resident].[Name]
+            AssertSql(
+                @"SELECT [a].[Id], [a].[City], [a].[Street], [p].[Id], [p].[Name]
 FROM [Address] AS [a]
-INNER JOIN [Person] AS [a.Resident] ON [a].[Id] = [a.Resident].[Id]",
-                Sql,
-                ignoreLineEndingDifferences: true);
+INNER JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]");
         }
 
         public override void Include_person_shadow()
         {
             base.Include_person_shadow();
 
-            Assert.Equal(
-                @"SELECT [a].[Id], [a].[City], [a].[PersonId], [a].[Street], [a.Resident].[Id], [a.Resident].[Name]
+            AssertSql(
+                @"SELECT [a].[Id], [a].[City], [a].[PersonId], [a].[Street], [p].[Id], [p].[Name]
 FROM [Address2] AS [a]
-INNER JOIN [Person2] AS [a.Resident] ON [a].[PersonId] = [a.Resident].[Id]",
-                Sql,
-                ignoreLineEndingDifferences: true);
+INNER JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]");
         }
 
         public override void Include_address()
         {
             base.Include_address();
 
-            Assert.Equal(
-                @"SELECT [p].[Id], [p].[Name], [p.Address].[Id], [p.Address].[City], [p.Address].[Street]
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Name], [a].[Id], [a].[City], [a].[Street]
 FROM [Person] AS [p]
-LEFT JOIN [Address] AS [p.Address] ON [p].[Id] = [p.Address].[Id]",
-                Sql,
-                ignoreLineEndingDifferences: true);
+LEFT JOIN [Address] AS [a] ON [p].[Id] = [a].[Id]");
         }
 
         public override void Include_address_shadow()
         {
             base.Include_address_shadow();
 
-            Assert.Equal(
-                @"SELECT [p].[Id], [p].[Name], [p.Address].[Id], [p.Address].[City], [p.Address].[PersonId], [p.Address].[Street]
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Name], [a].[Id], [a].[City], [a].[PersonId], [a].[Street]
 FROM [Person2] AS [p]
-LEFT JOIN [Address2] AS [p.Address] ON [p].[Id] = [p.Address].[PersonId]",
-                Sql,
-                ignoreLineEndingDifferences: true);
+LEFT JOIN [Address2] AS [a] ON [p].[Id] = [a].[PersonId]");
         }
 
-        private string Sql => Fixture.TestSqlLoggerFactory.SqlStatements.Last();
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
         }
     }
 }

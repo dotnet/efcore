@@ -330,6 +330,7 @@ namespace Microsoft.Data.Sqlite
                     bound++;
                 }
             }
+
             return bound;
         }
 

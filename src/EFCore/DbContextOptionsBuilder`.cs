@@ -64,18 +64,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Sets the <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
-        ///         for logging done by this context. It is never necessary to call this method since EF can obtain
-        ///         or create a logger factory automatically.
+        ///         for logging done by this context.
         ///     </para>
         ///     <para>
         ///         There is no need to call this method when using one of the 'AddDbContext' methods.
         ///         'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
         ///         application service provider.
-        ///     </para>
-        ///     <para>
-        ///         Note that changing the logger factory can cause EF to build a new internal service provider, which
-        ///         may cause issues with performance. Generally it is expected that no more than one or two different
-        ///         instances will be used for a given application.
         ///     </para>
         ///     <para>
         ///         This method cannot be used if the application is setting the internal service provider
@@ -90,13 +84,29 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context. It is never
-        ///         necessary to call this method since EF can obtain or create a memory cache automatically.
+        ///         Enables detailed errors when handling data value exceptions that occur during processing of store query results. Such errors
+        ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
+        ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated
+        ///         at runtime during processing of the data value. When this option is enabled and a data error is encountered, the
+        ///         generated exception will include details of the specific entity property that generated the error.
         ///     </para>
         ///     <para>
-        ///         There is no need to call this method when using one of the 'AddDbContext' methods.
-        ///         'AddDbContext' will ensure that the <see cref="IMemoryCache" /> used by EF is obtained from the
-        ///         application service provider.
+        ///         Enabling this option incurs a small performance overhead during query execution.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> EnableDetailedErrors(bool detailedErrorsEnabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableDetailedErrors(detailedErrorsEnabled);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context.
         ///     </para>
         ///     <para>
         ///         Note that changing the memory cache can cause EF to build a new internal service provider, which
@@ -165,6 +175,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Enables or disables caching of internal service providers. Disabling caching can
+        ///         massively impact performance and should only be used in testing scenarios that
+        ///         build many service providers for test isolation.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
+        ///     </para>
+        /// </summary>
+        /// <param name="cacheServiceProvider"> If <c>true</c>, then the internal service provider is cached. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> EnableServiceProviderCaching(bool cacheServiceProvider = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableServiceProviderCaching(cacheServiceProvider);
+
+        /// <summary>
+        ///     <para>
         ///         Sets the tracking behavior for LINQ queries run against the context. Disabling change tracking
         ///         is useful for read-only scenarios because it avoids the overhead of setting up change tracking for each
         ///         entity instance. You should not disable change tracking if you want to manipulate entity instances and
@@ -203,10 +229,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <example>
         ///     <code>
-        ///         optionsBuilder.ConfigureWarnings(warnings => 
+        ///         optionsBuilder.ConfigureWarnings(warnings =>
         ///             warnings.Default(WarningBehavior.Ignore)
         ///                     .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
-        ///                     .Throw(RelationalEventId.QueryClientEvaluationWarning))
+        ///                     .Throw(RelationalEventId.BoolWithDefaultWarning))
         ///     </code>
         /// </example>
         /// <param name="warningsConfigurationBuilderAction">

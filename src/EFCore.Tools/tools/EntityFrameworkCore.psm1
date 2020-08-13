@@ -65,7 +65,7 @@ function Add-Migration
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
-    Write-Output 'To undo this action, use Remove-Migration.'
+    Write-Host 'To undo this action, use Remove-Migration.'
 
     $dteProject.ProjectItems.AddFromFile($result.migrationFile) | Out-Null
     $DTE.ItemOperations.OpenFile($result.migrationFile) | Out-Null
@@ -147,10 +147,10 @@ Register-TabExpansion Get-DbContext @{
 
 <#
 .SYNOPSIS
-    Gets information about a DbContext type.
+    Gets information about DbContext types.
 
 .DESCRIPTION
-    Gets information about a DbContext type.
+    Gets information about DbContext types.
 
 .PARAMETER Context
     The DbContext to use.
@@ -172,11 +172,19 @@ function Get-DbContext
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
 
-    $params = 'dbcontext', 'info', '--json'
-    $params += GetParams $Context
-
-    # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+    if ($PSBoundParameters.ContainsKey('Context'))
+    {
+       $params = 'dbcontext', 'info', '--json'
+       $params += GetParams $Context
+       # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+       return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+    }
+    else
+    {
+       $params = 'dbcontext', 'list', '--json'
+       # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+       return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json | Format-Table -Property safeName -HideTableHeaders
+    }
 }
 
 #
@@ -367,6 +375,77 @@ function Scaffold-DbContext
 }
 
 #
+# Script-DbContext
+#
+
+Register-TabExpansion Script-DbContext @{
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Generates a SQL script from current DbContext.
+
+.DESCRIPTION
+    Generates a SQL script from current DbContext.
+
+.PARAMETER Output
+    The file to write the result to.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.LINK
+    about_EntityFrameworkCore
+#>
+function Script-DbContext
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param(
+        [string] $Output,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject)
+
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
+
+    if (!$Output)
+    {
+        $intermediatePath = GetIntermediatePath $dteProject
+        if (![IO.Path]::IsPathRooted($intermediatePath))
+        {
+            $projectDir = GetProperty $dteProject.Properties 'FullPath'
+            $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
+        }
+
+        $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
+        $Output = Join-Path $intermediatePath $scriptFileName
+    }
+    elseif (![IO.Path]::IsPathRooted($Output))
+    {
+        $Output = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Output)
+    }
+
+    $params = 'dbcontext', 'script', '--output', $Output
+
+    $params += GetParams $Context
+
+    EF $dteProject $dteStartupProject $params
+
+    $DTE.ItemOperations.OpenFile($Output) | Out-Null
+    ShowConsole
+}
+
+#
 # Script-Migration
 #
 
@@ -431,7 +510,7 @@ function Script-Migration
     if (!$Output)
     {
         $intermediatePath = GetIntermediatePath $dteProject
-        if (!(Split-Path $intermediatePath -IsAbsolute))
+        if (![IO.Path]::IsPathRooted($intermediatePath))
         {
             $projectDir = GetProperty $dteProject.Properties 'FullPath'
             $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
@@ -440,7 +519,7 @@ function Script-Migration
         $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
         $Output = Join-Path $intermediatePath $scriptFileName
     }
-    elseif (!(Split-Path $Output -IsAbsolute))
+    elseif (![IO.Path]::IsPathRooted($Output))
     {
         $Output = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Output)
     }
@@ -577,9 +656,13 @@ function GetMigrations($context, $projectName, $startupProjectName)
     return $result | %{ $_.safeName }
 }
 
-function WarnIfEF6 ($cmdlet)
+function WarnIfEF6($cmdlet)
 {
-    if (Get-Module 'EntityFramework')
+    if (Get-Module 'EntityFramework6')
+    {
+        Write-Warning "Both Entity Framework Core and Entity Framework 6 are installed. The Entity Framework Core tools are running. Use 'EntityFramework6\$cmdlet' for Entity Framework 6."
+    }
+    elseif (Get-Module 'EntityFramework')
     {
         Write-Warning "Both Entity Framework Core and Entity Framework 6 are installed. The Entity Framework Core tools are running. Use 'EntityFramework\$cmdlet' for Entity Framework 6."
     }
@@ -608,7 +691,7 @@ function GetStartupProject($name, $fallbackProject)
         if ($startupProjectPaths.Length -eq 1)
         {
             $startupProjectPath = $startupProjectPaths[0]
-            if (!(Split-Path -IsAbsolute $startupProjectPath))
+            if (![IO.Path]::IsPathRooted($startupProjectPath))
             {
                 $solutionPath = Split-Path (GetProperty $DTE.Solution.Properties 'Path')
                 $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve | Convert-Path
@@ -647,7 +730,7 @@ function GetStartupProject($name, $fallbackProject)
     {
         Write-Warning 'No startup project set.'
     }
-    
+
     Write-Warning "Using project '$($fallbackProject.ProjectName)' as the startup project."
 
     return $fallbackProject
@@ -717,12 +800,6 @@ function WriteErrorLine($message)
 
 function EF($project, $startupProject, $params, [switch] $skipBuild)
 {
-    if (IsXproj $startupProject)
-    {
-        throw "Startup project '$($startupProject.ProjectName)' is an ASP.NET Core or .NET Core project for Visual " +
-            'Studio 2015. This version of the Entity Framework Core Package Manager Console Tools doesn''t support ' +
-            'these types of projects.'
-    }
     if (IsDocker $startupProject)
     {
         throw "Startup project '$($startupProject.ProjectName)' is a Docker project. Select an ASP.NET Core Web " +
@@ -741,7 +818,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
     if (!$skipBuild)
     {
-        Write-Verbose 'Build started...'
+        Write-Host 'Build started...'
 
         # TODO: Only build startup project. Don't use BuildProject, you can't specify platform
         $solutionBuild = $DTE.Solution.SolutionBuild
@@ -751,13 +828,13 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
             throw 'Build failed.'
         }
 
-        Write-Verbose 'Build succeeded.'
+        Write-Host 'Build succeeded.'
     }
 
     $startupProjectDir = GetProperty $startupProject.Properties 'FullPath'
     $outputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'OutputPath'
-    $targetDir = Join-Path $startupProjectDir $outputPath -Resolve | Convert-Path
-    $startupTargetFileName = GetOutputFileName $startupProject
+    $targetDir = [IO.Path]::GetFullPath([IO.Path]::Combine($startupProjectDir, $outputPath))
+    $startupTargetFileName = GetProperty $startupProject.Properties 'OutputFileName'
     $startupTargetPath = Join-Path $targetDir $startupTargetFileName
     $targetFrameworkMoniker = GetProperty $startupProject.Properties 'TargetFrameworkMoniker'
     $frameworkName = New-Object 'System.Runtime.Versioning.FrameworkName' $targetFrameworkMoniker
@@ -822,7 +899,8 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
             'runtime associated with this framework, and projects targeting it cannot be executed directly. To use ' +
             'the Entity Framework Core Package Manager Console Tools with this project, add an executable project ' +
             'targeting .NET Framework or .NET Core that references this project, and set it as the startup project; ' +
-            'or, update this project to cross-target .NET Framework or .NET Core.'
+            'or, update this project to cross-target .NET Framework or .NET Core. For more information on using the ' +
+            'EF Core Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034705'
     }
     else
     {
@@ -831,7 +909,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 
     $projectDir = GetProperty $project.Properties 'FullPath'
-    $targetFileName = GetOutputFileName $project
+    $targetFileName = GetProperty $project.Properties 'OutputFileName'
     $targetPath = Join-Path $targetDir $targetFileName
     $rootNamespace = GetProperty $project.Properties 'RootNamespace'
     $language = GetLanguage $project
@@ -915,11 +993,6 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 }
 
-function IsXproj($project)
-{
-    return $project.Kind -eq '{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}'
-}
-
 function IsDocker($project)
 {
     return $project.Kind -eq '{E53339B2-1760-4266-BCC7-CA923CBCF16C}'
@@ -951,12 +1024,6 @@ function IsUWP($project)
 
 function GetIntermediatePath($project)
 {
-    # TODO: Remove when dotnet/roslyn-project-system#665 is fixed
-    if (IsCpsProject $project)
-    {
-        return GetCpsProperty $project 'IntermediateOutputPath'
-    }
-
     $intermediatePath = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties 'IntermediatePath'
     if ($intermediatePath)
     {
@@ -968,7 +1035,6 @@ function GetIntermediatePath($project)
 
 function GetPlatformTarget($project)
 {
-    # TODO: Remove when dotnet/roslyn-project-system#669 is fixed
     if (IsCpsProject $project)
     {
         $platformTarget = GetCpsProperty $project 'PlatformTarget'
@@ -986,24 +1052,14 @@ function GetPlatformTarget($project)
         return $platformTarget
     }
 
-    $platformTarget = GetMSBuildProperty $project 'PlatfromTarget'
+    # NB: For classic F# projects
+    $platformTarget = GetMSBuildProperty $project 'PlatformTarget'
     if ($platformTarget)
     {
         return $platformTarget
     }
 
     return 'AnyCPU'
-}
-
-function GetOutputFileName($project)
-{
-    # TODO: Remove when dotnet/roslyn-project-system#667 is fixed
-    if (IsCpsProject $project)
-    {
-        return GetCpsProperty $project 'TargetFileName'
-    }
-
-    return GetProperty $project.Properties 'OutputFileName'
 }
 
 function GetLanguage($project)
@@ -1076,7 +1132,7 @@ function GetProjectItem($project, $path)
 {
     $fullPath = GetProperty $project.Properties 'FullPath'
 
-    if (Split-Path $path -IsAbsolute)
+    if ([IO.Path]::IsPathRooted($path))
     {
         $path = $path.Substring($fullPath.Length)
     }

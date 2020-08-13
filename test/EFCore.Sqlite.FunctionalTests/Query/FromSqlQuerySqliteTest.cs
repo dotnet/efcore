@@ -4,14 +4,16 @@
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
-        public FromSqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
+        public FromSqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void Bad_data_error_handling_invalid_cast_key()
@@ -35,10 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
-            => new SqliteParameter
-            {
-                ParameterName = name,
-                Value = value
-            };
+            => new SqliteParameter { ParameterName = name, Value = value };
     }
 }

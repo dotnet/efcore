@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,12 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Text.Json;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Commands;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 using EFCommand = Microsoft.EntityFrameworkCore.Tools.Commands.RootCommand;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -58,26 +56,22 @@ namespace Microsoft.EntityFrameworkCore.Tools
         protected override int Execute()
         {
             var commands = _args.TakeWhile(a => a[0] != '-').ToList();
-            if (_help.HasValue() || ShouldHelp(commands))
+            if (_help.HasValue()
+                || ShouldHelp(commands))
             {
                 return ShowHelp(_help.HasValue(), commands);
             }
 
-            var projectFile = FindProjects(
+            var (projectFile, startupProjectFile) = ResolveProjects(
                 _project.Value(),
-                Resources.NoProject,
-                Resources.MultipleProjects);
-            Reporter.WriteVerbose(Resources.UsingProject(projectFile));
+                _startupProject.Value());
 
-            var starupProjectFile = FindProjects(
-                _startupProject.Value(),
-                Resources.NoStartupProject,
-                Resources.MultipleStartupProjects);
-            Reporter.WriteVerbose(Resources.UsingStartupProject(starupProjectFile));
+            Reporter.WriteVerbose(Resources.UsingProject(projectFile));
+            Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
             var project = Project.FromFile(projectFile, _msbuildprojectextensionspath.Value());
             var startupProject = Project.FromFile(
-                starupProjectFile,
+                startupProjectFile,
                 _msbuildprojectextensionspath.Value(),
                 _framework.Value(),
                 _configuration.Value(),
@@ -85,7 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             if (!_noBuild.HasValue())
             {
+                Reporter.WriteInformation(Resources.BuildStarted);
                 startupProject.Build();
+                Reporter.WriteInformation(Resources.BuildSucceeded);
             }
 
             string executable;
@@ -132,10 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
                 if (!string.IsNullOrEmpty(projectAssetsFile))
                 {
-                    using (var reader = new JsonTextReader(File.OpenText(projectAssetsFile)))
+                    using (var reader = JsonDocument.Parse(File.OpenRead(projectAssetsFile)))
                     {
-                        var projectAssets = JObject.ReadFrom(reader);
-                        var packageFolders = projectAssets["packageFolders"].Children<JProperty>().Select(p => p.Name);
+                        var projectAssets = reader.RootElement;
+                        var packageFolders = projectAssets.GetProperty("packageFolders").EnumerateObject().Select(p => p.Name);
 
                         foreach (var packageFolder in packageFolders)
                         {
@@ -204,41 +200,78 @@ namespace Microsoft.EntityFrameworkCore.Tools
             return Exe.Run(executable, args, startupProject.ProjectDir);
         }
 
-        private static string FindProjects(
-            string path,
-            string errorWhenNoProject,
-            string errorWhenMultipleProjects)
+        private static (string, string) ResolveProjects(
+            string projectPath,
+            string startupProjectPath)
         {
-            var specified = true;
+            var projects = ResolveProjects(projectPath);
+            var startupProjects = ResolveProjects(startupProjectPath);
+
+            if (projects.Count > 1)
+            {
+                throw new CommandException(
+                    projectPath != null
+                        ? Resources.MultipleProjectsInDirectory(projectPath)
+                        : Resources.MultipleProjects);
+            }
+
+            if (startupProjects.Count > 1)
+            {
+                throw new CommandException(
+                    startupProjectPath != null
+                        ? Resources.MultipleProjectsInDirectory(startupProjectPath)
+                        : Resources.MultipleStartupProjects);
+            }
+
+            if (projectPath != null
+                && projects.Count == 0)
+            {
+                throw new CommandException(Resources.NoProjectInDirectory(projectPath));
+            }
+
+            if (startupProjectPath != null
+                && startupProjects.Count == 0)
+            {
+                throw new CommandException(Resources.NoProjectInDirectory(startupProjectPath));
+            }
+
+            if (projectPath == null
+                && startupProjectPath == null)
+            {
+                return projects.Count == 0
+                    ? throw new CommandException(Resources.NoProject)
+                    : (projects[0], startupProjects[0]);
+            }
+
+            if (projects.Count == 0)
+            {
+                return (startupProjects[0], startupProjects[0]);
+            }
+
+            if (startupProjects.Count == 0)
+            {
+                return (projects[0], projects[0]);
+            }
+
+            return (projects[0], startupProjects[0]);
+        }
+
+        private static List<string> ResolveProjects(string path)
+        {
             if (path == null)
             {
-                specified = false;
                 path = Directory.GetCurrentDirectory();
             }
             else if (!Directory.Exists(path)) // It's not a directory
             {
-                return path;
+                return new List<string> { path };
             }
 
             var projectFiles = Directory.EnumerateFiles(path, "*.*proj", SearchOption.TopDirectoryOnly)
-                    .Where(f => !string.Equals(Path.GetExtension(f), ".xproj", StringComparison.OrdinalIgnoreCase))
-                    .Take(2).ToList();
-            if (projectFiles.Count == 0)
-            {
-                throw new CommandException(
-                    specified
-                        ? Resources.NoProjectInDirectory(path)
-                        : errorWhenNoProject);
-            }
-            if (projectFiles.Count != 1)
-            {
-                throw new CommandException(
-                    specified
-                        ? Resources.MultipleProjectsInDirectory(path)
-                        : errorWhenMultipleProjects);
-            }
+                .Where(f => !string.Equals(Path.GetExtension(f), ".xproj", StringComparison.OrdinalIgnoreCase))
+                .Take(2).ToList();
 
-            return projectFiles[0];
+            return projectFiles;
         }
 
         private static string GetVersion()
@@ -247,17 +280,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private static bool ShouldHelp(IReadOnlyList<string> commands)
             => commands.Count == 0
-                || (commands.Count == 1
-                    && (commands[0] == "database"
-                        || commands[0] == "dbcontext"
-                        || commands[0] == "migrations"));
+               || (commands.Count == 1
+                   && (commands[0] == "database"
+                       || commands[0] == "dbcontext"
+                       || commands[0] == "migrations"));
 
         private int ShowHelp(bool help, IEnumerable<string> commands)
         {
-            var app = new CommandLineApplication
-            {
-                Name = _command.Name
-            };
+            var app = new CommandLineApplication { Name = _command.Name };
 
             new EFCommand().Configure(app);
 

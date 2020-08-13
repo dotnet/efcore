@@ -1,9 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Data.SqlClient;
 using System.Diagnostics;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerConnectionTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Creates_SQL_Server_connection_string()
         {
             using (var connection = new SqlServerConnection(CreateDependencies()))
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_create_master_connection()
         {
             using (var connection = new SqlServerConnection(CreateDependencies()))
@@ -31,12 +32,12 @@ namespace Microsoft.EntityFrameworkCore
                 using (var master = connection.CreateMasterConnection())
                 {
                     Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
-                    Assert.Equal(SqlServerConnection.DefaultMasterConnectionCommandTimeout, master.CommandTimeout);
+                    Assert.Equal(60, master.CommandTimeout);
                 }
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Master_connection_string_contains_filename()
         {
             var options = new DbContextOptionsBuilder()
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Master_connection_string_none_default_command_timeout()
         {
             var options = new DbContextOptionsBuilder()
@@ -74,23 +75,29 @@ namespace Microsoft.EntityFrameworkCore
 
         public static RelationalConnectionDependencies CreateDependencies(DbContextOptions options = null)
         {
-            options = options
-                      ?? new DbContextOptionsBuilder()
-                          .UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest")
-                          .Options;
+            options ??= new DbContextOptionsBuilder()
+                .UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest")
+                .Options;
 
             return new RelationalConnectionDependencies(
                 options,
                 new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                     new LoggerFactory(),
                     new LoggingOptions(),
-                    new DiagnosticListener("FakeDiagnosticListener")),
+                    new DiagnosticListener("FakeDiagnosticListener"),
+                    new SqlServerLoggingDefinitions()),
                 new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
                     new LoggerFactory(),
                     new LoggingOptions(),
-                    new DiagnosticListener("FakeDiagnosticListener")),
+                    new DiagnosticListener("FakeDiagnosticListener"),
+                    new SqlServerLoggingDefinitions()),
                 new NamedConnectionStringResolver(options),
-                new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()));
+                new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
+                new CurrentDbContext(new FakeDbContext()));
+        }
+
+        private class FakeDbContext : DbContext
+        {
         }
     }
 }

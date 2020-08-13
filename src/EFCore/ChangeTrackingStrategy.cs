@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         marked as modified when the entity raises the <see cref="INotifyPropertyChanged.PropertyChanged" /> event.
         ///     </para>
         ///     <para>
-        ///         Original values are only recorded for all properties, regardless of whether they are required to save changes to the entity.
+        ///         Original values are recorded for all properties, regardless of whether they are required to save changes to the entity.
         ///     </para>
         /// </summary>
         ChangingAndChangedNotificationsWithOriginalValues

@@ -5,62 +5,59 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public class SqlServerModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly ISqlGenerationHelper _sqlGenerationHelper;
-        private readonly ISqlServerUpdateSqlGenerator _updateSqlGenerator;
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
+        private readonly ModificationCommandBatchFactoryDependencies _dependencies;
         private readonly IDbContextOptions _options;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerModificationCommandBatchFactory(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
             [NotNull] IDbContextOptions options)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
-            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(options, nameof(options));
 
-            _commandBuilderFactory = commandBuilderFactory;
-            _sqlGenerationHelper = sqlGenerationHelper;
-            _updateSqlGenerator = updateSqlGenerator;
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
+            _dependencies = dependencies;
             _options = options;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ModificationCommandBatch Create()
         {
             var optionsExtension = _options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 
-            return new SqlServerModificationCommandBatch(
-                _commandBuilderFactory,
-                _sqlGenerationHelper,
-                _updateSqlGenerator,
-                _valueBufferFactoryFactory,
-                optionsExtension?.MaxBatchSize);
+            return new SqlServerModificationCommandBatch(_dependencies, optionsExtension?.MaxBatchSize);
         }
     }
 }

@@ -3,6 +3,7 @@
 using System;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -10,39 +11,15 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.InMemory.Internal
 {
     /// <summary>
-    ///		This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class InMemoryStrings
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).GetTypeInfo().Assembly);
-
-        /// <summary>
-        ///     Saved {count} entities to in-memory store.
-        /// </summary>
-        public static readonly EventDefinition<int> LogSavedChanges
-            = new EventDefinition<int>(
-                InMemoryEventId.ChangesSaved,
-                LogLevel.Information,
-                "InMemoryEventId.ChangesSaved",
-                LoggerMessage.Define<int>(
-                    LogLevel.Information,
-                    InMemoryEventId.ChangesSaved,
-                    _resourceManager.GetString("LogSavedChanges")));
-
-        /// <summary>
-        ///     Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142
-        /// </summary>
-        public static readonly EventDefinition LogTransactionsNotSupported
-            = new EventDefinition(
-                InMemoryEventId.TransactionIgnoredWarning,
-                LogLevel.Warning,
-                "InMemoryEventId.TransactionIgnoredWarning",
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    InMemoryEventId.TransactionIgnoredWarning,
-                    _resourceManager.GetString("LogTransactionsNotSupported")));
 
         /// <summary>
         ///     Attempted to update or delete an entity that does not exist in the store.
@@ -75,6 +52,69 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             }
 
             return value;
+        }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.InMemory.Internal
+{
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static class InMemoryResources
+    {
+        private static readonly ResourceManager _resourceManager
+            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryResources).GetTypeInfo().Assembly);
+
+        /// <summary>
+        ///     Saved {count} entities to in-memory store.
+        /// </summary>
+        public static EventDefinition<int> LogSavedChanges([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogSavedChanges;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogSavedChanges,
+                    () => new EventDefinition<int>(
+                        logger.Options,
+                        InMemoryEventId.ChangesSaved,
+                        LogLevel.Information,
+                        "InMemoryEventId.ChangesSaved",
+                        level => LoggerMessage.Define<int>(
+                            level,
+                            InMemoryEventId.ChangesSaved,
+                            _resourceManager.GetString("LogSavedChanges"))));
+            }
+
+            return (EventDefinition<int>)definition;
+        }
+
+        /// <summary>
+        ///     Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142
+        /// </summary>
+        public static EventDefinition LogTransactionsNotSupported([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogTransactionsNotSupported;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogTransactionsNotSupported,
+                    () => new EventDefinition(
+                        logger.Options,
+                        InMemoryEventId.TransactionIgnoredWarning,
+                        LogLevel.Warning,
+                        "InMemoryEventId.TransactionIgnoredWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            InMemoryEventId.TransactionIgnoredWarning,
+                            _resourceManager.GetString("LogTransactionsNotSupported"))));
+            }
+
+            return (EventDefinition)definition;
         }
     }
 }

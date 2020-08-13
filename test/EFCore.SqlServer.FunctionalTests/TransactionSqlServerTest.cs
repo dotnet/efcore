@@ -1,37 +1,30 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>, IDisposable
+    public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>
     {
         public TransactionSqlServerTest(TransactionSqlServerFixture fixture)
             : base(fixture)
         {
-            TestSqlServerRetryingExecutionStrategy.Suspended = true;
         }
 
         protected override bool SnapshotSupported => true;
 
-#if NET461
         protected override bool AmbientTransactionsSupported => true;
-#endif
-
-        public virtual void Dispose()
-        {
-            TestSqlServerRetryingExecutionStrategy.Suspended = false;
-        }
 
         protected override DbContext CreateContextWithConnectionString()
         {
             var options = Fixture.AddOptions(
                     new DbContextOptionsBuilder()
-                        .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
+                        .UseSqlServer(
+                            TestStore.ConnectionString,
+                            b => b.ApplyConfiguration().ExecutionStrategy(c => new SqlServerExecutionStrategy(c))))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);
@@ -41,12 +34,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 base.Seed(context);
 
-                context.Database.ExecuteSqlCommand("ALTER DATABASE [" + StoreName + "] SET ALLOW_SNAPSHOT_ISOLATION ON");
-                context.Database.ExecuteSqlCommand("ALTER DATABASE [" + StoreName + "] SET READ_COMMITTED_SNAPSHOT ON");
+                context.Database.ExecuteSqlRaw("ALTER DATABASE [" + StoreName + "] SET ALLOW_SNAPSHOT_ISOLATION ON");
+                context.Database.ExecuteSqlRaw("ALTER DATABASE [" + StoreName + "] SET READ_COMMITTED_SNAPSHOT ON");
             }
 
             public override void Reseed()
@@ -63,11 +56,8 @@ namespace Microsoft.EntityFrameworkCore
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             {
                 new SqlServerDbContextOptionsBuilder(
-                        base.AddOptions(builder)
-                            .ConfigureWarnings(
-                                w => w.Log(RelationalEventId.QueryClientEvaluationWarning)
-                                      .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)))
-                    .MaxBatchSize(1);
+                        base.AddOptions(builder))
+                    .ExecutionStrategy(c => new SqlServerExecutionStrategy(c));
                 return builder;
             }
         }

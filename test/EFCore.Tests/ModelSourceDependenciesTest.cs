@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ModelSourceDependenciesTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
             InMemoryTestHelpers.Instance.TestDependenciesClone<ModelSourceDependencies>();

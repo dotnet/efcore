@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -9,13 +10,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
     public class BatchExecutorTest
     {
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task ExecuteAsync_calls_Commit_if_no_transaction(bool async)
@@ -24,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 var connection = SetupConnection(context);
 
-                context.Add(new Foo { Id = "1" });
+                context.Add(
+                    new Foo { Id = "1" });
 
                 if (async)
                 {
@@ -39,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction(bool async)
@@ -50,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 var transaction = new FakeDbTransaction(connection);
                 context.Database.UseTransaction(transaction);
 
-                context.Add(new Foo { Id = "1" });
+                context.Add(
+                    new Foo { Id = "1" });
 
                 if (async)
                 {
@@ -68,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static FakeDbConnection SetupConnection(TestContext context)
         {
-            var dataReader = new FakeDbDataReader(new[] { "RowsAffected" }, new List<object[]> { new object[] { 1 } });
+            var dataReader = new FakeDbDataReader(
+                new[] { "RowsAffected" }, new List<object[]> { new object[] { 1 } });
 
             var connection = new FakeDbConnection(
                 "A=B", new FakeCommandExecutor(
@@ -81,8 +86,13 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private class TestContext : DbContext
         {
+            private static readonly IServiceProvider _serviceProvider
+                = FakeRelationalOptionsExtension.AddEntityFrameworkRelationalDatabase(
+                        new ServiceCollection())
+                    .BuildServiceProvider();
+
             public TestContext()
-                : base(RelationalTestHelpers.Instance.CreateOptions())
+                : base(RelationalTestHelpers.Instance.CreateOptions(_serviceProvider))
             {
             }
 

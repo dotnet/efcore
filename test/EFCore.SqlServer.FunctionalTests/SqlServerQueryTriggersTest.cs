@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private SqlServerTriggersFixture Fixture { get; }
 
-        [Fact]
+        [ConditionalFact]
         public void Triggers_with_subqueries_run_on_insert_update_and_delete()
         {
             using (var context = CreateContext())
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Triggers_with_subqueries_work_with_batch_operations()
         {
             using (var context = CreateContext())
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected QueryTriggersContext CreateContext() => (QueryTriggersContext)Fixture.CreateContext();
 
-        protected class QueryTriggersContext : DbContext
+        protected class QueryTriggersContext : PoolableDbContext
         {
             public QueryTriggersContext(DbContextOptions options)
                 : base(options)
@@ -97,12 +97,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Product>(
                     eb =>
-                        {
-                            eb.Property(e => e.StoreUpdated)
-                                .HasDefaultValue(0)
-                                .ValueGeneratedOnAddOrUpdate();
-                            eb.ToTable("UpdatedProducts");
-                        });
+                    {
+                        eb.Property(e => e.StoreUpdated)
+                            .HasDefaultValue(0)
+                            .ValueGeneratedOnAddOrUpdate();
+                        eb.ToTable("UpdatedProducts");
+                    });
             }
         }
 
@@ -122,9 +122,9 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(DbContext context)
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
 
-                context.Database.ExecuteSqlCommand(
+                context.Database.ExecuteSqlRaw(
                     @"
 CREATE TRIGGER TRG_InsertUpdateProduct
 ON UpdatedProducts

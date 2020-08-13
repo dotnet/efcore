@@ -49,6 +49,5 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] string projectDir,
             [NotNull] ScaffoldedMigration migration,
             [CanBeNull] string outputDir);
-
     }
 }

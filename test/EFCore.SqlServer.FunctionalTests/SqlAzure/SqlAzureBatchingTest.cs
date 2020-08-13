@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -31,25 +30,25 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             {
                 context.Database.CreateExecutionStrategy().Execute(
                     context, contextScoped =>
+                    {
+                        using (contextScoped.Database.BeginTransaction())
                         {
-                            using (contextScoped.Database.BeginTransaction())
+                            for (var i = 0; i < batchSize; i++)
                             {
-                                for (var i = 0; i < batchSize; i++)
-                                {
-                                    var uuid = Guid.NewGuid().ToString();
-                                    contextScoped.Products.Add(
-                                        new Product
-                                        {
-                                            Name = uuid,
-                                            ProductNumber = uuid.Substring(0, 25),
-                                            Weight = 1000,
-                                            SellStartDate = DateTime.Now
-                                        });
-                                }
-
-                                Assert.Equal(batchSize, contextScoped.SaveChanges());
+                                var uuid = Guid.NewGuid().ToString();
+                                contextScoped.Products.Add(
+                                    new Product
+                                    {
+                                        Name = uuid,
+                                        ProductNumber = uuid.Substring(0, 25),
+                                        Weight = 1000,
+                                        SellStartDate = DateTime.Now
+                                    });
                             }
-                        });
+
+                            Assert.Equal(batchSize, contextScoped.SaveChanges());
+                        }
+                    });
             }
         }
     }

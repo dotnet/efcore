@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -27,441 +28,661 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private const string Reference = "Reference";
         private const string Collection = "Collection";
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_auto_props()
         {
             const string field = "<Foo>k__BackingField";
-            var property = CreateProperty<AutoProp>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, field, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<AutoProp>(field), null, field, field, field);
+            MemberInfoTest(CreateProperty<AutoProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(CreateProperty<AutoProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Property, Property);
+            MemberInfoTest(CreateProperty<AutoProp>(field), PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<AutoProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(CreateProperty<AutoProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Property, Property);
+            MemberInfoTest(CreateProperty<AutoProp>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_props()
         {
             const string field = "_foo";
-            var property = CreateProperty<FullProp>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, field, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<FullProp>(field), null, field, field, field);
+            MemberInfoTest(CreateProperty<FullProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(CreateProperty<FullProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Property, Property);
+            MemberInfoTest(CreateProperty<FullProp>(field), PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<FullProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(CreateProperty<FullProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Property, Property);
+            MemberInfoTest(CreateProperty<FullProp>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_props()
         {
             const string field = "_foo";
-            var property = CreateProperty<ReadOnlyProp>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, field, field, Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, field, Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, NoSetter<ReadOnlyProp>(), NoSetter<ReadOnlyProp>(), Property);
+            MemberInfoTest(CreateProperty<ReadOnlyProp>(field), null, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyProp>(field), PropertyAccessMode.Property, NoSetter<ReadOnlyProp>(), NoSetter<ReadOnlyProp>(),
+                Property);
+            MemberInfoTest(CreateProperty<ReadOnlyProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, field, Property);
+            MemberInfoTest(CreateProperty<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_auto_props()
         {
             const string field = "<Foo>k__BackingField";
-            var property = CreateProperty<ReadOnlyAutoProp>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, NoSetter<ReadOnlyAutoProp>(), NoSetter<ReadOnlyAutoProp>(), Property);
+            MemberInfoTest(CreateProperty<ReadOnlyAutoProp>(field), null, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyAutoProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyAutoProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyAutoProp>(field), PropertyAccessMode.Property, NoSetter<ReadOnlyAutoProp>(),
+                NoSetter<ReadOnlyAutoProp>(), Property);
+            MemberInfoTest(CreateProperty<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, field, Property);
+            MemberInfoTest(CreateProperty<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_field_props()
         {
             const string field = "_foo";
-            var property = CreateProperty<ReadOnlyFieldProp>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, NoSetter<ReadOnlyFieldProp>(), NoSetter<ReadOnlyFieldProp>(), Property);
+            MemberInfoTest(CreateProperty<ReadOnlyFieldProp>(field), null, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyFieldProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyFieldProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyFieldProp>(field), PropertyAccessMode.Property, NoSetter<ReadOnlyFieldProp>(),
+                NoSetter<ReadOnlyFieldProp>(), Property);
+            MemberInfoTest(CreateProperty<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, field, Property);
+            MemberInfoTest(CreateProperty<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_props()
         {
             const string field = "_foo";
-            var property = CreateProperty<WriteOnlyProp>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, field, Property, field);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, Property, field);
-            MemberInfoTest(property, PropertyAccessMode.Property, Property, Property, NoGetter<WriteOnlyProp>());
+            MemberInfoTest(CreateProperty<WriteOnlyProp>(field), null, field, field, field);
+            MemberInfoTest(CreateProperty<WriteOnlyProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(CreateProperty<WriteOnlyProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Property, field);
+            MemberInfoTest(
+                CreateProperty<WriteOnlyProp>(field), PropertyAccessMode.Property, Property, Property, NoGetter<WriteOnlyProp>());
+            MemberInfoTest(CreateProperty<WriteOnlyProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(CreateProperty<WriteOnlyProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Property, field);
+            MemberInfoTest(CreateProperty<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Property, Property, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_field_only_props()
         {
             const string field = "_foo";
-            var property = CreateProperty<FieldOnly>(field, field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.Property, NoProperty<FieldOnly>(field), NoProperty<FieldOnly>(field), NoProperty<FieldOnly>(field));
+            MemberInfoTest(CreateProperty<FieldOnly>(field, field), null, field, field, field);
+            MemberInfoTest(CreateProperty<FieldOnly>(field, field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(CreateProperty<FieldOnly>(field, field), PropertyAccessMode.FieldDuringConstruction, field, field, field);
+            MemberInfoTest(
+                CreateProperty<FieldOnly>(field, field), PropertyAccessMode.Property, NoProperty<FieldOnly>(field),
+                NoProperty<FieldOnly>(field),
+                NoProperty<FieldOnly>(field));
+            MemberInfoTest(CreateProperty<FieldOnly>(field, field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(CreateProperty<FieldOnly>(field, field), PropertyAccessMode.PreferFieldDuringConstruction, field, field, field);
+            MemberInfoTest(CreateProperty<FieldOnly>(field, field), PropertyAccessMode.PreferProperty, field, field, field);
         }
 
-        [Fact]
-        public void Get_MemberInfos_for_field_only_named_props()
-        {
-            const string field = "_foo";
-            var property = CreateProperty<FieldOnly>(field);
-            Assert.False(property.IsShadowProperty);
-
-            MemberInfoTest(property, null, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.Property, NoProperty<FieldOnly>(field), NoProperty<FieldOnly>(field), NoProperty<FieldOnly>(field));
-        }
-
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_field_only_props()
         {
             const string field = "_foo";
-            var property = CreateProperty<ReadOnlyFieldOnly>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, ReadonlyField<ReadOnlyFieldOnly>(field), ReadonlyField<ReadOnlyFieldOnly>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.Field, ReadonlyField<ReadOnlyFieldOnly>(field), ReadonlyField<ReadOnlyFieldOnly>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyFieldOnly>(field), ReadonlyField<ReadOnlyFieldOnly>(field), field);
-            MemberInfoTest(property, PropertyAccessMode.Property, NoProperty<ReadOnlyFieldOnly>(field), NoProperty<ReadOnlyFieldOnly>(field), NoProperty<ReadOnlyFieldOnly>(field));
+            MemberInfoTest(CreateProperty<ReadOnlyFieldOnly>(field, field), null, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyFieldOnly>(field, field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyFieldOnly>(field, field), PropertyAccessMode.FieldDuringConstruction, field, field, field);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyFieldOnly>(field, field), PropertyAccessMode.Property, NoProperty<ReadOnlyFieldOnly>(field),
+                NoProperty<ReadOnlyFieldOnly>(field), NoProperty<ReadOnlyFieldOnly>(field));
+            MemberInfoTest(CreateProperty<ReadOnlyFieldOnly>(field, field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyFieldOnly>(field, field), PropertyAccessMode.PreferFieldDuringConstruction, field, field, field);
+            MemberInfoTest(CreateProperty<ReadOnlyFieldOnly>(field, field), PropertyAccessMode.PreferProperty, field, field, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_props_with_field_not_found()
         {
-            var property = CreateProperty<FullPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
-
-            MemberInfoTest(property, null, Property, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, NoField<FullPropNoField>(), NoField<FullPropNoField>(), NoField<FullPropNoField>());
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, NoField<FullPropNoField>(), Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<FullPropNoField>(null), null, Property, Property, Property);
+            MemberInfoTest(
+                CreateProperty<FullPropNoField>(null), PropertyAccessMode.Field, NoField<FullPropNoField>(),
+                NoField<FullPropNoField>(), NoField<FullPropNoField>());
+            MemberInfoTest(
+                CreateProperty<FullPropNoField>(null), PropertyAccessMode.FieldDuringConstruction,
+                NoField<FullPropNoField>(), Property, Property);
+            MemberInfoTest(CreateProperty<FullPropNoField>(null), PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<FullPropNoField>(null), PropertyAccessMode.PreferField, Property, Property, Property);
+            MemberInfoTest(
+                CreateProperty<FullPropNoField>(null), PropertyAccessMode.PreferFieldDuringConstruction, Property, Property, Property);
+            MemberInfoTest(CreateProperty<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_props_with_field_not_found()
         {
-            var property = CreateProperty<ReadOnlyPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
-
-            MemberInfoTest(property, null, NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, NoField<ReadOnlyPropNoField>(), NoField<ReadOnlyPropNoField>(), NoField<ReadOnlyPropNoField>());
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, NoField<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, NoSetter<ReadOnlyPropNoField>(), NoSetter<ReadOnlyPropNoField>(), Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyPropNoField>(null), null,
+                NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyPropNoField>(null), PropertyAccessMode.Field,
+                NoField<ReadOnlyPropNoField>(), NoField<ReadOnlyPropNoField>(), NoField<ReadOnlyPropNoField>());
+            MemberInfoTest(
+                CreateProperty<ReadOnlyPropNoField>(null), PropertyAccessMode.FieldDuringConstruction,
+                NoField<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyPropNoField>(null), PropertyAccessMode.Property,
+                NoSetter<ReadOnlyPropNoField>(), NoSetter<ReadOnlyPropNoField>(), Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferField,
+                NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferFieldDuringConstruction,
+                NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
+            MemberInfoTest(
+                CreateProperty<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferProperty,
+                NoFieldOrSetter<ReadOnlyPropNoField>(), NoFieldOrSetter<ReadOnlyPropNoField>(), Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_props_with_field_not_found()
         {
-            var property = CreateProperty<WriteOnlyPropNoField>(null);
-            Assert.False(property.IsShadowProperty);
-
-            MemberInfoTest(property, null, Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
-            MemberInfoTest(property, PropertyAccessMode.Field, NoField<WriteOnlyPropNoField>(), NoField<WriteOnlyPropNoField>(), NoField<WriteOnlyPropNoField>());
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, NoField<WriteOnlyPropNoField>(), Property, NoFieldOrGetter<WriteOnlyPropNoField>());
-            MemberInfoTest(property, PropertyAccessMode.Property, Property, Property, NoGetter<WriteOnlyPropNoField>());
+            MemberInfoTest(CreateProperty<WriteOnlyPropNoField>(null), null, Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateProperty<WriteOnlyPropNoField>(null), PropertyAccessMode.Field,
+                NoField<WriteOnlyPropNoField>(), NoField<WriteOnlyPropNoField>(), NoField<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateProperty<WriteOnlyPropNoField>(null), PropertyAccessMode.FieldDuringConstruction,
+                NoField<WriteOnlyPropNoField>(), Property, NoFieldOrGetter<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateProperty<WriteOnlyPropNoField>(null), PropertyAccessMode.Property,
+                Property, Property, NoGetter<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateProperty<WriteOnlyPropNoField>(null), PropertyAccessMode.PreferField,
+                Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateProperty<WriteOnlyPropNoField>(null), PropertyAccessMode.PreferFieldDuringConstruction,
+                Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateProperty<WriteOnlyPropNoField>(null), PropertyAccessMode.PreferProperty,
+                Property, Property, NoFieldOrGetter<WriteOnlyPropNoField>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_props_private_setter_in_base()
         {
             const string field = "_foo";
-            var property = CreateProperty<PrivateSetterInBase>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, field, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<PrivateSetterInBase>(field), null, field, field, field);
+            MemberInfoTest(CreateProperty<PrivateSetterInBase>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateProperty<PrivateSetterInBase>(field), PropertyAccessMode.FieldDuringConstruction, field, Property, Property);
+            MemberInfoTest(CreateProperty<PrivateSetterInBase>(field), PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<PrivateSetterInBase>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateProperty<PrivateSetterInBase>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Property, Property);
+            MemberInfoTest(CreateProperty<PrivateSetterInBase>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_props_private_getter_in_base()
         {
             const string field = "_foo";
-            var property = CreateProperty<PrivateGetterInBase>(field);
-            Assert.False(property.IsShadowProperty);
 
-            MemberInfoTest(property, null, field, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(property, PropertyAccessMode.FieldDuringConstruction, field, Property, Property);
-            MemberInfoTest(property, PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<PrivateGetterInBase>(field), null, field, field, field);
+            MemberInfoTest(CreateProperty<PrivateGetterInBase>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateProperty<PrivateGetterInBase>(field), PropertyAccessMode.FieldDuringConstruction, field, Property, Property);
+            MemberInfoTest(CreateProperty<PrivateGetterInBase>(field), PropertyAccessMode.Property, Property, Property, Property);
+            MemberInfoTest(CreateProperty<PrivateGetterInBase>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateProperty<PrivateGetterInBase>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Property, Property);
+            MemberInfoTest(CreateProperty<PrivateGetterInBase>(field), PropertyAccessMode.PreferProperty, Property, Property, Property);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_auto_prop_navigations()
         {
             const string field = "<Reference>k__BackingField";
-            var navigation = CreateReferenceNavigation<AutoProp>(field);
 
-            MemberInfoTest(navigation, null, field, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<AutoProp>(field), null, field, field, field);
+            MemberInfoTest(CreateReferenceNavigation<AutoProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<AutoProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<AutoProp>(field), PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<AutoProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<AutoProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<AutoProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_navigations()
         {
             const string field = "_reference";
-            var navigation = CreateReferenceNavigation<FullProp>(field);
 
-            MemberInfoTest(navigation, null, field, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<FullProp>(field), null, field, field, field);
+            MemberInfoTest(CreateReferenceNavigation<FullProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<FullProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<FullProp>(field), PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<FullProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<FullProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<FullProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_prop_navigations()
         {
             const string field = "_reference";
-            var navigation = CreateReferenceNavigation<ReadOnlyProp>(field);
 
-            MemberInfoTest(navigation, null, field, field, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, field, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, NoSetterRef<ReadOnlyProp>(), NoSetterRef<ReadOnlyProp>(), Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyProp>(field), null, field, field, field);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyProp>(field), PropertyAccessMode.Property, NoSetterRef<ReadOnlyProp>(),
+                NoSetterRef<ReadOnlyProp>(), Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, field, Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_auto_prop_navigations()
         {
             const string field = "<Reference>k__BackingField";
-            var navigation = CreateReferenceNavigation<ReadOnlyAutoProp>(field);
 
-            MemberInfoTest(navigation, null, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyAutoProp>(field), ReadonlyField<ReadOnlyAutoProp>(field), Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, NoSetterRef<ReadOnlyAutoProp>(), NoSetterRef<ReadOnlyAutoProp>(), Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyAutoProp>(field), null, field, field, field);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.Property, NoSetterRef<ReadOnlyAutoProp>(),
+                NoSetterRef<ReadOnlyAutoProp>(), Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, field,
+                Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_field_prop_navigations()
         {
             const string field = "_reference";
-            var navigation = CreateReferenceNavigation<ReadOnlyFieldProp>(field);
 
-            MemberInfoTest(navigation, null, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, ReadonlyField<ReadOnlyFieldProp>(field), ReadonlyField<ReadOnlyFieldProp>(field), Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, NoSetterRef<ReadOnlyFieldProp>(), NoSetterRef<ReadOnlyFieldProp>(), Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyFieldProp>(field), null, field, field, field);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.Property, NoSetterRef<ReadOnlyFieldProp>(),
+                NoSetterRef<ReadOnlyFieldProp>(), Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, field,
+                Reference);
+            MemberInfoTest(CreateReferenceNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_prop_navigations()
         {
             const string field = "_reference";
-            var navigation = CreateReferenceNavigation<WriteOnlyProp>(field);
 
-            MemberInfoTest(navigation, null, field, Reference, field);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Reference, field);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Reference, Reference, NoGetterRef<WriteOnlyProp>());
+            MemberInfoTest(CreateReferenceNavigation<WriteOnlyProp>(field), null, field, field, field);
+            MemberInfoTest(CreateReferenceNavigation<WriteOnlyProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Reference, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyProp>(field), PropertyAccessMode.Property, Reference, Reference,
+                NoGetterRef<WriteOnlyProp>());
+            MemberInfoTest(CreateReferenceNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Reference, field);
+            MemberInfoTest(CreateReferenceNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Reference, Reference, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_navigations_with_field_not_found()
         {
-            var navigation = CreateReferenceNavigation<FullPropNoField>(null);
-
-            MemberInfoTest(navigation, null, Reference, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, NoFieldRef<FullPropNoField>(), NoFieldRef<FullPropNoField>(), NoFieldRef<FullPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, NoFieldRef<FullPropNoField>(), Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<FullPropNoField>(null), null, Reference, Reference, Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<FullPropNoField>(null), PropertyAccessMode.Field, NoFieldRef<FullPropNoField>(),
+                NoFieldRef<FullPropNoField>(),
+                NoFieldRef<FullPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<FullPropNoField>(null), PropertyAccessMode.FieldDuringConstruction, NoFieldRef<FullPropNoField>(),
+                Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<FullPropNoField>(null), PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<FullPropNoField>(null), PropertyAccessMode.PreferField, Reference, Reference, Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<FullPropNoField>(null), PropertyAccessMode.PreferFieldDuringConstruction, Reference, Reference,
+                Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_prop_navigations_with_field_not_found()
         {
-            var navigation = CreateReferenceNavigation<ReadOnlyPropNoField>(null);
-
-            MemberInfoTest(navigation, null, NoFieldOrSetterRef<ReadOnlyPropNoField>(), NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, NoFieldRef<ReadOnlyPropNoField>(), NoFieldRef<ReadOnlyPropNoField>(), NoFieldRef<ReadOnlyPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, NoFieldRef<ReadOnlyPropNoField>(), NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, NoSetterRef<ReadOnlyPropNoField>(), NoSetterRef<ReadOnlyPropNoField>(), Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyPropNoField>(null), null, NoFieldOrSetterRef<ReadOnlyPropNoField>(),
+                NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.Field, NoFieldRef<ReadOnlyPropNoField>(),
+                NoFieldRef<ReadOnlyPropNoField>(),
+                NoFieldRef<ReadOnlyPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.FieldDuringConstruction,
+                NoFieldRef<ReadOnlyPropNoField>(),
+                NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.Property, NoSetterRef<ReadOnlyPropNoField>(),
+                NoSetterRef<ReadOnlyPropNoField>(), Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferField,
+                NoFieldOrSetterRef<ReadOnlyPropNoField>(),
+                NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferFieldDuringConstruction,
+                NoFieldOrSetterRef<ReadOnlyPropNoField>(),
+                NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferProperty,
+                NoFieldOrSetterRef<ReadOnlyPropNoField>(),
+                NoFieldOrSetterRef<ReadOnlyPropNoField>(), Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_prop_navigations_with_field_not_found()
         {
-            var navigation = CreateReferenceNavigation<WriteOnlyPropNoField>(null);
-
-            MemberInfoTest(navigation, null, Reference, Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.Field, NoFieldRef<WriteOnlyPropNoField>(), NoFieldRef<WriteOnlyPropNoField>(), NoFieldRef<WriteOnlyPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, NoFieldRef<WriteOnlyPropNoField>(), Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Reference, Reference, NoGetterRef<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyPropNoField>(null), null,
+                Reference, Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.Field,
+                NoFieldRef<WriteOnlyPropNoField>(), NoFieldRef<WriteOnlyPropNoField>(), NoFieldRef<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.FieldDuringConstruction,
+                NoFieldRef<WriteOnlyPropNoField>(), Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.Property,
+                Reference, Reference, NoGetterRef<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.PreferField,
+                Reference, Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.PreferFieldDuringConstruction,
+                Reference, Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateReferenceNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.PreferProperty,
+                Reference, Reference, NoFieldOrGetterRef<WriteOnlyPropNoField>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_navigations_private_setter_in_base()
         {
             const string field = "_reference";
-            var navigation = CreateReferenceNavigation<PrivateSetterInBase>(field);
 
-            MemberInfoTest(navigation, null, field, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<PrivateSetterInBase>(field), null, field, field, field);
+            MemberInfoTest(CreateReferenceNavigation<PrivateSetterInBase>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<PrivateSetterInBase>(field), PropertyAccessMode.FieldDuringConstruction, field, Reference,
+                Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<PrivateSetterInBase>(field), PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<PrivateSetterInBase>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<PrivateSetterInBase>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Reference,
+                Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<PrivateSetterInBase>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_navigations_private_getter_in_base()
         {
             const string field = "_reference";
-            var navigation = CreateReferenceNavigation<PrivateGetterInBase>(field);
 
-            MemberInfoTest(navigation, null, field, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Reference, Reference);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<PrivateGetterInBase>(field), null, field, field, field);
+            MemberInfoTest(CreateReferenceNavigation<PrivateGetterInBase>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<PrivateGetterInBase>(field), PropertyAccessMode.FieldDuringConstruction, field,
+                Reference, Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<PrivateGetterInBase>(field), PropertyAccessMode.Property, Reference, Reference, Reference);
+            MemberInfoTest(CreateReferenceNavigation<PrivateGetterInBase>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateReferenceNavigation<PrivateGetterInBase>(field), PropertyAccessMode.PreferFieldDuringConstruction, field,
+                Reference, Reference);
+            MemberInfoTest(
+                CreateReferenceNavigation<PrivateGetterInBase>(field), PropertyAccessMode.PreferProperty, Reference, Reference, Reference);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_auto_prop_collection_navigations()
         {
             const string field = "<Collection>k__BackingField";
-            var navigation = CreateCollectionNavigation<AutoProp>(field);
 
-            MemberInfoTest(navigation, null, field, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<AutoProp>(field), null, field, field, field);
+            MemberInfoTest(CreateCollectionNavigation<AutoProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<AutoProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<AutoProp>(field), PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<AutoProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<AutoProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Collection,
+                Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<AutoProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_collection_navigations()
         {
             const string field = "_collection";
-            var navigation = CreateCollectionNavigation<FullProp>(field);
 
-            MemberInfoTest(navigation, null, field, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<FullProp>(field), null, field, field, field);
+            MemberInfoTest(CreateCollectionNavigation<FullProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<FullProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<FullProp>(field), PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<FullProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<FullProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Collection,
+                Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<FullProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_prop_collection_navigations()
         {
             const string field = "_collection";
-            var navigation = CreateCollectionNavigation<ReadOnlyProp>(field);
 
-            MemberInfoTest(navigation, null, field, field, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, field, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyProp>(field), null, field, field, field);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyProp>(field), PropertyAccessMode.Property, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, field,
+                Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_auto_prop_collection_navigations()
         {
             const string field = "<Collection>k__BackingField";
-            var navigation = CreateCollectionNavigation<ReadOnlyAutoProp>(field);
 
-            MemberInfoTest(navigation, null, null, null, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, null, null, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, null, null, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyAutoProp>(field), null, field, field, field);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.Property, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferFieldDuringConstruction,
+                field, field, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyAutoProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_field_prop_collection_navigations()
         {
             const string field = "_collection";
-            var navigation = CreateCollectionNavigation<ReadOnlyFieldProp>(field);
 
-            MemberInfoTest(navigation, null, null, null, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, null, null, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, null, null, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyFieldProp>(field), null, field, field, field);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.FieldDuringConstruction, field, field, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.Property, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferFieldDuringConstruction,
+                field, field, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyFieldProp>(field), PropertyAccessMode.PreferProperty, field, field, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_prop_collection_navigations()
         {
             const string field = "_collection";
-            var navigation = CreateCollectionNavigation<WriteOnlyProp>(field);
 
-            MemberInfoTest(navigation, null, field, Collection, field);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Collection, field);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Collection, Collection, NoGetterColl<WriteOnlyProp>());
+            MemberInfoTest(CreateCollectionNavigation<WriteOnlyProp>(field), null, field, field, field);
+            MemberInfoTest(CreateCollectionNavigation<WriteOnlyProp>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyProp>(field), PropertyAccessMode.FieldDuringConstruction, field, Collection, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyProp>(field), PropertyAccessMode.Property,
+                Collection, Collection, NoGetterColl<WriteOnlyProp>());
+            MemberInfoTest(CreateCollectionNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, Collection,
+                field);
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyProp>(field), PropertyAccessMode.PreferProperty, Collection, Collection, field);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_collection_navigations_with_field_not_found()
         {
-            var navigation = CreateCollectionNavigation<FullPropNoField>(null);
-
-            MemberInfoTest(navigation, null, Collection, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, null, null, NoFieldColl<FullPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, null, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<FullPropNoField>(null), null, Collection, Collection, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<FullPropNoField>(null), PropertyAccessMode.Field, null, null, NoFieldColl<FullPropNoField>());
+            MemberInfoTest(
+                CreateCollectionNavigation<FullPropNoField>(null), PropertyAccessMode.FieldDuringConstruction, null, Collection,
+                Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<FullPropNoField>(null), PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<FullPropNoField>(null), PropertyAccessMode.PreferField, Collection, Collection, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<FullPropNoField>(null), PropertyAccessMode.PreferFieldDuringConstruction,
+                Collection, Collection, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<FullPropNoField>(null), PropertyAccessMode.PreferProperty, Collection, Collection, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_read_only_prop_collection_navigations_with_field_not_found()
         {
-            var navigation = CreateCollectionNavigation<ReadOnlyPropNoField>(null);
-
-            MemberInfoTest(navigation, null, null, null, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, null, null, NoFieldColl<ReadOnlyPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, null, null, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyPropNoField>(null), null, null, null, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.Field,
+                null, null, NoFieldColl<ReadOnlyPropNoField>());
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.FieldDuringConstruction, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.Property, null, null, Collection);
+            MemberInfoTest(CreateCollectionNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferField, null, null, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferFieldDuringConstruction,
+                null, null, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<ReadOnlyPropNoField>(null), PropertyAccessMode.PreferProperty, null, null, Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_write_only_prop_collection_navigations_with_field_not_found()
         {
-            var navigation = CreateCollectionNavigation<WriteOnlyPropNoField>(null);
-
-            MemberInfoTest(navigation, null, Collection, Collection, NoFieldOrGetterColl<WriteOnlyPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.Field, null, null, NoFieldColl<WriteOnlyPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, null, Collection, NoFieldOrGetterColl<WriteOnlyPropNoField>());
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Collection, Collection, NoGetterColl<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyPropNoField>(null), null,
+                Collection, Collection, NoFieldOrGetterColl<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.Field,
+                null, null, NoFieldColl<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.FieldDuringConstruction,
+                null, Collection, NoFieldOrGetterColl<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.Property,
+                Collection, Collection, NoGetterColl<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.PreferField,
+                Collection, Collection, NoFieldOrGetterColl<WriteOnlyPropNoField>());
+            MemberInfoTest(
+                CreateCollectionNavigation<WriteOnlyPropNoField>(null), PropertyAccessMode.PreferProperty,
+                Collection, Collection, NoFieldOrGetterColl<WriteOnlyPropNoField>());
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_collection_navigations_private_setter_in_base()
         {
             const string field = "_collection";
-            var navigation = CreateCollectionNavigation<PrivateSetterInBase>(field);
 
-            MemberInfoTest(navigation, null, field, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<PrivateSetterInBase>(field), null, field, field, field);
+            MemberInfoTest(CreateCollectionNavigation<PrivateSetterInBase>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<PrivateSetterInBase>(field), PropertyAccessMode.FieldDuringConstruction, field,
+                Collection, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<PrivateSetterInBase>(field), PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<PrivateSetterInBase>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<PrivateSetterInBase>(field), PropertyAccessMode.PreferProperty, Collection, Collection,
+                Collection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Get_MemberInfos_for_full_prop_collection_navigations_private_getter_in_base()
         {
             const string field = "_collection";
-            var navigation = CreateCollectionNavigation<PrivateGetterInBase>(field);
 
-            MemberInfoTest(navigation, null, field, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Field, field, field, field);
-            MemberInfoTest(navigation, PropertyAccessMode.FieldDuringConstruction, field, Collection, Collection);
-            MemberInfoTest(navigation, PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<PrivateGetterInBase>(field), null, field, field, field);
+            MemberInfoTest(CreateCollectionNavigation<PrivateGetterInBase>(field), PropertyAccessMode.Field, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<PrivateGetterInBase>(field), PropertyAccessMode.FieldDuringConstruction,
+                field, Collection, Collection);
+            MemberInfoTest(
+                CreateCollectionNavigation<PrivateGetterInBase>(field), PropertyAccessMode.Property, Collection, Collection, Collection);
+            MemberInfoTest(CreateCollectionNavigation<PrivateGetterInBase>(field), PropertyAccessMode.PreferField, field, field, field);
+            MemberInfoTest(
+                CreateCollectionNavigation<PrivateGetterInBase>(field), PropertyAccessMode.PreferProperty, Collection, Collection,
+                Collection);
         }
 
         private static string NoProperty<TEntity>(string fieldName)
@@ -481,9 +702,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static string NoGetter<TEntity>()
             => CoreStrings.NoGetter(Property, typeof(TEntity).Name, nameof(PropertyAccessMode));
-
-        private static string ReadonlyField<TEntity>(string fieldName)
-            => CoreStrings.ReadonlyField(fieldName, typeof(TEntity).Name);
 
         private static string NoFieldRef<TEntity>()
             => CoreStrings.NoBackingField(Reference, typeof(TEntity).Name, nameof(PropertyAccessMode));
@@ -509,41 +727,57 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static string NoGetterColl<TEntity>()
             => CoreStrings.NoGetter(Collection, typeof(TEntity).Name, nameof(PropertyAccessMode));
 
-        private static Property CreateProperty<TEntity>(string fieldName, string propertyName = Property)
+        private static IMutableProperty CreateProperty<TEntity>(string fieldName, string propertyName = Property)
+            where TEntity : class
         {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(TEntity));
-            entityType.SetPrimaryKey(entityType.AddProperty("Id", typeof(int)));
-            var property = entityType.AddProperty(propertyName, typeof(int));
+            var model = CreateModelBuilder();
+            var property = model.Entity<TEntity>()
+                .Ignore("Reference")
+                .Ignore("Collection")
+                .Property<int>(propertyName)
+                .Metadata;
+
             property.SetField(fieldName);
+            Assert.False(property.IsShadowProperty());
+
             return property;
         }
 
-        private static Navigation CreateReferenceNavigation<TEntity>(
+        private static IMutableNavigation CreateReferenceNavigation<TEntity>(
             string fieldName, string navigationName = Reference)
+            where TEntity : class
         {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(TEntity));
-            var property = entityType.AddProperty("Id", typeof(int));
-            var key = entityType.SetPrimaryKey(property);
-            var foreignKey = entityType.AddForeignKey(property, key, entityType);
-            var navigation = foreignKey.HasDependentToPrincipal(typeof(TEntity).GetProperty(navigationName));
+            var model = CreateModelBuilder();
+            var relationship = model.Entity<TEntity>()
+                .Ignore("Foo")
+                .Ignore("Collection")
+                .HasOne(typeof(TEntity), navigationName)
+                .WithMany();
+
+            var navigation = relationship.Metadata.DependentToPrincipal;
             navigation.SetField(fieldName);
+
             return navigation;
         }
 
-        private static Navigation CreateCollectionNavigation<TEntity>(
+        private static IMutableNavigation CreateCollectionNavigation<TEntity>(
             string fieldName, string navigationName = Collection)
+            where TEntity : class
         {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(TEntity));
-            var property = entityType.AddProperty("Id", typeof(int));
-            var key = entityType.SetPrimaryKey(property);
-            var foreignKey = entityType.AddForeignKey(property, key, entityType);
-            var navigation = foreignKey.HasPrincipalToDependent(typeof(TEntity).GetProperty(navigationName));
+            var model = CreateModelBuilder();
+            var relationship = model.Entity<TEntity>()
+                .Ignore("Foo")
+                .Ignore("Reference")
+                .HasMany(typeof(TEntity), navigationName)
+                .WithOne();
+
+            var navigation = relationship.Metadata.PrincipalToDependent;
             navigation.SetField(fieldName);
+
             return navigation;
         }
+
+        private static ModelBuilder CreateModelBuilder() => new ModelBuilder(InMemoryConventionSetBuilder.Build());
 
         private void MemberInfoTest(
             IMutableProperty property, PropertyAccessMode? accessMode, string forConstruction, string forSet, string forGet)
@@ -567,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string failMessage = null;
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: true, forSet: true);
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: true, forSet: true);
                 Assert.Equal(forConstruction, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;
@@ -584,7 +818,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: false, forSet: true);
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: true);
                 Assert.Equal(forSet, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;
@@ -596,12 +830,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             catch (InvalidOperationException ex)
             {
                 Assert.Equal(forSet, ex.Message);
-                failMessage = failMessage ?? ex.Message;
+                failMessage ??= ex.Message;
             }
 
             try
             {
-                var memberInfo = propertyBase.GetMemberInfo(forConstruction: false, forSet: false);
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
                 Assert.Equal(forGet, memberInfo?.Name);
 
                 var propertyInfo = memberInfo as PropertyInfo;
@@ -613,13 +847,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             catch (InvalidOperationException ex)
             {
                 Assert.Equal(forGet, ex.Message);
-                failMessage = failMessage ?? ex.Message;
+                failMessage ??= ex.Message;
             }
 
             try
             {
+                var model = ((Model)propertyBase.DeclaringType.Model).FinalizeModel();
                 InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>()
-                    .Validate(propertyBase.DeclaringType.Model);
+                    .Validate(model, new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
                 Assert.Null(failMessage);
             }
@@ -629,10 +864,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        [Fact]
-        public virtual void Access_mode_can_be_overriden_at_entity_and_property_levels()
+        [ConditionalFact]
+        public virtual void Access_mode_can_be_overridden_at_entity_and_property_levels()
         {
-            var model = new Model();
+            IMutableModel model = new Model();
 
             var entityType1 = model.AddEntityType(typeof(FullProp));
             var e1p1 = entityType1.AddProperty("Id", typeof(int));
@@ -657,24 +892,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(PropertyAccessMode.Property, e2p2.GetPropertyAccessMode());
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Properties_can_have_field_cleared()
         {
             var propertyInfo = typeof(FullProp).GetAnyProperty("Foo");
 
             Properties_can_have_field_cleared_test(
-                new Model().AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
+                ((IMutableModel)new Model()).AddEntityType(typeof(FullProp)).AddProperty(propertyInfo), propertyInfo, "_foo");
         }
 
-        [Fact]
-        public virtual void Field_only_properties_can_have_field_cleared()
-            => Properties_can_have_field_cleared_test(
-                new Model().AddEntityType(typeof(FieldOnly)).AddProperty("Foo", typeof(int)), null, "_foo");
+        [ConditionalFact]
+        public virtual void Field_only_properties_throws_when_field_cleared()
+        {
+            var propertyBase = ((IMutableModel)new Model()).AddEntityType(typeof(FieldOnly)).AddProperty("_foo", typeof(int));
 
-        [Fact]
+            Assert.Equal(
+                CoreStrings.FieldNameMismatch(null, nameof(FieldOnly), "_foo"),
+                Assert.Throws<InvalidOperationException>(() => propertyBase.SetField(null)).Message);
+        }
+
+        [ConditionalFact]
         public virtual void Navigations_can_have_field_cleared()
         {
-            var entityType = new Model().AddEntityType(typeof(FullProp));
+            var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(FullProp));
             var property = entityType.AddProperty("Id", typeof(int));
             var key = entityType.SetPrimaryKey(property);
             var foreignKey = entityType.AddForeignKey(property, key, entityType);
@@ -685,35 +925,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.HasDependentToPrincipal(propertyInfo), propertyInfo, "_reference");
         }
 
-        private void Properties_can_have_field_cleared_test(PropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
+        private void Properties_can_have_field_cleared_test(IMutablePropertyBase propertyBase, PropertyInfo propertyInfo, string fieldName)
         {
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField(fieldName, ConfigurationSource.Explicit);
+            propertyBase.SetField(fieldName);
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             var fieldInfo = propertyBase.FieldInfo;
             Assert.Equal(fieldName, fieldInfo.Name);
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetField(null, ConfigurationSource.Explicit);
+            propertyBase.SetField(null);
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Explicit);
+            propertyBase.FieldInfo = fieldInfo;
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
-            propertyBase.SetFieldInfo(null, ConfigurationSource.Explicit);
+            propertyBase.FieldInfo = null;
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
             Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
+        }
+
+        [ConditionalFact]
+        public virtual void Setting_fieldInfo_for_shadow_property_throws()
+        {
+            IMutableModel model = new Model();
+
+            var entityType = model.AddEntityType(typeof(FullProp));
+            var property = entityType.AddProperty("shadow", typeof(int));
+
+            Assert.Equal(
+                CoreStrings.FieldNameMismatch("_foo", nameof(FullProp), "shadow"),
+                Assert.Throws<InvalidOperationException>(() => property.SetField("_foo")).Message);
         }
 
         private class AutoProp
@@ -753,11 +1006,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class ReadOnlyProp
         {
-            private int _foo;
-            private ReadOnlyProp _reference;
-            private IEnumerable<ReadOnlyProp> _collection;
+            private readonly int _foo;
+            private readonly ReadOnlyProp _reference;
+            private readonly IEnumerable<ReadOnlyProp> _collection;
 
             public int Id { get; set; }
+
+            public ReadOnlyProp()
+            {
+            }
 
             public ReadOnlyProp(int id, ReadOnlyProp reference, IEnumerable<ReadOnlyProp> collection)
             {
@@ -773,6 +1030,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class ReadOnlyAutoProp
         {
+            public ReadOnlyAutoProp()
+            {
+            }
+
             public ReadOnlyAutoProp(int id, ReadOnlyAutoProp reference, IEnumerable<ReadOnlyAutoProp> collection)
             {
                 Foo = id;
@@ -791,6 +1052,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             private readonly int _foo;
             private readonly ReadOnlyFieldProp _reference;
             private readonly IEnumerable<ReadOnlyFieldProp> _collection;
+
+            public ReadOnlyFieldProp()
+            {
+            }
 
             public ReadOnlyFieldProp(int id, ReadOnlyFieldProp reference, IEnumerable<ReadOnlyFieldProp> collection)
             {
@@ -831,7 +1096,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class FieldOnly
         {
-            private int _foo;
+            private readonly int _foo;
 
             public FieldOnly(int id)
             {
@@ -863,28 +1128,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Foo
             {
-                get { return _notFound; }
-                set { _notFound = value; }
+                get => _notFound;
+                set => _notFound = value;
             }
 
             public FullPropNoField Reference
             {
-                get { return _notFoundRef; }
-                set { _notFoundRef = value; }
+                get => _notFoundRef;
+                set => _notFoundRef = value;
             }
 
             public IEnumerable<FullPropNoField> Collection
             {
-                get { return _notFoundColl; }
-                set { _notFoundColl = value; }
+                get => _notFoundColl;
+                set => _notFoundColl = value;
             }
         }
 
         private class ReadOnlyPropNoField
         {
-            private int _notFound;
-            private ReadOnlyPropNoField _notFoundRef;
-            private IEnumerable<ReadOnlyPropNoField> _notFoundColl;
+            private readonly int _notFound;
+            private readonly ReadOnlyPropNoField _notFoundRef;
+            private readonly IEnumerable<ReadOnlyPropNoField> _notFoundColl;
+
+            public ReadOnlyPropNoField()
+            {
+            }
 
             public ReadOnlyPropNoField(int id, ReadOnlyPropNoField notFoundRef, IEnumerable<ReadOnlyPropNoField> notFoundColl)
             {
@@ -909,17 +1178,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Foo
             {
-                set { _notFound = value; }
+                set => _notFound = value;
             }
 
             public WriteOnlyPropNoField Reference
             {
-                set { _notFoundRef = value; }
+                set => _notFoundRef = value;
             }
 
             public IEnumerable<WriteOnlyPropNoField> Collection
             {
-                set { _notFoundColl = value; }
+                set => _notFoundColl = value;
             }
         }
 
@@ -939,20 +1208,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public virtual int Foo
             {
-                get { return _foo; }
-                private set { _foo = value; }
+                get => _foo;
+                private set => _foo = value;
             }
 
             public virtual PrivateSetterInBase Reference
             {
-                get { return _reference; }
-                private set { _reference = value; }
+                get => _reference;
+                private set => _reference = value;
             }
 
             public virtual IEnumerable<PrivateSetterInBase> Collection
             {
-                get { return _collection; }
-                private set { _collection = value; }
+                get => _collection;
+                private set => _collection = value;
             }
         }
 
@@ -960,17 +1229,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             public override int Foo
             {
-                set { _foo = value; }
+                set => _foo = value;
             }
 
             public override PrivateGetterInBase Reference
             {
-                set { _reference = value; }
+                set => _reference = value;
             }
 
             public override IEnumerable<PrivateGetterInBase> Collection
             {
-                set { _collection = value; }
+                set => _collection = value;
             }
         }
 
@@ -983,20 +1252,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public virtual int Foo
             {
-                private get { return _foo; }
-                set { _foo = value; }
+                private get => _foo;
+                set => _foo = value;
             }
 
             public virtual PrivateGetterInBase Reference
             {
-                private get { return _reference; }
-                set { _reference = value; }
+                private get => _reference;
+                set => _reference = value;
             }
 
             public virtual IEnumerable<PrivateGetterInBase> Collection
             {
-                private get { return _collection; }
-                set { _collection = value; }
+                private get => _collection;
+                set => _collection = value;
             }
         }
     }

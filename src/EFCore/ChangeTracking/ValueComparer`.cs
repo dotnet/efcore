@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </param>
         public ValueComparer(bool favorStructuralComparisons)
             : this(
-                CreateDefaultEqualsExpression(favorStructuralComparisons),
+                CreateDefaultEqualsExpression(),
                 CreateDefaultHashCodeExpression(favorStructuralComparisons))
         {
         }
@@ -84,14 +84,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
         }
 
-        private static Expression<Func<T, T, bool>> CreateDefaultEqualsExpression(bool favorStructuralComparisons)
+        /// <summary>
+        ///     Creates an expression for equality.
+        /// </summary>
+        /// <returns> The equality expression. </returns>
+        protected static Expression<Func<T, T, bool>> CreateDefaultEqualsExpression()
         {
             var type = typeof(T);
             var param1 = Expression.Parameter(type, "v1");
             var param2 = Expression.Parameter(type, "v2");
 
-            if (favorStructuralComparisons
-                && typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+            if (typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
             {
                 return Expression.Lambda<Func<T, T, bool>>(
                     Expression.Call(
@@ -121,22 +124,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             var typedEquals = type.GetRuntimeMethods().FirstOrDefault(
                 m => m.ReturnType == typeof(bool)
-                     && !m.IsStatic
-                     && nameof(object.Equals).Equals(m.Name, StringComparison.Ordinal)
-                     && m.GetParameters().Length == 1
-                     && m.GetParameters()[0].ParameterType == typeof(T));
+                    && !m.IsStatic
+                    && nameof(object.Equals).Equals(m.Name, StringComparison.Ordinal)
+                    && m.GetParameters().Length == 1
+                    && m.GetParameters()[0].ParameterType == typeof(T));
 
             while (typedEquals == null
-                   && type != null)
+                && type != null)
             {
                 var declaredMethods = type.GetTypeInfo().DeclaredMethods;
                 typedEquals = declaredMethods.FirstOrDefault(
                     m => m.IsStatic
-                         && m.ReturnType == typeof(bool)
-                         && "op_Equality".Equals(m.Name, StringComparison.Ordinal)
-                         && m.GetParameters().Length == 2
-                         && m.GetParameters()[0].ParameterType == typeof(T)
-                         && m.GetParameters()[1].ParameterType == typeof(T));
+                        && m.ReturnType == typeof(bool)
+                        && "op_Equality".Equals(m.Name, StringComparison.Ordinal)
+                        && m.GetParameters().Length == 2
+                        && m.GetParameters()[0].ParameterType == typeof(T)
+                        && m.GetParameters()[1].ParameterType == typeof(T));
 
                 type = type.BaseType;
             }
@@ -153,7 +156,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 param1, param2);
         }
 
-        private static Expression<Func<T, int>> CreateDefaultHashCodeExpression(bool favorStructuralComparisons)
+        /// <summary>
+        ///     Creates an expression for generated a hash code.
+        /// </summary>
+        /// <param name="favorStructuralComparisons">
+        ///     If <c>true</c>, then <see cref="IStructuralEquatable" /> is used if the type implements it.
+        /// </param>
+        /// <returns> The hash code expression. </returns>
+        protected static Expression<Func<T, int>> CreateDefaultHashCodeExpression(bool favorStructuralComparisons)
         {
             var type = typeof(T);
             var unwrappedType = type.UnwrapNullableType();
@@ -175,19 +185,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 = type == typeof(int)
                     ? param
                     : unwrappedType == typeof(int)
-                      || unwrappedType == typeof(short)
-                      || unwrappedType == typeof(byte)
-                      || unwrappedType == typeof(uint)
-                      || unwrappedType == typeof(ushort)
-                      || unwrappedType == typeof(sbyte)
-                      || unwrappedType == typeof(char)
+                    || unwrappedType == typeof(short)
+                    || unwrappedType == typeof(byte)
+                    || unwrappedType == typeof(uint)
+                    || unwrappedType == typeof(ushort)
+                    || unwrappedType == typeof(sbyte)
+                    || unwrappedType == typeof(char)
                         ? (Expression)Expression.Convert(param, typeof(int))
                         : Expression.Call(
                             Expression.Convert(param, typeof(object)), ObjectGetHashCodeMethod);
 
             return Expression.Lambda<Func<T, int>>(expression, param);
         }
-
 
         /// <summary>
         ///     Compares the two instances to determine if they are equal.
@@ -244,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
         public override object Snapshot(object instance)
-            => Snapshot((T)instance);
+            => instance == null ? null : (object)Snapshot((T)instance);
 
         /// <summary>
         ///     <para>
@@ -293,6 +302,5 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public new virtual Expression<Func<T, T>> SnapshotExpression
             => (Expression<Func<T, T>>)base.SnapshotExpression;
-
     }
 }

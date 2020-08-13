@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
@@ -68,11 +69,16 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
         ///     </para>
         /// </summary>
-        public virtual bool IsConfigured => _options.Extensions.Any();
+        public virtual bool IsConfigured => _options.Extensions.Any(e => e.Info.IsDatabaseProvider);
 
         /// <summary>
-        ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
-        ///     will not be run.
+        ///     <para>
+        ///         Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
+        ///         will not be run.
+        ///     </para>
+        ///     <para>
+        ///         If setting an externally created model <see cref="ModelBuilder.FinalizeModel()" /> should be called first.
+        ///     </para>
         /// </summary>
         /// <param name="model"> The model to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -82,18 +88,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         Sets the <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
-        ///         for logging done by this context. It is never necessary to call this method since EF can obtain
-        ///         or create a logger factory automatically.
+        ///         for logging done by this context.
         ///     </para>
         ///     <para>
         ///         There is no need to call this method when using one of the 'AddDbContext' methods.
         ///         'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
         ///         application service provider.
-        ///     </para>
-        ///     <para>
-        ///         Note that changing the logger factory can cause EF to build a new internal service provider, which
-        ///         may cause issues with performance. Generally it is expected that no more than one or two different
-        ///         instances will be used for a given application.
         ///     </para>
         ///     <para>
         ///         This method cannot be used if the application is setting the internal service provider
@@ -108,13 +108,29 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context. It is never
-        ///         necessary to call this method since EF can obtain or create a memory cache automatically.
+        ///         Enables detailed errors when handling of data value exceptions that occur during processing of store query results. Such errors
+        ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
+        ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated
+        ///         at runtime during processing of the data value. When this option is enabled and a data error is encountered, the
+        ///         generated exception will include details of the specific entity property that generated the error.
         ///     </para>
         ///     <para>
-        ///         There is no need to call this method when using one of the 'AddDbContext' methods.
-        ///         'AddDbContext' will ensure that the <see cref="IMemoryCache" /> used by EF is obtained from the
-        ///         application service provider.
+        ///         Enabling this option incurs a small performance overhead during query execution.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder EnableDetailedErrors(bool detailedErrorsEnabled = true)
+            => WithOption(e => e.WithDetailedErrorsEnabled(detailedErrorsEnabled));
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="IMemoryCache" /> to be used for query caching by this context.
         ///     </para>
         ///     <para>
         ///         Note that changing the memory cache can cause EF to build a new internal service provider, which
@@ -177,9 +193,26 @@ namespace Microsoft.EntityFrameworkCore
         ///         so that EF will manage the service providers and can create new instances as required.
         ///     </para>
         /// </summary>
+        /// <param name="sensitiveDataLoggingEnabled"> If <c>true</c>, then sensitive data is logged. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder EnableSensitiveDataLogging(bool sensitiveDataLoggingEnabled = true)
             => WithOption(e => e.WithSensitiveDataLoggingEnabled(sensitiveDataLoggingEnabled));
+
+        /// <summary>
+        ///     <para>
+        ///         Enables or disables caching of internal service providers. Disabling caching can
+        ///         massively impact performance and should only be used in testing scenarios that
+        ///         build many service providers for test isolation.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
+        ///     </para>
+        /// </summary>
+        /// <param name="cacheServiceProvider"> If <c>true</c>, then the internal service provider is cached. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder EnableServiceProviderCaching(bool cacheServiceProvider = true)
+            => WithOption(e => e.WithServiceProviderCachingEnabled(cacheServiceProvider));
 
         /// <summary>
         ///     <para>
@@ -225,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         optionsBuilder.ConfigureWarnings(warnings =>
         ///             warnings.Default(WarningBehavior.Ignore)
         ///                     .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
-        ///                     .Throw(RelationalEventId.QueryClientEvaluationWarning))
+        ///                     .Throw(RelationalEventId.BoolWithDefaultWarning))
         ///     </code>
         /// </example>
         /// <param name="warningsConfigurationBuilderAction">
@@ -263,6 +296,58 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbContextOptionsBuilder ReplaceService<TService, TImplementation>()
             where TImplementation : TService
             => WithOption(e => e.WithReplacedService(typeof(TService), typeof(TImplementation)));
+
+        /// <summary>
+        ///     <para>
+        ///         Adds <see cref="IInterceptor" /> instances to those registered on the context.
+        ///     </para>
+        ///     <para>
+        ///         Interceptors can be used to view, change, or suppress operations taken by Entity Framework.
+        ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
+        ///     </para>
+        ///     <para>
+        ///         A single interceptor instance can implement multiple different interceptor interfaces. I will be registered as
+        ///         an interceptor for all interfaces that it implements.
+        ///     </para>
+        ///     <para>
+        ///         Extensions can also register multiple <see cref="IInterceptor" />s in the internal service provider.
+        ///         If both injected and application interceptors are found, then the injected interceptors are run in the
+        ///         order that they are resolved from the service provider, and then the application interceptors are run
+        ///         in the order that they were added to the context.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
+        ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptors"> The interceptors to add. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder AddInterceptors([NotNull] IEnumerable<IInterceptor> interceptors)
+            => WithOption(e => e.WithInterceptors(Check.NotNull(interceptors, nameof(interceptors))));
+
+        /// <summary>
+        ///     <para>
+        ///         Adds <see cref="IInterceptor" /> instances to those registered on the context.
+        ///     </para>
+        ///     <para>
+        ///         Interceptors can be used to view, change, or suppress operations taken by Entity Framework.
+        ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
+        ///     </para>
+        ///     <para>
+        ///         Extensions can also register multiple <see cref="IInterceptor" />s in the internal service provider.
+        ///         If both injected and application interceptors are found, then the injected interceptors are run in the
+        ///         order that they are resolved from the service provider, and then the application interceptors are run
+        ///         in the order that they were added to the context.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
+        ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptors"> The interceptors to add. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder AddInterceptors([NotNull] params IInterceptor[] interceptors)
+            => AddInterceptors((IEnumerable<IInterceptor>)interceptors);
 
         /// <summary>
         ///     <para>

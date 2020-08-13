@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -15,159 +16,140 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public override DbUpdateException Optional_One_to_one_relationships_are_one_to_one()
+        public override void Optional_One_to_one_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
-            return null;
         }
 
-        public override DbUpdateException Required_One_to_one_relationships_are_one_to_one()
+        public override void Required_One_to_one_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
-            return null;
         }
 
-        public override DbUpdateException Optional_One_to_one_with_AK_relationships_are_one_to_one()
+        public override void Optional_One_to_one_with_AK_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
-            return null;
         }
 
-        public override DbUpdateException Required_One_to_one_with_AK_relationships_are_one_to_one()
+        public override void Required_One_to_one_with_AK_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
         {
             // FK uniqueness not enforced in in-memory database
-            return null;
         }
 
-        public override void Save_required_one_to_one_changed_by_reference_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
+        public override void Save_required_one_to_one_changed_by_reference(
+            ChangeMechanism changeMechanism,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Save_required_non_PK_one_to_one_changed_by_reference_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
+        public override void Sever_required_one_to_one(
+            ChangeMechanism changeMechanism,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism)
+        public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Save_removed_required_many_to_one_dependents(ChangeMechanism changeMechanism)
+        public override void Required_one_to_one_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Save_required_non_PK_one_to_one_changed_by_reference(ChangeMechanism changeMechanism, bool useExistingEntities)
+        public override void Required_non_PK_one_to_one_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Sever_required_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
+        public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Sever_required_one_to_one(ChangeMechanism changeMechanism)
+        public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Sever_required_non_PK_one_to_one(ChangeMechanism changeMechanism)
+        public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override void Sever_required_non_PK_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
+        public override void Optional_many_to_one_dependents_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Required_many_to_one_dependents_are_cascade_deleted_in_store()
+        public override void Optional_one_to_one_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Required_one_to_one_are_cascade_deleted_in_store()
+        public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Required_non_PK_one_to_one_are_cascade_deleted_in_store()
+        public override void Optional_one_to_one_with_alternate_key_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store()
+        public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store()
+        public override void Required_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store()
+        public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade delete not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
-        public override DbUpdateException Optional_many_to_one_dependents_are_orphaned_in_store()
+        public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
-            // Cascade nulls not supported by in-memory database
-            return null;
-        }
-
-        public override DbUpdateException Optional_one_to_one_are_orphaned_in_store()
-        {
-            // Cascade nulls not supported by in-memory database
-            return null;
-        }
-
-        public override DbUpdateException Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store()
-        {
-            // Cascade nulls not supported by in-memory database
-            return null;
-        }
-
-        public override DbUpdateException Optional_one_to_one_with_alternate_key_are_orphaned_in_store()
-        {
-            // Cascade nulls not supported by in-memory database
-            return null;
-        }
-
-        public override DbUpdateException Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added()
-        {
-            // Cascade nulls not supported by in-memory database
-            return null;
-        }
-
-        public override DbUpdateException Required_one_to_one_are_cascade_detached_when_Added()
-        {
-            // Cascade nulls not supported by in-memory database
-            return null;
-        }
-
-        public override DbUpdateException Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added()
-        {
-            // Cascade nulls not supported by in-memory database
-            return null;
-        }
-
-        public override DbUpdateException Required_non_PK_one_to_one_are_cascade_detached_when_Added()
-        {
-            // Cascade nulls not supported by in-memory database
-            return null;
+            // FK uniqueness not enforced in in-memory database
         }
 
         protected override void ExecuteWithStrategyInTransaction(

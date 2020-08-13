@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     the regular and interpolated <see cref="RelationalQueryableExtensions.FromSql{TEntity}(IQueryable{TEntity},RawSqlString,object[])" />
     ///     and <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlCommand(Infrastructure.DatabaseFacade,RawSqlString,object[])" />
     /// </summary>
+    [Obsolete(
+        "For the execution of SQL queries using plain strings, use FromSqlRaw, ExecuteSqlRaw, or ExecuteSqlRawAsync instead. For the execution of SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated, ExecuteSqlInterpolated, or ExecuteSqlInterpolatedAsync instead.")]
     public readonly struct RawSqlString
     {
         /// <summary>
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         public static implicit operator RawSqlString([NotNull] FormattableString fs) => default;
 
         /// <summary>
-        ///     Constructs a <see cref="RawSqlString" /> from a see <see cref="string" />
+        ///     Constructs a <see cref="RawSqlString" /> from a <see cref="string" />
         /// </summary>
         /// <param name="s"> The string. </param>
         public RawSqlString([NotNull] string s) => Format = s;

@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
@@ -10,7 +10,7 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSource>false</IncludeSource>
-    <EnableApiCheck>false</EnableApiCheck>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
 
 Enables these commonly used commands:
@@ -28,57 +28,35 @@ Update-Database
   </ItemGroup>
 
   <ItemGroup>
-    <!-- PowerShell files should be code signed -->
-    <SignedPackageFile Include="EntityFrameworkCore.PowerShell2.psd1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="EntityFrameworkCore.PowerShell2.psm1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="EntityFrameworkCore.psd1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="EntityFrameworkCore.psm1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="init.ps1" Certificate="$(PowerShellSigningCertName)" />
-    <SignedPackageFile Include="install.ps1" Certificate="$(PowerShellSigningCertName)" />
-
-    <!-- Additional assemblies to be code signed -->
-    <SignedPackageFile Include="ef.exe" Certificate="$(AssemblySigningCertName)" />
-    <SignedPackageFile Include="ef.dll" Certificate="$(AssemblySigningCertName)" />
+    <GeneratedContent Include="*.psd1.in" />
   </ItemGroup>
 
-  <ItemGroup>
-    <GeneratedContent Include="*.psd1.in">
-      <Properties>VersionPrefix=$(VersionPrefix)</Properties>
-    </GeneratedContent>
-  </ItemGroup>
-
-  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="ResolveCommitHash">
+  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
     <PropertyGroup>
+      <DevelopmentDependency>true</DevelopmentDependency>
+
       <!-- Make sure we create a symbols.nupkg -->
       <IncludeSymbols>true</IncludeSymbols>
-
-      <NuspecProperties>
-        id=$(PackageId);
-        version=$(PackageVersion);
-        configuration=$(Configuration);
-        tags=$(PackageTags.Replace(';',' '));
-        projectUrl=$(PackageProjectUrl);
-        licenseUrl=$(PackageLicenseUrl);
-        iconUrl=$(PackageIconUrl);
-        repositoryUrl=$(RepositoryUrl);
-        repositoryType=$(RepositoryType);
-        repositoryCommit=$(RepositoryCommit);
-        author=$(Authors);
-        copyright=$(Copyright);
-        description=$(Description);
-        targetDir=$(TargetDir);
-      </NuspecProperties>
     </PropertyGroup>
+
+    <ItemGroup>
+      <NuspecProperty Include="version=$(PackageVersion)" />
+      <NuspecProperty Include="configuration=$(Configuration)" />
+      <NuspecProperty Include="intermediateOutputPath=$(IntermediateOutputPath)" />
+    </ItemGroup>
   </Target>
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
-  <Target Name="Compile"
+  <Target Name="GenerateContent"
+    BeforeTargets="GenerateNuspec"
     Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
-    Outputs="@(GeneratedContent->'$(TargetDir)%(FileName)'">
-    <Sdk_GenerateFileFromTemplate TemplateFile="%(GeneratedContent.Identity)" OutputPath="$(TargetDir)%(FileName)" Properties="%(Properties)" />
+    Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(FileName)'">
+    <!-- TODO: Use dotnet/arcade#204 when available -->
+    <WriteLinesToFile Lines="$([System.IO.File]::ReadAllText('%(GeneratedContent.Identity)').Replace('${VersionPrefix}', $(VersionPrefix)))" File="$(IntermediateOutputPath)%(FileName)" Overwrite="True" />
   </Target>
 
+  <Target Name="Compile" />
   <Target Name="CopyFilesToOutputDirectory" />
 
 </Project>

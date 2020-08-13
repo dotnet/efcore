@@ -18,11 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="context"> The current <see cref="DbContext" />. </param>
+        /// <param name="context"> The current <see cref="DbContext" />, or null if not known. </param>
         public DbContextEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbContext context)
+            [CanBeNull] DbContext context)
             : base(eventDefinition, messageGenerator)
         {
             Context = context;

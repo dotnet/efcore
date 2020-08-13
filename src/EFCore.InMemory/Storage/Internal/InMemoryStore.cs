@@ -3,19 +3,21 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class InMemoryStore : IInMemoryStore
     {
@@ -24,11 +26,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
         private readonly object _lock = new object();
 
-        private LazyRef<Dictionary<object, IInMemoryTable>> _tables = CreateTables();
+        private Dictionary<object, IInMemoryTable> _tables;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryStore([NotNull] IInMemoryTableFactory tableFactory)
             : this(tableFactory, useNameMatching: false)
@@ -36,8 +40,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryStore(
             [NotNull] IInMemoryTableFactory tableFactory,
@@ -48,90 +54,119 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool EnsureCreated(
-            StateManagerDependencies stateManagerDependencies,
-            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
+        public virtual InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(
+            IProperty property)
         {
             lock (_lock)
             {
-                var returnValue = !_tables.HasValue;
+                var entityType = property.DeclaringEntityType;
+                var key = _useNameMatching ? (object)entityType.Name : entityType;
 
-                // ReSharper disable once AssignmentIsFullyDiscarded
-                _ = _tables.Value;
-
-                var stateManager = new StateManager(stateManagerDependencies);
-                var entries = new List<IUpdateEntry>();
-                foreach (var entityType in stateManagerDependencies.Model.GetEntityTypes())
-                {
-                    foreach (var targetSeed in entityType.GetData())
-                    {
-                        var entry = stateManager.CreateEntry(targetSeed, entityType);
-                        entry.SetEntityState(EntityState.Added);
-                        entries.Add(entry);
-                    }
-                }
-
-                ExecuteTransaction(entries, updateLogger);
-
-                return returnValue;
+                return EnsureTable(key, entityType).GetIntegerValueGenerator<TProperty>(property);
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool EnsureCreated(
+            IUpdateAdapterFactory updateAdapterFactory,
+            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
+        {
+            lock (_lock)
+            {
+                var valuesSeeded = _tables == null;
+                if (valuesSeeded)
+                {
+                    // ReSharper disable once AssignmentIsFullyDiscarded
+                    _tables = CreateTables();
+
+                    var updateAdapter = updateAdapterFactory.CreateStandalone();
+                    var entries = new List<IUpdateEntry>();
+                    foreach (var entityType in updateAdapter.Model.GetEntityTypes())
+                    {
+                        foreach (var targetSeed in entityType.GetSeedData())
+                        {
+                            var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                            entry.EntityState = EntityState.Added;
+                            entries.Add(entry);
+                        }
+                    }
+
+                    ExecuteTransaction(entries, updateLogger);
+                }
+
+                return valuesSeeded;
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool Clear()
         {
             lock (_lock)
             {
-                if (!_tables.HasValue)
+                if (_tables == null)
                 {
                     return false;
                 }
 
-                _tables = CreateTables();
+                _tables = null;
 
                 return true;
             }
         }
 
-        private static LazyRef<Dictionary<object, IInMemoryTable>> CreateTables()
-            => new LazyRef<Dictionary<object, IInMemoryTable>>(() => new Dictionary<object, IInMemoryTable>());
+        private static Dictionary<object, IInMemoryTable> CreateTables()
+            => new Dictionary<object, IInMemoryTable>();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IReadOnlyList<InMemoryTableSnapshot> GetTables(IEntityType entityType)
         {
             var data = new List<InMemoryTableSnapshot>();
             lock (_lock)
             {
-                if (_tables.HasValue)
+                if (_tables != null)
                 {
-                    foreach (var et in entityType.GetConcreteTypesInHierarchy())
+                    foreach (var et in entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract()))
                     {
                         var key = _useNameMatching ? (object)et.Name : et;
-                        if (_tables.Value.TryGetValue(key, out var table))
+                        if (_tables.TryGetValue(key, out var table))
                         {
                             data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
                         }
                     }
                 }
             }
+
             return data;
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual int ExecuteTransaction(
-            IReadOnlyList<IUpdateEntry> entries,
+            IList<IUpdateEntry> entries,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             var rowsAffected = 0;
@@ -147,10 +182,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     Debug.Assert(!entityType.IsAbstract());
 
                     var key = _useNameMatching ? (object)entityType.Name : entityType;
-                    if (!_tables.Value.TryGetValue(key, out var table))
-                    {
-                        _tables.Value.Add(key, table = _tableFactory.Create(entityType));
-                    }
+                    var table = EnsureTable(key, entityType);
 
                     if (entry.SharedIdentityEntry != null)
                     {
@@ -182,6 +214,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             updateLogger.ChangesSaved(entries, rowsAffected);
 
             return rowsAffected;
+        }
+
+        // Must be called from inside the lock
+        private IInMemoryTable EnsureTable(object key, IEntityType entityType)
+        {
+            if (_tables == null)
+            {
+                _tables = CreateTables();
+            }
+
+            if (!_tables.TryGetValue(key, out var table))
+            {
+                _tables.Add(key, table = _tableFactory.Create(entityType));
+            }
+
+            return table;
         }
     }
 }

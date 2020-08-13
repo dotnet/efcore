@@ -1,18 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !Test20
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
@@ -26,10 +24,20 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
+            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+                CreateContext(),
+                nameof(ObjectBackedDataTypes),
+                nameof(NullableBackedDataTypes),
+                nameof(NonNullableBackedDataTypes),
+                nameof(AnimalDetails));
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
+            const string expected = @"Animal.Id ---> [varbinary] [MaxLength = 4]
+AnimalIdentification.AnimalId ---> [varbinary] [MaxLength = 4]
+AnimalIdentification.Id ---> [varbinary] [MaxLength = 4]
+AnimalIdentification.Method ---> [varbinary] [MaxLength = 4]
+BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [varbinary] [MaxLength = 4]
+BinaryKeyDataType.Ex ---> [nullable varbinary] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
 BuiltInDataTypes.Enum16 ---> [varbinary] [MaxLength = 2]
 BuiltInDataTypes.Enum32 ---> [varbinary] [MaxLength = 4]
@@ -139,6 +147,8 @@ BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable varbinar
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable varbinary] [MaxLength = 4]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable varbinary] [MaxLength = 8]
 BuiltInNullableDataTypesShadow.TestString ---> [nullable varbinary] [MaxLength = -1]
+EmailTemplate.Id ---> [varbinary] [MaxLength = 16]
+EmailTemplate.TemplateType ---> [varbinary] [MaxLength = 4]
 MaxLengthDataTypes.ByteArray5 ---> [nullable varbinary] [MaxLength = 5]
 MaxLengthDataTypes.ByteArray9000 ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [varbinary] [MaxLength = 4]
@@ -158,6 +168,16 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
 
+        public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+        {
+            // The query needs to generate TOP(1)
+        }
+
+        public override void Can_read_back_bool_mapped_as_int_through_navigation()
+        {
+            // Column is mapped as int rather than byte[]
+        }
+
         public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
             public override bool StrictEquality => true;
@@ -174,19 +194,20 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
             public override bool SupportsBinaryKeys => true;
 
+            public override bool SupportsDecimalComparisons => true;
+
             public override DateTime DefaultDateTime => new DateTime();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base
                     .AddOptions(builder)
                     .ConfigureWarnings(
-                        c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
-                            .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
         }
 
         public class SqlServerBytesTestStoreFactory : SqlServerTestStoreFactory
         {
-            public new static SqlServerBytesTestStoreFactory Instance { get; } = new SqlServerBytesTestStoreFactory();
+            public static new SqlServerBytesTestStoreFactory Instance { get; } = new SqlServerBytesTestStoreFactory();
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(
@@ -196,13 +217,13 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
         public class SqlServerBytesTypeMappingSource : RelationalTypeMappingSource
         {
             private readonly SqlServerByteArrayTypeMapping _rowversion
-                = new SqlServerByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
+                = new SqlServerByteArrayTypeMapping("rowversion", size: 8);
 
             private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
-                = new SqlServerByteArrayTypeMapping("varbinary");
+                = new SqlServerByteArrayTypeMapping();
 
             private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
-                = new SqlServerByteArrayTypeMapping("binary");
+                = new SqlServerByteArrayTypeMapping(fixedLength: true);
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
@@ -237,32 +258,32 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                         || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
                     {
                         return clrType == null
-                               || mapping.ClrType == clrType
-                            ? mapping
-                            : null;
+                            || mapping.ClrType == clrType
+                                ? mapping
+                                : null;
                     }
                 }
 
-                if (clrType != null)
+                if (clrType == typeof(byte[]))
                 {
-                    if (clrType == typeof(byte[]))
+                    if (mappingInfo.IsRowVersion == true)
                     {
-                        if (mappingInfo.IsRowVersion == true)
-                        {
-                            return _rowversion;
-                        }
-
-                        var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
-                        if (size > 8000)
-                        {
-                            size = null;
-                        }
-
-                        return new SqlServerByteArrayTypeMapping(
-                            "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
-                            DbType.Binary,
-                            size);
+                        return _rowversion;
                     }
+
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    if (size > 8000)
+                    {
+                        size = isFixedLength ? 8000 : (int?)null;
+                    }
+
+                    return new SqlServerByteArrayTypeMapping(
+                        "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
+                        size,
+                        isFixedLength,
+                        storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
                 }
 
                 return null;
@@ -270,4 +291,3 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
         }
     }
 }
-#endif

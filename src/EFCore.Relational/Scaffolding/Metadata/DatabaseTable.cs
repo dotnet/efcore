@@ -28,6 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
+        ///     The table comment, or <c>null</c> if none is set.
+        /// </summary>
+        public virtual string Comment { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     The primary key of the table.
         /// </summary>
         public virtual DatabasePrimaryKey PrimaryKey { get; [param: CanBeNull] set; }

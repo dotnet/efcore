@@ -5,8 +5,7 @@ using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -18,8 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
-    public interface IRelationalConnection : IRelationalTransactionManager, IDisposable
+    public interface IRelationalConnection : IRelationalTransactionManager, IDisposable, IAsyncDisposable
     {
         /// <summary>
         ///     Gets the connection string for the database.
@@ -30,6 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
         /// </summary>
         DbConnection DbConnection { get; }
+
+        /// <summary>
+        ///     The <see cref="DbContext" /> currently in use, or null if not known.
+        /// </summary>
+        DbContext Context { get; }
 
         /// <summary>
         ///     Gets the connection identifier.
@@ -68,6 +78,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         bool Close();
 
         /// <summary>
+        ///     Closes the connection to the database.
+        /// </summary>
+        /// <returns>
+        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     was actually closed.
+        /// </returns>
+        Task<bool> CloseAsync();
+
+        /// <summary>
         ///     Gets a value indicating whether the multiple active result sets feature is enabled.
         /// </summary>
         bool IsMultipleActiveResultSetsEnabled { get; }
@@ -84,21 +103,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The semaphore.
         /// </value>
         SemaphoreSlim Semaphore { get; }
-
-        /// <summary>
-        ///     Registers a potentially bufferable active query.
-        /// </summary>
-        /// <param name="bufferable"> The bufferable query. </param>
-        void RegisterBufferable([NotNull] IBufferable bufferable);
-
-        /// <summary>
-        ///     Asynchronously registers a potentially bufferable active query.
-        /// </summary>
-        /// <param name="bufferable"> The bufferable query. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns>
-        ///     A Task.
-        /// </returns>
-        Task RegisterBufferableAsync([NotNull] IBufferable bufferable, CancellationToken cancellationToken);
     }
 }

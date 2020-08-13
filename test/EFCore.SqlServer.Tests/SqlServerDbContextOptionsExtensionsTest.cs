@@ -1,16 +1,17 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerDbContextOptionsExtensionsTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_max_batch_size()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(123, extension.MaxBatchSize);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_command_timeout()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(30, extension.CommandTimeout);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_string()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -44,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.Connection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_string_using_generic_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -56,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.Connection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.ConnectionString);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_connection_using_generic_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
@@ -84,12 +85,14 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(extension.ConnectionString);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_add_extension_with_legacy_paging()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
 
+#pragma warning disable 618
             optionsBuilder.UseSqlServer("Database=Kilimanjaro", b => b.UseRowNumberForPaging());
+#pragma warning restore 618
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 

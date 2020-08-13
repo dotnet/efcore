@@ -1,7 +1,6 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -66,32 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         bool IsHandledByConvention([NotNull] IIndex index, [NotNull] IAnnotation annotation);
 
         /// <summary>
-        ///     Generates fluent API calls for the given <see cref="IAnnotation" /> in the given programming language.
-        /// </summary>
-        /// <param name="model"> The <see cref="IModel" /> for which code should be generated. </param>
-        /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
-        /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> The generated code. </returns>
-        [Obsolete("Use GenerateFluentApi(IModel, IAnnotation) instead.")]
-        string GenerateFluentApi([NotNull] IModel model, [NotNull] IAnnotation annotation, [NotNull] string language);
-
-        /// <summary>
         ///     Generates fluent API calls for the given <see cref="IAnnotation" />.
         /// </summary>
         /// <param name="model"> The <see cref="IModel" /> for which code should be generated. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
         /// <returns> The generated code. </returns>
         MethodCallCodeFragment GenerateFluentApi([NotNull] IModel model, [NotNull] IAnnotation annotation);
-
-        /// <summary>
-        ///     Generates fluent API calls for the given <see cref="IAnnotation" /> in the given programming language.
-        /// </summary>
-        /// <param name="entityType"> The <see cref="IEntityType" /> for which code should be generated. </param>
-        /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
-        /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> The generated code. </returns>
-        [Obsolete("Use GenerateFluentApi(IEntityType, IAnnotation) instead.")]
-        string GenerateFluentApi([NotNull] IEntityType entityType, [NotNull] IAnnotation annotation, [NotNull] string language);
 
         /// <summary>
         ///     Generates fluent API calls for the given <see cref="IAnnotation" />.
@@ -102,32 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         MethodCallCodeFragment GenerateFluentApi([NotNull] IEntityType entityType, [NotNull] IAnnotation annotation);
 
         /// <summary>
-        ///     Generates fluent API calls for the given <see cref="IAnnotation" /> in the given programming language.
-        /// </summary>
-        /// <param name="key"> The <see cref="IKey" /> for which code should be generated. </param>
-        /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
-        /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> The generated code. </returns>
-        [Obsolete("Use GenerateFluentApi(IKey, IAnnotation) instead.")]
-        string GenerateFluentApi([NotNull] IKey key, [NotNull] IAnnotation annotation, [NotNull] string language);
-
-        /// <summary>
         ///     Generates fluent API calls for the given <see cref="IAnnotation" />.
         /// </summary>
         /// <param name="key"> The <see cref="IKey" /> for which code should be generated. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
         /// <returns> The generated code. </returns>
         MethodCallCodeFragment GenerateFluentApi([NotNull] IKey key, [NotNull] IAnnotation annotation);
-
-        /// <summary>
-        ///     Generates fluent API calls for the given <see cref="IAnnotation" /> in the given programming language.
-        /// </summary>
-        /// <param name="property"> The <see cref="IProperty" /> for which code should be generated. </param>
-        /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
-        /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> The generated code. </returns>
-        [Obsolete("Use GenerateFluentApi(IProperty, IAnnotation) instead.")]
-        string GenerateFluentApi([NotNull] IProperty property, [NotNull] IAnnotation annotation, [NotNull] string language);
 
         /// <summary>
         ///     Generates fluent API calls for the given <see cref="IAnnotation" />.
@@ -138,32 +97,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         MethodCallCodeFragment GenerateFluentApi([NotNull] IProperty property, [NotNull] IAnnotation annotation);
 
         /// <summary>
-        ///     Generates fluent API calls for the given <see cref="IAnnotation" /> in the given programming language.
-        /// </summary>
-        /// <param name="foreignKey"> The <see cref="IForeignKey" /> for which code should be generated. </param>
-        /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
-        /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> The generated code. </returns>
-        [Obsolete("Use GenerateFluentApi(IForeignKey, IAnnotation) instead.")]
-        string GenerateFluentApi([NotNull] IForeignKey foreignKey, [NotNull] IAnnotation annotation, [NotNull] string language);
-
-        /// <summary>
         ///     Generates fluent API calls for the given <see cref="IAnnotation" />.
         /// </summary>
         /// <param name="foreignKey"> The <see cref="IForeignKey" /> for which code should be generated. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
         /// <returns> The generated code. </returns>
         MethodCallCodeFragment GenerateFluentApi([NotNull] IForeignKey foreignKey, [NotNull] IAnnotation annotation);
-
-        /// <summary>
-        ///     Generates fluent API calls for the given <see cref="IAnnotation" /> in the given programming language.
-        /// </summary>
-        /// <param name="index"> The <see cref="IIndex" /> for which code should be generated. </param>
-        /// <param name="annotation"> The <see cref="IAnnotation" /> for which code should be generated.</param>
-        /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> The generated code. </returns>
-        [Obsolete("Use GenerateFluentApi(IIndex, IAnnotation) instead.")]
-        string GenerateFluentApi([NotNull] IIndex index, [NotNull] IAnnotation annotation, [NotNull] string language);
 
         /// <summary>
         ///     Generates fluent API calls for the given <see cref="IAnnotation" />.

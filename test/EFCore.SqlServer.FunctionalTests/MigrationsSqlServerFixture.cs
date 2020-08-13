@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public MigrationsSqlServerFixture()
         {
-            ((SqlServerTestStore)TestStore).ExecuteNonQuery(@"USE master
+            ((SqlServerTestStore)TestStore).ExecuteNonQuery(
+                @"USE master
 IF EXISTS(select * from sys.databases where name='TransactionSuppressed')
 DROP DATABASE TransactionSuppressed");
         }
@@ -20,7 +21,7 @@ DROP DATABASE TransactionSuppressed");
         {
             var options = AddOptions(
                     new DbContextOptionsBuilder()
-                        .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
+                        .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration()))
                 .UseInternalServiceProvider(ServiceProvider)
                 .Options;
             return new MigrationsContext(options);

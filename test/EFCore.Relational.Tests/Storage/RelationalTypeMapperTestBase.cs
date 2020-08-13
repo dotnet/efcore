@@ -2,22 +2,21 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalTypeMapperTestBase
     {
-        protected EntityType CreateEntityType()
-            => (EntityType)CreateModel().FindEntityType(typeof(MyType));
+        protected IMutableEntityType CreateEntityType()
+            => CreateModel().FindEntityType(typeof(MyType));
 
-        protected IModel CreateModel()
+        protected IMutableModel CreateModel()
         {
             var builder = CreateModelBuilder();
 
             builder.Entity<MyType>().Property(e => e.Id).HasColumnType("money");
             builder.Entity<MyRelatedType1>().Property(e => e.Id).HasMaxLength(200);
-            builder.Entity<MyRelatedType1>().Property(e => e.Relationship2Id).HasColumnType("dec");
+            builder.Entity<MyRelatedType1>().Property(e => e.Relationship2Id).HasColumnType("dec(6,1)");
             builder.Entity<MyRelatedType2>().Property(e => e.Id).HasMaxLength(100);
             builder.Entity<MyRelatedType2>().Property(e => e.Relationship2Id).HasMaxLength(787);
             builder.Entity<MyRelatedType3>().Property(e => e.Id).IsUnicode(false);

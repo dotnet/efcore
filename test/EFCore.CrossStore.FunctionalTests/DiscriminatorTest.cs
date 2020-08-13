@@ -10,12 +10,13 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DiscriminatorTest
     {
-        [Fact]
+        [ConditionalFact]
         public void Can_save_entities_with_discriminators()
         {
             using (var context = new Context4285())
             {
-                context.AddRange(new SubProduct { SomeName = "One" }, new SubProduct2 { SomeName2 = "Two" });
+                context.AddRange(
+                    new SubProduct { SomeName = "One" }, new SubProduct2 { SomeName2 = "Two" });
                 context.SaveChanges();
             }
 
@@ -31,12 +32,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_save_entities_with_int_discriminators()
         {
             using (var context = new Context4285())
             {
-                context.AddRange(new SubIntProduct { SomeName = "One" }, new SubIntProduct2 { SomeName2 = "Two" });
+                context.AddRange(
+                    new SubIntProduct { SomeName = "One" }, new SubIntProduct2 { SomeName2 = "Two" });
                 context.SaveChanges();
             }
 
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class BaseProduct
+        private abstract class BaseProduct
         {
             public Guid Id { get; set; }
         }
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
             public string SomeName2 { get; set; }
         }
 
-        private class BaseIntProduct
+        private abstract class BaseIntProduct
         {
             public Guid Id { get; set; }
         }
@@ -92,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<SubIntProduct2> SubIntProducts2 { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(Context4285));
+                => optionsBuilder
+                    .UseInMemoryDatabase(nameof(Context4285));
 
             protected override void OnModelCreating(ModelBuilder builder)
             {

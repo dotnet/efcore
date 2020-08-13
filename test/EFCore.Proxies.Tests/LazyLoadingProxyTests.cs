@@ -7,8 +7,10 @@ using System.Linq;
 using Castle.DynamicProxy;
 using Castle.DynamicProxy.Generators;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -16,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class LazyLoadingProxyTests
     {
-        [Fact]
+        [ConditionalFact]
         public void Materialization_uses_parameterless_constructor()
         {
             using (var context = new NeweyContext(nameof(Materialization_uses_parameterless_constructor)))
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Materialization_uses_parameterized_constructor()
         {
             using (var context = new NeweyContext(nameof(Materialization_uses_parameterized_constructor)))
@@ -50,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Materialization_uses_parameterized_constructor_taking_context()
         {
             using (var context = new NeweyContext(nameof(Materialization_uses_parameterized_constructor_taking_context)))
@@ -70,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_uses_parameterless_constructor()
         {
             using (var context = new NeweyContext())
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_uses_parameterized_constructor()
         {
             using (var context = new NeweyContext())
@@ -92,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_uses_parameterized_constructor_taking_context()
         {
             using (var context = new NeweyContext())
@@ -106,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Proxies_only_created_if_Use_called()
         {
             using (var context = new NeweyContext(nameof(Proxies_only_created_if_Use_called), false))
@@ -126,16 +128,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Proxy_services_must_be_available()
         {
             var withoutProxies = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
-
-            var withProxies = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddEntityFrameworkProxies()
                 .BuildServiceProvider();
 
             using (var context = new NeweyContext(withoutProxies, nameof(Proxy_services_must_be_available), false))
@@ -149,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType());
             }
 
-            using (var context = new NeweyContext(withProxies, nameof(Proxy_services_must_be_available)))
+            using (var context = new NeweyContext(nameof(Proxy_services_must_be_available)))
             {
                 Assert.Same(typeof(March82GGtp), context.Set<March82GGtp>().Single().GetType().BaseType);
             }
@@ -163,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_sealed_class()
         {
             using (var context = new NeweyContextN1())
@@ -175,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_non_virtual_navigation()
         {
             using (var context = new NeweyContextN2())
@@ -187,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_no_field_found()
         {
             using (var context = new NeweyContextN3())
@@ -199,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_type_not_available_to_Castle()
         {
             using (var context = new NeweyContextN4())
@@ -208,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_constructor_not_available_to_Castle()
         {
             using (var context = new NeweyContextN5())
@@ -217,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_throws_if_constructor_args_do_not_match()
         {
             using (var context = new NeweyContext())
@@ -226,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void CreateProxy_throws_if_wrong_number_of_constructor_args()
         {
             using (var context = new NeweyContext())
@@ -235,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_create_proxy_for_non_mapped_type()
         {
             using (var context = new NeweyContextN())
@@ -247,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_create_proxy_when_proxies_not_used()
         {
             using (var context = new NeweyContextN6())
@@ -259,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_create_proxy_when_proxies_not_enabled()
         {
             using (var context = new NeweyContextN7())
@@ -271,13 +268,17 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_when_context_is_disposed()
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddEntityFrameworkProxies()
-                .AddDbContext<JammieDodgerContext>(b => b.UseInMemoryDatabase("Jammie").UseLazyLoadingProxies())
+                .AddDbContext<JammieDodgerContext>(
+                    (p, b) =>
+                        b.UseInMemoryDatabase("Jammie")
+                            .UseInternalServiceProvider(p)
+                            .UseLazyLoadingProxies())
                 .BuildServiceProvider();
 
             using (var scope = serviceProvider.CreateScope())
@@ -297,7 +298,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                    CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Texts", "PhoneProxy"),
+                    CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage("Texts", "PhoneProxy"),
                     "CoreEventId.LazyLoadOnDisposedContextWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => phone.Texts).Message);
@@ -365,12 +367,18 @@ namespace Microsoft.EntityFrameworkCore
 
             public NeweyContext(string dbName = null, bool useProxies = true)
             {
+                _internalServiceProvider
+                    = new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .AddEntityFrameworkProxies()
+                        .BuildServiceProvider();
+
                 _dbName = dbName;
                 _useProxies = useProxies;
             }
 
             public NeweyContext(IServiceProvider internalServiceProvider, string dbName = null, bool useProxies = true)
-            : this(dbName, useProxies)
+                : this(dbName, useProxies)
             {
                 _internalServiceProvider = internalServiceProvider;
             }
@@ -420,6 +428,11 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseLazyLoadingProxies()
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
@@ -492,6 +505,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -503,6 +521,11 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseLazyLoadingProxies(false)
+                    .UseInternalServiceProvider(
+                        new ServiceCollection()
+                            .AddEntityFrameworkInMemoryDatabase()
+                            .AddEntityFrameworkProxies()
+                            .BuildServiceProvider())
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

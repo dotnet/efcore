@@ -5,37 +5,52 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+// Note: Hard reference to SqlClient here.
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
+    public class SqlServerDatabaseModelFactory : DatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
-        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
+
+        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string>
+        {
+            "datetimeoffset",
+            "datetime2",
+            "time"
+        };
 
         private static readonly ISet<string> _maxLengthRequiredTypes
-            = new HashSet<string> { "binary", "varbinary", "char", "varchar", "nchar", "nvarchar" };
+            = new HashSet<string>
+            {
+                "binary",
+                "varbinary",
+                "char",
+                "varchar",
+                "nchar",
+                "nvarchar"
+            };
 
         private const string NamePartRegex
             = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
@@ -52,17 +67,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         // decimal/numeric are excluded because default value varies based on the precision.
-        private static readonly Dictionary<string, long[]> _defaultSequenceMinMax = new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "tinyint", new[] { 0L, 255L } },
-            { "smallint", new[] { -32768L, 32767L } },
-            { "int", new[] { -2147483648L, 2147483647L } },
-            { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } }
-        };
+        private static readonly Dictionary<string, long[]> _defaultSequenceMinMax =
+            new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "tinyint", new[] { 0L, 255L } },
+                { "smallint", new[] { -32768L, 32767L } },
+                { "int", new[] { -2147483648L, 2147483647L } },
+                { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } }
+            };
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerDatabaseModelFactory([NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
         {
@@ -72,30 +90,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public override DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
             using (var connection = new SqlConnection(connectionString))
             {
-                return Create(connection, tables, schemas);
+                return Create(connection, options);
             }
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DatabaseModel Create(DbConnection connection, IEnumerable<string> tables, IEnumerable<string> schemas)
+        public override DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(schemas, nameof(schemas));
+            Check.NotNull(options, nameof(options));
 
             var databaseModel = new DatabaseModel();
 
@@ -104,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             {
                 connection.Open();
             }
+
             try
             {
                 databaseModel.DatabaseName = connection.Database;
@@ -111,13 +132,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                 var typeAliases = GetTypeAliases(connection);
 
-                var schemaList = schemas.ToList();
+                var schemaList = options.Schemas.ToList();
                 var schemaFilter = GenerateSchemaFilter(schemaList);
-                var tableList = tables.ToList();
+                var tableList = options.Tables.ToList();
                 var tableFilter = GenerateTableFilter(tableList.Select(Parse).ToList(), schemaFilter);
 
-                if (Version.TryParse(connection.ServerVersion, out var serverVersion)
-                    && serverVersion.Major >= 11)
+                if (SupportsSequences(connection))
                 {
                     foreach (var sequence in GetSequences(connection, schemaFilter, typeAliases))
                     {
@@ -142,11 +162,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                 foreach (var table in tableList)
                 {
-                    var (Schema, Table) = Parse(table);
+                    var (parsedSchema, parsedTableName) = Parse(table);
                     if (!databaseModel.Tables.Any(
-                        t => !string.IsNullOrEmpty(Schema)
-                             && t.Schema == Schema
-                             || t.Name == Table))
+                        t => !string.IsNullOrEmpty(parsedSchema)
+                            && t.Schema == parsedSchema
+                            || t.Name == parsedTableName))
                     {
                         _logger.MissingTableWarning(table);
                     }
@@ -182,20 +202,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
         private static Func<string, string> GenerateSchemaFilter(IReadOnlyList<string> schemas)
         {
-            if (schemas.Any())
-            {
-                return s =>
-                    {
-                        var schemaFilterBuilder = new StringBuilder();
-                        schemaFilterBuilder.Append(s);
-                        schemaFilterBuilder.Append(" IN (");
-                        schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
-                        schemaFilterBuilder.Append(")");
-                        return schemaFilterBuilder.ToString();
-                    };
-            }
-
-            return null;
+            return schemas.Count > 0
+                ? (s =>
+                {
+                    var schemaFilterBuilder = new StringBuilder();
+                    schemaFilterBuilder.Append(s);
+                    schemaFilterBuilder.Append(" IN (");
+                    schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
+                    schemaFilterBuilder.Append(")");
+                    return schemaFilterBuilder.ToString();
+                })
+                : (Func<string, string>)null;
         }
 
         private static (string Schema, string Table) Parse(string table)
@@ -217,10 +234,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             IReadOnlyList<(string Schema, string Table)> tables,
             Func<string, string> schemaFilter)
         {
-            if (schemaFilter != null
-                || tables.Any())
-            {
-                return (s, t) =>
+            return schemaFilter != null
+                || tables.Count > 0
+                    ? ((s, t) =>
                     {
                         var tableFilterBuilder = new StringBuilder();
 
@@ -233,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                             openBracket = true;
                         }
 
-                        if (tables.Any())
+                        if (tables.Count > 0)
                         {
                             if (openBracket)
                             {
@@ -248,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                             }
 
                             var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                            if (tablesWithoutSchema.Any())
+                            if (tablesWithoutSchema.Count > 0)
                             {
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(" IN (");
@@ -257,12 +273,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                             }
 
                             var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                            if (tablesWithSchema.Any())
+                            if (tablesWithSchema.Count > 0)
                             {
-                                if (tablesWithoutSchema.Any())
+                                if (tablesWithoutSchema.Count > 0)
                                 {
                                     tableFilterBuilder.Append(" OR ");
                                 }
+
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(" IN (");
                                 tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
@@ -271,7 +288,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                                 tableFilterBuilder.Append(" + N'.' + ");
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(") IN (");
-                                tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
+                                tableFilterBuilder.Append(
+                                    string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
                                 tableFilterBuilder.Append(")");
                             }
                         }
@@ -282,10 +300,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                         }
 
                         return tableFilterBuilder.ToString();
-                    };
-            }
-
-            return null;
+                    })
+                    : (Func<string, string, string>)null;
         }
 
         private static string EscapeLiteral(string s)
@@ -309,7 +325,7 @@ SELECT
     CAST([t].[scale] AS int) AS [scale]
 FROM [sys].[types] AS [t]
 JOIN [sys].[types] AS [t2] ON [t].[system_type_id] = [t2].[user_type_id]
-WHERE [t].[is_user_defined] = 1";
+WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id]";
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -360,7 +376,8 @@ JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]";
                 if (schemaFilter != null)
                 {
                     command.CommandText += @"
-WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
+WHERE "
+                        + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                 }
 
                 using (var reader = command.ExecuteReader())
@@ -407,7 +424,9 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                             sequence.MinValue = sequence.MinValue == defaultMin ? null : sequence.MinValue;
                             sequence.StartValue = sequence.StartValue == defaultMin ? null : sequence.StartValue;
 
-                            sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1] ? null : sequence.MaxValue;
+                            sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1]
+                                ? null
+                                : sequence.MaxValue;
                         }
 
                         yield return sequence;
@@ -424,14 +443,16 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
             using (var command = connection.CreateCommand())
             {
                 var tables = new List<DatabaseTable>();
-                Version.TryParse(connection.ServerVersion, out var serverVersion);
-                var supportsMemoryOptimizedTable = serverVersion?.Major >= 12;
-                var supportsTemporalTable = serverVersion?.Major >= 13;
+
+                var supportsMemoryOptimizedTable = SupportsMemoryOptimizedTable(connection);
+                var supportsTemporalTable = SupportsTemporalTable(connection);
 
                 var commandText = @"
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [schema],
-    [t].[name]";
+    [t].[name],
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment],
+    'table' AS [type]";
 
                 if (supportsMemoryOptimizedTable)
                 {
@@ -440,7 +461,8 @@ SELECT
                 }
 
                 commandText += @"
-FROM [sys].[tables] AS [t]";
+FROM [sys].[tables] AS [t]
+LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [t].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'";
 
                 var filter = @"[t].[is_ms_shipped] = 0
 AND NOT EXISTS (SELECT *
@@ -450,7 +472,9 @@ AND NOT EXISTS (SELECT *
         AND [ep].[class] = 1
         AND [ep].[name] = N'microsoft_database_tools_support'
     )
-AND [t].[name] <> '" + HistoryRepository.DefaultTableName + "'";
+AND [t].[name] <> '"
+                    + HistoryRepository.DefaultTableName
+                    + "'";
 
                 if (supportsTemporalTable)
                 {
@@ -461,11 +485,49 @@ AND [t].[temporal_type] <> 1";
                 if (tableFilter != null)
                 {
                     filter += @"
-AND " + tableFilter("SCHEMA_NAME([t].[schema_id])", "[t].[name]");
+AND "
+                        + tableFilter("SCHEMA_NAME([t].[schema_id])", "[t].[name]");
                 }
 
-                command.CommandText = commandText + @"
-WHERE " + filter;
+                commandText = commandText
+                    + @"
+WHERE "
+                    + filter;
+
+                var viewCommandText = @"
+UNION
+SELECT
+    SCHEMA_NAME([v].[schema_id]) AS [schema],
+    [v].[name],
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment],
+    'view' AS [type]";
+
+                if (supportsMemoryOptimizedTable)
+                {
+                    viewCommandText += @",
+    CAST(0 AS bit) AS [is_memory_optimized]";
+                }
+
+                viewCommandText += @"
+FROM [sys].[views] AS [v]
+LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [v].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'";
+
+                var viewFilter = @"[v].[is_ms_shipped] = 0
+AND [v].[is_date_correlation_view] = 0 ";
+
+                if (tableFilter != null)
+                {
+                    viewFilter += @"
+AND "
+                        + tableFilter("SCHEMA_NAME([v].[schema_id])", "[v].[name]");
+                }
+
+                viewCommandText = viewCommandText
+                    + @"
+WHERE "
+                    + viewFilter;
+
+                command.CommandText = commandText + viewCommandText;
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -473,14 +535,18 @@ WHERE " + filter;
                     {
                         var schema = reader.GetValueOrDefault<string>("schema");
                         var name = reader.GetValueOrDefault<string>("name");
+                        var comment = reader.GetValueOrDefault<string>("comment");
+                        var type = reader.GetValueOrDefault<string>("type");
 
                         _logger.TableFound(DisplayName(schema, name));
 
-                        var table = new DatabaseTable
-                        {
-                            Schema = schema,
-                            Name = name
-                        };
+                        var table = type == "table"
+                            ? new DatabaseTable()
+                            : new DatabaseView();
+
+                        table.Schema = schema;
+                        table.Name = name;
+                        table.Comment = comment;
 
                         if (supportsMemoryOptimizedTable)
                         {
@@ -495,7 +561,7 @@ WHERE " + filter;
                 }
 
                 // This is done separately due to MARS property may be turned off
-                GetColumns(connection, tables, filter, typeAliases);
+                GetColumns(connection, tables, filter, viewFilter, typeAliases);
                 GetIndexes(connection, tables, filter);
                 GetForeignKeys(connection, tables, filter);
 
@@ -507,14 +573,15 @@ WHERE " + filter;
             DbConnection connection,
             IReadOnlyList<DatabaseTable> tables,
             string tableFilter,
+            string viewFilter,
             IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases)
         {
             using (var command = connection.CreateCommand())
             {
                 var commandText = @"
 SELECT
-    SCHEMA_NAME([t].[schema_id]) AS [table_schema],
-    [t].[name] AS [table_name],
+    SCHEMA_NAME([o].[schema_id]) AS [table_schema],
+    [o].[name] AS [table_name],
     [c].[name] AS [column_name],
     [c].[column_id] AS [ordinal],
     SCHEMA_NAME([tp].[schema_id]) AS [type_schema],
@@ -524,18 +591,34 @@ SELECT
     CAST([c].[scale] AS int) AS [scale],
     [c].[is_nullable],
     [c].[is_identity],
-    OBJECT_DEFINITION([c].[default_object_id]) AS [default_sql],
-    [cc].[definition] AS [computed_sql]
-FROM [sys].[columns] AS [c]
-JOIN [sys].[tables] AS [t] ON [c].[object_id] = [t].[object_id]
-JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
-LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
-WHERE " + tableFilter;
+    [dc].[definition] AS [default_sql],
+    [cc].[definition] AS [computed_sql],
+    CAST([e].[value] AS nvarchar(MAX)) AS [comment]
+FROM
+(
+    SELECT[v].[name], [v].[object_id], [v].[schema_id]
+    FROM [sys].[views] v WHERE ";
 
-                if (Version.TryParse(connection.ServerVersion, out var serverVersion)
-                    && serverVersion.Major >= 13)
+                commandText += viewFilter;
+
+                commandText += @"
+UNION ALL
+    SELECT [t].[name], [t].[object_id], [t].[schema_id]
+    FROM [sys].[tables] t WHERE ";
+
+                commandText += tableFilter;
+
+                commandText += @"
+) o
+JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
+JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
+LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [o].[object_id] AND [e].[minor_id] = [c].[column_id] AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
+LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
+LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
+
+                if (SupportsTemporalTable(connection))
                 {
-                    commandText += " AND [c].[is_hidden] = 0";
+                    commandText += " WHERE [c].[is_hidden] = 0";
                 }
 
                 commandText += @"
@@ -570,6 +653,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                             var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
                             var defaultValue = dataRecord.GetValueOrDefault<string>("default_sql");
                             var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
+                            var comment = dataRecord.GetValueOrDefault<string>("comment");
 
                             _logger.ColumnFound(
                                 DisplayName(tableSchema, tableName),
@@ -585,18 +669,17 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                                 computedValue);
 
                             string storeType;
-                            string underlyingStoreType;
                             string systemTypeName;
+
+                            // Swap store type if type alias is used
                             if (typeAliases.TryGetValue($"[{dataTypeSchemaName}].[{dataTypeName}]", out var value))
                             {
-                                storeType = dataTypeName;
-                                underlyingStoreType = value.storeType;
+                                storeType = value.storeType;
                                 systemTypeName = value.typeName;
                             }
                             else
                             {
                                 storeType = GetStoreType(dataTypeName, maxLength, precision, scale);
-                                underlyingStoreType = null;
                                 systemTypeName = dataTypeName;
                             }
 
@@ -610,21 +693,21 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                                 IsNullable = nullable,
                                 DefaultValueSql = defaultValue,
                                 ComputedColumnSql = computedValue,
+                                Comment = comment,
                                 ValueGenerated = isIdentity
                                     ? ValueGenerated.OnAdd
-                                    : (underlyingStoreType ?? storeType) == "rowversion"
+                                    : storeType == "rowversion"
                                         ? ValueGenerated.OnAddOrUpdate
 #pragma warning disable IDE0034 // Simplify 'default' expression - Ternary expression causes default(ValueGenerated) which is non-nullable
                                         : default(ValueGenerated?)
 #pragma warning restore IDE0034 // Simplify 'default' expression
                             };
 
-                            if ((underlyingStoreType ?? storeType) == "rowversion")
+                            if (storeType == "rowversion")
                             {
-                                column[ScaffoldingAnnotationNames.ConcurrencyToken] = true;
+                                // Note: annotation name must match `ScaffoldingAnnotationNames.ConcurrencyToken`
+                                column["ConcurrencyToken"] = true;
                             }
-
-                            column.SetUnderlyingStoreType(underlyingStoreType);
 
                             table.Columns.Add(column);
                         }
@@ -640,10 +723,12 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
             {
                 return null;
             }
+
             if (nullable)
             {
                 return defaultValue;
             }
+
             if (defaultValue == "((0))")
             {
                 if (dataTypeName == "bigint"
@@ -730,7 +815,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
         {
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = @"
+                var commandText = @"
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
@@ -745,8 +830,32 @@ SELECT
 FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
 JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
-WHERE " + tableFilter + @"
+JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
+WHERE "
+                    + tableFilter;
+
+                if (SupportsTemporalTable(connection))
+                {
+                    commandText += @"
+AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12)) NOT IN
+(
+   SELECT CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12))
+   FROM [sys].[indexes] i
+   JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
+   JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
+   JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
+   WHERE "
+                        + tableFilter;
+
+                    commandText += @"
+   AND [c].[is_hidden] = 1
+)";
+                }
+
+                commandText += @"
 ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
+
+                command.CommandText = commandText;
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -767,7 +876,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             .GroupBy(
                                 ddr =>
                                     (Name: ddr.GetValueOrDefault<string>("index_name"),
-                                    TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
+                                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
                             .ToArray();
 
                         if (primaryKeyGroups.Length == 1)
@@ -776,11 +885,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                             _logger.PrimaryKeyFound(primaryKeyGroup.Key.Name, DisplayName(tableSchema, tableName));
 
-                            var primaryKey = new DatabasePrimaryKey
-                            {
-                                Table = table,
-                                Name = primaryKeyGroup.Key.Name
-                            };
+                            var primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
 
                             if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
                             {
@@ -791,7 +896,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? table.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 primaryKey.Columns.Add(column);
@@ -805,18 +911,14 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             .GroupBy(
                                 ddr =>
                                     (Name: ddr.GetValueOrDefault<string>("index_name"),
-                                    TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
+                                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
                             .ToArray();
 
                         foreach (var uniqueConstraintGroup in uniqueConstraintGroups)
                         {
                             _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name, DisplayName(tableSchema, tableName));
 
-                            var uniqueConstraint = new DatabaseUniqueConstraint
-                            {
-                                Table = table,
-                                Name = uniqueConstraintGroup.Key.Name
-                            };
+                            var uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
 
                             if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
                             {
@@ -827,7 +929,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? table.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 uniqueConstraint.Columns.Add(column);
@@ -839,14 +942,14 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var indexGroups = tableIndexGroup
                             .Where(
                                 ddr => !ddr.GetValueOrDefault<bool>("is_primary_key")
-                                       && !ddr.GetValueOrDefault<bool>("is_unique_constraint"))
+                                    && !ddr.GetValueOrDefault<bool>("is_unique_constraint"))
                             .GroupBy(
                                 ddr =>
                                     (Name: ddr.GetValueOrDefault<string>("index_name"),
-                                    TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
-                                    IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
-                                    HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
-                                    FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition")))
+                                        TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                                        IsUnique: ddr.GetValueOrDefault<bool>("is_unique"),
+                                        HasFilter: ddr.GetValueOrDefault<bool>("has_filter"),
+                                        FilterDefinition: ddr.GetValueOrDefault<string>("filter_definition")))
                             .ToArray();
 
                         foreach (var indexGroup in indexGroups)
@@ -870,7 +973,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? table.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 index.Columns.Add(column);
@@ -900,8 +1004,10 @@ SELECT
 FROM [sys].[foreign_keys] AS [f]
 JOIN [sys].[tables] AS [t] ON [f].[parent_object_id] = [t].[object_id]
 JOIN [sys].[foreign_key_columns] AS [fc] ON [f].[object_id] = [fc].[constraint_object_id]
-WHERE " + tableFilter + @"
-ORDER BY [table_schema], [table_name], [name], [fc].[constraint_column_id]";
+WHERE "
+                    + tableFilter
+                    + @"
+ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -938,11 +1044,11 @@ ORDER BY [table_schema], [table_name], [name], [fc].[constraint_column_id]";
                                 onDeleteAction);
 
                             var principalTable = tables.FirstOrDefault(
-                                                     t => t.Schema == principalTableSchema
-                                                          && t.Name == principalTableName)
-                                                 ?? tables.FirstOrDefault(
-                                                     t => t.Schema.Equals(principalTableSchema, StringComparison.OrdinalIgnoreCase)
-                                                          && t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                                    t => t.Schema == principalTableSchema
+                                        && t.Name == principalTableName)
+                                ?? tables.FirstOrDefault(
+                                    t => t.Schema.Equals(principalTableSchema, StringComparison.OrdinalIgnoreCase)
+                                        && t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
 
                             if (principalTable == null)
                             {
@@ -968,12 +1074,14 @@ ORDER BY [table_schema], [table_name], [name], [fc].[constraint_column_id]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? table.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 var principalColumnName = dataRecord.GetValueOrDefault<string>("referenced_column_name");
                                 var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
-                                                      ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                                 if (principalColumn == null)
                                 {
                                     invalid = true;
@@ -991,11 +1099,59 @@ ORDER BY [table_schema], [table_name], [name], [fc].[constraint_column_id]";
 
                             if (!invalid)
                             {
-                                table.ForeignKeys.Add(foreignKey);
+                                if (foreignKey.Columns.SequenceEqual(foreignKey.PrincipalColumns))
+                                {
+                                    _logger.ReflexiveConstraintIgnored(
+                                        foreignKey.Name,
+                                        DisplayName(table.Schema, table.Name));
+                                }
+                                else
+                                {
+                                    table.ForeignKeys.Add(foreignKey);
+                                }
                             }
                         }
                     }
                 }
+            }
+        }
+
+        private bool SupportsTemporalTable(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 130 && EngineEdition(connection) != 6;
+        }
+
+        private bool SupportsMemoryOptimizedTable(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 120 && EngineEdition(connection) != 6;
+        }
+
+        private bool SupportsSequences(DbConnection connection)
+        {
+            return CompatibilityLevel(connection) >= 110 && EngineEdition(connection) != 6;
+        }
+
+        private int EngineEdition(DbConnection connection)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+SELECT SERVERPROPERTY('EngineEdition');";
+                return (int)command.ExecuteScalar();
+            }
+        }
+
+        private byte CompatibilityLevel(DbConnection connection)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = $@"
+SELECT compatibility_level
+FROM sys.databases
+WHERE name = '{connection.Database}';";
+
+                var result = command.ExecuteScalar();
+                return result != null ? Convert.ToByte(result) : (byte)0;
             }
         }
 

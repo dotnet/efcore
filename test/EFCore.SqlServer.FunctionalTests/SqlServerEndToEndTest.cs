@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_decimal_and_byte_as_identity_columns()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -66,21 +66,15 @@ namespace Microsoft.EntityFrameworkCore
                 var options = Fixture.CreateOptions(testDatabase);
                 using (var context = new NumNumContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
                         nownNum1, nownNum2, numNum1, numNum2, adNum1, adNum2, anNum1, anNum2,
                         byteNownNum1, byteNownNum2, byteNum1, byteNum2, byteAdNum1, byteAdNum2, byteAnNum1, byteAnNum2);
 
-                    preSaveValues = new[]
-                    {
-                        numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id
-                    };
+                    preSaveValues = new[] { numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id };
 
-                    preSaveByteValues = new[]
-                    {
-                        byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id
-                    };
+                    preSaveByteValues = new[] { byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id };
 
                     context.SaveChanges();
                 }
@@ -153,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Entity<NumNum>()
                     .Property(e => e.Id)
                     .HasColumnType("numeric(18, 0)")
-                    .UseSqlServerIdentityColumn();
+                    .UseIdentityColumn();
 
                 modelBuilder
                     .Entity<AdNum>()
@@ -164,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder
                     .Entity<ByteNum>()
                     .Property(e => e.Id)
-                    .UseSqlServerIdentityColumn();
+                    .UseIdentityColumn();
 
                 modelBuilder
                     .Entity<ByteAdNum>()
@@ -231,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
             public string Lucy { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_use_string_enum_or_byte_array_as_key()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -248,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore
                 var options = Fixture.CreateOptions(testDatabase);
                 using (var context = new ENumContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(sNum1, sNum2, enNum1, enNum2, bNum1, bNum2);
 
@@ -269,6 +263,36 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public void Can_remove_multiple_byte_array_as_key()
+        {
+            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
+            {
+                var bNum1 = new BNum { TheWalrus = "Eggman" };
+                var bNum2 = new BNum { TheWalrus = "Eggmen" };
+
+                var options = Fixture.CreateOptions(testDatabase);
+                using (var context = new ENumContext(options))
+                {
+                    context.Database.EnsureCreatedResiliently();
+
+                    context.AddRange(bNum1, bNum2);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = new ENumContext(options))
+                {
+                    Assert.Equal(bNum1.Id, context.BNums.Single(e => e.TheWalrus == "Eggman").Id);
+                    Assert.Equal(bNum2.Id, context.BNums.Single(e => e.TheWalrus == "Eggmen").Id);
+
+                    context.RemoveRange(context.BNums);
+
+                    context.SaveChanges();
+                }
+            }
+        }
+
         private class ENumContext : DbContext
         {
             public ENumContext(DbContextOptions options)
@@ -283,7 +307,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private class SNum
         {
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public string Id { get; set; }
+
             public string TheWalrus { get; set; }
         }
 
@@ -304,11 +330,13 @@ namespace Microsoft.EntityFrameworkCore
 
         private class BNum
         {
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public byte[] Id { get; set; }
+
             public string TheWalrus { get; set; }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_run_linq_query_on_entity_set()
         {
             using (var testStore = SqlServerTestStore.GetNorthwindStore())
@@ -334,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_run_linq_query_on_entity_set_with_value_buffer_reader()
         {
             using (var testStore = SqlServerTestStore.GetNorthwindStore())
@@ -360,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_enumerate_entity_set()
         {
             using (var testStore = SqlServerTestStore.GetNorthwindStore())
@@ -380,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_save_changes()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -438,24 +466,24 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Contains("INSERT", Fixture.TestSqlLoggerFactory.SqlStatements[4]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'");
+                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'");
 
                     Assert.Equal(1, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {deletedId}");
+                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {deletedId}");
 
                     Assert.Equal(0, rows);
 
                     rows = await testDatabase.ExecuteScalarAsync<int>(
-                        $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {addedId} AND Name = 'Blog to Insert'");
+                        $"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {addedId} AND Name = 'Blog to Insert'");
 
                     Assert.Equal(1, rows);
                 }
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Can_save_changes_in_tracked_entities()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -514,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_track_an_entity_with_more_than_10_properties()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -522,9 +550,11 @@ namespace Microsoft.EntityFrameworkCore
                 var options = Fixture.CreateOptions(testDatabase);
                 using (var context = new GameDbContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
-                    context.Characters.Add(new PlayerCharacter(new Level { Game = new Game() }));
+                    context.Characters.Add(
+                        new PlayerCharacter(
+                            new Level { Game = new Game() }));
 
                     context.SaveChanges();
                 }
@@ -543,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Adding_an_item_to_a_collection_marks_it_as_modified()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -552,18 +582,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new GameDbContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
-                    var player = new PlayerCharacter(new Level
-                    {
-                        Game = new Game()
-                    });
+                    var player = new PlayerCharacter(
+                        new Level { Game = new Game() });
 
-                    var weapon = new Item
-                    {
-                        Id = 1,
-                        Game = player.Game
-                    };
+                    var weapon = new Item { Id = 1, Game = player.Game };
 
                     context.Characters.Add(player);
 
@@ -578,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_reference_twice()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -587,18 +611,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new GameDbContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
-                    var player = new PlayerCharacter(new Level
-                    {
-                        Game = new Game()
-                    });
+                    var player = new PlayerCharacter(
+                        new Level { Game = new Game() });
 
-                    var weapon = new Item
-                    {
-                        Id = 1,
-                        Game = player.Game
-                    };
+                    var weapon = new Item { Id = 1, Game = player.Game };
 
                     player.Items.Add(weapon);
                     context.Characters.Add(player);
@@ -626,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_include_on_loaded_entity()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -635,28 +653,17 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new GameDbContext(options))
                 {
-                    context.Database.EnsureCreated();
+                    context.Database.EnsureCreatedResiliently();
 
                     var player = new PlayerCharacter(
-                        new Level
-                        {
-                            Game = new Game()
-                        });
+                        new Level { Game = new Game() });
 
-                    var weapon = new Item
-                    {
-                        Id = 1,
-                        Game = player.Game
-                    };
+                    var weapon = new Item { Id = 1, Game = player.Game };
 
                     player.Items.Add(weapon);
 
                     player.Items.Add(
-                        new Item
-                        {
-                            Id = 2,
-                            Game = player.Game
-                        });
+                        new Item { Id = 2, Game = player.Game });
 
                     context.Characters.Add(player);
 
@@ -804,50 +811,72 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Level>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
+                modelBuilder.Entity<Level>(
+                    eb =>
+                    {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedNever();
+
+                        eb.HasKey(
+                            l => new { l.GameId, l.Id });
+                    });
 
                 modelBuilder.Entity<Actor>(
                     eb =>
-                        {
-                            eb.HasKey(a => new { a.GameId, a.Id });
-                            eb.HasOne(a => a.Level)
-                                .WithMany(l => l.Actors)
-                                .HasForeignKey(nameof(Actor.GameId), "LevelId")
-                                .IsRequired();
+                    {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedNever();
 
-                            eb.HasMany(a => a.Items)
-                                .WithOne(i => i.Actor)
-                                .HasForeignKey(nameof(Item.GameId), "ActorId");
-                        });
+                        eb.HasKey(
+                            a => new { a.GameId, a.Id });
 
-                modelBuilder.Entity<PlayerCharacter>(eb =>
-                {
-                    eb.HasOne(p => p.CurrentWeapon)
-                        .WithOne()
-                        .HasForeignKey<PlayerCharacter>(nameof(PlayerCharacter.GameId), "CurrentWeaponId");
-                });
+                        eb.HasOne(a => a.Level)
+                            .WithMany(l => l.Actors)
+                            .HasForeignKey(nameof(Actor.GameId), "LevelId")
+                            .IsRequired();
 
-                modelBuilder.Entity<Item>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
+                        eb.HasMany(a => a.Items)
+                            .WithOne(i => i.Actor)
+                            .HasForeignKey(nameof(Item.GameId), "ActorId");
+                    });
+
+                modelBuilder.Entity<PlayerCharacter>(
+                    eb =>
+                    {
+                        eb.HasOne(p => p.CurrentWeapon)
+                            .WithOne()
+                            .HasForeignKey<PlayerCharacter>(nameof(PlayerCharacter.GameId), "CurrentWeaponId");
+                    });
+
+                modelBuilder.Entity<Item>(
+                    eb =>
+                    {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedNever();
+
+                        eb.HasKey(
+                            l => new { l.GameId, l.Id });
+                    });
 
                 modelBuilder.Entity<Container>();
 
                 modelBuilder.Entity<Game>(
                     eb =>
-                        {
-                            eb.Property(g => g.Id)
-                                .ValueGeneratedOnAdd();
-                            eb.HasMany(g => g.Levels)
-                                .WithOne(l => l.Game)
-                                .HasForeignKey(l => l.GameId);
-                            eb.HasMany(g => g.Actors)
-                                .WithOne(a => a.Game)
-                                .HasForeignKey(a => a.GameId)
-                                .OnDelete(DeleteBehavior.Restrict);
-                        });
+                    {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedOnAdd();
+                        eb.HasMany(g => g.Levels)
+                            .WithOne(l => l.Game)
+                            .HasForeignKey(l => l.GameId);
+                        eb.HasMany(g => g.Actors)
+                            .WithOne(a => a.Game)
+                            .HasForeignKey(a => a.GameId)
+                            .OnDelete(DeleteBehavior.Restrict);
+                    });
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
             using (var testStore = SqlServerTestStore.GetNorthwindStore())
@@ -865,7 +894,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact] // Issue #931
+        [ConditionalFact] // Issue #931
         public async Task Can_save_and_query_with_schema()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
@@ -878,8 +907,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = new SchemaContext(options))
                 {
-                    context.Add(new Jack { MyKey = 1 });
-                    context.Add(new Black { MyKey = 2 });
+                    context.Add(
+                        new Jack { MyKey = 1 });
+                    context.Add(
+                        new Black { MyKey = 2 });
                     context.SaveChanges();
                 }
 
@@ -925,22 +956,22 @@ namespace Microsoft.EntityFrameworkCore
             public int MyKey { get; set; }
         }
 
-        [Fact]
-        public async Task Can_round_trip_changes_with_snapshot_change_tracking()
+        [ConditionalFact]
+        public Task Can_round_trip_changes_with_snapshot_change_tracking()
         {
-            await RoundTripChanges<Blog>();
+            return RoundTripChanges<Blog>();
         }
 
-        [Fact]
-        public async Task Can_round_trip_changes_with_full_notification_entities()
+        [ConditionalFact]
+        public Task Can_round_trip_changes_with_full_notification_entities()
         {
-            await RoundTripChanges<ChangedChangingBlog>();
+            return RoundTripChanges<ChangedChangingBlog>();
         }
 
-        [Fact]
-        public async Task Can_round_trip_changes_with_changed_only_notification_entities()
+        [ConditionalFact]
+        public Task Can_round_trip_changes_with_changed_only_notification_entities()
         {
-            await RoundTripChanges<ChangedOnlyBlog>();
+            return RoundTripChanges<ChangedOnlyBlog>();
         }
 
         private async Task RoundTripChanges<TBlog>()
@@ -1024,7 +1055,7 @@ namespace Microsoft.EntityFrameworkCore
         private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context)
             where TBlog : class, IBlog, new()
         {
-            context.Database.EnsureCreated();
+            context.Database.EnsureCreatedResiliently();
 
             var blog1 = context.Add(
                 new TBlog
@@ -1082,10 +1113,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Customer>(
                     b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                    {
+                        b.HasKey(c => c.CustomerID);
+                        b.ToTable("Customers");
+                    });
             }
         }
 
@@ -1148,6 +1179,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
                 }
+
                 modelBuilder.Entity<TBlog>().ToTable("Blog", "dbo");
             }
 
@@ -1207,7 +1239,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id
             {
-                get { return _id; }
+                get => _id;
                 set
                 {
                     if (_id != value)
@@ -1221,7 +1253,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public string Name
             {
-                get { return _name; }
+                get => _name;
                 set
                 {
                     if (_name != value)
@@ -1235,7 +1267,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool George
             {
-                get { return _george; }
+                get => _george;
                 set
                 {
                     if (_george != value)
@@ -1249,7 +1281,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public Guid TheGu
             {
-                get { return _theGu; }
+                get => _theGu;
                 set
                 {
                     if (_theGu != value)
@@ -1263,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public DateTime NotFigTime
             {
-                get { return _notFigTime; }
+                get => _notFigTime;
                 set
                 {
                     if (_notFigTime != value)
@@ -1277,7 +1309,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte ToEat
             {
-                get { return _toEat; }
+                get => _toEat;
                 set
                 {
                     if (_toEat != value)
@@ -1291,7 +1323,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public char CupOfChar
             {
-                get { return _cupOfChar; }
+                get => _cupOfChar;
                 set
                 {
                     if (_cupOfChar != value)
@@ -1305,7 +1337,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public double OrNothing
             {
-                get { return _orNothing; }
+                get => _orNothing;
                 set
                 {
                     if (_orNothing != value)
@@ -1319,7 +1351,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public short Fuse
             {
-                get { return _fuse; }
+                get => _fuse;
                 set
                 {
                     if (_fuse != value)
@@ -1333,7 +1365,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public long WayRound
             {
-                get { return _wayRound; }
+                get => _wayRound;
                 set
                 {
                     if (_wayRound != value)
@@ -1347,7 +1379,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public sbyte NotToEat
             {
-                get { return _notToEat; }
+                get => _notToEat;
                 set
                 {
                     if (_notToEat != value)
@@ -1361,7 +1393,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public float Away
             {
-                get { return _away; }
+                get => _away;
                 set
                 {
                     if (_away != value)
@@ -1375,7 +1407,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public ushort OrULong
             {
-                get { return _orULong; }
+                get => _orULong;
                 set
                 {
                     if (_orULong != value)
@@ -1389,7 +1421,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public uint OrUSkint
             {
-                get { return _orUSkint; }
+                get => _orUSkint;
                 set
                 {
                     if (_orUSkint != value)
@@ -1403,7 +1435,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public ulong OrUShort
             {
-                get { return _orUShort; }
+                get => _orUShort;
                 set
                 {
                     if (_orUShort != value)
@@ -1417,7 +1449,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte[] AndChew
             {
-                get { return _andChew; }
+                get => _andChew;
                 set
                 {
                     if (_andChew != value) // Not a great way to compare byte arrays
@@ -1466,7 +1498,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id
             {
-                get { return _id; }
+                get => _id;
                 set
                 {
                     if (_id != value)
@@ -1479,7 +1511,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public string Name
             {
-                get { return _name; }
+                get => _name;
                 set
                 {
                     if (_name != value)
@@ -1492,7 +1524,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool George
             {
-                get { return _george; }
+                get => _george;
                 set
                 {
                     if (_george != value)
@@ -1505,7 +1537,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public Guid TheGu
             {
-                get { return _theGu; }
+                get => _theGu;
                 set
                 {
                     if (_theGu != value)
@@ -1518,7 +1550,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public DateTime NotFigTime
             {
-                get { return _notFigTime; }
+                get => _notFigTime;
                 set
                 {
                     if (_notFigTime != value)
@@ -1531,7 +1563,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte ToEat
             {
-                get { return _toEat; }
+                get => _toEat;
                 set
                 {
                     if (_toEat != value)
@@ -1544,7 +1576,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public char CupOfChar
             {
-                get { return _cupOfChar; }
+                get => _cupOfChar;
                 set
                 {
                     if (_cupOfChar != value)
@@ -1557,7 +1589,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public double OrNothing
             {
-                get { return _orNothing; }
+                get => _orNothing;
                 set
                 {
                     if (_orNothing != value)
@@ -1570,7 +1602,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public short Fuse
             {
-                get { return _fuse; }
+                get => _fuse;
                 set
                 {
                     if (_fuse != value)
@@ -1583,7 +1615,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public long WayRound
             {
-                get { return _wayRound; }
+                get => _wayRound;
                 set
                 {
                     if (_wayRound != value)
@@ -1596,7 +1628,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public sbyte NotToEat
             {
-                get { return _notToEat; }
+                get => _notToEat;
                 set
                 {
                     if (_notToEat != value)
@@ -1609,7 +1641,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public float Away
             {
-                get { return _away; }
+                get => _away;
                 set
                 {
                     if (_away != value)
@@ -1622,7 +1654,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public ushort OrULong
             {
-                get { return _orULong; }
+                get => _orULong;
                 set
                 {
                     if (_orULong != value)
@@ -1635,7 +1667,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public uint OrUSkint
             {
-                get { return _orUSkint; }
+                get => _orUSkint;
                 set
                 {
                     if (_orUSkint != value)
@@ -1648,7 +1680,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public ulong OrUShort
             {
-                get { return _orUShort; }
+                get => _orUShort;
                 set
                 {
                     if (_orUShort != value)
@@ -1661,7 +1693,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte[] AndChew
             {
-                get { return _andChew; }
+                get => _andChew;
                 set
                 {
                     if (_andChew != value) // Not a great way to compare byte arrays

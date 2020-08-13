@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -14,6 +15,15 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class NavigationExtensions
     {
+        /// <summary>
+        ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, which must be a collection
+        ///     navigation.
+        /// </summary>
+        /// <param name="navigation"> The navigation property. </param>
+        /// <returns> The accessor. </returns>
+        public static IClrCollectionAccessor GetCollectionAccessor([NotNull] this INavigation navigation)
+            => navigation.AsNavigation().CollectionAccessor;
+
         /// <summary>
         ///     Gets a value indicating whether the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity.
@@ -74,6 +84,18 @@ namespace Microsoft.EntityFrameworkCore
             return navigation.IsDependentToPrincipal()
                 ? navigation.ForeignKey.PrincipalEntityType
                 : navigation.ForeignKey.DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether this navigation should be eager loaded by default.
+        /// </summary>
+        /// <param name="navigation"> The navigation property to find whether it should be eager loaded. </param>
+        /// <returns> A value indicating whether this navigation should be eager loaded by default. </returns>
+        public static bool IsEagerLoaded([NotNull] this INavigation navigation)
+        {
+            Check.NotNull(navigation, nameof(navigation));
+
+            return (bool?)navigation[CoreAnnotationNames.EagerLoaded] ?? false;
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -13,14 +14,18 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static class DbParameterCollectionExtensions
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatParameters(
             [NotNull] this DbParameterCollection parameters,
@@ -41,8 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 .Join();
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatParameter(
             [NotNull] string name,
@@ -127,26 +134,29 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private static void FormatParameterValue(StringBuilder builder, object parameterValue)
         {
-            builder.Append('\'');
-
-            if (parameterValue == null)
+            if (parameterValue == null
+                || parameterValue == DBNull.Value)
             {
-                builder.Append('\'');
-                return;
+                builder.Append("NULL");
             }
-
-            if (parameterValue.GetType() == typeof(DateTime))
+            else if (parameterValue.GetType() == typeof(DateTime))
             {
-                builder.Append(((DateTime)parameterValue).ToString("s"));
+                builder
+                    .Append('\'')
+                    .Append(((DateTime)parameterValue).ToString("s"))
+                    .Append('\'');
             }
             else if (parameterValue.GetType() == typeof(DateTimeOffset))
             {
-                builder.Append(((DateTimeOffset)parameterValue).ToString("o"));
+                builder
+                    .Append('\'')
+                    .Append(((DateTimeOffset)parameterValue).ToString("o"))
+                    .Append('\'');
             }
             else if (parameterValue.GetType() == typeof(byte[]))
             {
                 var buffer = (byte[])parameterValue;
-                builder.Append("0x");
+                builder.Append("'0x");
 
                 for (var i = 0; i < buffer.Length; i++)
                 {
@@ -158,13 +168,34 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                     builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
                 }
+
+                builder.Append('\'');
             }
             else
             {
-                builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
+                var valueProperty = parameterValue.GetType().GetRuntimeProperty("Value");
+                if (valueProperty != null
+                    && valueProperty.PropertyType != parameterValue.GetType())
+                {
+                    var isNullProperty = parameterValue.GetType().GetRuntimeProperty("IsNull");
+                    if (isNullProperty != null
+                        && (bool)isNullProperty.GetValue(parameterValue))
+                    {
+                        builder.Append("''");
+                    }
+                    else
+                    {
+                        FormatParameterValue(builder, valueProperty.GetValue(parameterValue));
+                    }
+                }
+                else
+                {
+                    builder
+                        .Append('\'')
+                        .Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture))
+                        .Append('\'');
+                }
             }
-
-            builder.Append('\'');
         }
 
         private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type clrType)

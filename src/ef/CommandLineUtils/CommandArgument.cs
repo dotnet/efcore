@@ -12,7 +12,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public string Name { get; set; }
         public string Description { get; set; }
-        public List<string> Values { get; private set; }
+        public List<string> Values { get; }
         public bool MultipleValues { get; set; }
         public string Value => Values.FirstOrDefault();
     }

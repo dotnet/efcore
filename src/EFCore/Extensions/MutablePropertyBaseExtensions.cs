@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     <para>
-        ///         Sets the backing field to use for this property.
+        ///         Sets the underlying CLR field that this property should use.
         ///     </para>
         ///     <para>
         ///         Backing fields are normally found by convention as described
@@ -43,10 +44,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
         public static void SetPropertyAccessMode(
             [NotNull] this IMutablePropertyBase property, PropertyAccessMode? propertyAccessMode)
-        {
-            Check.NotNull(property, nameof(property));
-
-            property[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
-        }
+            => Check.NotNull(property, nameof(property)).AsPropertyBase()
+                .SetPropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
     }
 }

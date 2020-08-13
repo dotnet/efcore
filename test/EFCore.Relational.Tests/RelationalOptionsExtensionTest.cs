@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
 
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private const string ConnectionString = "Fraggle=Rock";
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_Connection()
         {
             var optionsExtension = new FakeRelationalOptionsExtension();
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(connection, optionsExtension.Connection);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_ConnectionString()
         {
             var optionsExtension = new FakeRelationalOptionsExtension();
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(ConnectionString, optionsExtension.ConnectionString);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_CommandTimeout()
         {
             var optionsExtension = new FakeRelationalOptionsExtension();
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, optionsExtension.CommandTimeout);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_CommandTimeout_out_of_range()
         {
             Assert.Equal(
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => new FakeRelationalOptionsExtension().WithCommandTimeout(-1)).Message);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Can_set_MaxBatchSize()
         {
             var optionsExtension = new FakeRelationalOptionsExtension();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, optionsExtension.MaxBatchSize);
         }
 
-        [Fact]
+        [ConditionalFact]
         public void Throws_if_MaxBatchSize_out_of_range()
         {
             Assert.Equal(

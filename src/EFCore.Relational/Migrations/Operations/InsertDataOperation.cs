@@ -4,16 +4,17 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for inserting seed data into a table.
     /// </summary>
+    [DebuggerDisplay("INSERT INTO {Table}")]
     public class InsertDataOperation : MigrationOperation
     {
         /// <summary>
@@ -43,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <returns> The commands that correspond to this operation. </returns>
         public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
         {
-            Debug.Assert(Columns.Length == Values.GetLength(1),
+            Debug.Assert(
+                Columns.Length == Values.GetLength(1),
                 $"The number of values doesn't match the number of keys (${Columns.Length})");
 
             var properties = model != null
@@ -57,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 {
                     modifications[j] = new ColumnModification(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?.Find(Columns[j]),
-                        isRead: false, isWrite: true, isKey: true, isCondition: false);
+                        isRead: false, isWrite: true, isKey: true, isCondition: false, sensitiveLoggingEnabled: true);
                 }
 
-                yield return new ModificationCommand(Table, Schema, modifications);
+                yield return new ModificationCommand(Table, Schema, modifications, sensitiveLoggingEnabled: true);
             }
         }
     }

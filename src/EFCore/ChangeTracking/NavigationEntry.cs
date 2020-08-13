@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,9 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -28,18 +29,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public abstract class NavigationEntry : MemberEntry
     {
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected NavigationEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name, bool collection)
             : this(internalEntry, GetNavigation(internalEntry, name, collection))
         {
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         protected NavigationEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
             : base(internalEntry, navigation)
         {
@@ -55,8 +62,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     throw new InvalidOperationException(
                         CoreStrings.NavigationIsProperty(
                             name, internalEntry.EntityType.DisplayName(),
-                            nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Property)));
+                            nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection),
+                            nameof(ChangeTracking.EntityEntry.Property)));
                 }
+
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
             }
 
@@ -165,10 +174,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             set => InternalEntry.SetIsLoaded(Metadata, value);
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         private IEntityFinder TargetFinder
             => InternalEntry.StateManager.CreateEntityFinder(Metadata.GetTargetType());
 
@@ -189,9 +194,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var navigationValue = CurrentValue;
 
                 return navigationValue != null
-                       && (Metadata.IsCollection()
-                           ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
-                           : AnyFkPropertiesModified(navigationValue));
+                    && (Metadata.IsCollection()
+                        ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
+                        : AnyFkPropertiesModified(navigationValue));
             }
             set
             {
@@ -225,9 +230,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
 
             return relatedEntry != null
-                   && (relatedEntry.EntityState == EntityState.Added
-                       || relatedEntry.EntityState == EntityState.Deleted
-                       || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
+                && (relatedEntry.EntityState == EntityState.Added
+                    || relatedEntry.EntityState == EntityState.Deleted
+                    || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
         }
 
         private bool AnyFkPropertiesModified(object relatedEntity)
@@ -235,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
 
             return relatedEntry != null
-                   && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
+                && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
         }
 
         private void SetFkPropertiesModified(object relatedEntity, bool modified)
@@ -255,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (anyNonPk
                     && !property.IsPrimaryKey())
                 {
-                    internalEntityEntry.SetPropertyModified(property, isModified: modified);
+                    internalEntityEntry.SetPropertyModified(property, isModified: modified, acceptChanges: true);
                 }
             }
         }

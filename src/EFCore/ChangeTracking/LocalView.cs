@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -47,31 +48,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
-    public class LocalView<TEntity> : ICollection<TEntity>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging, IListSource
+    public class LocalView<TEntity> :
+        ICollection<TEntity>,
+        INotifyCollectionChanged,
+        INotifyPropertyChanged,
+        INotifyPropertyChanging,
+        IListSource
         where TEntity : class
     {
         private ObservableBackedBindingList<TEntity> _bindingList;
         private ObservableCollection<TEntity> _observable;
         private readonly DbContext _context;
-        private int _count;
+        private int _countChanges;
+        private int? _count;
         private bool _triggeringStateManagerChange;
         private bool _triggeringObservableChange;
         private bool _triggeringLocalViewChange;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public LocalView([NotNull] DbSet<TEntity> set)
         {
             _context = set.GetService<ICurrentDbContext>().Context;
 
-            var stateManager = _context.GetDependencies().StateManager;
-
             set.GetService<ILocalViewListener>().RegisterView(StateManagerChangedHandler);
-
-            _count = stateManager.Entries
-                .Count(e => e.Entity is TEntity && e.EntityState != EntityState.Deleted);
         }
 
         /// <summary>
@@ -169,10 +174,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> An enumerator for the collection. </returns>
         public virtual IEnumerator<TEntity> GetEnumerator()
-            => _context.GetDependencies().StateManager.Entries.Where(e => e.EntityState != EntityState.Deleted)
-                .Select(e => e.Entity)
-                .OfType<TEntity>()
-                .GetEnumerator();
+            => _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>().GetEnumerator();
 
         /// <summary>
         ///     Returns an <see cref="IEnumerator{T}" /> for all tracked entities of type TEntity
@@ -198,7 +200,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             // to Add it again since doing so would change its state to Added, which is probably not what
             // was wanted in this case.
 
-
             var entry = _context.GetDependencies().StateManager.GetOrCreateEntry(item);
             if (entry.EntityState == EntityState.Deleted
                 || entry.EntityState == EntityState.Detached)
@@ -211,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                     entry.SetEntityState(EntityState.Added);
 
-                    _count++;
+                    _countChanges++;
 
                     OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
 
@@ -238,11 +239,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void Clear()
         {
-            foreach (var entry in _context.GetDependencies().StateManager.Entries
-                .Where(e => e.Entity is TEntity && e.EntityState != EntityState.Deleted)
-                .ToList())
+            foreach (var entity in _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>().ToList())
             {
-                Remove((TEntity)entry.Entity);
+                Remove(entity);
             }
         }
 
@@ -267,15 +266,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="arrayIndex"> The index into the array to start copying. </param>
         public virtual void CopyTo(TEntity[] array, int arrayIndex)
         {
-            foreach (var entry in _context.GetDependencies().StateManager.Entries)
+            foreach (var entity in _context.GetDependencies().StateManager.GetNonDeletedEntities<TEntity>())
             {
-                if (entry.EntityState != EntityState.Deleted)
-                {
-                    if (entry.Entity is TEntity entity)
-                    {
-                        array[arrayIndex++] = entity;
-                    }
-                }
+                array[arrayIndex++] = entity;
             }
         }
 
@@ -309,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                             ? EntityState.Detached
                             : EntityState.Deleted);
 
-                    _count--;
+                    _countChanges--;
 
                     OnCollectionChanged(NotifyCollectionChangedAction.Remove, item);
 
@@ -336,10 +329,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             if (entry.Entity is TEntity entity)
             {
                 var wasIn = previousState != EntityState.Detached
-                            && previousState != EntityState.Deleted;
+                    && previousState != EntityState.Deleted;
 
                 var isIn = entry.EntityState != EntityState.Detached
-                           && entry.EntityState != EntityState.Deleted;
+                    && entry.EntityState != EntityState.Deleted;
 
                 if (wasIn != isIn)
                 {
@@ -347,13 +340,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                     if (isIn)
                     {
-                        _count++;
+                        _countChanges++;
 
                         OnCollectionChanged(NotifyCollectionChangedAction.Add, entity);
                     }
                     else
                     {
-                        _count--;
+                        _countChanges--;
 
                         OnCollectionChanged(NotifyCollectionChangedAction.Remove, entity);
                     }
@@ -367,7 +360,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The number of entities of type TEntity that are being tracked and are not marked
         ///     as Deleted.
         /// </summary>
-        public virtual int Count => _count;
+        public virtual int Count
+        {
+            get
+            {
+                if (!_count.HasValue)
+                {
+                    var stateManager = _context.GetDependencies().StateManager;
+
+                    var count = 0;
+                    foreach (var _ in stateManager.GetNonDeletedEntities<TEntity>())
+                    {
+                        count++;
+                    }
+
+                    _count = count;
+                    _countChanges = 0;
+                }
+
+                return _count.Value + _countChanges;
+            }
+        }
 
         /// <summary>
         ///     False, since the collection is not read-only.
@@ -440,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <exception cref="NotSupportedException"> Always thrown. </exception>
         /// <returns> Never returns, always throws an exception. </returns>
-        IList IListSource.GetList() => throw new NotSupportedException(CoreStrings.DataBindingWithIListSource);
+        IList IListSource.GetList() => throw new NotSupportedException(CoreStrings.DataBindingToLocalWithIListSource);
 
         /// <summary>
         ///     Gets a value indicating whether the collection is a collection of System.Collections.IList objects.

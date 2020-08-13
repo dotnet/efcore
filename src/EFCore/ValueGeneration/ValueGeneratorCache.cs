@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -16,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class ValueGeneratorCache : IValueGeneratorCache
@@ -52,21 +58,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             public override bool Equals(object obj)
             {
-                if (obj is null)
-                {
-                    return false;
-                }
-
-                return obj is CacheKey && Equals((CacheKey)obj);
+                return obj is null ? false : obj is CacheKey cacheKey && Equals(cacheKey);
             }
 
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (Property.GetHashCode() * 397) ^ EntityType.GetHashCode();
-                }
-            }
+            public override int GetHashCode() => HashCode.Combine(Property, EntityType);
         }
 
         /// <summary>

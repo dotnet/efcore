@@ -45,9 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             : base(
                 Convert<TModel, TProvider>(),
                 Convert<TProvider, TModel>(),
-                _defaultHints == null
-                    ? mappingHints
-                    : _defaultHints.With(mappingHints))
+                _defaultHints?.With(mappingHints) ?? mappingHints)
         {
         }
 
@@ -55,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(
+                typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TIn, TOut>> Convert<TIn, TOut>()
         {

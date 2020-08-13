@@ -1,13 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.CrossStore.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <!-- Workaround https://github.com/Microsoft/vstest/issues/792. -->
-    <HasRuntimeOutput>true</HasRuntimeOutput>
-    <!-- Put this project into its own test group to avoid running parallel with other test projects. Northwind is not inialized properly in this test assembly. -->
-    <TestGroupName>CrossStore.FunctionalTests</TestGroupName>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>

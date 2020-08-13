@@ -5,7 +5,8 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -31,14 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         protected ValueConverter(
             [NotNull] LambdaExpression convertToProviderExpression,
             [NotNull] LambdaExpression convertFromProviderExpression,
             [CanBeNull] ConverterMappingHints mappingHints = null)
-
         {
             Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression));
             Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression));
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public abstract Type ProviderClrType { get; }
 
         /// <summary>
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </summary>
         public virtual ConverterMappingHints MappingHints { get; }
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
             var firstConverter
                 = ProviderClrType.IsNullableType()
-                  && !secondConverter.ModelClrType.IsNullableType()
+                && !secondConverter.ModelClrType.IsNullableType()
                     ? ComposeWith(
                         (ValueConverter)Activator.CreateInstance(
                             typeof(CastingConverter<,>).MakeGenericType(

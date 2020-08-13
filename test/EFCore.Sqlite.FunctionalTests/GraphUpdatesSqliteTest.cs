@@ -4,8 +4,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
@@ -25,11 +23,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class GraphUpdatesSqliteFixtureBase : GraphUpdatesFixtureBase
             {
-                public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+                public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
                 protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
                 protected virtual bool AutoDetectChanges => false;
 
-                public override DbContext CreateContext()
+                public override PoolableDbContext CreateContext()
                 {
                     var context = base.CreateContext();
                     context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;

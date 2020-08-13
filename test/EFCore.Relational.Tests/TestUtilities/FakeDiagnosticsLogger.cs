@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public class FakeDiagnosticsLogger<T> : IDiagnosticsLogger<T>, ILogger
         where T : LoggerCategory<T>, new()
     {
-        public ILoggingOptions Options { get; }
+        public ILoggingOptions Options { get; } = new LoggingOptions();
 
         public bool ShouldLogSensitiveData() => false;
 
@@ -32,8 +33,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public bool IsEnabled(EventId eventId, LogLevel logLevel) => true;
 
-        public WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel) => WarningBehavior.Log;
-
         public IDisposable BeginScope<TState>(TState state) => null;
+
+        public virtual LoggingDefinitions Definitions { get; } = new TestRelationalLoggingDefinitions();
+
+        public IInterceptors Interceptors { get; }
     }
 }

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter.
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public DateTimeOffsetToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
@@ -40,12 +40,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(DateTimeOffset), typeof(byte[]), i => new DateTimeOffsetToBytesConverter(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(
+                typeof(DateTimeOffset), typeof(byte[]), i => new DateTimeOffsetToBytesConverter(i.MappingHints), _defaultHints);
 
         private static byte[] ToBytes(DateTimeOffset value)
         {
-            var timeBytes = (byte[])_longToBytes.ConvertToProvider(value.DateTime.ToBinary());
-            var offsetBytes = (byte[])_shortToBytes.ConvertToProvider(value.Offset.TotalMinutes);
+            var timeBytes = (byte[])_longToBytes.ConvertToProvider(value.DateTime.ToBinary())!;
+            var offsetBytes = (byte[])_shortToBytes.ConvertToProvider(value.Offset.TotalMinutes)!;
             return timeBytes.Concat(offsetBytes).ToArray();
         }
 
