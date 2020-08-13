@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new NavigationExpandingExpressionVisitor(this, QueryCompilationContext, Dependencies.EvaluatableExpressionFilter)
                 .Expand(query);
             query = new QueryOptimizingExpressionVisitor().Visit(query);
+            query = new NullCheckRemovingExpressionVisitor().Visit(query);
 
             return query;
         }

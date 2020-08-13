@@ -34,6 +34,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            var visitedExpression = base.VisitMember(memberExpression);
+
+            return TryOptimizeMemberAccessOverConditional(visitedExpression) ?? visitedExpression;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
@@ -228,5 +241,58 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return false;
         }
+
+        private Expression TryOptimizeMemberAccessOverConditional(Expression expression)
+        {
+            // Simplify (a != null ? new { Member = b, ... } : null).Member
+            // to a != null ? b : null
+            // Later null check removal will simplify it further
+            if (expression is MemberExpression visitedMemberExpression
+                && visitedMemberExpression.Expression is ConditionalExpression conditionalExpression
+                && conditionalExpression.Test is BinaryExpression binaryTest
+                && (binaryTest.NodeType == ExpressionType.Equal
+                    || binaryTest.NodeType == ExpressionType.NotEqual)
+                // Exclude HasValue/Value over Nullable<> as they return non-null type and we don't have equivalent for it for null part
+                && !(conditionalExpression.Type.IsNullableValueType()
+                    && (visitedMemberExpression.Member.Name == nameof(Nullable<int>.HasValue)
+                        || visitedMemberExpression.Member.Name == nameof(Nullable<int>.Value))))
+            {
+                var isLeftNullConstant = IsNullConstant(binaryTest.Left);
+                var isRightNullConstant = IsNullConstant(binaryTest.Right);
+
+                if (isLeftNullConstant != isRightNullConstant
+                    && ((binaryTest.NodeType == ExpressionType.Equal
+                        && IsNullConstant(conditionalExpression.IfTrue))
+                        || (binaryTest.NodeType == ExpressionType.NotEqual
+                            && IsNullConstant(conditionalExpression.IfFalse))))
+                {
+                    var nonNullExpression = binaryTest.NodeType == ExpressionType.Equal
+                        ? conditionalExpression.IfFalse
+                        : conditionalExpression.IfTrue;
+
+                    // Use ReplacingExpressionVisitor rather than creating MemberExpression
+                    // So that member access chain on NewExpression/MemberInitExpression condenses
+                    nonNullExpression = ReplacingExpressionVisitor.Replace(
+                        visitedMemberExpression.Expression, nonNullExpression, visitedMemberExpression);
+                    nonNullExpression = TryOptimizeMemberAccessOverConditional(nonNullExpression) ?? nonNullExpression;
+                    if (!nonNullExpression.Type.IsNullableType())
+                    {
+                        nonNullExpression = Expression.Convert(nonNullExpression, nonNullExpression.Type.MakeNullable());
+                    }
+                    var nullExpression = Expression.Constant(null, nonNullExpression.Type);
+
+                    return Expression.Condition(
+                        conditionalExpression.Test,
+                        binaryTest.NodeType == ExpressionType.Equal ? nullExpression : nonNullExpression,
+                        binaryTest.NodeType == ExpressionType.Equal ? nonNullExpression : nullExpression);
+                }
+            }
+
+            return null;
+        }
+
+        private bool IsNullConstant(Expression expression)
+            => expression is ConstantExpression constantExpression
+                && constantExpression.Value == null;
     }
 }

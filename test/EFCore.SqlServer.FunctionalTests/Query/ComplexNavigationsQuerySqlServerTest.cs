@@ -5795,6 +5795,44 @@ GROUP BY [l0].[Id]
 HAVING (MAX([l].[Id]) < 2) OR (MAX([l].[Id]) > 2)");
         }
 
+        public override async Task Member_over_null_check_ternary_and_nested_dto_type(bool async)
+        {
+            await base.Member_over_null_check_ternary_and_nested_dto_type(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Name], CASE
+    WHEN [l0].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [l0].[Id], [l0].[Name]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+ORDER BY [l0].[Name], [l].[Id]");
+        }
+
+        public override async Task Member_over_null_check_ternary_and_nested_anonymous_type(bool async)
+        {
+            await base.Member_over_null_check_ternary_and_nested_anonymous_type(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Name], CASE
+    WHEN [l0].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [l0].[Id], [l0].[Name], CASE
+    WHEN [l1].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [l1].[Id], [l1].[Name]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
+WHERE (CASE
+    WHEN [l0].[Id] IS NULL THEN NULL
+    ELSE [l1].[Name]
+END <> N'L') OR CASE
+    WHEN [l0].[Id] IS NULL THEN NULL
+    ELSE [l1].[Name]
+END IS NULL");
+        }
+
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }
