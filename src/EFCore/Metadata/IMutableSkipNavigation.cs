@@ -19,6 +19,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IMutableSkipNavigation : ISkipNavigation, IMutableNavigationBase
     {
         /// <summary>
+        ///     Gets the type that this navigation property belongs to.
+        /// </summary>
+        new IMutableEntityType DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IMutableEntityType)((INavigationBase)this).DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     Gets the entity type that this navigation property will hold an instance(s) of.
+        /// </summary>
+        new IMutableEntityType TargetEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IMutableEntityType)((INavigationBase)this).TargetEntityType;
+        }
+
+        /// <summary>
         ///     Gets the join type used by the foreign key.
         /// </summary>
         new IMutableEntityType JoinEntityType

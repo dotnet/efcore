@@ -25,6 +25,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionNavigationBuilder Builder { get; }
 
         /// <summary>
+        ///     Gets the type that this navigation property belongs to.
+        /// </summary>
+        new IConventionEntityType DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IConventionEntityType)((INavigationBase)this).DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     Gets the entity type that this navigation property will hold an instance(s) of.
+        /// </summary>
+        new IConventionEntityType TargetEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IConventionEntityType)((INavigationBase)this).TargetEntityType;
+        }
+
+        /// <summary>
         ///     Returns the configuration source for this navigation property.
         /// </summary>
         /// <returns> The configuration source. </returns>

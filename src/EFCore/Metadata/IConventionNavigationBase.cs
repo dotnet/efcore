@@ -17,21 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IConventionNavigationBase : INavigationBase, IConventionPropertyBase
     {
         /// <summary>
-        ///     Gets the type that this navigation property belongs to.
-        /// </summary>
-        new IConventionEntityType DeclaringEntityType => (IConventionEntityType)((INavigationBase)this).DeclaringEntityType;
-
-        /// <summary>
-        ///     Gets the entity type that this navigation property will hold an instance(s) of.
-        /// </summary>
-        new IConventionEntityType TargetEntityType => (IConventionEntityType)((INavigationBase)this).TargetEntityType;
-
-        /// <summary>
-        ///     Gets the inverse navigation.
-        /// </summary>
-        new IConventionNavigationBase Inverse => (IConventionNavigationBase)((INavigationBase)this).Inverse;
-
-        /// <summary>
         ///     Sets a value indicating whether this navigation should be eager loaded by default.
         /// </summary>
         /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
