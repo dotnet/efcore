@@ -1613,6 +1613,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Average_with_unmapped_property_access_throws_meaningful_exception(async);
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
+        {
+            return base.Multiple_collection_navigation_with_FirstOrDefault_chained(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

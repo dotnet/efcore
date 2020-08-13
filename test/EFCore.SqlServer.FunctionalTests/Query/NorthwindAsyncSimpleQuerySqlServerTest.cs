@@ -26,13 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override bool CanExecuteQueryString => true;
 
-        [ConditionalFact(Skip = "Issue#16314")]
+        [ConditionalFact]
         public override Task Throws_on_concurrent_query_list()
         {
-            return Task.CompletedTask;
+            return base.Throws_on_concurrent_query_list();
         }
 
-        [ConditionalFact(Skip = "Issue#16314")]
+        [ConditionalFact]
         public Task Query_compiler_concurrency()
         {
             const int threadCount = 50;
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         select (from o2 in context.Orders
                                                 where o1.CustomerID == c.CustomerID
                                                 orderby o2.OrderID
-                                                select o1.OrderID)))
+                                                select o1.OrderID).ToList()).ToList())
                             .GetEnumerator())
                         {
                         }

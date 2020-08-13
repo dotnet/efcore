@@ -2812,6 +2812,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("DbSetIncorrectGenericType", nameof(entityType), nameof(entityClrType), nameof(genericType)),
                 entityType, entityClrType, genericType);
 
+        /// <summary>
+        ///     The query contains a final projection '{projection}' to type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList()' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.
+        /// </summary>
+        public static string QueryInvalidMaterializationType([CanBeNull] object projection, [CanBeNull] object queryableType)
+            => string.Format(
+                GetString("QueryInvalidMaterializationType", nameof(projection), nameof(queryableType)),
+                projection, queryableType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

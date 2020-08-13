@@ -583,33 +583,24 @@ WHERE ([c].[CustomerID] = N'ALFKI') AND ((
             await base.Multiple_collection_navigation_with_FirstOrDefault_chained(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID]
+                @"SELECT [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]",
-                //
-                @"@_outer_CustomerID='ALFKI' (Size = 5)
-
-SELECT TOP(1) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
-FROM [Order Details] AS [od]
-WHERE [od].[OrderID] = COALESCE((
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE @_outer_CustomerID = [o].[CustomerID]
-    ORDER BY [o].[OrderID]
-), 0)
-ORDER BY [od].[ProductID]",
-                //
-                @"@_outer_CustomerID='ANATR' (Size = 5)
-
-SELECT TOP(1) [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
-FROM [Order Details] AS [od]
-WHERE [od].[OrderID] = COALESCE((
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE @_outer_CustomerID = [o].[CustomerID]
-    ORDER BY [o].[OrderID]
-), 0)
-ORDER BY [od].[ProductID]");
+OUTER APPLY (
+    SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+    FROM [Order Details] AS [o]
+    WHERE (
+        SELECT TOP(1) [o0].[OrderID]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+        ORDER BY [o0].[OrderID]) IS NOT NULL AND ((
+        SELECT TOP(1) [o1].[OrderID]
+        FROM [Orders] AS [o1]
+        WHERE [c].[CustomerID] = [o1].[CustomerID]
+        ORDER BY [o1].[OrderID]) = [o].[OrderID])
+    ORDER BY [o].[ProductID]
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(bool async)

@@ -8,6 +8,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -65,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             if (methodCallExpression.Method.DeclaringType.IsGenericType
-                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
+                && (methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
+                    || methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
                 && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
             {
                 visitedExpression = TryConvertListContainsToQueryableContains(methodCallExpression);
@@ -109,14 +112,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            if (methodCallExpression.Method.DeclaringType.IsGenericType
-                && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
-                && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
+            if (visitedExpression == null)
             {
-                visitedExpression = TryConvertListContainsToQueryableContains(methodCallExpression);
-            }
+                if (method.IsGenericMethod
+                    && method.GetGenericMethodDefinition() == QueryableMethods.Select)
+                {
+                    var selector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+                    VerifyReturnType(selector.Body, selector.Parameters[0]);
+                }
 
-            visitedExpression ??= base.VisitMethodCall(methodCallExpression);
+                visitedExpression = base.VisitMethodCall(methodCallExpression);
+            }
 
             if (visitedExpression is MethodCallExpression visitedMethodcall
                 && visitedMethodcall.Method.DeclaringType == typeof(Queryable)
@@ -126,6 +132,41 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return visitedExpression;
+        }
+
+        private void VerifyReturnType(Expression expression, ParameterExpression lambdaParameter)
+        {
+            switch (expression)
+            {
+                case NewExpression newExpression:
+                    foreach (var argument in newExpression.Arguments)
+                    {
+                        VerifyReturnType(argument, lambdaParameter);
+                    }
+                    break;
+
+                case MemberInitExpression memberInitExpression:
+                    VerifyReturnType(memberInitExpression.NewExpression, lambdaParameter);
+                    foreach (var memberBinding in memberInitExpression.Bindings)
+                    {
+                        if (memberBinding is MemberAssignment memberAssignment)
+                        {
+                            VerifyReturnType(memberAssignment.Expression, lambdaParameter);
+                        }
+                    }
+                    break;
+
+                default:
+                    if (expression.Type.TryGetElementType(typeof(IOrderedEnumerable<>)) != null
+                    || expression.Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.QueryInvalidMaterializationType(
+                                new ExpressionPrinter().Print(Expression.Lambda(expression, lambdaParameter)),
+                                expression.Type.ShortDisplayName()));
+                    }
+                    break;
+            }
         }
 
         private Expression ExtractQueryMetadata(MethodCallExpression methodCallExpression)

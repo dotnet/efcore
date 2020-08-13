@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -29,5 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Average_with_division_on_decimal_no_significant_digits(bool async)
             => Assert.ThrowsAsync<NotSupportedException>(() => base.Average_with_division_on_decimal_no_significant_digits(async));
+
+        public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
+        {
+            Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
+        }
     }
 }

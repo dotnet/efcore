@@ -928,18 +928,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#16314")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()),
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()
                         .Maybe(x => x.OrderDetails)
-                        .Maybe(xx => xx.OrderBy(od => od.ProductID).FirstOrDefault())));
+                        .Maybe(xx => xx.OrderBy(od => od.ProductID).FirstOrDefault())),
+                entryCount: 7);
         }
 
         [ConditionalTheory]
