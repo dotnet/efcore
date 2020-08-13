@@ -106,18 +106,10 @@ namespace Microsoft.EntityFrameworkCore
 
             var containingType = symbol.ContainingType;
 
-            switch (symbol)
+            if (HasInternalAttribute(symbol))
             {
-                case IMethodSymbol _:
-                case IFieldSymbol _:
-                case IPropertySymbol _:
-                case IEventSymbol _:
-                    if (HasInternalAttribute(symbol))
-                    {
-                        ReportDiagnostic(context, symbol.Name == ".ctor" ? (object)containingType : $"{containingType}.{symbol.Name}");
-                        return;
-                    }
-                    break;
+                ReportDiagnostic(context, symbol.Name == ".ctor" ? (object)containingType : $"{containingType}.{symbol.Name}");
+                return;
             }
 
             if (IsInternal(context, containingType))
