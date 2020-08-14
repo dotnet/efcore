@@ -2367,7 +2367,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 field, entityType, property);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be added to the model because a shared entity type with the same clr type already exists.
+        ///     The entity type '{entityType}' cannot be added to the model because a shared entity type with the same CLR type already exists.
         /// </summary>
         public static string ClashingSharedType([CanBeNull] object entityType)
             => string.Format(

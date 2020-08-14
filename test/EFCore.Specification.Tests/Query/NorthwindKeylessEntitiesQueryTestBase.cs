@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylesEntity_groupby(bool async)
+        public virtual Task KeylessEntity_groupby(bool async)
         {
             return AssertQuery(
                 async,
