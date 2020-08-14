@@ -125,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new HashSet<MethodInfo>
             {
                 typeof(IDbFunction).GetMethod("get_ReturnEntityType"),
+                typeof(IMutableSequence).GetMethod("set_ClrType"),
                 typeof(RelationalPropertyExtensions).GetMethod(nameof(RelationalPropertyExtensions.FindOverrides)),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations))
             };
