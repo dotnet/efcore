@@ -26,24 +26,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public OwnedNavigationBuilder(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalForeignKeyBuilder builder)
+        public OwnedNavigationBuilder([NotNull] IMutableForeignKey ownership)
         {
-            PrincipalEntityType = principalEntityType;
-            DependentEntityType = dependentEntityType;
-            _builder = builder;
+            PrincipalEntityType = (EntityType)ownership.PrincipalEntityType;
+            DependentEntityType = (EntityType)ownership.DeclaringEntityType;
+            _builder = ((ForeignKey)ownership).Builder;
         }
 
         /// <summary>
         ///     Gets the principal entity type used to configure this relationship.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual EntityType PrincipalEntityType { get; }
 
         /// <summary>
         ///     Gets the dependent entity type used to configure this relationship.
         /// </summary>
+        [EntityFrameworkInternal]
         protected virtual EntityType DependentEntityType { get; }
 
         /// <summary>
@@ -527,10 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
             }
 
-            return new OwnedNavigationBuilder(
-                DependentEntityType,
-                relationship.Metadata.DeclaringEntityType,
-                relationship);
+            return new OwnedNavigationBuilder(relationship.Metadata);
         }
 
         /// <summary>
@@ -752,10 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
             }
 
-            return new OwnedNavigationBuilder(
-                DependentEntityType,
-                relationship.Metadata.DeclaringEntityType,
-                relationship);
+            return new OwnedNavigationBuilder(relationship.Metadata);
         }
 
         /// <summary>

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -255,12 +254,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             var adding = state == EntityState.Added;
             var updating = state == EntityState.Modified;
             var columnModifications = new List<ColumnModification>();
-            Dictionary<string, ColumnValuePropagator> sharedColumnMap = null;
+            Dictionary<string, ColumnValuePropagator> sharedTableColumnMap = null;
 
             if (_entries.Count > 1
                 || (_entries.Count == 1 && _entries[0].SharedIdentityEntry != null))
             {
-                sharedColumnMap = new Dictionary<string, ColumnValuePropagator>();
+                sharedTableColumnMap = new Dictionary<string, ColumnValuePropagator>();
 
                 if (_comparer != null)
                 {
@@ -269,12 +268,22 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 foreach (var entry in _entries)
                 {
-                    if (entry.SharedIdentityEntry != null)
+                    var tableMapping = GetTableMapping(entry.EntityType);
+                    if (tableMapping == null)
                     {
-                        InitializeSharedColumns(entry.SharedIdentityEntry, updating, sharedColumnMap);
+                        continue;
                     }
 
-                    InitializeSharedColumns(entry, updating, sharedColumnMap);
+                    if (entry.SharedIdentityEntry != null)
+                    {
+                        var sharedTableMapping = GetTableMapping(entry.SharedIdentityEntry.EntityType);
+                        if (sharedTableMapping != null)
+                        {
+                            InitializeSharedColumns(entry.SharedIdentityEntry, sharedTableMapping, updating, sharedTableColumnMap);
+                        }
+                    }
+
+                    InitializeSharedColumns(entry, tableMapping, updating, sharedTableColumnMap);
                 }
             }
 
@@ -284,18 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     && (entry.EntityState == EntityState.Deleted
                         || entry.EntityState == EntityState.Added);
 
-                ITableMappingBase tableMapping = null;
-                foreach (var mapping in entry.EntityType.GetTableMappings())
-                {
-                    var table = ((ITableMappingBase)mapping).Table;
-                    if (table.Name == TableName
-                        && table.Schema == Schema)
-                    {
-                        tableMapping = mapping;
-                        break;
-                    }
-                }
-
+                var tableMapping = GetTableMapping(entry.EntityType);
                 if (tableMapping == null)
                 {
                     continue;
@@ -308,11 +306,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var isKey = property.IsPrimaryKey();
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
                     var readValue = state != EntityState.Deleted && entry.IsStoreGenerated(property);
+
                     ColumnValuePropagator columnPropagator = null;
-                    if (sharedColumnMap != null)
-                    {
-                        columnPropagator = sharedColumnMap[column.Name];
-                    }
+                    sharedTableColumnMap?.TryGetValue(column.Name, out columnPropagator);
 
                     var writeValue = false;
                     if (!readValue)
@@ -350,7 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             isCondition,
                             _sensitiveLoggingEnabled);
 
-                        if (columnPropagator != null)
+                        if (columnPropagator != null
+                            && column.PropertyMappings.Count() != 1)
                         {
                             if (columnPropagator.ColumnModification != null)
                             {
@@ -370,16 +367,29 @@ namespace Microsoft.EntityFrameworkCore.Update
             return columnModifications;
         }
 
-        private void InitializeSharedColumns(IUpdateEntry entry, bool updating, Dictionary<string, ColumnValuePropagator> columnMap)
+        private ITableMappingBase GetTableMapping(IEntityType entityType)
         {
-            foreach (var property in entry.EntityType.GetProperties())
+            ITableMappingBase tableMapping = null;
+            foreach (var mapping in entityType.GetTableMappings())
             {
-                var columnName = property.FindColumn(StoreObjectIdentifier.Table(TableName, Schema))?.Name;
-                if (columnName == null)
+                var table = ((ITableMappingBase)mapping).Table;
+                if (table.Name == TableName
+                    && table.Schema == Schema)
                 {
-                    continue;
+                    tableMapping = mapping;
+                    break;
                 }
+            }
 
+            return tableMapping;
+        }
+
+        private void InitializeSharedColumns(
+            IUpdateEntry entry, ITableMappingBase tableMapping, bool updating, Dictionary<string, ColumnValuePropagator> columnMap)
+        {
+            foreach (var columnMapping in tableMapping.ColumnMappings)
+            {
+                var columnName = columnMapping.Column.Name;
                 if (!columnMap.TryGetValue(columnName, out var columnPropagator))
                 {
                     columnPropagator = new ColumnValuePropagator();
@@ -388,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 if (updating)
                 {
-                    columnPropagator.RecordValue(property, entry);
+                    columnPropagator.RecordValue(columnMapping.Property, entry);
                 }
             }
         }

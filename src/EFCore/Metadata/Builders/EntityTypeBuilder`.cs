@@ -698,10 +698,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
 
-            return new OwnedNavigationBuilder<TEntity, TRelatedEntity>(
-                Builder.Metadata,
-                relationship.Metadata.DeclaringEntityType,
-                relationship);
+            return new OwnedNavigationBuilder<TEntity, TRelatedEntity>(relationship.Metadata);
         }
 
         /// <summary>
@@ -1080,10 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
 
-            return new OwnedNavigationBuilder<TEntity, TRelatedEntity>(
-                Builder.Metadata,
-                relationship.Metadata.DeclaringEntityType,
-                relationship);
+            return new OwnedNavigationBuilder<TEntity, TRelatedEntity>(relationship.Metadata);
         }
 
         /// <summary>

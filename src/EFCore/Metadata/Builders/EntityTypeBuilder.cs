@@ -496,10 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
             }
 
-            return new OwnedNavigationBuilder(
-                Builder.Metadata,
-                relationship.Metadata.DeclaringEntityType,
-                relationship);
+            return new OwnedNavigationBuilder(relationship.Metadata);
         }
 
         /// <summary>
@@ -712,10 +709,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship.IsUnique(false, ConfigurationSource.Explicit);
             }
 
-            return new OwnedNavigationBuilder(
-                Builder.Metadata,
-                relationship.Metadata.DeclaringEntityType,
-                relationship);
+            return new OwnedNavigationBuilder(relationship.Metadata);
         }
 
         /// <summary>

@@ -27,11 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public OwnedNavigationBuilder(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [NotNull] InternalForeignKeyBuilder builder)
-            : base(principalEntityType, dependentEntityType, builder)
+        public OwnedNavigationBuilder([NotNull] IMutableForeignKey ownership)
+            : base(ownership)
         {
         }
 
@@ -638,10 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
 
-            return new OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>(
-                relationship.Metadata.PrincipalEntityType,
-                relationship.Metadata.DeclaringEntityType,
-                relationship);
+            return new OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>(relationship.Metadata);
         }
 
         /// <summary>
@@ -1033,10 +1027,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata).Builder;
             }
 
-            return new OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity>(
-                DependentEntityType,
-                relationship.Metadata.DeclaringEntityType,
-                relationship);
+            return new OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity>(relationship.Metadata);
         }
 
         /// <summary>
