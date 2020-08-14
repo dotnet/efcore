@@ -652,7 +652,7 @@
     <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendant of '{baseClrType}'.</value>
   </data>
   <data name="PropertyWrongEntityClrType" xml:space="preserve">
-    <value>CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.</value>
+    <value>The CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.</value>
   </data>
   <data name="InvalidNavigationWithInverseProperty" xml:space="preserve">
     <value>The InversePropertyAttribute on property '{property}' on type '{entityType}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.</value>
@@ -1427,7 +1427,7 @@
     <value>The entity type '{entityType}' cannot be on the principal end of the relationship between '{firstNavigationSpecification}' and '{secondNavigationSpecification}'. The principal entity type must have a key.</value>
   </data>
   <data name="ClashingMismatchedSharedType" xml:space="preserve">
-    <value>The shared type entity type '{entityType}' cannot be added to the model because a shared entity type with the same name but different clr type already exists.</value>
+    <value>The shared type entity type '{entityType}' cannot be added to the model because a shared entity type with the same name but different clr type '{otherClrType}' already exists.</value>
   </data>
   <data name="ClashingNonSharedType" xml:space="preserve">
     <value>The shared type entity type '{entityType}' with clr type '{type}' cannot be added to the model because a non shared entity type with the same clr type already exists.</value>
@@ -1497,5 +1497,8 @@
   </data>
   <data name="ClashingNamedOwnedType" xml:space="preserve">
     <value>There is already an entity type named '{ownedTypeName}'. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}'.</value>
+  </data>
+  <data name="PropertyWrongEntitySharedClrType" xml:space="preserve">
+    <value>The CLR property '{property}' cannot be added to entity type '{entityType}'({sharedType}) because it is declared on the CLR type '{clrType}'.</value>
   </data>
 </root>
