@@ -99,12 +99,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Type ContextType => _currentContext.Context.GetType();
 
         /// <summary>
-        ///     The flag indicating if default query tracking behavior is tracking.
-        /// </summary>
-        [Obsolete("Use " + nameof(QueryTrackingBehavior) + " instead.")]
-        public bool IsTracking => _currentContext.Context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
-
-        /// <summary>
         ///     The default query tracking behavior.
         /// </summary>
         public QueryTrackingBehavior QueryTrackingBehavior => _currentContext.Context.ChangeTracker.QueryTrackingBehavior;

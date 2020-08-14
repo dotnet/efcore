@@ -46,10 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual string BatchTerminator => Environment.NewLine;
 
         /// <inheritdoc />
-        public virtual string StartTransaction => "START TRANSACTION" + StatementTerminator;
+        public virtual string StartTransactionStatement => "START TRANSACTION" + StatementTerminator;
 
         /// <inheritdoc />
-        public virtual string Commit => "COMMIT" + StatementTerminator;
+        public virtual string CommitTransactionStatement => "COMMIT" + StatementTerminator;
 
         /// <summary>
         ///     The default single-line comment prefix.
