@@ -95,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double))]
         [InlineData(typeof(SqlServerFloatTypeMapping), typeof(float))]
         [InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
-        public override void Create_and_clone_with_converter(Type mappingType, Type clrType)
+        public override void Create_and_clone_with_converter(Type mappingType, Type type)
         {
-            base.Create_and_clone_with_converter(mappingType, clrType);
+            base.Create_and_clone_with_converter(mappingType, type);
         }
 
         [ConditionalFact]

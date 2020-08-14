@@ -849,7 +849,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
+            Assert.Same(typeof(long), sequence.Type);
         }
 
         [ConditionalFact]
@@ -872,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
+            Assert.Same(typeof(long), sequence.Type);
         }
 
         [ConditionalFact]
@@ -957,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(111, sequence.MinValue);
             Assert.Equal(2222, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
+            Assert.Same(typeof(int), sequence.Type);
         }
 
         [ConditionalFact]
@@ -1231,7 +1231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(111, sequence.MinValue);
             Assert.Equal(2222, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
+            Assert.Same(typeof(int), sequence.Type);
         }
 
         private enum MyEnum : ulong

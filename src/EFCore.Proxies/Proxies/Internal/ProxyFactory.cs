@@ -34,13 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual object Create(
             DbContext context,
-            Type entityClrType,
+            Type type,
             params object[] constructorArguments)
         {
-            var entityType = context.Model.FindRuntimeEntityType(entityClrType);
+            var entityType = context.Model.FindRuntimeEntityType(type);
             if (entityType == null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entityClrType.ShortDisplayName()));
+                throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(type.ShortDisplayName()));
             }
 
             return CreateProxy(context, entityType, constructorArguments);

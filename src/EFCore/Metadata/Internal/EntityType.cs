@@ -92,19 +92,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityType([NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
-            : base(clrType, model, configurationSource)
+        public EntityType([NotNull] Type type, [NotNull] Model model, ConfigurationSource configurationSource)
+            : base(type, model, configurationSource)
         {
-            if (!clrType.IsValidEntityType())
+            if (!type.IsValidEntityType())
             {
-                throw new ArgumentException(CoreStrings.InvalidEntityType(clrType));
+                throw new ArgumentException(CoreStrings.InvalidEntityType(type));
             }
 
             if (DynamicProxyGenAssemblyName.Equals(
-                clrType.Assembly.GetName().Name, StringComparison.Ordinal))
+                type.Assembly.GetName().Name, StringComparison.Ordinal))
             {
                 throw new ArgumentException(
-                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(clrType.FullName));
+                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(type.FullName));
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
@@ -117,19 +117,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityType([NotNull] string name, [NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
-            : base(name, clrType, model, configurationSource)
+        public EntityType([NotNull] string name, [NotNull] Type type, [NotNull] Model model, ConfigurationSource configurationSource)
+            : base(name, type, model, configurationSource)
         {
-            if (!clrType.IsValidEntityType())
+            if (!type.IsValidEntityType())
             {
-                throw new ArgumentException(CoreStrings.InvalidEntityType(clrType));
+                throw new ArgumentException(CoreStrings.InvalidEntityType(type));
             }
 
             if (DynamicProxyGenAssemblyName.Equals(
-                clrType.Assembly.GetName().Name, StringComparison.Ordinal))
+                type.Assembly.GetName().Name, StringComparison.Ordinal))
             {
                 throw new ArgumentException(
-                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(clrType.FullName));
+                    CoreStrings.AttemptToCreateEntityTypeBasedOnProxyClass(type.FullName));
             }
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
@@ -161,12 +161,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityType(
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [NotNull] Model model,
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType,
             ConfigurationSource configurationSource)
-            : this(clrType, model, configurationSource)
+            : this(type, model, configurationSource)
         {
             DefiningNavigationName = definingNavigationName;
             DefiningEntityType = definingEntityType;

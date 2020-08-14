@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         object Create(
             [NotNull] DbContext context,
-            [NotNull] Type entityClrType,
+            [NotNull] Type type,
             [NotNull] params object[] constructorArguments);
     }
 }

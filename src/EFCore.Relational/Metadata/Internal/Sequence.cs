@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private int? _incrementBy;
         private long? _minValue;
         private long? _maxValue;
-        private Type _clrType;
+        private Type _type;
         private bool? _isCyclic;
 
         private ConfigurationSource _configurationSource;
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _incrementByConfigurationSource;
         private ConfigurationSource? _minValueConfigurationSource;
         private ConfigurationSource? _maxValueConfigurationSource;
-        private ConfigurationSource? _clrTypeConfigurationSource;
+        private ConfigurationSource? _clrConfigurationSource;
         private ConfigurationSource? _isCyclicConfigurationSource;
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _incrementBy = data.IncrementBy;
             _minValue = data.MinValue;
             _maxValue = data.MaxValue;
-            _clrType = data.ClrType;
+            _type = data.ClrType;
             _isCyclic = data.IsCyclic;
             Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
         }
@@ -455,10 +455,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type ClrType
+        public virtual Type Type
         {
-            get => _clrType ?? DefaultClrType;
-            set => SetClrType(value, ConfigurationSource.Explicit);
+            get => _type ?? DefaultClrType;
+            set => SetType(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -467,21 +467,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type SetClrType([CanBeNull] Type clrType, ConfigurationSource configurationSource)
+        public virtual Type SetType([CanBeNull] Type type, ConfigurationSource configurationSource)
         {
-            if (clrType != null
-                && !SupportedTypes.Contains(clrType))
+            if (type != null
+                && !SupportedTypes.Contains(type))
             {
                 throw new ArgumentException(RelationalStrings.BadSequenceType);
             }
 
-            _clrType = clrType;
+            _type = type;
 
-            _clrTypeConfigurationSource = clrType == null
+            _clrConfigurationSource = type == null
                 ? (ConfigurationSource?)null
-                : configurationSource.Max(_clrTypeConfigurationSource);
+                : configurationSource.Max(_clrConfigurationSource);
 
-            return clrType;
+            return type;
         }
 
         /// <summary>
@@ -490,8 +490,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual ConfigurationSource? GetTypeConfigurationSource()
+            => _clrConfigurationSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [Obsolete("Use Type")]
+        public virtual Type ClrType
+        {
+            get => Type;
+            set => Type = value;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [Obsolete("Use SetType")]
+        public virtual Type SetClrType([CanBeNull] Type type, ConfigurationSource configurationSource)
+            => SetType(type, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [Obsolete("Use GetTypeConfigurationSource")]
         public virtual ConfigurationSource? GetClrTypeConfigurationSource()
-            => _clrTypeConfigurationSource;
+            => GetTypeConfigurationSource();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -605,8 +638,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Type IConventionSequence.SetClrType(Type clrType, bool fromDataAnnotation)
-            => SetClrType(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        Type IConventionSequence.SetClrType(Type type, bool fromDataAnnotation)
+            => SetType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        Type IConventionSequence.SetType(Type type, bool fromDataAnnotation)
+            => SetType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

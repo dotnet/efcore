@@ -37,9 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds an entity type to the model.
         /// </summary>
-        /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
+        /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
         /// <returns> The new entity type. </returns>
-        IMutableEntityType AddEntityType([NotNull] Type clrType);
+        IMutableEntityType AddEntityType([NotNull] Type type);
 
         /// <summary>
         ///     <para>
@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         /// <param name="name"> The name of the entity to be added. </param>
-        /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
+        /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
         /// <returns> The new entity type. </returns>
-        IMutableEntityType AddEntityType([NotNull] string name, [NotNull] Type clrType);
+        IMutableEntityType AddEntityType([NotNull] string name, [NotNull] Type type);
 
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
@@ -70,12 +70,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
         /// </summary>
-        /// <param name="clrType"> The CLR class that is used to represent instances of this entity type. </param>
+        /// <param name="type"> The CLR class that is used to represent instances of this entity type. </param>
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The new entity type. </returns>
         IMutableEntityType AddEntityType(
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] IMutableEntityType definingEntityType);
 

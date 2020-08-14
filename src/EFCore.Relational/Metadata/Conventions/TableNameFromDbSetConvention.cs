@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             List<Type> ambiguousTypes = null;
             foreach (var set in dependencies.SetFinder.FindSets(dependencies.ContextType))
             {
-                if (!_sets.ContainsKey(set.ClrType))
+                if (!_sets.ContainsKey(set.Type))
                 {
-                    _sets.Add(set.ClrType, set.Name);
+                    _sets.Add(set.Type, set.Name);
                 }
                 else
                 {
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         ambiguousTypes = new List<Type>();
                     }
-                    ambiguousTypes.Add(set.ClrType);
+                    ambiguousTypes.Add(set.Type);
                 }
             }
 

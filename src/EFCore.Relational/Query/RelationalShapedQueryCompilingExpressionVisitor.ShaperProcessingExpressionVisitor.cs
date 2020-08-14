@@ -912,10 +912,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 int index,
                 bool nullable,
                 RelationalTypeMapping typeMapping,
-                Type clrType,
+                Type type,
                 IPropertyBase property = null)
             {
-                Check.DebugAssert(property != null || clrType.IsNullableType(), "Must read nullable value from database if property is not specified.");
+                Check.DebugAssert(property != null || type.IsNullableType(), "Must read nullable value from database if property is not specified.");
 
                 var getMethod = typeMapping.GetDataReaderMethod();
 
@@ -978,9 +978,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         converter.ConvertFromProviderExpression.Body);
                 }
 
-                if (valueExpression.Type != clrType)
+                if (valueExpression.Type != type)
                 {
-                    valueExpression = Expression.Convert(valueExpression, clrType);
+                    valueExpression = Expression.Convert(valueExpression, type);
                 }
 
                 if (nullable)

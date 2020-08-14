@@ -49,6 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the <see cref="Type" /> of values returned by the sequence.
         /// </summary>
+        Type Type { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="Type" /> of values returned by the sequence.
+        /// </summary>
+        [Obsolete("Use Type")]
         Type ClrType { get; }
 
         /// <summary>

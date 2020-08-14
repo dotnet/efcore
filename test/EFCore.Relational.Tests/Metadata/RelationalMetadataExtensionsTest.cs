@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
+            Assert.Same(typeof(long), sequence.Type);
             Assert.False(sequence.IsCyclic);
             Assert.NotNull(((IConventionSequence)sequence).Builder);
 
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             sequence.IncrementBy = 11;
             sequence.MinValue = 2001;
             sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
+            sequence.Type = typeof(int);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
+            Assert.Same(typeof(int), sequence.Type);
 
             Assert.Same(sequence, model.RemoveSequence("Foo"));
 
@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
+            Assert.Same(typeof(long), sequence.Type);
 
             Assert.Same(sequence, model.FindSequence("Foo", "Smoo"));
 
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             sequence.IncrementBy = 11;
             sequence.MinValue = 2001;
             sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
+            sequence.Type = typeof(int);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
+            Assert.Same(typeof(int), sequence.Type);
         }
 
         [ConditionalFact]
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
+            Assert.Same(typeof(long), sequence.Type);
         }
 
         [ConditionalFact]
@@ -541,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
+            Assert.Same(typeof(long), sequence.Type);
 
             model.SetDefaultSchema("Smoo");
 
@@ -551,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             sequence.IncrementBy = 11;
             sequence.MinValue = 2001;
             sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
+            sequence.Type = typeof(int);
 
             Assert.Equal("Foo", sequence.Name);
             Assert.Equal("Smoo", sequence.Schema);
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
+            Assert.Same(typeof(int), sequence.Type);
         }
 
         [ConditionalFact]

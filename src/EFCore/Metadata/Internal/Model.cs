@@ -451,8 +451,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasEntityTypeWithDefiningNavigation([NotNull] Type clrType)
-            => HasEntityTypeWithDefiningNavigation(GetDisplayName(clrType));
+        public virtual bool HasEntityTypeWithDefiningNavigation([NotNull] Type type)
+            => HasEntityTypeWithDefiningNavigation(GetDisplayName(type));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -502,8 +502,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool EntityTypeShouldHaveDefiningNavigation([NotNull] Type clrType)
-            => EntityTypeShouldHaveDefiningNavigation(new TypeIdentity(clrType, this));
+        public virtual bool EntityTypeShouldHaveDefiningNavigation([NotNull] Type type)
+            => EntityTypeShouldHaveDefiningNavigation(new TypeIdentity(type, this));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -807,8 +807,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsOwned([NotNull] Type clrType)
-            => FindIsOwnedConfigurationSource(clrType) != null;
+        public virtual bool IsOwned([NotNull] Type type)
+            => FindIsOwnedConfigurationSource(type) != null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -816,21 +816,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? FindIsOwnedConfigurationSource([NotNull] Type clrType)
+        public virtual ConfigurationSource? FindIsOwnedConfigurationSource([NotNull] Type type)
         {
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
                 return null;
             }
 
-            while (clrType != null)
+            while (type != null)
             {
-                if (ownedTypes.TryGetValue(GetDisplayName(clrType), out var configurationSource))
+                if (ownedTypes.TryGetValue(GetDisplayName(type), out var configurationSource))
                 {
                     return configurationSource;
                 }
 
-                clrType = clrType.BaseType;
+                type = type.BaseType;
             }
 
             return null;
@@ -842,9 +842,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddOwned([NotNull] Type clrType, ConfigurationSource configurationSource)
+        public virtual void AddOwned([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            var name = GetDisplayName(clrType);
+            var name = GetDisplayName(type);
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
                 ownedTypes = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
@@ -866,14 +866,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string RemoveOwned([NotNull] Type clrType)
+        public virtual string RemoveOwned([NotNull] Type type)
         {
             if (!(this[CoreAnnotationNames.OwnedTypes] is Dictionary<string, ConfigurationSource> ownedTypes))
             {
                 return null;
             }
 
-            var name = GetDisplayName(clrType);
+            var name = GetDisplayName(type);
             return ownedTypes.Remove(name) ? name : null;
         }
 
@@ -883,20 +883,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddShared([NotNull] Type clrType, ConfigurationSource configurationSource)
+        public virtual void AddShared([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == clrType))
+            if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == type))
             {
-                throw new InvalidOperationException(CoreStrings.CannotMarkShared(clrType.ShortDisplayName()));
+                throw new InvalidOperationException(CoreStrings.CannotMarkShared(type.ShortDisplayName()));
             }
 
-            if (_sharedTypes.TryGetValue(clrType, out var existingConfigurationSource))
+            if (_sharedTypes.TryGetValue(type, out var existingConfigurationSource))
             {
-                _sharedTypes[clrType] = configurationSource.Max(existingConfigurationSource);
+                _sharedTypes[type] = configurationSource.Max(existingConfigurationSource);
             }
             else
             {
-                _sharedTypes.Add(clrType, configurationSource);
+                _sharedTypes.Add(type, configurationSource);
             }
         }
 
@@ -1164,8 +1164,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionEntityType IConventionModel.AddEntityType(Type clrType, bool fromDataAnnotation)
-            => AddEntityType(clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        IConventionEntityType IConventionModel.AddEntityType(Type type, bool fromDataAnnotation)
+            => AddEntityType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1173,8 +1173,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionEntityType IConventionModel.AddEntityType(string name, Type clrType, bool fromDataAnnotation)
-            => AddEntityType(name, clrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        IConventionEntityType IConventionModel.AddEntityType(string name, Type type, bool fromDataAnnotation)
+            => AddEntityType(name, type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1195,9 +1195,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionEntityType IConventionModel.AddEntityType(
-            Type clrType, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
+            Type type, string definingNavigationName, IConventionEntityType definingEntityType, bool fromDataAnnotation)
             => AddEntityType(
-                clrType, definingNavigationName, (EntityType)definingEntityType,
+                type, definingNavigationName, (EntityType)definingEntityType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -1232,6 +1232,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        bool IConventionModel.IsShared(Type clrType) => IsShared(clrType);
+        bool IConventionModel.IsShared(Type type) => IsShared(type);
     }
 }
