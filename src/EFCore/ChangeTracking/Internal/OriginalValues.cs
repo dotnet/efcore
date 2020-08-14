@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public object GetValue(InternalEntityEntry entry, IProperty property)
             {
                 var index = property.GetOriginalValueIndex();
-
                 if (index == -1)
                 {
                     throw new InvalidOperationException(

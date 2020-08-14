@@ -296,13 +296,13 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
         /// </summary>
         public virtual string ParameterName
-            => _parameterName ?? (_parameterName = UseCurrentValueParameter ? _generateParameterName() : null);
+            => _parameterName ??= UseCurrentValueParameter ? _generateParameterName() : null;
 
         /// <summary>
         ///     The parameter name to use for the original value parameter (<see cref="UseOriginalValueParameter" />), if needed.
         /// </summary>
         public virtual string OriginalParameterName
-            => _originalParameterName ?? (_originalParameterName = UseOriginalValueParameter ? _generateParameterName() : null);
+            => _originalParameterName ??= UseOriginalValueParameter ? _generateParameterName() : null;
 
         /// <summary>
         ///     The name of the column.
@@ -392,25 +392,34 @@ namespace Microsoft.EntityFrameworkCore.Update
             if (UseOriginalValueParameter
                 && !StructuralComparisons.StructuralEqualityComparer.Equals(OriginalValue, modification.OriginalValue))
             {
-                if (_sensitiveLoggingEnabled)
+                if (Entry.EntityState == EntityState.Modified
+                    && modification.Entry.EntityState == EntityState.Added
+                    && modification.Entry.SharedIdentityEntry == null)
                 {
+                    modification.Entry.SetOriginalValue(modification.Property, OriginalValue);
+                }
+                else
+                {
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.ConflictingOriginalRowValuesSensitive(
+                                Entry.EntityType.DisplayName(),
+                                modification.Entry.EntityType.DisplayName(),
+                                Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
+                                Entry.BuildOriginalValuesString(new[] { Property }),
+                                modification.Entry.BuildOriginalValuesString(new[] { modification.Property }),
+                                "{'" + ColumnName + "'}"));
+                    }
+
                     throw new InvalidOperationException(
-                        RelationalStrings.ConflictingOriginalRowValuesSensitive(
+                        RelationalStrings.ConflictingOriginalRowValues(
                             Entry.EntityType.DisplayName(),
                             modification.Entry.EntityType.DisplayName(),
-                            Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
-                            Entry.BuildOriginalValuesString(new[] { Property }),
-                            modification.Entry.BuildOriginalValuesString(new[] { modification.Property }),
+                            new[] { Property }.Format(),
+                            new[] { modification.Property }.Format(),
                             "{'" + ColumnName + "'}"));
                 }
-
-                throw new InvalidOperationException(
-                    RelationalStrings.ConflictingOriginalRowValues(
-                        Entry.EntityType.DisplayName(),
-                        modification.Entry.EntityType.DisplayName(),
-                        new[] { Property }.Format(),
-                        new[] { modification.Property }.Format(),
-                        "{'" + ColumnName + "'}"));
             }
 
             _sharedColumnModifications.Add(modification);

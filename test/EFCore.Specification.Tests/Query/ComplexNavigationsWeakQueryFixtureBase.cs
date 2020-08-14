@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level2Fk = (ForeignKey)batch.Run(level2Fk);
             }
 
-            Configure(new OwnedNavigationBuilder<Level1, Level2>((EntityType)level1, level2Fk.DeclaringEntityType, level2Fk.Builder));
+            Configure(new OwnedNavigationBuilder<Level1, Level2>(level2Fk));
 
             modelBuilder.Entity<InheritanceBase1>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<InheritanceBase2>().Property(e => e.Id).ValueGeneratedNever();
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level3Fk = (ForeignKey)batch.Run(level3Fk);
             }
 
-            Configure(new OwnedNavigationBuilder<Level2, Level3>((EntityType)level2, level3Fk.DeclaringEntityType, level3Fk.Builder));
+            Configure(new OwnedNavigationBuilder<Level2, Level3>(level3Fk));
         }
 
         protected virtual void Configure(OwnedNavigationBuilder<Level2, Level3> l3)
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 level4Fk = (ForeignKey)batch.Run(level4Fk);
             }
 
-            Configure(new OwnedNavigationBuilder<Level3, Level4>((EntityType)level3, level4Fk.DeclaringEntityType, level4Fk.Builder));
+            Configure(new OwnedNavigationBuilder<Level3, Level4>(level4Fk));
         }
 
         protected virtual void Configure(OwnedNavigationBuilder<Level3, Level4> l4)

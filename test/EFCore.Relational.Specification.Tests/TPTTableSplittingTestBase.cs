@@ -14,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        public override void Can_use_optional_dependents_with_shared_concurrency_tokens()
+        {
+            // TODO: Issue #22060
+        }
+
         protected override string DatabaseName { get; } = "TPTTableSplittingTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

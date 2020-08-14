@@ -211,6 +211,67 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Can_use_optional_dependents_with_shared_concurrency_tokens()
+        {
+            using (CreateTestStore(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<Vehicle>(
+                        vb =>
+                        {
+                            vb.Property(v => v.SeatingCapacity).HasColumnName("SeatingCapacity").IsConcurrencyToken();
+                        });
+                    modelBuilder.Entity<Engine>(
+                        cb =>
+                        {
+                            cb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity").IsConcurrencyToken();
+                        });
+                    modelBuilder.Entity<CombustionEngine>().HasOne(e => e.FuelTank).WithOne().HasForeignKey<FuelTank>(e => e.VehicleName);
+                    modelBuilder.Entity<FuelTank>().Ignore(f => f.Engine);
+                }, seed: false))
+            {
+                using (var context = CreateContext())
+                {
+                    var scooterEntry = context.Add(
+                        new PoweredVehicle
+                        {
+                            Name = "Electric scooter",
+                            SeatingCapacity = 1,
+                            Operator = new Operator { Name = "Kai Saunders" }
+                        });
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Electric scooter");
+
+                    Assert.Equal(1, scooter.SeatingCapacity);
+
+                    scooter.Engine = new Engine();
+
+                    var engineCapacityEntry = context.Entry(scooter.Engine).Property<int>("SeatingCapacity");
+
+                    Assert.Equal(0, engineCapacityEntry.OriginalValue);
+
+                    context.SaveChanges();
+
+                    Assert.Equal(0, engineCapacityEntry.OriginalValue);
+                    Assert.Equal(0, engineCapacityEntry.CurrentValue);
+                }
+
+                using (var context = CreateContext())
+                {
+                    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Electric scooter");
+
+                    Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter.Engine).Property<int>("SeatingCapacity").CurrentValue);
+                }
+            }
+        }
+
         protected void Test_roundtrip(Action<ModelBuilder> onModelCreating)
         {
             using (CreateTestStore(onModelCreating))
