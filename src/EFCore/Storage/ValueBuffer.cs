@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public readonly struct ValueBuffer
+    public readonly struct ValueBuffer : IEquatable<ValueBuffer>
     {
         /// <summary>
         ///     A buffer with no values in it.
@@ -79,7 +79,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 && obj is ValueBuffer buffer
                 && Equals(buffer);
 
-        private bool Equals(ValueBuffer other)
+        /// <summary>
+        ///     Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">
+        ///     An object to compare with this object.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Equals(ValueBuffer other)
         {
             if (_values.Length != other._values.Length)
             {

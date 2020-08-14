@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        protected readonly struct RelationalCompiledQueryCacheKey
+        protected readonly struct RelationalCompiledQueryCacheKey : IEquatable<RelationalCompiledQueryCacheKey>
         {
             private readonly CompiledQueryCacheKey _compiledQueryCacheKey;
             private readonly bool _useRelationalNulls;
@@ -119,11 +119,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     otherwise <see langword="false"/>.
             /// </returns>
             public override bool Equals(object obj)
-                => !(obj is null)
-                    && obj is RelationalCompiledQueryCacheKey key
+                => obj is RelationalCompiledQueryCacheKey key
                     && Equals(key);
 
-            private bool Equals(RelationalCompiledQueryCacheKey other)
+            /// <summary>
+            ///     Indicates whether the current object is equal to another object of the same type.
+            /// </summary>
+            /// <param name="other">
+            ///     An object to compare with this object.
+            /// </param>
+            /// <returns>
+            ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+            /// </returns>
+            public bool Equals(RelationalCompiledQueryCacheKey other)
                 => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
                     && _useRelationalNulls == other._useRelationalNulls
                     && _querySplittingBehavior == other._querySplittingBehavior
