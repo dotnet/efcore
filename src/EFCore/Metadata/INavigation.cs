@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the entity type that this navigation property belongs to.
         /// </summary>
-        IEntityType INavigationBase.DeclaringEntityType
+        new IEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => IsOnDependent ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the entity type that this navigation property will hold an instance(s) of.
         /// </summary>
-        IEntityType INavigationBase.TargetEntityType
+        new IEntityType TargetEntityType
         {
             [DebuggerStepThrough]
             get => IsOnDependent ? ForeignKey.PrincipalEntityType : ForeignKey.DeclaringEntityType;
@@ -39,12 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Gets the inverse navigation.
+        ///     Gets a value indicating whether the navigation property is a collection property.
         /// </summary>
-        INavigationBase INavigationBase.Inverse
+        new bool IsCollection
         {
             [DebuggerStepThrough]
-            get => Inverse;
+            get => !IsOnDependent && !ForeignKey.IsUnique;
         }
 
         /// <summary>
@@ -62,12 +62,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
+        ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, if it's a collection
+        ///     navigation.
+        /// </summary>
+        /// <returns> The accessor. </returns>
+        [DebuggerStepThrough]
+        new IClrCollectionAccessor GetCollectionAccessor()
+            => ((Navigation)this).CollectionAccessor;
+
+        /// <summary>
+        ///     Gets the entity type that this navigation property belongs to.
+        /// </summary>
+        IEntityType INavigationBase.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     Gets the entity type that this navigation property will hold an instance(s) of.
+        /// </summary>
+        IEntityType INavigationBase.TargetEntityType
+        {
+            [DebuggerStepThrough]
+            get => TargetEntityType;
+        }
+
+        /// <summary>
+        ///     Gets the inverse navigation.
+        /// </summary>
+        INavigationBase INavigationBase.Inverse
+        {
+            [DebuggerStepThrough]
+            get => Inverse;
+        }
+
+        /// <summary>
         ///     Gets a value indicating whether the navigation property is a collection property.
         /// </summary>
         bool INavigationBase.IsCollection
         {
             [DebuggerStepThrough]
-            get => !IsOnDependent && !ForeignKey.IsUnique;
+            get => IsCollection;
         }
 
         /// <summary>
@@ -77,6 +113,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The accessor. </returns>
         [DebuggerStepThrough]
         IClrCollectionAccessor INavigationBase.GetCollectionAccessor()
-            => ((Navigation)this).CollectionAccessor;
+            => GetCollectionAccessor();
     }
 }
