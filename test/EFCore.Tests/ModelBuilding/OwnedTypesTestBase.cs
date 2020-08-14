@@ -1550,6 +1550,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Shared_type_used_as_owned_type_throws_for_same_name()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OwnerOfSharedType>(
+                    b =>
+                    {
+                        b.OwnsOne("Shared1", e => e.Reference);
+                        b.OwnsOne("Shared1", e => e.Reference);
+
+                        Assert.Equal(CoreStrings.ClashingNamedOwnedType(
+                            "Shared1", nameof(OwnerOfSharedType), nameof(OwnerOfSharedType.Collection)),
+                            Assert.Throws<InvalidOperationException>(() =>
+                                b.OwnsMany("Shared1", e => e.Collection)).Message);
+                    });
+            }
+
+            [ConditionalFact]
             public virtual void Cannot_add_shared_type_with_same_clr_type_as_weak_entity_type()
             {
                 var modelBuilder = CreateModelBuilder();
