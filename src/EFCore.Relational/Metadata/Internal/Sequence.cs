@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ConfigurationSource? _incrementByConfigurationSource;
         private ConfigurationSource? _minValueConfigurationSource;
         private ConfigurationSource? _maxValueConfigurationSource;
-        private ConfigurationSource? _clrConfigurationSource;
+        private ConfigurationSource? _typeConfigurationSource;
         private ConfigurationSource? _isCyclicConfigurationSource;
 
         /// <summary>
@@ -477,9 +477,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _type = type;
 
-            _clrConfigurationSource = type == null
+            _typeConfigurationSource = type == null
                 ? (ConfigurationSource?)null
-                : configurationSource.Max(_clrConfigurationSource);
+                : configurationSource.Max(_typeConfigurationSource);
 
             return type;
         }
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetTypeConfigurationSource()
-            => _clrConfigurationSource;
+            => _typeConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
