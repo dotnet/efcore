@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -395,6 +396,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder HasConversion([CanBeNull] ValueConverter converter)
         {
             Builder.HasConversion(converter, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to the given type before
+        ///     writing to the database and converted back when reading from the database.
+        /// </summary>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <typeparam name="TProvider"> The type to convert to and from. </typeparam>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasConversion<TProvider>([CanBeNull] ValueComparer valueComparer)
+            => HasConversion(typeof(TProvider), valueComparer);
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to the given type before
+        ///     writing to the database and converted back when reading from the database.
+        /// </summary>
+        /// <param name="providerClrType"> The type to convert to and from. </param>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasConversion([CanBeNull] Type providerClrType, [CanBeNull] ValueComparer valueComparer)
+        {
+            Builder.HasConversion(providerClrType, ConfigurationSource.Explicit);
+            Builder.HasValueComparer(valueComparer, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasConversion([CanBeNull] ValueConverter converter, [CanBeNull] ValueComparer valueComparer)
+        {
+            Builder.HasConversion(converter, ConfigurationSource.Explicit);
+            Builder.HasValueComparer(valueComparer, ConfigurationSource.Explicit);
 
             return this;
         }
