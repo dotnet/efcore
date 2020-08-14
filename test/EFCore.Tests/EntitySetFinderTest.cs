@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 new[] { typeof(Better), typeof(Brandy), typeof(Drinking), typeof(Stop), typeof(You) },
-                sets.Select(s => s.ClrType).ToArray());
+                sets.Select(s => s.Type).ToArray());
 
             Assert.Equal(
                 new[] { true, true, true, false, true },

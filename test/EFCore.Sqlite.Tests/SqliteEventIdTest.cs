@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore
             public long? MinValue => throw new NotImplementedException();
             public long? MaxValue => throw new NotImplementedException();
             public Type ClrType => throw new NotImplementedException();
+            public Type Type => throw new NotImplementedException();
             public IModel Model => throw new NotImplementedException();
             public bool IsCyclic => throw new NotImplementedException();
 

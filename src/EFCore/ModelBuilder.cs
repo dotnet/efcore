@@ -197,14 +197,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="name"> The name of the entity type to be configured. </param>
-        /// <param name="clrType"> The CLR type of the entity type to be configured. </param>
+        /// <param name="type"> The CLR type of the entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type clrType)
+        public virtual EntityTypeBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type type)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, clrType, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit).Metadata);
         }
 
         /// <summary>
@@ -340,18 +340,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="name"> The name of the entity type to be configured. </param>
-        /// <param name="clrType"> The CLR type of the entity type to be configured. </param>
+        /// <param name="type"> The CLR type of the entity type to be configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type clrType, [NotNull] Action<EntityTypeBuilder> buildAction)
+        public virtual ModelBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(type, nameof(type));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(SharedTypeEntity(name, clrType));
+            buildAction(SharedTypeEntity(name, type));
 
             return this;
         }

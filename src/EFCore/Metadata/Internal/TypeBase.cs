@@ -53,15 +53,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected TypeBase([NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
+        protected TypeBase([NotNull] Type type, [NotNull] Model model, ConfigurationSource configurationSource)
             : this(model, configurationSource)
         {
             Check.NotNull(model, nameof(model));
 
-            Name = model.GetDisplayName(clrType);
-            ClrType = clrType;
+            Name = model.GetDisplayName(type);
+            ClrType = type;
             HasSharedClrType = false;
-            IsPropertyBag = clrType.IsPropertyBagType();
+            IsPropertyBag = type.IsPropertyBagType();
         }
 
         /// <summary>
@@ -70,17 +70,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected TypeBase([NotNull] string name, [NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
+        protected TypeBase([NotNull] string name, [NotNull] Type type, [NotNull] Model model, ConfigurationSource configurationSource)
             : this(model, configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(type, nameof(type));
             Check.NotNull(model, nameof(model));
 
             Name = name;
-            ClrType = clrType;
+            ClrType = type;
             HasSharedClrType = true;
-            IsPropertyBag = clrType.IsPropertyBagType();
+            IsPropertyBag = type.IsPropertyBagType();
         }
 
         private TypeBase([NotNull] Model model, ConfigurationSource configurationSource)

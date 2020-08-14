@@ -1498,9 +1498,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Remove,
                 (s, t, c) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
                     && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                    && s.ClrType == t.ClrType,
+                    && s.Type == t.Type,
                 (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                    && s.ClrType == t.ClrType);
+                    && s.Type == t.Type);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1563,7 +1563,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 Schema = target.Schema,
                 Name = target.Name,
-                ClrType = target.ClrType,
+                ClrType = target.Type,
                 StartValue = target.StartValue
             };
 

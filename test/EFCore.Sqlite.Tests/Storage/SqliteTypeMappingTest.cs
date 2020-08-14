@@ -83,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal))]
         [InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid))]
         [InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
-        public override void Create_and_clone_with_converter(Type mappingType, Type clrType)
+        public override void Create_and_clone_with_converter(Type mappingType, Type type)
         {
-            base.Create_and_clone_with_converter(mappingType, clrType);
+            base.Create_and_clone_with_converter(mappingType, type);
         }
 
         [ConditionalTheory]
@@ -105,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("boolean", typeof(byte[]))]
         [InlineData("unknown_type", typeof(byte[]))]
         [InlineData("", typeof(byte[]))]
-        public void It_maps_strings_to_not_null_types(string typeName, Type clrType)
+        public void It_maps_strings_to_not_null_types(string typeName, Type type)
         {
-            Assert.Equal(clrType, CreateTypeMapper().FindMapping(typeName)?.ClrType);
+            Assert.Equal(type, CreateTypeMapper().FindMapping(typeName)?.ClrType);
         }
 
         private static IRelationalTypeMappingSource CreateTypeMapper()

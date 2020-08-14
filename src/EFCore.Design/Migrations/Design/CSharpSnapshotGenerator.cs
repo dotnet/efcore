@@ -377,11 +377,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(builderName)
                 .Append(".HasSequence");
 
-            if (sequence.ClrType != Sequence.DefaultClrType)
+            if (sequence.Type != Sequence.DefaultClrType)
             {
                 stringBuilder
                     .Append("<")
-                    .Append(Code.Reference(sequence.ClrType))
+                    .Append(Code.Reference(sequence.Type))
                     .Append(">");
             }
 

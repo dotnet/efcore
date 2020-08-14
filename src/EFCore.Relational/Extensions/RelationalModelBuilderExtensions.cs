@@ -73,22 +73,22 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
-        /// <param name="clrType"> The type of values the sequence will generate. </param>
+        /// <param name="type"> The type of values the sequence will generate. </param>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
         /// <returns> A builder to further configure the sequence. </returns>
         public static SequenceBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [NotNull] string name,
             [CanBeNull] string schema = null)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(type, nameof(type));
 
             var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
-            sequence.ClrType = clrType;
+            sequence.Type = type;
 
             return new SequenceBuilder(sequence);
         }
@@ -96,22 +96,22 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
-        /// <param name="clrType"> The type of values the sequence will generate. </param>
+        /// <param name="type"> The type of values the sequence will generate. </param>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [NotNull] string name,
             [NotNull] Action<SequenceBuilder> builderAction)
-            => modelBuilder.HasSequence(clrType, name, null, builderAction);
+            => modelBuilder.HasSequence(type, name, null, builderAction);
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
-        /// <param name="clrType"> The type of values the sequence will generate. </param>
+        /// <param name="type"> The type of values the sequence will generate. </param>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -119,14 +119,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] Type clrType,
+            [NotNull] Type type,
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] Action<SequenceBuilder> builderAction)
         {
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(HasSequence(modelBuilder, clrType, name, schema));
+            builderAction(HasSequence(modelBuilder, type, name, schema));
 
             return modelBuilder;
         }
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(modelBuilder, nameof(modelBuilder));
 
             var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
-            sequence.ClrType = typeof(T);
+            sequence.Type = typeof(T);
 
             return new SequenceBuilder(sequence);
         }

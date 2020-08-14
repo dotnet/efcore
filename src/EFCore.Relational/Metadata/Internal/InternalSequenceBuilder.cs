@@ -37,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         /// </summary>
         public virtual IConventionSequenceBuilder HasType([CanBeNull] Type type, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides(Metadata.GetClrTypeConfigurationSource())
-                || Metadata.ClrType == type)
+            if (configurationSource.Overrides(Metadata.GetTypeConfigurationSource())
+                || Metadata.Type == type)
             {
-                Metadata.SetClrType(type, configurationSource);
+                Metadata.SetType(type, configurationSource);
                 return this;
             }
 
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         /// </summary>
         public virtual bool CanSetType([CanBeNull] Type type, ConfigurationSource configurationSource)
             => (type == null || Sequence.SupportedTypes.Contains(type))
-                && (configurationSource.Overrides(Metadata.GetClrTypeConfigurationSource())
-                    || Metadata.ClrType == type);
+                && (configurationSource.Overrides(Metadata.GetTypeConfigurationSource())
+                    || Metadata.Type == type);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

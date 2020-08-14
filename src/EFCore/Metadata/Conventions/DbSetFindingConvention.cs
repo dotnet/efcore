@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var setInfo in Dependencies.SetFinder.FindSets(Dependencies.ContextType))
             {
-                modelBuilder.Entity(setInfo.ClrType, fromDataAnnotation: true);
+                modelBuilder.Entity(setInfo.Type, fromDataAnnotation: true);
             }
         }
     }

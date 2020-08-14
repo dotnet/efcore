@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 setInfo.Setter.SetClrValue(
                     context,
-                    ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.ClrType));
+                    ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.Type));
             }
         }
     }

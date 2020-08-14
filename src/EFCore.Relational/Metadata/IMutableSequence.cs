@@ -40,6 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the <see cref="Type" /> of values returned by the sequence.
         /// </summary>
+        new Type Type { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     Gets or sets the <see cref="Type" /> of values returned by the sequence.
+        /// </summary>
+        [Obsolete("Use Type")]
         new Type ClrType { get; [param: NotNull] set; }
 
         /// <summary>

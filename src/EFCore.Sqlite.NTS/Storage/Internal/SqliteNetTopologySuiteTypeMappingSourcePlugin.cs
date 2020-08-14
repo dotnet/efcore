@@ -104,37 +104,37 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     : null;
         }
 
-        private static bool TryGetDefaultStoreType(Type clrType, out string defaultStoreType)
+        private static bool TryGetDefaultStoreType(Type type, out string defaultStoreType)
         {
-            if (typeof(LineString).IsAssignableFrom(clrType))
+            if (typeof(LineString).IsAssignableFrom(type))
             {
                 defaultStoreType = "LINESTRING";
             }
-            else if (typeof(MultiLineString).IsAssignableFrom(clrType))
+            else if (typeof(MultiLineString).IsAssignableFrom(type))
             {
                 defaultStoreType = "MULTILINESTRING";
             }
-            else if (typeof(MultiPoint).IsAssignableFrom(clrType))
+            else if (typeof(MultiPoint).IsAssignableFrom(type))
             {
                 defaultStoreType = "MULTIPOINT";
             }
-            else if (typeof(MultiPolygon).IsAssignableFrom(clrType))
+            else if (typeof(MultiPolygon).IsAssignableFrom(type))
             {
                 defaultStoreType = "MULTIPOLYGON";
             }
-            else if (typeof(Point).IsAssignableFrom(clrType))
+            else if (typeof(Point).IsAssignableFrom(type))
             {
                 defaultStoreType = "POINT";
             }
-            else if (typeof(Polygon).IsAssignableFrom(clrType))
+            else if (typeof(Polygon).IsAssignableFrom(type))
             {
                 defaultStoreType = "POLYGON";
             }
-            else if (typeof(GeometryCollection).IsAssignableFrom(clrType))
+            else if (typeof(GeometryCollection).IsAssignableFrom(type))
             {
                 defaultStoreType = "GEOMETRYCOLLECTION";
             }
-            else if (typeof(Geometry).IsAssignableFrom(clrType))
+            else if (typeof(Geometry).IsAssignableFrom(type))
             {
                 defaultStoreType = "GEOMETRY";
             }

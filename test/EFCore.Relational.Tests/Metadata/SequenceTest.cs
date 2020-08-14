@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1, sequence.StartValue);
             Assert.Null(sequence.MinValue);
             Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
+            Assert.Same(typeof(long), sequence.Type);
             Assert.False(sequence.IsCyclic);
             Assert.Same(model, sequence.Model);
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(conventionSequence.GetStartValueConfigurationSource());
             Assert.Null(conventionSequence.GetMinValueConfigurationSource());
             Assert.Null(conventionSequence.GetMaxValueConfigurationSource());
-            Assert.Null(conventionSequence.GetClrTypeConfigurationSource());
+            Assert.Null(conventionSequence.GetTypeConfigurationSource());
             Assert.Null(conventionSequence.GetIsCyclicConfigurationSource());
         }
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             sequence.IncrementBy = 11;
             sequence.MinValue = 2001;
             sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
+            sequence.Type = typeof(int);
             sequence.IsCyclic = true;
 
             Assert.Equal("Foo", sequence.Name);
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1729, sequence.StartValue);
             Assert.Equal(2001, sequence.MinValue);
             Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
+            Assert.Same(typeof(int), sequence.Type);
             Assert.True(sequence.IsCyclic);
 
             var conventionSequence = (IConventionSequence)sequence;
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetStartValueConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetMinValueConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetMaxValueConfigurationSource());
-            Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetClrTypeConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetTypeConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetIsCyclicConfigurationSource());
         }
 
@@ -79,21 +79,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_only_be_created_for_byte_short_int_and_long_decimal()
         {
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
-            sequence.ClrType = typeof(byte);
-            Assert.Same(typeof(byte), sequence.ClrType);
-            sequence.ClrType = typeof(short);
-            Assert.Same(typeof(short), sequence.ClrType);
-            sequence.ClrType = typeof(int);
-            Assert.Same(typeof(int), sequence.ClrType);
-            sequence.ClrType = typeof(long);
-            Assert.Same(typeof(long), sequence.ClrType);
-            sequence.ClrType = typeof(decimal);
-            Assert.Same(typeof(decimal), sequence.ClrType);
+            sequence.Type = typeof(byte);
+            Assert.Same(typeof(byte), sequence.Type);
+            sequence.Type = typeof(short);
+            Assert.Same(typeof(short), sequence.Type);
+            sequence.Type = typeof(int);
+            Assert.Same(typeof(int), sequence.Type);
+            sequence.Type = typeof(long);
+            Assert.Same(typeof(long), sequence.Type);
+            sequence.Type = typeof(decimal);
+            Assert.Same(typeof(decimal), sequence.Type);
 
             Assert.Equal(
                 RelationalStrings.BadSequenceType,
                 Assert.Throws<ArgumentException>(
-                    () => sequence.ClrType = typeof(bool)).Message);
+                    () => sequence.Type = typeof(bool)).Message);
         }
     }
 }

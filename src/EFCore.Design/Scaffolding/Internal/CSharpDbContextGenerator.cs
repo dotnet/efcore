@@ -741,9 +741,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var methodName = nameof(RelationalModelBuilderExtensions.HasSequence);
 
-            if (sequence.ClrType != Sequence.DefaultClrType)
+            if (sequence.Type != Sequence.DefaultClrType)
             {
-                methodName += $"<{_code.Reference(sequence.ClrType)}>";
+                methodName += $"<{_code.Reference(sequence.Type)}>";
             }
 
             var parameters = _code.Literal(sequence.Name);

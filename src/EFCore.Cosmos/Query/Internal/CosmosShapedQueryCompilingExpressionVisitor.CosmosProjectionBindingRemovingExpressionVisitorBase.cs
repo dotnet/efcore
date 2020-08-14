@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private Expression CreateGetValueExpression(
                 Expression jObjectExpression,
                 IProperty property,
-                Type clrType)
+                Type type)
             {
                 if (property.Name == StoreKeyConvention.JObjectPropertyName)
                 {
@@ -601,9 +601,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             && property.IsOrdinalKeyProperty())
                         {
                             Expression readExpression = _ordinalParameterBindings[jObjectExpression];
-                            if (readExpression.Type != clrType)
+                            if (readExpression.Type != type)
                             {
-                                readExpression = Expression.Convert(readExpression, clrType);
+                                readExpression = Expression.Convert(readExpression, type);
                             }
 
                             return readExpression;
@@ -632,26 +632,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                             if (ownerJObjectExpression != null)
                             {
-                                return CreateGetValueExpression(ownerJObjectExpression, principalProperty, clrType);
+                                return CreateGetValueExpression(ownerJObjectExpression, principalProperty, type);
                             }
                         }
                     }
 
-                    return Expression.Default(clrType);
+                    return Expression.Default(type);
                 }
 
                 return Expression.Convert(
-                    CreateGetValueExpression(jObjectExpression, storeName, clrType.MakeNullable(), property.GetTypeMapping()),
-                    clrType);
+                    CreateGetValueExpression(jObjectExpression, storeName, type.MakeNullable(), property.GetTypeMapping()),
+                    type);
             }
 
             private Expression CreateGetValueExpression(
                 Expression jObjectExpression,
                 string storeName,
-                Type clrType,
+                Type type,
                 CoreTypeMapping typeMapping = null)
             {
-                Check.DebugAssert(clrType.IsNullableType(), "Must read nullable type from JObject.");
+                Check.DebugAssert(type.IsNullableType(), "Must read nullable type from JObject.");
 
                 var innerExpression = jObjectExpression;
                 if (_projectionBindings.TryGetValue(jObjectExpression, out var innerVariable))
@@ -687,9 +687,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 _jTokenToObjectMethodInfo.MakeGenericMethod(converter.ProviderClrType)),
                             converter.ConvertFromProviderExpression.Body);
 
-                    if (body.Type != clrType)
+                    if (body.Type != type)
                     {
-                        body = Expression.Convert(body, clrType);
+                        body = Expression.Convert(body, type);
                     }
 
                     body = Expression.Condition(
@@ -698,18 +698,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             Expression.Equal(
                                 Expression.MakeMemberAccess(jTokenParameter, _jTokenTypePropertyInfo),
                                 Expression.Constant(JTokenType.Null))),
-                        Expression.Default(clrType),
+                        Expression.Default(type),
                         body);
 
                     valueExpression = Expression.Invoke(Expression.Lambda(body, jTokenParameter), jTokenExpression);
                 }
                 else
                 {
-                    valueExpression = ConvertJTokenToType(jTokenExpression, typeMapping?.ClrType.MakeNullable() ?? clrType);
+                    valueExpression = ConvertJTokenToType(jTokenExpression, typeMapping?.ClrType.MakeNullable() ?? type);
 
-                    if (valueExpression.Type != clrType)
+                    if (valueExpression.Type != type)
                     {
-                        valueExpression = Expression.Convert(valueExpression, clrType);
+                        valueExpression = Expression.Convert(valueExpression, type);
                     }
                 }
 
