@@ -385,6 +385,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var foreignKeyName = foreignKey.GetConstraintName(storeObject, principalTable.Value);
+                if (foreignKeyName == null)
+                {
+                    continue;
+                }
+
                 if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
                 {
                     foreignKeys[foreignKeyName] = foreignKey;
