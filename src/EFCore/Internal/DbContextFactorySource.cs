@@ -67,7 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            return (p, _) => ActivatorUtilities.CreateInstance<TContext>(p);
+            var factory = ActivatorUtilities.CreateFactory(typeof(TContext), new Type[0]);
+
+            return (p, _) => (TContext)factory(p, null);
         }
     }
 }
