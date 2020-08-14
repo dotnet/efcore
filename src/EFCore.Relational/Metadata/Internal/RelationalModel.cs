@@ -1036,15 +1036,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                     optionalTypes[entityType] = optional;
 
-                    if (!referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))
+                    if (referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))
                     {
-                        continue;
-                    }
-
-                    foreach (var referencingForeignKey in referencingInternalForeignKeys)
-                    {
-                        entityTypesToVisit.Enqueue(
-                            (referencingForeignKey.DeclaringEntityType, optional || !referencingForeignKey.IsRequiredDependent));
+                        foreach (var referencingForeignKey in referencingInternalForeignKeys)
+                        {
+                            entityTypesToVisit.Enqueue(
+                                (referencingForeignKey.DeclaringEntityType, optional || !referencingForeignKey.IsRequiredDependent));
+                        }
                     }
 
                     if (table.EntityTypeMappings.Single(etm => etm.EntityType == entityType).IncludesDerivedTypes)

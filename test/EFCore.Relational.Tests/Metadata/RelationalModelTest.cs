@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -345,12 +346,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(orderCustomerFk, orderCustomerFkConstraint.MappedForeignKeys.Single());
             Assert.Equal(new[] { orderDateFkConstraint, orderCustomerFkConstraint }, ordersTable.ForeignKeyConstraints);
 
+            var specialCustomerType = model.Model.FindEntityType(typeof(SpecialCustomer));
             var orderDetailsOwnership = orderType.FindNavigation(nameof(Order.Details)).ForeignKey;
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
             Assert.Same(ordersTable, orderDetailsType.GetTableMappings().Single().Table);
             Assert.Equal(ordersTable.GetReferencingRowInternalForeignKeys(orderType), ordersTable.GetRowInternalForeignKeys(orderDetailsType));
+            Assert.Equal(RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
+                Assert.Throws<InvalidOperationException>(() =>
+                    ordersTable.GetReferencingRowInternalForeignKeys(specialCustomerType)).Message);
+            Assert.Equal(RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
+                Assert.Throws<InvalidOperationException>(() =>
+                    ordersTable.GetRowInternalForeignKeys(specialCustomerType)).Message);
             Assert.False(ordersTable.IsOptional(orderType));
             Assert.True(ordersTable.IsOptional(orderDetailsType));
+            Assert.Equal(RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersTable.Name),
+                Assert.Throws<InvalidOperationException>(() =>
+                    ordersTable.IsOptional(specialCustomerType)).Message);
             Assert.Empty(orderDetailsOwnership.GetMappedConstraints());
             Assert.Equal(2, orderDetailsType.GetForeignKeys().Count());
 
@@ -391,7 +402,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var customerTable = customerType.GetTableMappings().Single().Table;
             Assert.Equal("Customer", customerTable.Name);
 
-            var specialCustomerType = model.Model.FindEntityType(typeof(SpecialCustomer));
             var customerPk = specialCustomerType.FindPrimaryKey();
 
             if (mapping == Mapping.TPT)

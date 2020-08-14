@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -103,9 +104,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc/>
         public virtual bool IsOptional(IEntityType entityType)
-            => OptionalEntityTypes != null
-                && OptionalEntityTypes.TryGetValue(entityType, out var optional)
-                && optional;
+            => OptionalEntityTypes == null
+            ? GetMappedEntityType(entityType) == null
+            : !OptionalEntityTypes.TryGetValue(entityType, out var optional)
+                ? throw new InvalidOperationException(RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), Name))
+                : optional;
+
+        private IEntityType GetMappedEntityType(IEntityType entityType)
+            => EntityTypeMappings.Any(m => m.EntityType == entityType)
+                ? entityType
+                : throw new InvalidOperationException(RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), Name));
 
         /// <inheritdoc/>
         IRelationalModel ITableBase.Model => Model;
@@ -121,13 +129,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => RowInternalForeignKeys != null
                 && RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
-                : Enumerable.Empty<IForeignKey>();
+                : (GetMappedEntityType(entityType) == null)
+                    ? null
+                    : Enumerable.Empty<IForeignKey>();
 
         /// <inheritdoc/>
         IEnumerable<IForeignKey> ITableBase.GetReferencingRowInternalForeignKeys(IEntityType entityType)
             => ReferencingRowInternalForeignKeys != null
                 && ReferencingRowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys)
                 ? foreignKeys
-                : Enumerable.Empty<IForeignKey>();
+                : (GetMappedEntityType(entityType) == null)
+                    ? null
+                    : Enumerable.Empty<IForeignKey>();
     }
 }
