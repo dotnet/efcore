@@ -397,7 +397,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     .GetDeclaredMethod(nameof(IncludeReference));
 
             private static void IncludeReference<TIncludingEntity, TIncludedEntity>(
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 InternalEntityEntry entry,
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 object entity,
                 IEntityType entityType,
                 TIncludedEntity relatedEntity,
@@ -440,7 +442,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     .GetDeclaredMethod(nameof(IncludeCollection));
 
             private static void IncludeCollection<TIncludingEntity, TIncludedEntity>(
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 InternalEntityEntry entry,
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 object entity,
                 IEntityType entityType,
                 IEnumerable<TIncludedEntity> relatedEntities,

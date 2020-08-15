@@ -31,7 +31,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+#pragma warning disable EF1001 // Internal EF Core API usage.
         public SqlServerMigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             : base(dependencies)
         {
         }

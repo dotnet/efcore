@@ -82,7 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public MigrationsModelDiffer(
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
+#pragma warning disable EF1001 // Internal EF Core API usage.
             [NotNull] IChangeDetector changeDetector,
+#pragma warning restore EF1001 // Internal EF Core API usage.
             [NotNull] IUpdateAdapterFactory updateAdapterFactory,
             [NotNull] CommandBatchPreparerDependencies commandBatchPreparerDependencies)
         {
