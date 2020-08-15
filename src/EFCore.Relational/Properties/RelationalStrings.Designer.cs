@@ -1063,6 +1063,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("DuplicateKeyTableMismatch", nameof(keyProperties1), nameof(entityType1), nameof(keyProperties2), nameof(entityType2), nameof(keyName), nameof(table1), nameof(table2)),
                 keyProperties1, entityType1, keyProperties2, entityType2, keyName, table1, table2);
 
+        /// <summary>
+        ///     The entity type '{entityType}' is not mapped to the store object '{table}'.
+        /// </summary>
+        public static string TableNotMappedEntityType([CanBeNull] object entityType, [CanBeNull] object table)
+            => string.Format(
+                GetString("TableNotMappedEntityType", nameof(entityType), nameof(table)),
+                entityType, table);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

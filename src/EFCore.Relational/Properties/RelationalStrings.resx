@@ -744,4 +744,7 @@
   <data name="DuplicateKeyTableMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{keyName}' but with different columns ('{table1}' and '{table2}').</value>
   </data>
+  <data name="TableNotMappedEntityType" xml:space="preserve">
+    <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
+  </data>
 </root>

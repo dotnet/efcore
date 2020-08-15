@@ -774,25 +774,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 groups.Add(group.Key, group.Value.Values.ToList());
             }
 
-            foreach (var linkingForeignKey in table.GetReferencingRowInternalForeignKeys(entityType))
+            if (table.EntityTypeMappings.Any(m => m.EntityType == entityType))
             {
-                var linkingNavigationProperty = linkingForeignKey.PrincipalToDependent?.PropertyInfo;
-                var properties = GetSortedProperties(linkingForeignKey.DeclaringEntityType, table).ToList();
-                if (linkingNavigationProperty == null)
+                foreach (var linkingForeignKey in table.GetReferencingRowInternalForeignKeys(entityType))
                 {
-                    leastPriorityProperties.AddRange(properties);
+                    var linkingNavigationProperty = linkingForeignKey.PrincipalToDependent?.PropertyInfo;
+                    var properties = GetSortedProperties(linkingForeignKey.DeclaringEntityType, table).ToList();
+                    if (linkingNavigationProperty == null)
+                    {
+                        leastPriorityProperties.AddRange(properties);
 
-                    continue;
+                        continue;
+                    }
+
+                    groups.Add(linkingNavigationProperty, properties);
+
+                    var clrType = linkingNavigationProperty.DeclaringType;
+                    var index = clrType.GetTypeInfo().DeclaredProperties
+                        .IndexOf(linkingNavigationProperty, PropertyInfoEqualityComparer.Instance);
+
+                    Check.DebugAssert(clrType != null, "clrType is null");
+                    types.GetOrAddNew(clrType)[index] = linkingNavigationProperty;
                 }
-
-                groups.Add(linkingNavigationProperty, properties);
-
-                var clrType = linkingNavigationProperty.DeclaringType;
-                var index = clrType.GetTypeInfo().DeclaredProperties
-                    .IndexOf(linkingNavigationProperty, PropertyInfoEqualityComparer.Instance);
-
-                Check.DebugAssert(clrType != null, "clrType is null");
-                types.GetOrAddNew(clrType)[index] = linkingNavigationProperty;
             }
 
             var graph = new Multigraph<Type, object>();
