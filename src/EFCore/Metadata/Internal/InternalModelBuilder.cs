@@ -82,13 +82,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EntityType entityType;
             if (type.IsNamed)
             {
-                if (type.Type != null
-                    && (Metadata.FindEntityType(Metadata.GetDisplayName(type.Type)) != null
-                        || Metadata.HasEntityTypeWithDefiningNavigation(type.Type)))
+                if (type.Type != null)
                 {
-                    return configurationSource == ConfigurationSource.Explicit
-                        ? throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(type.Name, type.Type.DisplayName()))
-                        : (InternalEntityTypeBuilder)null;
+                    var nonSharedTypes = Metadata.GetEntityTypes(Metadata.GetDisplayName(type.Type));
+                    foreach (var nonSharedType in nonSharedTypes)
+                    {
+                        if (configurationSource.OverridesStrictly(nonSharedType.GetConfigurationSource()))
+                        {
+                            continue;
+                        }
+
+                        return configurationSource == ConfigurationSource.Explicit
+                            ? throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(type.Name, type.Type.DisplayName()))
+                            : (InternalEntityTypeBuilder)null;
+                    }
+
+                    foreach (var nonSharedType in nonSharedTypes)
+                    {
+                        HasNoEntityType(nonSharedType, configurationSource);
+                    }
                 }
 
                 entityType = Metadata.FindEntityType(type.Name);
@@ -139,16 +151,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (entityType != null)
             {
-                if (type.IsNamed && type.Type != null)
+                if (type.Type == null
+                    || entityType.ClrType == type.Type)
                 {
-                    if (entityType.ClrType != type.Type)
-                    {
-                        throw new InvalidOperationException(CoreStrings.ClashingMismatchedSharedType(type.Name));
-                    }
+                    entityType.UpdateConfigurationSource(configurationSource);
+                    return entityType.Builder;
                 }
 
-                entityType.UpdateConfigurationSource(configurationSource);
-                return entityType.Builder;
+                if (configurationSource.OverridesStrictly(entityType.GetConfigurationSource()))
+                {
+                    HasNoEntityType(entityType, configurationSource);
+                }
+                else
+                {
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(
+                            CoreStrings.ClashingMismatchedSharedType(type.Name, entityType.ClrType?.ShortDisplayName()))
+                        : (InternalEntityTypeBuilder)null;
+                }
             }
 
             Metadata.RemoveIgnored(type.Name);

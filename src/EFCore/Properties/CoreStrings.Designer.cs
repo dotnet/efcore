@@ -1057,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseEntityType, clrType, baseClrType);
 
         /// <summary>
-        ///     CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.
+        ///     The CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.
         /// </summary>
         public static string PropertyWrongEntityClrType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object clrType)
             => string.Format(
@@ -2701,12 +2701,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, firstNavigationSpecification, secondNavigationSpecification);
 
         /// <summary>
-        ///     The shared type entity type '{entityType}' cannot be added to the model because a shared entity type with the same name but different clr type already exists.
+        ///     The shared type entity type '{entityType}' cannot be added to the model because a shared entity type with the same name but different clr type '{otherClrType}' already exists.
         /// </summary>
-        public static string ClashingMismatchedSharedType([CanBeNull] object entityType)
+        public static string ClashingMismatchedSharedType([CanBeNull] object entityType, [CanBeNull] object otherClrType)
             => string.Format(
-                GetString("ClashingMismatchedSharedType", nameof(entityType)),
-                entityType);
+                GetString("ClashingMismatchedSharedType", nameof(entityType), nameof(otherClrType)),
+                entityType, otherClrType);
 
         /// <summary>
         ///     The shared type entity type '{entityType}' with clr type '{type}' cannot be added to the model because a non shared entity type with the same clr type already exists.
@@ -2827,6 +2827,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ClashingNamedOwnedType", nameof(ownedTypeName), nameof(ownerEntityType), nameof(navigation)),
                 ownedTypeName, ownerEntityType, navigation);
+
+        /// <summary>
+        ///     The CLR property '{property}' cannot be added to entity type '{entityType}'({sharedType}) because it is declared on the CLR type '{clrType}'.
+        /// </summary>
+        public static string PropertyWrongEntitySharedClrType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object sharedType, [CanBeNull] object clrType)
+            => string.Format(
+                GetString("PropertyWrongEntitySharedClrType", nameof(property), nameof(entityType), nameof(sharedType), nameof(clrType)),
+                property, entityType, sharedType, clrType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

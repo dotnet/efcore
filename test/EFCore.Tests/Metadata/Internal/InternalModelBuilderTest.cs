@@ -31,20 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(entityBuilder);
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
-            Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
+            Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).DisplayName(), ConfigurationSource.DataAnnotation));
+            Assert.NotNull(model.FindEntityType(typeof(Customer)).ClrType);
         }
 
         [ConditionalFact]
-        public void Entity_returns_same_instance_for_entity_type_name()
+        public void Entity_creates_new_instance_for_entity_type_name()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
-            var entityBuilder = modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation);
+            var entityBuilder = modelBuilder.Entity(typeof(Customer).DisplayName(), ConfigurationSource.DataAnnotation);
 
             Assert.NotNull(entityBuilder);
-            Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
-            Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
+            Assert.NotNull(model.FindEntityType(typeof(Customer).DisplayName()));
+            Assert.NotSame(entityBuilder, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
+            Assert.NotNull(model.FindEntityType(typeof(Customer)).ClrType);
         }
 
         [ConditionalFact]
@@ -469,27 +471,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
-            var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var sharedTypeName = "SpecialDetails";
 
             Assert.NotNull(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Details), ConfigurationSource.Convention));
 
             Assert.True(model.FindEntityType(sharedTypeName).HasSharedClrType);
 
-            Assert.Equal(
-                CoreStrings.ClashingMismatchedSharedType("SpecialDetails"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Product), ConfigurationSource.DataAnnotation)).Message);
+            Assert.Null(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Product), ConfigurationSource.Convention));
 
             Assert.NotNull(modelBuilder.Entity(typeof(Product), ConfigurationSource.DataAnnotation));
 
             Assert.Null(modelBuilder.SharedTypeEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.DataAnnotation));
 
-            Assert.NotNull(modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit));
+            Assert.NotNull(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Product), ConfigurationSource.Explicit));
+
+            Assert.Equal(typeof(Product), model.FindEntityType(sharedTypeName).ClrType);
 
             Assert.Equal(
-                CoreStrings.ClashingNonSharedType(typeof(Product).DisplayName(), typeof(Product).DisplayName()),
+                CoreStrings.ClashingMismatchedSharedType("SpecialDetails", nameof(Product)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Details), ConfigurationSource.Explicit)).Message);
+
+            Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
+
+            Assert.Equal(
+                CoreStrings.ClashingNonSharedType(typeof(Customer).DisplayName(), typeof(Customer).DisplayName()),
                 Assert.Throws<InvalidOperationException>(() =>
-                modelBuilder.SharedTypeEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.Explicit)).Message);
+                modelBuilder.SharedTypeEntity(typeof(Customer).DisplayName(), typeof(Customer), ConfigurationSource.Explicit)).Message);
         }
 
         private static void Cleanup(InternalModelBuilder modelBuilder)

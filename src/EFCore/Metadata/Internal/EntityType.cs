@@ -2365,7 +2365,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (memberInfo.DeclaringType?.IsAssignableFrom(ClrType) != true)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.PropertyWrongEntityClrType(
+                        HasSharedClrType
+                        ? CoreStrings.PropertyWrongEntitySharedClrType(
+                            memberInfo.Name, this.DisplayName(), ClrType.ShortDisplayName(), memberInfo.DeclaringType?.ShortDisplayName())
+                        : CoreStrings.PropertyWrongEntityClrType(
                             memberInfo.Name, this.DisplayName(), memberInfo.DeclaringType?.ShortDisplayName()));
                 }
             }
