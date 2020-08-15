@@ -998,15 +998,20 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<StringForeignKeyDataType>(
                     b =>
                     {
-                        var property = b.Property(e => e.StringKeyDataTypeId)
-                            .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
-
-                        property.SetValueComparer(caseInsensitiveComparer);
+                        b.Property(e => e.StringKeyDataTypeId)
+                            .HasConversion(
+                                v => "KeyValue=" + v,
+                                v => v.Substring(9),
+                                caseInsensitiveComparer);
                     });
 
                 modelBuilder.Entity<MaxLengthDataTypes>(
                     b =>
                     {
+                        var bytesComparer = new ValueComparer<byte[]>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
                         b.Property(e => e.String3)
                             .HasConversion(
                                 new ValueConverter<string, string>(
@@ -1020,33 +1025,28 @@ namespace Microsoft.EntityFrameworkCore
                             .HasConversion(
                                 new ValueConverter<byte[], byte[]>(
                                     v => v.Reverse().Concat(new byte[] { 4, 20 }).ToArray(),
-                                    v => v.Reverse().Skip(2).ToArray()))
+                                    v => v.Reverse().Skip(2).ToArray()),
+                                bytesComparer)
                             .HasMaxLength(7);
 
                         b.Property(e => e.ByteArray9000)
                             .HasConversion(
-                                BytesToStringConverter.DefaultInfo.Create())
+                                BytesToStringConverter.DefaultInfo.Create(),
+                                bytesComparer)
                             .HasMaxLength(LongStringLength * 2);
-
-                        var bytesComparer = new ValueComparer<byte[]>(
-                            (v1, v2) => v1.SequenceEqual(v2),
-                            v => v.GetHashCode());
-
-                        b.Property(e => e.ByteArray5).Metadata.SetValueComparer(bytesComparer);
-                        b.Property(e => e.ByteArray9000).Metadata.SetValueComparer(bytesComparer);
                     });
 
                 modelBuilder.Entity<StringListDataType>(
                     b =>
                     {
-                        b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList());
+                        b.Property(e => e.Strings).HasConversion(
+                            v => string.Join(",", v),
+                            v => v.Split(new[] { ',' }).ToList(),
+                            new ValueComparer<IList<string>>(
+                                (v1, v2) => v1.SequenceEqual(v2),
+                                v => v.GetHashCode()));
+
                         b.Property(e => e.Id).ValueGeneratedNever();
-
-                        var comparer = new ValueComparer<IList<string>>(
-                            (v1, v2) => v1.SequenceEqual(v2),
-                            v => v.GetHashCode());
-
-                        b.Property(e => e.Strings).Metadata.SetValueComparer(comparer);
                     });
 
                 modelBuilder.Entity<Order>(
@@ -1063,14 +1063,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasKey(c => c.CounterId);
                         b.Property(c => c.Discriminator).HasConversion(
                             d => StringToDictionarySerializer.Serialize(d),
-                            json => StringToDictionarySerializer.Deserialize(json));
-
-                        var comparer = new ValueComparer<IDictionary<string, string>>(
-                            (v1, v2) => v1.SequenceEqual(v2),
-                            v => v.GetHashCode(),
-                            v => (IDictionary<string, string>)new Dictionary<string, string>(v));
-
-                        b.Property(e => e.Discriminator).Metadata.SetValueComparer(comparer);
+                            json => StringToDictionarySerializer.Deserialize(json),
+                            new ValueComparer<IDictionary<string, string>>(
+                                (v1, v2) => v1.SequenceEqual(v2),
+                                v => v.GetHashCode(),
+                                v => (IDictionary<string, string>)new Dictionary<string, string>(v)));
                     });
 
                 var urlConverter = new UrlSchemeRemover();
@@ -1127,8 +1124,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.Tags).HasConversion(
                             c => string.Join(",", c),
-                            s => s.Split(',', StringSplitOptions.None).ToList()).Metadata
-                            .SetValueComparer(new ValueComparer<List<string>>(favorStructuralComparisons: true));
+                            s => s.Split(',', StringSplitOptions.None).ToList(),
+                            new ValueComparer<List<string>>(favorStructuralComparisons: true));
 
                         b.HasData(new CollectionScalar
                         {
@@ -1140,8 +1137,9 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<CollectionEnum>(
                     b =>
                     {
-                        b.Property(e => e.Roles).HasConversion(new RolesToStringConveter()).Metadata
-                        .SetValueComparer(new ValueComparer<ICollection<Roles>>(favorStructuralComparisons: true));
+                        b.Property(e => e.Roles).HasConversion(
+                                new RolesToStringConveter(),
+                                new ValueComparer<ICollection<Roles>>(favorStructuralComparisons: true));
 
                         b.HasData(new CollectionEnum
                         {
