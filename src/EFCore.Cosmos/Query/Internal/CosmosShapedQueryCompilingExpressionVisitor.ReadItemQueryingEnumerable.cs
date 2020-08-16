@@ -7,10 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -61,9 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             public string ToQueryString()
-            {
-                throw new NotImplementedException("Cosmos: ToQueryString for ReadItemQueryingEnumerable #20653");
-            }
+                => CosmosStrings.NoReadItemQueryString;
 
             private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
             {
