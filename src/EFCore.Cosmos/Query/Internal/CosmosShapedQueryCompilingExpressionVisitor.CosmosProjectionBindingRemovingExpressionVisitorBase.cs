@@ -365,9 +365,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var includeMethod = navigation.IsCollection ? _includeCollectionMethodInfo : _includeReferenceMethodInfo;
                 var includingClrType = navigation.DeclaringEntityType.ClrType;
                 var relatedEntityClrType = navigation.TargetEntityType.ClrType;
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 var entityEntryVariable = _trackQueryResults
                     ? shaperBlock.Variables.Single(v => v.Type == typeof(InternalEntityEntry))
                     : (Expression)Expression.Constant(null, typeof(InternalEntityEntry));
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
                 var concreteEntityTypeVariable = shaperBlock.Variables.Single(v => v.Type == typeof(IEntityType));
                 var inverseNavigation = navigation.Inverse;
                 var fixup = GenerateFixup(
@@ -394,7 +397,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     .GetDeclaredMethod(nameof(IncludeReference));
 
             private static void IncludeReference<TIncludingEntity, TIncludedEntity>(
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 InternalEntityEntry entry,
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 object entity,
                 IEntityType entityType,
                 TIncludedEntity relatedEntity,
@@ -437,7 +442,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     .GetDeclaredMethod(nameof(IncludeCollection));
 
             private static void IncludeCollection<TIncludingEntity, TIncludedEntity>(
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 InternalEntityEntry entry,
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 object entity,
                 IEntityType entityType,
                 IEnumerable<TIncludedEntity> relatedEntities,
