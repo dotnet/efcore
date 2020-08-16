@@ -70,7 +70,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(logger, nameof(logger));
 
-            if (method.Name == nameof(ToString) && instance.Type.UnwrapNullableType() == typeof(string))
+            if (method.Name == nameof(ToString)
+                && instance != null
+                && instance.TypeMapping.ClrType == typeof(string))
             {
                 return instance;
             }
