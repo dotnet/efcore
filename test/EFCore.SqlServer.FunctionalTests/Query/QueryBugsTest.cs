@@ -8375,6 +8375,66 @@ FROM [Entity21807] AS [e]");
 
         #endregion
 
+        #region Issue20839
+
+        [ConditionalFact]
+        public virtual void Can_call_tostring_on_a_string_type()
+        {
+            using var context = CreateContext20839();
+            var result = context.Class20839.Where(x => x.StringColumn.ToString().Contains("test")).ToList();
+        }
+
+        private class Class20839
+        {
+            public int Id { get; set; }
+            public string StringColumn { get; set; }
+        }
+
+        private BugContext20839 CreateContext20839()
+        {
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: true);
+            var options = Fixture.AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+                .EnableDetailedErrors()
+                .EnableServiceProviderCaching(false)
+                .ConfigureWarnings(x => x.Ignore(CoreEventId.InvalidIncludePathError))
+                .Options;
+
+            var context = new BugContext20839(options);
+            context.Database.EnsureCreatedResiliently();
+            context.EnsureSeeded();
+
+            return context;
+        }
+
+        private class BugContext20839 : DbContext
+        {
+            public BugContext20839(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Class20839> Class20839 { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Class20839>(e =>
+                {
+                    e.HasKey(p => p.Id);
+                });
+            }
+
+            public void EnsureSeeded()
+            {
+                if (!Class20839.Any())
+                {
+                    Add(new Class20839 { StringColumn = "test" });
+                    SaveChanges();
+                }
+            }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
