@@ -162,6 +162,22 @@ ORDER BY [o].[OrderID], [c].[CustomerID], [o0].[OrderID], [o0].[ProductID]",
                 ignoreWhiteSpaceDifferences: true);
         }
 
+        [ConditionalFact]
+        public void ToQueryString_for_include_reference_and_collection()
+        {
+            using var context = CreateContext();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+ORDER BY [o].[OrderID], [c].[CustomerID], [o0].[OrderID], [o0].[ProductID]",
+                context.Set<Order>().Include(o => o.Customer).Include(o => o.OrderDetails).ToQueryString(),
+                ignoreLineEndingDifferences: true,
+                ignoreWhiteSpaceDifferences: true);
+        }
+
         public override async Task Include_references_multi_level(bool async)
         {
             await base.Include_references_multi_level(async);

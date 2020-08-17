@@ -178,7 +178,11 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ORDER BY [o].[OrderID], [c].[CustomerID]");
+        }
 
+        [ConditionalFact]
+        public virtual void ToQueryString_for_include_reference_and_collection()
+        {
             using var context = CreateContext();
 
             Assert.Equal(

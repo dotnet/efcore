@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Xunit;
 
@@ -53,9 +54,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var (connection, transaction, timeout, expectedCount) = commandDependencies;
 
+            var queryString = queryable.ToQueryString();
+
+            if (queryString.EndsWith(RelationalStrings.SplitQueryString, StringComparison.Ordinal))
+            {
+                queryString = queryString.Substring(0, queryString.Length - RelationalStrings.SplitQueryString.Length);
+            }
+
             using var command = connection.CreateCommand();
             command.Transaction = transaction;
-            command.CommandText = queryable.ToQueryString();
+            command.CommandText = queryString;
             command.CommandTimeout = timeout;
 
             var count = ExecuteReader(command);
