@@ -71,6 +71,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
                 derivedType, entityType);
 
+        /// <summary>
+        ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
+        /// </summary>
+        public static string UnableToBindMemberToEntityProjection([CanBeNull] object memberType, [CanBeNull] object member, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
+                memberType, member, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

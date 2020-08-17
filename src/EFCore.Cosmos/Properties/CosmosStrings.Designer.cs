@@ -234,6 +234,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         public static string MissingOrderingInSqlExpression
             => GetString("MissingOrderingInSqlExpression");
 
+        /// <summary>
+        ///     Null TypeMapping in Sql Tree.
+        /// </summary>
+        public static string NullTypeMappingInSqlTree
+            => GetString("NullTypeMappingInSqlTree");
+
+        /// <summary>
+        ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
+        /// </summary>
+        public static string UnableToBindMemberToEntityProjection([CanBeNull] object memberType, [CanBeNull] object member, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
+                memberType, member, entityType);
+
+        /// <summary>
+        ///     Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.
+        /// </summary>
+        public static string UnsupportedOperatorForSqlExpression([CanBeNull] object nodeType, [CanBeNull] object expressionType)
+            => string.Format(
+                GetString("UnsupportedOperatorForSqlExpression", nameof(nodeType), nameof(expressionType)),
+                nodeType, expressionType);
+
+        /// <summary>
+        ///     VisitChildren must be overridden in class deriving from SqlExpression.
+        /// </summary>
+        public static string VisitChildrenMustBeOverridden
+            => GetString("VisitChildrenMustBeOverridden");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

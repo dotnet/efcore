@@ -150,7 +150,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.UnsupportedUnary);
+                    throw new InvalidOperationException(RelationalStrings.UnsupportedOperatorForSqlExpression(
+                        sqlUnaryExpression.OperatorType, typeof(SqlUnaryExpression).ShortDisplayName()));
             }
 
             return new SqlUnaryExpression(sqlUnaryExpression.OperatorType, operand, resultType, resultTypeMapping);
@@ -208,7 +209,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.IncorrectOperatorType);
+                    throw new InvalidOperationException(RelationalStrings.UnsupportedOperatorForSqlExpression(
+                        sqlBinaryExpression.OperatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
             }
 
             return new SqlBinaryExpression(

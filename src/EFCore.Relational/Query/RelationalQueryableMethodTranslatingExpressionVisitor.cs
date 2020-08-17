@@ -663,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (selectExpression.Orderings.Count == 0)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.LastUsedWithoutOrderBy(returnDefault ?
+                    RelationalStrings.LastUsedWithoutOrderBy(returnDefault ?
                         nameof(Queryable.LastOrDefault) : nameof(Queryable.Last)));
             }
 
@@ -1559,7 +1559,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.New(
                                 typeof(InvalidOperationException).GetConstructors()
                                     .Single(ci => ci.GetParameters().Length == 1),
-                                Expression.Constant(CoreStrings.NoElements)),
+                                Expression.Constant(CoreStrings.SequenceContainsNoElements)),
                             resultType);
 
                 shaper = Expression.Block(

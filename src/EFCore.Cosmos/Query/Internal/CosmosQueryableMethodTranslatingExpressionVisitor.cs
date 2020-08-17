@@ -1214,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.New(
                             typeof(InvalidOperationException).GetConstructors()
                                 .Single(ci => ci.GetParameters().Length == 1),
-                            Expression.Constant(CoreStrings.NoElements)),
+                            Expression.Constant(CoreStrings.SequenceContainsNoElements)),
                         resultType);
 
                 shaper = Expression.Block(

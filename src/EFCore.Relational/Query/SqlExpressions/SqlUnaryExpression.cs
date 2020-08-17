@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -53,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (!IsValidOperator(operatorType))
             {
-                throw new InvalidOperationException(CoreStrings.UnsupportedUnary);
+                throw new InvalidOperationException(RelationalStrings.UnsupportedOperatorForSqlExpression(
+                    operatorType, typeof(SqlUnaryExpression).ShortDisplayName()));
             }
 
             OperatorType = operatorType;

@@ -3,8 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -1759,16 +1757,6 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [c].[City] = N'Seattle'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
-        }
-
-        public override Task Include_collection_with_last_no_orderby(bool async)
-        {
-            return AssertTranslationFailedWithDetails(
-                () => AssertLast(
-                        async,
-                        ss => ss.Set<Customer>().Include(c => c.Orders),
-                        entryCount: 8
-                 ), RelationalStrings.MissingOrderingInSqlExpression);      
         }
 
         private void AssertSql(params string[] expected)

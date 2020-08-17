@@ -102,8 +102,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
-                        "BindProperty", nameof(IProperty), EntityType.DisplayName(), $"Property:{property.Name}"));
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("Property", property.Name, EntityType.DisplayName()));
             }
 
             return _readExpressionMap[property];
@@ -121,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
-                        "AddNavigationBinding", nameof(INavigation), EntityType.DisplayName(), $"Property:{navigation.Name}"));
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             _navigationExpressionsCache[navigation] = entityShaper;
@@ -140,8 +138,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
-                        "BindNavigation", nameof(INavigation), EntityType.DisplayName(), $"Property:{navigation.Name}"));
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             return _navigationExpressionsCache.TryGetValue(navigation, out var expression)

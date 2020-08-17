@@ -166,11 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
-                        "BindProperty",
-                        "IProperty",
-                        EntityType.DisplayName(),
-                        property.Name));
+                    RelationalStrings.UnableToBindMemberToEntityProjection("Property", property.Name, EntityType.DisplayName()));
             }
 
             return _propertyExpressionMap[property];
@@ -190,11 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
-                        "AddNavigationBinding",
-                        "INavigation",
-                        EntityType.DisplayName(),
-                        navigation.Name));
+                    RelationalStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             _ownedNavigationMap[navigation] = entityShaper;
@@ -214,11 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
-                        "BindNavigation",
-                        "INavigation",
-                        EntityType.DisplayName(),
-                        navigation.Name));
+                    RelationalStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             return _ownedNavigationMap.TryGetValue(navigation, out var expression)

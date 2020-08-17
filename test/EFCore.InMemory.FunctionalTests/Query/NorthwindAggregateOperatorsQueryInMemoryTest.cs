@@ -65,18 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Contains_with_local_tuple_array_closure(async);
         }
 
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Last_when_no_order_by(bool async)
-        {
-            return base.Last_when_no_order_by(async);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task LastOrDefault_when_no_order_by(bool async)
-        {
-            return base.LastOrDefault_when_no_order_by(async);
-        }
-
         [ConditionalFact(Skip = "Issue#20023")]
         public override void Contains_over_keyless_entity_throws()
         {

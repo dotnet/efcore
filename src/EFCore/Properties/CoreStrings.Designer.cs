@@ -65,12 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
-        ///     Sequence contains no elements.
-        /// </summary>
-        public static string NoElements
-            => GetString("NoElements");
-
-        /// <summary>
         ///     The given 'IQueryable' does not support generation of query strings.
         /// </summary>
         public static string NotQueryingEnumerable
@@ -387,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entity, pam);
 
         /// <summary>
-        ///     The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.
+        ///     The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type. Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.
         /// </summary>
         public static string NoClrType([CanBeNull] object entityType)
             => string.Format(
@@ -837,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("RelationshipCannotBeInverted");
 
         /// <summary>
-        ///     The specified type '{type}'must be a non-interface reference type to be used as an entity type .
+        ///     The specified type '{type}'must be a non-interface reference type to be used as an entity type.
         /// </summary>
         public static string InvalidEntityType([CanBeNull] object type)
             => string.Format(
@@ -2233,6 +2227,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Include is not supported for entities with defining query. Entity type: '{entityType}'
         /// </summary>
+        [Obsolete]
         public static string IncludeOnEntityWithDefiningQueryNotSupported([CanBeNull] object entityType)
             => string.Format(
                 GetString("IncludeOnEntityWithDefiningQueryNotSupported", nameof(entityType)),
@@ -2383,14 +2378,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 skipNavigation, inverseSkipNavigation, referencingEntityType);
 
         /// <summary>
-        ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.
-        /// </summary>
-        public static string LastUsedWithoutOrderBy([CanBeNull] object method)
-            => string.Format(
-                GetString("LastUsedWithoutOrderBy", nameof(method)),
-                method);
-
-        /// <summary>
         ///     Immediate convention scope cannot be run again.
         /// </summary>
         public static string ImmediateConventionScopeCannotBeRunAgain
@@ -2419,14 +2406,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnhandledMemberBinding", nameof(bindingType)),
                 bindingType);
-
-        /// <summary>
-        ///     Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.
-        /// </summary>
-        public static string InvalidIncludePath([CanBeNull] object navigationChain, [CanBeNull] object navigationName)
-            => string.Format(
-                GetString("InvalidIncludePath", nameof(navigationChain), nameof(navigationName)),
-                navigationChain, navigationName);
 
         /// <summary>
         ///     Lambda expression used inside Include is not valid.
@@ -2509,44 +2488,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 visitMethodName);
 
         /// <summary>
-        ///     Called EntityProjectionExpression.{methodName}() with incorrect {interfaceType}. EntityType:{entityType}, {entityValue}
-        /// </summary>
-        public static string EntityProjectionExpressionCalledWithIncorrectInterface([CanBeNull] object methodName, [CanBeNull] object interfaceType, [CanBeNull] object entityType, [CanBeNull] object entityValue)
-            => string.Format(
-                GetString("EntityProjectionExpressionCalledWithIncorrectInterface", nameof(methodName), nameof(interfaceType), nameof(entityType), nameof(entityValue)),
-                methodName, interfaceType, entityType, entityValue);
-
-        /// <summary>
-        ///     Unsupported Unary operator type specified.
-        /// </summary>
-        public static string UnsupportedUnary
-            => GetString("UnsupportedUnary");
-
-        /// <summary>
-        ///     Incorrect operatorType for SqlBinaryExpression.
-        /// </summary>
-        public static string IncorrectOperatorType
-            => GetString("IncorrectOperatorType");
-
-        /// <summary>
-        ///     Null TypeMapping in Sql Tree.
-        /// </summary>
-        public static string NullTypeMappingInSqlTree
-            => GetString("NullTypeMappingInSqlTree");
-
-        /// <summary>
-        ///     VisitChildren must be overridden in class deriving from SqlExpression.
-        /// </summary>
-        public static string VisitChildrenMustBeOverridden
-            => GetString("VisitChildrenMustBeOverridden");
-
-        /// <summary>
-        ///     Unsupported Binary operator type specified.
-        /// </summary>
-        public static string UnsupportedBinaryOperator
-            => GetString("UnsupportedBinaryOperator");
-
-        /// <summary>
         ///     Translation of '{expression}' failed. Either source is not an entity type or the specified property does not exist on the entity type.
         /// </summary>
         public static string QueryUnableToTranslateEFProperty([CanBeNull] object expression)
@@ -2575,20 +2516,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("QueryUnableToTranslateMethod", nameof(declaringTypeName), nameof(methodName)),
                 declaringTypeName, methodName);
-
-        /// <summary>
-        ///     Invalid {state} encountered.
-        /// </summary>
-        public static string InvalidStateEncountered([CanBeNull] object state)
-            => string.Format(
-                GetString("InvalidStateEncountered", nameof(state)),
-                state);
-
-        /// <summary>
-        ///     Cannot apply DefaultIfEmpty after a client-evaluated projection.
-        /// </summary>
-        public static string DefaultIfEmptyAppliedAfterProjection
-            => GetString("DefaultIfEmptyAppliedAfterProjection");
 
         /// <summary>
         ///     Invalid {name}: {value}

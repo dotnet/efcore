@@ -747,4 +747,19 @@
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
   </data>
+  <data name="LastUsedWithoutOrderBy" xml:space="preserve">
+    <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.</value>
+  </data>
+  <data name="NullTypeMappingInSqlTree" xml:space="preserve">
+    <value>Null TypeMapping in Sql Tree.</value>
+  </data>
+  <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
+    <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>
+  </data>
+  <data name="UnsupportedOperatorForSqlExpression" xml:space="preserve">
+    <value>Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.</value>
+  </data>
+  <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
+    <value>VisitChildren must be overridden in class deriving from SqlExpression.</value>
+  </data>
 </root>
