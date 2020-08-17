@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return _subquery
                 ? (Expression)null
-                : throw new NotImplementedException(CoreStrings.UnhandledMethod(method.Name));
+                : throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
         }
 
         private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor

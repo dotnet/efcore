@@ -1322,9 +1322,6 @@
   <data name="IncludeWithCycle" xml:space="preserve">
     <value>The Include path '{navigationName}-&gt;{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries. Either use a tracking query or remove the cycle.</value>
   </data>
-  <data name="UnhandledMethod" xml:space="preserve">
-    <value>Unhandled method '{methodName}'.</value>
-  </data>
   <data name="RuntimeParameterMissingParameter" xml:space="preserve">
     <value>Runtime parameter extraction lambda must have one QueryContext parameter.</value>
   </data>
