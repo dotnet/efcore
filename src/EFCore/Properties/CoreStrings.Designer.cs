@@ -2469,14 +2469,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigationName, inverseNavigationName);
 
         /// <summary>
-        ///     Unhandled method '{methodName}'.
-        /// </summary>
-        public static string UnhandledMethod([CanBeNull] object methodName)
-            => string.Format(
-                GetString("UnhandledMethod", nameof(methodName)),
-                methodName);
-
-        /// <summary>
         ///     Runtime parameter extraction lambda must have one QueryContext parameter.
         /// </summary>
         public static string RuntimeParameterMissingParameter
