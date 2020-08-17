@@ -121,7 +121,7 @@
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
   </data>
   <data name="NoReadItemQueryString" xml:space="preserve">
-    <value>There is no string-based representation of this query.</value>
+    <value>There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.</value>
   </data>
   <data name="DuplicateDiscriminatorValue" xml:space="preserve">
     <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' needs to have a unique discriminator value.</value>

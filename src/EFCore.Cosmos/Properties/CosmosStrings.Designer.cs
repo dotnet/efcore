@@ -25,10 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CosmosNotInUse");
 
         /// <summary>
-        ///     There is no string-based representation of this query.
+        ///     There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.
         /// </summary>
-        public static string NoReadItemQueryString
-            => GetString("NoReadItemQueryString");
+        public static string NoReadItemQueryString([CanBeNull] object resourceId, [CanBeNull] object partitionKey)
+            => string.Format(
+                GetString("DuplicateDiscriminatorValue", nameof(resourceId), nameof(partitionKey)),
+                resourceId, partitionKey);
 
         /// <summary>
         ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' needs to have a unique discriminator value.

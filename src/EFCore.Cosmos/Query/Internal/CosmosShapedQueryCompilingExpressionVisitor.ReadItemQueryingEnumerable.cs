@@ -59,7 +59,110 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             public string ToQueryString()
-                => CosmosStrings.NoReadItemQueryString;
+            {
+                TryGetResourceId(out var resourceId);
+                TryGetPartitionId(out var partitionKey);
+                return CosmosStrings.NoReadItemQueryString(resourceId, partitionKey);
+            }
+
+            private bool TryGetPartitionId(out string partitionKey)
+            {
+                partitionKey = null;
+
+                var partitionKeyPropertyName = _readItemExpression.EntityType.GetPartitionKeyPropertyName();
+                if (partitionKeyPropertyName == null)
+                {
+                    return true;
+                }
+
+                var partitionKeyProperty = _readItemExpression.EntityType.FindProperty(partitionKeyPropertyName);
+
+                if (TryGetParameterValue(partitionKeyProperty, out var value))
+                {
+                    partitionKey = GetString(partitionKeyProperty, value);
+
+                    return !string.IsNullOrEmpty(partitionKey);
+                }
+
+                return false;
+            }
+
+            private bool TryGetResourceId(out string resourceId)
+            {
+                var idProperty = _readItemExpression.EntityType.GetProperties()
+                    .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+
+                if (TryGetParameterValue(idProperty, out var value))
+                {
+                    resourceId = GetString(idProperty, value);
+
+                    if (string.IsNullOrEmpty(resourceId))
+                    {
+                        throw new InvalidOperationException(CosmosStrings.InvalidResourceId);
+                    }
+
+                    return true;
+                }
+
+                if (TryGenerateIdFromKeys(idProperty, out var generatedValue))
+                {
+                    resourceId = GetString(idProperty, generatedValue);
+
+                    return true;
+                }
+
+                resourceId = null;
+                return false;
+            }
+
+            private bool TryGetParameterValue(IProperty property, out object value)
+            {
+                value = null;
+                return _readItemExpression.PropertyParameters.TryGetValue(property, out var parameterName)
+                    && _cosmosQueryContext.ParameterValues.TryGetValue(parameterName, out value);
+            }
+
+            private static string GetString(IProperty property, object value)
+            {
+                var converter = property.GetTypeMapping().Converter;
+
+                return converter is null
+                    ? (string)value
+                    : (string)converter.ConvertToProvider(value);
+            }
+
+            private bool TryGenerateIdFromKeys(IProperty idProperty, out object value)
+            {
+                var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var internalEntityEntry = new InternalEntityEntryFactory().Create(
+                    _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                foreach (var keyProperty in _readItemExpression.EntityType.FindPrimaryKey().Properties)
+                {
+                    var property = _readItemExpression.EntityType.FindProperty(keyProperty.Name);
+
+                    if (TryGetParameterValue(property, out var parameterValue))
+                    {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        internalEntityEntry[property] = parameterValue;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                    }
+                }
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                internalEntityEntry.SetEntityState(EntityState.Added);
+
+                value = internalEntityEntry[idProperty];
+
+                internalEntityEntry.SetEntityState(EntityState.Detached);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                return value != null;
+            }
+
 
             private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
             {
@@ -69,6 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _standAloneStateManager;
+                private readonly ReadItemQueryingEnumerable<T> _readItemEnumerable;
                 private readonly CancellationToken _cancellationToken;
 
                 private JObject _item;
@@ -82,6 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _contextType = readItemEnumerable._contextType;
                     _queryLogger = readItemEnumerable._queryLogger;
                     _standAloneStateManager = readItemEnumerable._standAloneStateManager;
+                    _readItemEnumerable = readItemEnumerable;
                     _cancellationToken = cancellationToken;
                 }
 
@@ -97,12 +202,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         {
                             if (!_hasExecuted)
                             {
-                                if (!TryGetResourceId(out var resourceId))
+                                if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                                 {
                                     throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                                 }
 
-                                if (!TryGetPartitionId(out var partitionKey))
+                                if (!_readItemEnumerable.TryGetPartitionId(out var partitionKey))
                                 {
                                     throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
                                 }
@@ -137,12 +242,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             if (!_hasExecuted)
                             {
 
-                                if (!TryGetResourceId(out var resourceId))
+                                if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                                 {
                                     throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                                 }
 
-                                if (!TryGetPartitionId(out var partitionKey))
+                                if (!_readItemEnumerable.TryGetPartitionId(out var partitionKey))
                                 {
                                     throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
                                 }
@@ -199,104 +304,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _hasExecuted = true;
 
                     return hasNext;
-                }
-
-                private bool TryGetPartitionId(out string partitionKey)
-                {
-                    partitionKey = null;
-
-                    var partitionKeyPropertyName = _readItemExpression.EntityType.GetPartitionKeyPropertyName();
-                    if (partitionKeyPropertyName == null)
-                    {
-                        return true;
-                    }
-
-                    var partitionKeyProperty = _readItemExpression.EntityType.FindProperty(partitionKeyPropertyName);
-
-                    if (TryGetParameterValue(partitionKeyProperty, out var value))
-                    {
-                        partitionKey = GetString(partitionKeyProperty, value);
-
-                        return !string.IsNullOrEmpty(partitionKey);
-                    }
-
-                    return false;
-                }
-
-                private bool TryGetResourceId(out string resourceId)
-                {
-                    var idProperty = _readItemExpression.EntityType.GetProperties()
-                        .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
-
-                    if (TryGetParameterValue(idProperty, out var value))
-                    {
-                        resourceId = GetString(idProperty, value);
-
-                        if (string.IsNullOrEmpty(resourceId))
-                        {
-                            throw new InvalidOperationException(CosmosStrings.InvalidResourceId);
-                        }
-
-                        return true;
-                    }
-
-                    if (TryGenerateIdFromKeys(idProperty, out var generatedValue))
-                    {
-                        resourceId = GetString(idProperty, generatedValue);
-
-                        return true;
-                    }
-
-                    resourceId = null;
-                    return false;
-                }
-
-                private bool TryGenerateIdFromKeys(IProperty idProperty, out object value)
-                {
-                    var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
-
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    var internalEntityEntry = new InternalEntityEntryFactory().Create(
-                        _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                    foreach (var keyProperty in _readItemExpression.EntityType.FindPrimaryKey().Properties)
-                    {
-                        var property = _readItemExpression.EntityType.FindProperty(keyProperty.Name);
-
-                        if (TryGetParameterValue(property, out var parameterValue))
-                        {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                            internalEntityEntry[property] = parameterValue;
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                        }
-                    }
-
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    internalEntityEntry.SetEntityState(EntityState.Added);
-
-                    value = internalEntityEntry[idProperty];
-
-                    internalEntityEntry.SetEntityState(EntityState.Detached);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                    return value != null;
-                }
-
-                private bool TryGetParameterValue(IProperty property, out object value)
-                {
-                    value = null;
-                    return _readItemExpression.PropertyParameters.TryGetValue(property, out var parameterName)
-                        && _cosmosQueryContext.ParameterValues.TryGetValue(parameterName, out value);
-                }
-
-                private static string GetString(IProperty property, object value)
-                {
-                    var converter = property.GetTypeMapping().Converter;
-
-                    return converter is null
-                        ? (string)value
-                        : (string)converter.ConvertToProvider(value);
                 }
             }
         }
