@@ -1701,7 +1701,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]
         [InlineData(CascadeTiming.OnSaveChanges)]
-        public void Can_re_parent_optional_without_DetectChanges(CascadeTiming cascadeTiming)
+        public void Can_reparent_optional_without_DetectChanges(CascadeTiming cascadeTiming)
         {
             using var context = new Parent77Context();
 
@@ -1742,7 +1742,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Immediate)]
         [InlineData(CascadeTiming.Never)]
         [InlineData(CascadeTiming.OnSaveChanges)]
-        public void Can_re_parent_required_without_DetectChanges(CascadeTiming cascadeTiming)
+        public void Can_reparent_required_without_DetectChanges(CascadeTiming cascadeTiming)
         {
             using var context = new Parent77Context();
 
