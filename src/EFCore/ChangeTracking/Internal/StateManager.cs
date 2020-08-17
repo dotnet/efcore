@@ -980,6 +980,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
             var principalIsDetached = entry.EntityState == EntityState.Detached;
+            var changeDetector = Context.ChangeTracker.AutoDetectChangesEnabled
+                && (string)Context.Model[CoreAnnotationNames.SkipDetectChangesAnnotation] != "true"
+                    ? Context.GetDependencies().ChangeDetector
+                    : null;
 
             foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
             foreach (var fk in foreignKeys)
@@ -992,6 +996,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 foreach (InternalEntityEntry dependent in (GetDependentsFromNavigation(entry, fk)
                     ?? GetDependents(entry, fk)).ToList())
                 {
+                    changeDetector?.DetectChanges(dependent);
+
                     if (dependent.EntityState != EntityState.Deleted
                         && dependent.EntityState != EntityState.Detached
                         && (dependent.EntityState == EntityState.Added

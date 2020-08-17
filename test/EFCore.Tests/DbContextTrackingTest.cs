@@ -1696,5 +1696,124 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
         }
+
+        [ConditionalTheory] // Issue #17828
+        [InlineData(CascadeTiming.Immediate)]
+        [InlineData(CascadeTiming.Never)]
+        [InlineData(CascadeTiming.OnSaveChanges)]
+        public void Can_re_parent_optional_without_DetectChanges(CascadeTiming cascadeTiming)
+        {
+            using var context = new Parent77Context();
+
+            context.ChangeTracker.CascadeDeleteTiming = cascadeTiming;
+
+            var parent1 = new Parent77();
+            var parent2 = new Parent77();
+            var child = new Optional77();
+
+            child.Parent77 = parent1;
+            context.AddRange(parent1, parent2, child);
+            context.SaveChanges();
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent1).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent2).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+
+            child.Parent77 = parent2;
+            context.Remove(parent1);
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Deleted, context.Entry(parent1).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent2).State);
+            Assert.Equal(EntityState.Modified, context.Entry(child).State);
+            Assert.Same(parent2, child.Parent77);
+
+            context.SaveChanges();
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Detached, context.Entry(parent1).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent2).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+            Assert.Same(parent2, child.Parent77);
+        }
+
+        [ConditionalTheory] // Issue #17828
+        [InlineData(CascadeTiming.Immediate)]
+        [InlineData(CascadeTiming.Never)]
+        [InlineData(CascadeTiming.OnSaveChanges)]
+        public void Can_re_parent_required_without_DetectChanges(CascadeTiming cascadeTiming)
+        {
+            using var context = new Parent77Context();
+
+            context.ChangeTracker.CascadeDeleteTiming = cascadeTiming;
+
+            var parent1 = new Parent77();
+            var parent2 = new Parent77();
+            var child = new Required77();
+
+            child.Parent77 = parent1;
+            context.AddRange(parent1, parent2, child);
+            context.SaveChanges();
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent1).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent2).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+
+            child.Parent77 = parent2;
+            context.Remove(parent1);
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Deleted, context.Entry(parent1).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent2).State);
+            Assert.Equal(EntityState.Modified, context.Entry(child).State);
+            Assert.Same(parent2, child.Parent77);
+
+            context.SaveChanges();
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Detached, context.Entry(parent1).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent2).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+            Assert.Same(parent2, child.Parent77);
+        }
+
+        private class Parent77Context : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(Parent77Context));
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Parent77>(
+                    b =>
+                    {
+                        b.HasMany<Optional77>().WithOne(e => e.Parent77);
+                        b.HasMany<Required77>().WithOne(e => e.Parent77);
+                    });
+            }
+        }
+
+        private class Parent77
+        {
+            public int Id { get; set; }
+        }
+
+        private class Optional77
+        {
+            public int Id { get; set; }
+
+            public int? Parent77Id { get; set; }
+            public Parent77 Parent77 { get; set; }
+        }
+
+        private class Required77
+        {
+            public int Id { get; set; }
+
+            public int Parent77Id { get; set; }
+            public Parent77 Parent77 { get; set; }
+        }
     }
 }
