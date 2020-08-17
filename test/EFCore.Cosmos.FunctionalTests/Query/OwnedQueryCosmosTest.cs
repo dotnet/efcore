@@ -474,6 +474,14 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
             AssertSql(" ");
         }
 
+        [ConditionalTheory(Skip = "Composition over owned collection #17246")]
+        public override async Task Query_on_collection_entry_works_for_owned_collection(bool isAsync)
+        {
+            await base.Query_on_collection_entry_works_for_owned_collection(isAsync);
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
