@@ -2439,25 +2439,38 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected abstract class OneBase
+        {
+            public virtual int UniqueNo { get; set; }
+
+            public virtual Guid RowVersion { get; set; }
+
+            public virtual string IgnoredProperty { get; set; }
+
+            public virtual string RequiredColumn { get; set; }
+
+            public virtual string MaxLengthProperty { get; set; }
+        }
+
         [Table("Sample")]
-        protected class One
+        protected class One : OneBase
         {
             [Key]
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-            public int UniqueNo { get; set; }
+            public override int UniqueNo { get; set; }
 
             [ConcurrencyCheck]
-            public Guid RowVersion { get; set; }
+            public override Guid RowVersion { get; set; }
 
             [NotMapped]
-            public string IgnoredProperty { get; set; }
+            public override string IgnoredProperty { get; set; }
 
             [Required]
             [Column("Name")]
-            public string RequiredColumn { get; set; }
+            public override string RequiredColumn { get; set; }
 
             [MaxLength(10)]
-            public string MaxLengthProperty { get; set; }
+            public override string MaxLengthProperty { get; set; }
 
             public Details Details { get; set; }
 
