@@ -488,6 +488,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string NoTransactionsDescription
             => GetString("NoTransactionsDescription");
 
+        /// <summary>
+        ///     Don't connect to the database.
+        /// </summary>
+        public static string NoConnectDescription
+            => GetString("NoConnectDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

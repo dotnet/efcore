@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         protected override int Execute(string[] args)
         {
             var migrations = CreateExecutor(args)
-                .GetMigrations(Context.Value()).ToList();
+                .GetMigrations(Context.Value(), _connection.Value(), _noConnect.HasValue()).ToList();
 
             if (_json.HasValue())
             {
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 Reporter.WriteData("    \"id\": \"" + migrations[i]["Id"] + "\",");
                 Reporter.WriteData("    \"name\": \"" + migrations[i]["Name"] + "\",");
                 Reporter.WriteData("    \"safeName\": \"" + safeName + "\",");
-                Reporter.WriteData("    \"applied\": \"" + migrations[i]["Applied"] + "\"");
+                Reporter.WriteData("    \"applied\": " + Json.Literal(migrations[i]["Applied"] as bool?));
 
                 var line = "  }";
                 if (i != migrations.Count - 1)
@@ -63,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             var any = false;
             foreach (var migration in migrations)
             {
-                Reporter.WriteData(migration["Id"] as string);
+                var id = migration["Id"] as string;
+                var applied = migration["Applied"] as bool?;
+                Reporter.WriteData($"{id}{(applied != false ? null : Resources.Pending)}");
                 any = true;
             }
 

@@ -120,10 +120,15 @@ function Get-DbContext(
 
 <#
 .SYNOPSIS
-    Lists the migrations for the selected project and whether they have been applied to the Database.
+    Lists available migrations.
 
 .DESCRIPTION
-    Lists the migrations for the selected project and whether they have been applied to the Database.
+    Lists available migrations.
+
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
+.PARAMETER NoConnect
 
 .PARAMETER Context
     The DbContext to use.
@@ -134,14 +139,22 @@ function Get-DbContext(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
+    Add-Migration
+    Remove-Migration
+    Update-Database
     about_EntityFrameworkCore
 #>
 function Get-Migration(
+    $Connection,
+    [switch] $NoConnect,
     $Context,
     $Project,
     $StartupProject,
-    $CheckIfApplied)
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -170,6 +183,7 @@ function Get-Migration(
 
 .LINK
     Add-Migration
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Remove-Migration(
@@ -336,6 +350,7 @@ function Script-DbContext(
 
 .LINK
     Update-Database
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Script-Migration(

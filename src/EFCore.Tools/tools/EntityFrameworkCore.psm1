@@ -227,10 +227,15 @@ Register-TabExpansion Get-Migration @{
 
 <#
 .SYNOPSIS
-    Lists the migrations for the selected project and whether they have been applied to the Database.
+    Lists available migrations.
 
 .DESCRIPTION
-    Lists the migrations for the selected project and whether they have been applied to the Database.
+    Lists available migrations.
+
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
+.PARAMETER NoConnect
 
 .PARAMETER Context
     The DbContext to use.
@@ -241,24 +246,45 @@ Register-TabExpansion Get-Migration @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
+    Add-Migration
+    Remove-Migration
+    Update-Database
     about_EntityFrameworkCore
 #>
 function Get-Migration
 {
     [CmdletBinding(PositionalBinding = $false)]
-    param([string] $Context, [string] $Project, [string] $StartupProject, [switch] $ShowPending)
+    param(
+        [string] $Connection,
+        [switch] $NoConnect,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
 
-    $project = GetProject $Project
-    $startupProject = GetStartupProject $StartupProject $project
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
 
     $params = 'migrations', 'list', '--json'
+
+    if ($Connection)
+    {
+        $params += '--connection', $Connection
+    }
+
+    if ($NoConnect)
+    {
+        $params += '--no-connect'
+    }
+
     $params += GetParams $Context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $project $startupProject $params) -join "`n" | ConvertFrom-Json
-
-    return $result | %{ WriteMigrationLine $_ $ShowPending }
+    return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
 }
 
 #
@@ -295,6 +321,7 @@ Register-TabExpansion Remove-Migration @{
 
 .LINK
     Add-Migration
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Remove-Migration
@@ -618,6 +645,7 @@ Register-TabExpansion Script-Migration @{
 
 .LINK
     Update-Database
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Script-Migration
@@ -800,32 +828,13 @@ function GetMigrations($context, $projectName, $startupProjectName)
     $project = GetProject $projectName
     $startupProject = GetStartupProject $startupProjectName $project
 
-    $params = 'migrations', 'list', '--json'
+    $params = 'migrations', 'list', '--no-connect', '--json'
     $params += GetParams $context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $project $startupProject $params $null -skipBuild) -join "`n" | ConvertFrom-Json
 
     return $result | %{ $_.safeName }
-}
-
-function WriteMigrationLine($migration, $ShowPending)
-{
-    If ($ShowPending)
-    {
-        If ($migration.applied -eq $true) {
-            Write-Host $migration.safeName -ForegroundColor Green
-        }
-        Else {
-            Write-Host "$($migration.safeName) - Pending" -ForegroundColor Yellow
-        }
-    }
-    Else
-    {
-        If ($migration.applied -eq $true){
-            Write-Host $migration.safeName
-        }
-    }
 }
 
 function WarnIfEF6($cmdlet)

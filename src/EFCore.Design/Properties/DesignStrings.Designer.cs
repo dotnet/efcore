@@ -634,6 +634,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("ConflictingContextAndMigrationName", nameof(name)),
                 name);
 
+        /// <summary>
+        ///     An error occurred while accessing the database. Continuing without the information provided by the database. Error: {message}
+        /// </summary>
+        public static string ErrorConnecting([CanBeNull] object message)
+            => string.Format(
+                GetString("ErrorConnecting", nameof(message)),
+                message);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

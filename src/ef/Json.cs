@@ -15,5 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
             => text != null
                 ? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
                 : "null";
+
+        public static string Literal(bool? value)
+            => value.HasValue
+                ? value.Value
+                    ? "true"
+                    : "false"
+                : "null";
     }
 }

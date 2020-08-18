@@ -14,11 +14,12 @@
 
 Enables these commonly used commands:
 Add-Migration
-Get-Migration
 Drop-Database
 Get-DbContext
+Get-Migration
+Remove-Migration
 Scaffold-DbContext
-Script-Migrations
+Script-Migration
 Update-Database
   </Description>
   </PropertyGroup>
