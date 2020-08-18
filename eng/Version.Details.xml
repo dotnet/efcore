@@ -49,6 +49,11 @@
       <Uri>https://github.com/dotnet/extensions</Uri>
       <Sha>a74155578bf2f1e27bc06b363a7225981fcce52f</Sha>
     </Dependency>
+    <!-- !!! Pin this again & remove CPD once 3.1.8 is released. -->
+    <Dependency Name="Microsoft.Internal.Extensions.Refs" Version="3.1.8-servicing.20418.2">
+      <Uri>https://github.com/dotnet/Extensions</Uri>
+      <Sha>a74155578bf2f1e27bc06b363a7225981fcce52f</Sha>
+    </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.1.6" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-core-setup</Uri>
       <Sha>3acd9b0cd16596bad450c82be08780875a73c05c</Sha>
