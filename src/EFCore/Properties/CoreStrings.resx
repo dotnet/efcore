@@ -1279,7 +1279,7 @@
     <value>Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Indexer properties are not allowed to use a backing field.</value>
   </data>
   <data name="ClashingSharedType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be added to the model because a shared entity type with the same clr type already exists.</value>
+    <value>The entity type '{entityType}' cannot be added to the model because a shared entity type with the same CLR type already exists.</value>
   </data>
   <data name="SkipNavigationInUseBySkipNavigation" xml:space="preserve">
     <value>The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.</value>

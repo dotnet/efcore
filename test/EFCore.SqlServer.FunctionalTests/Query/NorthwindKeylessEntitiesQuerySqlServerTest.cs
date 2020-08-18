@@ -147,9 +147,9 @@ WHERE EXISTS (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
         }
 
-        public override async Task KeylesEntity_groupby(bool async)
+        public override async Task KeylessEntity_groupby(bool async)
         {
-            await base.KeylesEntity_groupby(async);
+            await base.KeylessEntity_groupby(async);
 
             AssertSql(
                 @"SELECT [c].[City] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST(LEN([c].[Address]) AS int)), 0) AS [Sum]

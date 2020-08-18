@@ -69,11 +69,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);
 
+            var sqlServerOnDeleteConvention = new SqlServerOnDeleteConvention(Dependencies, RelationalDependencies);
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGenerationConvention);
+            ReplaceConvention(conventionSet.ForeignKeyAddedConventions, (CascadeDeleteConvention)sqlServerOnDeleteConvention);
 
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
-            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(new SqlServerOnDeleteConvention(Dependencies, RelationalDependencies));
+            ReplaceConvention(conventionSet.ForeignKeyRequirednessChangedConventions, (CascadeDeleteConvention)sqlServerOnDeleteConvention);
+
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(sqlServerOnDeleteConvention);
 
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
