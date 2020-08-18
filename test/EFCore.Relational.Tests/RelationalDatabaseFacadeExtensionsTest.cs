@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(context.Database.IsRelational());
         }
 
-
         [ConditionalFact]
         public void GetDbConnection_returns_the_current_connection()
         {

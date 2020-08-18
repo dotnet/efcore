@@ -339,4 +339,7 @@
   <data name="NoTransactionsDescription" xml:space="preserve">
     <value>Don't generate SQL transaction statements.</value>
   </data>
+  <data name="NoConnectDescription" xml:space="preserve">
+    <value>Don't connect to the database.</value>
+  </data>
 </root>

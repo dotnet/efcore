@@ -143,17 +143,46 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<MigrationInfo> GetMigrations(
-            [CanBeNull] string contextType)
+            [CanBeNull] string contextType,
+            [CanBeNull] string connectionString,
+            bool noConnect)
         {
             using var context = _contextOperations.CreateContext(contextType);
+
+            if (connectionString != null)
+            {
+                context.Database.SetConnectionString(connectionString);
+            }
+
             var services = _servicesBuilder.Build(context);
             EnsureServices(services);
 
             var migrationsAssembly = services.GetRequiredService<IMigrationsAssembly>();
             var idGenerator = services.GetRequiredService<IMigrationsIdGenerator>();
 
+            HashSet<string> appliedMigrations = null;
+            if (!noConnect)
+            {
+                try
+                {
+                    appliedMigrations = new HashSet<string>(
+                        context.Database.GetAppliedMigrations(),
+                        StringComparer.OrdinalIgnoreCase);
+                }
+                catch (Exception ex)
+                {
+                    _reporter.WriteVerbose(ex.ToString());
+                    _reporter.WriteWarning(DesignStrings.ErrorConnecting(ex.Message));
+                }
+            }
+
             return from id in migrationsAssembly.Migrations.Keys
-                   select new MigrationInfo { Id = id, Name = idGenerator.GetName(id) };
+                   select new MigrationInfo
+                   {
+                       Id = id,
+                       Name = idGenerator.GetName(id),
+                       Applied = appliedMigrations?.Contains(id)
+                   };
         }
 
         /// <summary>

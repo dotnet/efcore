@@ -69,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return false;
             }
 
-            // For C# 8.0 nullable types, the C# currently synthesizes a NullableAttribute that expresses nullability into assemblies
-            // it produces. If the model is spread across more than one assembly, there will be multiple versions of this attribute,
-            // so look for it by name, caching to avoid reflection on every check.
+            // For C# 8.0 nullable types, the C# compiler currently synthesizes a NullableAttribute that expresses nullability into
+            // assemblies it produces. If the model is spread across more than one assembly, there will be multiple versions of this
+            // attribute, so look for it by name, caching to avoid reflection on every check.
             // Note that this may change - if https://github.com/dotnet/corefx/issues/36222 is done we can remove all of this.
 
             // First look for NullableAttribute on the member itself
@@ -114,6 +114,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                     if (state.NullableContextFlagFieldInfo?.GetValue(contextAttr) is byte flag)
                     {
+                        // We currently don't calculate support nullability for generic properties, since calculating that is complex
+                        // (depends on the nullability of generic type argument).
+                        // However, we special case Dictionary as it's used for property bags, and specifically don't identify its indexer
+                        // as non-nullable.
+                        if (memberInfo is PropertyInfo property
+                            && property.IsIndexerProperty()
+                            && type.IsGenericType
+                            && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                        {
+                            return false;
+                        }
+
                         return state.TypeCache[type] = flag == 1;
                     }
                 }

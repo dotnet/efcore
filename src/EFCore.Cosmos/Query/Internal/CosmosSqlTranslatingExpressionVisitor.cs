@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -963,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (extensionExpression is SqlExpression sqlExpression
                     && sqlExpression.TypeMapping == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.NullTypeMappingInSqlTree);
+                    throw new InvalidOperationException(CosmosStrings.NullTypeMappingInSqlTree);
                 }
 
                 return base.VisitExtension(extensionExpression);

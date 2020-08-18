@@ -833,6 +833,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+
+        public virtual async Task Query_on_collection_entry_works_for_owned_collection(bool async)
+        {
+            using var context = CreateContext();
+
+            var ownedPerson = context.Set<OwnedPerson>().AsTracking().Single(e => e.Id == 1);
+            var collectionQuery = context.Entry(ownedPerson).Collection(e => e.Orders).Query().AsNoTracking();
+
+            var actualOrders = async
+                ? await collectionQuery.ToListAsync()
+                : collectionQuery.ToList();
+
+            var expectedOrders = Fixture.GetExpectedData().Set<OwnedPerson>().Single(e => e.Id == 1).Orders;
+
+            Assert.Equal(expectedOrders.Count, actualOrders.Count);
+            foreach (var element in expectedOrders.OrderBy(ee => ee.Id).Zip(actualOrders.OrderBy(aa => aa.Id), (e, a) => new { e, a }))
+            {
+                Assert.Equal(element.e.Id, element.a.Id);
+                Assert.Equal(element.e["OrderDate"], element.a["OrderDate"]);
+            }
+        }
+
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
         public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase

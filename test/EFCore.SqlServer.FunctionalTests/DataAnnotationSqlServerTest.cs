@@ -125,6 +125,16 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
+        [ConditionalFact]
+        public virtual void ColumnAttribute_configures_the_property_correctly()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<One>();
+
+            Assert.Equal("Name",
+                modelBuilder.Model.FindEntityType(typeof(One)).FindProperty(nameof(One.RequiredColumn)).GetColumnName());
+        }
+
         public override ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
         {
             var modelBuilder = base.DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties();

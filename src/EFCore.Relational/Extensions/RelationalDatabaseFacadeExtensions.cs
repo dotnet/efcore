@@ -671,7 +671,8 @@ namespace Microsoft.EntityFrameworkCore
         ///    <see langword="false"/> otherwise.
         /// </returns>
         public static bool IsRelational([NotNull] this DatabaseFacade databaseFacade)
-            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies is IRelationalDatabaseFacadeDependencies;
+            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade)))
+                .Context.GetService<IDbContextOptions>().Extensions.OfType<RelationalOptionsExtension>().Any();
 
         private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
         {

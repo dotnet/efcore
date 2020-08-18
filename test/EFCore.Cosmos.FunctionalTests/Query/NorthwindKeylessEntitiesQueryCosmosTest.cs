@@ -136,9 +136,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task KeylesEntity_groupby(bool async)
+        public override async Task KeylessEntity_groupby(bool async)
         {
-            await base.KeylesEntity_groupby(async);
+            await base.KeylessEntity_groupby(async);
 
             AssertSql(@"");
         }

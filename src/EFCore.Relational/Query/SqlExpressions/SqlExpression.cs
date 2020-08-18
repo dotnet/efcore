@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => throw new InvalidOperationException(CoreStrings.VisitChildrenMustBeOverridden);
+            => throw new InvalidOperationException(RelationalStrings.VisitChildrenMustBeOverridden);
 
         /// <inheritdoc />
         public sealed override ExpressionType NodeType => ExpressionType.Extension;

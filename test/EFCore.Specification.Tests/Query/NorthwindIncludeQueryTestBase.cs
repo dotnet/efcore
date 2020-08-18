@@ -178,15 +178,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Include_collection_with_last_no_orderby(bool async)
+        public virtual Task Include_collection_with_last_no_orderby(bool async)
         {
-            Assert.Equal(
-                CoreStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => AssertLast(
-                        async,
-                        ss => ss.Set<Customer>().Include(c => c.Orders),
-                        entryCount: 8))).Message);
+            return AssertLast(
+                async,
+                ss => ss.Set<Customer>().Include(c => c.Orders),
+                entryCount: 8);
         }
 
         [ConditionalTheory]

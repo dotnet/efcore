@@ -26,11 +26,13 @@ LONG DESCRIPTION
 
         Get-DbContext               Gets information about a DbContext type.
 
+        Get-Migration               Lists the migrations in the migration assembly.
+
         Remove-Migration            Removes the last migration.
 
         Scaffold-DbContext          Scaffolds a DbContext and entity types for a database.
 
-        Script-DbContext            Generates a SQL script from the current DbContext. 
+        Script-DbContext            Generates a SQL script from the current DbContext.
 
         Script-Migration            Generates a SQL script from migrations.
 
@@ -40,6 +42,7 @@ SEE ALSO
     Add-Migration
     Drop-Database
     Get-DbContext
+    Get-Migration
     Remove-Migration
     Scaffold-DbContext
     Script-DbContext

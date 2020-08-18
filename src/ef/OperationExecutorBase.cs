@@ -104,10 +104,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 "RemoveMigration",
                 new Dictionary<string, object> { ["contextType"] = contextType, ["force"] = force });
 
-        public IEnumerable<IDictionary> GetMigrations(string contextType)
+        public IEnumerable<IDictionary> GetMigrations(string contextType, string connectionString, bool noConnect)
             => InvokeOperation<IEnumerable<IDictionary>>(
                 "GetMigrations",
-                new Dictionary<string, object> { ["contextType"] = contextType });
+                new Dictionary<string, object>
+                {
+                    ["contextType"] = contextType,
+                    ["connectionString"] = connectionString,
+                    ["noConnect"] = noConnect
+                });
 
         public void DropDatabase(string contextType)
             => InvokeOperation(

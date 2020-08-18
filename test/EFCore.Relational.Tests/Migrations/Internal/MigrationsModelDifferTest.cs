@@ -1761,6 +1761,51 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Add_table_sharing_to_TPT()
+        {
+            Execute(
+                common => {
+                    common.Entity(
+                     "Order",
+                     x =>
+                     {
+                         x.ToTable("Order");
+                         x.Property<int>("Id");
+                     });
+                    common.Entity(
+                     "DetailedOrder",
+                     x =>
+                     {
+                         x.ToTable("DetailedOrder");
+                         x.HasBaseType("Order");
+                         x.Property<string>("Description").HasColumnName("Description");
+                     });
+                },
+                _ => { },
+                target => {
+                    target.Entity(
+                     "OrderDetails",
+                     x =>
+                     {
+                         x.ToTable("DetailedOrder");
+                         x.Property<int>("Id");
+                         x.Property<string>("Description").HasColumnName("Description");
+                         x.Property<DateTime>("OrderDate");
+                         x.HasOne("DetailedOrder", null).WithOne().HasForeignKey("OrderDetails", "Id");
+                     });
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddColumnOperation>(operations[0]);
+                    Assert.Null(operation.Schema);
+                    Assert.Equal("DetailedOrder", operation.Table);
+                    Assert.Equal("OrderDate", operation.Name);
+                });
+        }
+
+        [ConditionalFact]
         public void Rename_column_in_TPT_with_table_sharing_and_seed_data()
         {
             Execute(

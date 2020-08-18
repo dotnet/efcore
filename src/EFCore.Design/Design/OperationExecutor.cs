@@ -235,6 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///         <c>targetMigration</c>--The target <see cref="Migration" />. If <see cref="Migration.InitialDatabase" />, all migrations will be
             ///         reverted. Defaults to the last migration.
             ///     </para>
+            ///     <para><c>connectionString</c>--The connection string to the database. Defaults to the one specified in <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext"/> or <see cref="DbContext.OnConfiguring"/>.</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
@@ -410,6 +411,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>Initializes a new instance of the <see cref="GetMigrations" /> class.</para>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+            ///     <para><c>connectionString</c>--The connection string to the database. Defaults to the one specified in <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext"/> or <see cref="DbContext.OnConfiguring"/>.</para>
+            ///     <para><c>noConnect</c>--Don't connect to the database.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
@@ -422,14 +425,19 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(args, nameof(args));
 
                 var contextType = (string)args["contextType"];
+                var connectionString = (string)args["connectionString"];
+                var noConnect = (bool)(args["noConnect"] ?? true);
 
-                Execute(() => executor.GetMigrationsImpl(contextType));
+                Execute(() => executor.GetMigrationsImpl(contextType, connectionString, noConnect));
             }
         }
 
-        private IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextType)
+        private IEnumerable<IDictionary> GetMigrationsImpl(
+            [CanBeNull] string contextType,
+            string connectionString,
+            bool noConnect)
         {
-            var migrations = MigrationsOperations.GetMigrations(contextType).ToList();
+            var migrations = MigrationsOperations.GetMigrations(contextType, connectionString, noConnect).ToList();
             var nameGroups = migrations.GroupBy(m => m.Name).ToList();
 
             return migrations.Select(
@@ -439,7 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                     ["Name"] = m.Name,
                     ["SafeName"] = nameGroups.Count(g => g.Key == m.Name) == 1
                         ? m.Name
-                        : m.Id
+                        : m.Id,
+                    ["Applied"] = m.Applied
                 });
         }
 

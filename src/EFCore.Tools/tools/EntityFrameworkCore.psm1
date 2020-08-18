@@ -216,6 +216,78 @@ function Get-DbContext
 }
 
 #
+# Get-Migration
+#
+
+Register-TabExpansion Get-Migration @{
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Lists available migrations.
+
+.DESCRIPTION
+    Lists available migrations.
+
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
+.PARAMETER NoConnect
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    Add-Migration
+    Remove-Migration
+    Update-Database
+    about_EntityFrameworkCore
+#>
+function Get-Migration
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param(
+        [string] $Connection,
+        [switch] $NoConnect,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
+
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
+
+    $params = 'migrations', 'list', '--json'
+
+    if ($Connection)
+    {
+        $params += '--connection', $Connection
+    }
+
+    if ($NoConnect)
+    {
+        $params += '--no-connect'
+    }
+
+    $params += GetParams $Context
+
+    # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+    return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
+}
+
+#
 # Remove-Migration
 #
 
@@ -249,6 +321,7 @@ Register-TabExpansion Remove-Migration @{
 
 .LINK
     Add-Migration
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Remove-Migration
@@ -572,6 +645,7 @@ Register-TabExpansion Script-Migration @{
 
 .LINK
     Update-Database
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Script-Migration
@@ -754,7 +828,7 @@ function GetMigrations($context, $projectName, $startupProjectName)
     $project = GetProject $projectName
     $startupProject = GetStartupProject $startupProjectName $project
 
-    $params = 'migrations', 'list', '--json'
+    $params = 'migrations', 'list', '--no-connect', '--json'
     $params += GetParams $context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0

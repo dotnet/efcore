@@ -332,8 +332,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IQueryable BuildQueryRoot(IEntityType ownerOrDefiningEntityType, IEntityType entityType, string navigationName)
         {
             var queryRoot = BuildQueryRoot(ownerOrDefiningEntityType);
+            var collectionNavigation = ownerOrDefiningEntityType.FindNavigation(navigationName).IsCollection;
 
-            return (IQueryable)_selectMethod.MakeGenericMethod(ownerOrDefiningEntityType.ClrType, entityType.ClrType)
+            return (IQueryable)(collectionNavigation ? _selectManyMethod : _selectMethod)
+                .MakeGenericMethod(ownerOrDefiningEntityType.ClrType, entityType.ClrType)
                 .Invoke(null, new object[] { queryRoot, navigationName });
         }
 
@@ -348,6 +350,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var parameter = Expression.Parameter(typeof(TSource), "e");
             return source.Select(
                 Expression.Lambda<Func<TSource, TResult>>(
+                    Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)),
+                    parameter));
+        }
+
+        private static readonly MethodInfo _selectManyMethod
+            = typeof(EntityFinder<TEntity>).GetTypeInfo().GetDeclaredMethods(nameof(SelectMany)).Single(mi => mi.IsGenericMethodDefinition);
+
+        private static IQueryable<TResult> SelectMany<TSource, TResult>(
+            [NotNull] IQueryable<TSource> source, [NotNull] string propertyName)
+            where TResult : class
+            where TSource : class
+        {
+            var parameter = Expression.Parameter(typeof(TSource), "e");
+            return source.SelectMany(
+                Expression.Lambda<Func<TSource, IEnumerable<TResult>>>(
                     Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)),
                     parameter));
         }
