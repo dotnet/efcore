@@ -132,9 +132,6 @@
   <data name="ModelNotFinalized" xml:space="preserve">
     <value>The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.</value>
   </data>
-  <data name="NoElements" xml:space="preserve">
-    <value>Sequence contains no elements.</value>
-  </data>
   <data name="NotQueryingEnumerable" xml:space="preserve">
     <value>The given 'IQueryable' does not support generation of query strings.</value>
   </data>
@@ -258,7 +255,7 @@
     <value>The property '{property}' of entity type '{entity}' does not have a getter. Either make the property readable or use a different '{pam}'.</value>
   </data>
   <data name="NoClrType" xml:space="preserve">
-    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type.  Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
+    <value>The CLR entity materializer cannot be used for entity type '{entityType}' because it is a shadow state entity type. Materialization to a CLR type is only possible for entity types that have a corresponding CLR type.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Services for database providers {storeNames} have been registered in the service provider. Only a single database provider can be registered in a service provider. If possible, ensure that Entity Framework is managing its service provider by removing the call to UseInternalServiceProvider. Otherwise, consider conditionally registering the database provider, or maintaining one service provider per database provider.</value>
@@ -568,7 +565,7 @@
     <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
-    <value>The specified type '{type}'must be a non-interface reference type to be used as an entity type .</value>
+    <value>The specified type '{type}'must be a non-interface reference type to be used as an entity type.</value>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
     <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' with foreign key properties {foreignKeyPropertiesWithTypes} cannot target the primary key {primaryKeyPropertiesWithTypes} because it is not compatible. Configure a principal key or a set of compatible foreign key properties for this relationship.</value>
@@ -1215,6 +1212,7 @@
   </data>
   <data name="IncludeOnEntityWithDefiningQueryNotSupported" xml:space="preserve">
     <value>Include is not supported for entities with defining query. Entity type: '{entityType}'</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="LogRequiredAttributeOnCollection" xml:space="preserve">
     <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored because it is a collection. RequiredAttribute should only be specified on reference navigations pointing to the principal side of the relationship.</value>
@@ -1286,9 +1284,6 @@
   <data name="SkipNavigationInUseBySkipNavigation" xml:space="preserve">
     <value>The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.</value>
   </data>
-  <data name="LastUsedWithoutOrderBy" xml:space="preserve">
-    <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.</value>
-  </data>
   <data name="ImmediateConventionScopeCannotBeRunAgain" xml:space="preserve">
     <value>Immediate convention scope cannot be run again.</value>
   </data>
@@ -1300,9 +1295,6 @@
   </data>
   <data name="UnhandledMemberBinding" xml:space="preserve">
     <value>Unhandled member binding type '{bindingType}'.</value>
-  </data>
-  <data name="InvalidIncludePath" xml:space="preserve">
-    <value>Invalid include path '{navigationChain}', couldn't find navigation for '{navigationName}'.</value>
   </data>
   <data name="InvalidLambdaExpressionInsideInclude" xml:space="preserve">
     <value>Lambda expression used inside Include is not valid.</value>
@@ -1337,24 +1329,6 @@
   <data name="VisitIsNotAllowed" xml:space="preserve">
     <value>Calling '{visitMethodName}' is not allowed. Visit expression manually for relevant part.</value>
   </data>
-  <data name="EntityProjectionExpressionCalledWithIncorrectInterface" xml:space="preserve">
-    <value>Called EntityProjectionExpression.{methodName}() with incorrect {interfaceType}. EntityType:{entityType}, {entityValue}</value>
-  </data>
-  <data name="UnsupportedUnary" xml:space="preserve">
-    <value>Unsupported Unary operator type specified.</value>
-  </data>
-  <data name="IncorrectOperatorType" xml:space="preserve">
-    <value>Incorrect operatorType for SqlBinaryExpression.</value>
-  </data>
-  <data name="NullTypeMappingInSqlTree" xml:space="preserve">
-    <value>Null TypeMapping in Sql Tree.</value>
-  </data>
-  <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
-    <value>VisitChildren must be overridden in class deriving from SqlExpression.</value>
-  </data>
-  <data name="UnsupportedBinaryOperator" xml:space="preserve">
-    <value>Unsupported Binary operator type specified.</value>
-  </data>
   <data name="QueryUnableToTranslateEFProperty" xml:space="preserve">
     <value>Translation of '{expression}' failed. Either source is not an entity type or the specified property does not exist on the entity type.</value>
   </data>
@@ -1366,12 +1340,6 @@
   </data>
   <data name="QueryUnableToTranslateMethod" xml:space="preserve">
     <value>Translation of method '{declaringTypeName}.{methodName}' failed. If you are trying to map your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.</value>
-  </data>
-  <data name="InvalidStateEncountered" xml:space="preserve">
-    <value>Invalid {state} encountered.</value>
-  </data>
-  <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
-    <value>Cannot apply DefaultIfEmpty after a client-evaluated projection.</value>
   </data>
   <data name="LogConflictingKeylessAndKeyAttributes" xml:space="preserve">
     <value>Conflicting attributes have been applied: the 'Key' attribute on property '{property}' and the 'Keyless' attribute on its entity '{entity}'. Note that the entity will have no key unless you use fluent API to override this.</value>

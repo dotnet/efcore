@@ -1071,6 +1071,42 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("TableNotMappedEntityType", nameof(entityType), nameof(table)),
                 entityType, table);
 
+        /// <summary>
+        ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.
+        /// </summary>
+        public static string LastUsedWithoutOrderBy([CanBeNull] object method)
+            => string.Format(
+                GetString("LastUsedWithoutOrderBy", nameof(method)),
+                method);
+
+        /// <summary>
+        ///     Null TypeMapping in Sql Tree.
+        /// </summary>
+        public static string NullTypeMappingInSqlTree
+            => GetString("NullTypeMappingInSqlTree");
+
+        /// <summary>
+        ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
+        /// </summary>
+        public static string UnableToBindMemberToEntityProjection([CanBeNull] object memberType, [CanBeNull] object member, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
+                memberType, member, entityType);
+
+        /// <summary>
+        ///     Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.
+        /// </summary>
+        public static string UnsupportedOperatorForSqlExpression([CanBeNull] object nodeType, [CanBeNull] object expressionType)
+            => string.Format(
+                GetString("UnsupportedOperatorForSqlExpression", nameof(nodeType), nameof(expressionType)),
+                nodeType, expressionType);
+
+        /// <summary>
+        ///     VisitChildren must be overridden in class deriving from SqlExpression.
+        /// </summary>
+        public static string VisitChildrenMustBeOverridden
+            => GetString("VisitChildrenMustBeOverridden");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -1540,7 +1540,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     if (sqlExpression.TypeMapping == null)
                     {
-                        throw new InvalidOperationException(CoreStrings.NullTypeMappingInSqlTree);
+                        throw new InvalidOperationException(RelationalStrings.NullTypeMappingInSqlTree);
                     }
                 }
 

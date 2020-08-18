@@ -118,15 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Single(context.ChangeTracker.Entries());
         }
 
-        public override async Task Include_collection_with_last_no_orderby(bool async)
+        public override Task Include_collection_with_last_no_orderby(bool async)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("DbSet<Customer>()    .Reverse()"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => AssertLast(
-                        async,
-                        ss => ss.Set<Customer>().Include(c => c.Orders),
-                        entryCount: 8))).Message.Replace("\r", "").Replace("\n", ""));
+            return AssertTranslationFailedWithDetails(
+                () => base.Include_collection_with_last_no_orderby(async), RelationalStrings.MissingOrderingInSqlExpression);
         }
 
         [ConditionalTheory(Skip = "Collection Include on nested collection")]

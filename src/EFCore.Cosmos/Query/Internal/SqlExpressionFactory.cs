@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -137,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.TranslationFailed(sqlUnaryExpression.Print()));
+                    throw new InvalidOperationException(CosmosStrings.UnsupportedOperatorForSqlExpression(
+                        sqlUnaryExpression.OperatorType, typeof(SqlUnaryExpression).ShortDisplayName()));;
             }
 
             return new SqlUnaryExpression(sqlUnaryExpression.OperatorType, operand, resultType, resultTypeMapping);
@@ -197,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 break;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.IncorrectOperatorType);
+                    throw new InvalidOperationException(CosmosStrings.UnsupportedOperatorForSqlExpression(
+                        sqlBinaryExpression.OperatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
             }
 
             return new SqlBinaryExpression(

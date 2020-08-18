@@ -118,8 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
-                        "GetProperty", nameof(IProperty), EntityType.DisplayName(), $"Property:{property.Name}"));
+                    CosmosStrings.UnableToBindMemberToEntityProjection("Property", property.Name, EntityType.DisplayName()));
             }
 
             if (!_propertyExpressionsMap.TryGetValue(property, out var expression))
@@ -150,8 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityProjectionExpressionCalledWithIncorrectInterface(
-                        "GetNavigation", nameof(INavigation), EntityType.DisplayName(), $"Navigation:{navigation.Name}"));
+                    CosmosStrings.UnableToBindMemberToEntityProjection("Navigation", navigation.Name, EntityType.DisplayName()));
             }
 
             if (!_navigationExpressionsMap.TryGetValue(navigation, out var expression))

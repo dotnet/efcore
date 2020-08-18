@@ -814,7 +814,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (entityReference.EntityType.GetDefiningQuery() != null)
                 {
                     throw new InvalidOperationException(
+#pragma warning disable CS0612 // Type or member is obsolete
                         CoreStrings.IncludeOnEntityWithDefiningQueryNotSupported(entityReference.EntityType.DisplayName()));
+#pragma warning restore CS0612 // Type or member is obsolete
                 }
 #pragma warning restore CS0618 // Type or member is obsolete
 
