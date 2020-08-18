@@ -3,6 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -178,6 +180,23 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ORDER BY [o].[OrderID], [c].[CustomerID]");
+        }
+
+        [ConditionalFact]
+        public virtual void ToQueryString_for_include_reference_and_collection()
+        {
+            using var context = CreateContext();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+ORDER BY [o].[OrderID], [c].[CustomerID]
+
+This LINQ query is being executed in split-query mode. The SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.",
+                context.Set<Order>().Include(o => o.Customer).Include(o => o.OrderDetails).AsSplitQuery().ToQueryString(),
+                ignoreLineEndingDifferences: true,
+                ignoreWhiteSpaceDifferences: true);
         }
 
         public override async Task Include_references_multi_level(bool async)
@@ -1757,6 +1776,16 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [c].[City] = N'Seattle'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override Task Include_collection_with_last_no_orderby(bool async)
+        {
+            return AssertTranslationFailedWithDetails(
+                () => AssertLast(
+                        async,
+                        ss => ss.Set<Customer>().Include(c => c.Orders),
+                        entryCount: 8
+                 ), RelationalStrings.MissingOrderingInSqlExpression);
         }
 
         private void AssertSql(params string[] expected)
