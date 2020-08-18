@@ -820,7 +820,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         if (columns.SequenceEqual(principalColumns))
                         {
                             // Principal and dependent properties are mapped to the same columns so the constraint is redundant
-                            continue;
+                            break;
                         }
 
                         constraint = new ForeignKeyConstraint(name, table, principalTable, columns, principalColumns,
