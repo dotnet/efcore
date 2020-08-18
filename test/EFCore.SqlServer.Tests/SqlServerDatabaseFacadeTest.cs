@@ -25,6 +25,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void IsRelational_in_OnModelCreating_when_using_OnConfiguring()
+        {
+            using var context = new RelationalOnModelContext();
+            var _ = context.Model; // Trigger context initialization
+            Assert.True(context.IsSqlServerSet);
+        }
+
+        [ConditionalFact]
         public void IsSqlServer_in_constructor_when_using_OnConfiguring()
         {
             using var context = new SqlServerConstructorContext();
@@ -129,6 +137,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => IsSqlServerSet = Database.IsSqlServer();
+        }
+
+        private class RelationalOnModelContext : SqlServerOnConfiguringContext
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => IsSqlServerSet = Database.IsRelational();
         }
 
         private class SqlServerConstructorContext : SqlServerOnConfiguringContext
