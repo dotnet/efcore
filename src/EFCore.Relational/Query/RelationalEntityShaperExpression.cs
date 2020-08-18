@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -103,37 +104,43 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (entityType.FindPrimaryKey() != null)
             {
-                if (entityType.GetViewOrTableMappings().FirstOrDefault()?.Table.IsOptional(entityType) == true)
+                var table = entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
+                if (table != null
+                    && table.IsOptional(entityType))
                 {
                     // Optional dependent
                     var body = baseCondition.Body;
                     var valueBufferParameter = baseCondition.Parameters[0];
+                    Expression condition = null;
                     var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
                     if (requiredNonPkProperties.Count > 0)
                     {
-                        body = Condition(
-                            requiredNonPkProperties
-                                .Select(p => NotEqual(
-                                    valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                    Constant(null)))
-                                .Aggregate((a, b) => AndAlso(a, b)),
-                            body,
-                            Default(typeof(IEntityType)));
+                        condition = requiredNonPkProperties
+                            .Select(p => NotEqual(
+                                valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                                Constant(null)))
+                            .Aggregate((a, b) => AndAlso(a, b));
                     }
-                    else
+
+                    var allNonSharedProperties = GetNonSharedProperties(table, entityType);
+                    if (allNonSharedProperties.Count != 0
+                        && allNonSharedProperties.Count(p => !p.IsNullable) == 0)
                     {
-                        var allNonPkProperties = entityType.GetProperties().Where(p => !p.IsPrimaryKey()).ToList();
-                        if (allNonPkProperties.Count > 0)
-                        {
-                            body = Condition(
-                                allNonPkProperties
-                                    .Select(p => NotEqual(
-                                        valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                        Constant(null)))
-                                    .Aggregate((a, b) => OrElse(a, b)),
-                                body,
-                                Default(typeof(IEntityType)));
-                        }
+                        var allNonSharedNullableProperties = allNonSharedProperties.Where(p => p.IsNullable).ToList();
+                        var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNullableProperties
+                            .Select(p => NotEqual(
+                                valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                                Constant(null)))
+                            .Aggregate((a, b) => OrElse(a, b));
+
+                        condition = condition == null
+                            ? atLeastOneNonNullValueInNullablePropertyCondition
+                            : AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
+                    }
+
+                    if (condition != null)
+                    {
+                        body = Condition(condition, body, Default(typeof(IEntityType)));
                     }
 
                     return Lambda(body, valueBufferParameter);
@@ -168,6 +175,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             return valueBufferExpression != ValueBufferExpression
                 ? new RelationalEntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
                 : this;
+        }
+
+        private IReadOnlyList<IProperty> GetNonSharedProperties(ITableBase table, IEntityType entityType)
+        {
+            var nonSharedProperties = new List<IProperty>();
+            var principalEntityTypes = new HashSet<IEntityType>();
+            GetPrincipalEntityTypes(table, entityType, principalEntityTypes);
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.IsPrimaryKey())
+                {
+                    continue;
+                }
+
+                var propertyMappings = table.FindColumn(property).PropertyMappings;
+                if (propertyMappings.Count() > 1
+                    && propertyMappings.Any(pm => principalEntityTypes.Any(et => !pm.Property.DeclaringEntityType.IsAssignableFrom(et))))
+                {
+                    continue;
+                }
+
+                nonSharedProperties.Add(property);
+            }
+
+            return nonSharedProperties;
+        }
+
+        private void GetPrincipalEntityTypes(ITableBase table, IEntityType entityType, HashSet<IEntityType> entityTypes)
+        {
+            foreach (var linkingFk in table.GetRowInternalForeignKeys(entityType))
+            {
+                entityTypes.Add(linkingFk.PrincipalEntityType);
+                GetPrincipalEntityTypes(table, linkingFk.PrincipalEntityType, entityTypes);
+            }
         }
     }
 }
