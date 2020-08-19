@@ -8375,6 +8375,151 @@ FROM [Entity21807] AS [e]");
 
         #endregion
 
+        #region Issue22054
+
+        [ConditionalFact]
+        public virtual void Optional_dependent_is_null_when_sharing_required_column_with_principal()
+        {
+            using (CreateDatabase22054())
+            {
+                using var context = new MyContext22054(_options);
+
+                var query = context.Set<User22054>().OrderByDescending(e => e.Id).ToList();
+
+                Assert.Equal(3, query.Count);
+
+                Assert.Null(query[0].Contact);
+                Assert.Null(query[0].Data);
+                Assert.NotNull(query[1].Data);
+                Assert.NotNull(query[1].Contact);
+                Assert.Null(query[1].Contact.Address);
+                Assert.NotNull(query[2].Data);
+                Assert.NotNull(query[2].Contact);
+                Assert.NotNull(query[2].Contact.Address);
+
+                AssertSql(
+                    @"SELECT [u].[Id], [u].[RowVersion], [u].[Contact_MobileNumber], [u].[SharedProperty], [u].[RowVersion], [u].[Contact_Address_City], [u].[Contact_Address_Zip], [u].[Data_Data]
+FROM [User22054] AS [u]
+ORDER BY [u].[Id] DESC");
+            }
+        }
+
+        private class User22054
+        {
+            public int Id { get; set; }
+            public Data22054 Data { get; set; }
+            public Contact22054 Contact { get; set; }
+            public byte[] RowVersion { get; set; }
+        }
+
+        private class Data22054
+        {
+            public string Data { get; set; }
+        }
+
+        private class Contact22054
+        {
+            public string MobileNumber { get; set; }
+            public string SharedProperty { get; set; }
+            public Address22054 Address { get; set; }
+        }
+
+        private class Address22054
+        {
+            public string City { get; set; }
+            public string SharedProperty { get; set; }
+            public string Zip { get; set; }
+        }
+
+        private class MyContext22054 : DbContext
+        {
+            public MyContext22054(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<User22054>(builder =>
+                {
+                    builder.HasKey(x => x.Id);
+
+                    builder.OwnsOne(x => x.Contact, contact =>
+                    {
+                        contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
+
+                        contact.OwnsOne(c => c.Address, address =>
+                        {
+                            address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
+                        });
+                    });
+
+                    builder.OwnsOne(e => e.Data)
+                        .Property<byte[]>("RowVersion")
+                        .IsRowVersion()
+                        .IsRequired()
+                        .HasColumnType("TIMESTAMP")
+                        .HasColumnName("RowVersion");
+
+                    builder.Property<byte[]>(x => x.RowVersion)
+                        .HasColumnType("TIMESTAMP")
+                        .IsRowVersion()
+                        .IsRequired()
+                        .HasColumnName("RowVersion");
+                });
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase22054()
+            => CreateTestStore(
+                () => new MyContext22054(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new User22054
+                        {
+                            Data = new Data22054
+                            {
+                                Data = "Data1"
+                            },
+                            Contact = new Contact22054
+                            {
+                                MobileNumber = "123456",
+                                SharedProperty = "Value1",
+                                Address = new Address22054
+                                {
+                                    City = "Seattle",
+                                    Zip = "12345",
+                                    SharedProperty = "Value1"
+                                }
+                            }
+                        },
+                        new User22054
+                        {
+                            Data = new Data22054
+                            {
+                                Data = "Data2"
+                            },
+                            Contact = new Contact22054
+                            {
+                                MobileNumber = "654321",
+                                SharedProperty = "Value2",
+                                Address = null
+                            }
+                        },
+                        new User22054
+                        {
+                            Contact = null,
+                            Data = null
+                        });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
