@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -335,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             if (property.ValueGenerated != ValueGenerated.OnAdd
-                || property.IsForeignKey()
+                || property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
                 || property.GetDefaultValue(storeObject) != null
                 || property.GetDefaultValueSql(storeObject) != null
                 || property.GetComputedColumnSql(storeObject) != null)

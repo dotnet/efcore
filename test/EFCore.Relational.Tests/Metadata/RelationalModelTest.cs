@@ -435,12 +435,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("AK_Customer_SpecialityAk", specialCustomerUniqueConstraint.Name);
                 Assert.NotNull(specialCustomerUniqueConstraint.MappedKeys.Single());
 
-                var specialCustomerFkConstraint = specialCustomerTable.ForeignKeyConstraints.First();
+                var foreignKeys = specialCustomerTable.ForeignKeyConstraints.ToArray();
+
+                var specialCustomerTptFkConstraint = foreignKeys[0];
+                Assert.Equal("FK_SpecialCustomer_Customer_Id", specialCustomerTptFkConstraint.Name);
+                Assert.NotNull(specialCustomerTptFkConstraint.MappedForeignKeys.Single());
+                Assert.Same(customerTable, specialCustomerTptFkConstraint.PrincipalTable);
+
+                var specialCustomerFkConstraint = foreignKeys[1];
                 Assert.Equal("FK_SpecialCustomer_Customer_RelatedCustomerSpeciality", specialCustomerFkConstraint.Name);
                 Assert.NotNull(specialCustomerFkConstraint.MappedForeignKeys.Single());
                 Assert.Same(customerTable, specialCustomerFkConstraint.PrincipalTable);
 
-                var anotherSpecialCustomerFkConstraint = specialCustomerTable.ForeignKeyConstraints.Last();
+                var anotherSpecialCustomerFkConstraint = foreignKeys[2];
                 Assert.Equal("FK_SpecialCustomer_SpecialCustomer_AnotherRelatedCustomerId", anotherSpecialCustomerFkConstraint.Name);
                 Assert.NotNull(anotherSpecialCustomerFkConstraint.MappedForeignKeys.Single());
                 Assert.Same(specialCustomerTable, anotherSpecialCustomerFkConstraint.PrincipalTable);

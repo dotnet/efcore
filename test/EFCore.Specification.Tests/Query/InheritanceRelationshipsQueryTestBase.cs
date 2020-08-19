@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(nameof(BaseReferenceOnDerived.BaseParent), fkOnBase.DependentToPrincipal.Name);
             Assert.Equal(nameof(DerivedInheritanceRelationshipEntity.BaseReferenceOnDerived), fkOnBase.PrincipalToDependent.Name);
 
-            var fkOnDerived = derivedDependentEntityType.GetDeclaredForeignKeys().Single();
+            var fkOnDerived = derivedDependentEntityType.GetDeclaredForeignKeys().Single(fk => fk.PrincipalEntityType != dependentEntityType);
             Assert.NotSame(fkOnBase, fkOnDerived);
             Assert.Equal(principalEntityType, fkOnDerived.PrincipalEntityType);
             Assert.Equal(derivedDependentEntityType, fkOnDerived.DeclaringEntityType);

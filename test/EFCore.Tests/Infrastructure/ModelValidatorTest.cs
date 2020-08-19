@@ -883,15 +883,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_ForeignKey_on_inherited_generated_key_property()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Abstract>().Property(e => e.Id).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>(e => e.Id);
+            modelBuilder.Entity<Abstract>().Property<int>("SomeId").ValueGeneratedOnAdd();
+            modelBuilder.Entity<Abstract>().HasAlternateKey("SomeId");
+            modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>("SomeId");
             modelBuilder.Entity<Generic<string>>();
 
             VerifyError(
                 CoreStrings.ForeignKeyPropertyInKey(
-                    nameof(Abstract.Id),
+                    "SomeId",
                     "Generic<int>",
-                    "{'" + nameof(Abstract.Id) + "'}",
+                    "{'SomeId'}",
                     nameof(Abstract)), modelBuilder.Model);
         }
 

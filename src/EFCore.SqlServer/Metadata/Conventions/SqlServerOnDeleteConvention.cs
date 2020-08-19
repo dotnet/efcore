@@ -46,6 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return deleteBehavior;
             }
 
+            if (foreignKey.IsBaseLinking())
+            {
+                return DeleteBehavior.ClientCascade;
+            }
+
             var selfReferencingSkipNavigation = foreignKey.GetReferencingSkipNavigations()
                 .FirstOrDefault(s => s.Inverse != null && s.TargetEntityType == s.DeclaringEntityType);
             if (selfReferencingSkipNavigation == null)

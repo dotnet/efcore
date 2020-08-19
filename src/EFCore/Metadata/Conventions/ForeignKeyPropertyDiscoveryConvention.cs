@@ -157,7 +157,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 || foreignKey.DeclaringEntityType.IsKeyless
                 || (!foreignKey.IsUnique && !ConfigurationSource.Convention.Overrides(foreignKey.GetIsUniqueConfigurationSource()))
                 || foreignKey.PrincipalToDependent?.IsCollection == true
-                || foreignKey.DeclaringEntityType.FindOwnership() != null)
+                || foreignKey.DeclaringEntityType.FindOwnership() != null
+                || (foreignKey.IsBaseLinking()
+                    && foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)))
             {
                 relationshipBuilder = relationshipBuilder.HasEntityTypes(
                     foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType);

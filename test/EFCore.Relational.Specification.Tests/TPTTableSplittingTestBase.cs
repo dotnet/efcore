@@ -26,20 +26,45 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Vehicle>().ToTable("Vehicles");
             modelBuilder.Entity<PoweredVehicle>().ToTable("PoweredVehicles");
 
-            modelBuilder.Entity<Operator>().ToTable("Vehicles");
+            modelBuilder.Entity<Operator>(
+                eb =>
+                {
+                    eb.ToTable("Vehicles");
+                    eb.HasOne(e => e.Vehicle)
+                        .WithOne(e => e.Operator)
+                        .HasForeignKey<Operator>(e => e.VehicleName)
+                        .OnDelete(DeleteBehavior.ClientCascade);
+                    eb.HasOne(e => e.Details)
+                        .WithOne()
+                        .HasForeignKey<OperatorDetails>(e => e.VehicleName)
+                        .OnDelete(DeleteBehavior.ClientCascade);
+                });
+
             modelBuilder.Entity<LicensedOperator>().ToTable("LicensedOperators");
 
             modelBuilder.Entity<OperatorDetails>().ToTable("Vehicles");
 
             modelBuilder.Entity<Engine>().ToTable("PoweredVehicles")
-                .HasOne(e => e.Vehicle).WithOne(e => e.Engine).OnDelete(DeleteBehavior.NoAction);
+                .HasOne(e => e.Vehicle).WithOne(e => e.Engine).OnDelete(DeleteBehavior.ClientCascade);
             modelBuilder.Entity<CombustionEngine>().ToTable("CombustionEngines");
             modelBuilder.Entity<IntermittentCombustionEngine>().ToTable("IntermittentCombustionEngines");
             modelBuilder.Entity<ContinuousCombustionEngine>().ToTable("ContinuousCombustionEngines");
             modelBuilder.Entity<SolidRocket>().ToTable("SolidRockets").Ignore(e => e.SolidFuelTank);
 
-            modelBuilder.Entity<FuelTank>().ToTable("CombustionEngines")
-                .HasOne(e => e.Vehicle).WithOne().OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<FuelTank>(
+                eb =>
+                {
+                    eb.ToTable("CombustionEngines");
+
+                    eb.HasOne(e => e.Engine)
+                        .WithOne(e => e.FuelTank)
+                        .HasForeignKey<FuelTank>(e => e.VehicleName)
+                        .OnDelete(DeleteBehavior.ClientCascade);
+                    eb.HasOne(e => e.Vehicle)
+                        .WithOne()
+                        .HasForeignKey<FuelTank>(e => e.VehicleName)
+                        .OnDelete(DeleteBehavior.ClientCascade);
+                });
             modelBuilder.Entity<SolidFuelTank>().ToTable("SolidFuelTanks").Ignore(e => e.Rocket);
         }
     }

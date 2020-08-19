@@ -948,9 +948,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // other dependents.
                     foreach (var referencingFk in entityType.GetReferencingForeignKeys())
                     {
+                        if (referencingFk.PrincipalEntityType.IsAssignableFrom(entityType))
+                        {
+                            continue;
+                        }
+
                         var otherSelectExpression = new SelectExpression(entityType, this);
 
-                        var sameTable = table.IsOptional(referencingFk.DeclaringEntityType);
+                        var sameTable = table.EntityTypeMappings.Any(m => m.EntityType == referencingFk.DeclaringEntityType)
+                            && table.IsOptional(referencingFk.DeclaringEntityType);
                         AddInnerJoin(
                             otherSelectExpression, referencingFk,
                             sameTable ? table : null);

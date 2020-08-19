@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         var principalType = foreignKey.PrincipalEntityType;
                         if (!foreignKey.PrincipalKey.IsPrimaryKey()
                             || !unvalidatedEntityTypes.Contains(principalType)
-                            || foreignKey.PrincipalEntityType == entityType
+                            || foreignKey.PrincipalEntityType.IsAssignableFrom(entityType)
                             || !PropertyListComparer.Instance.Equals(foreignKey.Properties, primaryKey.Properties))
                         {
                             continue;
@@ -770,12 +770,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 foreach (var declaredForeignKey in entityType.GetDeclaredForeignKeys())
                 {
                     if (declaredForeignKey.PrincipalEntityType == declaredForeignKey.DeclaringEntityType
-                        && PropertyListComparer.Instance.Equals(declaredForeignKey.PrincipalKey.Properties, declaredForeignKey.Properties))
+                        && declaredForeignKey.PrincipalKey.Properties.SequenceEqual(declaredForeignKey.Properties))
                     {
                         logger.RedundantForeignKeyWarning(declaredForeignKey);
                     }
 
-                    if (entityType.BaseType == null)
+                    if (entityType.BaseType == null
+                        || declaredForeignKey.IsBaseLinking())
                     {
                         continue;
                     }
