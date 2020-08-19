@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var allNonSharedProperties = GetNonSharedProperties(table, entityType);
                     if (allNonSharedProperties.Count != 0
-                        && allNonSharedProperties.Count(p => !p.IsNullable) == 0)
+                        && allNonSharedProperties.All(p => p.IsNullable))
                     {
                         var allNonSharedNullableProperties = allNonSharedProperties.Where(p => p.IsNullable).ToList();
                         var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNullableProperties
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var propertyMappings = table.FindColumn(property).PropertyMappings;
                 if (propertyMappings.Count() > 1
-                    && propertyMappings.Any(pm => principalEntityTypes.Any(et => !pm.Property.DeclaringEntityType.IsAssignableFrom(et))))
+                    && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
                 {
                     continue;
                 }
