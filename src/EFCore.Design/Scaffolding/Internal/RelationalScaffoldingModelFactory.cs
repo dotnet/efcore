@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     ? (Func<DatabaseTable, string>)(t => t.Name)
                     : t => _candidateNamingService.GenerateCandidateIdentifier(t),
                 _cSharpUtilities,
-                options.UseDatabaseNames || options.NoPluralize
+                options.NoPluralize
                     ? (Func<string, string>)null
                     : _pluralizer.Singularize);
             _dbSetNamer = new CSharpUniqueNamer<DatabaseTable>(
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     ? (Func<DatabaseTable, string>)(t => t.Name)
                     : t => _candidateNamingService.GenerateCandidateIdentifier(t),
                 _cSharpUtilities,
-                options.UseDatabaseNames || options.NoPluralize
+                options.NoPluralize
                     ? (Func<string, string>)null
                     : _pluralizer.Pluralize);
             _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();

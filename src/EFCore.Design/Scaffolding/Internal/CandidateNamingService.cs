@@ -152,9 +152,23 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static string StripId(string commonPrefix)
         {
-            return commonPrefix.Length > 2
-                   && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase)
-                ? commonPrefix[..^2]
+            if (commonPrefix.Length < 3
+                   || !commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase))
+            {
+                return commonPrefix;
+            }
+
+            int i;
+            for (i = commonPrefix.Length - 3; i >= 0; i--)
+            {
+                if (char.IsLetterOrDigit(commonPrefix[i]))
+                {
+                    break;
+                }
+            }
+
+            return i != 0
+                ? commonPrefix.Substring(0, i + 1)
                 : commonPrefix;
         }
     }
