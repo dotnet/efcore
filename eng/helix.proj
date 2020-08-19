@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
+    <XUnitProject Include="$(RepoRoot)/test/**/Microsoft.Data.Sqlite.Tests.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
   </ItemGroup>
