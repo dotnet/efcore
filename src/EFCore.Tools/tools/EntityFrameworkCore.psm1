@@ -349,12 +349,15 @@ function Remove-Migration
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
 
-    $files = $result.migrationFile, $result.metadataFile, $result.snapshotFile
-    $files | ?{ $_ -ne $null } | %{
-        $projectItem = GetProjectItem $dteProject $_
-        if ($projectItem)
-        {
-            $projectItem.Remove()
+    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true')
+    {
+        $files = $result.migrationFile, $result.metadataFile, $result.snapshotFile
+        $files | ?{ $_ -ne $null } | %{
+            $projectItem = GetProjectItem $dteProject $_
+            if ($projectItem)
+            {
+                $projectItem.Remove()
+            }
         }
     }
 }

@@ -117,36 +117,27 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Deferred_allows_parallel_reads()
         {
-            const string connectionString = "Data Source=deferred.db";
+            const string connectionString = "Data Source=deferred;Mode=Memory;Cache=Shared";
 
-            try
+            using (var connection1 = new SqliteConnection(connectionString))
+            using (var connection2 = new SqliteConnection(connectionString))
             {
-                using (var connection = new SqliteConnection(connectionString))
-                {
-                    connection.Open();
-                    connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (42);");
-                }
+                connection1.Open();
+                connection2.Open();
 
-                using (var connection1 = new SqliteConnection(connectionString))
-                using (var connection2 = new SqliteConnection(connectionString))
-                {
-                    connection1.Open();
-                    connection2.Open();
+                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (42);");
 
-                    using (connection1.BeginTransaction(deferred: true))
+                using (connection1.BeginTransaction(deferred: true))
+                {
+                    var value1 = connection1.ExecuteScalar<long>("SELECT * FROM Data;");
+                    Assert.Equal(42L, value1);
+
                     using (connection2.BeginTransaction(deferred: true))
                     {
-                        var value1 = connection1.ExecuteScalar<long>("SELECT * FROM Data;");
                         var value2 = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
-
-                        Assert.Equal(42, value1);
-                        Assert.Equal(42, value2);
+                        Assert.Equal(42L, value2);
                     }
                 }
-            }
-            finally
-            {
-                File.Delete("deferred.db");
             }
         }
 
