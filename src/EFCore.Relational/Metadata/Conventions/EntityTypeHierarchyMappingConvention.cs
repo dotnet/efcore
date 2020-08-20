@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -42,6 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && (tableName != entityType.BaseType.GetTableName()
                         || schema != entityType.BaseType.GetSchema()))
                 {
+                    var pk = entityType.FindPrimaryKey();
+                    if (pk != null
+                        && !entityType.FindDeclaredForeignKeys(pk.Properties)
+                        .Any(fk => fk.PrincipalKey.IsPrimaryKey() && fk.PrincipalEntityType.IsAssignableFrom(entityType)))
+                    {
+                        entityType.Builder.HasRelationship(entityType.BaseType, pk.Properties, entityType.BaseType.FindPrimaryKey())
+                            .IsUnique(true);
+                    }
+
                     nonTphRoots.Add(entityType.GetRootType());
                 }
 

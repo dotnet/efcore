@@ -33,15 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsSelfPrimaryKeyReferencing([NotNull] this IForeignKey foreignKey)
-            => foreignKey.DeclaringEntityType.FindPrimaryKey() == foreignKey.PrincipalKey;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static IEnumerable<INavigation> GetNavigations([NotNull] this IForeignKey foreignKey)
         {
             if (foreignKey.PrincipalToDependent != null)

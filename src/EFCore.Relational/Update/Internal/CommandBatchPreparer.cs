@@ -177,7 +177,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
                 var mappingCount = mappings.Count;
                 ModificationCommand firstCommand = null;
-                var relatedCommands = mappingCount > 1 ? new List<ModificationCommand>(mappingCount) : null;
                 foreach (var mapping in mappings)
                 {
                     var table = mapping.Table;
@@ -216,32 +215,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         Check.DebugAssert(firstCommand == null, "firstCommand == null");
                         firstCommand = command;
                     }
-
-                    if (relatedCommands != null)
-                    {
-                        relatedCommands.Add(command);
-                    }
                 }
 
                 if (firstCommand == null)
                 {
                     throw new InvalidOperationException(RelationalStrings.ReadonlyEntitySaved(entry.EntityType.DisplayName()));
-                }
-
-                if (relatedCommands != null)
-                {
-                    if (firstCommand.EntityState == EntityState.Deleted)
-                    {
-                        relatedCommands.Reverse();
-                    }
-
-                    var previousCommand = relatedCommands[0];
-                    for (var i = 1; i < relatedCommands.Count; i++)
-                    {
-                        var relatedCommand = relatedCommands[i];
-                        relatedCommand.Predecessor = previousCommand;
-                        previousCommand = relatedCommand;
-                    }
                 }
             }
 
@@ -569,12 +547,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         {
             foreach (var command in commandGraph.Vertices)
             {
-                if (command.Predecessor != null)
-                {
-                    // This is usually an implicit relationship between TPT rows for the same entity
-                    commandGraph.AddEdge(command.Predecessor, command, null);
-                }
-
                 switch (command.EntityState)
                 {
                     case EntityState.Modified:
@@ -585,9 +557,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             var entry = command.Entries[entryIndex];
                             foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                             {
-                                var constraints = foreignKey.GetMappedConstraints();
-
-                                if (!constraints.Any()
+                                if (!foreignKey.GetMappedConstraints()
+                                        .Any(c => c.Table.Name == command.TableName && c.Table.Schema == command.Schema)
                                     || (command.EntityState == EntityState.Modified
                                         && !foreignKey.Properties.Any(p => entry.IsModified(p))))
                                 {

@@ -139,7 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (foreignKey.DeleteBehavior != duplicateForeignKey.DeleteBehavior)
+            var referentialAction = RelationalModel.ToReferentialAction(foreignKey.DeleteBehavior);
+            var duplicateReferentialAction = RelationalModel.ToReferentialAction(duplicateForeignKey.DeleteBehavior);
+            if (referentialAction != duplicateReferentialAction)
             {
                 if (shouldThrow)
                 {
@@ -151,8 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             foreignKey.GetConstraintName(storeObject, principalTable.Value),
-                            foreignKey.DeleteBehavior,
-                            duplicateForeignKey.DeleteBehavior));
+                            referentialAction,
+                            duplicateReferentialAction));
                 }
 
                 return false;

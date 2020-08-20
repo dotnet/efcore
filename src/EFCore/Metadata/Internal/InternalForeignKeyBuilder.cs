@@ -1894,6 +1894,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             // FKs are not allowed to use properties from inherited keys since this could result in an ambiguous value space
             if (dependentEntityType.BaseType != null
+                && !principalEntityType.IsAssignableFrom(dependentEntityType)
                 && configurationSource != ConfigurationSource.Explicit // let it throw for explicit
                 && properties.Any(p => p.GetContainingKeys().Any(k => k.DeclaringEntityType != dependentEntityType)))
             {

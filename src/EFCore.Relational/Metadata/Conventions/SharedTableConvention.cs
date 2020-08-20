@@ -373,8 +373,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             in StoreObjectIdentifier storeObject,
             int maxLength)
         {
-            foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
+            foreach (var foreignKey in entityType.GetForeignKeys())
             {
+                if (foreignKey.DeclaringEntityType != entityType
+                    && StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, StoreObjectType.Table) == storeObject)
+                {
+                    continue;
+                }
+
                 var principalTable = foreignKey.PrincipalKey.IsPrimaryKey()
                     ? StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, StoreObjectType.Table)
                     : StoreObjectIdentifier.Create(foreignKey.PrincipalKey.DeclaringEntityType, StoreObjectType.Table);
@@ -405,6 +411,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (newForeignKeyName != null)
                 {
                     foreignKeys[newForeignKeyName] = foreignKey;
+                    continue;
+                }
+
+                if (!otherForeignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+                    && !entityType.IsAssignableFrom(otherForeignKey.DeclaringEntityType))
+                {
                     continue;
                 }
 

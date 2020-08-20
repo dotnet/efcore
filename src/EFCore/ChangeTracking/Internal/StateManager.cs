@@ -996,6 +996,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 foreach (InternalEntityEntry dependent in (GetDependentsFromNavigation(entry, fk)
                     ?? GetDependents(entry, fk)).ToList())
                 {
+                    if (dependent.SharedIdentityEntry == entry)
+                    {
+                        continue;
+                    }
+
                     changeDetector?.DetectChanges(dependent);
 
                     if (dependent.EntityState != EntityState.Deleted

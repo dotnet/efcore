@@ -1016,6 +1016,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     source.Entity("Cat", b =>
                     {
                         b.HasOne("Animal", null)
+                            .WithOne()
+                            .HasForeignKey("Cat", "Id")
+                            .OnDelete(DeleteBehavior.ClientCascade)
+                            .IsRequired();
+
+                        b.HasOne("Animal", null)
                             .WithMany()
                             .HasForeignKey("PreyId");
                     });
@@ -1023,8 +1029,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     source.Entity("Dog", b =>
                     {
                         b.HasOne("Animal", null)
+                            .WithOne()
+                            .HasForeignKey("Dog", "Id")
+                            .OnDelete(DeleteBehavior.ClientCascade)
+                            .IsRequired();
+
+                        b.HasOne("Animal", null)
                             .WithMany()
                             .HasForeignKey("PreyId");
+                    });
+
+                    source.Entity("Mouse", b =>
+                    {
+                        b.HasOne("Animal", null)
+                            .WithOne()
+                            .HasForeignKey("Mouse", "Id")
+                            .OnDelete(DeleteBehavior.ClientCascade)
+                            .IsRequired();
                     });
                 },
                 modelBuilder =>
