@@ -1337,12 +1337,27 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     return null;
                 }
 
-                var parentIdentifier = GetIdentifierAccessor(_identifier).Item1;
+                var identifierFromParent = _identifier;
+                if (innerSelectExpression.Tables.LastOrDefault(e => e is InnerJoinExpression) is InnerJoinExpression collectionInnerJoinExpression
+                    && collectionInnerJoinExpression.Table is SelectExpression collectionInnerSelectExpression)
+                {
+                    // This computes true parent identifier count for correlation.
+                    // The last inner joined table in innerSelectExpression brings collection data.
+                    // Further tables load additional data on the collection (hence uses outer pattern)
+                    // So identifier not coming from there (which would be at the start only) are for correlation with parent.
+                    // Parent can have additional identifier if a owned reference was expanded.
+                    var actualParentIdentifierCount = innerSelectExpression._identifier
+                        .TakeWhile(e => !ReferenceEquals(e.Column.Table, collectionInnerSelectExpression))
+                        .Count();
+                    identifierFromParent = _identifier.Take(actualParentIdentifierCount).ToList();
+                }
+
+                var parentIdentifier = GetIdentifierAccessor(identifierFromParent).Item1;
                 innerSelectExpression.ApplyProjection();
 
-                for (var i = 0; i < _identifier.Count; i++)
+                for (var i = 0; i < identifierFromParent.Count; i++)
                 {
-                    AppendOrdering(new OrderingExpression(_identifier[i].Column, ascending: true));
+                    AppendOrdering(new OrderingExpression(identifierFromParent[i].Column, ascending: true));
                 }
 
                 // Copy over ordering from previous collections
@@ -1391,14 +1406,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
 
                 var (childIdentifier, childIdentifierValueComparers) = innerSelectExpression
-                    .GetIdentifierAccessor(innerSelectExpression._identifier.Take(_identifier.Count));
+                    .GetIdentifierAccessor(innerSelectExpression._identifier.Take(identifierFromParent.Count));
 
                 var identifierIndex = 0;
                 var orderingIndex = 0;
                 for (var i = 0; i < Orderings.Count; i++)
                 {
                     var outerOrdering = Orderings[i];
-                    if (outerOrdering.Expression.Equals(_identifier[identifierIndex].Column))
+                    if (identifierIndex < identifierFromParent.Count
+                        && outerOrdering.Expression.Equals(identifierFromParent[identifierIndex].Column))
                     {
                         innerSelectExpression.AppendOrdering(new OrderingExpression(
                             innerSelectExpression._identifier[identifierIndex].Column, ascending: true));
@@ -2527,7 +2543,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && !IsDistinct)
             {
                 var indexesToRemove = new List<int>();
-                for (var i = _projection.Count - 1; i >=0; i--)
+                for (var i = _projection.Count - 1; i >= 0; i--)
                 {
                     if (!referencedColumns.Contains(_projection[i].Alias))
                     {

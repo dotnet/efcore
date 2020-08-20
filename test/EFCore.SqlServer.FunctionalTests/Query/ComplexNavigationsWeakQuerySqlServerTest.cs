@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsWeakQuerySqlServerTest : ComplexNavigationsWeakQueryTestBase<ComplexNavigationsWeakQuerySqlServerFixture>
+    public class ComplexNavigationsWeakQuerySqlServerTest : ComplexNavigationsWeakQueryRelationalTestBase<ComplexNavigationsWeakQuerySqlServerFixture>
     {
         public ComplexNavigationsWeakQuerySqlServerTest(
             ComplexNavigationsWeakQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
