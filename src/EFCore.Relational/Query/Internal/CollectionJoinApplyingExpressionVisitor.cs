@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -68,36 +69,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     selectExpression.PushdownIntoSubquery();
                 }
 
-                if (_splitQuery)
+                var innerShaper = Visit(collectionShaperExpression.InnerShaper);
+
+                var collectionJoin = selectExpression.ApplyCollectionJoin(
+                    projectionBindingExpression.Index.Value,
+                    collectionId,
+                    innerShaper,
+                    collectionShaperExpression.Navigation,
+                    collectionShaperExpression.ElementType,
+                    _splitQuery);
+
+                if (_splitQuery
+                    && collectionJoin == null)
                 {
-                    var splitCollectionShaperExpression = (RelationalSplitCollectionShaperExpression)selectExpression.ApplyCollectionJoin(
-                        projectionBindingExpression.Index.Value,
-                        collectionId,
-                        collectionShaperExpression.InnerShaper,
-                        collectionShaperExpression.Navigation,
-                        collectionShaperExpression.ElementType,
-                        _splitQuery);
-
-                    var innerShaper = Visit(splitCollectionShaperExpression.InnerShaper);
-
-                    return splitCollectionShaperExpression.Update(
-                        splitCollectionShaperExpression.ParentIdentifier,
-                        splitCollectionShaperExpression.ChildIdentifier,
-                        splitCollectionShaperExpression.SelectExpression,
-                        innerShaper);
+                    throw new InvalidOperationException(RelationalStrings.UnableToSplitCollectionProjectionInSplitQuery(
+                        $"{nameof(QuerySplittingBehavior)}.{QuerySplittingBehavior.SplitQuery}",
+                        nameof(RelationalQueryableExtensions.AsSplitQuery),
+                        nameof(RelationalQueryableExtensions.AsSingleQuery)));
                 }
-                else
-                {
-                    var innerShaper = Visit(collectionShaperExpression.InnerShaper);
 
-                    return selectExpression.ApplyCollectionJoin(
-                        projectionBindingExpression.Index.Value,
-                        collectionId,
-                        innerShaper,
-                        collectionShaperExpression.Navigation,
-                        collectionShaperExpression.ElementType,
-                        _splitQuery);
-                }
+                return collectionJoin;
             }
 
             return extensionExpression is ShapedQueryExpression shapedQueryExpression

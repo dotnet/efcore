@@ -1330,6 +1330,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (splitQuery)
             {
+                var containsReferenceToOuter = new SelectExpressionCorrelationFindingExpressionVisitor(this)
+                   .ContainsOuterReference(innerSelectExpression);
+                if (containsReferenceToOuter)
+                {
+                    return null;
+                }
+
                 var parentIdentifier = GetIdentifierAccessor(_identifier).Item1;
                 innerSelectExpression.ApplyProjection();
 
