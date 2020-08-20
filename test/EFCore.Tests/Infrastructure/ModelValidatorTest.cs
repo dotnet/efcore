@@ -206,8 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             SetPrimaryKey(entityType);
             AddProperties(entityType);
 
-            var keyProperty = entityType.AddProperty("Key", typeof(int));
-            entityType.AddKey(keyProperty);
+            var keyProperty = ((IConventionEntityType)entityType).AddProperty("Key", typeof(int));
+            ((IConventionEntityType)entityType).AddKey(keyProperty);
 
             VerifyWarning(
                 CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("Key", "A"), model,

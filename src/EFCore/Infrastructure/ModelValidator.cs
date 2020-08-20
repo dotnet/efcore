@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var unmappedProperty = entityType.GetDeclaredProperties().FirstOrDefault(
                     p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
                             // Use a better condition of non-persisted properties when issue#14121 is implemented
-                            || !(p.IsShadowProperty() || (p.DeclaringEntityType.IsPropertyBag && p.IsIndexerProperty())))
+                            || !p.IsImplicitlyCreated())
                         && p.FindTypeMapping() == null);
 
                 if (unmappedProperty != null)
@@ -398,13 +398,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            foreach (var entityType in model.GetEntityTypes().Where(t => t.ClrType != null))
+            foreach (IConventionEntityType entityType in model.GetEntityTypes().Where(t => t.ClrType != null))
             {
                 foreach (var key in entityType.GetDeclaredKeys())
                 {
-                    if (key.Properties.Any(p => p.IsShadowProperty())
-                        && key is Key concreteKey
-                        && ConfigurationSource.Convention.Overrides(concreteKey.GetConfigurationSource())
+                    if (key.Properties.Any(p => p.IsImplicitlyCreated())
+                        && ConfigurationSource.Convention.Overrides(key.GetConfigurationSource())
                         && !key.IsPrimaryKey())
                     {
                         var referencingFk = key.GetReferencingForeignKeys().FirstOrDefault();
@@ -1162,11 +1161,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            foreach (var entityType in model.GetEntityTypes().Where(t => t.ClrType != null))
+            foreach (IConventionEntityType entityType in model.GetEntityTypes())
             {
+                if (entityType.ClrType == null)
+                {
+                    continue;
+                }
+
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    if (property.IsShadowProperty())
+                    if (property.IsImplicitlyCreated())
                     {
                         logger.ShadowPropertyCreated(property);
                     }
