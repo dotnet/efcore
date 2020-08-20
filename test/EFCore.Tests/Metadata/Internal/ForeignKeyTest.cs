@@ -282,8 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
             dependentEntityType.BaseType = baseEntityType;
-            var fkProp = dependentEntityType.AddProperty("Fk", typeof(int));
-            var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, principalEntityType);
+            var fk = dependentEntityType.AddForeignKey(new[] { property1 }, pk, principalEntityType);
             fk.SetPrincipalToDependent(NavigationBase.OneToManyDependentsProperty);
             fk.SetDependentToPrincipal(NavigationBase.OneToManyPrincipalProperty);
             return fk;
@@ -299,8 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
             dependentEntityType.BaseType = baseEntityType;
-            var fkProp = dependentEntityType.AddProperty("Fk", typeof(int));
-            var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, baseEntityType);
+            var fk = dependentEntityType.AddForeignKey(new[] { property1 }, pk, baseEntityType);
             fk.SetPrincipalToDependent(NavigationBase.OneToManyDependentsProperty);
             return fk;
         }
@@ -417,14 +415,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var entityType = CreateModel().AddEntityType(typeof(SelfRef));
             var pk = entityType.SetPrimaryKey(entityType.AddProperty(SelfRef.IdProperty));
-            var fkProp = entityType.AddProperty(SelfRef.SelfRefIdProperty);
 
             var property = entityType.AddProperty("AltId", typeof(int));
             var principalKey = useAltKey
                 ? entityType.AddKey(property)
                 : pk;
 
-            var fk = entityType.AddForeignKey(new[] { fkProp }, principalKey, entityType);
+            var fk = entityType.AddForeignKey(new[] { pk.Properties.Single() }, principalKey, entityType);
             fk.IsUnique = true;
             fk.SetDependentToPrincipal(SelfRef.SelfRefPrincipalProperty);
             fk.SetPrincipalToDependent(SelfRef.SelfRefDependentProperty);
@@ -485,35 +482,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void IsSelfPrimaryKeyReferencing_returns_true_for_self_ref_foreign_keys()
+        public void IsBaseLinking_returns_true_for_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK();
 
-            Assert.True(fk.IsSelfPrimaryKeyReferencing());
+            Assert.True(fk.IsBaseLinking());
         }
 
         [ConditionalFact]
-        public void IsSelfPrimaryKeyReferencing_returns_false_for_non_pk_self_ref_foreign_keys()
+        public void IsBaseLinking_returns_false_for_non_pk_self_ref_foreign_keys()
         {
             var fk = CreateSelfRefFK(useAltKey: true);
 
-            Assert.False(fk.IsSelfPrimaryKeyReferencing());
+            Assert.False(fk.IsBaseLinking());
         }
 
         [ConditionalFact]
-        public void IsSelfPrimaryKeyReferencing_returns_true_for_same_hierarchy_foreign_keys()
+        public void IsBaseLinking_returns_true_for_same_hierarchy_foreign_keys()
         {
             var fk = CreateOneToManySameHierarchyFK();
 
-            Assert.True(fk.IsSelfPrimaryKeyReferencing());
+            Assert.True(fk.IsBaseLinking());
         }
 
         [ConditionalFact]
-        public void IsSelfPrimaryKeyReferencing_returns_true_for_same_base_foreign_keys()
+        public void IsBaseLinking_returns_true_for_same_base_foreign_keys()
         {
             var fk = CreateOneToManySameBaseFK();
 
-            Assert.True(fk.IsSelfPrimaryKeyReferencing());
+            Assert.True(fk.IsBaseLinking());
         }
 
         [ConditionalFact]
@@ -521,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var fk = CreateOneToManyFK();
 
-            Assert.False(fk.IsSelfPrimaryKeyReferencing());
+            Assert.False(fk.IsBaseLinking());
         }
 
         [ConditionalFact]

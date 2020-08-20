@@ -2796,7 +2796,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             principalKey: null,
                             propertyBaseName: navigationProperty?.GetSimpleMemberName(),
                             required: required,
-                            configurationSource: configurationSource);
+                            configurationSource);
                     }
                     else
                     {
@@ -2812,7 +2812,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             principalKey: null,
                             propertyBaseName: navigationProperty?.GetSimpleMemberName(),
                             required: null,
-                            configurationSource: configurationSource);
+                            configurationSource);
                     }
 
                     relationship = newRelationship;
@@ -3884,8 +3884,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 using var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator();
                 for (var i = 0;
                      i < propertyCount
-                     && principalPropertyNamesEnumerator.MoveNext()
-                     && principalPropertyTypesEnumerator.MoveNext();
+                         && principalPropertyNamesEnumerator.MoveNext()
+                         && principalPropertyTypesEnumerator.MoveNext();
                      i++)
                 {
                     var keyPropertyName = principalPropertyNamesEnumerator.Current;

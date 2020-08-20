@@ -416,6 +416,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasColumnType(""nvarchar(max)"");
 
                     b.ToTable(""DerivedEntity"", ""foo"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
+                {
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", null)
+                        .WithOne()
+                        .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", ""Id"")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
                 });"),
                 o =>
                 {
@@ -462,6 +471,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasColumnType(""nvarchar(max)"");
 
                     b.ToTable(""DerivedEntity"", ""foo"", t => t.ExcludeFromMigrations());
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
+                {
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", null)
+                        .WithOne()
+                        .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", ""Id"")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
                 });"),
                 o =>
                 {

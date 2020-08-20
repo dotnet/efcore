@@ -91,11 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual string Schema { get; }
 
         /// <summary>
-        ///     The command that needs to be executed before this one.
-        /// </summary>
-        public virtual ModificationCommand Predecessor { get; [param: CanBeNull] set; }
-
-        /// <summary>
         ///     The <see cref="IUpdateEntry" />s that represent the entities that are mapped to the row
         ///     to update.
         /// </summary>

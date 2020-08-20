@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -70,6 +71,18 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static INavigation GetNavigation([NotNull] this IForeignKey foreignKey, bool pointsToPrincipal)
             => pointsToPrincipal ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
+
+        /// <summary>
+        ///     Returns a value indicating whether the foreign key is defined on the primary key and pointing to the same primary key.
+        /// </summary>
+        /// <param name="foreignKey"> The foreign key. </param>
+        /// <returns> A value indicating whether the foreign key is defined on the primary key and pointing to the same primary key. </returns>
+        public static bool IsBaseLinking([NotNull] this IForeignKey foreignKey)
+        {
+            var primaryKey = foreignKey.DeclaringEntityType.FindPrimaryKey();
+            return primaryKey == foreignKey.PrincipalKey
+                && foreignKey.Properties.SequenceEqual(primaryKey.Properties);
+        }
 
         /// <summary>
         ///     <para>

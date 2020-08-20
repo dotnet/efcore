@@ -211,7 +211,8 @@ function Get-DbContext
     {
        $params = 'dbcontext', 'list', '--json'
        # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-       return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json | Format-Table -Property safeName -HideTableHeaders
+       # NB: Write-Output is here to break the JSON array into individual items
+       return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json | Write-Output | Format-Table -Property safeName -HideTableHeaders
     }
 }
 
@@ -284,7 +285,8 @@ function Get-Migration
     $params += GetParams $Context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
+    # NB: Write-Output is here to break the JSON array into individual items
+    return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json | Write-Output
 }
 
 #
@@ -821,7 +823,8 @@ function GetContextTypes($projectName, $startupProjectName)
     $params = 'dbcontext', 'list', '--json'
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $project $startupProject $params $null -skipBuild) -join "`n" | ConvertFrom-Json
+    # NB: Write-Output is here to break the JSON array into individual items
+    $result = (EF $project $startupProject $params $null -skipBuild) -join "`n" | ConvertFrom-Json | Write-Output
 
     return $result | %{ $_.safeName }
 }
@@ -835,7 +838,8 @@ function GetMigrations($context, $projectName, $startupProjectName)
     $params += GetParams $context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $project $startupProject $params $null -skipBuild) -join "`n" | ConvertFrom-Json
+    # NB: Write-Output is here to break the JSON array into individual items
+    $result = (EF $project $startupProject $params $null -skipBuild) -join "`n" | ConvertFrom-Json | Write-Output
 
     return $result | %{ $_.safeName }
 }

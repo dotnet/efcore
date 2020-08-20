@@ -346,7 +346,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 using (var context = CreateContext())
                 {
-                    var streetcarFromStore = context.Set<PoweredVehicle>().Include(v => v.Engine).AsNoTracking()
+                    var streetcarFromStore = context.Set<PoweredVehicle>().AsNoTracking()
+                        .Include(v => v.Engine).Include(v => v.Operator)
                         .Single(v => v.Name == "1984 California Car");
 
                     Assert.Null(streetcarFromStore.Engine);

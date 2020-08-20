@@ -177,6 +177,13 @@ WHERE [c].[FuelType] IS NOT NULL AND [c].[Capacity] IS NOT NULL");
             base.Can_change_dependent_instance_non_derived();
 
             AssertSql(
+                @"@p0='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+@p1='Repair' (Size = 4000)
+
+SET NOCOUNT ON;
+INSERT INTO [LicensedOperators] ([VehicleName], [LicenseType])
+VALUES (@p0, @p1);",
+                //
                 @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='repairman' (Size = 4000)
 
@@ -184,13 +191,6 @@ SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Name] = @p0
 WHERE [Name] = @p1;
 SELECT @@ROWCOUNT;",
-                //
-                @"@p2='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
-@p3='Repair' (Size = 4000)
-
-SET NOCOUNT ON;
-INSERT INTO [LicensedOperators] ([VehicleName], [LicenseType])
-VALUES (@p2, @p3);",
                 //
                 @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], CASE
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'

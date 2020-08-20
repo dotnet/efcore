@@ -44,9 +44,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessForeignKeyAdded(
             IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
         {
-            foreach (var property in relationshipBuilder.Metadata.Properties)
+            var foreignKey = relationshipBuilder.Metadata;
+            if (!foreignKey.IsBaseLinking())
             {
-                property.Builder.ValueGenerated(ValueGenerated.Never);
+                foreach (var property in foreignKey.Properties)
+                {
+                    property.Builder.ValueGenerated(ValueGenerated.Never);
+                }
             }
         }
 
@@ -82,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 OnForeignKeyRemoved(oldDependentProperties);
 
-                if (relationshipBuilder.Metadata.Builder != null)
+                if (relationshipBuilder.Metadata.Builder != null
+                    && !foreignKey.IsBaseLinking())
                 {
                     foreach (var property in foreignKey.Properties)
                     {
@@ -179,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
         public static ValueGenerated? GetValueGenerated([NotNull] IProperty property)
-            => !property.IsForeignKey()
+            => !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
                 && ShouldHaveGeneratedProperty(property.FindContainingPrimaryKey())
                 && CanBeGenerated(property)
                     ? ValueGenerated.OnAdd
