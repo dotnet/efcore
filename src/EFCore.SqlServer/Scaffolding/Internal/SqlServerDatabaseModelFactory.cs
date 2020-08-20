@@ -854,7 +854,8 @@ SELECT
     [i].[has_filter],
     [i].[filter_definition],
     [i].[fill_factor],
-    COL_NAME([ic].[object_id], [ic].[column_id]) AS [column_name]
+    COL_NAME([ic].[object_id], [ic].[column_id]) AS [column_name],
+    [ic].[is_included_column]
 FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
 JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
@@ -1004,15 +1005,31 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         index[SqlServerAnnotationNames.FillFactor] = indexGroup.Key.FillFactor;
                     }
 
+                    var includedColumns = new List<string>();
+
                     foreach (var dataRecord in indexGroup)
                     {
                         var columnName = dataRecord.GetValueOrDefault<string>("column_name");
+
+                        var isIncludedColumn = dataRecord.GetValueOrDefault<bool>("is_included_column");
+                        if (isIncludedColumn)
+                        {
+                            includedColumns.Add(columnName!);
+
+                            continue;
+                        }
+
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
                                 c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
                         index.Columns.Add(column);
+                    }
+
+                    if (includedColumns.Count != 0)
+                    {
+                        index[SqlServerAnnotationNames.Include] = includedColumns.ToArray();
                     }
 
                     table.Indexes.Add(index);
