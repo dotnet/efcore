@@ -256,7 +256,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             };
 
-            var entityType = _factory.Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true }).FindEntityType("NaturalProducts");
+            var entityType = _factory
+                .Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true, NoPluralize = true })
+                .FindEntityType("NaturalProducts");
 
             Assert.Collection(
                 entityType.GetProperties(),
@@ -1230,24 +1232,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     Assert.Equal("Posts", entity.GetDbSetName());
                 }
             );
-
-            model = factory.Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true });
-
-            Assert.Collection(
-                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
-                entity =>
-                {
-                    Assert.Equal("Blog", entity.GetTableName());
-                    Assert.Equal("Blog", entity.Name);
-                    Assert.Equal("Blog", entity.GetDbSetName());
-                },
-                entity =>
-                {
-                    Assert.Equal("Posts", entity.GetTableName());
-                    Assert.Equal("Posts", entity.Name);
-                    Assert.Equal("Posts", entity.GetDbSetName());
-                }
-            );
         }
 
         [ConditionalFact]
@@ -1667,6 +1651,132 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var column = model.FindEntityType("Table").GetProperty("Column");
             Assert.Equal("An int column", column.GetComment());
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public void UseDatabaseNames_and_NoPluralize_work_together(
+            bool useDatabaseNames,
+            bool noPluralize,
+            bool pluralTables)
+        {
+            var userTableName = pluralTables ? "users" : "user";
+            var postTableName = pluralTables ? "posts" : "post";
+            var databaseModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = userTableName,
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "id",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey
+                        {
+                            Columns = { new DatabaseColumnRef("id") }
+                        }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = postTableName,
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "id",
+                                StoreType = "int"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "author_id",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey
+                        {
+                            Columns = { new DatabaseColumnRef("id") }
+                        },
+                        ForeignKeys =
+                        {
+                            new DatabaseForeignKey
+                            {
+                                PrincipalTable = new DatabaseTableRef(userTableName),
+                                Columns = { new DatabaseColumnRef("author_id") },
+                                PrincipalColumns = { new DatabaseColumnRef("id") }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var model = _factory.Create(
+                databaseModel,
+                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize });
+
+            var user = Assert.Single(model.GetEntityTypes().Where(e => e.GetTableName() == userTableName));
+            var id = Assert.Single(user.GetProperties().Where(p => p.GetColumnName() == "id"));
+            var foreignKey = Assert.Single(user.GetReferencingForeignKeys());
+            if (useDatabaseNames && noPluralize)
+            {
+                Assert.Equal(userTableName, user.Name);
+                Assert.Equal(userTableName, user[ScaffoldingAnnotationNames.DbSetName]);
+                Assert.Equal("id", id.Name);
+                Assert.Equal(postTableName, foreignKey.PrincipalToDependent.Name);
+                Assert.Equal("author_id", Assert.Single(foreignKey.Properties).Name);
+                Assert.Equal("author", foreignKey.DependentToPrincipal.Name);
+            }
+            else if (useDatabaseNames)
+            {
+                Assert.Equal("user", user.Name);
+                Assert.Equal("users", user[ScaffoldingAnnotationNames.DbSetName]);
+                Assert.Equal("id", id.Name);
+                Assert.Equal("posts", foreignKey.PrincipalToDependent.Name);
+                Assert.Equal("author_id", Assert.Single(foreignKey.Properties).Name);
+                Assert.Equal("author", foreignKey.DependentToPrincipal.Name);
+            }
+            else if (noPluralize)
+            {
+                if (pluralTables)
+                {
+                    Assert.Equal("Users", user.Name);
+                    Assert.Equal("Users", user[ScaffoldingAnnotationNames.DbSetName]);
+                    Assert.Equal("Id", id.Name);
+                    Assert.Equal("Posts", foreignKey.PrincipalToDependent.Name);
+                    Assert.Equal("AuthorId", Assert.Single(foreignKey.Properties).Name);
+                    Assert.Equal("Author", foreignKey.DependentToPrincipal.Name);
+                }
+                else
+                {
+                    Assert.Equal("User", user.Name);
+                    Assert.Equal("User", user[ScaffoldingAnnotationNames.DbSetName]);
+                    Assert.Equal("Id", id.Name);
+                    Assert.Equal("Post", foreignKey.PrincipalToDependent.Name);
+                    Assert.Equal("AuthorId", Assert.Single(foreignKey.Properties).Name);
+                    Assert.Equal("Author", foreignKey.DependentToPrincipal.Name);
+                }
+            }
+            else
+            {
+                Assert.Equal("User", user.Name);
+                Assert.Equal("Users", user[ScaffoldingAnnotationNames.DbSetName]);
+                Assert.Equal("Id", id.Name);
+                Assert.Equal("Posts", foreignKey.PrincipalToDependent.Name);
+                Assert.Equal("AuthorId", Assert.Single(foreignKey.Properties).Name);
+                Assert.Equal("Author", foreignKey.DependentToPrincipal.Name);
+            }
         }
     }
 }
