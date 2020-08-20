@@ -128,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             if (!clientEval
+                && property.Name != EntityFrameworkCore.Metadata.Conventions.StoreKeyConvention.JObjectPropertyName
                 && expression.Name.Length == 0)
             {
                 // Non-persisted property can't be translated
