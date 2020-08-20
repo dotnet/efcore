@@ -5087,7 +5087,7 @@ INNER JOIN (
     ) AS [t]
     WHERE 0 < [t].[row]
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t0].[Id]",
+ORDER BY [l].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name]",
                 //
                 @"SELECT [t2].[Id], [t2].[Level2_Optional_Id], [t2].[Level2_Required_Id], [t2].[Name], [t2].[OneToMany_Optional_Inverse3Id], [t2].[OneToMany_Optional_Self_Inverse3Id], [t2].[OneToMany_Required_Inverse3Id], [t2].[OneToMany_Required_Self_Inverse3Id], [t2].[OneToOne_Optional_PK_Inverse3Id], [t2].[OneToOne_Optional_Self3Id], [l].[Id], [t0].[Id]
 FROM [LevelOne] AS [l]
@@ -5107,7 +5107,7 @@ INNER JOIN (
     ) AS [t1]
     WHERE 0 < [t1].[row]
 ) AS [t2] ON [t0].[Id] = [t2].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t0].[Id], [t2].[OneToMany_Optional_Inverse3Id], [t2].[Name] DESC");
+ORDER BY [l].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t2].[OneToMany_Optional_Inverse3Id], [t2].[Name] DESC");
         }
 
         public override async Task Filtered_include_basic_OrderBy_Take_split(bool async)
@@ -5326,7 +5326,7 @@ INNER JOIN (
     ) AS [t]
     WHERE [t].[row] <= 3
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t0].[Id]",
+ORDER BY [l].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name]",
                 //
                 @"SELECT [t2].[Id], [t2].[Level2_Optional_Id], [t2].[Level2_Required_Id], [t2].[Name], [t2].[OneToMany_Optional_Inverse3Id], [t2].[OneToMany_Optional_Self_Inverse3Id], [t2].[OneToMany_Required_Inverse3Id], [t2].[OneToMany_Required_Self_Inverse3Id], [t2].[OneToOne_Optional_PK_Inverse3Id], [t2].[OneToOne_Optional_Self3Id], [l].[Id], [t0].[Id]
 FROM [LevelOne] AS [l]
@@ -5348,7 +5348,7 @@ INNER JOIN (
     ) AS [t1]
     WHERE 1 < [t1].[row]
 ) AS [t2] ON [t0].[Id] = [t2].[OneToMany_Required_Inverse3Id]
-ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t0].[Id], [t2].[OneToMany_Required_Inverse3Id], [t2].[Name] DESC");
+ORDER BY [l].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Name], [t2].[OneToMany_Required_Inverse3Id], [t2].[Name] DESC");
         }
 
         public override async Task Filtered_include_same_filter_set_on_same_navigation_twice_split(bool async)
@@ -5567,7 +5567,7 @@ INNER JOIN (
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Id]",
+ORDER BY [l].[Id], [l0].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse3Id]",
                 //
                 @"SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Optional_Self_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToMany_Required_Self_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id], [l2].[OneToOne_Optional_Self4Id], [l].[Id], [l0].[Id], [t0].[Id]
 FROM [LevelOne] AS [l]
@@ -5582,7 +5582,7 @@ INNER JOIN (
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
 INNER JOIN [LevelFour] AS [l2] ON [t0].[Id] = [l2].[OneToMany_Optional_Inverse4Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Id]",
+ORDER BY [l].[Id], [l0].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse3Id]",
                 //
                 @"SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Optional_Self_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToMany_Required_Self_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id], [l2].[OneToOne_Optional_Self4Id], [l].[Id], [l0].[Id], [t0].[Id]
 FROM [LevelOne] AS [l]
@@ -5597,7 +5597,7 @@ INNER JOIN (
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
 INNER JOIN [LevelFour] AS [l2] ON [t0].[Id] = [l2].[OneToMany_Required_Inverse4Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Id]");
+ORDER BY [l].[Id], [l0].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse3Id]");
         }
 
         public override async Task Filtered_include_complex_three_level_with_middle_having_filter2_split(bool async)
@@ -5626,7 +5626,7 @@ INNER JOIN (
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Id]",
+ORDER BY [l].[Id], [l0].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse3Id]",
                 //
                 @"SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Optional_Self_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToMany_Required_Self_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id], [l2].[OneToOne_Optional_Self4Id], [l].[Id], [l0].[Id], [t0].[Id]
 FROM [LevelOne] AS [l]
@@ -5641,7 +5641,7 @@ INNER JOIN (
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
 INNER JOIN [LevelFour] AS [l2] ON [t0].[Id] = [l2].[OneToMany_Optional_Inverse4Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Id]",
+ORDER BY [l].[Id], [l0].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse3Id]",
                 //
                 @"SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Optional_Self_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToMany_Required_Self_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id], [l2].[OneToOne_Optional_Self4Id], [l].[Id], [l0].[Id], [t0].[Id]
 FROM [LevelOne] AS [l]
@@ -5656,7 +5656,7 @@ INNER JOIN (
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
 INNER JOIN [LevelFour] AS [l2] ON [t0].[Id] = [l2].[OneToMany_Required_Inverse4Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Id]");
+ORDER BY [l].[Id], [l0].[Id], [t0].[Id], [t0].[OneToMany_Optional_Inverse3Id]");
         }
 
         public override void Filtered_include_variable_used_inside_filter_split()
@@ -5831,6 +5831,21 @@ END <> N'L') OR CASE
     WHEN [l0].[Id] IS NULL THEN NULL
     ELSE [l1].[Name]
 END IS NULL");
+        }
+
+        public override async Task Projecting_collection_with_FirstOrDefault_without_split_works(bool async)
+        {
+            await base.Projecting_collection_with_FirstOrDefault_without_split_works(async);
+
+            AssertSql(
+                @"SELECT [t].[Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+FROM (
+    SELECT TOP(1) [l].[Id]
+    FROM [LevelOne] AS [l]
+    WHERE [l].[Id] = 1
+) AS [t]
+LEFT JOIN [LevelTwo] AS [l0] ON [t].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+ORDER BY [t].[Id], [l0].[Id]");
         }
 
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
