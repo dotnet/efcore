@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             var entry = context.Add(new Blog { Id = 1337 });
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             if (async)
             {
