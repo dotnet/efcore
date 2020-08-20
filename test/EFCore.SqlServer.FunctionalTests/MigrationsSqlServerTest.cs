@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -730,10 +731,11 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) NULL;");
                     var column = Assert.Single(table.Columns, c => c.Name == "SomeColumn");
                     Assert.False(column.IsNullable);
                     var index = Assert.Single(table.Indexes);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(2, index.Columns.Count);
+                    Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "SomeColumn"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "SomeOtherColumn"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(1, includedColumns.Count);
+                    Assert.Contains("SomeOtherColumn", includedColumns);
                 });
 
             AssertSql(
@@ -833,11 +835,12 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;");
                 {
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(3, index.Columns.Count);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
+                    Assert.Equal(2, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
                     Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(1, includedColumns.Count);
+                    Assert.Contains("Name", includedColumns);
                 });
 
             AssertSql(
@@ -1091,11 +1094,12 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;",
                 {
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(2, includedColumns.Count);
+                    Assert.Contains("FirstName", includedColumns);
+                    Assert.Contains("LastName", includedColumns);
                 });
 
             AssertSql(
@@ -1131,11 +1135,12 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(2, includedColumns.Count);
+                    Assert.Contains("FirstName", includedColumns);
+                    Assert.Contains("LastName", includedColumns);
                 });
 
             AssertSql(
@@ -1171,11 +1176,12 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                     var table = Assert.Single(model.Tables);
                     var index = Assert.Single(table.Indexes);
                     Assert.True(index.IsUnique);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(2, includedColumns.Count);
+                    Assert.Contains("FirstName", includedColumns);
+                    Assert.Contains("LastName", includedColumns);
                 });
 
             AssertSql(
@@ -1213,11 +1219,12 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     var index = Assert.Single(table.Indexes);
                     Assert.True(index.IsUnique);
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(2, includedColumns.Count);
+                    Assert.Contains("FirstName", includedColumns);
+                    Assert.Contains("LastName", includedColumns);
                 });
 
             AssertSql(
@@ -1257,11 +1264,12 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     var index = Assert.Single(table.Indexes);
                     Assert.True(index.IsUnique);
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(2, includedColumns.Count);
+                    Assert.Contains("FirstName", includedColumns);
+                    Assert.Contains("LastName", includedColumns);
                     // TODO: Online index not scaffolded?
                 });
 
@@ -1303,11 +1311,12 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     var index = Assert.Single(table.Indexes);
                     Assert.True(index.IsUnique);
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(2, includedColumns.Count);
+                    Assert.Contains("FirstName", includedColumns);
+                    Assert.Contains("LastName", includedColumns);
                     // TODO: Online index not scaffolded?
                 });
 
@@ -1347,11 +1356,12 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                     var index = Assert.Single(table.Indexes);
                     Assert.True(index.IsUnique);
                     Assert.Equal("([Name] IS NOT NULL)", index.Filter);
-                    // TODO: This is a scaffolding bug, #17083
-                    Assert.Equal(3, index.Columns.Count);
+                    Assert.Equal(1, index.Columns.Count);
                     Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
-                    Assert.Contains(table.Columns.Single(c => c.Name == "LastName"), index.Columns);
+                    var includedColumns = (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include];
+                    Assert.Equal(2, includedColumns.Count);
+                    Assert.Contains("FirstName", includedColumns);
+                    Assert.Contains("LastName", includedColumns);
                     // TODO: Online index not scaffolded?
                 });
 
