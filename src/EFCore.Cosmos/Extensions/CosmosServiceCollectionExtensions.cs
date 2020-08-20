@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -49,6 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<LoggingDefinitions, CosmosLoggingDefinitions>()
+                .TryAdd<IStateManager, CosmosStateManager>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosOptionsExtension>>()
                 .TryAdd<IDatabase, CosmosDatabaseWrapper>()
                 .TryAdd<IExecutionStrategyFactory, CosmosExecutionStrategyFactory>()
