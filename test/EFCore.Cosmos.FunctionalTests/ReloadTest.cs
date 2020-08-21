@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
-using static Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal.CosmosDatabaseCreatorTest;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
@@ -19,18 +14,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             new object[] { false }
         };
 
-        [Theory]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public async Task Entity_reference_can_be_reloaded(bool async)
         {
             await using var testDatabase = CosmosTestStore.CreateInitialized("Database");
 
-            using var context = new BloggingContext(testDatabase);
+            using var context = new ReloadTestContext(testDatabase);
             await context.Database.EnsureCreatedAsync();
 
-            var entry = context.Add(new Blog { Id = 1337 });
+            var entry = context.Add(new Item { Id = 1337 });
 
             await context.SaveChangesAsync();
+
+            var itemJson = entry.Property<JObject>("__jObject").CurrentValue;
+            itemJson["unmapped"] = 2;
 
             if (async)
             {
@@ -40,6 +38,44 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 entry.Reload();
             }
+
+            itemJson = entry.Property<JObject>("__jObject").CurrentValue;
+            Assert.Null(itemJson["unmapped"]);
+        }
+
+        public class ReloadTestContext : DbContext
+        {
+            private readonly string _connectionUri;
+            private readonly string _authToken;
+            private readonly string _name;
+
+            public ReloadTestContext(CosmosTestStore testStore)
+            {
+                _connectionUri = testStore.ConnectionUri;
+                _authToken = testStore.AuthToken;
+                _name = testStore.Name;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseCosmos(
+                        _connectionUri,
+                        _authToken,
+                        _name,
+                        b => b.ApplyConfiguration());
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+
+            public DbSet<Item> Items { get; set; }
+        }
+
+        public class Item
+        {
+            public int Id { get; set; }
         }
     }
 }
