@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -64,6 +65,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     foreignKey.Table = table;
                     FixupColumns(table, foreignKey.Columns);
 
+                    if (foreignKey.PrincipalTable is DatabaseTableRef tableRef)
+                    {
+                        foreignKey.PrincipalTable = databaseModel.Tables
+                            .First(t => t.Name == tableRef.Name && t.Schema == tableRef.Schema);
+                    }
+
                     FixupColumns(foreignKey.PrincipalTable, foreignKey.PrincipalColumns);
                 }
             }
@@ -75,6 +82,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             for (var i = 0; i < columns.Count; i++)
             {
+                if (columns[i] is DatabaseColumnRef columnRef)
+                {
+                    columns[i] = table.Columns.First(c => c.Name == columnRef.Name);
+                }
+
                 columns[i].Table = table;
             }
         }

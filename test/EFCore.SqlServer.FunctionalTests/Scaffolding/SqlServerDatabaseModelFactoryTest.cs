@@ -1910,6 +1910,29 @@ CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;
                 "DROP TABLE HypotheticalIndexTable;");
         }
 
+        [ConditionalFact]
+        public void Set_include_for_index()
+        {
+            Test(
+                @"
+CREATE TABLE IncludeIndexTable (
+    Id int,
+    IndexProperty int,
+    IncludeProperty int
+);
+
+CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProperty);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                    Assert.Equal(new[] { "IndexProperty" }, index.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(new[] { "IncludeProperty" }, (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include]);
+                },
+                "DROP TABLE IncludeIndexTable;");
+        }
+
         #endregion
 
         #region ForeignKeyFacets

@@ -1420,7 +1420,7 @@ INNER JOIN (
     ) AS [t]
     WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
 ) AS [t0] ON [e].[Id] = [t0].[OneId]
-ORDER BY [e].[Id], [t0].[OneId], [t0].[Id], [t0].[TwoId]",
+ORDER BY [e].[Id], [t0].[OneId], [t0].[TwoId], [t0].[Id]",
                 //
                 @"SELECT [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [e].[Id], [t0].[OneId], [t0].[TwoId], [t0].[Id]
 FROM [EntityOnes] AS [e]
