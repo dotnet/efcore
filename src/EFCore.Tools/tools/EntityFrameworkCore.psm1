@@ -582,7 +582,7 @@ function Script-DbContext
         if (![IO.Path]::IsPathRooted($intermediatePath))
         {
             $projectDir = GetProperty $dteProject.Properties 'FullPath'
-            $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
+            $intermediatePath = [IO.Path]::GetFullPath((Join-Path $projectDir $intermediatePath))
         }
 
         $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
@@ -679,7 +679,7 @@ function Script-Migration
         if (![IO.Path]::IsPathRooted($intermediatePath))
         {
             $projectDir = GetProperty $dteProject.Properties 'FullPath'
-            $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
+            $intermediatePath = [IO.Path]::GetFullPath((Join-Path $projectDir $intermediatePath))
         }
 
         $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
@@ -882,7 +882,7 @@ function GetStartupProject($name, $fallbackProject)
             if (![IO.Path]::IsPathRooted($startupProjectPath))
             {
                 $solutionPath = Split-Path (GetProperty $DTE.Solution.Properties 'Path')
-                $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve | Convert-Path
+                $startupProjectPath = [IO.Path]::GetFullPath((Join-Path $solutionPath $startupProjectPath))
             }
 
             $startupProject = GetSolutionProjects | ?{
@@ -1068,7 +1068,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
             }
         }
 
-        if (Test-Path $runtimeConfig)
+        if ([IO.File]::Exists($runtimeConfig))
         {
             $dotnetParams += '--runtimeconfig', $runtimeConfig
         }
@@ -1122,7 +1122,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     }
 
     $arguments = ToArguments $params
-    if ($applicationArgs -ne $null)
+    if ($applicationArgs)
     {
         $arguments += ' -- '
         $arguments += $applicationArgs
