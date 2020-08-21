@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Globalization;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -27,7 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public FloatTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, typeof(float), dbType)
+            : base(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(typeof(float), comparer: new FloatValueComparer()),
+                    storeType, StoreTypePostfix.None, dbType, unicode: false, size: null, fixedLength: false, precision: null, scale: null))
         {
         }
 
