@@ -5620,11 +5620,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     async,
                     ss => ss.Set<Customer>().Where(c => UnknownMethod(c.ContactName) == "foo")),
                 CoreStrings.QueryUnableToTranslateMethod(
-                    nameof(UnknownMethod),
                     GetType().GetMethod(
                             nameof(UnknownMethod),
                             BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                        ?.DeclaringType?.DisplayName()));
+                        ?.DeclaringType?.DisplayName(),
+                    nameof(UnknownMethod)));
         }
 
         public static string UnknownMethod(string foo) => foo;
