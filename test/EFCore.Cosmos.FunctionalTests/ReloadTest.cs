@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [MemberData(nameof(IsAsyncData))]
         public async Task Entity_reference_can_be_reloaded(bool async)
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized("Database");
+            await using var testDatabase = CosmosTestStore.CreateInitialized("ReloadTest");
 
             using var context = new ReloadTestContext(testDatabase);
             await context.Database.EnsureCreatedAsync();
