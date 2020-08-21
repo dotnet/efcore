@@ -55,8 +55,9 @@ namespace System
             }
 
             var types = GetGenericTypeImplementations(type, typeof(IDictionary<,>));
-            return types.Any(t => t.GetGenericArguments()[0] == typeof(string)
-                && t.GetGenericArguments()[1] == typeof(object));
+            return types.Any(
+                t => t.GetGenericArguments()[0] == typeof(string)
+                    && t.GetGenericArguments()[1] == typeof(object));
         }
 
         public static Type MakeNullable(this Type type, bool nullable = true)

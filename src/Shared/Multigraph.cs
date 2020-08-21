@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             {
                 throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(to));
             }
- #endif
+#endif
 
             if (!_successorMap.TryGetValue(from, out var successorEdges))
             {
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             edgeList.AddRange(edges);
 
-            if(!_predecessorMap.TryGetValue(to, out var predecessors))
+            if (!_predecessorMap.TryGetValue(to, out var predecessors))
             {
                 predecessors = new List<TVertex>();
                 _predecessorMap.Add(to, predecessors);
@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public override IEnumerable<TVertex> GetIncomingNeighbors(TVertex to)
             => _predecessorMap.TryGetValue(to, out var predecessors)
-            ? predecessors
-            : Enumerable.Empty<TVertex>();
+                ? predecessors
+                : Enumerable.Empty<TVertex>();
     }
 }

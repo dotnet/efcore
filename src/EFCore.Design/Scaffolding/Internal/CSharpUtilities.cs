@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return ch < 'A'
                     ? false
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')
@@ -251,9 +251,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 return ch < 'A'
                     ? ch >= '0'
-                      && ch <= '9'
+                    && ch <= '9'
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')

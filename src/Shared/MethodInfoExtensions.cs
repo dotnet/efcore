@@ -13,6 +13,6 @@ namespace System.Reflection
             => method.Name == nameof(IList.Contains)
                 && method.DeclaringType.GetInterfaces().Append(method.DeclaringType).Any(
                     t => t == typeof(IList)
-                    || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>)));
+                        || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>)));
     }
 }

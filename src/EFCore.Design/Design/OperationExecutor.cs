@@ -182,7 +182,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return new Hashtable
             {
-                ["MigrationFile"] = files.MigrationFile, ["MetadataFile"] = files.MetadataFile, ["SnapshotFile"] = files.SnapshotFile
+                ["MigrationFile"] = files.MigrationFile,
+                ["MetadataFile"] = files.MetadataFile,
+                ["SnapshotFile"] = files.SnapshotFile
             };
         }
 
@@ -235,7 +237,11 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///         <c>targetMigration</c>--The target <see cref="Migration" />. If <see cref="Migration.InitialDatabase" />, all migrations will be
             ///         reverted. Defaults to the last migration.
             ///     </para>
-            ///     <para><c>connectionString</c>--The connection string to the database. Defaults to the one specified in <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext"/> or <see cref="DbContext.OnConfiguring"/>.</para>
+            ///     <para>
+            ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+            ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+            ///         <see cref="DbContext.OnConfiguring" />.
+            ///     </para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
@@ -256,7 +262,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
-        private void UpdateDatabaseImpl([CanBeNull] string targetMigration, [CanBeNull] string connectionString, [CanBeNull] string contextType) =>
+        private void UpdateDatabaseImpl(
+            [CanBeNull] string targetMigration, [CanBeNull] string connectionString, [CanBeNull] string contextType) =>
             MigrationsOperations.UpdateDatabase(targetMigration, connectionString, contextType);
 
         /// <summary>
@@ -307,6 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 options |= MigrationsSqlGenerationOptions.Idempotent;
             }
+
             if (noTransactions)
             {
                 options |= MigrationsSqlGenerationOptions.NoTransactions;
@@ -355,7 +363,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return new Hashtable
             {
-                ["MigrationFile"] = files.MigrationFile, ["MetadataFile"] = files.MetadataFile, ["SnapshotFile"] = files.SnapshotFile
+                ["MigrationFile"] = files.MigrationFile,
+                ["MetadataFile"] = files.MetadataFile,
+                ["SnapshotFile"] = files.SnapshotFile
             };
         }
 
@@ -411,7 +421,11 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>Initializes a new instance of the <see cref="GetMigrations" /> class.</para>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-            ///     <para><c>connectionString</c>--The connection string to the database. Defaults to the one specified in <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext"/> or <see cref="DbContext.OnConfiguring"/>.</para>
+            ///     <para>
+            ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+            ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+            ///         <see cref="DbContext.OnConfiguring" />.
+            ///     </para>
             ///     <para><c>noConnect</c>--Don't connect to the database.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>

@@ -2,14 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -217,9 +214,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
             => items.SelectMany(
-                    i => Dependencies.AnnotationCodeGenerator.FilterIgnoredAnnotations(i.GetAnnotations())
-                        .Select(a => new { Annotatable = i, Annotation = a })
-                .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
+                i => Dependencies.AnnotationCodeGenerator.FilterIgnoredAnnotations(i.GetAnnotations())
+                    .Select(a => new { Annotatable = i, Annotation = a })
+                    .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
 
         private ValueConverter FindValueConverter(IProperty property)
             => (property.FindTypeMapping()

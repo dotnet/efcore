@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string GetDbSetName([NotNull] this IEntityType entityType)
             => (string)entityType[ScaffoldingAnnotationNames.DbSetName]
-               ?? entityType.Name;
+                ?? entityType.Name;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

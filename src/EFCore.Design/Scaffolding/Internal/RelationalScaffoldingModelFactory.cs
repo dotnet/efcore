@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var property = builder.Metadata.FindProperty(GetPropertyName(primaryKey.Columns[0]))?.AsProperty();
                 if (property != null)
                 {
-                    var conventionalValueGenerated = RelationalValueGenerationConvention.GetValueGenerated(property);
+                    var conventionalValueGenerated = ValueGenerationConvention.GetValueGenerated(property);
                     if (conventionalValueGenerated == ValueGenerated.OnAdd)
                     {
                         property.ValueGenerated = ValueGenerated.Never;
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 index.Name == null
                     ? builder.HasIndex(propertyNames)
                     : builder.HasIndex(propertyNames, index.Name)
-                .IsUnique(index.IsUnique);
+                        .IsUnique(index.IsUnique);
 
             if (index.Filter != null)
             {
@@ -840,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var dependentIndexes = dependentEntityType.GetIndexes()
                 .Where(i => i.Properties.SequenceEqual(dependentProperties));
             newForeignKey.IsUnique = dependentKey != null
-                                     || dependentIndexes.Any(i => i.IsUnique);
+                || dependentIndexes.Any(i => i.IsUnique);
 
             if (!string.IsNullOrEmpty(foreignKey.Name)
                 && foreignKey.Name != newForeignKey.GetDefaultName())

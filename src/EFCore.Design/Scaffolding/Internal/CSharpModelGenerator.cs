@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -79,17 +78,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (options.ContextName == null)
             {
-                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ContextName), nameof(options)), nameof(options));
+                throw new ArgumentException(
+                    CoreStrings.ArgumentPropertyNull(nameof(options.ContextName), nameof(options)), nameof(options));
             }
 
             if (options.ConnectionString == null)
             {
-                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
+                throw new ArgumentException(
+                    CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
             }
 
             if (options.ModelNamespace == null)
             {
-                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ModelNamespace), nameof(options)), nameof(options));
+                throw new ArgumentException(
+                    CoreStrings.ArgumentPropertyNull(nameof(options.ModelNamespace), nameof(options)), nameof(options));
             }
 
             var generatedCode = CSharpDbContextGenerator.WriteCode(

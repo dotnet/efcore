@@ -383,22 +383,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Literal(DateTime value)
             => string.Format(
-                   CultureInfo.InvariantCulture,
-                   "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
-                   value.Year,
-                   value.Month,
-                   value.Day,
-                   value.Hour,
-                   value.Minute,
-                   value.Second,
-                   value.Millisecond,
-                   value.Kind)
-               + (value.Ticks % 10000 == 0
-                   ? ""
-                   : string.Format(
-                       CultureInfo.InvariantCulture,
-                       ".AddTicks({0})",
-                       value.Ticks % 10000));
+                    CultureInfo.InvariantCulture,
+                    "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
+                    value.Year,
+                    value.Month,
+                    value.Day,
+                    value.Hour,
+                    value.Minute,
+                    value.Second,
+                    value.Millisecond,
+                    value.Kind)
+                + (value.Ticks % 10000 == 0
+                    ? ""
+                    : string.Format(
+                        CultureInfo.InvariantCulture,
+                        ".AddTicks({0})",
+                        value.Ticks % 10000));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -445,10 +445,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             return !literal.Contains("E")
-                   && !literal.Contains("e")
-                   && !literal.Contains(".")
-                ? literal + ".0"
-                : literal;
+                && !literal.Contains("e")
+                && !literal.Contains(".")
+                    ? literal + ".0"
+                    : literal;
         }
 
         /// <summary>
@@ -1020,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return ch < 'A'
                     ? false
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')
@@ -1037,9 +1037,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 return ch < 'A'
                     ? ch >= '0'
-                      && ch <= '9'
+                    && ch <= '9'
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')

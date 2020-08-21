@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 var manufacturedContexts =
                     from i in factory.ImplementedInterfaces
                     where i.IsGenericType
-                          && i.GetGenericTypeDefinition() == typeof(IDesignTimeDbContextFactory<>)
+                        && i.GetGenericTypeDefinition() == typeof(IDesignTimeDbContextFactory<>)
                     select i.GenericTypeArguments[0];
                 foreach (var context in manufacturedContexts)
                 {
@@ -203,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
                 contexts.Add(
                     context,
-                    FindContextFactory(context) ?? (() =>
+                    FindContextFactory(context)
+                    ?? (() =>
                     {
                         try
                         {
@@ -349,8 +350,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return types
                 .Where(
                     t => string.Equals(t.Key.Name, name, comparisonType)
-                         || string.Equals(t.Key.FullName, name, comparisonType)
-                         || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
+                        || string.Equals(t.Key.FullName, name, comparisonType)
+                        || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
                 .ToDictionary(t => t.Key, t => t.Value);
         }
     }
