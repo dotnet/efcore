@@ -87,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="csharpMigrationOperationGenerator"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpMigrationsGeneratorDependencies With([NotNull] ICSharpMigrationOperationGenerator csharpMigrationOperationGenerator)
+        public CSharpMigrationsGeneratorDependencies With(
+            [NotNull] ICSharpMigrationOperationGenerator csharpMigrationOperationGenerator)
             => new CSharpMigrationsGeneratorDependencies(
                 CSharpHelper,
                 csharpMigrationOperationGenerator,

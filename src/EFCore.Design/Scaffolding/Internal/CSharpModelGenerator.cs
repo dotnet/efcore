@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -62,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string Language => "C#";
+        public override string Language
+            => "C#";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,17 +79,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (options.ContextName == null)
             {
-                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ContextName), nameof(options)), nameof(options));
+                throw new ArgumentException(
+                    CoreStrings.ArgumentPropertyNull(nameof(options.ContextName), nameof(options)), nameof(options));
             }
 
             if (options.ConnectionString == null)
             {
-                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
+                throw new ArgumentException(
+                    CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
             }
 
             if (options.ModelNamespace == null)
             {
-                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(nameof(options.ModelNamespace), nameof(options)), nameof(options));
+                throw new ArgumentException(
+                    CoreStrings.ArgumentPropertyNull(nameof(options.ModelNamespace), nameof(options)), nameof(options));
             }
 
             var generatedCode = CSharpDbContextGenerator.WriteCode(
@@ -117,7 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, options.ModelNamespace, options.UseDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(
+                    entityType, options.ModelNamespace, options.UseDataAnnotations);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;

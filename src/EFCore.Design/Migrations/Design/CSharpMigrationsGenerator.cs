@@ -39,19 +39,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         protected virtual CSharpMigrationsGeneratorDependencies CSharpDependencies { get; }
 
-        private ICSharpHelper Code => CSharpDependencies.CSharpHelper;
+        private ICSharpHelper Code
+            => CSharpDependencies.CSharpHelper;
 
         /// <summary>
         ///     Gets the file extension code files should use.
         /// </summary>
         /// <value> The file extension. </value>
-        public override string FileExtension => ".cs";
+        public override string FileExtension
+            => ".cs";
 
         /// <summary>
         ///     Gets the programming language supported by this service.
         /// </summary>
         /// <value> The language. </value>
-        public override string Language => "C#";
+        public override string Language
+            => "C#";
 
         /// <summary>
         ///     Generates the migration code.
@@ -99,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate("migrationBuilder", upOperations, builder);
+                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate(
+                            "migrationBuilder", upOperations, builder);
                     }
 
                     builder
@@ -110,7 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate("migrationBuilder", downOperations, builder);
+                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate(
+                            "migrationBuilder", downOperations, builder);
                     }
 
                     builder

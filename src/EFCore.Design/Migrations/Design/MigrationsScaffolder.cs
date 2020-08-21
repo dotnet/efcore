@@ -97,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var migrationNamespace =
                 (!string.IsNullOrEmpty(rootNamespace)
                     && !string.IsNullOrEmpty(subNamespace))
-                ? rootNamespace + "." + subNamespace
-                : !string.IsNullOrEmpty(rootNamespace)
-                    ? rootNamespace
-                    : subNamespace;
+                    ? rootNamespace + "." + subNamespace
+                    : !string.IsNullOrEmpty(rootNamespace)
+                        ? rootNamespace
+                        : subNamespace;
 
             if (subNamespaceDefaulted)
             {
@@ -211,8 +211,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="rootNamespace"> The root namespace. </param>
         /// <param name="namespace"> The full namespace. </param>
         /// <returns> The sub-namespace. </returns>
-        protected virtual string GetSubNamespace([NotNull] string rootNamespace, [NotNull] string @namespace) =>
-            @namespace == rootNamespace
+        protected virtual string GetSubNamespace([NotNull] string rootNamespace, [NotNull] string @namespace)
+            => @namespace == rootNamespace
                 ? string.Empty
                 : @namespace.StartsWith(rootNamespace + '.', StringComparison.Ordinal)
                     ? @namespace.Substring(rootNamespace.Length + 1)
@@ -266,7 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
                 if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
+                    model.GetRelationalModel(),
+                    Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
                 {
                     var applied = false;
                     try
@@ -389,11 +390,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(migration, nameof(migration));
 
             var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
-            var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
+            var migrationDirectory =
+                outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
             var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
-            var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
+            var migrationMetadataFile = Path.Combine(
+                migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
             var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
-            var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
+            var modelSnapshotDirectory =
+                outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));
@@ -407,7 +411,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             return new MigrationFiles
             {
-                MigrationFile = migrationFile, MetadataFile = migrationMetadataFile, SnapshotFile = modelSnapshotFile
+                MigrationFile = migrationFile,
+                MetadataFile = migrationMetadataFile,
+                SnapshotFile = modelSnapshotFile
             };
         }
 
@@ -474,16 +480,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="projectDir"> The project directory. </param>
         /// <param name="fileName"> The filename. </param>
         /// <returns> The file path or null if none. </returns>
-        protected virtual string TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName) =>
-            Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
+        protected virtual string TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName)
+            => Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
 
         private bool ContainsForeignMigrations(string migrationsNamespace)
             => (from t in Dependencies.MigrationsAssembly.Assembly.GetConstructibleTypes()
                 where t.Namespace == migrationsNamespace
-                      && t.IsSubclassOf(typeof(Migration))
+                    && t.IsSubclassOf(typeof(Migration))
                 let contextTypeAttribute = t.GetCustomAttribute<DbContextAttribute>()
                 where contextTypeAttribute != null
-                      && contextTypeAttribute.ContextType != _contextType
+                    && contextTypeAttribute.ContextType != _contextType
                 select t).Any();
     }
 }

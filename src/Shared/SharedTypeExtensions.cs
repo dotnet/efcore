@@ -36,7 +36,8 @@ namespace System
             { typeof(void), "void" }
         };
 
-        public static Type UnwrapNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
+        public static Type UnwrapNullableType(this Type type)
+            => Nullable.GetUnderlyingType(type) ?? type;
 
         public static bool IsNullableValueType(this Type type)
             => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -55,8 +56,9 @@ namespace System
             }
 
             var types = GetGenericTypeImplementations(type, typeof(IDictionary<,>));
-            return types.Any(t => t.GetGenericArguments()[0] == typeof(string)
-                && t.GetGenericArguments()[1] == typeof(object));
+            return types.Any(
+                t => t.GetGenericArguments()[0] == typeof(string)
+                    && t.GetGenericArguments()[1] == typeof(object));
         }
 
         public static Type MakeNullable(this Type type, bool nullable = true)
@@ -433,7 +435,12 @@ namespace System
             }
         }
 
-        private static void ProcessGenericType(StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName)
+        private static void ProcessGenericType(
+            StringBuilder builder,
+            Type type,
+            Type[] genericArguments,
+            int length,
+            bool fullName)
         {
             var offset = type.IsNested ? type.DeclaringType.GetGenericArguments().Length : 0;
 

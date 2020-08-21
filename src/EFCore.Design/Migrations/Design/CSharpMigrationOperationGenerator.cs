@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         protected virtual CSharpMigrationOperationGeneratorDependencies Dependencies { get; }
 
-        private ICSharpHelper Code => Dependencies.CSharpHelper;
+        private ICSharpHelper Code
+            => Dependencies.CSharpHelper;
 
         /// <summary>
         ///     Generates code for creating <see cref="MigrationOperation" /> objects.
@@ -375,7 +376,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
-        protected virtual void Generate([NotNull] AddUniqueConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate(
+            [NotNull] AddUniqueConstraintOperation operation,
+            [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -426,7 +429,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
-        protected virtual void Generate([NotNull] AddCheckConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate(
+            [NotNull] AddCheckConstraintOperation operation,
+            [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -1599,7 +1604,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
-        protected virtual void Generate([NotNull] DropUniqueConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate(
+            [NotNull] DropUniqueConstraintOperation operation,
+            [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -1635,7 +1642,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
-        protected virtual void Generate([NotNull] DropCheckConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate(
+            [NotNull] DropCheckConstraintOperation operation,
+            [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));

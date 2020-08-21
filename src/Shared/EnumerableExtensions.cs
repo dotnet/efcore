@@ -37,9 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 _func = func;
             }
 
-            public bool Equals(T x, T y) => _func(x, y);
+            public bool Equals(T x, T y)
+                => _func(x, y);
 
-            public int GetHashCode(T obj) => 0;
+            public int GetHashCode(T obj)
+                => 0;
         }
 
         public static string Join(
@@ -100,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             => IndexOf(source, item, EqualityComparer<T>.Default);
 
         public static int IndexOf<T>(
-            [NotNull] this IEnumerable<T> source, [NotNull] T item,
+            [NotNull] this IEnumerable<T> source,
+            [NotNull] T item,
             [NotNull] IEqualityComparer<T> comparer)
             => source.Select(
                     (x, index) =>
@@ -110,7 +113,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public static T FirstOr<T>([NotNull] this IEnumerable<T> source, [NotNull] T alternate)
             => source.DefaultIfEmpty(alternate).First();
 
-        public static T FirstOr<T>([NotNull] this IEnumerable<T> source, [NotNull] Func<T, bool> predicate, [NotNull] T alternate)
+        public static T FirstOr<T>(
+            [NotNull] this IEnumerable<T> source,
+            [NotNull] Func<T, bool> predicate,
+            [NotNull] T alternate)
             => source.Where(predicate).FirstOr(alternate);
 
         public static bool Any([NotNull] this IEnumerable source)
@@ -124,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static async Task<List<TSource>> ToListAsync<TSource>(
-            this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default)
+            this IAsyncEnumerable<TSource> source,
+            CancellationToken cancellationToken = default)
         {
             var list = new List<TSource>();
             await foreach (var element in source.WithCancellation(cancellationToken))

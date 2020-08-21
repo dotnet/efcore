@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
@@ -29,7 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ContractAnnotation("value:null => halt")]
-        public static IReadOnlyList<T> NotEmpty<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+        public static IReadOnlyList<T> NotEmpty<T>(
+            IReadOnlyList<T> value,
+            [InvokerParameterName] [NotNull] string parameterName)
         {
             NotNull(value, parameterName);
 
@@ -79,7 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return value;
         }
 
-        public static IReadOnlyList<T> HasNoNulls<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
+        public static IReadOnlyList<T> HasNoNulls<T>(
+            IReadOnlyList<T> value,
+            [InvokerParameterName] [NotNull] string parameterName)
             where T : class
         {
             NotNull(value, parameterName);
@@ -94,7 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return value;
         }
 
-        public static IReadOnlyList<string> HasNoEmptyElements(IReadOnlyList<string> value, [InvokerParameterName][NotNull] string parameterName)
+        public static IReadOnlyList<string> HasNoEmptyElements(
+            IReadOnlyList<string> value,
+            [InvokerParameterName] [NotNull] string parameterName)
         {
             NotNull(value, parameterName);
 
@@ -109,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [Conditional("DEBUG")]
-        public static void DebugAssert([System.Diagnostics.CodeAnalysis.DoesNotReturnIf(false)] bool condition, string message)
+        public static void DebugAssert([CA.DoesNotReturnIfAttribute(false)] bool condition, string message)
         {
             if (!condition)
             {

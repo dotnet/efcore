@@ -9,11 +9,15 @@ namespace System.Text
     internal static class StringBuilderExtensions
     {
         public static StringBuilder AppendJoin(
-            this StringBuilder stringBuilder, IEnumerable<string> values, string separator = ", ")
+            this StringBuilder stringBuilder,
+            IEnumerable<string> values,
+            string separator = ", ")
             => stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
 
         public static StringBuilder AppendJoin(
-            this StringBuilder stringBuilder, string separator, params string[] values)
+            this StringBuilder stringBuilder,
+            string separator,
+            params string[] values)
             => stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
 
         public static StringBuilder AppendJoin<T>(

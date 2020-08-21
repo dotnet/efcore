@@ -170,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var schemaParameterNeeded = schema != null && schema != defaultSchema;
             var isView = entityType.GetViewName() != null;
-            var tableAttributeNeeded = !isView && (schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName());
+            var tableAttributeNeeded =
+                !isView && (schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName());
             if (tableAttributeNeeded)
             {
                 var tableAttribute = new AttributeWriter(nameof(TableAttribute));
@@ -190,8 +191,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             // Do not generate IndexAttributes for indexes which
             // would be generated anyway by convention.
-            foreach (var index in entityType.GetIndexes().Where(i =>
-                ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
+            foreach (var index in entityType.GetIndexes().Where(
+                i =>
+                    ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
             {
                 // If there are annotations that cannot be represented using an IndexAttribute then use fluent API instead.
                 var annotations = _annotationCodeGenerator
@@ -440,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     inversePropertyAttribute.AddParameter(
                         !navigation.DeclaringEntityType.GetPropertiesAndNavigations().Any(
-                                m => m.Name == inverseNavigation.DeclaringEntityType.Name)
+                            m => m.Name == inverseNavigation.DeclaringEntityType.Name)
                             ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
                             : _code.Literal(inverseNavigation.Name));
 
@@ -469,9 +471,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             public override string ToString()
-                => "[" + (_parameters.Count == 0
-                       ? StripAttribute(_attributeName)
-                       : StripAttribute(_attributeName) + "(" + string.Join(", ", _parameters) + ")") + "]";
+                => "["
+                    + (_parameters.Count == 0
+                        ? StripAttribute(_attributeName)
+                        : StripAttribute(_attributeName) + "(" + string.Join(", ", _parameters) + ")")
+                    + "]";
 
             private static string StripAttribute([NotNull] string attributeName)
                 => attributeName.EndsWith("Attribute", StringComparison.Ordinal)

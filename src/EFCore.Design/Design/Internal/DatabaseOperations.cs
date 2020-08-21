@@ -99,9 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir);
             var finalContextNamespace =
-                contextNamespace ??
-                modelNamespace ??
-                GetNamespaceFromOutputPath(outputContextDir);
+                contextNamespace ?? modelNamespace ?? GetNamespaceFromOutputPath(outputContextDir);
 
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
@@ -149,7 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 ? string.Join(
                     ".",
                     subPath.Split(
-                        new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                        new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+                        StringSplitOptions.RemoveEmptyEntries))
                 : null;
         }
 
@@ -169,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var last = path[path.Length - 1];
             return last == Path.DirectorySeparatorChar
-                   || last == Path.AltDirectorySeparatorChar
-                ? path
-                : path + Path.DirectorySeparatorChar;
+                || last == Path.AltDirectorySeparatorChar
+                    ? path
+                    : path + Path.DirectorySeparatorChar;
         }
     }
 }

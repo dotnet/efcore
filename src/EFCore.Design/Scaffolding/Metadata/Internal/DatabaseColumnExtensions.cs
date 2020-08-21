@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         public static bool IsRowVersion([NotNull] this DatabaseColumn column)
         {
             return column.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                   && (bool?)column[ScaffoldingAnnotationNames.ConcurrencyToken] == true;
+                && (bool?)column[ScaffoldingAnnotationNames.ConcurrencyToken] == true;
         }
     }
 }

@@ -108,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
             var migration =
                 string.IsNullOrEmpty(@namespace)
-                ? scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language)
-                : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
+                    ? scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language)
+                    : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
             var files = scaffolder.Save(_projectDir, migration, outputDir);
 
             return files;
@@ -242,7 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual MigrationFiles RemoveMigration(
-            [CanBeNull] string contextType, bool force)
+            [CanBeNull] string contextType,
+            bool force)
         {
             using var context = _contextOperations.CreateContext(contextType);
             var services = _servicesBuilder.Build(context);
@@ -274,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var options = services.GetRequiredService<IDbContextOptions>();
             var contextType = services.GetRequiredService<ICurrentDbContext>().Context.GetType();
             var migrationsAssemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly
-                                         ?? contextType.Assembly.GetName().Name;
+                ?? contextType.Assembly.GetName().Name;
             if (assemblyName.Name != migrationsAssemblyName
                 && assemblyName.FullName != migrationsAssemblyName)
             {
