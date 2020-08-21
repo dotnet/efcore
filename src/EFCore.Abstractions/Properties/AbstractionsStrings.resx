@@ -120,10 +120,10 @@
   <data name="ArgumentIsEmpty" xml:space="preserve">
     <value>The string argument '{argumentName}' cannot be empty.</value>
   </data>
-  <data name="CollectionArgumentIsEmpty" xml:space="preserve">
-    <value>The collection argument '{argumentName}' must contain at least one element.</value>
-  </data>
   <data name="CollectionArgumentHasEmptyElements" xml:space="preserve">
     <value>The collection argument '{argumentName}' must not contain any empty elements.</value>
+  </data>
+  <data name="CollectionArgumentIsEmpty" xml:space="preserve">
+    <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
 </root>

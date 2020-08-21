@@ -117,26 +117,21 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AggregateOperationNotSupported" xml:space="preserve">
+    <value>SQLite cannot apply aggregate operator '{aggregateOperator}' on expression of type '{type}'. Convert the values to a supported type or use LINQ to Objects to aggregate the results.</value>
+  </data>
+  <data name="ApplyNotSupported" xml:space="preserve">
+    <value>Translating this query requires APPLY operation which is not supported on SQLite.</value>
+  </data>
+  <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.</value>
+  </data>
   <data name="InvalidMigrationOperation" xml:space="preserve">
     <value>SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
-  <data name="MigrationScriptGenerationNotSupported" xml:space="preserve">
-    <value>Generating idempotent scripts for migration is not currently supported by SQLite. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
-  </data>
-  <data name="LogSchemaConfigured" xml:space="preserve">
-    <value>The entity type '{entityType}' is configured to use schema '{schema}'. SQLite does not support schemas. This configuration will be ignored by the SQLite provider.</value>
-    <comment>Warning SqliteEventId.SchemaConfiguredWarning string string</comment>
-  </data>
-  <data name="LogSequenceConfigured" xml:space="preserve">
-    <value>The model was configured with the database sequence '{sequence}'. SQLite does not support sequences.</value>
-    <comment>Warning SqliteEventId.SequenceConfiguredWarning string</comment>
-  </data>
-  <data name="SequencesNotSupported" xml:space="preserve">
-    <value>SQLite does not support sequences. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
-  </data>
-  <data name="LogUsingSchemaSelectionsWarning" xml:space="preserve">
-    <value>SQLite doesn't support schemas. The specified schema selection arguments will be ignored.</value>
-    <comment>Warning SqliteEventId.SchemasNotSupportedWarning</comment>
+  <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
+    <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
     <value>Found column on table: {tableName}, column name: {columnName}, data type: {dataType}, not nullable: {isNotNullable}, default value: {defaultValue}.</value>
@@ -146,13 +141,21 @@
     <value>Found foreign key on table: {tableName}, id: {id}, principal table: {principalTableName}, delete action: {deleteAction}.</value>
     <comment>Debug SqliteEventId.ForeignKeyFound string long string string</comment>
   </data>
-  <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
-    <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string</comment>
+  <data name="LogFoundIndex" xml:space="preserve">
+    <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
+    <comment>Debug SqliteEventId.IndexFound string string bool?</comment>
+  </data>
+  <data name="LogFoundPrimaryKey" xml:space="preserve">
+    <value>Found primary key with name: {primaryKeyName}, table: {tableName}.</value>
+    <comment>Debug SqliteEventId.PrimaryKeyFound string string</comment>
   </data>
   <data name="LogFoundTable" xml:space="preserve">
     <value>Found table with name: {name}.</value>
     <comment>Debug SqliteEventId.TableFound string</comment>
+  </data>
+  <data name="LogFoundUniqueConstraint" xml:space="preserve">
+    <value>Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.</value>
+    <comment>Debug SqliteEventId.UniqueConstraintFound string string</comment>
   </data>
   <data name="LogMissingTable" xml:space="preserve">
     <value>Unable to find a table in the database matching the selected table {table}.</value>
@@ -162,36 +165,33 @@
     <value>For foreign key with identity {id} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
     <comment>Warning SqliteEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
   </data>
-  <data name="LogFoundIndex" xml:space="preserve">
-    <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
-    <comment>Debug SqliteEventId.IndexFound string string bool?</comment>
+  <data name="LogSchemaConfigured" xml:space="preserve">
+    <value>The entity type '{entityType}' is configured to use schema '{schema}'. SQLite does not support schemas. This configuration will be ignored by the SQLite provider.</value>
+    <comment>Warning SqliteEventId.SchemaConfiguredWarning string string</comment>
   </data>
-  <data name="LogFoundPrimaryKey" xml:space="preserve">
-    <value>Found primary key with name: {primaryKeyName}, table: {tableName}.</value>
-    <comment>Debug SqliteEventId.PrimaryKeyFound string string</comment>
+  <data name="LogSequenceConfigured" xml:space="preserve">
+    <value>The model was configured with the database sequence '{sequence}'. SQLite does not support sequences.</value>
+    <comment>Warning SqliteEventId.SequenceConfiguredWarning string</comment>
   </data>
-  <data name="LogFoundUniqueConstraint" xml:space="preserve">
-    <value>Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.</value>
-    <comment>Debug SqliteEventId.UniqueConstraintFound string string</comment>
-  </data>
-  <data name="OrderByNotSupported" xml:space="preserve">
-    <value>SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.</value>
+  <data name="LogTableRebuildPendingWarning" xml:space="preserve">
+    <value>Warning, an operation of type '{operationType}' will be attempted while a rebuild of table '{tableName}' is pending. The database may not be in an expected state. Review the SQL generated by this migration to help diagnose any failures. Consider moving these operations to a subsequent migration.</value>
+    <comment>Warning SqliteEventId.TableRebuildPendingWarning string string</comment>
   </data>
   <data name="LogUnexpectedConnectionType" xml:space="preserve">
     <value>A connection of an unexpected type ({type}) is being used. The SQL functions prefixed with 'ef_' could not be created automatically. Manually define them if you encounter errors while querying.</value>
     <comment>Warning SqliteEventId.UnexpectedConnectionTypeWarning string</comment>
   </data>
-  <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.</value>
+  <data name="LogUsingSchemaSelectionsWarning" xml:space="preserve">
+    <value>SQLite doesn't support schemas. The specified schema selection arguments will be ignored.</value>
+    <comment>Warning SqliteEventId.SchemasNotSupportedWarning</comment>
   </data>
-  <data name="AggregateOperationNotSupported" xml:space="preserve">
-    <value>SQLite cannot apply aggregate operator '{aggregateOperator}' on expression of type '{type}'. Convert the values to a supported type or use LINQ to Objects to aggregate the results.</value>
+  <data name="MigrationScriptGenerationNotSupported" xml:space="preserve">
+    <value>Generating idempotent scripts for migration is not currently supported by SQLite. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
-  <data name="ApplyNotSupported" xml:space="preserve">
-    <value>Translating this query requires APPLY operation which is not supported on SQLite.</value>
+  <data name="OrderByNotSupported" xml:space="preserve">
+    <value>SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.</value>
   </data>
-  <data name="LogTableRebuildPendingWarning" xml:space="preserve">
-    <value>Warning, an operation of type '{operationType}' will be attempted while a rebuild of table '{tableName}' is pending. The database may not be in an expected state. Review the SQL generated by this migration to help diagnose any failures. Consider moving these operations to a subsequent migration.</value>
-    <comment>Warning SqliteEventId.TableRebuildPendingWarning string string</comment>
+  <data name="SequencesNotSupported" xml:space="preserve">
+    <value>SQLite does not support sequences. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.</value>
   </data>
 </root>

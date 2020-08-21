@@ -25,6 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("BuildFailed");
 
         /// <summary>
+        ///     Build started...
+        /// </summary>
+        public static string BuildStarted
+            => GetString("BuildStarted");
+
+        /// <summary>
+        ///     Build succeeded.
+        /// </summary>
+        public static string BuildSucceeded
+            => GetString("BuildSucceeded");
+
+        /// <summary>
         ///     The configuration to use.
         /// </summary>
         public static string ConfigurationDescription
@@ -43,10 +55,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ContextDescription");
 
         /// <summary>
+        ///     The directory to put DbContext file in. Paths are relative to the project directory.
+        /// </summary>
+        public static string ContextDirDescription
+            => GetString("ContextDirDescription");
+
+        /// <summary>
         ///     The name of the DbContext.
         /// </summary>
         public static string ContextNameDescription
             => GetString("ContextNameDescription");
+
+        /// <summary>
+        ///     Specify to override the namespace for the DbContext class.
+        /// </summary>
+        public static string ContextNamespaceDescription
+            => GetString("ContextNamespaceDescription");
 
         /// <summary>
         ///     Use attributes to configure the model (where possible). If omitted, only the fluent API is used.
@@ -83,6 +107,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string DatabaseUpdateDescription
             => GetString("DatabaseUpdateDescription");
+
+        /// <summary>
+        ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+        /// </summary>
+        public static string DbContextConnectionDescription
+            => GetString("DbContextConnectionDescription");
 
         /// <summary>
         ///     Commands to manage DbContext types.
@@ -145,10 +175,26 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("IdempotentDescription");
 
         /// <summary>
+        ///     Invalid template pattern '{template}'.
+        /// </summary>
+        public static string InvalidTemplatePattern([CanBeNull] object template)
+            => string.Format(
+                GetString("InvalidTemplatePattern", nameof(template)),
+                template);
+
+        /// <summary>
         ///     Show JSON output.
         /// </summary>
         public static string JsonDescription
             => GetString("JsonDescription");
+
+        /// <summary>
+        ///     The last argument '{argumentName}' accepts multiple values. No more argument can be added.
+        /// </summary>
+        public static string LastArgumentHasMultipleValues([CanBeNull] object argumentName)
+            => string.Format(
+                GetString("LastArgumentHasMultipleValues", nameof(argumentName)),
+                argumentName);
 
         /// <summary>
         ///     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
@@ -185,6 +231,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string MigrationsListDescription
             => GetString("MigrationsListDescription");
+
+        /// <summary>
+        ///     Specify to override the namespace for the migration.
+        /// </summary>
+        public static string MigrationsNamespaceDescription
+            => GetString("MigrationsNamespaceDescription");
 
         /// <summary>
         ///     The directory (and sub-namespace) to use. Paths are relative to the project directory. Defaults to "Migrations".
@@ -237,6 +289,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MultipleStartupProjects");
 
         /// <summary>
+        ///     Specify to override the namespace for the generated entity types.
+        /// </summary>
+        public static string NamespaceDescription
+            => GetString("NamespaceDescription");
+
+        /// <summary>
         ///     Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254
         /// </summary>
         public static string NETCoreApp1StartupProject([CanBeNull] object startupProject, [CanBeNull] object targetFrameworkVersion)
@@ -253,10 +311,28 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 startupProject);
 
         /// <summary>
+        ///     Don't build the project. Only use this when the build is up-to-date.
+        /// </summary>
+        public static string NoBuildDescription
+            => GetString("NoBuildDescription");
+
+        /// <summary>
         ///     Don't colorize output.
         /// </summary>
         public static string NoColorDescription
             => GetString("NoColorDescription");
+
+        /// <summary>
+        ///     Don't connect to the database.
+        /// </summary>
+        public static string NoConnectDescription
+            => GetString("NoConnectDescription");
+
+        /// <summary>
+        ///     Don't use the pluralizer.
+        /// </summary>
+        public static string NoPluralizeDescription
+            => GetString("NoPluralizeDescription");
 
         /// <summary>
         ///     No project was found. Change the current working directory or use the --project option.
@@ -271,6 +347,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => string.Format(
                 GetString("NoProjectInDirectory", nameof(projectDir)),
                 projectDir);
+
+        /// <summary>
+        ///     Don't generate SQL transaction statements.
+        /// </summary>
+        public static string NoTransactionsDescription
+            => GetString("NoTransactionsDescription");
 
         /// <summary>
         ///     The file to write the result to.
@@ -309,6 +391,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ProviderDescription");
 
         /// <summary>
+        ///     Response file '{fileName}' doesn't exist.
+        /// </summary>
+        public static string ResponseFileMissing([CanBeNull] object fileName)
+            => string.Format(
+                GetString("ResponseFileMissing", nameof(fileName)),
+                fileName);
+
+        /// <summary>
         ///     The runtime to use.
         /// </summary>
         public static string RuntimeDescription
@@ -327,10 +417,32 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("StartupProjectDescription");
 
         /// <summary>
+        ///     Suppress generation of the DbContext.OnConfiguring() method.
+        /// </summary>
+        public static string SuppressOnConfiguringDescription
+            => GetString("SuppressOnConfiguringDescription");
+
+        /// <summary>
         ///     The tables to generate entity types for.
         /// </summary>
         public static string TablesDescription
             => GetString("TablesDescription");
+
+        /// <summary>
+        ///     Unrecognized {argumentName} '{argumentValue}'.
+        /// </summary>
+        public static string UnexpectedArgument([CanBeNull] object argumentName, [CanBeNull] object argumentValue)
+            => string.Format(
+                GetString("UnexpectedArgument", nameof(argumentName), nameof(argumentValue)),
+                argumentName, argumentValue);
+
+        /// <summary>
+        ///     Unexpected value '{optionValue}' for option '{optionName}'.
+        /// </summary>
+        public static string UnexpectedOptionValue([CanBeNull] object optionValue, [CanBeNull] object optionName)
+            => string.Format(
+                GetString("UnexpectedOptionValue", nameof(optionValue), nameof(optionName)),
+                optionValue, optionName);
 
         /// <summary>
         ///     Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework.
@@ -369,130 +481,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("VerboseDescription");
 
         /// <summary>
-        ///     Writing '{file}'...
-        /// </summary>
-        public static string WritingFile([CanBeNull] object file)
-            => string.Format(
-                GetString("WritingFile", nameof(file)),
-                file);
-
-        /// <summary>
-        ///     Don't build the project. Only use this when the build is up-to-date.
-        /// </summary>
-        public static string NoBuildDescription
-            => GetString("NoBuildDescription");
-
-        /// <summary>
-        ///     The directory to put DbContext file in. Paths are relative to the project directory.
-        /// </summary>
-        public static string ContextDirDescription
-            => GetString("ContextDirDescription");
-
-        /// <summary>
         ///     The working directory of the tool invoking this command.
         /// </summary>
         public static string WorkingDirDescription
             => GetString("WorkingDirDescription");
 
         /// <summary>
-        ///     Build started...
+        ///     Writing '{file}'...
         /// </summary>
-        public static string BuildStarted
-            => GetString("BuildStarted");
-
-        /// <summary>
-        ///     Build succeeded.
-        /// </summary>
-        public static string BuildSucceeded
-            => GetString("BuildSucceeded");
-
-        /// <summary>
-        ///     The last argument '{argumentName}' accepts multiple values. No more argument can be added.
-        /// </summary>
-        public static string LastArgumentHasMultipleValues([CanBeNull] object argumentName)
+        public static string WritingFile([CanBeNull] object file)
             => string.Format(
-                GetString("LastArgumentHasMultipleValues", nameof(argumentName)),
-                argumentName);
-
-        /// <summary>
-        ///     Unexpected value '{optionValue}' for option '{optionName}'.
-        /// </summary>
-        public static string UnexpectedOptionValue([CanBeNull] object optionValue, [CanBeNull] object optionName)
-            => string.Format(
-                GetString("UnexpectedOptionValue", nameof(optionValue), nameof(optionName)),
-                optionValue, optionName);
-
-        /// <summary>
-        ///     Unrecognized {argumentName} '{argumentValue}'.
-        /// </summary>
-        public static string UnexpectedArgument([CanBeNull] object argumentName, [CanBeNull] object argumentValue)
-            => string.Format(
-                GetString("UnexpectedArgument", nameof(argumentName), nameof(argumentValue)),
-                argumentName, argumentValue);
-
-        /// <summary>
-        ///     Response file '{fileName}' doesn't exist.
-        /// </summary>
-        public static string ResponseFileMissing([CanBeNull] object fileName)
-            => string.Format(
-                GetString("ResponseFileMissing", nameof(fileName)),
-                fileName);
-
-        /// <summary>
-        ///     Invalid template pattern '{template}'.
-        /// </summary>
-        public static string InvalidTemplatePattern([CanBeNull] object template)
-            => string.Format(
-                GetString("InvalidTemplatePattern", nameof(template)),
-                template);
-
-        /// <summary>
-        ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
-        /// </summary>
-        public static string DbContextConnectionDescription
-            => GetString("DbContextConnectionDescription");
-
-        /// <summary>
-        ///     Specify to override the namespace for the generated entity types.
-        /// </summary>
-        public static string NamespaceDescription
-            => GetString("NamespaceDescription");
-
-        /// <summary>
-        ///     Specify to override the namespace for the DbContext class.
-        /// </summary>
-        public static string ContextNamespaceDescription
-            => GetString("ContextNamespaceDescription");
-
-        /// <summary>
-        ///     Specify to override the namespace for the migration.
-        /// </summary>
-        public static string MigrationsNamespaceDescription
-            => GetString("MigrationsNamespaceDescription");
-
-        /// <summary>
-        ///     Suppress generation of the DbContext.OnConfiguring() method.
-        /// </summary>
-        public static string SuppressOnConfiguringDescription
-            => GetString("SuppressOnConfiguringDescription");
-
-        /// <summary>
-        ///     Don't use the pluralizer.
-        /// </summary>
-        public static string NoPluralizeDescription
-            => GetString("NoPluralizeDescription");
-
-        /// <summary>
-        ///     Don't generate SQL transaction statements.
-        /// </summary>
-        public static string NoTransactionsDescription
-            => GetString("NoTransactionsDescription");
-
-        /// <summary>
-        ///     Don't connect to the database.
-        /// </summary>
-        public static string NoConnectDescription
-            => GetString("NoConnectDescription");
+                GetString("WritingFile", nameof(file)),
+                file);
 
         private static string GetString(string name, params string[] formatterNames)
         {
