@@ -50,12 +50,30 @@ namespace Microsoft.EntityFrameworkCore
                 return overrides.ColumnName;
             }
 
-            if (!property.IsPrimaryKey()
-                && storeObject.StoreObjectType != StoreObjectType.Function
-                && storeObject.StoreObjectType != StoreObjectType.SqlQuery
-                && StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType) != storeObject)
+            if (storeObject.StoreObjectType != StoreObjectType.Function
+                && storeObject.StoreObjectType != StoreObjectType.SqlQuery)
             {
-                return null;
+                if (property.IsPrimaryKey())
+                {
+                    var tableFound = false;
+                    foreach (var containingType in property.DeclaringEntityType.GetDerivedTypesInclusive())
+                    {
+                        if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                        {
+                            tableFound = true;
+                            break;
+                        }
+                    }
+
+                    if (!tableFound)
+                    {
+                        return null;
+                    }
+                }
+                else if (StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType) != storeObject)
+                {
+                    return null;
+                }
             }
 
             var columnAnnotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);

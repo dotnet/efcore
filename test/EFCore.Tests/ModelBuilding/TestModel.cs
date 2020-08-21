@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
     {
-        private class BigMak
+        protected class BigMak
         {
             public int Id { get; set; }
             public int AlternateKey { get; set; }
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Bun Bun { get; set; }
         }
 
-        private class Ingredient
+        protected class Ingredient
         {
             public static readonly PropertyInfo BurgerIdProperty = typeof(Ingredient).GetProperty("BurgerId");
 
@@ -34,15 +34,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public BigMak BigMak { get; set; }
         }
 
-        private class Pickle : Ingredient
+        protected class Pickle : Ingredient
         {
         }
 
-        private class Bun : Ingredient
+        protected class Bun : Ingredient
         {
         }
 
-        private class Whoopper
+        protected class SesameBun : Bun
+        {
+        }
+
+        protected class Whoopper
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
@@ -56,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Mustard Mustard { get; set; }
         }
 
-        private class Tomato
+        protected class Tomato
         {
             public int Id { get; set; }
 
@@ -65,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Whoopper Whoopper { get; set; }
         }
 
-        private class ToastedBun
+        protected class ToastedBun
         {
             public int Id { get; set; }
 
@@ -74,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Whoopper Whoopper { get; set; }
         }
 
-        private class Mustard
+        protected class Mustard
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
@@ -1125,6 +1129,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
             public Dictionary<string, object> Reference { get; set; }
             public List<Dictionary<string, object>> Collection { get; set; }
+        }
+
+        protected class Dr
+        {
+            public int Id { get; set; }
+
+            public Dre Dre { get; set; }
+
+            public ICollection<DreJr> Jrs { get; set; }
+        }
+
+        protected class Dre
+        {
+        }
+
+        protected class DreJr : Dre
+        {
         }
     }
 }

@@ -1772,6 +1772,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. Either the properties {foreignKeyProperties} aren't mapped to table '{table}' or the principal properties {principalProperties} aren't mapped to table '{principalTable}'. All foreign key properties must map to the table that the dependent type is mapped to and all principal properties must map to a single table that the principal type is mapped to.
+        /// </summary>
+        public static FallbackEventDefinition LogForeignKeyPropertiesMappedToUnrelatedTables([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyPropertiesMappedToUnrelatedTables;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyPropertiesMappedToUnrelatedTables,
+                    () => new FallbackEventDefinition(
+                        logger.Options,
+                        RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables,
+                        LogLevel.Error,
+                        "RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables",
+                        _resourceManager.GetString("LogForeignKeyPropertiesMappedToUnrelatedTables")));
+            }
+
+            return (FallbackEventDefinition)definition;
+        }
+
+        /// <summary>
         ///     Generating down script for migration '{migration}'.
         /// </summary>
         public static EventDefinition<string> LogGeneratingDown([NotNull] IDiagnosticsLogger logger)

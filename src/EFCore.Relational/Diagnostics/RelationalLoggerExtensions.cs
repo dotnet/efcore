@@ -4651,6 +4651,62 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs the <see cref="RelationalEventId.IndexPropertiesMappedToNonOverlappingTables" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="foreignKey"> The foreign key. </param>
+        public static void ForeignKeyPropertiesMappedToUnrelatedTables(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IForeignKey foreignKey)
+        {
+            var definition = RelationalResources.LogForeignKeyPropertiesMappedToUnrelatedTables(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics,
+                    l => l.Log(
+                        definition.Level,
+                        definition.EventId,
+                        definition.MessageFormat,
+                        foreignKey.Properties.Format(),
+                        foreignKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.PrincipalEntityType.DisplayName(),
+                        foreignKey.Properties.Format(),
+                        foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                        foreignKey.PrincipalKey.Properties.Format(),
+                        foreignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new ForeignKeyEventData(
+                    definition,
+                    ForeignKeyPropertiesMappedToUnrelatedTables,
+                    foreignKey);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string ForeignKeyPropertiesMappedToUnrelatedTables(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (FallbackEventDefinition)definition;
+            var p = (ForeignKeyEventData)payload;
+            return d.GenerateMessage(
+                    l => l.Log(
+                        d.Level,
+                        d.EventId,
+                        d.MessageFormat,
+                        p.ForeignKey.Properties.Format(),
+                        p.ForeignKey.DeclaringEntityType.DisplayName(),
+                        p.ForeignKey.PrincipalEntityType.DisplayName(),
+                        p.ForeignKey.Properties.Format(),
+                        p.ForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                        p.ForeignKey.PrincipalKey.Properties.Format(),
+                        p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="RelationalEventId.BatchExecutorFailedToRollbackToSavepoint" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

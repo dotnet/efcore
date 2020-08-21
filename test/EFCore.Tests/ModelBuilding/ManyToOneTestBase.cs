@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -1162,6 +1163,47 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
                 Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
                 Assert.Empty(principalType.GetIndexes());
+            }
+
+            [ConditionalFact] //Issue#13300
+            public virtual void Explicitly_set_shadow_FK_name_is_preserved_with_HasPrincipalKey()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<User13300>(
+                    m =>
+                    {
+                        m.Property<string>("_email");
+
+                        m.HasMany<Profile13300>("_profiles")
+                            .WithOne("User")
+                            .HasForeignKey("Email")
+                            .HasPrincipalKey("_email");
+                    });
+
+                modelBuilder.Entity<Profile13300>().Property<string>("Email");
+
+                var model = modelBuilder.FinalizeModel();
+
+                var fk = model.FindEntityType(typeof(Profile13300)).GetForeignKeys().Single();
+                Assert.Equal("_profiles", fk.PrincipalToDependent.Name);
+                Assert.Equal("User", fk.DependentToPrincipal.Name);
+                Assert.Equal("Email", fk.Properties[0].Name);
+                Assert.Equal(typeof(string), fk.Properties[0].ClrType);
+                Assert.Equal("_email", fk.PrincipalKey.Properties[0].Name);
+            }
+
+            protected class User13300
+            {
+                public Guid Id { get; set; }
+                private readonly string _email = string.Empty;
+                private readonly List<Profile13300> _profiles = new List<Profile13300>();
+            }
+
+            protected class Profile13300
+            {
+                public Guid Id { get; set; }
+                public User13300 User { get; set; }
             }
 
             [ConditionalFact]

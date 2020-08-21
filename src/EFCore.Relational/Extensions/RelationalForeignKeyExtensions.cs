@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -23,13 +23,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The foreign key constraint name. </returns>
         public static string GetConstraintName([NotNull] this IForeignKey foreignKey)
-            => foreignKey.GetConstraintName(
-                StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, StoreObjectType.Table).Value,
-                StoreObjectIdentifier.Create(
-                    foreignKey.PrincipalKey.IsPrimaryKey()
-                        ? foreignKey.PrincipalEntityType
-                        : foreignKey.PrincipalKey.DeclaringEntityType,
-                    StoreObjectType.Table).Value);
+        {
+            var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
+            return annotation != null
+                ? (string)annotation.Value
+                : foreignKey.GetDefaultName();
+        }
 
         /// <summary>
         ///     Returns the foreign key constraint name.

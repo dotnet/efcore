@@ -511,23 +511,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Creates_both_navigations_and_uses_existing_FK_not_found_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Bun>().HasOne<BigMak>().WithOne()
                     .HasForeignKey<Bun>(e => e.BurgerId);
                 modelBuilder.Ignore<Pickle>();
 
-                var dependentType = model.FindEntityType(typeof(Bun));
-                var principalType = model.FindEntityType(typeof(BigMak));
-                var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "BurgerId"));
-                fk.IsUnique = true;
-
-                var principalKey = principalType.FindPrimaryKey();
-                var dependentKey = dependentType.FindPrimaryKey();
-
                 modelBuilder
                     .Entity<BigMak>().HasOne(e => e.Bun).WithOne(e => e.BigMak)
                     .HasForeignKey<Bun>(e => e.BurgerId);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var dependentType = model.FindEntityType(typeof(Bun));
+                var principalType = model.FindEntityType(typeof(BigMak));
+                var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "BurgerId"));
+                Assert.True(fk.IsUnique);
+
+                var principalKey = principalType.FindPrimaryKey();
+                var dependentKey = dependentType.FindPrimaryKey();
 
                 Assert.Same(fk, dependentType.GetForeignKeys().Single());
                 Assert.Equal("BigMak", dependentType.GetNavigations().Single().Name);
