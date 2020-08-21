@@ -364,8 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _ = _annotationCodeGenerator.GenerateDataAnnotationAttributes(entityType, annotations);
             }
 
-            if (!useDataAnnotations
-                || entityType.GetViewName() != null)
+            if (!useDataAnnotations || entityType.GetViewName() != null)
             {
                 GenerateTableName(entityType);
             }
@@ -385,8 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .ToDictionary(a => a.Name, a => a);
                 _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(index, indexAnnotations);
 
-                if (!useDataAnnotations
-                    || indexAnnotations.Count > 0)
+                if (!useDataAnnotations || indexAnnotations.Count > 0)
                 {
                     GenerateIndex(index);
                 }
@@ -557,7 +555,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateProperty(IProperty property, bool useDataAnnotations)
         {
-            var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}({_code.Lambda(new[] { property.Name }, "e")})" };
+            var lines = new List<string>
+            {
+                $".{nameof(EntityTypeBuilder.Property)}({_code.Lambda(new[] { property.Name }, "e")})"
+            };
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -599,12 +600,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var precision = property.GetPrecision();
             var scale = property.GetScale();
-            if (precision != null
-                && scale != null
-                && scale != 0)
+            if (precision != null && scale != null && scale != 0)
             {
                 lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}" + $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+                    $".{nameof(PropertyBuilder.HasPrecision)}"
+                    + $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
             }
             else if (precision != null)
             {
@@ -627,7 +627,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             else if (defaultValue != null)
             {
                 lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" + $"({_code.UnknownLiteral(defaultValue)})");
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}"
+                    + $"({_code.UnknownLiteral(defaultValue)})");
                 annotations.Remove(RelationalAnnotationNames.DefaultValue);
             }
 
@@ -644,7 +645,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate),
                     ValueGenerated.OnUpdate => nameof(PropertyBuilder.ValueGeneratedOnUpdate),
                     ValueGenerated.Never => nameof(PropertyBuilder.ValueGeneratedNever),
-                    _ => throw new InvalidOperationException(DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
+                    _ => throw new InvalidOperationException(
+                        DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
                 };
 
                 lines.Add($".{methodName}()");

@@ -147,7 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 ? string.Join(
                     ".",
                     subPath.Split(
-                        new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                        new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+                        StringSplitOptions.RemoveEmptyEntries))
                 : null;
         }
 

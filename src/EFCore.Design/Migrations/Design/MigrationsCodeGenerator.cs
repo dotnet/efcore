@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Gets the programming language supported by this service.
         /// </summary>
         /// <value> The language. </value>
-        public virtual string Language => null;
+        public virtual string Language
+            => null;
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.

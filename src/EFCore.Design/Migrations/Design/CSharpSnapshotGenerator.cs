@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         protected virtual CSharpSnapshotGeneratorDependencies Dependencies { get; }
 
-        private ICSharpHelper Code => Dependencies.CSharpHelper;
+        private ICSharpHelper Code
+            => Dependencies.CSharpHelper;
 
         /// <summary>
         ///     Generates code for creating an <see cref="IModel" />.
@@ -57,8 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var productVersion = model.GetProductVersion();
 
-            if (annotations.Count > 0
-                || productVersion != null)
+            if (annotations.Count > 0 || productVersion != null)
             {
                 stringBuilder.Append(builderName);
 
@@ -233,7 +233,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 .Where(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership), stringBuilder);
                     }
 
-                    GenerateData(builderName, entityType.GetProperties(), entityType.GetSeedData(providerValues: true), stringBuilder);
+                    GenerateData(
+                        builderName, entityType.GetProperties(), entityType.GetSeedData(providerValues: true), stringBuilder);
                 }
 
                 stringBuilder
@@ -333,7 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateForeignKeys(builderName, entityType.GetDeclaredForeignKeys(), stringBuilder);
 
-            GenerateOwnedTypes(builderName, entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership), stringBuilder);
+            GenerateOwnedTypes(
+                builderName, entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership), stringBuilder);
 
             GenerateNavigations(
                 builderName, entityType.GetDeclaredNavigations()
@@ -539,7 +541,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GeneratePropertyAnnotations([NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GeneratePropertyAnnotations(
+            [NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
@@ -785,10 +788,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotationList = entityType.GetAnnotations().ToList();
 
-            var discriminatorPropertyAnnotation = annotationList.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorProperty);
+            var discriminatorPropertyAnnotation =
+                annotationList.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorProperty);
             var discriminatorMappingCompleteAnnotation =
                 annotationList.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorMappingComplete);
-            var discriminatorValueAnnotation = annotationList.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorValue);
+            var discriminatorValueAnnotation =
+                annotationList.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorValue);
 
             var annotations = Dependencies.AnnotationCodeGenerator
                 .FilterIgnoredAnnotations(entityType.GetAnnotations())
@@ -954,8 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var fluentApiCalls = Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(entityType, annotations);
-            if (fluentApiCalls.Count > 0
-                || annotations.Count > 0)
+            if (fluentApiCalls.Count > 0 || annotations.Count > 0)
             {
                 stringBuilder
                     .AppendLine()
