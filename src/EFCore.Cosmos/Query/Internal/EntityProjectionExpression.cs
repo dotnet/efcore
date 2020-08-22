@@ -128,6 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             if (!clientEval
+                // TODO: Remove once __jObject is translated to the access root in a better fashion and 
+                // would not otherwise be found to be non-translatable. See issues #17670 and #14121.
                 && property.Name != EntityFrameworkCore.Metadata.Conventions.StoreKeyConvention.JObjectPropertyName
                 && expression.Name.Length == 0)
             {

@@ -103,6 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override string ToString() => Name?.Length > 0
             ? $"{AccessExpression}[\"{Name}\"]"
+            // TODO: Remove once __jObject is translated to the access root in a better fashion.
+            // See issue #17670 and related issue #14121.
             : $"{AccessExpression}";
 
         /// <summary>
