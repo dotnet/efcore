@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             UpdateReferenceMaps(entry, newState, entry.EntityState);
 
-            if (entry.EntityState is EntityState.Detached && (newState is EntityState.Unchanged || newState is EntityState.Modified))
+            if (entry.EntityState is EntityState.Detached && newState != EntityState.Added)
             {
                 ValueGenerationManager.Generate(entry, includePKs: false);
             }

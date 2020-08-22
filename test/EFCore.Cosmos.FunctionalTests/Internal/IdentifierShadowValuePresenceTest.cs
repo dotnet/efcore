@@ -7,19 +7,24 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class IdentifierShadowValuePresenceTest
     {
         [ConditionalFact]
-        public async Task Newly_attached_entity_has_id_shadow_property_populated_and_is_in_unchanged_state()
+        public async Task Entities_can_be_tracked_with_normal_use_of_DbContext_methods_and_have_correct_resultant_state_and_id_shadow_value()
         {
             await using var testDatabase = CosmosTestStore.CreateInitialized("IdentifierShadowValuePresenceTest");
 
             using var context = new IdentifierShadowValuePresenceTestContext(testDatabase);
             var entry = context.Attach(new Item { Id = 1337 });
 
-            Assert.True(entry.Property("__id") is { CurrentValue: "Item|1337", EntityEntry: { State: EntityState.Unchanged } });
+            Assert.True(entry.Property("__id") is { EntityEntry: { State: EntityState.Unchanged }, CurrentValue: "Item|1337" });
 
             entry.State = EntityState.Detached;
-            entry = context.Update(new Item { Id = 70 });
+            entry = context.Update(new Item { Id = 71 });
 
-            Assert.True(entry.Property("__id") is { CurrentValue: "Item|70", EntityEntry: { State: EntityState.Modified } });
+            Assert.True(entry.Property("__id") is { EntityEntry: { State: EntityState.Modified }, CurrentValue: "Item|71" });
+
+            entry.State = EntityState.Detached;
+            entry = context.Remove(new Item { Id = 33 });
+
+            Assert.True(entry.Property("__id") is { EntityEntry: { State: EntityState.Deleted }, CurrentValue: "Item|33" });
         }
     }
 
