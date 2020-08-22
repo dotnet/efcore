@@ -4,7 +4,7 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
 {
