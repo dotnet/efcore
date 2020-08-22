@@ -86,15 +86,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 var conventionSet = _conventionSetBuilder.CreateConventionSet();
 
-                var typeMappingConvention =
-                    conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
+                var typeMappingConvention = conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
                 if (typeMappingConvention != null)
                 {
                     typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
                 }
 
-                var relationalModelConvention = conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>()
-                    .FirstOrDefault();
+                var relationalModelConvention =
+                    conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
                 if (relationalModelConvention != null)
                 {
                     model = relationalModelConvention.ProcessModelFinalized(conventionModel);

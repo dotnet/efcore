@@ -236,8 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>Initializes a new instance of the <see cref="UpdateDatabase" /> class.</para>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para>
-            ///         <c>targetMigration</c>--The target <see cref="Migration" />. If <see cref="Migration.InitialDatabase" />, all
-            ///         migrations will be
+            ///         <c>targetMigration</c>--The target <see cref="Migration" />. If <see cref="Migration.InitialDatabase" />, all migrations will be
             ///         reverted. Defaults to the last migration.
             ///     </para>
             ///     <para>
@@ -305,8 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var noTransactions = (bool)(args["noTransactions"] ?? false);
                 var contextType = (string)args["contextType"];
 
-                Execute(
-                    () => executor.ScriptMigrationImpl(fromMigration, toMigration, idempotent, noTransactions, contextType));
+                Execute(() => executor.ScriptMigrationImpl(fromMigration, toMigration, idempotent, noTransactions, contextType));
             }
         }
 
@@ -493,10 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>dbContextClassName</c>--The name of the DbContext to generate.</para>
             ///     <para><c>schemaFilters</c>--The schemas of tables to generate entity types for.</para>
             ///     <para><c>tableFilters</c>--The tables to generate entity types for.</para>
-            ///     <para>
-            ///         <c>useDataAnnotations</c>--Use attributes to configure the model (where possible). If false, only the fluent API is
-            ///         used.
-            ///     </para>
+            ///     <para><c>useDataAnnotations</c>--Use attributes to configure the model (where possible). If false, only the fluent API is used.</para>
             ///     <para><c>overwriteFiles</c>--Overwrite existing files.</para>
             ///     <para><c>useDatabaseNames</c>--Use table and column names directly from the database.</para>
             ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated entity types.</para>

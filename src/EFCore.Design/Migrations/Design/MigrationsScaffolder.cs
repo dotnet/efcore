@@ -266,8 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
                 if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model.GetRelationalModel(),
-                    Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
+                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
                 {
                     var applied = false;
                     try
@@ -390,14 +389,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(migration, nameof(migration));
 
             var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
-            var migrationDirectory =
-                outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
+            var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
             var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
-            var migrationMetadataFile = Path.Combine(
-                migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
+            var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
             var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
-            var modelSnapshotDirectory =
-                outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
+            var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));

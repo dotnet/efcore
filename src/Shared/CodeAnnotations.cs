@@ -84,8 +84,7 @@ namespace JetBrains.Annotations
         public ImplicitUseTargetFlags TargetFlags { get; }
     }
 
-    [AttributeUsage(
-        AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Delegate)]
+    [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Delegate)]
     internal sealed class StringFormatMethodAttribute : Attribute
     {
         public StringFormatMethodAttribute([NotNull] string formatParameterName)

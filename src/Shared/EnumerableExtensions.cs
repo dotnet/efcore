@@ -113,10 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public static T FirstOr<T>([NotNull] this IEnumerable<T> source, [NotNull] T alternate)
             => source.DefaultIfEmpty(alternate).First();
 
-        public static T FirstOr<T>(
-            [NotNull] this IEnumerable<T> source,
-            [NotNull] Func<T, bool> predicate,
-            [NotNull] T alternate)
+        public static T FirstOr<T>([NotNull] this IEnumerable<T> source, [NotNull] Func<T, bool> predicate, [NotNull] T alternate)
             => source.Where(predicate).FirstOr(alternate);
 
         public static bool Any([NotNull] this IEnumerable source)

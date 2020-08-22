@@ -555,10 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateProperty(IProperty property, bool useDataAnnotations)
         {
-            var lines = new List<string>
-            {
-                $".{nameof(EntityTypeBuilder.Property)}({_code.Lambda(new[] { property.Name }, "e")})"
-            };
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}({_code.Lambda(new[] { property.Name }, "e")})" };
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -607,8 +604,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (precision != null && scale != null && scale != 0)
             {
                 lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}"
-                    + $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+                    $".{nameof(PropertyBuilder.HasPrecision)}" + $"({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
             }
             else if (precision != null)
             {
@@ -631,16 +627,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             else if (defaultValue != null)
             {
                 lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}"
-                    + $"({_code.UnknownLiteral(defaultValue)})");
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" + $"({_code.UnknownLiteral(defaultValue)})");
                 annotations.Remove(RelationalAnnotationNames.DefaultValue);
             }
 
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;
-            if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is ConfigurationSource valueGeneratedConfigurationSource
+            if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is ConfigurationSource
+                valueGeneratedConfigurationSource
                 && valueGeneratedConfigurationSource != ConfigurationSource.Convention
-                && RelationalValueGenerationConvention.GetValueGenerated(property) != valueGenerated)
+                && ValueGenerationConvention.GetValueGenerated(property) != valueGenerated)
             {
                 var methodName = valueGenerated switch
                 {
@@ -650,8 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate),
                     ValueGenerated.OnUpdate => nameof(PropertyBuilder.ValueGeneratedOnUpdate),
                     ValueGenerated.Never => nameof(PropertyBuilder.ValueGeneratedNever),
-                    _ => throw new InvalidOperationException(
-                        DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
+                    _ => throw new InvalidOperationException(DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
                 };
 
                 lines.Add($".{methodName}()");

@@ -348,9 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Literal(string value)
-            =>
-                // do not use @"" syntax as in Migrations this can get indented at a newline and so add spaces to the literal
-                "\"" + value.Replace(@"\", @"\\").Replace("\"", "\\\"").Replace("\n", @"\n").Replace("\r", @"\r") + "\"";
+            // do not use @"" syntax as in Migrations this can get indented at a newline and so add spaces to the literal
+            => "\"" + value.Replace(@"\", @"\\").Replace("\"", "\\\"").Replace("\n", @"\n").Replace("\r", @"\r") + "\"";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

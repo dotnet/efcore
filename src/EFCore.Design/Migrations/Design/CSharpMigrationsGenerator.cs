@@ -102,8 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate(
-                            "migrationBuilder", upOperations, builder);
+                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate("migrationBuilder", upOperations, builder);
                     }
 
                     builder
@@ -114,8 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate(
-                            "migrationBuilder", downOperations, builder);
+                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate("migrationBuilder", downOperations, builder);
                     }
 
                     builder

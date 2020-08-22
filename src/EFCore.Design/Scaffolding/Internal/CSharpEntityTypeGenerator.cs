@@ -170,8 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var schemaParameterNeeded = schema != null && schema != defaultSchema;
             var isView = entityType.GetViewName() != null;
-            var tableAttributeNeeded =
-                !isView && (schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName());
+            var tableAttributeNeeded = !isView && (schemaParameterNeeded || tableName != null && tableName != entityType.GetDbSetName());
             if (tableAttributeNeeded)
             {
                 var tableAttribute = new AttributeWriter(nameof(TableAttribute));
@@ -192,8 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             // Do not generate IndexAttributes for indexes which
             // would be generated anyway by convention.
             foreach (var index in entityType.GetIndexes().Where(
-                i =>
-                    ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
+                i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
             {
                 // If there are annotations that cannot be represented using an IndexAttribute then use fluent API instead.
                 var annotations = _annotationCodeGenerator

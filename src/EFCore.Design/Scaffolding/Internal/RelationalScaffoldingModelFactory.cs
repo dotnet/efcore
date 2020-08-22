@@ -179,9 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual ModelBuilder VisitDatabaseModel(
-            [NotNull] ModelBuilder modelBuilder,
-            [NotNull] DatabaseModel databaseModel)
+        protected virtual ModelBuilder VisitDatabaseModel([NotNull] ModelBuilder modelBuilder, [NotNull] DatabaseModel databaseModel)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(databaseModel, nameof(databaseModel));
@@ -232,9 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual SequenceBuilder VisitSequence(
-            [NotNull] ModelBuilder modelBuilder,
-            [NotNull] DatabaseSequence sequence)
+        protected virtual SequenceBuilder VisitSequence([NotNull] ModelBuilder modelBuilder, [NotNull] DatabaseSequence sequence)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(sequence, nameof(sequence));
@@ -300,9 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual ModelBuilder VisitTables(
-            [NotNull] ModelBuilder modelBuilder,
-            [NotNull] ICollection<DatabaseTable> tables)
+        protected virtual ModelBuilder VisitTables([NotNull] ModelBuilder modelBuilder, [NotNull] ICollection<DatabaseTable> tables)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(tables, nameof(tables));
@@ -383,9 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual EntityTypeBuilder VisitColumns(
-            [NotNull] EntityTypeBuilder builder,
-            [NotNull] ICollection<DatabaseColumn> columns)
+        protected virtual EntityTypeBuilder VisitColumns([NotNull] EntityTypeBuilder builder, [NotNull] ICollection<DatabaseColumn> columns)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(columns, nameof(columns));
@@ -641,9 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual EntityTypeBuilder VisitIndexes(
-            [NotNull] EntityTypeBuilder builder,
-            [NotNull] ICollection<DatabaseIndex> indexes)
+        protected virtual EntityTypeBuilder VisitIndexes([NotNull] EntityTypeBuilder builder, [NotNull] ICollection<DatabaseIndex> indexes)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(indexes, nameof(indexes));
@@ -732,9 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IMutableForeignKey VisitForeignKey(
-            [NotNull] ModelBuilder modelBuilder,
-            [NotNull] DatabaseForeignKey foreignKey)
+        protected virtual IMutableForeignKey VisitForeignKey([NotNull] ModelBuilder modelBuilder, [NotNull] DatabaseForeignKey foreignKey)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -993,9 +981,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         // TODO use CSharpUniqueNamer
-        private static string NavigationUniquifier(
-            [NotNull] string proposedIdentifier,
-            [CanBeNull] ICollection<string> existingIdentifiers)
+        private static string NavigationUniquifier([NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
             if (existingIdentifiers?.Contains(proposedIdentifier) != true)
             {

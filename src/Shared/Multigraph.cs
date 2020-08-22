@@ -170,8 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 {
                     var currentRoot = sortedQueue[index];
 
-                    foreach (var successor in GetOutgoingNeighbors(currentRoot)
-                        .Where(neighbor => predecessorCounts.ContainsKey(neighbor)))
+                    foreach (var successor in GetOutgoingNeighbors(currentRoot).Where(neighbor => predecessorCounts.ContainsKey(neighbor)))
                     {
                         // Decrement counts for edges from sorted vertices and append any vertices that no longer have predecessors
                         predecessorCounts[successor]--;
@@ -207,8 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                         foreach (var incomingNeighbor in incomingNeighbors)
                         {
                             // Check to see if the edge can be broken
-                            if (canBreakEdge(
-                                incomingNeighbor, candidateVertex, _successorMap[incomingNeighbor][candidateVertex]))
+                            if (canBreakEdge(incomingNeighbor, candidateVertex, _successorMap[incomingNeighbor][candidateVertex]))
                             {
                                 predecessorCounts[candidateVertex]--;
                                 if (predecessorCounts[candidateVertex] == 0)
@@ -258,9 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return sortedQueue;
         }
 
-        private void ThrowCycle(
-            List<TVertex> cycle,
-            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+        private void ThrowCycle(List<TVertex> cycle, Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
         {
             string cycleString;
             if (formatCycle == null)

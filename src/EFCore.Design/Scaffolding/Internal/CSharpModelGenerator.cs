@@ -120,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = CSharpEntityTypeGenerator.WriteCode(
-                    entityType, options.ModelNamespace, options.UseDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, options.ModelNamespace, options.UseDataAnnotations);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;

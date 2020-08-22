@@ -435,12 +435,7 @@ namespace System
             }
         }
 
-        private static void ProcessGenericType(
-            StringBuilder builder,
-            Type type,
-            Type[] genericArguments,
-            int length,
-            bool fullName)
+        private static void ProcessGenericType(StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName)
         {
             var offset = type.IsNested ? type.DeclaringType.GetGenericArguments().Length : 0;
 

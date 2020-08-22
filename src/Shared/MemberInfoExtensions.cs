@@ -20,8 +20,7 @@ namespace System.Reflection
                         && (propertyInfo.DeclaringType == otherPropertyInfo.DeclaringType
                             || propertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(otherPropertyInfo.DeclaringType)
                             || otherPropertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(propertyInfo.DeclaringType)
-                            || propertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces
-                                .Contains(otherPropertyInfo.DeclaringType)
+                            || propertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces.Contains(otherPropertyInfo.DeclaringType)
                             || otherPropertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces
                                 .Contains(propertyInfo.DeclaringType))));
 

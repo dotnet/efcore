@@ -89,9 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     precision: mapping.Precision,
                     scale: mapping.Scale);
 
-                scaffoldUnicode = unicodeMapping.IsUnicode != defaultTypeMapping.IsUnicode
-                    ? (bool?)defaultTypeMapping.IsUnicode
-                    : null;
+                scaffoldUnicode = unicodeMapping.IsUnicode != defaultTypeMapping.IsUnicode ? (bool?)defaultTypeMapping.IsUnicode : null;
 
                 // Check for fixed-length
                 var fixedLengthMapping = _typeMappingSource.FindMapping(
@@ -134,9 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     precision: null,
                     scale: mapping.Scale);
 
-                scaffoldPrecision = precisionMapping.Precision != defaultTypeMapping.Precision
-                    ? defaultTypeMapping.Precision
-                    : null;
+                scaffoldPrecision = precisionMapping.Precision != defaultTypeMapping.Precision ? defaultTypeMapping.Precision : null;
 
                 // Check for scale
                 var scaleMapping = _typeMappingSource.FindMapping(

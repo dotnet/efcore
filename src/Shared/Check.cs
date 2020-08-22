@@ -30,9 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ContractAnnotation("value:null => halt")]
-        public static IReadOnlyList<T> NotEmpty<T>(
-            IReadOnlyList<T> value,
-            [InvokerParameterName] [NotNull] string parameterName)
+        public static IReadOnlyList<T> NotEmpty<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
         {
             NotNull(value, parameterName);
 
@@ -82,9 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return value;
         }
 
-        public static IReadOnlyList<T> HasNoNulls<T>(
-            IReadOnlyList<T> value,
-            [InvokerParameterName] [NotNull] string parameterName)
+        public static IReadOnlyList<T> HasNoNulls<T>(IReadOnlyList<T> value, [InvokerParameterName] [NotNull] string parameterName)
             where T : class
         {
             NotNull(value, parameterName);
