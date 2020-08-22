@@ -276,13 +276,26 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
 
         result.ResourceName = resourceNamespace + "." + result.Class;
 
+        List<ResXDataNode> sortedResources;
         using (var reader = new ResXResourceReader(resourceFile))
         {
             reader.UseResXDataNodes = true;
-
-            result.Resources = Enumerable.ToList(
+            sortedResources = Enumerable.ToList(
                 from DictionaryEntry r in reader
-                select new Resource((ResXDataNode)r.Value));
+                orderby r.Key
+                select (ResXDataNode)r.Value);
+
+            result.Resources = sortedResources
+                .Select(r => new Resource(r))
+                .ToList();
+        }
+
+        using (var writer = new ResXResourceWriter(resourceFile))
+        {
+            foreach (var node in sortedResources)
+                writer.AddResource(node);
+
+            writer.Generate();
         }
 
         return result;

@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         /// <inheritdoc />
         protected override Func<QueryContext, Task<TResult>> CreateCompiledQuery(
-        IQueryCompiler queryCompiler, Expression expression)
+            IQueryCompiler queryCompiler, Expression expression)
             => queryCompiler.CreateCompiledAsyncQuery<Task<TResult>>(expression);
     }
 }

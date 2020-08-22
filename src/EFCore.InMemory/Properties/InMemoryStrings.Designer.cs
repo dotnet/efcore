@@ -22,10 +22,40 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).Assembly);
 
         /// <summary>
+        ///     Cannot apply DefaultIfEmpty after a client-evaluated projection.
+        /// </summary>
+        public static string DefaultIfEmptyAppliedAfterProjection
+            => GetString("DefaultIfEmptyAppliedAfterProjection");
+
+        /// <summary>
+        ///     'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.
+        /// </summary>
+        public static string InvalidDerivedTypeInEntityProjection([CanBeNull] object derivedType, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
+                derivedType, entityType);
+
+        /// <summary>
+        ///     Invalid {state} encountered.
+        /// </summary>
+        public static string InvalidStateEncountered([CanBeNull] object state)
+            => string.Format(
+                GetString("InvalidStateEncountered", nameof(state)),
+                state);
+
+        /// <summary>
         ///     There is no query string because the in-memory provider does not use a string-based query language.
         /// </summary>
         public static string NoQueryStrings
             => GetString("NoQueryStrings");
+
+        /// <summary>
+        ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
+        /// </summary>
+        public static string UnableToBindMemberToEntityProjection([CanBeNull] object memberType, [CanBeNull] object member, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
+                memberType, member, entityType);
 
         /// <summary>
         ///     Attempted to update or delete an entity that does not exist in the store.
@@ -48,36 +78,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             => string.Format(
                 GetString("UpdateConcurrencyTokenExceptionSensitive", nameof(entityType), nameof(keyValue), nameof(conflictingValues), nameof(databaseValues)),
                 entityType, keyValue, conflictingValues, databaseValues);
-
-        /// <summary>
-        ///     Invalid {state} encountered.
-        /// </summary>
-        public static string InvalidStateEncountered([CanBeNull] object state)
-            => string.Format(
-                GetString("InvalidStateEncountered", nameof(state)),
-                state);
-
-        /// <summary>
-        ///     Cannot apply DefaultIfEmpty after a client-evaluated projection.
-        /// </summary>
-        public static string DefaultIfEmptyAppliedAfterProjection
-            => GetString("DefaultIfEmptyAppliedAfterProjection");
-
-        /// <summary>
-        ///     'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.
-        /// </summary>
-        public static string InvalidDerivedTypeInEntityProjection([CanBeNull] object derivedType, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
-                derivedType, entityType);
-
-        /// <summary>
-        ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
-        /// </summary>
-        public static string UnableToBindMemberToEntityProjection([CanBeNull] object memberType, [CanBeNull] object member, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
-                memberType, member, entityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

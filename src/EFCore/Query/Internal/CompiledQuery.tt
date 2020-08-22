@@ -55,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 <#
      }
 #>
+        /// <inheritdoc />
         protected override Func<QueryContext, TResult> CreateCompiledQuery(
             IQueryCompiler queryCompiler, Expression expression)
             => queryCompiler.CreateCompiledQuery<TResult>(expression);

@@ -572,6 +572,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 // Strip out any annotations handled as attributes - these are already handled when generating
                 // the entity's properties
+                // Only relational ones need to be removed here. Core ones are already removed by FilterIgnoredAnnotations
+                annotations.Remove(RelationalAnnotationNames.ColumnName);
+                annotations.Remove(RelationalAnnotationNames.ColumnType);
+
                 _ = _annotationCodeGenerator.GenerateDataAnnotationAttributes(property, annotations);
             }
             else
@@ -640,7 +644,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var valueGenerated = property.ValueGenerated;
             var isRowVersion = false;
-            if (((IConventionProperty)property).GetValueGeneratedConfigurationSource().HasValue
+            if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is ConfigurationSource valueGeneratedConfigurationSource
+                && valueGeneratedConfigurationSource != ConfigurationSource.Convention
                 && RelationalValueGenerationConvention.GetValueGenerated(property) != valueGenerated)
             {
                 var methodName = valueGenerated switch

@@ -10,19 +10,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public abstract class ModelCodeGeneratorTestBase
     {
-        protected void Test(
-            Action<ModelBuilder> buildModel,
-            ModelCodeGenerationOptions options,
-            Action<ScaffoldedModel> assertScaffold)
-        {
-            Test(buildModel, options, assertScaffold, null);
-        }
-
         protected void Test(
             Action<ModelBuilder> buildModel,
             ModelCodeGenerationOptions options,
@@ -76,5 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 assertModel(compiledModel);
             }
         }
+
+        protected static void AssertFileContents(
+            string expectedCode,
+            ScaffoldedFile file)
+            => Assert.Equal(expectedCode, file.Code, ignoreLineEndingDifferences: true);
     }
 }

@@ -22,6 +22,28 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteStrings).Assembly);
 
         /// <summary>
+        ///     SQLite cannot apply aggregate operator '{aggregateOperator}' on expression of type '{type}'. Convert the values to a supported type or use LINQ to Objects to aggregate the results.
+        /// </summary>
+        public static string AggregateOperationNotSupported([CanBeNull] object aggregateOperator, [CanBeNull] object type)
+            => string.Format(
+                GetString("AggregateOperationNotSupported", nameof(aggregateOperator), nameof(type)),
+                aggregateOperator, type);
+
+        /// <summary>
+        ///     Translating this query requires APPLY operation which is not supported on SQLite.
+        /// </summary>
+        public static string ApplyNotSupported
+            => GetString("ApplyNotSupported");
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.
+        /// </summary>
+        public static string DuplicateColumnNameSridMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+            => string.Format(
+                GetString("DuplicateColumnNameSridMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
         ///     SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
         public static string InvalidMigrationOperation([CanBeNull] object operation)
@@ -36,12 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             => GetString("MigrationScriptGenerationNotSupported");
 
         /// <summary>
-        ///     SQLite does not support sequences. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
-        /// </summary>
-        public static string SequencesNotSupported
-            => GetString("SequencesNotSupported");
-
-        /// <summary>
         ///     SQLite cannot order by expressions of type '{type}'. Convert the values to a supported type or use LINQ to Objects to order the results.
         /// </summary>
         public static string OrderByNotSupported([CanBeNull] object type)
@@ -50,26 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 type);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different SRIDs.
+        ///     SQLite does not support sequences. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
-        public static string DuplicateColumnNameSridMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
-            => string.Format(
-                GetString("DuplicateColumnNameSridMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
-                entityType1, property1, entityType2, property2, columnName, table);
-
-        /// <summary>
-        ///     SQLite cannot apply aggregate operator '{aggregateOperator}' on expression of type '{type}'. Convert the values to a supported type or use LINQ to Objects to aggregate the results.
-        /// </summary>
-        public static string AggregateOperationNotSupported([CanBeNull] object aggregateOperator, [CanBeNull] object type)
-            => string.Format(
-                GetString("AggregateOperationNotSupported", nameof(aggregateOperator), nameof(type)),
-                aggregateOperator, type);
-
-        /// <summary>
-        ///     Translating this query requires APPLY operation which is not supported on SQLite.
-        /// </summary>
-        public static string ApplyNotSupported
-            => GetString("ApplyNotSupported");
+        public static string SequencesNotSupported
+            => GetString("SequencesNotSupported");
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -98,75 +98,27 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteResources).Assembly);
 
         /// <summary>
-        ///     The entity type '{entityType}' is configured to use schema '{schema}'. SQLite does not support schemas. This configuration will be ignored by the SQLite provider.
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.
         /// </summary>
-        public static EventDefinition<string, string> LogSchemaConfigured([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogForeignKeyScaffoldErrorPrincipalTableNotFound([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSchemaConfigured;
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSchemaConfigured,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        SqliteEventId.SchemaConfiguredWarning,
-                        LogLevel.Warning,
-                        "SqliteEventId.SchemaConfiguredWarning",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            SqliteEventId.SchemaConfiguredWarning,
-                            _resourceManager.GetString("LogSchemaConfigured"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     The model was configured with the database sequence '{sequence}'. SQLite does not support sequences.
-        /// </summary>
-        public static EventDefinition<string> LogSequenceConfigured([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSequenceConfigured;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSequenceConfigured,
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound,
                     () => new EventDefinition<string>(
                         logger.Options,
-                        SqliteEventId.SequenceConfiguredWarning,
+                        SqliteEventId.ForeignKeyReferencesMissingTableWarning,
                         LogLevel.Warning,
-                        "SqliteEventId.SequenceConfiguredWarning",
+                        "SqliteEventId.ForeignKeyReferencesMissingTableWarning",
                         level => LoggerMessage.Define<string>(
                             level,
-                            SqliteEventId.SequenceConfiguredWarning,
-                            _resourceManager.GetString("LogSequenceConfigured"))));
+                            SqliteEventId.ForeignKeyReferencesMissingTableWarning,
+                            _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableNotFound"))));
             }
 
             return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
-        ///     SQLite doesn't support schemas. The specified schema selection arguments will be ignored.
-        /// </summary>
-        public static EventDefinition LogUsingSchemaSelectionsWarning([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUsingSchemaSelectionsWarning;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUsingSchemaSelectionsWarning,
-                    () => new EventDefinition(
-                        logger.Options,
-                        SqliteEventId.SchemasNotSupportedWarning,
-                        LogLevel.Warning,
-                        "SqliteEventId.SchemasNotSupportedWarning",
-                        level => LoggerMessage.Define(
-                            level,
-                            SqliteEventId.SchemasNotSupportedWarning,
-                            _resourceManager.GetString("LogUsingSchemaSelectionsWarning"))));
-            }
-
-            return (EventDefinition)definition;
         }
 
         /// <summary>
@@ -218,27 +170,51 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
-        ///     Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.
+        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
         /// </summary>
-        public static EventDefinition<string> LogForeignKeyScaffoldErrorPrincipalTableNotFound([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, bool?> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound;
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundIndex;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound,
-                    () => new EventDefinition<string>(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundIndex,
+                    () => new EventDefinition<string, string, bool?>(
                         logger.Options,
-                        SqliteEventId.ForeignKeyReferencesMissingTableWarning,
-                        LogLevel.Warning,
-                        "SqliteEventId.ForeignKeyReferencesMissingTableWarning",
-                        level => LoggerMessage.Define<string>(
+                        SqliteEventId.IndexFound,
+                        LogLevel.Debug,
+                        "SqliteEventId.IndexFound",
+                        level => LoggerMessage.Define<string, string, bool?>(
                             level,
-                            SqliteEventId.ForeignKeyReferencesMissingTableWarning,
-                            _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableNotFound"))));
+                            SqliteEventId.IndexFound,
+                            _resourceManager.GetString("LogFoundIndex"))));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string, string, bool?>)definition;
+        }
+
+        /// <summary>
+        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
+        /// </summary>
+        public static EventDefinition<string, string> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqliteEventId.PrimaryKeyFound,
+                        LogLevel.Debug,
+                        "SqliteEventId.PrimaryKeyFound",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqliteEventId.PrimaryKeyFound,
+                            _resourceManager.GetString("LogFoundPrimaryKey"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
@@ -263,6 +239,30 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             }
 
             return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
+        /// </summary>
+        public static EventDefinition<string, string> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqliteEventId.UniqueConstraintFound,
+                        LogLevel.Debug,
+                        "SqliteEventId.UniqueConstraintFound",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqliteEventId.UniqueConstraintFound,
+                            _resourceManager.GetString("LogFoundUniqueConstraint"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
@@ -314,72 +314,72 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
-        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        ///     The entity type '{entityType}' is configured to use schema '{schema}'. SQLite does not support schemas. This configuration will be ignored by the SQLite provider.
         /// </summary>
-        public static EventDefinition<string, string, bool?> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogSchemaConfigured([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundIndex;
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSchemaConfigured;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundIndex,
-                    () => new EventDefinition<string, string, bool?>(
-                        logger.Options,
-                        SqliteEventId.IndexFound,
-                        LogLevel.Debug,
-                        "SqliteEventId.IndexFound",
-                        level => LoggerMessage.Define<string, string, bool?>(
-                            level,
-                            SqliteEventId.IndexFound,
-                            _resourceManager.GetString("LogFoundIndex"))));
-            }
-
-            return (EventDefinition<string, string, bool?>)definition;
-        }
-
-        /// <summary>
-        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
-        /// </summary>
-        public static EventDefinition<string, string> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey,
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSchemaConfigured,
                     () => new EventDefinition<string, string>(
                         logger.Options,
-                        SqliteEventId.PrimaryKeyFound,
-                        LogLevel.Debug,
-                        "SqliteEventId.PrimaryKeyFound",
+                        SqliteEventId.SchemaConfiguredWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.SchemaConfiguredWarning",
                         level => LoggerMessage.Define<string, string>(
                             level,
-                            SqliteEventId.PrimaryKeyFound,
-                            _resourceManager.GetString("LogFoundPrimaryKey"))));
+                            SqliteEventId.SchemaConfiguredWarning,
+                            _resourceManager.GetString("LogSchemaConfigured"))));
             }
 
             return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
-        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
+        ///     The model was configured with the database sequence '{sequence}'. SQLite does not support sequences.
         /// </summary>
-        public static EventDefinition<string, string> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogSequenceConfigured([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint;
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSequenceConfigured;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint,
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSequenceConfigured,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        SqliteEventId.SequenceConfiguredWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.SequenceConfiguredWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            SqliteEventId.SequenceConfiguredWarning,
+                            _resourceManager.GetString("LogSequenceConfigured"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Warning, an operation of type '{operationType}' will be attempted while a rebuild of table '{tableName}' is pending. The database may not be in an expected state. Review the SQL generated by this migration to help diagnose any failures. Consider moving these operations to a subsequent migration.
+        /// </summary>
+        public static EventDefinition<string, string> LogTableRebuildPendingWarning([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogTableRebuildPendingWarning;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogTableRebuildPendingWarning,
                     () => new EventDefinition<string, string>(
                         logger.Options,
-                        SqliteEventId.UniqueConstraintFound,
-                        LogLevel.Debug,
-                        "SqliteEventId.UniqueConstraintFound",
+                        SqliteEventId.TableRebuildPendingWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.TableRebuildPendingWarning",
                         level => LoggerMessage.Define<string, string>(
                             level,
-                            SqliteEventId.UniqueConstraintFound,
-                            _resourceManager.GetString("LogFoundUniqueConstraint"))));
+                            SqliteEventId.TableRebuildPendingWarning,
+                            _resourceManager.GetString("LogTableRebuildPendingWarning"))));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -410,27 +410,27 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
-        ///     Warning, an operation of type '{operationType}' will be attempted while a rebuild of table '{tableName}' is pending. The database may not be in an expected state. Review the SQL generated by this migration to help diagnose any failures. Consider moving these operations to a subsequent migration.
+        ///     SQLite doesn't support schemas. The specified schema selection arguments will be ignored.
         /// </summary>
-        public static EventDefinition<string, string> LogTableRebuildPendingWarning([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogUsingSchemaSelectionsWarning([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogTableRebuildPendingWarning;
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUsingSchemaSelectionsWarning;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogTableRebuildPendingWarning,
-                    () => new EventDefinition<string, string>(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUsingSchemaSelectionsWarning,
+                    () => new EventDefinition(
                         logger.Options,
-                        SqliteEventId.TableRebuildPendingWarning,
+                        SqliteEventId.SchemasNotSupportedWarning,
                         LogLevel.Warning,
-                        "SqliteEventId.TableRebuildPendingWarning",
-                        level => LoggerMessage.Define<string, string>(
+                        "SqliteEventId.SchemasNotSupportedWarning",
+                        level => LoggerMessage.Define(
                             level,
-                            SqliteEventId.TableRebuildPendingWarning,
-                            _resourceManager.GetString("LogTableRebuildPendingWarning"))));
+                            SqliteEventId.SchemasNotSupportedWarning,
+                            _resourceManager.GetString("LogUsingSchemaSelectionsWarning"))));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition)definition;
         }
     }
 }
