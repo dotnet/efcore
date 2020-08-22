@@ -48,10 +48,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<LoggingDefinitions, CosmosLoggingDefinitions>()
-                .TryAdd<IStateManager, CosmosStateManager>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosOptionsExtension>>()
                 .TryAdd<IDatabase, CosmosDatabaseWrapper>()
                 .TryAdd<IExecutionStrategyFactory, CosmosExecutionStrategyFactory>()
@@ -80,7 +78,6 @@ namespace Microsoft.Extensions.DependencyInjection
                         .TryAddSingleton<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
                         .TryAddScoped<CosmosClientWrapper, CosmosClientWrapper>()
                 );
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
             builder.TryAddCoreServices();
 

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -150,6 +151,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntryNotifier.StateChanging(entry, newState);
 
             UpdateReferenceMaps(entry, newState, entry.EntityState);
+
+            if (entry.EntityState is EntityState.Detached && (newState is EntityState.Unchanged || newState is EntityState.Modified))
+            {
+                ValueGenerationManager.Generate(entry, includePKs: false);
+            }
         }
 
         /// <summary>
