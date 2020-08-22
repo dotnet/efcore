@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
+    <value>Cannot apply DefaultIfEmpty after a client-evaluated projection.</value>
+  </data>
+  <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
+    <value>'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.</value>
+  </data>
+  <data name="InvalidStateEncountered" xml:space="preserve">
+    <value>Invalid {state} encountered.</value>
+  </data>
   <data name="LogSavedChanges" xml:space="preserve">
     <value>Saved {count} entities to in-memory store.</value>
     <comment>Information InMemoryEventId.ChangesSaved int</comment>
@@ -128,6 +137,9 @@
   <data name="NoQueryStrings" xml:space="preserve">
     <value>There is no query string because the in-memory provider does not use a string-based query language.</value>
   </data>
+  <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
+    <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>
+  </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Attempted to update or delete an entity that does not exist in the store.</value>
   </data>
@@ -136,17 +148,5 @@
   </data>
   <data name="UpdateConcurrencyTokenExceptionSensitive" xml:space="preserve">
     <value>Conflicts were detected for instance of entity type '{entityType}' with the key value '{keyValue}' on the concurrency token property values {conflictingValues}, with corresponding database values {databaseValues}.</value>
-  </data>
-  <data name="InvalidStateEncountered" xml:space="preserve">
-    <value>Invalid {state} encountered.</value>
-  </data>
-  <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
-    <value>Cannot apply DefaultIfEmpty after a client-evaluated projection.</value>
-  </data>
-  <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
-    <value>'UpdateEntityType' called with '{derivedType}' which is not derived type of '{entityType}'.</value>
-  </data>
-  <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
-    <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>
   </data>
 </root>

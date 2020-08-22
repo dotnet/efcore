@@ -19,10 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.ProxiesStrings", typeof(ProxiesStrings).Assembly);
 
         /// <summary>
-        ///     UseChangeTrackingProxies and UseLazyLoadingProxies each require AddEntityFrameworkProxies to be called on the internal service provider used.
+        ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
         /// </summary>
-        public static string ProxyServicesMissing
-            => GetString("ProxyServicesMissing");
+        public static string FieldProperty([CanBeNull] object property, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("FieldProperty", nameof(property), nameof(entityType)),
+                property, entityType);
 
         /// <summary>
         ///     Entity type '{entityType}' is sealed. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
@@ -41,20 +43,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeTrackingProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
-        /// </summary>
-        public static string FieldProperty([CanBeNull] object property, [CanBeNull] object entityType)
-            => string.Format(
-                GetString("FieldProperty", nameof(property), nameof(entityType)),
-                property, entityType);
-
-        /// <summary>
         ///     Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.
         /// </summary>
         public static string ProxiesNotEnabled([CanBeNull] object entityType)
             => string.Format(
                 GetString("ProxiesNotEnabled", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     UseChangeTrackingProxies and UseLazyLoadingProxies each require AddEntityFrameworkProxies to be called on the internal service provider used.
+        /// </summary>
+        public static string ProxyServicesMissing
+            => GetString("ProxyServicesMissing");
 
         private static string GetString(string name, params string[] formatterNames)
         {
