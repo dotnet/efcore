@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 new ModelCodeGenerationOptions(),
                 code =>
                 {
-                    Assert.Equal(
+                    AssertFileContents(
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -63,8 +63,7 @@ namespace TestNamespace
     }
 }
 ",
-                        code.ContextFile.Code,
-                        ignoreLineEndingDifferences: true);
+                        code.ContextFile);
 
                     Assert.Empty(code.AdditionalFiles);
                 },
@@ -79,7 +78,7 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions { SuppressConnectionStringWarning = true },
                 code =>
                 {
-                    Assert.Equal(
+                    AssertFileContents(
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -116,8 +115,7 @@ namespace TestNamespace
     }
 }
 ",
-                        code.ContextFile.Code,
-                        ignoreLineEndingDifferences: true);
+                        code.ContextFile);
 
                     Assert.Empty(code.AdditionalFiles);
                 },
@@ -132,7 +130,7 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions { SuppressOnConfiguring = true },
                 code =>
                 {
-                    Assert.Equal(
+                    AssertFileContents(
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -161,11 +159,11 @@ namespace TestNamespace
     }
 }
 ",
-                        code.ContextFile.Code,
-                        ignoreLineEndingDifferences: true);
+                        code.ContextFile);
 
                     Assert.Empty(code.AdditionalFiles);
-                });
+                },
+                null);
         }
 
         [ConditionalFact]
@@ -448,7 +446,7 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code =>
                 {
-                    Assert.Equal(
+                    AssertFileContents(
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -502,8 +500,7 @@ namespace TestNamespace
     }
 }
 ",
-                        code.ContextFile.Code,
-                        ignoreLineEndingDifferences: true);
+                        code.ContextFile);
                 },
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
@@ -532,7 +529,7 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
                 {
-                    Assert.Equal(
+                    AssertFileContents(
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -583,8 +580,7 @@ namespace TestNamespace
     }
 }
 ",
-                        code.ContextFile.Code,
-                        ignoreLineEndingDifferences: true);
+                        code.ContextFile);
                 },
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
@@ -616,7 +612,7 @@ namespace TestNamespace
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code =>
                 {
-                    Assert.Equal(
+                    AssertFileContents(
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -659,8 +655,6 @@ namespace TestNamespace
 
                 entity.Property(e => e.Id).UseIdentityColumn();
 
-                entity.Property(e => e.DependentId).ValueGeneratedNever();
-
                 entity.HasOne(d => d.NavigationToPrincipal)
                     .WithOne(p => p.NavigationToDependent)
                     .HasPrincipalKey<PrincipalEntity>(p => p.PrincipalId)
@@ -672,8 +666,6 @@ namespace TestNamespace
                 entity.HasKey(e => e.AlternateId);
 
                 entity.Property(e => e.AlternateId).UseIdentityColumn();
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
             });
 
             OnModelCreatingPartial(modelBuilder);
@@ -683,8 +675,7 @@ namespace TestNamespace
     }
 }
 ",
-                        code.ContextFile.Code,
-                        ignoreLineEndingDifferences: true);
+                        code.ContextFile);
                 },
                 model => { });
                 }
