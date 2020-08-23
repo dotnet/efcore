@@ -39,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         void AppendNextSequenceValueOperation(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] string name, [CanBeNull] string schema);
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] string name,
+            [CanBeNull] string schema);
 
         /// <summary>
         ///     Appends a SQL fragment for the start of a batch to
@@ -56,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         ResultSetMapping AppendDeleteOperation(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] ModificationCommand command,
+            int commandPosition);
 
         /// <summary>
         ///     Appends a SQL command for inserting a row to the commands being built.
@@ -66,7 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         ResultSetMapping AppendInsertOperation(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] ModificationCommand command,
+            int commandPosition);
 
         /// <summary>
         ///     Appends a SQL command for updating a row to the commands being built.
@@ -76,6 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         ResultSetMapping AppendUpdateOperation(
-            [NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command, int commandPosition);
+            [NotNull] StringBuilder commandStringBuilder,
+            [NotNull] ModificationCommand command,
+            int commandPosition);
     }
 }

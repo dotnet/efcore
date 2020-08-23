@@ -91,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             {
                                 entityTypesMissingConcurrencyColumn = new Dictionary<IConventionEntityType, IProperty>();
                             }
+
                             // store the entity type which is missing the
                             // concurrency token property, mapped to an example
                             // property which _is_ mapped to this concurrency token
@@ -131,7 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         [EntityFrameworkInternal]
         public static Dictionary<string, List<IProperty>> GetConcurrencyTokensMap(
-            in StoreObjectIdentifier storeObject, [NotNull] IReadOnlyList<IEntityType> mappedTypes)
+            in StoreObjectIdentifier storeObject,
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes)
         {
             if (mappedTypes.Count < 2)
             {
@@ -211,12 +213,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var linkingFks = declaringEntityType.FindForeignKeys(declaringEntityType.FindPrimaryKey().Properties)
-                    .Where(fk => fk.PrincipalKey.IsPrimaryKey()
-                        && mappedTypes.Contains(fk.PrincipalEntityType)).ToList();
+                    .Where(
+                        fk => fk.PrincipalKey.IsPrimaryKey()
+                            && mappedTypes.Contains(fk.PrincipalEntityType)).ToList();
                 if (linkingFks.Count > 0
                     && !linkingFks.Any(fk => fk.PrincipalEntityType == entityType)
-                    && linkingFks.Any(fk => fk.PrincipalEntityType.IsAssignableFrom(entityType)
-                    || entityType.IsAssignableFrom(fk.PrincipalEntityType)))
+                    && linkingFks.Any(
+                        fk => fk.PrincipalEntityType.IsAssignableFrom(entityType)
+                            || entityType.IsAssignableFrom(fk.PrincipalEntityType)))
                 {
                     // The concurrency token is on a type that shares the row with a base or derived type
                     continue;

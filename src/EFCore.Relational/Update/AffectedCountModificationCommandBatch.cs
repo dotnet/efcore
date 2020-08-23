@@ -209,7 +209,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The task contains the ordinal of the next command that must be consumed.
         /// </returns>
         protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(
-            int commandIndex, [NotNull] RelationalDataReader reader, CancellationToken cancellationToken)
+            int commandIndex,
+            [NotNull] RelationalDataReader reader,
+            CancellationToken cancellationToken)
         {
             var rowsAffected = 0;
             do
@@ -286,7 +288,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The task contains the ordinal of the next command that must be consumed.
         /// </returns>
         protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(
-            int commandIndex, [NotNull] RelationalDataReader reader, CancellationToken cancellationToken)
+            int commandIndex,
+            [NotNull] RelationalDataReader reader,
+            CancellationToken cancellationToken)
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < CommandResultSet.Count

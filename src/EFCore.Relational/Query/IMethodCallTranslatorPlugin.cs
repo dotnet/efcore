@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Represents plugin for <see cref="IMethodCallTranslator"/>.
+    ///         Represents plugin for <see cref="IMethodCallTranslator" />.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations

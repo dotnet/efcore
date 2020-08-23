@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="CaseExpression" /> class which represents a simple CASE expression.
         /// </summary>
-        /// <param name="operand"> An expression to compare with <see cref="CaseWhenClause.Test"/> in <see cref="WhenClauses"/>. </param>
-        /// <param name="whenClauses"> A list of <see cref="CaseWhenClause"/> to compare and get result from. </param>
-        /// <param name="elseResult"> A value to return if no <see cref="WhenClauses"/> matches, if any. </param>
+        /// <param name="operand"> An expression to compare with <see cref="CaseWhenClause.Test" /> in <see cref="WhenClauses" />. </param>
+        /// <param name="whenClauses"> A list of <see cref="CaseWhenClause" /> to compare and get result from. </param>
+        /// <param name="elseResult"> A value to return if no <see cref="WhenClauses" /> matches, if any. </param>
         public CaseExpression(
             [NotNull] SqlExpression operand,
             [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="CaseExpression" /> class which represents a searched CASE expression.
         /// </summary>
-        /// <param name="whenClauses"> A list of <see cref="CaseWhenClause"/> to evaluate condition and get result from. </param>
-        /// <param name="elseResult"> A value to return if no <see cref="WhenClauses"/> matches, if any. </param>
+        /// <param name="whenClauses"> A list of <see cref="CaseWhenClause" /> to evaluate condition and get result from. </param>
+        /// <param name="elseResult"> A value to return if no <see cref="WhenClauses" /> matches, if any. </param>
         public CaseExpression(
             [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
             [CanBeNull] SqlExpression elseResult = null)
@@ -57,15 +57,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     The value to compare in <see cref="WhenClauses"/>.
+        ///     The value to compare in <see cref="WhenClauses" />.
         /// </summary>
         public virtual SqlExpression Operand { get; }
+
         /// <summary>
-        ///     The list of <see cref="CaseWhenClause"/> to match <see cref="Operand"/> or evaluate condition to get result.
+        ///     The list of <see cref="CaseWhenClause" /> to match <see cref="Operand" /> or evaluate condition to get result.
         /// </summary>
-        public virtual IReadOnlyList<CaseWhenClause> WhenClauses => _whenClauses;
+        public virtual IReadOnlyList<CaseWhenClause> WhenClauses
+            => _whenClauses;
+
         /// <summary>
-        ///     The value to return if none of the <see cref="WhenClauses"/> matches.
+        ///     The value to return if none of the <see cref="WhenClauses" /> matches.
         /// </summary>
         public virtual SqlExpression ElseResult { get; }
 
@@ -108,9 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="operand"> The <see cref="Operand"/> property of the result. </param>
-        /// <param name="whenClauses"> The <see cref="WhenClauses"/> property of the result. </param>
-        /// <param name="elseResult"> The <see cref="ElseResult"/> property of the result. </param>
+        /// <param name="operand"> The <see cref="Operand" /> property of the result. </param>
+        /// <param name="whenClauses"> The <see cref="WhenClauses" /> property of the result. </param>
+        /// <param name="elseResult"> The <see cref="ElseResult" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual CaseExpression Update(
             [CanBeNull] SqlExpression operand,

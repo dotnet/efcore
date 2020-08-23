@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -177,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionDbFunctionBuilder HasTypeMapping(
-            [CanBeNull] RelationalTypeMapping returnTypeMapping, ConfigurationSource configurationSource)
+            [CanBeNull] RelationalTypeMapping returnTypeMapping,
+            ConfigurationSource configurationSource)
         {
             if (CanSetTypeMapping(returnTypeMapping, configurationSource))
             {
@@ -205,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionDbFunctionBuilder HasTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, ConfigurationSource configurationSource)
+            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            ConfigurationSource configurationSource)
         {
             if (CanSetTranslation(translation, configurationSource))
             {
@@ -223,7 +224,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, ConfigurationSource configurationSource)
+            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            ConfigurationSource configurationSource)
             => (Metadata.IsScalar && !Metadata.IsAggregate || configurationSource == ConfigurationSource.Explicit)
                 && (configurationSource.Overrides(Metadata.GetTranslationConfigurationSource())
                     || Metadata.Translation == translation);
@@ -315,13 +317,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
+            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            bool fromDataAnnotation)
             => HasTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionDbFunctionBuilder.CanSetTranslation(
-            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
+            Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            bool fromDataAnnotation)
             => CanSetTranslation(translation, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />

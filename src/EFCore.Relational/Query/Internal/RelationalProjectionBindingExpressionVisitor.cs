@@ -148,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
 
                         case ParameterExpression parameterExpression:
-                            if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+                            if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
+                                == true)
                             {
                                 return Expression.Call(
                                     _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
@@ -328,7 +329,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (_clientEval)
                     {
                         return entityShaperExpression.Update(
-                            new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
+                            new ProjectionBindingExpression(
+                                _selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
                     }
 
                     _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
@@ -562,10 +564,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var operand = Visit(unaryExpression.Operand);
 
             return (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
                 && unaryExpression.Type == operand.Type
-                ? operand
-                : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
+                    ? operand
+                    : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
         }
 
         // TODO: Debugging
@@ -608,7 +610,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return _containsInclude;
             }
 
-            public override Expression Visit(Expression expression) => _containsInclude ? expression : base.Visit(expression);
+            public override Expression Visit(Expression expression)
+                => _containsInclude ? expression : base.Visit(expression);
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {

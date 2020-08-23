@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
 
         /// <inheritdoc />
-        DbContextOptionsBuilder IRelationalDbContextOptionsBuilderInfrastructure.OptionsBuilder => OptionsBuilder;
+        DbContextOptionsBuilder IRelationalDbContextOptionsBuilderInfrastructure.OptionsBuilder
+            => OptionsBuilder;
 
         /// <summary>
         ///     Configures the maximum number of statements that will be included in commands sent to the database
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => (TExtension)e.WithUseRelationalNulls(useRelationalNulls));
 
         /// <summary>
-        ///     Configures the <see cref="QuerySplittingBehavior"/> to use when loading related collections in a query.
+        ///     Configures the <see cref="QuerySplittingBehavior" /> to use when loading related collections in a query.
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TBuilder UseQuerySplittingBehavior(QuerySplittingBehavior querySplittingBehavior)
@@ -135,22 +136,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

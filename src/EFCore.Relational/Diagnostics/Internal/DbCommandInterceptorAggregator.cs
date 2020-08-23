@@ -237,7 +237,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             public async Task CommandFailedAsync(
-                DbCommand command, CommandErrorEventData eventData, CancellationToken cancellationToken = default)
+                DbCommand command,
+                CommandErrorEventData eventData,
+                CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {

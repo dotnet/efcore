@@ -44,16 +44,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 // TODO: This check needs to be updated to skip over enumerable parameter of aggregate.
                 foreach (var parameter in dbFunction.Parameters)
                 {
-                    parameter.Builder.HasTypeMapping(!string.IsNullOrEmpty(parameter.StoreType)
-                        ? _relationalTypeMappingSource.FindMapping(parameter.StoreType)
-                        : _relationalTypeMappingSource.FindMapping(parameter.ClrType));
+                    parameter.Builder.HasTypeMapping(
+                        !string.IsNullOrEmpty(parameter.StoreType)
+                            ? _relationalTypeMappingSource.FindMapping(parameter.StoreType)
+                            : _relationalTypeMappingSource.FindMapping(parameter.ClrType));
                 }
 
                 if (dbFunction.IsScalar)
                 {
-                    dbFunction.Builder.HasTypeMapping(!string.IsNullOrEmpty(dbFunction.StoreType)
-                        ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
-                        : _relationalTypeMappingSource.FindMapping(dbFunction.ReturnType));
+                    dbFunction.Builder.HasTypeMapping(
+                        !string.IsNullOrEmpty(dbFunction.StoreType)
+                            ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
+                            : _relationalTypeMappingSource.FindMapping(dbFunction.ReturnType));
                 }
             }
         }

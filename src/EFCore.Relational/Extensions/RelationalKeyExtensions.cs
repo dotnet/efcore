@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The key constraint name for this key. </returns>
         public static string GetName([NotNull] this IKey key, in StoreObjectIdentifier storeObject)
             => (string)key[RelationalAnnotationNames.Name]
-            ?? key.GetDefaultName(storeObject);
+                ?? key.GetDefaultName(storeObject);
 
         /// <summary>
         ///     Returns the default key constraint name that would be used for this key.
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
                 {
                     IKey linkedKey = null;
-                    foreach(var otherKey in rootKey.DeclaringEntityType
+                    foreach (var otherKey in rootKey.DeclaringEntityType
                         .FindRowInternalForeignKeys(storeObject)
                         .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
                     {
@@ -185,8 +185,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <returns> The unique constraints to which the key is mapped. </returns>
-        public static IEnumerable<IUniqueConstraint> GetMappedConstraints([NotNull] this IKey key) =>
-            (IEnumerable<IUniqueConstraint>)key[RelationalAnnotationNames.UniqueConstraintMappings]
+        public static IEnumerable<IUniqueConstraint> GetMappedConstraints([NotNull] this IKey key)
+            => (IEnumerable<IUniqueConstraint>)key[RelationalAnnotationNames.UniqueConstraintMappings]
                 ?? Enumerable.Empty<IUniqueConstraint>();
 
         /// <summary>
@@ -248,7 +248,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
         public static IMutableKey FindSharedObjectRootKey(
-            [NotNull] this IMutableKey key, in StoreObjectIdentifier storeObject)
+            [NotNull] this IMutableKey key,
+            in StoreObjectIdentifier storeObject)
             => (IMutableKey)((IKey)key).FindSharedObjectRootKey(storeObject);
 
         /// <summary>
@@ -264,7 +265,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
         public static IConventionKey FindSharedObjectRootKey(
-            [NotNull] this IConventionKey key, in StoreObjectIdentifier storeObject)
+            [NotNull] this IConventionKey key,
+            in StoreObjectIdentifier storeObject)
             => (IConventionKey)((IKey)key).FindSharedObjectRootKey(storeObject);
     }
 }

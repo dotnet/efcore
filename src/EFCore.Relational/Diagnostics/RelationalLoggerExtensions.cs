@@ -8,7 +8,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +19,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -4378,7 +4376,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.ShouldLog(definition))
                 {
-                    definition.Log(diagnostics,
+                    definition.Log(
+                        diagnostics,
                         entityType.DisplayName(),
                         index.Properties.Format());
                 }
@@ -4401,7 +4400,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.ShouldLog(definition))
                 {
-                    definition.Log(diagnostics,
+                    definition.Log(
+                        diagnostics,
                         index.Name,
                         entityType.DisplayName(),
                         index.Properties.Format());
@@ -4459,7 +4459,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.ShouldLog(definition))
                 {
-                    definition.Log(diagnostics,
+                    definition.Log(
+                        diagnostics,
                         entityType.DisplayName(),
                         index.Properties.Format(),
                         unmappedPropertyName);
@@ -4484,7 +4485,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.ShouldLog(definition))
                 {
-                    definition.Log(diagnostics,
+                    definition.Log(
+                        diagnostics,
                         index.Name,
                         entityType.DisplayName(),
                         index.Properties.Format(),
@@ -4552,13 +4554,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.ShouldLog(definition))
                 {
-                    definition.Log(diagnostics,
+                    definition.Log(
+                        diagnostics,
                         entityType.DisplayName(),
                         index.Properties.Format(),
-                            property1Name,
-                            tablesMappedToProperty1.FormatTables(),
-                            property2Name,
-                            tablesMappedToProperty2.FormatTables());
+                        property1Name,
+                        tablesMappedToProperty1.FormatTables(),
+                        property2Name,
+                        tablesMappedToProperty2.FormatTables());
                 }
 
                 if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -4583,7 +4586,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (diagnostics.ShouldLog(definition))
                 {
-                    definition.Log(diagnostics,
+                    definition.Log(
+                        diagnostics,
                         l => l.Log(
                             definition.Level,
                             definition.EventId,
@@ -4633,17 +4637,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (FallbackEventDefinition)definition;
             var p = (IndexWithPropertiesEventData)payload;
             return d.GenerateMessage(
-                    l => l.Log(
-                        d.Level,
-                        d.EventId,
-                        d.MessageFormat,
-                        p.Name,
-                        p.EntityType.DisplayName(),
-                        p.PropertyNames.Format(),
-                        p.Property1Name,
-                        p.TablesMappedToProperty1.FormatTables(),
-                        p.Property2Name,
-                        p.TablesMappedToProperty2.FormatTables()));
+                l => l.Log(
+                    d.Level,
+                    d.EventId,
+                    d.MessageFormat,
+                    p.Name,
+                    p.EntityType.DisplayName(),
+                    p.PropertyNames.Format(),
+                    p.Property1Name,
+                    p.TablesMappedToProperty1.FormatTables(),
+                    p.Property2Name,
+                    p.TablesMappedToProperty2.FormatTables()));
         }
 
         /// <summary>

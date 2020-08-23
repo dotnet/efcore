@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IStoreFunction Function { get; }
 
         /// <summary>
-        ///     Gets the associated <see cref="IDbFunctionParameter"/>s.
+        ///     Gets the associated <see cref="IDbFunctionParameter" />s.
         /// </summary>
         IEnumerable<IDbFunctionParameter> DbFunctionParameters { get; }
 

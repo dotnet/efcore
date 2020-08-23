@@ -34,7 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var function in modelBuilder.Metadata.GetDbFunctions())
             {
@@ -48,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dbFunctionBuilder"> The builder for the <see cref="IConventionDbFunction" />. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         private void ProcessDbFunctionAdded(
-            [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder, [NotNull] IConventionContext context)
+            [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder,
+            [NotNull] IConventionContext context)
         {
             var function = dbFunctionBuilder.Metadata;
             if (function.IsScalar)
@@ -59,8 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var elementType = function.ReturnType.TryGetElementType(typeof(IQueryable<>));
             if (!elementType.IsValidEntityType())
             {
-                throw new InvalidOperationException(RelationalStrings.DbFunctionInvalidIQueryableReturnType(
-                    function.ModelName, function.ReturnType.ShortDisplayName()));
+                throw new InvalidOperationException(
+                    RelationalStrings.DbFunctionInvalidIQueryableReturnType(
+                        function.ModelName, function.ReturnType.ShortDisplayName()));
             }
 
             var model = function.Model;
@@ -84,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     return;
                 }
+
                 entityType = entityTypeBuilder.Metadata;
             }
 

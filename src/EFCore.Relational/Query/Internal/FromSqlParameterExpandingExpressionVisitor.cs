@@ -56,7 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SelectExpression Expand(
-            [NotNull] SelectExpression selectExpression, [NotNull] IReadOnlyDictionary<string, object> parameterValues, out bool canCache)
+            [NotNull] SelectExpression selectExpression,
+            [NotNull] IReadOnlyDictionary<string, object> parameterValues,
+            out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parameterValues, nameof(parameterValues));
@@ -119,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 }
                             }
 
-                            updatedFromSql = fromSql.Update(Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name, subParameters)));
+                            updatedFromSql = fromSql.Update(
+                                Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name, subParameters)));
 
                             _visitedFromSqlExpressions[fromSql] = updatedFromSql;
                             break;

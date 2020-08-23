@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; }
 
         /// <summary>
-        ///     Gets the associated <see cref="IStoreFunction"/>.
+        ///     Gets the associated <see cref="IStoreFunction" />.
         /// </summary>
         IStoreFunction StoreFunction { get; }
     }

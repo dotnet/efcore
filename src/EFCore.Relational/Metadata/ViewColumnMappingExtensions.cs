@@ -38,15 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"ViewColumnMapping: ");
+                builder.Append("ViewColumnMapping: ");
             }
 
             builder.Append(columnMapping.Property.Name).Append(" - ");
 
             builder.Append(columnMapping.Column.Name);
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(columnMapping.AnnotationsToDebugString(indent + 2));
             }

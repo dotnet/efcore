@@ -50,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int RecordsAffected => _recordsAffected;
+        public override int RecordsAffected
+            => _recordsAffected;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object this[string name] => throw new NotSupportedException();
+        public override object this[string name]
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object this[int ordinal] => throw new NotSupportedException();
+        public override object this[int ordinal]
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int Depth => throw new NotSupportedException();
+        public override int Depth
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool IsClosed => _isClosed;
+        public override bool IsClosed
+            => _isClosed;
 
         [Conditional("DEBUG")]
         private void AssertReaderIsOpen()
@@ -191,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<BufferedDataReader> InitializeAsync(
-            [NotNull] IReadOnlyList<ReaderColumn> columns, CancellationToken cancellationToken)
+            [NotNull] IReadOnlyList<ReaderColumn> columns,
+            CancellationToken cancellationToken)
         {
             if (_underlyingReader == null)
             {
@@ -576,7 +582,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerator GetEnumerator() => throw new NotSupportedException();
+        public override IEnumerator GetEnumerator()
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -584,7 +591,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override DataTable GetSchemaTable() => throw new NotSupportedException();
+        public override DataTable GetSchemaTable()
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -700,17 +708,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public bool IsDataReady { get; private set; }
 
-            public bool HasRows => _rowCount > 0;
+            public bool HasRows
+                => _rowCount > 0;
 
-            public int FieldCount => _fieldTypes.Length;
+            public int FieldCount
+                => _fieldTypes.Length;
 
-            public string GetDataTypeName(int ordinal) => _dataTypeNames[ordinal];
+            public string GetDataTypeName(int ordinal)
+                => _dataTypeNames[ordinal];
 
-            public Type GetFieldType(int ordinal) => _fieldTypes[ordinal];
+            public Type GetFieldType(int ordinal)
+                => _fieldTypes[ordinal];
 
-            public string GetName(int ordinal) => _columnNames[ordinal];
+            public string GetName(int ordinal)
+                => _columnNames[ordinal];
 
-            public int GetOrdinal(string name) => _fieldNameLookup.Value[name];
+            public int GetOrdinal(string name)
+                => _fieldNameLookup.Value[name];
 
             public bool GetBoolean(int ordinal)
                 => _columnTypeCases[ordinal] == TypeCase.Bool
@@ -844,13 +858,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken)
                 => Task.FromResult(GetFieldValue<T>(ordinal));
 
-            public bool IsDBNull(int ordinal) => _nulls[_currentRowNumber * _nullCount + _nullOrdinalToIndexMap[ordinal]];
+            public bool IsDBNull(int ordinal)
+                => _nulls[_currentRowNumber * _nullCount + _nullOrdinalToIndexMap[ordinal]];
 
-            public Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) => Task.FromResult(IsDBNull(ordinal));
+            public Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken)
+                => Task.FromResult(IsDBNull(ordinal));
 
-            public bool Read() => IsDataReady = ++_currentRowNumber < _rowCount;
+            public bool Read()
+                => IsDataReady = ++_currentRowNumber < _rowCount;
 
-            public Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read());
+            public Task<bool> ReadAsync(CancellationToken cancellationToken)
+                => Task.FromResult(Read());
 
             public BufferedDataRecord Initialize([NotNull] DbDataReader reader, [NotNull] IReadOnlyList<ReaderColumn> columns)
             {
@@ -878,7 +896,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public async Task<BufferedDataRecord> InitializeAsync(
-                [NotNull] DbDataReader reader, [NotNull] IReadOnlyList<ReaderColumn> columns, CancellationToken cancellationToken)
+                [NotNull] DbDataReader reader,
+                [NotNull] IReadOnlyList<ReaderColumn> columns,
+                CancellationToken cancellationToken)
             {
                 _underlyingReader = reader;
                 _columns = columns;
@@ -1232,6 +1252,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         newColumnMap[i] = _columns[i];
                     }
+
                     _columns = newColumnMap;
                 }
 

@@ -69,13 +69,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string Filter { get; }
 
         /// <inheritdoc />
-        ITable ITableIndex.Table => Table;
+        ITable ITableIndex.Table
+            => Table;
 
         /// <inheritdoc />
-        IReadOnlyList<IColumn> ITableIndex.Columns => Columns;
+        IReadOnlyList<IColumn> ITableIndex.Columns
+            => Columns;
 
         /// <inheritdoc />
-        IEnumerable<IIndex> ITableIndex.MappedIndexes => MappedIndexes;
+        IEnumerable<IIndex> ITableIndex.MappedIndexes
+            => MappedIndexes;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
     }
 }

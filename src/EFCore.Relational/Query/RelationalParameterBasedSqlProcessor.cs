@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         A class that processes the <see cref="SelectExpression"/>  after parementer values are known.
+    ///         A class that processes the <see cref="SelectExpression" />  after parementer values are known.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -46,14 +46,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual bool UseRelationalNulls { get; }
 
         /// <summary>
-        ///     Optimizes the <see cref="SelectExpression"/> for given parameter values.
+        ///     Optimizes the <see cref="SelectExpression" /> for given parameter values.
         /// </summary>
         /// <param name="selectExpression"> A select expression to optimize. </param>
         /// <param name="parametersValues"> A dictionary of parameter values to use. </param>
         /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
         /// <returns> An optimized select expression. </returns>
         public virtual SelectExpression Optimize(
-            [NotNull] SelectExpression selectExpression, [NotNull] IReadOnlyDictionary<string, object> parametersValues, out bool canCache)
+            [NotNull] SelectExpression selectExpression,
+            [NotNull] IReadOnlyDictionary<string, object> parametersValues,
+            out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
@@ -69,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Processes the <see cref="SelectExpression"/> based on nullability of nodes to apply null semantics in use and
+        ///     Processes the <see cref="SelectExpression" /> based on nullability of nodes to apply null semantics in use and
         ///     optimize it for given parameter values.
         /// </summary>
         /// <param name="selectExpression"> A select expression to optimize. </param>
@@ -77,7 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
         /// <returns> A processed select expression. </returns>
         protected virtual SelectExpression ProcessSqlNullability(
-            [NotNull] SelectExpression selectExpression, [NotNull] IReadOnlyDictionary<string, object> parametersValues, out bool canCache)
+            [NotNull] SelectExpression selectExpression,
+            [NotNull] IReadOnlyDictionary<string, object> parametersValues,
+            out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
@@ -86,14 +90,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Expands the parameters to <see cref="FromSqlExpression"/> inside the <see cref="SelectExpression"/> for given parameter values.
+        ///     Expands the parameters to <see cref="FromSqlExpression" /> inside the <see cref="SelectExpression" /> for given parameter values.
         /// </summary>
         /// <param name="selectExpression"> A select expression to optimize. </param>
         /// <param name="parametersValues"> A dictionary of parameter values to use. </param>
         /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
         /// <returns> A processed select expression. </returns>
         protected virtual SelectExpression ExpandFromSqlParameter(
-            [NotNull] SelectExpression selectExpression, [NotNull] IReadOnlyDictionary<string, object> parametersValues, out bool canCache)
+            [NotNull] SelectExpression selectExpression,
+            [NotNull] IReadOnlyDictionary<string, object> parametersValues,
+            out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));

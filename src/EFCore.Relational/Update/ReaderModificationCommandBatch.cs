@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The update SQL generator.
         /// </summary>
-        protected virtual IUpdateSqlGenerator UpdateSqlGenerator => Dependencies.UpdateSqlGenerator;
+        protected virtual IUpdateSqlGenerator UpdateSqlGenerator
+            => Dependencies.UpdateSqlGenerator;
 
         /// <summary>
         ///     Gets or sets the cached command text for the commands in the batch.
@@ -61,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
         /// </summary>
-        public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
+        public override IReadOnlyList<ModificationCommand> ModificationCommands
+            => _modificationCommands;
 
         /// <summary>
         ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.

@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Table.Equals(joinExpressionBase.Table);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Table);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Table);
     }
 }

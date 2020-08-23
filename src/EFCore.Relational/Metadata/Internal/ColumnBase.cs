@@ -30,16 +30,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Table = table;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual string Name { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual ITableBase Table { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual string StoreType { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual bool IsNullable { get; set; }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     columns.Select(p => "'" + p.Name + "'"))
                 + "}";
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<IColumnMappingBase> IColumnBase.PropertyMappings
         {
             [DebuggerStepThrough]

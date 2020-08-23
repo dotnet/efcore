@@ -33,45 +33,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IRelationalModel model) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(IRelationalModel model)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ITable table) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(ITable table)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IColumn column) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(IColumn column)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IView view) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(IView view)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IViewColumn column) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(IViewColumn column)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ISqlQuery sqlQuery) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(ISqlQuery sqlQuery)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ISqlQueryColumn column) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(ISqlQueryColumn column)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IStoreFunction function) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(IStoreFunction function)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IFunctionColumn column) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(IFunctionColumn column)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IForeignKeyConstraint foreignKey) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(IForeignKeyConstraint foreignKey)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ITableIndex index) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(ITableIndex index)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IUniqueConstraint constraint) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(IUniqueConstraint constraint)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ISequence sequence) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(ISequence sequence)
+            => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint) => Enumerable.Empty<IAnnotation>();
+        public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint)
+            => Enumerable.Empty<IAnnotation>();
     }
 }

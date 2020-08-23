@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     A <see cref="DiagnosticSource" /> event payload class for the
-    ///     <see cref="RelationalEventId.IndexPropertiesMappedToNonOverlappingTables"/> event.
+    ///     <see cref="RelationalEventId.IndexPropertiesMappedToNonOverlappingTables" /> event.
     /// </summary>
     public class IndexWithPropertiesEventData : EventData
     {

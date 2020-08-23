@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents creation of a collection for relational provider in <see cref="ShapedQueryExpression.ShaperExpression"/>.
+    ///         An expression that represents creation of a collection for relational provider in
+    ///         <see cref="ShapedQueryExpression.ShaperExpression" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -41,8 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Expression innerShaper,
             [CanBeNull] INavigation navigation,
             [NotNull] Type elementType)
-            : this(collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
-                  null, null, null, innerShaper, navigation, elementType)
+            : this(
+                collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
+                null, null, null, innerShaper, navigation, elementType)
         {
         }
 
@@ -93,26 +95,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A unique id for this collection shaper.
         /// </summary>
         public virtual int CollectionId { get; }
+
         /// <summary>
         ///     The identifier for the parent element.
         /// </summary>
         public virtual Expression ParentIdentifier { get; }
+
         /// <summary>
         ///     The identifier for the outer element.
         /// </summary>
         public virtual Expression OuterIdentifier { get; }
+
         /// <summary>
         ///     The identifier for the element in the collection.
         /// </summary>
         public virtual Expression SelfIdentifier { get; }
+
         /// <summary>
         ///     The list of value comparers to compare parent identifier.
         /// </summary>
         public virtual IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; }
+
         /// <summary>
         ///     The list of value comparers to compare outer identifier.
         /// </summary>
         public virtual IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; }
+
         /// <summary>
         ///     The list of value comparers to compare self identifier.
         /// </summary>
@@ -122,19 +130,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The expression to create inner elements.
         /// </summary>
         public virtual Expression InnerShaper { get; }
+
         /// <summary>
-        ///    The navigation if associated with the collection.
+        ///     The navigation if associated with the collection.
         /// </summary>
         public virtual INavigationBase Navigation { get; }
+
         /// <summary>
         ///     The clr type of elements of the collection.
         /// </summary>
         public virtual Type ElementType { get; }
 
         /// <inheritdoc />
-        public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
+        public override Type Type
+            => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
+
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -153,10 +166,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="parentIdentifier"> The <see cref="ParentIdentifier"/> property of the result. </param>
-        /// <param name="outerIdentifier"> The <see cref="OuterIdentifier"/> property of the result. </param>
-        /// <param name="selfIdentifier"> The <see cref="SelfIdentifier"/> property of the result. </param>
-        /// <param name="innerShaper"> The <see cref="InnerShaper"/> property of the result. </param>
+        /// <param name="parentIdentifier"> The <see cref="ParentIdentifier" /> property of the result. </param>
+        /// <param name="outerIdentifier"> The <see cref="OuterIdentifier" /> property of the result. </param>
+        /// <param name="selfIdentifier"> The <see cref="SelfIdentifier" /> property of the result. </param>
+        /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual RelationalCollectionShaperExpression Update(
             [NotNull] Expression parentIdentifier,

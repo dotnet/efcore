@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -31,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool shouldThrow)
         {
             var principalType = foreignKey.PrincipalKey.IsPrimaryKey()
-               ? foreignKey.PrincipalEntityType
-               : foreignKey.PrincipalKey.DeclaringEntityType;
+                ? foreignKey.PrincipalEntityType
+                : foreignKey.PrincipalKey.DeclaringEntityType;
             var principalTable = StoreObjectIdentifier.Create(principalType, StoreObjectType.Table);
 
             var duplicatePrincipalType = duplicateForeignKey.PrincipalKey.IsPrimaryKey()

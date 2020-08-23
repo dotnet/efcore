@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => expression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Convert
                 && sqlUnaryExpression.Type == typeof(object)
-                ? sqlUnaryExpression.Operand
-                : expression;
+                    ? sqlUnaryExpression.Operand
+                    : expression;
     }
 }

@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IRelationalConnection RelationalConnection { get; }
 
         /// <summary>
-        ///     A factory for creating a readable query string from a <see cref="DbCommand"/>
+        ///     A factory for creating a readable query string from a <see cref="DbCommand" />
         /// </summary>
         public IRelationalQueryStringFactory RelationalQueryStringFactory { get; }
 

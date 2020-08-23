@@ -31,8 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
-        /// <inheritdoc/>
-        public virtual ISqlQueryMapping SqlQueryMapping => (ISqlQueryMapping)TableMapping;
+        /// <inheritdoc />
+        public virtual ISqlQueryMapping SqlQueryMapping
+            => (ISqlQueryMapping)TableMapping;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,9 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         ISqlQueryColumn ISqlQueryColumnMapping.Column
         {
             [DebuggerStepThrough]

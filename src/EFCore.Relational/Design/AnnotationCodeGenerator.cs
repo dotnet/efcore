@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual void RemoveAnnotationsHandledByConventions(
-            IEntityType entityType, IDictionary<string, IAnnotation> annotations)
+            IEntityType entityType,
+            IDictionary<string, IAnnotation> annotations)
         {
             annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
 
@@ -88,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual void RemoveAnnotationsHandledByConventions(
-            IProperty property, IDictionary<string, IAnnotation> annotations)
+            IProperty property,
+            IDictionary<string, IAnnotation> annotations)
         {
             var columnName = property.GetColumnName();
             if (columnName == property.Name)
@@ -105,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual void RemoveAnnotationsHandledByConventions(
-            IForeignKey foreignKey, IDictionary<string, IAnnotation> annotations)
+            IForeignKey foreignKey,
+            IDictionary<string, IAnnotation> annotations)
             => RemoveConventionalAnnotationsHelper(foreignKey, annotations, IsHandledByConvention);
 
         /// <inheritdoc />
@@ -114,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            IModel model, IDictionary<string, IAnnotation> annotations)
+            IModel model,
+            IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -129,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            IEntityType entityType, IDictionary<string, IAnnotation> annotations)
+            IEntityType entityType,
+            IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -144,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            IProperty property, IDictionary<string, IAnnotation> annotations)
+            IProperty property,
+            IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -167,16 +173,16 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 methodCallCodeFragments.Add(
                     computedColumnSql?.Length == 0
-                    ? new MethodCallCodeFragment(
-                        nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))
-                    : TryGetAndRemove(annotations, RelationalAnnotationNames.IsStored, out bool isStored)
                         ? new MethodCallCodeFragment(
-                            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
-                            computedColumnSql,
-                            isStored)
-                        : new MethodCallCodeFragment(
-                            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
-                            computedColumnSql));
+                            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))
+                        : TryGetAndRemove(annotations, RelationalAnnotationNames.IsStored, out bool isStored)
+                            ? new MethodCallCodeFragment(
+                                nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
+                                computedColumnSql,
+                                isStored)
+                            : new MethodCallCodeFragment(
+                                nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql),
+                                computedColumnSql));
             }
 
             GenerateSimpleFluentApiCall(
@@ -199,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            IKey key, IDictionary<string, IAnnotation> annotations)
+            IKey key,
+            IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -214,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            IForeignKey navigation, IDictionary<string, IAnnotation> annotations)
+            IForeignKey navigation,
+            IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -229,7 +237,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            INavigation navigation, IDictionary<string, IAnnotation> annotations)
+            INavigation navigation,
+            IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -240,7 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            ISkipNavigation navigation, IDictionary<string, IAnnotation> annotations)
+            ISkipNavigation navigation,
+            IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -251,7 +261,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            IIndex index, IDictionary<string, IAnnotation> annotations)
+            IIndex index,
+            IDictionary<string, IAnnotation> annotations)
         {
             var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
@@ -270,7 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
-            IEntityType entityType, IDictionary<string, IAnnotation> annotations)
+            IEntityType entityType,
+            IDictionary<string, IAnnotation> annotations)
         {
             var attributeCodeFragments = new List<AttributeCodeFragment>();
 
@@ -281,7 +293,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         /// <inheritdoc />
         public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
-            IProperty property, IDictionary<string, IAnnotation> annotations)
+            IProperty property,
+            IDictionary<string, IAnnotation> annotations)
         {
             var attributeCodeFragments = new List<AttributeCodeFragment>();
 
@@ -312,8 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="model"> The <see cref="IModel" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
         /// <returns>
-        ///     <see langword="true"/> if the annotation is handled by convention;
-        ///     <see langword="false"/> if code must be generated.
+        ///     <see langword="true" /> if the annotation is handled by convention;
+        ///     <see langword="false" /> if code must be generated.
         /// </returns>
         protected virtual bool IsHandledByConvention([NotNull] IModel model, [NotNull] IAnnotation annotation)
         {

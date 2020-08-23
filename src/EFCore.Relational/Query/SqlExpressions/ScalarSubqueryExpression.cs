@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="subquery"> The <see cref="Subquery"/> property of the result. </param>
+        /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual ScalarSubqueryExpression Update([NotNull] SelectExpression subquery)
         {
@@ -97,6 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Subquery.Equals(scalarSubqueryExpression.Subquery);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Subquery);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Subquery);
     }
 }

@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents creation of a collection during split query for relational provider in <see cref="ShapedQueryExpression.ShaperExpression"/>.
+    ///         An expression that represents creation of a collection during split query for relational provider in
+    ///         <see cref="ShapedQueryExpression.ShaperExpression" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -64,18 +65,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A unique id for this collection shaper.
         /// </summary>
         public virtual int CollectionId { get; }
+
         /// <summary>
         ///     The identifier for the parent element.
         /// </summary>
         public virtual Expression ParentIdentifier { get; }
+
         /// <summary>
         ///     The identifier for the child element.
         /// </summary>
         public virtual Expression ChildIdentifier { get; }
+
         /// <summary>
         ///     The list of value comparers to compare identifiers.
         /// </summary>
         public virtual IReadOnlyList<ValueComparer> IdentifierValueComparers { get; }
+
         /// <summary>
         ///     The SQL query to get values for this collection from database.
         /// </summary>
@@ -85,19 +90,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The expression to create inner elements.
         /// </summary>
         public virtual Expression InnerShaper { get; }
+
         /// <summary>
-        ///    The navigation if associated with the collection.
+        ///     The navigation if associated with the collection.
         /// </summary>
         public virtual INavigationBase Navigation { get; }
+
         /// <summary>
         ///     The clr type of elements of the collection.
         /// </summary>
         public virtual Type ElementType { get; }
 
         /// <inheritdoc />
-        public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
+        public override Type Type
+            => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
+
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -116,10 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="parentIdentifier"> The <see cref="ParentIdentifier"/> property of the result. </param>
-        /// <param name="childIdentifier"> The <see cref="ChildIdentifier"/> property of the result. </param>
-        /// <param name="selectExpression"> The <see cref="SelectExpression"/> property of the result. </param>
-        /// <param name="innerShaper"> The <see cref="InnerShaper"/> property of the result. </param>
+        /// <param name="parentIdentifier"> The <see cref="ParentIdentifier" /> property of the result. </param>
+        /// <param name="childIdentifier"> The <see cref="ChildIdentifier" /> property of the result. </param>
+        /// <param name="selectExpression"> The <see cref="SelectExpression" /> property of the result. </param>
+        /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual RelationalSplitCollectionShaperExpression Update(
             [NotNull] Expression parentIdentifier,
@@ -137,7 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || selectExpression != SelectExpression
                 || innerShaper != InnerShaper
                     ? new RelationalSplitCollectionShaperExpression(
-                        CollectionId, parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper, Navigation, ElementType)
+                        CollectionId, parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper,
+                        Navigation, ElementType)
                     : this;
         }
 

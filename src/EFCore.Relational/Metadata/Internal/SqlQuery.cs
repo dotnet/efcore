@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -29,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual string Sql { get; [param: NotNull] set; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override IColumnBase FindColumn(IProperty property)
             => property.GetSqlQueryColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)
@@ -44,28 +43,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<ISqlQueryMapping> ISqlQuery.EntityTypeMappings
         {
             [DebuggerStepThrough]
             get => EntityTypeMappings.Cast<ISqlQueryMapping>();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<ISqlQueryColumn> ISqlQuery.Columns
         {
             [DebuggerStepThrough]
             get => Columns.Values.Cast<ISqlQueryColumn>();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         ISqlQueryColumn ISqlQuery.FindColumn(string name)
             => (ISqlQueryColumn)base.FindColumn(name);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         ISqlQueryColumn ISqlQuery.FindColumn(IProperty property)
             => (ISqlQueryColumn)FindColumn(property);

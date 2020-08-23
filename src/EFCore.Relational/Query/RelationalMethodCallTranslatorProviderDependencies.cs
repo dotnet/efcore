@@ -77,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Registered plugins.
         /// </summary>
         public IEnumerable<IMethodCallTranslatorPlugin> Plugins { get; }
+
         /// <summary>
         ///     Relational Type Mapping Source.
         /// </summary>

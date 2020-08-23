@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isKey,
             bool isCondition,
             bool sensitiveLoggingEnabled)
-            : this(Check.NotNull(column, nameof(column)).Name,
+            : this(
+                Check.NotNull(column, nameof(column)).Name,
                 originalValue: null,
                 value: null,
                 property: property,
@@ -102,16 +103,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isCondition,
             bool isConcurrencyToken,
             bool sensitiveLoggingEnabled)
-            : this(entry,
-                  property,
-                  Check.NotNull(property, nameof(property)).GetTableColumnMappings().First().Column,
-                  generateParameterName,
-                  Check.NotNull(property, nameof(property)).GetTableColumnMappings().First().TypeMapping,
-                  isRead: isRead,
-                  isWrite: isWrite,
-                  isKey: isKey,
-                  isCondition: isCondition,
-                  sensitiveLoggingEnabled: sensitiveLoggingEnabled)
+            : this(
+                entry,
+                property,
+                Check.NotNull(property, nameof(property)).GetTableColumnMappings().First().Column,
+                generateParameterName,
+                Check.NotNull(property, nameof(property)).GetTableColumnMappings().First().TypeMapping,
+                isRead: isRead,
+                isWrite: isWrite,
+                isKey: isKey,
+                isCondition: isCondition,
+                sensitiveLoggingEnabled: sensitiveLoggingEnabled)
         {
         }
 
@@ -223,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isKey,
             bool isCondition,
             bool sensitiveLoggingEnabled)
-            : this(columnName,
+            : this(
+                columnName,
                 originalValue: originalValue,
                 value: value,
                 property: property,
@@ -285,12 +288,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Indicates whether the original value of the property must be passed as a parameter to the SQL
         /// </summary>
-        public virtual bool UseOriginalValueParameter => _useParameters && IsCondition;
+        public virtual bool UseOriginalValueParameter
+            => _useParameters && IsCondition;
 
         /// <summary>
         ///     Indicates whether the current value of the property must be passed as a parameter to the SQL
         /// </summary>
-        public virtual bool UseCurrentValueParameter => _useParameters && IsWrite;
+        public virtual bool UseCurrentValueParameter
+            => _useParameters && IsWrite;
 
         /// <summary>
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
@@ -317,22 +322,24 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The original value of the property mapped to this column.
         /// </summary>
-        public virtual object OriginalValue => Entry == null
-            ? _originalValue
-            : Entry.SharedIdentityEntry == null
-                ? Entry.GetOriginalValue(Property)
-                : Entry.SharedIdentityEntry.GetOriginalValue(Property);
+        public virtual object OriginalValue
+            => Entry == null
+                ? _originalValue
+                : Entry.SharedIdentityEntry == null
+                    ? Entry.GetOriginalValue(Property)
+                    : Entry.SharedIdentityEntry.GetOriginalValue(Property);
 
         /// <summary>
         ///     Gets or sets the current value of the property mapped to this column.
         /// </summary>
         public virtual object Value
         {
-            get => Entry == null
-                ? _value
-                : Entry.EntityState == EntityState.Deleted
-                    ? null
-                    : Entry.GetCurrentValue(Property);
+            get
+                => Entry == null
+                    ? _value
+                    : Entry.EntityState == EntityState.Deleted
+                        ? null
+                        : Entry.GetCurrentValue(Property);
             [param: CanBeNull]
             set
             {

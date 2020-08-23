@@ -38,7 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessModelInitialized(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             var contextType = Dependencies.ContextType;
             while (contextType != null
@@ -62,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var function in modelBuilder.Metadata.GetDbFunctions())
             {
@@ -76,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dbFunctionBuilder"> The builder for the <see cref="IConventionDbFunction" />. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         protected virtual void ProcessDbFunctionAdded(
-            [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder, [NotNull] IConventionContext context)
+            [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder,
+            [NotNull] IConventionContext context)
         {
             var methodInfo = dbFunctionBuilder.Metadata.MethodInfo;
             var dbFunctionAttribute = methodInfo?.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();

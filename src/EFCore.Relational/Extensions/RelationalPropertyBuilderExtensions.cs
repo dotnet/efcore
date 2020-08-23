@@ -126,8 +126,8 @@ namespace Microsoft.EntityFrameworkCore
             var overrides = RelationalPropertyOverrides.Find(propertyBuilder.Metadata, storeObject);
             return overrides == null
                 || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                    .Overrides(overrides.GetColumnNameConfigurationSource())
-                               || overrides.ColumnName == name;
+                .Overrides(overrides.GetColumnNameConfigurationSource())
+                || overrides.ColumnName == name;
         }
 
         /// <summary>
@@ -776,7 +776,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="collation"> The collation for the column. </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> UseCollation<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder, [CanBeNull] string collation)
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            [CanBeNull] string collation)
             => (PropertyBuilder<TProperty>)UseCollation((PropertyBuilder)propertyBuilder, collation);
 
         /// <summary>

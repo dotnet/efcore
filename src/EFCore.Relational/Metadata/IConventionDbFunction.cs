@@ -125,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         Func<IReadOnlyCollection<SqlExpression>, SqlExpression> SetTranslation(
-            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation = false);
+            [CanBeNull] Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="IDbFunction.Translation" />.

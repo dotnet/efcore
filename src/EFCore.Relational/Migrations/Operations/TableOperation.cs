@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Comment { get; [param: CanBeNull] set; }
 
         /// <inheritdoc />
-        string ITableMigrationOperation.Table => Name;
+        string ITableMigrationOperation.Table
+            => Name;
     }
 }

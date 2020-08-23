@@ -48,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && JoinPredicate.Equals(predicateJoinExpressionBase.JoinPredicate);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), JoinPredicate);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), JoinPredicate);
     }
 }

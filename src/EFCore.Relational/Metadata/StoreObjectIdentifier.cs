@@ -146,10 +146,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the friendly display name for the store object.
         /// </summary>
-        public string DisplayName() => Schema == null ? Name : Schema + "." + Name;
+        public string DisplayName()
+            => Schema == null ? Name : Schema + "." + Name;
 
         /// <inheritdoc />
-        public override string ToString() => StoreObjectType.ToString() + " " + DisplayName();
+        public override string ToString()
+            => StoreObjectType + " " + DisplayName();
 
         /// <inheritdoc />
         public override bool Equals(object obj)
@@ -157,9 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <inheritdoc />
         public bool Equals(StoreObjectIdentifier other)
-            => StoreObjectType == other.StoreObjectType &&
-                   Name == other.Name &&
-                   Schema == other.Schema;
+            => StoreObjectType == other.StoreObjectType && Name == other.Name && Schema == other.Schema;
 
         /// <inheritdoc />
         public override int GetHashCode()
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="left"> The first id. </param>
         /// <param name="right"> The second id. </param>
-        /// <returns> <see langword="true"/> if they represent the same store object; <see langword="false"/> otherwise. </returns>
+        /// <returns> <see langword="true" /> if they represent the same store object; <see langword="false" /> otherwise. </returns>
         public static bool operator ==(StoreObjectIdentifier left, StoreObjectIdentifier right)
             => left.Equals(right);
 
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="left"> The first id. </param>
         /// <param name="right"> The second id. </param>
-        /// <returns> <see langword="false"/> if they represent the same store object; <see langword="true"/> otherwise. </returns>
+        /// <returns> <see langword="false" /> if they represent the same store object; <see langword="true" /> otherwise. </returns>
         public static bool operator !=(StoreObjectIdentifier left, StoreObjectIdentifier right)
             => !(left == right);
     }

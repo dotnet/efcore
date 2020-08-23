@@ -42,8 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     return null;
                 }
+
                 propertyNames.Add(columnName);
             }
+
             return propertyNames;
         }
     }

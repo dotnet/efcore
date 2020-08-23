@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     <para>
     ///         A service typically implemented by database providers that gives access to annotations used by EF Core Migrations
     ///         when generating removal operations for various elements of the <see cref="IRelationalModel" />. The annotations
-    ///         stored in the relational model are provided by <see cref="IRelationalAnnotationProvider"/>.
+    ///         stored in the relational model are provided by <see cref="IRelationalAnnotationProvider" />.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance

@@ -70,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The name of the column.
         /// </summary>
         public string Name { get; }
+
         /// <summary>
         ///     The table from which column is being referenced.
         /// </summary>
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Makes this column nullable.
         /// </summary>
-        /// <returns> A new expression which has <see cref="IsNullable"/> property set to true. </returns>
+        /// <returns> A new expression which has <see cref="IsNullable" /> property set to true. </returns>
         public ColumnExpression MakeNullable()
             => new ColumnExpression(Name, Table, Type, TypeMapping, true);
 
@@ -118,8 +119,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && IsNullable == columnExpression.IsNullable;
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, Table, IsNullable);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Name, Table, IsNullable);
 
-        private string DebuggerDisplay() => $"{Table.Alias}.{Name}";
+        private string DebuggerDisplay()
+            => $"{Table.Alias}.{Name}";
     }
 }

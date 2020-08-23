@@ -36,15 +36,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The expression used for ordering.
         /// </summary>
         public virtual SqlExpression Expression { get; }
+
         /// <summary>
         ///     The value indicating if the ordering is ascending.
         /// </summary>
         public virtual bool IsAscending { get; }
 
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
+
         /// <inheritdoc />
-        public override Type Type => Expression.Type;
+        public override Type Type
+            => Expression.Type;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -58,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="expression"> The <see cref="Expression"/> property of the result. </param>
+        /// <param name="expression"> The <see cref="Expression" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual OrderingExpression Update([NotNull] SqlExpression expression)
         {
@@ -91,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && IsAscending == orderingExpression.IsAscending;
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(Expression, IsAscending);
+        public override int GetHashCode()
+            => HashCode.Combine(Expression, IsAscending);
     }
 }

@@ -78,11 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return result;
             }
 
-            return x.ColumnMappings.Zip(y.ColumnMappings, (xc, yc) =>
-                {
-                    var columnResult = StringComparer.Ordinal.Compare(xc.Property.Name, yc.Property.Name);
-                    return columnResult != 0 ? columnResult : StringComparer.Ordinal.Compare(xc.Column.Name, yc.Column.Name);
-                })
+            return x.ColumnMappings.Zip(
+                    y.ColumnMappings, (xc, yc) =>
+                    {
+                        var columnResult = StringComparer.Ordinal.Compare(xc.Property.Name, yc.Property.Name);
+                        return columnResult != 0 ? columnResult : StringComparer.Ordinal.Compare(xc.Column.Name, yc.Column.Name);
+                    })
                 .FirstOrDefault(r => r != 0);
         }
 
@@ -115,6 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 hashCode.Add(columnMapping.Property.Name);
                 hashCode.Add(columnMapping.Column.Name);
             }
+
             hashCode.Add(obj.IncludesDerivedTypes);
             return hashCode.ToHashCode();
         }

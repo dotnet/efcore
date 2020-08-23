@@ -158,13 +158,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     _historyRepository.GetCreateScript());
 
                 await command.ExecuteNonQueryAsync(
-                    new RelationalCommandParameterObject(
-                        _connection,
-                        null,
-                        null,
-                        _currentContext.Context,
-                        _commandLogger),
-                    cancellationToken)
+                        new RelationalCommandParameterObject(
+                            _connection,
+                            null,
+                            null,
+                            _currentContext.Context,
+                            _commandLogger),
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -363,6 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .Append(_sqlGenerationHelper.BatchTerminator);
                             transactionStarted = true;
                         }
+
                         if (transactionStarted && command.TransactionSuppressed)
                         {
                             builder
@@ -414,6 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .Append(_sqlGenerationHelper.BatchTerminator);
                             transactionStarted = true;
                         }
+
                         if (transactionStarted && command.TransactionSuppressed)
                         {
                             builder
@@ -459,7 +461,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql([NotNull] Migration migration,
+        protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql(
+            [NotNull] Migration migration,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             Check.NotNull(migration, nameof(migration));
@@ -507,7 +510,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
                 }
 
-                var relationalModelConvention = conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
+                var relationalModelConvention =
+                    conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
                 if (relationalModelConvention != null)
                 {
                     relationalModelConvention.ProcessModelFinalized(conventionModel);

@@ -56,8 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder.Append(")");
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(column.AnnotationsToDebugString(indent + 2));
             }

@@ -52,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetColumnNameConfigurationSource() => _columnNameConfigurationSource;
+        public virtual ConfigurationSource? GetColumnNameConfigurationSource()
+            => _columnNameConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property[RelationalAnnotationNames.RelationalOverrides];
             return tableOverrides != null
                 && tableOverrides.TryGetValue(storeObject, out var overrides)
-                ? overrides
-                : null;
+                    ? overrides
+                    : null;
         }
 
         /// <summary>
@@ -77,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IMutableProperty property, in StoreObjectIdentifier storeObject)
+            [NotNull] IMutableProperty property,
+            in StoreObjectIdentifier storeObject)
         {
             var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>)
                 property[RelationalAnnotationNames.RelationalOverrides];
@@ -103,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IConventionProperty property, in StoreObjectIdentifier storeObject)
+            [NotNull] IConventionProperty property,
+            in StoreObjectIdentifier storeObject)
             => GetOrCreate((IMutableProperty)property, storeObject);
     }
 }

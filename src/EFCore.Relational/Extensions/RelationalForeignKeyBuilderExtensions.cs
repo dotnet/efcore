@@ -126,7 +126,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionForeignKeyBuilder HasConstraintName(
-            [NotNull] this IConventionForeignKeyBuilder relationship, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionForeignKeyBuilder relationship,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             if (!relationship.CanSetConstraintName(name, fromDataAnnotation))
             {
@@ -146,7 +148,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetConstraintName(
-            [NotNull] this IConventionForeignKeyBuilder relationship, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionForeignKeyBuilder relationship,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
             => Check.NotNull(relationship, nameof(relationship))
                 .CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
     }

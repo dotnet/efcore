@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns all sequences contained in the model.
         /// </summary>
-        IEnumerable<ISequence> Sequences => Model.GetSequences();
+        IEnumerable<ISequence> Sequences
+            => Model.GetSequences();
 
         /// <summary>
         ///     Returns all user-defined functions contained in the model.
@@ -47,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the database collation.
         /// </summary>
-        string Collation => Model.GetCollation();
+        string Collation
+            => Model.GetCollation();
 
         /// <summary>
         ///     Gets the table with the given name. Returns <see langword="null" /> if no table with the given name is defined.

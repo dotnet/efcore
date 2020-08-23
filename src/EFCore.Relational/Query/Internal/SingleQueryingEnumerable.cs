@@ -65,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerator<T> GetEnumerator() => new Enumerator(this);
+        public virtual IEnumerator<T> GetEnumerator()
+            => new Enumerator(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public T Current { get; private set; }
 
-            object IEnumerator.Current => Current;
+            object IEnumerator.Current
+                => Current;
 
             public bool MoveNext()
             {
@@ -151,7 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 _resultCoordinator.ResultReady = true;
                                 _resultCoordinator.HasNext = null;
                                 Current = _shaper(
-                                    _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                                    _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                    _resultCoordinator);
                                 if (_resultCoordinator.ResultReady)
                                 {
                                     // We generated a result so null out previously stored values
@@ -165,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     // Enumeration has ended, materialize last element
                                     _resultCoordinator.ResultReady = true;
                                     Current = _shaper(
-                                        _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                                        _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                        _resultCoordinator);
 
                                     break;
                                 }
@@ -211,7 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _dataReader = null;
             }
 
-            public void Reset() => throw new NotImplementedException();
+            public void Reset()
+                => throw new NotImplementedException();
         }
 
         private sealed class AsyncEnumerator : IAsyncEnumerator<T>
@@ -265,7 +271,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 _resultCoordinator.ResultReady = true;
                                 _resultCoordinator.HasNext = null;
                                 Current = _shaper(
-                                    _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                                    _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                    _resultCoordinator);
                                 if (_resultCoordinator.ResultReady)
                                 {
                                     // We generated a result so null out previously stored values
@@ -279,7 +286,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     // Enumeration has ended, materialize last element
                                     _resultCoordinator.ResultReady = true;
                                     Current = _shaper(
-                                        _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                                        _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                        _resultCoordinator);
 
                                     break;
                                 }
@@ -305,13 +313,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 _dataReader
                     = await relationalCommand.ExecuteReaderAsync(
-                        new RelationalCommandParameterObject(
-                            _relationalQueryContext.Connection,
-                            _relationalQueryContext.ParameterValues,
-                            _relationalCommandCache.ReaderColumns,
-                            _relationalQueryContext.Context,
-                            _relationalQueryContext.CommandLogger),
-                        cancellationToken)
+                            new RelationalCommandParameterObject(
+                                _relationalQueryContext.Connection,
+                                _relationalQueryContext.ParameterValues,
+                                _relationalCommandCache.ReaderColumns,
+                                _relationalQueryContext.Context,
+                                _relationalQueryContext.CommandLogger),
+                            cancellationToken)
                         .ConfigureAwait(false);
 
                 _resultCoordinator = new SingleQueryResultCoordinator();

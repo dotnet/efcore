@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"FunctionMapping: ");
+                builder.Append("FunctionMapping: ");
             }
 
             builder.Append(functionMapping.EntityType.Name).Append(" - ");
@@ -47,16 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if (functionMapping.IsDefaultFunctionMapping)
             {
-                builder.Append($" DefaultMapping");
+                builder.Append(" DefaultMapping");
             }
 
             if (functionMapping.IncludesDerivedTypes)
             {
-                builder.Append($" IncludesDerivedTypes");
+                builder.Append(" IncludesDerivedTypes");
             }
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(functionMapping.AnnotationsToDebugString(indent + 2));
             }

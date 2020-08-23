@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="CaseWhenClause" /> class.
         /// </summary>
-        /// <param name="test"> A value to compare with <see cref="CaseExpression.Operand"/> or condition to evaluate. </param>
+        /// <param name="test"> A value to compare with <see cref="CaseExpression.Operand" /> or condition to evaluate. </param>
         /// <param name="result"> A value to return if test succeeds. </param>
         public CaseWhenClause([NotNull] SqlExpression test, [NotNull] SqlExpression result)
         {
@@ -33,11 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     The value to compare with <see cref="CaseExpression.Operand"/> or the condition to evaluate.
+        ///     The value to compare with <see cref="CaseExpression.Operand" /> or the condition to evaluate.
         /// </summary>
         public virtual SqlExpression Test { get; }
+
         /// <summary>
-        ///     The value to return if <see cref="Test"/> succeeds.
+        ///     The value to return if <see cref="Test" /> succeeds.
         /// </summary>
         public virtual SqlExpression Result { get; }
 
@@ -53,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Result.Equals(caseWhenClause.Result);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(Test, Result);
+        public override int GetHashCode()
+            => HashCode.Combine(Test, Result);
     }
 }

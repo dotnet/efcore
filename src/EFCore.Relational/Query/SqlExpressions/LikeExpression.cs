@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="match"> An expression on which LIKE is applied. </param>
         /// <param name="pattern"> A pattern to search. </param>
         /// <param name="escapeChar"> An optional escape character to use in LIKE. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public LikeExpression(
             [NotNull] SqlExpression match,
             [NotNull] SqlExpression pattern,
@@ -46,10 +46,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The expression on which LIKE is applied.
         /// </summary>
         public virtual SqlExpression Match { get; }
+
         /// <summary>
-        ///     The pattern to search in <see cref="Match"/>.
+        ///     The pattern to search in <see cref="Match" />.
         /// </summary>
         public virtual SqlExpression Pattern { get; }
+
         /// <summary>
         ///     The escape chater to use in LIKE.
         /// </summary>
@@ -71,12 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="match"> The <see cref="Match"/> property of the result. </param>
-        /// <param name="pattern"> The <see cref="Pattern"/> property of the result. </param>
-        /// <param name="escapeChar"> The <see cref="EscapeChar"/> property of the result. </param>
+        /// <param name="match"> The <see cref="Match" /> property of the result. </param>
+        /// <param name="pattern"> The <see cref="Pattern" /> property of the result. </param>
+        /// <param name="escapeChar"> The <see cref="EscapeChar" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual LikeExpression Update(
-            [NotNull] SqlExpression match, [NotNull] SqlExpression pattern, [CanBeNull] SqlExpression escapeChar)
+            [NotNull] SqlExpression match,
+            [NotNull] SqlExpression pattern,
+            [CanBeNull] SqlExpression escapeChar)
         {
             Check.NotNull(match, nameof(match));
             Check.NotNull(pattern, nameof(pattern));
@@ -116,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && EscapeChar.Equals(likeExpression.EscapeChar);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Match, Pattern, EscapeChar);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Match, Pattern, EscapeChar);
     }
 }

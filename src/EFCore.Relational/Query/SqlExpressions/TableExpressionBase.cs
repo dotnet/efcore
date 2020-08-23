@@ -44,18 +44,22 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override Type Type => typeof(object);
+        public override Type Type
+            => typeof(object);
+
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <summary>
-        ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter"/>.
+        ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
         /// <param name="expressionPrinter"> The expression printer to use. </param>
         protected abstract void Print([NotNull] ExpressionPrinter expressionPrinter);
 
         /// <inheritdoc />
-        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter) => Print(expressionPrinter);
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+            => Print(expressionPrinter);
 
         /// <inheritdoc />
         public override bool Equals(object obj)
@@ -68,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => string.Equals(Alias, tableExpressionBase.Alias);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(Alias);
+        public override int GetHashCode()
+            => HashCode.Combine(Alias);
     }
 }
