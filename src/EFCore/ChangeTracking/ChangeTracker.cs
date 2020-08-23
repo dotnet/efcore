@@ -196,10 +196,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         Note that this method calls <see cref="DetectChanges" /> unless
-        ///         <see cref="AutoDetectChangesEnabled" /> has been set to <see langword="false"/>.
+        ///         <see cref="AutoDetectChangesEnabled" /> has been set to <see langword="false" />.
         ///     </para>
         /// </summary>
-        /// <returns> <see langword="true"/> if there are changes to save, otherwise <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if there are changes to save, otherwise <see langword="false" />. </returns>
         public virtual bool HasChanges()
         {
             TryDetectChanges();
@@ -231,7 +231,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     represent the current state of the database. This method is typically called by <see cref="DbContext.SaveChanges()" />
         ///     after changes have been successfully saved to the database.
         /// </summary>
-        public virtual void AcceptAllChanges() => StateManager.AcceptAllChanges();
+        public virtual void AcceptAllChanges()
+            => StateManager.AcceptAllChanges();
 
         /// <summary>
         ///     <para>
@@ -402,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Stops tracking all currently tracked entities.
         ///     </para>
         ///     <para>
-        ///         <see cref="DbContext"/> is designed to have a short lifetime where a new instance is created for each unit-of-work.
+        ///         <see cref="DbContext" /> is designed to have a short lifetime where a new instance is created for each unit-of-work.
         ///         This manner means all tracked entities are discarded when the context is disposed at the end of each unit-of-work.
         ///         However, clearing all tracked entities using this method may be useful in situations where creating a new context
         ///         instance is not practical.
@@ -413,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         This method is much more efficient at clearing all tracked entities from the context.
         ///     </para>
         ///     <para>
-        ///         Note that this method does not generate <see cref="StateChanged"/> events since entities are not individually detached.
+        ///         Note that this method does not generate <see cref="StateChanged" /> events since entities are not individually detached.
         ///     </para>
         /// </summary>
         public virtual void Clear()
@@ -440,22 +441,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

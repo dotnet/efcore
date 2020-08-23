@@ -63,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             public async ValueTask<InterceptionResult<int>> SavingChangesAsync(
-                DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+                DbContextEventData eventData,
+                InterceptionResult<int> result,
+                CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -74,7 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             public async ValueTask<int> SavedChangesAsync(
-                SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+                SaveChangesCompletedEventData eventData,
+                int result,
+                CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -85,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             public async Task SaveChangesFailedAsync(
-                DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
+                DbContextErrorEventData eventData,
+                CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {

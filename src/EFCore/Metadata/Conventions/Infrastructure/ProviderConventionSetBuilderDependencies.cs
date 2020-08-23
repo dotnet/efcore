@@ -141,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     The current context instance.
         /// </summary>
-        public Type ContextType => _currentContext.Context.GetType();
+        public Type ContextType
+            => _currentContext.Context.GetType();
 
         /// <summary>
         ///     The model validator.

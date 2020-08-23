@@ -99,14 +99,12 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Append(" PK");
             }
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(key.AnnotationsToDebugString(indent + 2));
             }
 
             return builder.ToString();
         }
-
     }
 }

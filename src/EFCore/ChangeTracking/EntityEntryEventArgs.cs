@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     The <see cref="EntityEntry" /> for the entity.
         /// </summary>
-        public virtual EntityEntry Entry => _entry ??= new EntityEntry(_internalEntityEntry);
+        public virtual EntityEntry Entry
+            => _entry ??= new EntityEntry(_internalEntityEntry);
     }
 }

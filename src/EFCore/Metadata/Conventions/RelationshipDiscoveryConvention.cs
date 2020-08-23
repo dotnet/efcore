@@ -405,7 +405,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static bool CanMergeWith(
-            IConventionNavigation existingNavigation, MemberInfo inverse, IConventionEntityTypeBuilder inverseEntityTypeBuilder)
+            IConventionNavigation existingNavigation,
+            MemberInfo inverse,
+            IConventionEntityTypeBuilder inverseEntityTypeBuilder)
         {
             var fk = existingNavigation.ForeignKey;
             return (fk.IsSelfReferencing()
@@ -516,7 +518,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private void CreateRelationships(
-            IEnumerable<RelationshipCandidate> relationshipCandidates, IConventionEntityTypeBuilder entityTypeBuilder)
+            IEnumerable<RelationshipCandidate> relationshipCandidates,
+            IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var unusedEntityTypes = new List<IConventionEntityType>();
             foreach (var relationshipCandidate in relationshipCandidates)
@@ -726,9 +729,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (existingNavigation != null)
             {
                 if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
-                        .HasNoRelationship(existingNavigation.ForeignKey) == null
+                        .HasNoRelationship(existingNavigation.ForeignKey)
+                    == null
                     && existingNavigation.ForeignKey.Builder.HasNavigation(
-                        (string)null, existingNavigation.IsOnDependent) == null)
+                        (string)null, existingNavigation.IsOnDependent)
+                    == null)
                 {
                     // Navigations of higher configuration source are not ambiguous
                     toRemoveFrom.Remove(navigationProperty);
@@ -755,7 +760,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <inheritdoc />
         public virtual void ProcessEntityTypeAdded(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
             => DiscoverRelationships(entityTypeBuilder, context);
 
         /// <inheritdoc />
@@ -843,7 +849,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         [ContractAnnotation("memberInfo:null => false")]
         private static bool IsCandidateNavigationProperty(
-            IConventionEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, MemberInfo memberInfo)
+            IConventionEntityTypeBuilder sourceEntityTypeBuilder,
+            string navigationName,
+            MemberInfo memberInfo)
             => memberInfo != null
                 && sourceEntityTypeBuilder?.IsIgnored(navigationName) == false
                 && sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) == null
@@ -854,7 +862,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <inheritdoc />
         public virtual void ProcessEntityTypeIgnored(
-            IConventionModelBuilder modelBuilder, string name, Type type, IConventionContext<string> context)
+            IConventionModelBuilder modelBuilder,
+            string name,
+            Type type,
+            IConventionContext<string> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
@@ -868,7 +879,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <inheritdoc />
         public virtual void ProcessEntityTypeMemberIgnored(
-            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionContext<string> context)
         {
             var anyAmbiguityRemoved = false;
             foreach (var derivedEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
@@ -1029,7 +1042,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 as ImmutableSortedDictionary<MemberInfo, Type>;
 
         private static void AddAmbiguous(
-            IConventionEntityTypeBuilder entityTypeBuilder, IReadOnlyList<PropertyInfo> navigationProperties, Type targetType)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IReadOnlyList<PropertyInfo> navigationProperties,
+            Type targetType)
         {
             if (navigationProperties.Count == 0)
             {
@@ -1089,7 +1104,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
             }
 
-            public int Compare(MemberInfo x, MemberInfo y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
+            public int Compare(MemberInfo x, MemberInfo y)
+                => StringComparer.Ordinal.Compare(x.Name, y.Name);
         }
 
         [DebuggerDisplay("{DebuggerDisplay(),nq}")]
@@ -1109,13 +1125,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public List<PropertyInfo> NavigationProperties { [DebuggerStepThrough] get; }
             public List<PropertyInfo> InverseProperties { [DebuggerStepThrough] get; }
 
-            private string DebuggerDisplay() =>
-                TargetTypeBuilder.Metadata.ToDebugString(MetadataDebugStringOptions.SingleLineDefault)
-                + ": ["
-                + string.Join(", ", NavigationProperties.Select(p => p.Name))
-                + "] - ["
-                + string.Join(", ", InverseProperties.Select(p => p.Name))
-                + "]";
+            private string DebuggerDisplay()
+                => TargetTypeBuilder.Metadata.ToDebugString(MetadataDebugStringOptions.SingleLineDefault)
+                    + ": ["
+                    + string.Join(", ", NavigationProperties.Select(p => p.Name))
+                    + "] - ["
+                    + string.Join(", ", InverseProperties.Select(p => p.Name))
+                    + "]";
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
     public class SaveChangesFailedEventArgs : SaveChangesEventArgs
     {
         /// <summary>
-        /// Creates a new <see cref="SaveChangesFailedEventArgs"/> instance with the exception that was thrown.
+        ///     Creates a new <see cref="SaveChangesFailedEventArgs" /> instance with the exception that was thrown.
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess"> The value passed to SaveChanges. </param>
         /// <param name="exception"> The exception thrown. </param>
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        /// The exception thrown during<see cref="M:DbContext.SaveChanges"/> or <see cref="M:DbContext.SaveChangesAsync"/>.
+        ///     The exception thrown during<see cref="M:DbContext.SaveChanges" /> or <see cref="M:DbContext.SaveChangesAsync" />.
         /// </summary>
         public virtual Exception Exception { get; }
     }

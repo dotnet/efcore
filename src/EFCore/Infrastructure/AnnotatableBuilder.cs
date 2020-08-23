@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         where TModelBuilder : IConventionModelBuilder
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="AnnotatableBuilder{TMetadata, TModelBuilder}"/>
+        ///     Creates a new instance of <see cref="AnnotatableBuilder{TMetadata, TModelBuilder}" />
         /// </summary>
         protected AnnotatableBuilder([NotNull] TMetadata metadata, [NotNull] TModelBuilder modelBuilder)
         {
@@ -51,11 +51,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="configurationSource"> The configuration source of the annotation to be set. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual AnnotatableBuilder<TMetadata, TModelBuilder> HasAnnotation(
-            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name,
+            [CanBeNull] object value,
+            ConfigurationSource configurationSource)
             => HasAnnotation(name, value, configurationSource, canOverrideSameSource: true);
 
         private AnnotatableBuilder<TMetadata, TModelBuilder> HasAnnotation(
-            string name, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
+            string name,
+            object value,
+            ConfigurationSource configurationSource,
+            bool canOverrideSameSource)
         {
             var existingAnnotation = Metadata.FindAnnotation(name);
             if (existingAnnotation != null)
@@ -91,7 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="configurationSource"> The configuration source of the annotation to be set. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual AnnotatableBuilder<TMetadata, TModelBuilder> HasNonNullAnnotation(
-            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name,
+            [CanBeNull] object value,
+            ConfigurationSource configurationSource)
             => value == null
                 ? RemoveAnnotation(name, configurationSource)
                 : HasAnnotation(name, value, configurationSource, canOverrideSameSource: true);
@@ -111,7 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static bool CanSetAnnotationValue(
-            ConventionAnnotation annotation, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
+            ConventionAnnotation annotation,
+            object value,
+            ConfigurationSource configurationSource,
+            bool canOverrideSameSource)
         {
             if (Equals(annotation.Value, value))
             {
@@ -130,7 +140,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <param name="configurationSource"> The configuration source of the annotation to be set. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual AnnotatableBuilder<TMetadata, TModelBuilder> RemoveAnnotation([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual AnnotatableBuilder<TMetadata, TModelBuilder> RemoveAnnotation(
+            [NotNull] string name,
+            ConfigurationSource configurationSource)
         {
             if (!CanRemoveAnnotation(name, configurationSource))
             {
@@ -202,7 +214,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionAnnotatableBuilder IConventionAnnotatableBuilder.HasNonNullAnnotation(
-            string name, object value, bool fromDataAnnotation)
+            string name,
+            object value,
+            bool fromDataAnnotation)
             => HasNonNullAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />

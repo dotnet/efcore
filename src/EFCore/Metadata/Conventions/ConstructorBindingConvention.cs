@@ -40,7 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
@@ -143,7 +145,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     entityType.Builder.HasAnnotation(
                         CoreAnnotationNames.ConstructorBinding,
                         foundBindings[0]);
-
 
                     if (foundServiceOnlyBindings.Count == 1)
                     {

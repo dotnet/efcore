@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     {
         private readonly QueryCompilationContext _queryCompilationContext;
+
         private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
             = new SelectManyVerifyingExpressionVisitor();
 
@@ -143,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         VerifyReturnType(argument, lambdaParameter);
                     }
+
                     break;
 
                 case MemberInitExpression memberInitExpression:
@@ -154,17 +156,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             VerifyReturnType(memberAssignment.Expression, lambdaParameter);
                         }
                     }
+
                     break;
 
                 default:
                     if (expression.Type.TryGetElementType(typeof(IOrderedEnumerable<>)) != null
-                    || expression.Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                        || expression.Type.TryGetElementType(typeof(IQueryable<>)) != null)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.QueryInvalidMaterializationType(
                                 new ExpressionPrinter().Print(Expression.Lambda(expression, lambdaParameter)),
                                 expression.Type.ShortDisplayName()));
                     }
+
                     break;
             }
         }
@@ -383,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || expression is MemberInitExpression
                 || expression is NewExpression
                 || expression is ParameterExpression parameter
-                    && parameter.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true;
+                && parameter.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true;
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {
@@ -450,8 +454,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (!correlatedCollectionSelector)
                     {
-                        inner = Visit(ReplacingExpressionVisitor.Replace(
-                            groupJoinResultSelector.Parameters[1], inner, collectionSelectorBody));
+                        inner = Visit(
+                            ReplacingExpressionVisitor.Replace(
+                                groupJoinResultSelector.Parameters[1], inner, collectionSelectorBody));
 
                         if (inner is MethodCallExpression innerMethodCall
                             && innerMethodCall.Method.IsGenericMethod

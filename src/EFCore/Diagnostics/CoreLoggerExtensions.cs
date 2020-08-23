@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     exception);
             }
 
-            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateDbContextErrorEventData(context, exception, definition);
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context in use. </param>
         /// <param name="exception"> The exception that caused this event. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> for the async result. </returns>
+        /// <returns> A <see cref="Task" /> for the async result. </returns>
         public static Task SaveChangesFailedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
@@ -92,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     exception);
             }
 
-            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateDbContextErrorEventData(context, exception, definition);
@@ -109,7 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static DbContextErrorEventData CreateDbContextErrorEventData(
-            DbContext context, Exception exception, EventDefinition<Type, string, Exception> definition)
+            DbContext context,
+            Exception exception,
+            EventDefinition<Type, string, Exception> definition)
             => new DbContextErrorEventData(definition, SaveChangesFailed, context, exception);
 
         private static string SaveChangesFailed(EventDefinitionBase definition, EventData payload)
@@ -137,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(diagnostics, exception);
             }
 
-            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateDbContextErrorEventData(context, exception, definition);
@@ -155,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context in use. </param>
         /// <param name="exception"> The exception that caused this event. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> for the async result. </returns>
+        /// <returns> A <see cref="Task" /> for the async result. </returns>
         public static Task OptimisticConcurrencyExceptionAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             [NotNull] DbContext context,
@@ -187,7 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static DbContextErrorEventData CreateDbContextErrorEventData(
-            DbContext context, Exception exception, EventDefinition<Exception> definition)
+            DbContext context,
+            Exception exception,
+            EventDefinition<Exception> definition)
             => new DbContextErrorEventData(
                 definition,
                 OptimisticConcurrencyException,
@@ -216,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,dependent1.DisplayName(), dependent2.DisplayName());
+                definition.Log(diagnostics, dependent1.DisplayName(), dependent2.DisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -587,7 +594,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="CoreEventId.InvalidIncludePathError" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigationChain"> The navigation chain used in the <see cref="EntityFrameworkQueryableExtensions.Include{TEntity}(IQueryable{TEntity}, string)"/></param>
+        /// <param name="navigationChain">
+        ///     The navigation chain used in the
+        ///     <see cref="EntityFrameworkQueryableExtensions.Include{TEntity}(IQueryable{TEntity}, string)" />
+        /// </param>
         /// <param name="navigationName"> The navigation name which was not found in the model. </param>
         public static void InvalidIncludePathError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
@@ -863,7 +873,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -903,7 +913,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -943,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -985,9 +995,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = new ServiceProviderEventData(
-                        definition,
-                        (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        serviceProvider);
+                    definition,
+                    (d, p) => ((EventDefinition)d).GenerateMessage(),
+                    serviceProvider);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
@@ -1006,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1040,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1148,8 +1158,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs for the <see cref="CoreEventId.IncompatibleMatchingForeignKeyProperties" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="dependentToPrincipalNavigationSpecification"> The name of the navigation property or entity type on the dependent end of the relationship. </param>
-        /// <param name="principalToDependentNavigationSpecification"> The name of the navigation property or entity type on the principal end of the relationship. </param>
+        /// <param name="dependentToPrincipalNavigationSpecification">
+        ///     The name of the navigation property or entity type on the dependent end of the
+        ///     relationship.
+        /// </param>
+        /// <param name="principalToDependentNavigationSpecification">
+        ///     The name of the navigation property or entity type on the principal end of the
+        ///     relationship.
+        /// </param>
         /// <param name="foreignKeyProperties"> The properties that make up the foreign key. </param>
         /// <param name="principalKeyProperties"> The corresponding keys on the principal side. </param>
         public static void IncompatibleMatchingForeignKeyProperties(
@@ -1997,10 +2013,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 var eventData = new TwoUnmappedPropertyCollectionsEventData(
                     definition,
                     ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
-                    new[]
-                    {
-                        new Tuple<MemberInfo, Type>(navigation.GetIdentifyingMemberInfo(), navigation.DeclaringEntityType.ClrType)
-                    },
+                    new[] { new Tuple<MemberInfo, Type>(navigation.GetIdentifyingMemberInfo(), navigation.DeclaringEntityType.ClrType) },
                     new[] { new Tuple<MemberInfo, Type>(property, property.DeclaringType) });
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -2008,7 +2021,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static string ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
-            EventDefinitionBase definition, EventData payload)
+            EventDefinitionBase definition,
+            EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
@@ -2068,7 +2082,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,context.GetType().ShortDisplayName());
+                definition.Log(diagnostics, context.GetType().ShortDisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2108,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,property.DeclaringEntityType.ShortName(),property.Name);
+                definition.Log(diagnostics, property.DeclaringEntityType.ShortName(), property.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2521,7 +2535,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,navigation.DeclaringEntityType.ShortName(),navigation.Name);
+                definition.Log(diagnostics, navigation.DeclaringEntityType.ShortName(), navigation.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -3089,10 +3103,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,context.GetType().ShortDisplayName());
+                definition.Log(diagnostics, context.GetType().ShortDisplayName());
             }
 
-            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateSaveChangesStartingEventData(context, definition);
@@ -3124,10 +3139,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,context.GetType().ShortDisplayName());
+                definition.Log(diagnostics, context.GetType().ShortDisplayName());
             }
 
-            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateSaveChangesStartingEventData(context, definition);
@@ -3172,10 +3188,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,context.GetType().ShortDisplayName(), entitiesSavedCount);
+                definition.Log(diagnostics, context.GetType().ShortDisplayName(), entitiesSavedCount);
             }
 
-            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateSaveChangesCompletedEventData(context, entitiesSavedCount, definition);
@@ -3209,10 +3226,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,context.GetType().ShortDisplayName(), entitiesSavedCount);
+                definition.Log(diagnostics, context.GetType().ShortDisplayName(), entitiesSavedCount);
             }
 
-            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(definition,
+            if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateSaveChangesCompletedEventData(context, entitiesSavedCount, definition);
@@ -3229,7 +3247,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static SaveChangesCompletedEventData CreateSaveChangesCompletedEventData(
-            DbContext context, int entitiesSavedCount, EventDefinition<string, int> definition)
+            DbContext context,
+            int entitiesSavedCount,
+            EventDefinition<string, int> definition)
             => new SaveChangesCompletedEventData(
                 definition,
                 SaveChangesCompleted,
@@ -3258,7 +3278,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,context.GetType().ShortDisplayName());
+                definition.Log(diagnostics, context.GetType().ShortDisplayName());
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -3345,7 +3365,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
-        private static string PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(EventDefinitionBase definition, EventData payload)
+        private static string PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(
+            EventDefinitionBase definition,
+            EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (ForeignKeyEventData)payload;

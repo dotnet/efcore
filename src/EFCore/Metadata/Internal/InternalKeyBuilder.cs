@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return newKeyBuilder;
         }
 
-        IConventionKey IConventionKeyBuilder.Metadata => Metadata;
+        IConventionKey IConventionKeyBuilder.Metadata
+            => Metadata;
     }
 }

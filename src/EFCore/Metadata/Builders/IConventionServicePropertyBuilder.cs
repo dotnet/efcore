@@ -53,7 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        new IConventionServicePropertyBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
+        new IConventionServicePropertyBuilder UsePropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the <see cref="ServiceParameterBinding" /> for this property.
@@ -65,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionServicePropertyBuilder HasParameterBinding(
-            [CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
+            [CanBeNull] ServiceParameterBinding parameterBinding,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the <see cref="ServiceParameterBinding" /> can be set for this property.

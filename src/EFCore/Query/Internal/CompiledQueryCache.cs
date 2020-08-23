@@ -3,12 +3,8 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -50,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Func<QueryContext, TResult> GetOrAddQuery<TResult>(
-            object cacheKey, Func<Func<QueryContext, TResult>> compiler)
+            object cacheKey,
+            Func<Func<QueryContext, TResult>> compiler)
         {
             // ReSharper disable once InconsistentlySynchronizedField
             if (_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TResult> compiledQuery))

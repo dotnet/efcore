@@ -105,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetTypeConfigurationSource() => _typeConfigurationSource;
+        public virtual ConfigurationSource? GetTypeConfigurationSource()
+            => _typeConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -175,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return nullable;
         }
 
-        private bool DefaultIsNullable => ClrType.IsNullableType();
+        private bool DefaultIsNullable
+            => ClrType.IsNullableType();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -183,7 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetIsNullableConfigurationSource() => _isNullableConfigurationSource;
+        public virtual ConfigurationSource? GetIsNullableConfigurationSource()
+            => _isNullableConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -223,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return valueGenerated;
         }
 
-        private static ValueGenerated DefaultValueGenerated => ValueGenerated.Never;
+        private static ValueGenerated DefaultValueGenerated
+            => ValueGenerated.Never;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -231,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetValueGeneratedConfigurationSource() => _valueGeneratedConfigurationSource;
+        public virtual ConfigurationSource? GetValueGeneratedConfigurationSource()
+            => _valueGeneratedConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -265,7 +270,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return concurrencyToken;
         }
 
-        private static bool DefaultIsConcurrencyToken => false;
+        private static bool DefaultIsConcurrencyToken
+            => false;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -273,7 +279,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetIsConcurrencyTokenConfigurationSource() => _isConcurrencyTokenConfigurationSource;
+        public virtual ConfigurationSource? GetIsConcurrencyTokenConfigurationSource()
+            => _isConcurrencyTokenConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -350,7 +357,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual PropertySaveBehavior? SetBeforeSaveBehavior(
-            PropertySaveBehavior? beforeSaveBehavior, ConfigurationSource configurationSource)
+            PropertySaveBehavior? beforeSaveBehavior,
+            ConfigurationSource configurationSource)
         {
             this.SetOrRemoveAnnotation(CoreAnnotationNames.BeforeSaveBehavior, beforeSaveBehavior, configurationSource);
 
@@ -364,7 +372,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual PropertySaveBehavior? SetAfterSaveBehavior(
-            PropertySaveBehavior? afterSaveBehavior, ConfigurationSource configurationSource)
+            PropertySaveBehavior? afterSaveBehavior,
+            ConfigurationSource configurationSource)
         {
             if (afterSaveBehavior != null)
             {
@@ -389,8 +398,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string CheckAfterSaveBehavior(PropertySaveBehavior behavior)
             => behavior != PropertySaveBehavior.Throw
                 && this.IsKey()
-                ? CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.DisplayName())
-                : null;
+                    ? CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.DisplayName())
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -414,7 +423,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ValueConverter SetValueConverter(
-            [CanBeNull] ValueConverter converter, ConfigurationSource configurationSource)
+            [CanBeNull] ValueConverter converter,
+            ConfigurationSource configurationSource)
         {
             var errorString = CheckValueConverter(converter);
             if (errorString != null)
@@ -436,12 +446,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string CheckValueConverter([CanBeNull] ValueConverter converter)
             => converter != null
                 && converter.ModelClrType.UnwrapNullableType() != ClrType.UnwrapNullableType()
-                ? CoreStrings.ConverterPropertyMismatch(
-                    converter.ModelClrType.ShortDisplayName(),
-                    DeclaringEntityType.DisplayName(),
-                    Name,
-                    ClrType.ShortDisplayName())
-                : null;
+                    ? CoreStrings.ConverterPropertyMismatch(
+                        converter.ModelClrType.ShortDisplayName(),
+                        DeclaringEntityType.DisplayName(),
+                        Name,
+                        ClrType.ShortDisplayName())
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -522,12 +532,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string CheckValueComparer([CanBeNull] ValueComparer comparer)
             => comparer != null
                 && comparer.Type != ClrType
-                ? CoreStrings.ComparerPropertyMismatch(
-                    comparer.Type.ShortDisplayName(),
-                    DeclaringEntityType.DisplayName(),
-                    Name,
-                    ClrType.ShortDisplayName())
-                : null;
+                    ? CoreStrings.ComparerPropertyMismatch(
+                        comparer.Type.ShortDisplayName(),
+                        DeclaringEntityType.DisplayName(),
+                        Name,
+                        ClrType.ShortDisplayName())
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -596,7 +606,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected override IConventionAnnotation OnAnnotationSet(
-            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation)
             => DeclaringType.Model.ConventionDispatcher.OnPropertyAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
@@ -639,7 +651,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to get primary key for. </param>
         /// <returns>
-        ///     The primary that use this property, or <see langword="null"/> if it is not part of the primary key.
+        ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
         /// </returns>
         public static IConventionKey FindContainingPrimaryKey([NotNull] this IConventionProperty property)
             => (IConventionKey)((IProperty)property).FindContainingPrimaryKey();
@@ -112,7 +112,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured property. </returns>
         public static int? SetMaxLength(
-            [NotNull] this IConventionProperty property, int? maxLength, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            int? maxLength,
+            bool fromDataAnnotation = false)
             => property.AsProperty().SetMaxLength(
                 maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -169,12 +171,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property to set the value for. </param>
         /// <param name="unicode">
-        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not, <see langword="null" /> to clear the setting.
+        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not, <see langword="null" /> to
+        ///     clear the setting.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static bool? SetIsUnicode(
-            [NotNull] this IConventionProperty property, bool? unicode, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            bool? unicode,
+            bool fromDataAnnotation = false)
             => property.AsProperty().SetIsUnicode(
                 unicode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -209,7 +214,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static PropertySaveBehavior? SetBeforeSaveBehavior(
-            [NotNull] this IConventionProperty property, PropertySaveBehavior? beforeSaveBehavior, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            PropertySaveBehavior? beforeSaveBehavior,
+            bool fromDataAnnotation = false)
             => property.AsProperty().SetBeforeSaveBehavior(
                 beforeSaveBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -243,7 +250,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static PropertySaveBehavior? SetAfterSaveBehavior(
-            [NotNull] this IConventionProperty property, PropertySaveBehavior? afterSaveBehavior, bool fromDataAnnotation = false)
+            [NotNull] this IConventionProperty property,
+            PropertySaveBehavior? afterSaveBehavior,
+            bool fromDataAnnotation = false)
             => property.AsProperty().SetAfterSaveBehavior(
                 afterSaveBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

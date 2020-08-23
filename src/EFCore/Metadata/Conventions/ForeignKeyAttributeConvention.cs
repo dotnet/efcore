@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
 
@@ -63,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="navigationBuilder"> The builder for the navigation. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessNavigationAdded(
-            IConventionNavigationBuilder navigationBuilder, IConventionContext<IConventionNavigationBuilder> context)
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
         {
             Check.NotNull(navigationBuilder, nameof(navigationBuilder));
 
@@ -80,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private IConventionForeignKeyBuilder UpdateRelationshipBuilder(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext context)
         {
             var foreignKey = relationshipBuilder.Metadata;
 
@@ -375,8 +378,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private bool IsNavigationToSharedType(IConventionModel model, PropertyInfo propertyInfo)
             => model.IsShared(propertyInfo.PropertyType)
-            || (propertyInfo.PropertyType.TryGetSequenceType() is Type elementType
-                && model.IsShared(elementType));
+                || (propertyInfo.PropertyType.TryGetSequenceType() is Type elementType
+                    && model.IsShared(elementType));
 
         private static IReadOnlyList<string> FindCandidateDependentPropertiesThroughNavigation(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -424,7 +427,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {

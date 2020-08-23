@@ -315,7 +315,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     The type.
         /// </summary>
-        public override Type Type => typeof(T);
+        public override Type Type
+            => typeof(T);
 
         /// <summary>
         ///     The comparison expression.

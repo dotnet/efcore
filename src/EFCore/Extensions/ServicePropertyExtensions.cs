@@ -56,8 +56,7 @@ namespace Microsoft.EntityFrameworkCore
 
             builder.Append(serviceProperty.ClrType?.ShortDisplayName()).Append(")");
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(serviceProperty.AnnotationsToDebugString(indent + 2));
             }

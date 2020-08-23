@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the options being configured.
         /// </summary>
-        public new virtual DbContextOptions<TContext> Options => (DbContextOptions<TContext>)base.Options;
+        public new virtual DbContextOptions<TContext> Options
+            => (DbContextOptions<TContext>)base.Options;
 
         /// <summary>
         ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
@@ -90,7 +91,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         This overload allows the minimum level of logging and the log formatting to be controlled.
-        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///         Use the
+        ///         <see
+        ///             cref="LogTo(Action{string},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Logging.EventId},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only specific events.
         ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only events in specific categories.

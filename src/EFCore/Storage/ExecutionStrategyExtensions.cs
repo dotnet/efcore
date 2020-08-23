@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
             [NotNull] Func<TState, TResult> operation)
-            => strategy.Execute(state, operation,  verifySucceeded: null);
+            => strategy.Execute(state, operation, verifySucceeded: null);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.

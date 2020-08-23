@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -23,13 +22,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public IEntityType EntityType { get; }
-            public IDictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } = new Dictionary<(IForeignKey, bool), Expression>();
+
+            public IDictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } =
+                new Dictionary<(IForeignKey, bool), Expression>();
 
             public bool IsOptional { get; private set; }
             public IncludeTreeNode IncludePaths { get; private set; }
             public IncludeTreeNode LastIncludeTreeNode { get; private set; }
-            public override ExpressionType NodeType => ExpressionType.Extension;
-            public override Type Type => EntityType.ClrType;
+
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
+
+            public override Type Type
+                => EntityType.ClrType;
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {
@@ -46,9 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return result;
             }
 
-            public void SetLastInclude(IncludeTreeNode lastIncludeTree) => LastIncludeTreeNode = lastIncludeTree;
+            public void SetLastInclude(IncludeTreeNode lastIncludeTree)
+                => LastIncludeTreeNode = lastIncludeTree;
 
-            public void MarkAsOptional() => IsOptional = true;
+            public void MarkAsOptional()
+                => IsOptional = true;
 
             void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {
@@ -72,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     A tree structure of includes for a given entity type in <see cref="EntityReference"/>.
+        ///     A tree structure of includes for a given entity type in <see cref="EntityReference" />.
         /// </summary>
         private sealed class IncludeTreeNode : Dictionary<INavigationBase, IncludeTreeNode>
         {
@@ -130,10 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IncludeTreeNode Snapshot(EntityReference entityReference)
             {
-                var result = new IncludeTreeNode(EntityType, entityReference)
-                {
-                    FilterExpression = FilterExpression
-                };
+                var result = new IncludeTreeNode(EntityType, entityReference) { FilterExpression = FilterExpression };
 
                 foreach (var kvp in this)
                 {
@@ -153,8 +157,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            public void AssignEntityReference(EntityReference entityReference) => _entityReference = entityReference;
-            public void ApplyFilter(LambdaExpression filterExpression) => FilterExpression = filterExpression;
+            public void AssignEntityReference(EntityReference entityReference)
+                => _entityReference = entityReference;
+
+            public void ApplyFilter(LambdaExpression filterExpression)
+                => FilterExpression = filterExpression;
 
             public override bool Equals(object obj)
                 => obj != null
@@ -181,7 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return true;
             }
 
-            public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), EntityType);
+            public override int GetHashCode()
+                => HashCode.Combine(base.GetHashCode(), EntityType);
         }
 
         /// <summary>
@@ -192,12 +200,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
                 = new List<(MethodInfo OrderingMethod, Expression KeySelector)>();
+
             private readonly string _parameterName;
 
             private NavigationTreeNode _currentTree;
 
             public NavigationExpansionExpression(
-                Expression source, NavigationTreeNode currentTree, Expression pendingSelector, string parameterName)
+                Expression source,
+                NavigationTreeNode currentTree,
+                Expression pendingSelector,
+                string parameterName)
             {
                 Source = source;
                 _parameterName = parameterName;
@@ -206,7 +218,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public Expression Source { get; private set; }
-            public ParameterExpression CurrentParameter => CurrentTree.CurrentParameter;
+
+            public ParameterExpression CurrentParameter
+                => CurrentTree.CurrentParameter;
 
             public NavigationTreeNode CurrentTree
             {
@@ -220,14 +234,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public Expression PendingSelector { get; private set; }
             public MethodInfo CardinalityReducingGenericMethodInfo { get; private set; }
-            public Type SourceElementType => CurrentParameter.Type;
-            public IReadOnlyList<(MethodInfo OrderingMethod, Expression KeySelector)> PendingOrderings => _pendingOrderings;
 
-            public void UpdateSource(Expression source) => Source = source;
+            public Type SourceElementType
+                => CurrentParameter.Type;
 
-            public void UpdateCurrentTree(NavigationTreeNode currentTree) => CurrentTree = currentTree;
+            public IReadOnlyList<(MethodInfo OrderingMethod, Expression KeySelector)> PendingOrderings
+                => _pendingOrderings;
 
-            public void ApplySelector(Expression selector) => PendingSelector = selector;
+            public void UpdateSource(Expression source)
+                => Source = source;
+
+            public void UpdateCurrentTree(NavigationTreeNode currentTree)
+                => CurrentTree = currentTree;
+
+            public void ApplySelector(Expression selector)
+                => PendingSelector = selector;
 
             public void AddPendingOrdering(MethodInfo orderingMethod, Expression keySelector)
             {
@@ -244,10 +265,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public void ConvertToSingleResult(MethodInfo genericMethod)
                 => CardinalityReducingGenericMethodInfo = genericMethod;
 
-            public override ExpressionType NodeType => ExpressionType.Extension;
-            public override Type Type => CardinalityReducingGenericMethodInfo == null
-                ? typeof(IQueryable<>).MakeGenericType(PendingSelector.Type)
-                : PendingSelector.Type;
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
+
+            public override Type Type
+                => CardinalityReducingGenericMethodInfo == null
+                    ? typeof(IQueryable<>).MakeGenericType(PendingSelector.Type)
+                    : PendingSelector.Type;
+
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {
                 Check.NotNull(visitor, nameof(visitor));
@@ -278,8 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         /// <summary>
         ///     A leaf node on navigation tree, representing projection structures of
-        ///     <see cref="NavigationExpansionExpression"/>. Contains <see cref="Value"/>,
-        ///     which can be <see cref="NewExpression"/> or <see cref="EntityReference"/>.
+        ///     <see cref="NavigationExpansionExpression" />. Contains <see cref="Value" />,
+        ///     which can be <see cref="NewExpression" /> or <see cref="EntityReference" />.
         /// </summary>
         private sealed class NavigationTreeExpression : NavigationTreeNode, IPrintableExpression
         {
@@ -290,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             /// <summary>
-            ///     Either <see cref="NewExpression"/> or <see cref="EntityReference"/>.
+            ///     Either <see cref="NewExpression" /> or <see cref="EntityReference" />.
             /// </summary>
             public Expression Value { get; private set; }
 
@@ -303,7 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return this;
             }
 
-            public override Type Type => Value.Type;
+            public override Type Type
+                => Value.Type;
 
             void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
             {
@@ -355,10 +381,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public NavigationTreeNode Right { get; }
             public ParameterExpression CurrentParameter { get; private set; }
 
-            public void SetParameter(string parameterName) => CurrentParameter = Parameter(Type, parameterName);
+            public void SetParameter(string parameterName)
+                => CurrentParameter = Parameter(Type, parameterName);
 
-            public override ExpressionType NodeType => ExpressionType.Extension;
-            public override Type Type => TransparentIdentifierFactory.Create(Left.Type, Right.Type);
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
+
+            public override Type Type
+                => TransparentIdentifierFactory.Create(Left.Type, Right.Type);
 
             public Expression GetExpression()
             {
@@ -400,8 +430,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public INavigation Navigation { get; }
             public EntityReference EntityReference { get; }
 
-            public override Type Type => Navigation.ClrType;
-            public override ExpressionType NodeType => ExpressionType.Extension;
+            public override Type Type
+                => Navigation.ClrType;
+
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
         }
     }
 }

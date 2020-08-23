@@ -149,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             public long High { get; }
 
-            public HiLoValue NextValue() => new HiLoValue(Low + 1, High);
+            public HiLoValue NextValue()
+                => new HiLoValue(Low + 1, High);
         }
     }
 }

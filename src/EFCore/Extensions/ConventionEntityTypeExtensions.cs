@@ -259,7 +259,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IConventionForeignKey> FindForeignKeys(
-            [NotNull] this IConventionEntityType entityType, [NotNull] IProperty property)
+            [NotNull] this IConventionEntityType entityType,
+            [NotNull] IProperty property)
             => entityType.FindForeignKeys(new[] { property });
 
         /// <summary>
@@ -270,7 +271,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IConventionForeignKey> FindForeignKeys(
-            [NotNull] this IConventionEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
+            [NotNull] this IConventionEntityType entityType,
+            [NotNull] IReadOnlyList<IProperty> properties)
             => ((EntityType)entityType).FindForeignKeys(properties);
 
         /// <summary>
@@ -382,7 +384,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         public static IConventionNavigation FindNavigation(
-            [NotNull] this IConventionEntityType entityType, [NotNull] MemberInfo memberInfo)
+            [NotNull] this IConventionEntityType entityType,
+            [NotNull] MemberInfo memberInfo)
             => Check.NotNull(entityType, nameof(entityType))
                 .FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
@@ -492,7 +495,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
         public static IConventionProperty AddProperty(
-            [NotNull] this IConventionEntityType entityType, [NotNull] string name,
+            [NotNull] this IConventionEntityType entityType,
+            [NotNull] string name,
             bool fromDataAnnotation = false)
             => ((EntityType)entityType).AddProperty(
                 name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -507,8 +511,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
         public static IConventionProperty AddProperty(
-            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
-            bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            [NotNull] string name,
+            [NotNull] Type propertyType,
+            bool setTypeConfigurationSource = true,
+            bool fromDataAnnotation = false)
             => ((EntityType)entityType).AddProperty(
                 name,
                 propertyType,
@@ -527,8 +534,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created property. </returns>
         public static IConventionProperty AddIndexerProperty(
-            [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
-            bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            [NotNull] string name,
+            [NotNull] Type propertyType,
+            bool setTypeConfigurationSource = true,
+            bool fromDataAnnotation = false)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -544,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Gets the unnamed index defined on the given property. Returns <see langword="null"/> if no such index is defined.
+        ///         Gets the unnamed index defined on the given property. Returns <see langword="null" /> if no such index is defined.
         ///     </para>
         ///     <para>
         ///         Named indexes will not be returned even if the list of properties matches.
@@ -673,7 +683,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The discriminator property. </returns>
         public static IConventionProperty SetDiscriminatorProperty(
-            [NotNull] this IConventionEntityType entityType, [CanBeNull] IProperty property, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            [CanBeNull] IProperty property,
+            bool fromDataAnnotation = false)
             => Check.NotNull(entityType, nameof(entityType)).AsEntityType()
                 .SetDiscriminatorProperty(
                     (Property)property,
@@ -696,7 +708,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static bool? SetDiscriminatorMappingComplete(
-            [NotNull] this IConventionEntityType entityType, bool? complete, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            bool? complete,
+            bool fromDataAnnotation = false)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -710,7 +724,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The <see cref="ConfigurationSource" /> or <see langword="null" /> if discriminator completeness has not been set. </returns>
-        public static ConfigurationSource? GetDiscriminatorMappingCompleteConfigurationSource([NotNull] this IConventionEntityType entityType)
+        public static ConfigurationSource? GetDiscriminatorMappingCompleteConfigurationSource(
+            [NotNull] this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete)
                 ?.GetConfigurationSource();
 
@@ -722,7 +737,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static object SetDiscriminatorValue(
-            [NotNull] this IConventionEntityType entityType, [CanBeNull] object value, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityType entityType,
+            [CanBeNull] object value,
+            bool fromDataAnnotation = false)
         {
             entityType.AsEntityType().CheckDiscriminatorValue(entityType, value);
 

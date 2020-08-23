@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents creation of a collection in <see cref="ShapedQueryExpression.ShaperExpression"/>.
+    ///         An expression that represents creation of a collection in <see cref="ShapedQueryExpression.ShaperExpression" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -47,23 +47,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The expression to get value from query for this collection.
         /// </summary>
         public virtual Expression Projection { get; }
+
         /// <summary>
         ///     The expression to create inner elements.
         /// </summary>
         public virtual Expression InnerShaper { get; }
+
         /// <summary>
-        ///    The navigation if associated with the collection.
+        ///     The navigation if associated with the collection.
         /// </summary>
         public virtual INavigationBase Navigation { get; }
+
         /// <summary>
         ///     The clr type of elements of the collection.
         /// </summary>
         public virtual Type ElementType { get; }
 
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
+
         /// <inheritdoc />
-        public override Type Type => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
+        public override Type Type
+            => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -80,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="projection"> The <see cref="Projection"/> property of the result. </param>
-        /// <param name="innerShaper"> The <see cref="InnerShaper"/> property of the result. </param>
+        /// <param name="projection"> The <see cref="Projection" /> property of the result. </param>
+        /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual CollectionShaperExpression Update(
             [NotNull] Expression projection,

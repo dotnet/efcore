@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     A struct representing facets of <see cref="DbSet{TEntity}"/> property defined on DbContext derived type.
+    ///     A struct representing facets of <see cref="DbSet{TEntity}" /> property defined on DbContext derived type.
     /// </summary>
     public readonly struct DbSetProperty
     {
         /// <summary>
-        ///     Initializes new <see cref="DbSetProperty"/> with given values.
+        ///     Initializes new <see cref="DbSetProperty" /> with given values.
         /// </summary>
         /// <param name="name"> The name of DbSet. </param>
         /// <param name="type"> The entity clr type of DbSet. </param>

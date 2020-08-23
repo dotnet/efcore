@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     return null;
                 }
 
-                EntityTypeBuilder.Metadata.SetDiscriminatorMappingComplete(complete, configurationSource == ConfigurationSource.DataAnnotation);
+                EntityTypeBuilder.Metadata.SetDiscriminatorMappingComplete(
+                    complete, configurationSource == ConfigurationSource.DataAnnotation);
             }
 
             return this;
@@ -110,7 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         private DiscriminatorBuilder HasValue(
-            InternalEntityTypeBuilder entityTypeBuilder, object value, ConfigurationSource configurationSource)
+            InternalEntityTypeBuilder entityTypeBuilder,
+            object value,
+            ConfigurationSource configurationSource)
         {
             if (entityTypeBuilder == null)
             {
@@ -120,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var baseEntityTypeBuilder = EntityTypeBuilder;
             if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityTypeBuilder.Metadata)
                 && ((baseEntityTypeBuilder.Metadata.ClrType != null
-                    && entityTypeBuilder.Metadata.ClrType != null
-                    && !baseEntityTypeBuilder.Metadata.ClrType.IsAssignableFrom(entityTypeBuilder.Metadata.ClrType))
-                        || entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, configurationSource) == null))
+                        && entityTypeBuilder.Metadata.ClrType != null
+                        && !baseEntityTypeBuilder.Metadata.ClrType.IsAssignableFrom(entityTypeBuilder.Metadata.ClrType))
+                    || entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, configurationSource) == null))
             {
                 throw new InvalidOperationException(
                     CoreStrings.DiscriminatorEntityTypeNotDerived(
@@ -164,7 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <inheritdoc />
         IConventionDiscriminatorBuilder IConventionDiscriminatorBuilder.HasValue(
-            IConventionEntityType entityType, object value, bool fromDataAnnotation)
+            IConventionEntityType entityType,
+            object value,
+            bool fromDataAnnotation)
             => HasValue(
                 (InternalEntityTypeBuilder)entityType.Builder, value,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -193,16 +198,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
@@ -210,7 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

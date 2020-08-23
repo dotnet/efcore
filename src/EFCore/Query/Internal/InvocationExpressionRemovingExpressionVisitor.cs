@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression InlineLambdaExpression(LambdaExpression lambdaExpression, ReadOnlyCollection<Expression> arguments)
             => new ReplacingExpressionVisitor(
-                lambdaExpression.Parameters.ToArray<Expression>(), arguments.ToArray())
+                    lambdaExpression.Parameters.ToArray<Expression>(), arguments.ToArray())
                 .Visit(lambdaExpression.Body);
     }
 }

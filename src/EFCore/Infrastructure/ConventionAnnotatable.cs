@@ -21,13 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         not used in application code.
     ///     </para>
     /// </summary>
-
     public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
-        public new virtual IEnumerable<ConventionAnnotation> GetAnnotations() => base.GetAnnotations().Cast<ConventionAnnotation>();
+        public new virtual IEnumerable<ConventionAnnotation> GetAnnotations()
+            => base.GetAnnotations().Cast<ConventionAnnotation>();
 
         /// <summary>
         ///     Adds a annotation with given key and value to this object using given configuration source.
@@ -38,7 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="configurationSource"> The configuration source of the annotation to be added. </param>
         /// <returns> The added annotation. </returns>
         public virtual ConventionAnnotation AddAnnotation(
-            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name,
+            [CanBeNull] object value,
+            ConfigurationSource configurationSource)
             => (ConventionAnnotation)base.AddAnnotation(name, CreateAnnotation(name, value, configurationSource));
 
         /// <summary>
@@ -49,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="configurationSource"> The configuration source of the annotation to be set. </param>
         public virtual ConventionAnnotation SetAnnotation(
-            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
+            [NotNull] string name,
+            [CanBeNull] object value,
+            ConfigurationSource configurationSource)
         {
             var oldAnnotation = FindAnnotation(name);
             if (oldAnnotation != null)
@@ -112,15 +116,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => CreateAnnotation(name, value, ConfigurationSource.Explicit);
 
         private static ConventionAnnotation CreateAnnotation(
-            string name, object value, ConfigurationSource configurationSource)
+            string name,
+            object value,
+            ConfigurationSource configurationSource)
             => new ConventionAnnotation(name, value, configurationSource);
 
         /// <inheritdoc />
-        IConventionAnnotatableBuilder IConventionAnnotatable.Builder => throw new NotImplementedException();
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
+            => throw new NotImplementedException();
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IEnumerable<IConventionAnnotation> IConventionAnnotatable.GetAnnotations() => GetAnnotations();
+        IEnumerable<IConventionAnnotation> IConventionAnnotatable.GetAnnotations()
+            => GetAnnotations();
 
         /// <inheritdoc />
         [DebuggerStepThrough]
@@ -134,10 +142,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionAnnotation IConventionAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
+        IConventionAnnotation IConventionAnnotatable.FindAnnotation(string name)
+            => FindAnnotation(name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionAnnotation IConventionAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
+        IConventionAnnotation IConventionAnnotatable.RemoveAnnotation(string name)
+            => RemoveAnnotation(name);
     }
 }

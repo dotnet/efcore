@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             DiscoverField(propertyBuilder);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
             IConventionContext<IConventionNavigationBuilder> context)
@@ -135,13 +135,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 type = type.BaseType;
                 entityType = baseTypes.FirstOrDefault(et => et.ClrType == type);
-
             }
 
             return null;
         }
 
-        private static FieldInfo TryMatchFieldName(IConventionPropertyBase propertyBase, IConventionEntityType entityType, Type entityClrType)
+        private static FieldInfo TryMatchFieldName(
+            IConventionPropertyBase propertyBase,
+            IConventionEntityType entityType,
+            Type entityClrType)
         {
             var propertyName = propertyBase.Name;
 

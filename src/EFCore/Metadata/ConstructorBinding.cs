@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The type that will be created from the expression tree created for this binding.
         /// </summary>
-        public override Type RuntimeType => Constructor.DeclaringType;
+        public override Type RuntimeType
+            => Constructor.DeclaringType;
     }
 }

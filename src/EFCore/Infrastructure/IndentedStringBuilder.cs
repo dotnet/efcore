@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The current length of the built string.
         /// </summary>
-        public virtual int Length => _stringBuilder.Length;
+        public virtual int Length
+            => _stringBuilder.Length;
 
         /// <summary>
         ///     Appends the current indent and then the given string to the string being built.
@@ -159,13 +160,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a scoped indenter that will increment the indent, then decrement it when disposed.
         /// </summary>
         /// <returns> An indenter. </returns>
-        public virtual IDisposable Indent() => new Indenter(this);
+        public virtual IDisposable Indent()
+            => new Indenter(this);
 
         /// <summary>
         ///     Returns the built string.
         /// </summary>
         /// <returns> The built string. </returns>
-        public override string ToString() => _stringBuilder.ToString();
+        public override string ToString()
+            => _stringBuilder.ToString();
 
         private void DoIndent()
         {
@@ -188,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _stringBuilder.IncrementIndent();
             }
 
-            public void Dispose() => _stringBuilder.DecrementIndent();
+            public void Dispose()
+                => _stringBuilder.DecrementIndent();
         }
     }
 }

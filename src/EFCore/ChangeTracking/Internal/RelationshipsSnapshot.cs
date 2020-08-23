@@ -108,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return snapshot;
             }
 
-            public bool IsEmpty => _values == null;
+            public bool IsEmpty
+                => _values == null;
         }
     }
 }

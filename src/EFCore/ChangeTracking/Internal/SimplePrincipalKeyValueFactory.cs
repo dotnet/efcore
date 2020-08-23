@@ -120,8 +120,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private readonly IEqualityComparer _comparer
                 = StructuralComparisons.StructuralEqualityComparer;
 
-            public bool Equals(TKey x, TKey y) => _comparer.Equals(x, y);
-            public int GetHashCode(TKey obj) => _comparer.GetHashCode(obj);
+            public bool Equals(TKey x, TKey y)
+                => _comparer.Equals(x, y);
+
+            public int GetHashCode(TKey obj)
+                => _comparer.GetHashCode(obj);
         }
 
         private sealed class NoNullsCustomEqualityComparer : IEqualityComparer<TKey>
@@ -141,9 +144,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _hashCode = (Func<TKey, int>)comparer.HashCodeExpression.Compile();
             }
 
-            public bool Equals(TKey x, TKey y) => _equals(x, y);
+            public bool Equals(TKey x, TKey y)
+                => _equals(x, y);
 
-            public int GetHashCode(TKey obj) => _hashCode(obj);
+            public int GetHashCode(TKey obj)
+                => _hashCode(obj);
         }
     }
 }

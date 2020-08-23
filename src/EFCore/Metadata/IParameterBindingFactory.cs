@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="parameterType"> The parameter type. </param>
         /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> <see langword="true"/> if this parameter can be bound; <see langword="false"/> otherwise. </returns>
+        /// <returns> <see langword="true" /> if this parameter can be bound; <see langword="false" /> otherwise. </returns>
         bool CanBind(
             [NotNull] Type parameterType,
             [NotNull] string parameterName);

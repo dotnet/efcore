@@ -167,7 +167,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private EntityState PropagateToUnknownKey(
-            EntityState oldState, EntityState entityState, bool adding, EntityState? forceStateWhenUnknownKey)
+            EntityState oldState,
+            EntityState entityState,
+            bool adding,
+            EntityState? forceStateWhenUnknownKey)
         {
             var keyUnknown = IsKeyUnknown;
 
@@ -401,7 +404,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityState EntityState => _stateData.EntityState;
+        public virtual EntityState EntityState
+            => _stateData.EntityState;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -666,7 +670,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        protected virtual T ReadShadowValue<T>(int shadowIndex) => default;
+        protected virtual T ReadShadowValue<T>(int shadowIndex)
+            => default;
 
         internal static readonly MethodInfo ReadOriginalValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue));
@@ -878,7 +883,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetOriginalValue(
-            [NotNull] IPropertyBase propertyBase, [CanBeNull] object value, int index = -1)
+            [NotNull] IPropertyBase propertyBase,
+            [CanBeNull] object value,
+            int index = -1)
         {
             EnsureOriginalValues();
 
@@ -976,7 +983,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasOriginalValuesSnapshot => !_originalValues.IsEmpty;
+        public virtual bool HasOriginalValuesSnapshot
+            => !_originalValues.IsEmpty;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -984,7 +992,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasRelationshipSnapshot => !_relationshipsSnapshot.IsEmpty;
+        public virtual bool HasRelationshipSnapshot
+            => !_relationshipsSnapshot.IsEmpty;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1032,7 +1041,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[[NotNull] IPropertyBase propertyBase]  // Intentionally non-virtual
+        public object this[[NotNull] IPropertyBase propertyBase] // Intentionally non-virtual
         {
             get
             {
@@ -1580,7 +1589,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityEntry ToEntityEntry() => new EntityEntry(this);
+        public virtual EntityEntry ToEntityEntry()
+            => new EntityEntry(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1714,7 +1724,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
 
-        IUpdateEntry IUpdateEntry.SharedIdentityEntry => SharedIdentityEntry;
+        IUpdateEntry IUpdateEntry.SharedIdentityEntry
+            => SharedIdentityEntry;
 
         private enum CurrentValueType
         {

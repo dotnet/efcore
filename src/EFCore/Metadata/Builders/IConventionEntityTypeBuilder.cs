@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionEntityTypeBuilder HasBaseType(
-            [CanBeNull] IConventionEntityType baseEntityType, bool fromDataAnnotation = false);
+            [CanBeNull] IConventionEntityType baseEntityType,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given type can be set as the base type of this entity type.
@@ -94,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A list of properties if they exist on the entity type, <see langword="null" /> otherwise. </returns>
         IReadOnlyList<IConventionProperty> GetOrCreateProperties(
-            [CanBeNull] IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+            [CanBeNull] IReadOnlyList<string> propertyNames,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the existing properties matching the given members or creates them.
@@ -103,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A list of properties if they exist on the entity type, <see langword="null" /> otherwise. </returns>
         IReadOnlyList<IConventionProperty> GetOrCreateProperties(
-            [CanBeNull] IEnumerable<MemberInfo> memberInfos, bool fromDataAnnotation = false);
+            [CanBeNull] IEnumerable<MemberInfo> memberInfos,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes properties in the given list if they are not part of any metadata object.
@@ -118,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use RemoveUnusedImplicitProperties")]
         IConventionEntityTypeBuilder RemoveUnusedShadowProperties(
-            [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false)
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            bool fromDataAnnotation = false)
             => RemoveUnusedImplicitProperties(properties);
 
         /// <summary>
@@ -132,7 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionServicePropertyBuilder ServiceProperty(
-            [NotNull] MemberInfo memberInfo, bool fromDataAnnotation = false);
+            [NotNull] MemberInfo memberInfo,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Indicates whether the given member name is ignored for the given configuration source.
@@ -259,7 +264,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionIndexBuilder HasIndex(
-            [NotNull] IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+            [NotNull] IReadOnlyList<string> propertyNames,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures an index on the specified property names.
@@ -290,7 +296,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionIndexBuilder HasIndex(
-            [NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures an index on the specified properties, with the specified name.
@@ -346,7 +353,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         IConventionForeignKeyBuilder HasRelationship(
-            [NotNull] IConventionEntityType targetEntityType, bool fromDataAnnotation = false);
+            [NotNull] IConventionEntityType targetEntityType,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures a relationship between this and the target entity type with the target as the principal end.
@@ -749,7 +757,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionEntityTypeBuilder HasChangeTrackingStrategy(
-            ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation = false);
+            ChangeTrackingStrategy? changeTrackingStrategy,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given change tracking strategy can be set from the current configuration source.
@@ -776,7 +785,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionEntityTypeBuilder UsePropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given <see cref="PropertyAccessMode" /> can be set from the current configuration source.

@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <summary>
         ///     <para>
-        ///         ParameterExpression representing <see cref="QueryContext"/> parameter in query expression.
+        ///         ParameterExpression representing <see cref="QueryContext" /> parameter in query expression.
         ///     </para>
         ///     <para>
         ///         This property is typically used by database providers (and other extensions). It is generally
@@ -98,13 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The model to use during query compilation.
         /// </summary>
         public virtual IModel Model { get; }
+
         /// <summary>
         ///     The ContextOptions to use during query compilation.
         /// </summary>
         public virtual IDbContextOptions ContextOptions { get; }
 
         /// <summary>
-        ///     A value indicating <see cref="EntityFrameworkCore.QueryTrackingBehavior"/> of the query.
+        ///     A value indicating <see cref="EntityFrameworkCore.QueryTrackingBehavior" /> of the query.
         /// </summary>
         public virtual QueryTrackingBehavior QueryTrackingBehavior { get; internal set; }
 
@@ -112,35 +113,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A value indicating whether it is tracking query.
         /// </summary>
         [Obsolete("Use " + nameof(QueryTrackingBehavior) + " instead.")]
-        public virtual bool IsTracking => QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+        public virtual bool IsTracking
+            => QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
 
         /// <summary>
         ///     A value indicating whether the underlying server query needs to pre-buffer all data.
         /// </summary>
         public virtual bool IsBuffering { get; }
+
         /// <summary>
         ///     A value indicating whether query filters are ignored in this query.
         /// </summary>
         public virtual bool IgnoreQueryFilters { get; internal set; }
+
         /// <summary>
         ///     A value indicating whether eager loaded navigations are ignored in this query.
         /// </summary>
         public virtual bool IgnoreAutoIncludes { get; internal set; }
+
         /// <summary>
         ///     The set of tags applied to this query.
         /// </summary>
         public virtual ISet<string> Tags { get; } = new HashSet<string>();
+
         /// <summary>
         ///     The query logger to use during query compilation.
         /// </summary>
         public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
+
         /// <summary>
         ///     The CLR type of derived DbContext to use during query compilation.
         /// </summary>
         public virtual Type ContextType { get; }
 
         /// <summary>
-        ///     Adds a tag to <see cref="Tags"/>.
+        ///     Adds a tag to <see cref="Tags" />.
         /// </summary>
         /// <param name="tag"> The tag to add. </param>
         public virtual void AddTag([NotNull] string tag)
@@ -155,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <typeparam name="TResult"> The result type of this query. </typeparam>
         /// <param name="query"> The query to generate executor for. </param>
-        /// <returns> Returns <see cref="Func{QueryContext, TResult}"/> which can be invoked to get results of this query. </returns>
+        /// <returns> Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query. </returns>
         public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>([NotNull] Expression query)
         {
             Check.NotNull(query, nameof(query));

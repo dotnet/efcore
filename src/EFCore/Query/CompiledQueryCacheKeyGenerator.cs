@@ -109,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     The object to compare this key to.
             /// </param>
             /// <returns>
-            ///     <see langword="true"/> if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise <see langword="false"/>. 
+            ///     <see langword="true" /> if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise
+            ///     <see langword="false" />.
             /// </returns>
             public override bool Equals(object obj)
                 => obj is CompiledQueryCacheKey other && Equals(other);

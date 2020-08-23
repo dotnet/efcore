@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
-        ///     a parent of the other, that parent is returned. Returns <see langword="null"/> if the two entity types aren't in the same hierarchy.
+        ///     a parent of the other, that parent is returned. Returns <see langword="null" /> if the two entity types aren't in the same hierarchy.
         /// </summary>
         /// <param name="entityType1"> An entity type.</param>
         /// <param name="entityType2"> Another entity type.</param>
@@ -475,7 +475,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IForeignKey> FindForeignKeys(
-            [NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
+            [NotNull] this IEntityType entityType,
+            [NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotEmpty(properties, nameof(properties));
@@ -673,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Gets the unnamed index defined on the given property. Returns <see langword="null"/> if no such index is defined.
+        ///         Gets the unnamed index defined on the given property. Returns <see langword="null" /> if no such index is defined.
         ///     </para>
         ///     <para>
         ///         Named indexes will not be returned even if the list of properties matches.
@@ -710,7 +711,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="providerValues"> If true, then provider values are used. </param>
         /// <returns> The data. </returns>
         public static IEnumerable<IDictionary<string, object>> GetSeedData(
-            [NotNull] this IEntityType entityType, bool providerValues = false)
+            [NotNull] this IEntityType entityType,
+            bool providerValues = false)
             => entityType.AsEntityType().GetSeedData(providerValues);
 
         /// <summary>
@@ -762,7 +764,8 @@ namespace Microsoft.EntityFrameworkCore
             => (bool?)entityType[CoreAnnotationNames.DiscriminatorMappingComplete]
                 ?? GetDefaultIsDiscriminatorMappingComplete(entityType);
 
-        private static bool GetDefaultIsDiscriminatorMappingComplete(IEntityType entityType) => true;
+        private static bool GetDefaultIsDiscriminatorMappingComplete(IEntityType entityType)
+            => true;
 
         /// <summary>
         ///     Returns the discriminator value for this entity type.

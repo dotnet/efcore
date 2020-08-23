@@ -81,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalModelBuilder ModelBuilder => LeftEntityType.AsEntityType().Model.Builder;
+        protected virtual InternalModelBuilder ModelBuilder
+            => LeftEntityType.AsEntityType().Model.Builder;
 
         /// <summary>
         ///     Configures the join entity type implementing the many-to-many relationship.
@@ -93,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.DebugAssert(LeftNavigation.JoinEntityType != null, "LeftNavigation.JoinEntityType is null");
             Check.DebugAssert(RightNavigation.JoinEntityType != null, "RightNavigation.JoinEntityType is null");
-            Check.DebugAssert(LeftNavigation.JoinEntityType == RightNavigation.JoinEntityType,
+            Check.DebugAssert(
+                LeftNavigation.JoinEntityType == RightNavigation.JoinEntityType,
                 "LeftNavigation.JoinEntityType != RightNavigation.JoinEntityType");
 
             var joinEntityTypeBuilder = new EntityTypeBuilder(LeftNavigation.JoinEntityType);
@@ -200,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(joinEntityType.DisplayName()));
                     }
 
-                    newJoinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityType, ConfigurationSource.Explicit).Metadata;
+                    newJoinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityType, ConfigurationSource.Explicit)
+                        .Metadata;
                 }
             }
 
@@ -292,17 +295,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

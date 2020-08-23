@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public static class NavigationBaseExtensions
     {
         /// <summary>
-        ///     Calls <see cref="ILazyLoader.SetLoaded"/> for a <see cref="INavigationBase"/> to mark it as loaded
+        ///     Calls <see cref="ILazyLoader.SetLoaded" /> for a <see cref="INavigationBase" /> to mark it as loaded
         ///     when a no-tracking query has eagerly loaded this relationship.
         /// </summary>
         /// <param name="navigation"> The navigation loaded. </param>

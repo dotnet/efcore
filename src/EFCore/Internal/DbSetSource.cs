@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private object CreateCore(DbContext context, Type type, string name, MethodInfo createMethod)
             => _cache.GetOrAdd(
                 (type, name),
-                t => (Func<DbContext,string, object>)createMethod
+                t => (Func<DbContext, string, object>)createMethod
                     .MakeGenericMethod(t.Type)
                     .Invoke(null, null))(context, name);
 

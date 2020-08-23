@@ -181,7 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private static Expression<Func<TSourceEntity, bool>> BuildWhereLambda(
-            IReadOnlyList<IProperty> keyProperties, ValueBuffer keyValues)
+            IReadOnlyList<IProperty> keyProperties,
+            ValueBuffer keyValues)
         {
             var entityParameter = Expression.Parameter(typeof(TSourceEntity), "e");
 

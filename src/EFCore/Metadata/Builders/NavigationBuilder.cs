@@ -37,18 +37,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             InternalSkipNavigationBuilder = (navigationOrSkipNavigation as SkipNavigation)?.Builder;
             Metadata = navigationOrSkipNavigation;
 
-            Check.DebugAssert(InternalNavigationBuilder != null || InternalSkipNavigationBuilder != null,
+            Check.DebugAssert(
+                InternalNavigationBuilder != null || InternalSkipNavigationBuilder != null,
                 "Expected either a Navigation or SkipNavigation");
         }
 
         private InternalNavigationBuilder InternalNavigationBuilder { get; set; }
 
-        private InternalSkipNavigationBuilder InternalSkipNavigationBuilder { get; set; }
+        private InternalSkipNavigationBuilder InternalSkipNavigationBuilder { get; }
 
         /// <summary>
         ///     The navigation being configured.
         /// </summary>
-        public virtual IMutableNavigationBase Metadata { get; private set; }
+        public virtual IMutableNavigationBase Metadata { get; }
 
         /// <summary>
         ///     Adds or updates an annotation on the navigation property. If an annotation
@@ -169,12 +170,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the skip navigation.
         /// </summary>
-        IConventionSkipNavigationBuilder IInfrastructure<IConventionSkipNavigationBuilder>.Instance => InternalSkipNavigationBuilder;
+        IConventionSkipNavigationBuilder IInfrastructure<IConventionSkipNavigationBuilder>.Instance
+            => InternalSkipNavigationBuilder;
 
         /// <summary>
         ///     The internal builder being used to configure the navigation.
         /// </summary>
-        IConventionNavigationBuilder IInfrastructure<IConventionNavigationBuilder>.Instance => InternalNavigationBuilder;
+        IConventionNavigationBuilder IInfrastructure<IConventionNavigationBuilder>.Instance
+            => InternalNavigationBuilder;
 
         #region Hidden System.Object members
 
@@ -183,16 +186,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
@@ -200,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

@@ -206,7 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<object[]> GetDatabaseValuesAsync(
-            InternalEntityEntry entry, CancellationToken cancellationToken = default)
+            InternalEntityEntry entry,
+            CancellationToken cancellationToken = default)
             => GetDatabaseValuesQuery(entry)?.FirstOrDefaultAsync(cancellationToken);
 
         private IQueryable<object[]> GetDatabaseValuesQuery(InternalEntityEntry entry)
@@ -343,7 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = typeof(EntityFinder<TEntity>).GetTypeInfo().GetDeclaredMethods(nameof(Select)).Single(mi => mi.IsGenericMethodDefinition);
 
         private static IQueryable<TResult> Select<TSource, TResult>(
-            [NotNull] IQueryable<TSource> source, [NotNull] string propertyName)
+            [NotNull] IQueryable<TSource> source,
+            [NotNull] string propertyName)
             where TResult : class
             where TSource : class
         {
@@ -358,7 +360,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = typeof(EntityFinder<TEntity>).GetTypeInfo().GetDeclaredMethods(nameof(SelectMany)).Single(mi => mi.IsGenericMethodDefinition);
 
         private static IQueryable<TResult> SelectMany<TSource, TResult>(
-            [NotNull] IQueryable<TSource> source, [NotNull] string propertyName)
+            [NotNull] IQueryable<TSource> source,
+            [NotNull] string propertyName)
             where TResult : class
             where TSource : class
         {

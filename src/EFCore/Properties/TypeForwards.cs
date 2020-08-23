@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-[assembly:TypeForwardedToAttribute(typeof(ObservableBackedBindingList<>))]
-[assembly:TypeForwardedToAttribute(typeof(ObservableCollectionExtensions))]
-[assembly:TypeForwardedToAttribute(typeof(ObservableCollectionListSource<>))]
-[assembly:TypeForwardedToAttribute(typeof(SortableBindingList<>))]
+[assembly: TypeForwardedToAttribute(typeof(ObservableBackedBindingList<>))]
+[assembly: TypeForwardedToAttribute(typeof(ObservableCollectionExtensions))]
+[assembly: TypeForwardedToAttribute(typeof(ObservableCollectionListSource<>))]
+[assembly: TypeForwardedToAttribute(typeof(SortableBindingList<>))]

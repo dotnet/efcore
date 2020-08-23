@@ -78,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static MethodInfo CountWithoutPredicate { get; }
 
         /// <summary>
-        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Count{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see cref="Queryable.Count{TSource}(IQueryable{TSource},System.Linq.Expressions.Expression{System.Func{TSource,bool}})" />
         /// </summary>
         public static MethodInfo CountWithPredicate { get; }
 

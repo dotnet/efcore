@@ -85,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             _detachedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Unchanged:
-                            _unchangedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                            _unchangedReferenceMap ??=
+                                new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
                             _unchangedReferenceMap[mapKey] = entry;
                             break;
                         case EntityState.Deleted:

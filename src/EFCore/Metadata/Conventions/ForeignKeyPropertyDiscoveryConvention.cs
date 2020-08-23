@@ -73,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context)
         {
             var newRelationshipBuilder = ProcessForeignKey(relationshipBuilder, context);
 
@@ -81,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private IConventionForeignKeyBuilder ProcessForeignKey(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext context)
         {
             var shouldBeRequired = true;
             foreach (var property in relationshipBuilder.Metadata.Properties)
@@ -122,7 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private IConventionForeignKeyBuilder DiscoverProperties(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext context)
         {
             var foreignKey = relationshipBuilder.Metadata;
             if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPropertiesConfigurationSource()))
@@ -306,7 +309,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private IReadOnlyList<IConventionProperty> FindCandidateForeignKeyProperties(
-            IConventionForeignKey foreignKey, bool onDependent, bool matchPk = false)
+            IConventionForeignKey foreignKey,
+            bool onDependent,
+            bool matchPk = false)
         {
             IReadOnlyList<IConventionProperty> match;
             var navigation = onDependent
@@ -423,16 +428,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var dependentNavigationSpec = onDependent
                         ? foreignKey.DependentToPrincipal?.Name
                         : foreignKey.PrincipalToDependent?.Name;
-                    dependentNavigationSpec = dependentEntityType.DisplayName() +
-                        (string.IsNullOrEmpty(dependentNavigationSpec)
+                    dependentNavigationSpec = dependentEntityType.DisplayName()
+                        + (string.IsNullOrEmpty(dependentNavigationSpec)
                             ? string.Empty
                             : "." + dependentNavigationSpec);
 
                     var principalNavigationSpec = onDependent
                         ? foreignKey.PrincipalToDependent?.Name
                         : foreignKey.DependentToPrincipal?.Name;
-                    principalNavigationSpec = principalEntityType.DisplayName() +
-                        (string.IsNullOrEmpty(principalNavigationSpec)
+                    principalNavigationSpec = principalEntityType.DisplayName()
+                        + (string.IsNullOrEmpty(principalNavigationSpec)
                             ? string.Empty
                             : "." + principalNavigationSpec);
 
@@ -478,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var property in entityType.GetProperties())
             {
                 if ((!(property.IsShadowProperty() || entityType.IsPropertyBag && property.IsIndexerProperty())
-                    || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+                        || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
                     && property.Name.Length == prefix.Length + suffix.Length
                     && property.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
                     && property.Name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
@@ -506,7 +511,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="propertyBuilder"> The builder for the property. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessPropertyAdded(
-            IConventionPropertyBuilder propertyBuilder, IConventionContext<IConventionPropertyBuilder> context)
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context)
         {
             Process(propertyBuilder, context);
             if (propertyBuilder.Metadata.Builder == null)
@@ -536,7 +542,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="name"> The name of the ignored member. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeMemberIgnored(
-            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionContext<string> context)
         {
             Process(entityTypeBuilder.Metadata, context);
         }
@@ -606,7 +614,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyUniquenessChanged(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
         {
             var newRelationshipBuilder = DiscoverProperties(relationshipBuilder, context);
             context.StopProcessingIfChanged(newRelationshipBuilder.Metadata.IsUnique);
@@ -618,7 +627,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyRequirednessChanged(
-            IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<bool?> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
         {
             var isRequired = relationshipBuilder.Metadata.IsRequired;
             using var batch = context.DelayConventions();
@@ -693,7 +703,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         /// <inheritdoc />
         public virtual void ProcessKeyRemoved(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key, IConventionContext<IConventionKey> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey key,
+            IConventionContext<IConventionKey> context)
         {
             var foreignKeys = key.DeclaringEntityType.GetDerivedTypesInclusive()
                 .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
@@ -745,7 +757,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
@@ -805,8 +819,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private static string GetPropertyBaseName(IConventionForeignKey foreignKey)
             => foreignKey.DependentToPrincipal?.Name
-            ?? foreignKey.GetReferencingSkipNavigations().FirstOrDefault()?.Inverse?.Name
-            ?? foreignKey.PrincipalEntityType.ShortName();
+                ?? foreignKey.GetReferencingSkipNavigations().FirstOrDefault()?.Inverse?.Name
+                ?? foreignKey.PrincipalEntityType.ShortName();
 
         private static bool HasUniquifiedProperties(IConventionForeignKey foreignKey)
         {

@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             propertyBase.DeclaringType.DisplayName(),
                             propertyBase.Name,
                             modelType.ShortDisplayName(),
-                            providerType.ShortDisplayName() ));
+                            providerType.ShortDisplayName()));
                 }
             }
 

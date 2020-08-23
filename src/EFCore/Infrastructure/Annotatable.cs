@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
-        public virtual IEnumerable<Annotation> GetAnnotations() =>
-            _annotations?.Values ?? Enumerable.Empty<Annotation>();
+        public virtual IEnumerable<Annotation> GetAnnotations()
+            => _annotations?.Values ?? Enumerable.Empty<Annotation>();
 
         /// <summary>
         ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
@@ -200,18 +200,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IEnumerable<IAnnotation> IAnnotatable.GetAnnotations() => GetAnnotations();
+        IEnumerable<IAnnotation> IAnnotatable.GetAnnotations()
+            => GetAnnotations();
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IAnnotation IAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
+        IAnnotation IAnnotatable.FindAnnotation(string name)
+            => FindAnnotation(name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IAnnotation IMutableAnnotatable.AddAnnotation(string name, object value) => AddAnnotation(name, value);
+        IAnnotation IMutableAnnotatable.AddAnnotation(string name, object value)
+            => AddAnnotation(name, value);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IAnnotation IMutableAnnotatable.RemoveAnnotation(string name) => RemoveAnnotation(name);
+        IAnnotation IMutableAnnotatable.RemoveAnnotation(string name)
+            => RemoveAnnotation(name);
     }
 }

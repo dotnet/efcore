@@ -82,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected abstract Func<QueryContext, TResult> CreateCompiledQuery(
-            [NotNull] IQueryCompiler queryCompiler, [NotNull] Expression expression);
+            [NotNull] IQueryCompiler queryCompiler,
+            [NotNull] Expression expression);
 
         private Func<QueryContext, TResult> EnsureExecutor(TContext context)
             => NonCapturingLazyInitializer.EnsureInitialized(
@@ -103,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IReadOnlyCollection<ParameterExpression> _parameters;
 
             public QueryExpressionRewriter(
-                TContext context, IReadOnlyCollection<ParameterExpression> parameters)
+                TContext context,
+                IReadOnlyCollection<ParameterExpression> parameters)
             {
                 _context = context;
                 _parameters = parameters;

@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
         public static IReadOnlyCollection<IConventionEntityType> GetEntityTypes(
-            [NotNull] this IConventionModel model, [NotNull] string name)
+            [NotNull] this IConventionModel model,
+            [NotNull] string name)
             => ((Model)model).GetEntityTypes(name);
 
         /// <summary>
@@ -272,7 +273,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static ConfigurationSource? FindIgnoredConfigurationSource(
-            [NotNull] this IConventionModel model, [NotNull] Type type)
+            [NotNull] this IConventionModel model,
+            [NotNull] Type type)
             => Check.NotNull((Model)model, nameof(model)).FindIgnoredConfigurationSource(
                 Check.NotNull(type, nameof(type)));
 
@@ -318,6 +320,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to finalize. </param>
         /// <returns> The finalized <see cref="IModel" />. </returns>
-        public static IModel FinalizeModel([NotNull] this IConventionModel model) => ((Model)model).FinalizeModel();
+        public static IModel FinalizeModel([NotNull] this IConventionModel model)
+            => ((Model)model).FinalizeModel();
     }
 }

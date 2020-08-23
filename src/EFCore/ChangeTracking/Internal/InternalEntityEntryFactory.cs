@@ -40,7 +40,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityEntry Create(
-            IStateManager stateManager, IEntityType entityType, object entity, in ValueBuffer valueBuffer)
+            IStateManager stateManager,
+            IEntityType entityType,
+            object entity,
+            in ValueBuffer valueBuffer)
             => NewInternalEntityEntry(stateManager, entityType, entity, valueBuffer);
 
         private static InternalEntityEntry NewInternalEntityEntry(IStateManager stateManager, IEntityType entityType, object entity)

@@ -47,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Checks if the identity is empty, as opposed to representing a member.
         /// </summary>
         /// <returns> <see langword="true" /> if the identity is empty; <see langword="false" /> otherwise. </returns>
-        public bool IsNone() => _nameOrMember == null;
+        public bool IsNone()
+            => _nameOrMember == null;
 
         /// <summary>
         ///     A <see cref="MemberIdentity" /> instance that does not represent any member.
@@ -92,21 +93,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => Name ?? "NONE";
 
         /// <inheritdoc />
-        public override bool Equals(object obj) => obj is MemberIdentity identity && Equals(identity);
+        public override bool Equals(object obj)
+            => obj is MemberIdentity identity && Equals(identity);
 
         /// <inheritdoc />
         public bool Equals(MemberIdentity other)
             => EqualityComparer<object>.Default.Equals(_nameOrMember, other._nameOrMember);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(_nameOrMember);
+        public override int GetHashCode()
+            => HashCode.Combine(_nameOrMember);
 
         /// <summary>
         ///     Compares one id to another id to see if they represent the same member.
         /// </summary>
         /// <param name="left"> The first id. </param>
         /// <param name="right"> The second id. </param>
-        /// <returns> <see langword="true"/> if they represent the same member; <see langword="false"/> otherwise. </returns>
+        /// <returns> <see langword="true" /> if they represent the same member; <see langword="false" /> otherwise. </returns>
         public static bool operator ==(MemberIdentity left, MemberIdentity right)
             => left.Equals(right);
 
@@ -115,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="left"> The first id. </param>
         /// <param name="right"> The second id. </param>
-        /// <returns> <see langword="true"/> if they represent different members; <see langword="false"/> otherwise. </returns>
+        /// <returns> <see langword="true" /> if they represent different members; <see langword="false" /> otherwise. </returns>
         public static bool operator !=(MemberIdentity left, MemberIdentity right)
             => !(left == right);
     }

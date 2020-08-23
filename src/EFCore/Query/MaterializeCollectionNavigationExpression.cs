@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents materialization of a collection navigation in <see cref="ShapedQueryExpression.ShaperExpression"/>.
+    ///         An expression that represents materialization of a collection navigation in <see cref="ShapedQueryExpression.ShaperExpression" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -38,15 +38,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The expression that returns the values from query used to create the collection.
         /// </summary>
         public virtual Expression Subquery { get; }
+
         /// <summary>
         ///     The navigation associated with this collection.
         /// </summary>
         public virtual INavigationBase Navigation { get; }
 
         /// <inheritdoc />
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
+
         /// <inheritdoc />
-        public override Type Type => Navigation.ClrType;
+        public override Type Type
+            => Navigation.ClrType;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -60,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="subquery"> The <see cref="Subquery"/> property of the result. </param>
+        /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual MaterializeCollectionNavigationExpression Update([NotNull] Expression subquery)
         {

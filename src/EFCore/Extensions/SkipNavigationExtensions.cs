@@ -90,8 +90,7 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Append(" ").Append(indexes.StoreGenerationIndex);
             }
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(navigation.AnnotationsToDebugString(indent + 2));
             }

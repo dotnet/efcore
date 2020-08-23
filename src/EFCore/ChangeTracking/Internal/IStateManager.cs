@@ -260,7 +260,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         void RecordReferencedUntrackedEntity(
-            [NotNull] object referencedEntity, [NotNull] INavigationBase navigation, [NotNull] InternalEntityEntry referencedFromEntry);
+            [NotNull] object referencedEntity,
+            [NotNull] INavigationBase navigation,
+            [NotNull] InternalEntityEntry referencedFromEntry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -285,7 +287,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         InternalEntityEntry FindPrincipalUsingPreStoreGeneratedValues(
-            [NotNull] InternalEntityEntry dependentEntry, [NotNull] IForeignKey foreignKey);
+            [NotNull] InternalEntityEntry dependentEntry,
+            [NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -294,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         InternalEntityEntry FindPrincipalUsingRelationshipSnapshot(
-            [NotNull] InternalEntityEntry dependentEntry, [NotNull] IForeignKey foreignKey);
+            [NotNull] InternalEntityEntry dependentEntry,
+            [NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -319,7 +323,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IEnumerable<IUpdateEntry> GetDependentsFromNavigation(
-            [NotNull] IUpdateEntry principalEntry, [NotNull] IForeignKey foreignKey);
+            [NotNull] IUpdateEntry principalEntry,
+            [NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -336,7 +341,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(
-            [NotNull] IUpdateEntry principalEntry, [NotNull] IForeignKey foreignKey);
+            [NotNull] IUpdateEntry principalEntry,
+            [NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

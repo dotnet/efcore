@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression MakeHasDefaultValue<TProperty>(
-            [NotNull] this Expression currentValueExpression, [NotNull] IPropertyBase propertyBase)
+            [NotNull] this Expression currentValueExpression,
+            [NotNull] IPropertyBase propertyBase)
         {
             if (!currentValueExpression.Type.IsValueType)
             {
@@ -66,11 +67,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IReadOnlyList<TMemberInfo> MatchMemberAccessList<TMemberInfo>(
-            [NotNull] this LambdaExpression lambdaExpression, [NotNull] Func<Expression, Expression, TMemberInfo> memberMatcher)
+            [NotNull] this LambdaExpression lambdaExpression,
+            [NotNull] Func<Expression, Expression, TMemberInfo> memberMatcher)
             where TMemberInfo : MemberInfo
         {
             Check.DebugAssert(lambdaExpression.Body != null, "lambdaExpression.Body is null");
-            Check.DebugAssert(lambdaExpression.Parameters.Count == 1, "lambdaExpression.Parameters.Count is " + lambdaExpression.Parameters.Count + ". Should be 1.");
+            Check.DebugAssert(
+                lambdaExpression.Parameters.Count == 1,
+                "lambdaExpression.Parameters.Count is " + lambdaExpression.Parameters.Count + ". Should be 1.");
 
             var parameterExpression = lambdaExpression.Parameters[0];
 
@@ -98,16 +102,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static TMemberInfo MatchSimpleMemberAccess<TMemberInfo>(
-            [NotNull] this Expression parameterExpression, [NotNull] Expression memberAccessExpression)
+            [NotNull] this Expression parameterExpression,
+            [NotNull] Expression memberAccessExpression)
             where TMemberInfo : MemberInfo
         {
             var memberInfos = MatchMemberAccess<TMemberInfo>(parameterExpression, memberAccessExpression);
 
-            return memberInfos?.Count == 1 ? memberInfos[0] as TMemberInfo : null;
+            return memberInfos?.Count == 1 ? memberInfos[0] : null;
         }
 
         private static IReadOnlyList<TMemberInfo> MatchMemberAccess<TMemberInfo>(
-            this Expression parameterExpression, Expression memberAccessExpression)
+            this Expression parameterExpression,
+            Expression memberAccessExpression)
             where TMemberInfo : MemberInfo
         {
             var memberInfos = new List<TMemberInfo>();
@@ -224,34 +230,36 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return predicate;
 
             static Expression GenerateEqualExpression(
-                Expression entityParameterExpression, Expression keyValuesConstantExpression, IProperty property, int i)
+                Expression entityParameterExpression,
+                Expression keyValuesConstantExpression,
+                IProperty property,
+                int i)
                 => property.ClrType.IsValueType
                     && property.ClrType.UnwrapNullableType() is Type nonNullableType
                     && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
-                    ? Expression.Call(
-                        _objectEqualsMethodInfo,
-                        Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(typeof(object)),
-                            entityParameterExpression,
-                            Expression.Constant(property.Name, typeof(string))),
-                        Expression.Convert(
+                        ? Expression.Call(
+                            _objectEqualsMethodInfo,
                             Expression.Call(
-                                keyValuesConstantExpression,
-                                ValueBuffer.GetValueMethod,
-                                Expression.Constant(i)),
-                            typeof(object)))
-                    : (Expression)Expression.Equal(
-                        Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
-                            entityParameterExpression,
-                            Expression.Constant(property.Name, typeof(string))),
-                        Expression.Convert(
+                                EF.PropertyMethod.MakeGenericMethod(typeof(object)),
+                                entityParameterExpression,
+                                Expression.Constant(property.Name, typeof(string))),
+                            Expression.Convert(
+                                Expression.Call(
+                                    keyValuesConstantExpression,
+                                    ValueBuffer.GetValueMethod,
+                                    Expression.Constant(i)),
+                                typeof(object)))
+                        : (Expression)Expression.Equal(
                             Expression.Call(
-                                keyValuesConstantExpression,
-                                ValueBuffer.GetValueMethod,
-                                Expression.Constant(i)),
-                            property.ClrType));
+                                EF.PropertyMethod.MakeGenericMethod(property.ClrType),
+                                entityParameterExpression,
+                                Expression.Constant(property.Name, typeof(string))),
+                            Expression.Convert(
+                                Expression.Call(
+                                    keyValuesConstantExpression,
+                                    ValueBuffer.GetValueMethod,
+                                    Expression.Constant(i)),
+                                property.ClrType));
         }
-
     }
 }

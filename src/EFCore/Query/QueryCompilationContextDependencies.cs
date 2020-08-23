@@ -96,12 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The CLR type of DbContext.
         /// </summary>
-        public Type ContextType => _currentContext.Context.GetType();
+        public Type ContextType
+            => _currentContext.Context.GetType();
 
         /// <summary>
         ///     The default query tracking behavior.
         /// </summary>
-        public QueryTrackingBehavior QueryTrackingBehavior => _currentContext.Context.ChangeTracker.QueryTrackingBehavior;
+        public QueryTrackingBehavior QueryTrackingBehavior
+            => _currentContext.Context.ChangeTracker.QueryTrackingBehavior;
 
         /// <summary>
         ///     The model.

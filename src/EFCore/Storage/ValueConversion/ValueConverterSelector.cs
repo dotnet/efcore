@@ -348,7 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         private IEnumerable<ValueConverterInfo> ForChar(
-            Type underlyingModelType, Type underlyingProviderType)
+            Type underlyingModelType,
+            Type underlyingProviderType)
         {
             if (underlyingProviderType == null
                 || underlyingProviderType == typeof(string))
@@ -369,7 +370,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         private IEnumerable<ValueConverterInfo> CharToBytes(
-            Type underlyingModelType, Type underlyingProviderType)
+            Type underlyingModelType,
+            Type underlyingProviderType)
         {
             if (underlyingProviderType == null
                 || underlyingProviderType == typeof(byte[]))
@@ -381,7 +383,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         private IEnumerable<ValueConverterInfo> EnumToStringOrBytes(
-            Type underlyingModelType, Type underlyingProviderType)
+            Type underlyingModelType,
+            Type underlyingProviderType)
         {
             if (underlyingProviderType == null
                 || underlyingProviderType == typeof(string))
@@ -421,7 +424,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         private IEnumerable<ValueConverterInfo> NumberToStringOrBytes(
-            Type underlyingModelType, Type underlyingProviderType)
+            Type underlyingModelType,
+            Type underlyingProviderType)
         {
             if (underlyingProviderType == null
                 || underlyingProviderType == typeof(string))

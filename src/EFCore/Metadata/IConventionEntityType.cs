@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         The corresponding CLR type member or <see langword="null" /> for a shadow property.
         ///     </para>
         ///     <para>
-        ///         An indexer with a <see cref="string"/> parameter and <see cref="object"/> return type can be used.
+        ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
         ///     </para>
         /// </param>
         /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
