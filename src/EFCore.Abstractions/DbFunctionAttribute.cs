@@ -87,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Checks whether <see cref="IsNullable" /> has been explicitly set to a value.
         /// </summary>
-        public bool IsNullableHasValue => _nullable.HasValue;
+        public bool IsNullableHasValue
+            => _nullable.HasValue;
     }
 }

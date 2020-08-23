@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using IInterceptor = Castle.DynamicProxy.IInterceptor;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
@@ -184,12 +185,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             return interfacesToProxy.ToArray();
         }
 
-        private Castle.DynamicProxy.IInterceptor[] GetNotifyChangeInterceptors(
+        private IInterceptor[] GetNotifyChangeInterceptors(
             ProxiesOptionsExtension options,
             IEntityType entityType,
             LazyLoadingInterceptor lazyLoadingInterceptor = null)
         {
-            var interceptors = new List<Castle.DynamicProxy.IInterceptor>();
+            var interceptors = new List<IInterceptor>();
 
             if (lazyLoadingInterceptor != null)
             {

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ProxyChangeTrackingConvention(
-                [CanBeNull] ProxiesOptionsExtension options)
+            [CanBeNull] ProxiesOptionsExtension options)
         {
             _options = options;
         }
@@ -35,7 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelInitialized(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             if (_options?.UseChangeTrackingProxies == true)
             {

@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         ?? (INavigationBase)_entityType.FindSkipNavigation(navigationName);
 
                     if (navigationBase != null
-                            && (!(navigationBase is INavigation navigation
-                                && navigation.ForeignKey.IsOwnership)))
+                        && (!(navigationBase is INavigation navigation
+                            && navigation.ForeignKey.IsOwnership)))
                     {
                         _loader.Load(invocation.Proxy, navigationName);
                     }
