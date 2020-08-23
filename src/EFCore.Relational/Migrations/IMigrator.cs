@@ -58,6 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The options to use when generating SQL for migrations.
         /// </param>
         /// <returns> The generated script. </returns>
-        string GenerateScript([CanBeNull] string fromMigration = null, [CanBeNull] string toMigration = null, MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
+        string GenerateScript(
+            [CanBeNull] string fromMigration = null,
+            [CanBeNull] string toMigration = null,
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
     }
 }

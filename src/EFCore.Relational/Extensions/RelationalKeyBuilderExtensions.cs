@@ -52,7 +52,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionKeyBuilder HasName(
-            [NotNull] this IConventionKeyBuilder keyBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionKeyBuilder keyBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             if (keyBuilder.CanSetName(name, fromDataAnnotation))
             {
@@ -71,7 +73,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given name can be set for the key constraint. </returns>
         public static bool CanSetName(
-            [NotNull] this IConventionKeyBuilder keyBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionKeyBuilder keyBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
             => keyBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
     }
 }

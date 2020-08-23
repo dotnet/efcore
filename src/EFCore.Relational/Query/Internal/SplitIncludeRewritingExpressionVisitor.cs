@@ -16,16 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class SplitIncludeRewritingExpressionVisitor : ExpressionVisitor
     {
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public SplitIncludeRewritingExpressionVisitor()
-        {
-        }
-
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -59,15 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     && selectMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
                 {
                     var selector = RewriteCollectionInclude(
-                        selectMethodCall.Arguments[0], selectMethodCall.Arguments[1].UnwrapLambdaFromQuote(), singleResult, reverseOrdering);
+                        selectMethodCall.Arguments[0], selectMethodCall.Arguments[1].UnwrapLambdaFromQuote(), singleResult,
+                        reverseOrdering);
 
                     source = selectMethodCall.Update(
                         selectMethodCall.Object,
-                        new[]
-                        {
-                            selectMethodCall.Arguments[0],
-                            Expression.Quote(selector)
-                        });
+                        new[] { selectMethodCall.Arguments[0], Expression.Quote(selector) });
 
                     if (singleResult)
                     {
@@ -81,7 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        private LambdaExpression RewriteCollectionInclude(Expression source, LambdaExpression selector, bool singleResult, bool reverseOrdering)
+        private LambdaExpression RewriteCollectionInclude(
+            Expression source,
+            LambdaExpression selector,
+            bool singleResult,
+            bool reverseOrdering)
         {
             var selectorParameter = selector.Parameters[0];
             var selectorBody = selector.Body;
@@ -115,8 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly Type _sourceElementType;
             private readonly ParameterExpression _parameterExpression;
 
-            public CollectionSelectManyInjectingExpressionVisitor(SplitIncludeRewritingExpressionVisitor parentVisitor,
-                Expression parentQuery, Type sourceElementType, ParameterExpression parameterExpression)
+            public CollectionSelectManyInjectingExpressionVisitor(
+                SplitIncludeRewritingExpressionVisitor parentVisitor,
+                Expression parentQuery,
+                Type sourceElementType,
+                ParameterExpression parameterExpression)
             {
                 _parentQuery = new CloningExpressionVisitor().Visit(parentQuery);
                 _parentVisitor = parentVisitor;

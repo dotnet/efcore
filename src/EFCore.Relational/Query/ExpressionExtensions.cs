@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public static class ExpressionExtensions
     {
         /// <summary>
-        ///     Infers type mapping from given <see cref="SqlExpression"/>s.
+        ///     Infers type mapping from given <see cref="SqlExpression" />s.
         /// </summary>
         /// <param name="expressions"> Expressions to search for to find the type mapping. </param>
         /// <returns> A relational type mapping inferred from the expressions. </returns>

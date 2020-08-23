@@ -53,4 +53,3 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => new RelationalQueryCompilationContext(_dependencies, _relationalDependencies, async);
     }
 }
-

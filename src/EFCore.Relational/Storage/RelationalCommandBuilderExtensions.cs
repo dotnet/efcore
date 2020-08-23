@@ -329,7 +329,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _builder.IncrementIndent();
             }
 
-            public void Dispose() => _builder.DecrementIndent();
+            public void Dispose()
+                => _builder.DecrementIndent();
         }
     }
 }

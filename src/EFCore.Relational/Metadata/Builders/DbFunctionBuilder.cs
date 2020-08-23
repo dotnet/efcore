@@ -50,7 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public new virtual DbFunctionBuilder IsBuiltIn(bool builtIn = true)
             => (DbFunctionBuilder)base.IsBuiltIn(builtIn);
 
-
         /// <summary>
         ///     Marks whether the database function can return null value.
         /// </summary>

@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"SqlQueryMapping: ");
+                builder.Append("SqlQueryMapping: ");
             }
 
             builder.Append(sqlQueryMapping.EntityType.Name).Append(" - ");
@@ -47,11 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if (sqlQueryMapping.IncludesDerivedTypes)
             {
-                builder.Append($" IncludesDerivedTypes");
+                builder.Append(" IncludesDerivedTypes");
             }
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(sqlQueryMapping.AnnotationsToDebugString(indent + 2));
             }

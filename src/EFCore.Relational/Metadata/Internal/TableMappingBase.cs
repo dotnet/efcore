@@ -32,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IncludesDerivedTypes = includesDerivedTypes;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual IEntityType EntityType { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual ITableBase Table { get; }
 
         /// <summary>
@@ -47,13 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual SortedSet<IColumnMappingBase> ColumnMappings { get; }
             = new SortedSet<IColumnMappingBase>(ColumnMappingBaseComparer.Instance);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual bool IncludesDerivedTypes { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual bool IsSharedTablePrincipal { get; set; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual bool IsSplitEntityTypePrincipal { get; set; }
 
         IEnumerable<IColumnMappingBase> ITableMappingBase.ColumnMappings

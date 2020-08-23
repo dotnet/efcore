@@ -35,10 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
                 else
                 {
-                    if(ambiguousTypes == null)
+                    if (ambiguousTypes == null)
                     {
                         ambiguousTypes = new List<Type>();
                     }
+
                     ambiguousTypes.Add(set.Type);
                 }
             }
@@ -107,7 +108,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {

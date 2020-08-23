@@ -63,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query"> The query to get the cache key for. </param>
         /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
         /// <returns> The cache key. </returns>
-        protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async) // Intentionally non-virtual
+        protected new RelationalCompiledQueryCacheKey
+            GenerateCacheKeyCore([NotNull] Expression query, bool async) // Intentionally non-virtual
         {
             var relationalOptions = RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions);
 
@@ -96,11 +97,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </summary>
             /// <param name="compiledQueryCacheKey"> The non-relational cache key. </param>
             /// <param name="useRelationalNulls"> True to use relational null logic. </param>
-            /// <param name="querySplittingBehavior"> <see cref="QuerySplittingBehavior"/> to use when loading related collections. </param>
-            /// <param name="shouldBuffer"> <see langword="true"/> if the query should be buffered. </param>
+            /// <param name="querySplittingBehavior"> <see cref="QuerySplittingBehavior" /> to use when loading related collections. </param>
+            /// <param name="shouldBuffer"> <see langword="true" /> if the query should be buffered. </param>
             public RelationalCompiledQueryCacheKey(
-                CompiledQueryCacheKey compiledQueryCacheKey, bool useRelationalNulls,
-                QuerySplittingBehavior? querySplittingBehavior, bool shouldBuffer)
+                CompiledQueryCacheKey compiledQueryCacheKey,
+                bool useRelationalNulls,
+                QuerySplittingBehavior? querySplittingBehavior,
+                bool shouldBuffer)
             {
                 _compiledQueryCacheKey = compiledQueryCacheKey;
                 _useRelationalNulls = useRelationalNulls;
@@ -115,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     The object to compare this key to.
             /// </param>
             /// <returns>
-            ///     <see langword="true"/> if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query,
-            ///     otherwise <see langword="false"/>.
+            ///     <see langword="true" /> if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query,
+            ///     otherwise <see langword="false" />.
             /// </returns>
             public override bool Equals(object obj)
                 => obj is RelationalCompiledQueryCacheKey key
@@ -143,8 +146,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// <returns>
             ///     The hash code for the key.
             /// </returns>
-            public override int GetHashCode() => HashCode.Combine(
-                _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer);
+            public override int GetHashCode()
+                => HashCode.Combine(
+                    _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer);
         }
     }
 }

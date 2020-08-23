@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public interface IRelationalParameterBasedSqlProcessorFactory
     {
         /// <summary>
-        ///     Creates a new <see cref="RelationalParameterBasedSqlProcessor"/>.
+        ///     Creates a new <see cref="RelationalParameterBasedSqlProcessor" />.
         /// </summary>
         /// <param name="useRelationalNulls"> A bool value indicating if relational nulls should be used. </param>
         /// <returns> A relational parameter based sql processor. </returns>

@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Creates a new <see cref="DropTableOperation" />.
         /// </summary>
         // ReSharper disable once VirtualMemberCallInConstructor
-        public DropTableOperation() => IsDestructiveChange = true;
+        public DropTableOperation()
+            => IsDestructiveChange = true;
 
         /// <summary>
         ///     The name of the table.
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <inheritdoc />
-        string ITableMigrationOperation.Table => Name;
+        string ITableMigrationOperation.Table
+            => Name;
     }
 }

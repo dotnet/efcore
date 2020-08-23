@@ -30,11 +30,12 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
-            => new SequenceBuilder(HasSequence(
-                Check.NotNull(modelBuilder, nameof(modelBuilder)).Model,
-                name,
-                schema,
-                ConfigurationSource.Explicit));
+            => new SequenceBuilder(
+                HasSequence(
+                    Check.NotNull(modelBuilder, nameof(modelBuilder)).Model,
+                    name,
+                    schema,
+                    ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
@@ -208,7 +209,10 @@ namespace Microsoft.EntityFrameworkCore
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention).Builder;
 
         private static Sequence HasSequence(
-            IMutableModel model, string name, string schema, ConfigurationSource configurationSource)
+            IMutableModel model,
+            string name,
+            string schema,
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));

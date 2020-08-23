@@ -56,10 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalDbFunctionParameterBuilder Builder { get; private set; }
+        public virtual InternalDbFunctionParameterBuilder Builder { get; }
 
         /// <inheritdoc />
-        IConventionDbFunctionParameterBuilder IConventionDbFunctionParameter.Builder => Builder;
+        IConventionDbFunctionParameterBuilder IConventionDbFunctionParameter.Builder
+            => Builder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,7 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        public virtual ConfigurationSource GetConfigurationSource() => Function.GetConfigurationSource();
+        public virtual ConfigurationSource GetConfigurationSource()
+            => Function.GetConfigurationSource();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,7 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetStoreTypeConfigurationSource() => _storeTypeConfigurationSource;
+        public virtual ConfigurationSource? GetStoreTypeConfigurationSource()
+            => _storeTypeConfigurationSource;
 
         /// <inheritdoc />
         [DebuggerStepThrough]
@@ -159,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual RelationalTypeMapping SetTypeMapping(
-            [NotNull] RelationalTypeMapping typeMapping, ConfigurationSource configurationSource)
+            [NotNull] RelationalTypeMapping typeMapping,
+            ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
             _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
@@ -204,7 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetPropagatesNullabilityConfigurationSource() => _propagatesNullabilityConfigurationSource;
+        public virtual ConfigurationSource? GetPropagatesNullabilityConfigurationSource()
+            => _propagatesNullabilityConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -212,7 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetTypeMappingConfigurationSource() => _typeMappingConfigurationSource;
+        public virtual ConfigurationSource? GetTypeMappingConfigurationSource()
+            => _typeMappingConfigurationSource;
 
         /// <inheritdoc />
         [DebuggerStepThrough]
@@ -228,6 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
     }
 }

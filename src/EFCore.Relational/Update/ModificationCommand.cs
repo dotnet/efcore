@@ -94,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     The <see cref="IUpdateEntry" />s that represent the entities that are mapped to the row
         ///     to update.
         /// </summary>
-        public virtual IReadOnlyList<IUpdateEntry> Entries => _entries;
+        public virtual IReadOnlyList<IUpdateEntry> Entries
+            => _entries;
 
         /// <summary>
         ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
@@ -117,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     return mainEntry.SharedIdentityEntry.EntityType == mainEntry.EntityType
                         || mainEntry.SharedIdentityEntry.EntityType.GetTableMappings()
                             .Any(m => m.Table.Name == TableName && m.Table.Schema == Schema)
-                        ? EntityState.Modified
-                        : mainEntry.EntityState;
+                            ? EntityState.Modified
+                            : mainEntry.EntityState;
                 }
 
                 return EntityState.Modified;
@@ -144,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             if (_columnModifications != null)
             {
-                throw new Exception($"_columnModifications have been initialized prematurely");
+                throw new Exception("_columnModifications have been initialized prematurely");
             }
         }
 
@@ -380,7 +381,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         private void InitializeSharedColumns(
-            IUpdateEntry entry, ITableMappingBase tableMapping, bool updating, Dictionary<string, ColumnValuePropagator> columnMap)
+            IUpdateEntry entry,
+            ITableMappingBase tableMapping,
+            bool updating,
+            Dictionary<string, ColumnValuePropagator> columnMap)
         {
             foreach (var columnMapping in tableMapping.ColumnMappings)
             {

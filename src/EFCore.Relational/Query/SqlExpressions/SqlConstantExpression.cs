@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
         /// </summary>
-        /// <param name="constantExpression"> A <see cref="ConstantExpression"/>. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping"/> associated with the expression. </param>
+        /// <param name="constantExpression"> A <see cref="ConstantExpression" />. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public SqlConstantExpression([NotNull] ConstantExpression constantExpression, [CanBeNull] RelationalTypeMapping typeMapping)
             : base(Check.NotNull(constantExpression, nameof(constantExpression)).Type.UnwrapNullableType(), typeMapping)
         {
@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The constant value.
         /// </summary>
-        public virtual object Value => _constantExpression.Value;
+        public virtual object Value
+            => _constantExpression.Value;
 
         /// <summary>
         ///     Applies supplied type mapping to this expression.
@@ -107,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Value);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Value);
     }
 }

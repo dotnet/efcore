@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -29,11 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual string ViewDefinitionSql
-            => (string)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinitionSql]).FirstOrDefault(d => d != null);
+            => (string)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinitionSql])
+                .FirstOrDefault(d => d != null);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override IColumnBase FindColumn(IProperty property)
             => property.GetViewColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)
@@ -45,28 +45,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public override string ToString()
+            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<IViewMapping> IView.EntityTypeMappings
         {
             [DebuggerStepThrough]
             get => EntityTypeMappings.Cast<IViewMapping>();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEnumerable<IViewColumn> IView.Columns
         {
             [DebuggerStepThrough]
             get => Columns.Values.Cast<IViewColumn>();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IViewColumn IView.FindColumn(string name)
             => (IViewColumn)base.FindColumn(name);
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IViewColumn IView.FindColumn(IProperty property)
             => (IViewColumn)FindColumn(property);

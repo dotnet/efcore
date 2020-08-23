@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<TValue> Values => _entryValueMap.Values;
+        public virtual IEnumerable<TValue> Values
+            => _entryValueMap.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsMainEntry([NotNull] IUpdateEntry entry) => !_table.GetRowInternalForeignKeys(entry.EntityType).Any();
+        public virtual bool IsMainEntry([NotNull] IUpdateEntry entry)
+            => !_table.GetRowInternalForeignKeys(entry.EntityType).Any();
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {

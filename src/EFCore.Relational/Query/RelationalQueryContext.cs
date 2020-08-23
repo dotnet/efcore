@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual RelationalQueryContextDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     A factory for creating a readable query string from a <see cref="DbCommand"/>
+        ///     A factory for creating a readable query string from a <see cref="DbCommand" />
         /// </summary>
         public virtual IRelationalQueryStringFactory RelationalQueryStringFactory
             => RelationalDependencies.RelationalQueryStringFactory;

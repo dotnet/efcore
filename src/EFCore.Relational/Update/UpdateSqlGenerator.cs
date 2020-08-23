@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Helpers for generating update SQL.
         /// </summary>
-        protected virtual ISqlGenerationHelper SqlGenerationHelper => Dependencies.SqlGenerationHelper;
+        protected virtual ISqlGenerationHelper SqlGenerationHelper
+            => Dependencies.SqlGenerationHelper;
 
         /// <summary>
         ///     Appends a SQL command for inserting a row to the commands being built.
@@ -58,7 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         public virtual ResultSetMapping AppendInsertOperation(
-            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+            StringBuilder commandStringBuilder,
+            ModificationCommand command,
+            int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -90,7 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         public virtual ResultSetMapping AppendUpdateOperation(
-            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+            StringBuilder commandStringBuilder,
+            ModificationCommand command,
+            int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -123,7 +128,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandPosition"> The ordinal of this command in the batch. </param>
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         public virtual ResultSetMapping AppendDeleteOperation(
-            StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+            StringBuilder commandStringBuilder,
+            ModificationCommand command,
+            int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -607,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             if (modification.TypeMapping == null)
             {
-                var columnName =  modification.ColumnName;
+                var columnName = modification.ColumnName;
                 if (tableName != null)
                 {
                     columnName = tableName + "." + columnName;
@@ -618,7 +625,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     }
                 }
 
-               throw new InvalidOperationException(RelationalStrings.UnsupportedDataOperationStoreType(modification.ColumnType, columnName));
+                throw new InvalidOperationException(
+                    RelationalStrings.UnsupportedDataOperationStoreType(modification.ColumnType, columnName));
             }
 
             commandStringBuilder.Append(modification.TypeMapping.GenerateProviderValueSqlLiteral(modification.Value));

@@ -24,13 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     public interface IMemberTranslatorProvider
     {
         /// <summary>
-        ///     Translates a LINQ <see cref="MemberExpression"/> to a SQL equivalent.
+        ///     Translates a LINQ <see cref="MemberExpression" /> to a SQL equivalent.
         /// </summary>
-        /// <param name="instance"> A SQL representation of <see cref="MemberExpression.Expression"/>. </param>
-        /// <param name="member"> The member info from <see cref="MemberExpression.Member"/>. </param>
-        /// <param name="returnType"> The return type from <see cref="P:MemberExpression.Type"/>. </param>
+        /// <param name="instance"> A SQL representation of <see cref="MemberExpression.Expression" />. </param>
+        /// <param name="member"> The member info from <see cref="MemberExpression.Member" />. </param>
+        /// <param name="returnType"> The return type from <see cref="P:MemberExpression.Type" />. </param>
         /// <param name="logger"> The query logger to use. </param>
-        /// <returns> A SQL translation of the <see cref="MemberExpression"/>. </returns>
+        /// <returns> A SQL translation of the <see cref="MemberExpression" />. </returns>
         SqlExpression Translate(
             [CanBeNull] SqlExpression instance,
             [NotNull] MemberInfo member,

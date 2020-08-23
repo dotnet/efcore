@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public string Schema { get; }
 
         /// <summary>
-        ///     The <see cref="ITableBase"/> associated with this table or view.
+        ///     The <see cref="ITableBase" /> associated with this table or view.
         /// </summary>
         public ITableBase Table { get; }
 
@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => obj != null && ReferenceEquals(this, obj);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, Schema);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Name, Schema);
     }
 }

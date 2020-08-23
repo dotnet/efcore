@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The SQL command text that will be executed against the database.
         /// </summary>
-        public virtual string CommandText => _relationalCommand.CommandText;
+        public virtual string CommandText
+            => _relationalCommand.CommandText;
 
         /// <summary>
         ///     The associated command logger.

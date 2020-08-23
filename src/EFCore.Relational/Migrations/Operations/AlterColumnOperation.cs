@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual ColumnOperation OldColumn { get; [param: NotNull] set; } = new AddColumnOperation();
 
         /// <inheritdoc />
-        IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldColumn;
+        IMutableAnnotatable IAlterMigrationOperation.OldAnnotations
+            => OldColumn;
     }
 }

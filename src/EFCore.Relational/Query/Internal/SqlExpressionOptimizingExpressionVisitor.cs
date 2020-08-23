@@ -83,7 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 default:
                     return base.VisitExtension(extensionExpression);
-            };
+            }
+
+            ;
         }
 
         private Expression VisitSelect(SelectExpression selectExpression)
@@ -148,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             switch (operatorType)
             {
                 case ExpressionType.Not
-                when type == typeof(bool):
+                    when type == typeof(bool):
                 {
                     switch (operand)
                     {
@@ -212,8 +214,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     binaryOperand.TypeMapping);
                             }
                         }
-                        break;
+                            break;
                     }
+
                     break;
                 }
 
@@ -249,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 typeMapping);
 
                         case ColumnExpression columnOperand
-                        when !columnOperand.IsNullable:
+                            when !columnOperand.IsNullable:
                             return _sqlExpressionFactory.Constant(operatorType == ExpressionType.NotEqual, typeMapping);
 
                         case SqlUnaryExpression sqlUnaryOperand:
@@ -271,6 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 // (a is not null) is not null -> true
                                 return _sqlExpressionFactory.Constant(operatorType == ExpressionType.NotEqual, typeMapping);
                             }
+
                             break;
 
                         case SqlBinaryExpression sqlBinaryOperand:
@@ -284,20 +288,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 && sqlBinaryOperand.OperatorType != ExpressionType.OrElse)
                             {
                                 var newLeft = SimplifyNullNotNullExpression(operatorType, sqlBinaryOperand.Left, typeof(bool), typeMapping);
-                                var newRight = SimplifyNullNotNullExpression(operatorType, sqlBinaryOperand.Right, typeof(bool), typeMapping);
+                                var newRight = SimplifyNullNotNullExpression(
+                                    operatorType, sqlBinaryOperand.Right, typeof(bool), typeMapping);
 
                                 return SimplifyLogicalSqlBinaryExpression(
-                                        operatorType == ExpressionType.Equal
-                                            ? ExpressionType.OrElse
-                                            : ExpressionType.AndAlso,
-                                        newLeft,
-                                        newRight,
-                                        typeMapping);
+                                    operatorType == ExpressionType.Equal
+                                        ? ExpressionType.OrElse
+                                        : ExpressionType.AndAlso,
+                                    newLeft,
+                                    newRight,
+                                    typeMapping);
                             }
+
                             break;
 
                         case SqlFunctionExpression sqlFunctionExpression
-                        when sqlFunctionExpression.IsBuiltIn
+                            when sqlFunctionExpression.IsBuiltIn
                             && string.Equals("COALESCE", sqlFunctionExpression.Name, StringComparison.OrdinalIgnoreCase):
                             // for coalesce:
                             // (a ?? b) == null -> a == null && b == null
@@ -311,10 +317,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 operatorType == ExpressionType.Equal
                                     ? ExpressionType.AndAlso
                                     : ExpressionType.OrElse,
-                                        leftArgument,
-                                        rightArgument,
-                                        typeMapping);
+                                leftArgument,
+                                rightArgument,
+                                typeMapping);
                     }
+
                     break;
             }
 
@@ -402,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // a == a -> true
                     // a != a -> false
                     if ((left is LikeExpression
-                        || left is ColumnExpression columnExpression && !columnExpression.IsNullable)
+                            || left is ColumnExpression columnExpression && !columnExpression.IsNullable)
                         && left.Equals(right))
                     {
                         return _sqlExpressionFactory.Constant(operatorType == ExpressionType.Equal, typeMapping);
@@ -497,11 +504,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             static bool CanOptimize(SqlExpression operand)
                 => operand is LikeExpression
-                || (operand is SqlUnaryExpression sqlUnary
-                    && (sqlUnary.OperatorType == ExpressionType.Equal
-                        || sqlUnary.OperatorType == ExpressionType.NotEqual
-                        // TODO: #18689
-                        /*|| sqlUnary.OperatorType == ExpressionType.Not*/));
+                    || (operand is SqlUnaryExpression sqlUnary
+                        && (sqlUnary.OperatorType == ExpressionType.Equal
+                            || sqlUnary.OperatorType == ExpressionType.NotEqual
+                            // TODO: #18689
+                            /*|| sqlUnary.OperatorType == ExpressionType.Not*/));
         }
 
         private SqlExpression SimplifyLogicalSqlBinaryExpression(
@@ -524,7 +531,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         ? newLeftConstant
                         : right;
             }
-            else if (right is SqlConstantExpression newRightConstant)
+
+            if (right is SqlConstantExpression newRightConstant)
             {
                 // a && true -> a
                 // a || true -> true

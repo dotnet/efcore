@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -67,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual ValueGenerated? ValueGenerated { get; set; }
 
         /// <inheritdoc />
-        public override string ToString() => Name ?? "<UNKNOWN>";
+        public override string ToString()
+            => Name ?? "<UNKNOWN>";
     }
 }

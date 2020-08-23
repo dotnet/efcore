@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Filter { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Creates a new <see cref="CreateIndexOperation"/> from the specified index.
+        ///     Creates a new <see cref="CreateIndexOperation" /> from the specified index.
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The operation. </returns>

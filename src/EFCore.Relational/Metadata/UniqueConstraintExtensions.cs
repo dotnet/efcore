@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets a value indicating whether this constraint is the primary key.
         /// </summary>
         /// <param name="uniqueConstraint"> The metadata item. </param>
-        /// <returns> <see langword="true"/> if the constraint is the primary key </returns>
+        /// <returns> <see langword="true" /> if the constraint is the primary key </returns>
         public static bool GetIsPrimaryKey([NotNull] this IUniqueConstraint uniqueConstraint)
             => uniqueConstraint.Table.PrimaryKey == uniqueConstraint;
 
@@ -59,8 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" PrimaryKey");
             }
 
-            if (!singleLine &&
-                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(uniqueConstraint.AnnotationsToDebugString(indent + 2));
             }

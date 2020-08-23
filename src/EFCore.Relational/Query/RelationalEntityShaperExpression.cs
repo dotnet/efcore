@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -19,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents creation of an entity instance for a relational provider in <see cref="ShapedQueryExpression.ShaperExpression"/>.
+    ///         An expression that represents creation of an entity instance for a relational provider in
+    ///         <see cref="ShapedQueryExpression.ShaperExpression" />.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalEntityShaperExpression : EntityShaperExpression
     {
         private static readonly MethodInfo _createUnableToIdentifyConcreteTypeException
-               = typeof(RelationalEntityShaperExpression).GetTypeInfo()
-                   .GetDeclaredMethod(nameof(CreateUnableToIdentifyConcreteTypeException));
+            = typeof(RelationalEntityShaperExpression).GetTypeInfo()
+                .GetDeclaredMethod(nameof(CreateUnableToIdentifyConcreteTypeException));
 
         [UsedImplicitly]
         private static Exception CreateUnableToIdentifyConcreteTypeException()
@@ -53,7 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType"> The entity type to shape. </param>
         /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
         /// <param name="nullable"> Whether this entity instance can be null. </param>
-        /// <param name="materializationCondition"> An expression of <see cref="Func{ValueBuffer, IEntityType}"/> to determine which entity type to materialize. </param>
+        /// <param name="materializationCondition">
+        ///     An expression of <see cref="Func{ValueBuffer, IEntityType}" /> to determine which entity type to
+        ///     materialize.
+        /// </param>
         protected RelationalEntityShaperExpression(
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
@@ -116,9 +119,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (requiredNonPkProperties.Count > 0)
                     {
                         condition = requiredNonPkProperties
-                            .Select(p => NotEqual(
-                                valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                Constant(null)))
+                            .Select(
+                                p => NotEqual(
+                                    valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                                    Constant(null)))
                             .Aggregate((a, b) => AndAlso(a, b));
                     }
 
@@ -128,9 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var allNonSharedNullableProperties = allNonSharedProperties.Where(p => p.IsNullable).ToList();
                         var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNullableProperties
-                            .Select(p => NotEqual(
-                                valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                Constant(null)))
+                            .Select(
+                                p => NotEqual(
+                                    valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                                    Constant(null)))
                             .Aggregate((a, b) => OrElse(a, b));
 
                         condition = condition == null

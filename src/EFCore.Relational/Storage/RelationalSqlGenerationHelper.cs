@@ -38,23 +38,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The terminator to be used for SQL statements.
         /// </summary>
-        public virtual string StatementTerminator => ";";
+        public virtual string StatementTerminator
+            => ";";
 
         /// <summary>
         ///     The terminator to be used for batches of SQL statements.
         /// </summary>
-        public virtual string BatchTerminator => Environment.NewLine;
+        public virtual string BatchTerminator
+            => Environment.NewLine;
 
         /// <inheritdoc />
-        public virtual string StartTransactionStatement => "START TRANSACTION" + StatementTerminator;
+        public virtual string StartTransactionStatement
+            => "START TRANSACTION" + StatementTerminator;
 
         /// <inheritdoc />
-        public virtual string CommitTransactionStatement => "COMMIT" + StatementTerminator;
+        public virtual string CommitTransactionStatement
+            => "COMMIT" + StatementTerminator;
 
         /// <summary>
         ///     The default single-line comment prefix.
         /// </summary>
-        public virtual string SingleLineCommentToken => "--";
+        public virtual string SingleLineCommentToken
+            => "--";
 
         /// <summary>
         ///     Generates a valid parameter name for the given candidate name.

@@ -65,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionSequenceBuilder IncrementsBy(
-            int? increment, ConfigurationSource configurationSource)
+            int? increment,
+            ConfigurationSource configurationSource)
         {
             if (CanSetIncrementsBy(increment, configurationSource))
             {

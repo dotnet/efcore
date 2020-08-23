@@ -172,11 +172,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = await Logger.TransactionCommittingAsync(
-                    Connection,
-                    _dbTransaction,
-                    TransactionId,
-                    startTime,
-                    cancellationToken)
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        startTime,
+                        cancellationToken)
                     .ConfigureAwait(false);
 
                 if (!interceptionResult.IsSuppressed)
@@ -185,25 +185,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 await Logger.TransactionCommittedAsync(
-                    Connection,
-                    _dbTransaction,
-                    TransactionId,
-                    startTime,
-                    stopwatch.Elapsed,
-                    cancellationToken)
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
             catch (Exception e)
             {
                 await Logger.TransactionErrorAsync(
-                    Connection,
-                    _dbTransaction,
-                    TransactionId,
-                    "Commit",
-                    e,
-                    startTime,
-                    stopwatch.Elapsed,
-                    cancellationToken)
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        "Commit",
+                        e,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken)
                     .ConfigureAwait(false);
 
                 throw;
@@ -221,11 +221,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = await Logger.TransactionRollingBackAsync(
-                    Connection,
-                    _dbTransaction,
-                    TransactionId,
-                    startTime,
-                    cancellationToken)
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        startTime,
+                        cancellationToken)
                     .ConfigureAwait(false);
 
                 if (!interceptionResult.IsSuppressed)
@@ -234,25 +234,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 await Logger.TransactionRolledBackAsync(
-                    Connection,
-                    _dbTransaction,
-                    TransactionId,
-                    startTime,
-                    stopwatch.Elapsed,
-                    cancellationToken)
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
             catch (Exception e)
             {
                 await Logger.TransactionErrorAsync(
-                    Connection,
-                    _dbTransaction,
-                    TransactionId,
-                    "Rollback",
-                    e,
-                    startTime,
-                    stopwatch.Elapsed,
-                    cancellationToken)
+                        Connection,
+                        _dbTransaction,
+                        TransactionId,
+                        "Rollback",
+                        e,
+                        startTime,
+                        stopwatch.Elapsed,
+                        cancellationToken)
                     .ConfigureAwait(false);
 
                 throw;
@@ -356,7 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
         /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetCreateSavepointSql([NotNull] string name) => "SAVEPOINT " + name;
+        protected virtual string GetCreateSavepointSql([NotNull] string name)
+            => "SAVEPOINT " + name;
 
         /// <inheritdoc />
         public virtual void RollbackToSavepoint(string name)
@@ -453,7 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
         /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetRollbackToSavepointSql([NotNull] string name) => "ROLLBACK TO " + name;
+        protected virtual string GetRollbackToSavepointSql([NotNull] string name)
+            => "ROLLBACK TO " + name;
 
         /// <inheritdoc />
         public virtual void ReleaseSavepoint(string name)
@@ -550,16 +552,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         SQL statement which releases a savepoint with the given name.
         ///     </para>
         ///     <para>
-        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint "/> and <see cref="ReleaseSavepointAsync "/> should
+        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint " /> and <see cref="ReleaseSavepointAsync " /> should
         ///         be overridden to do nothing.
         ///     </para>
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
         /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetReleaseSavepointSql([NotNull] string name) => "RELEASE SAVEPOINT " + name;
+        protected virtual string GetReleaseSavepointSql([NotNull] string name)
+            => "RELEASE SAVEPOINT " + name;
 
         /// <inheritdoc />
-        public virtual bool SupportsSavepoints => true;
+        public virtual bool SupportsSavepoints
+            => true;
 
         /// <inheritdoc />
         public virtual void Dispose()
@@ -643,6 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        DbTransaction IInfrastructure<DbTransaction>.Instance => _dbTransaction;
+        DbTransaction IInfrastructure<DbTransaction>.Instance
+            => _dbTransaction;
     }
 }

@@ -10,10 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents a projection in <see cref="SelectExpression"/>.
+    ///         An expression that represents a projection in <see cref="SelectExpression" />.
     ///     </para>
     ///     <para>
-    ///         This is a simple wrapper around a <see cref="SqlExpression"/> and an alias.
+    ///         This is a simple wrapper around a <see cref="SqlExpression" /> and an alias.
     ///         Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
     ///         application or provider, then please file an issue at https://github.com/dotnet/efcore.
     ///     </para>
@@ -33,15 +33,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The alias assigned to this projection, if any.
         /// </summary>
         public string Alias { get; }
+
         /// <summary>
         ///     The SQL value which is being projected.
         /// </summary>
         public SqlExpression Expression { get; }
 
         /// <inheritdoc />
-        public override Type Type => Expression.Type;
+        public override Type Type
+            => Expression.Type;
+
         /// <inheritdoc />
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -55,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="expression"> The <see cref="Expression"/> property of the result. </param>
+        /// <param name="expression"> The <see cref="Expression" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public ProjectionExpression Update([NotNull] SqlExpression expression)
         {
@@ -92,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && Expression.Equals(projectionExpression.Expression);
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Alias, Expression);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Alias, Expression);
     }
 }

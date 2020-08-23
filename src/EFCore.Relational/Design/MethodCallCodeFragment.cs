@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the method call's arguments.
         /// </summary>
         /// <value> The method call's arguments. </value>
-        public virtual IReadOnlyList<object> Arguments => _arguments;
+        public virtual IReadOnlyList<object> Arguments
+            => _arguments;
 
         /// <summary>
         ///     Gets the next method call to chain after this.

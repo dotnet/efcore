@@ -332,7 +332,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder ToTable(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetTable(name, fromDataAnnotation))
             {
@@ -355,7 +357,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IConventionEntityTypeBuilder ToTable(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name, [CanBeNull] string schema,
+            [CanBeNull] string name,
+            [CanBeNull] string schema,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetTable(name, fromDataAnnotation)
@@ -378,7 +381,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetTable(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -459,7 +464,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanExcludeTableFromMigrations(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, bool? excludedFromMigrations, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            bool? excludedFromMigrations,
+            bool fromDataAnnotation = false)
             => entityTypeBuilder.CanSetAnnotation
                 (RelationalAnnotationNames.IsTableExcludedFromMigrations, excludedFromMigrations, fromDataAnnotation);
 
@@ -535,7 +542,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder ToView(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetView(name, fromDataAnnotation))
             {
@@ -558,7 +567,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IConventionEntityTypeBuilder ToView(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name, [CanBeNull] string schema,
+            [CanBeNull] string name,
+            [CanBeNull] string schema,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetView(name, fromDataAnnotation)
@@ -581,7 +591,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetView(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -657,7 +669,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder ToSqlQuery(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetSqlQuery(name, fromDataAnnotation))
             {
@@ -679,7 +693,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetSqlQuery(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -831,7 +847,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = entityType.Model;
             var function = model.FindDbFunction(name)
-                ?? model.AddDbFunction(name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType ?? typeof(Dictionary<string, object>)));
+                ?? model.AddDbFunction(
+                    name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType ?? typeof(Dictionary<string, object>)));
 
             return function;
         }
@@ -847,7 +864,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder ToFunction(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetFunction(name, fromDataAnnotation))
             {
@@ -871,7 +890,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetFunction(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] string name, bool fromDataAnnotation = false)
+            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] string name,
+            bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -965,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 if (!(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                        .Overrides(constraint.GetConfigurationSource()))
+                    .Overrides(constraint.GetConfigurationSource()))
                 {
                     return null;
                 }
@@ -1004,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore
             return constraint == null
                 || constraint.Sql == sql
                 || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                    .Overrides(constraint.GetConfigurationSource());
+                .Overrides(constraint.GetConfigurationSource());
         }
 
         /// <summary>

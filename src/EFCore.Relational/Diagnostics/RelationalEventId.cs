@@ -95,7 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
-        private static EventId MakeConnectionId(Id id) => new EventId((int)id, _connectionPrefix + id);
+
+        private static EventId MakeConnectionId(Id id)
+            => new EventId((int)id, _connectionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -163,7 +165,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId ConnectionError = MakeConnectionId(Id.ConnectionError);
 
         private static readonly string _sqlPrefix = DbLoggerCategory.Database.Command.Name + ".";
-        private static EventId MakeCommandId(Id id) => new EventId((int)id, _sqlPrefix + id);
+
+        private static EventId MakeCommandId(Id id)
+            => new EventId((int)id, _sqlPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -231,7 +235,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId CommandError = MakeCommandId(Id.CommandError);
 
         private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
-        private static EventId MakeTransactionId(Id id) => new EventId((int)id, _transactionPrefix + id);
+
+        private static EventId MakeTransactionId(Id id)
+            => new EventId((int)id, _transactionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -481,7 +487,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId DataReaderDisposing = MakeCommandId(Id.DataReaderDisposing);
 
         private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
-        private static EventId MakeMigrationsId(Id id) => new EventId((int)id, _migrationsPrefix + id);
+
+        private static EventId MakeMigrationsId(Id id)
+            => new EventId((int)id, _migrationsPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -588,7 +596,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId MigrationAttributeMissingWarning = MakeMigrationsId(Id.MigrationAttributeMissingWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
-        private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
+
+        private static EventId MakeQueryId(Id id)
+            => new EventId((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -618,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A query is loading multiple related collections without configuring a <see cref="QuerySplittingBehavior"/>.
+        ///         A query is loading multiple related collections without configuring a <see cref="QuerySplittingBehavior" />.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
@@ -627,7 +637,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId MultipleCollectionIncludeWarning = MakeQueryId(Id.MultipleCollectionIncludeWarning);
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
-        private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
+
+        private static EventId MakeValidationId(Id id)
+            => new EventId((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -666,7 +678,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="IndexEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId AllIndexPropertiesNotToMappedToAnyTable = MakeValidationId(Id.AllIndexPropertiesNotToMappedToAnyTable);
+        public static readonly EventId AllIndexPropertiesNotToMappedToAnyTable =
+            MakeValidationId(Id.AllIndexPropertiesNotToMappedToAnyTable);
 
         /// <summary>
         ///     <para>
@@ -679,7 +692,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="IndexWithPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId IndexPropertiesBothMappedAndNotMappedToTable = MakeValidationId(Id.IndexPropertiesBothMappedAndNotMappedToTable);
+        public static readonly EventId IndexPropertiesBothMappedAndNotMappedToTable =
+            MakeValidationId(Id.IndexPropertiesBothMappedAndNotMappedToTable);
 
         /// <summary>
         ///     <para>
@@ -692,10 +706,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="IndexWithPropertiesEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId IndexPropertiesMappedToNonOverlappingTables = MakeValidationId(Id.IndexPropertiesMappedToNonOverlappingTables);
+        public static readonly EventId IndexPropertiesMappedToNonOverlappingTables =
+            MakeValidationId(Id.IndexPropertiesMappedToNonOverlappingTables);
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
-        private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
+
+        private static EventId MakeUpdateId(Id id)
+            => new EventId((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>

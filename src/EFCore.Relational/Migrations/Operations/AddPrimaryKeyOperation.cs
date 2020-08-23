@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string[] Columns { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     Creates a new <see cref="AddPrimaryKeyOperation"/> from the specified primary key.
+        ///     Creates a new <see cref="AddPrimaryKeyOperation" /> from the specified primary key.
         /// </summary>
         /// <param name="primaryKey"> The primary key. </param>
         /// <returns> The operation. </returns>

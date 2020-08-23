@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The source for <see cref="RelationalTypeMapping" />s to use.
         /// </summary>
-        public virtual IRelationalTypeMappingSource TypeMappingSource => Dependencies.TypeMappingSource;
+        public virtual IRelationalTypeMappingSource TypeMappingSource
+            => Dependencies.TypeMappingSource;
 
         /// <summary>
         ///     Creates the command.
@@ -60,12 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the command text.
         /// </summary>
-        public override string ToString() => _commandTextBuilder.ToString();
+        public override string ToString()
+            => _commandTextBuilder.ToString();
 
         /// <summary>
         ///     The collection of parameters.
         /// </summary>
-        public virtual IReadOnlyList<IRelationalParameter> Parameters => _parameters;
+        public virtual IReadOnlyList<IRelationalParameter> Parameters
+            => _parameters;
 
         /// <summary>
         ///     Adds the given parameter to this command.
@@ -131,6 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the length of the command text.
         /// </summary>
-        public virtual int CommandTextLength => _commandTextBuilder.Length;
+        public virtual int CommandTextLength
+            => _commandTextBuilder.Length;
     }
 }

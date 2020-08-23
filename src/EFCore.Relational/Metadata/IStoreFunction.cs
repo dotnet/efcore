@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IStoreFunction : ITableBase
     {
         /// <summary>
-        ///     Gets the associated <see cref="IDbFunction"/>s.
+        ///     Gets the associated <see cref="IDbFunction" />s.
         /// </summary>
         IEnumerable<IDbFunction> DbFunctions { get; }
 

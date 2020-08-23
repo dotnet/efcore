@@ -68,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     A helper class for generation of SQL.
         /// </summary>
-        protected virtual ISqlGenerationHelper SqlGenerationHelper => Dependencies.SqlGenerationHelper;
+        protected virtual ISqlGenerationHelper SqlGenerationHelper
+            => Dependencies.SqlGenerationHelper;
 
         /// <summary>
         ///     THe history table name.

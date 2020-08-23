@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] QueryCompilationContextDependencies dependencies,
             [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies,
             bool async)
-            : base (dependencies, async)
+            : base(dependencies, async)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual RelationalQueryCompilationContextDependencies RelationalDependencies { get; }
 
         /// <summary>
-        ///     A value indicating the <see cref="EntityFrameworkCore.QuerySplittingBehavior"/> configured for the query.
-        ///     If no value has been configured then <see cref="QuerySplittingBehavior.SingleQuery"/> will be used.
+        ///     A value indicating the <see cref="EntityFrameworkCore.QuerySplittingBehavior" /> configured for the query.
+        ///     If no value has been configured then <see cref="QuerySplittingBehavior.SingleQuery" /> will be used.
         /// </summary>
         public virtual QuerySplittingBehavior? QuerySplittingBehavior { get; internal set; }
     }

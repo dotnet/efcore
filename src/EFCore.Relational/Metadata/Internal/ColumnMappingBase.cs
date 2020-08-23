@@ -33,16 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             TableMapping = tableMapping;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual IProperty Property { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual IColumnBase Column { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual RelationalTypeMapping TypeMapping { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual ITableMappingBase TableMapping { get; }
     }
 }

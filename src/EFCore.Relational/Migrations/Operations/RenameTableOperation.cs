@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string NewName { get; [param: CanBeNull] set; }
 
         /// <inheritdoc />
-        string ITableMigrationOperation.Table => Name;
+        string ITableMigrationOperation.Table
+            => Name;
     }
 }

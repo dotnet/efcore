@@ -65,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && !string.Equals(Sql, "*"); // We make star projection different because it could be coming from different table.
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Sql);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Sql);
     }
 }
